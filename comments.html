@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <title>Comments</title>
     
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
     <script src="https://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js"></script>
@@ -13,7 +15,7 @@
     
     <style>
       body { 
-        font-family: Helvetica, Arial, Sans-Serif; 
+        font-family: -apple-system, Helvetica, Arial, Sans-Serif; 
         font-size: 11pt;
       }
       table {
@@ -61,15 +63,33 @@
         color: #767676;
       }
       ul {
-        line-height: 150%;
+        line-height: 200%;
       }
       ol {
-        line-height: 150%;
+        line-height: 200%;
       }
       ul.taskList {
         list-style: none;
         margin-left: -20px;
       }
+      ul.taskList input {
+        position: relative;
+        top: -1px;
+      }
+      div.commentControls {
+        display: inline-block;
+        float: right;
+        padding-left: 10px;
+        padding-right: 12px; 
+      }
+      div.commentControls i {
+        margin-left: 16px;
+        color: #BBB;
+      }
+      div.commentControls i:hover {
+        color: #4078C0;
+      }
+      
     </style>
   </head>
   <body>
@@ -238,29 +258,48 @@
         }
       );
       
+      var CommentControls = React.createClass({
+        propTypes: {
+          comment: React.PropTypes.object.isRequired,
+          first: React.PropTypes.bool
+        },
+        
+        render: function() {
+          var els = [];
+          els.push(React.createElement('i', {key:"edit", className:'fa fa-pencil'}));
+          if (!this.props.first) {
+            els.push(React.createElement('i', {key:"trash", className:'fa fa-trash-o'}));
+          }
+          return React.createElement('div', {className:'commentControls'}, els);
+        }
+      });
+      
       var CommentHeader = React.createClass({
         propTypes: {
-          comment: React.PropTypes.object.isRequired
+          comment: React.PropTypes.object.isRequired,
+          first: React.PropTypes.bool
         },
         
         render: function() {
           return React.createElement('div', {className:'commentHeader'},
-            React.createElement('img', {src: this.props.comment.user.avatar_url, width:32, height:32}),
+            React.createElement('img', {src:this.props.comment.user.avatar_url, width:32, height:32}),
             React.createElement('span', {className:'commentAuthor'}, this.props.comment.user.login),
             React.createElement('span', {className:'commentTimeAgo'}, " commented "),
-            React.createElement(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.updated_at})
+            React.createElement(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.updated_at}),
+            React.createElement(CommentControls, {comment:this.props.comment, first:this.props.first})
           );
         }
       });
     
       var Comment = React.createClass({
         propTypes: {
-          comment: React.PropTypes.object.isRequired
+          comment: React.PropTypes.object.isRequired,
+          first: React.PropTypes.bool
         },
         
         render: function() {
           return React.createElement('div', {className:'comment'},
-            React.createElement(CommentHeader, {comment:this.props.comment}),            
+            React.createElement(CommentHeader, {comment:this.props.comment, first:this.props.first}),            
             React.createElement('div', { 
               className:'commentBody', 
               dangerouslySetInnerHTML: {__html:marked(this.props.comment.body, markdownOpts)}
@@ -283,8 +322,8 @@
           };
           
           return React.createElement('div', {className:'commentList'}, 
-            [firstComment].concat(this.props.issue.allComments).map(function(c) {
-              return React.createElement(Comment, {key:c["id"], comment:c})
+            [firstComment].concat(this.props.issue.allComments).map(function(c, i) {
+              return React.createElement(Comment, {key:c["id"], comment:c, first:i==0})
             })
           );
         }
