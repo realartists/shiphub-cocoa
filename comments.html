@@ -13,12 +13,28 @@
     <script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react.js"></script>
     <script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react-dom.js"></script>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/0.11.0/fetch.js"></script>
+    
     <style>
       body { 
         font-family: -apple-system, Helvetica, Arial, Sans-Serif; 
         font-size: 11pt;
         background-color: #F0EFEF;
         padding-bottom: 15px;
+      }
+      div.activityList {
+        position: relative;
+      }
+      div.activityList::before {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 34px;
+        z-index: -1;
+        display: block;
+        width: 2px;
+        content: "";
+        background-color: #DDD;
       }
       table {
         border-collapse: collapse;
@@ -95,6 +111,52 @@
       }
       div.commentControls i:hover {
         color: #0085E4;
+      }
+      
+      div.event {
+        position: relative; 
+        margin-top: 16px;
+        margin-left: 26px;
+        margin-right: 10px;
+        
+        height: 22px;
+        line-height: 22px;
+        vertical-align: middle;
+        
+        color: #555555;
+      }
+      
+      div.event i {
+        border: 1px solid #F0EFEF;
+        background-color: #F0EFEF;
+        margin-right: 12px;
+        font-size: 20px;
+        float: left;
+      }
+      
+      div.event img {
+        border-radius: 4px;
+        width: 18px;
+        height: 18px;
+        margin-right: 6px;
+        margin-top: 2px;
+        float: left;
+      } 
+      
+      div.eventDelimited::after {
+        position: absolute;
+        left: 10px;
+        right: 2px;
+        top: 29px;
+        z-index: -1;
+        content: "";
+        height: 1px;
+        background-color: #DDD;
+      }
+      
+      div.debugLoader {
+        margin-left: 20px;
+        margin-top: 20px;        
       }
       
     </style>
@@ -312,31 +374,211 @@
           );
         }
       });
-    
-      var CommentList = React.createClass({
+      
+      var EventIcon = React.createClass({
         propTypes: {
-          issue: React.PropTypes.object.isRequired
+          event: React.PropTypes.string.isRequired
         },
         
         render: function() {
-          var firstComment = {
-            body: this.props.issue.body,
-            user: this.props.issue.user,
-            id: this.props.issue.id,
-            updated_at: this.props.issue.updated_at
-          };
+          var icon;
+          switch (this.props.event) {
+            case "assigned":
+              icon = "user";
+              break;
+            case "unassigned":
+              icon = "user-times";
+              break;
+            case "labeled":
+              icon = "tags";
+              break;
+            case "unlabeled":
+              icon = "times";
+              break;
+            case "opened":
+              icon = "circle-o";
+              break;
+            case "closed":
+              icon = "times-circle-o";
+              break;
+            case "reopened":
+              icon = "circle-o";
+              break;
+            case "milestoned":
+              icon = "calendar";
+              break;
+            case "unmilestoned":
+              icon = "calendar-times-o";
+              break;
+            default:
+              icon = "exclamation-circle";
+              break;
+          }
           
-          return React.createElement('div', {className:'commentList'}, 
-            [firstComment].concat(this.props.issue.allComments).map(function(c, i) {
-              return React.createElement(Comment, {key:c["id"], comment:c, first:i==0})
-            })
+          return React.createElement("i", {className:"fa fa-" + icon});
+        }
+      });
+      
+      var EventUser = React.createClass({
+        propTypes: { user: React.PropTypes.object.isRequired },
+        
+        render: function() {
+          return React.createElement("span", {className:"eventUser"}, this.props.user.login);
+        }
+      });
+      
+      var AssignedEventDescription = React.createClass({
+        propTypes: { event: React.PropTypes.object.isRequired },
+        render: function() {
+          if (this.props.event.assignee.id == this.props.event.actor.id) {
+            return React.createElement("span", {}, 
+              React.createElement("img", {className:"eventAvatar", src:this.props.event.actor.avatar_url}),
+              React.createElement(EventUser, {user:this.props.event.actor}),
+              React.createElement("span", {className:"eventMessage"}, " self assigned this "),
+              React.createElement(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at})
+            )
+            msg = this.props.event.actor.login + " self assigned.";
+          } else {
+            msg = this.props.event.actor.login + " assigned to " + this.props.event.assignee.login + ".";
+          }
+          
+        }
+      });
+      
+      var UnknownEventDescription = React.createClass({
+        propTypes: { event: React.PropTypes.object.isRequired },
+        render: function() {
+          var msg = this.props.event.actor.login + " " + this.props.event.event + ".";
+          return React.createElement("span", {}, msg);
+        }
+      });
+      
+      var ClassForEvent = function(event) {
+        switch (event.event) {
+          case "assigned": return AssignedEventDescription;
+          default: return UnknownEventDescription
+        }
+      }
+      
+      var Event = React.createClass({
+        propTypes: {
+          event: React.PropTypes.object.isRequired,
+          last: React.PropTypes.bool
+        },
+        
+        render: function() {
+          var className = "event";
+          if (!this.props.last) {
+            className += " eventDelimited";
+          }
+          return React.createElement('div', {className:className},
+            React.createElement(EventIcon, {event: this.props.event.event }),
+            React.createElement(ClassForEvent(this.props.event), {event: this.props.event})
           );
         }
       });
     
+      var ActivityList = React.createClass({
+        propTypes: {
+          issue: React.PropTypes.object.isRequired
+        },
+        
+        render: function() {        
+          var firstComment = {
+            body: this.props.issue.body,
+            user: this.props.issue.user,
+            id: this.props.issue.id,
+            updated_at: this.props.issue.updated_at,
+            created_at: this.props.issue.created_at
+          };
+          
+          // need to merge events and comments together into one array, ordered by date
+          var eventsAndComments = [firstComment];
+
+          eventsAndComments = eventsAndComments.concat(this.props.issue.allEvents);
+          eventsAndComments = eventsAndComments.concat(this.props.issue.allComments);
+          
+          eventsAndComments = eventsAndComments.sort(function(a, b) {
+            var da = new Date(a.created_at);
+            var db = new Date(b.created_at);
+            if (da < db) {
+              return -1;
+            } else if (db < da) {
+              return 1;
+            } else {
+              return 0;
+            }
+          });
+          
+          return React.createElement('div', {className:'activityContainer'},
+            React.createElement('div', {className:'activityList'}, 
+              eventsAndComments.map(function(e, i, a) {
+                if (e.event != undefined) {
+                  var next = a[i+1];
+                  return React.createElement(Event, {key:e.id, event:e, last:(next==undefined || next.event==undefined)})
+                } else {
+                  return React.createElement(Comment, {key:e.id, comment:e, first:i==0})
+                }
+              })
+            )
+          );
+        }
+      });
+      
+      var debugToken = "018abc52eb5cded0eb27b44616be7f5a2e101595";
+      
+      var DebugLoader = React.createClass({
+        propTypes: { },
+        render: function() {
+          return React.createElement("div", {className:"debugLoader"},
+            React.createElement("form", {onSubmit:this.loadProblem},
+              React.createElement("span", {}, "Load Problem: "),
+              React.createElement("input", {type:"text", id:"debugInput", size:40})
+            )
+          );
+        },
+        loadProblem: function(e) {
+          e.preventDefault();
+          
+          var problemEl = document.getElementById("debugInput");
+          var problemRef = problemEl.value;
+          var [owner, repo, number] = problemRef.split(/[\/#]/);
+          
+          var opts = {
+            headers: { Authorization: "token " + debugToken },
+            method: "GET"
+          };
+          
+          var reqs = [fetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number, opts),
+                      fetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/events", opts),
+                      fetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/comments", opts)];
+          reqs = reqs.map(function(r) {
+            return r.then(function(resp) { return resp.json(); });
+          });
+          
+          Promise.all(reqs).then(function(parts) {
+            var issue = parts[0];
+            issue.allEvents = parts[1];
+            issue.allComments = parts[2];
+            
+            if (issue.id) {
+              renderIssue(issue);
+            }
+          });
+        }
+      });
+    
       function renderIssue(issue) {
+        var activityElement = React.createElement(ActivityList, {key:issue["id"], issue:issue});
+        var outerElement = activityElement;
+        if (debugToken) {
+          outerElement = React.createElement("div", {},
+            React.createElement(DebugLoader),
+            activityElement
+          );
+        }
         ReactDOM.render(
-          React.createElement(CommentList, {key:issue["id"], issue:issue}),
+          outerElement,
           document.getElementById('react-app')
         )
       }
