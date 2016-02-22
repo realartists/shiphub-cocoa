@@ -671,44 +671,31 @@
       }
             
       function pagedFetch(url) /* => Promise */ {
-        return new Promise(function(resolve, reject) {
-          var queue = [url];
-          var results = [];
-          
-          function iterate() {
-            var url = queue[0];
-            queue = queue.slice(1);
-          
-            console.log("fetching " + url);
-            var initial = fetch(url, { headers: { Authorization: "token " + debugToken }, method: "GET" });
-            initial.then(function(resp) {
-              console.log("received initial resp");
-              var link = resp.headers.get("Link");
-              if (link) {
-                var match = link.match(/\<(.*?)\>; rel="next"/);
-                if (match) {
-                  console.log("will follow link " + match[1]);
-                  queue.push(match[1])
-                }
+        var opts = { headers: { Authorization: "token " + debugToken }, method: "GET" };
+        var initial = fetch(url, opts);
+        return initial.then(function(resp) {
+          var pages = []
+          var link = resp.headers.get("Link");
+          if (link) {
+            var [next, last] = link.split(", ");
+            var matchNext = next.match(/\<(.*?)\>; rel="next"/);
+            var matchLast = last.match(/\<(.*?)\>; rel="last"/);
+            console.log(matchNext);
+            console.log(matchLast);
+            if (matchNext && matchLast) {
+              var second = parseInt(matchNext[1].match(/page=(\d+)/)[1]);
+              var last = parseInt(matchLast[1].match(/page=(\d+)/)[1]);
+              console.log("second: " + second + " last: " + last);
+              for (var i = second; i <= last; i++) {
+                var pageURL = matchNext[1].replace(/page=\d+/, "page=" + i);
+                console.log("Adding pageURL: " + pageURL);
+                pages.push(fetch(pageURL, opts).then(function(resp) { return resp.json(); }));
               }
-              return resp.json();
-            }).then(function(body) {
-              console.log("did receive body " + body);
-              results = results.concat(body);
-              if (queue.length > 0) {
-                console.log("iterating");
-                iterate();
-              } else {
-                console.log("resolving");
-                resolve(results);
-              }
-            }).catch(function(err) {
-              console.log("received err " + err);
-              reject(err);
-            });
+            }
           }
-          
-          iterate();
+          return Promise.all([resp.json()].concat(pages));
+        }).then(function(pages) {
+          return pages.reduce(function(a, b) { return a.concat(b); });
         });
       }
     
