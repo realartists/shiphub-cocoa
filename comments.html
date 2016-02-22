@@ -8,7 +8,7 @@
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/highlight.js/9.1.0/styles/default.min.css">
     <script src="https://cdn.jsdelivr.net/highlight.js/9.1.0/highlight.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.5/marked.min.js"></script>
+    <script src="marked.min.js"></script>
     
     <script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react.js"></script>
     <script src="https://cdn.jsdelivr.net/react/0.14.0-rc1/react-dom.js"></script>
@@ -634,7 +634,7 @@
         }
       });
       
-      var debugToken = "018abc52eb5cded0eb27b44616be7f5a2e101595";
+      var debugToken = "8de44b7cf7050c827165d3f509abb1bd187a62e4";
       
       var DebugLoader = React.createClass({
         propTypes: { issue: React.PropTypes.object },
@@ -656,28 +656,79 @@
           updateIssue(...problemRef.split(/[\/#]/));          
         }
       });
+            
+      function simpleFetch(url) {
+        return new Promise(function(resolve, reject) {
+          var initial = fetch(url, { headers: { Authorization: "token " + debugToken }, method: "GET" });
+          initial.then(function(resp) {
+            return resp.json();
+          }).then(function(body) {
+            resolve(body);
+          }).catch(function(err) {
+            reject(err);
+          });
+        });
+      }
+            
+      function pagedFetch(url) /* => Promise */ {
+        return new Promise(function(resolve, reject) {
+          var queue = [url];
+          var results = [];
+          
+          function iterate() {
+            var url = queue[0];
+            queue = queue.slice(1);
+          
+            console.log("fetching " + url);
+            var initial = fetch(url, { headers: { Authorization: "token " + debugToken }, method: "GET" });
+            initial.then(function(resp) {
+              console.log("received initial resp");
+              var link = resp.headers.get("Link");
+              if (link) {
+                var match = link.match(/\<(.*?)\>; rel="next"/);
+                if (match) {
+                  console.log("will follow link " + match[1]);
+                  queue.push(match[1])
+                }
+              }
+              return resp.json();
+            }).then(function(body) {
+              console.log("did receive body " + body);
+              results = results.concat(body);
+              if (queue.length > 0) {
+                console.log("iterating");
+                iterate();
+              } else {
+                console.log("resolving");
+                resolve(results);
+              }
+            }).catch(function(err) {
+              console.log("received err " + err);
+              reject(err);
+            });
+          }
+          
+          iterate();
+        });
+      }
     
       function updateIssue(owner, repo, number) {
-        var opts = {
-          headers: { Authorization: "token " + debugToken },
-          method: "GET"
-        };
-        
-        var reqs = [fetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number, opts),
-                    fetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/events", opts),
-                    fetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/comments", opts)];
-        reqs = reqs.map(function(r) {
-          return r.then(function(resp) { return resp.json(); });
-        });
+        var reqs = [simpleFetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number),
+                    pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/events"),
+                    pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/comments")];
         
         Promise.all(reqs).then(function(parts) {
+          console.log("all resolved");
           var issue = parts[0];
           issue.allEvents = parts[1];
           issue.allComments = parts[2];
+          console.log(issue);
           
           if (issue.id) {
             renderIssue(issue);
           }
+        }).catch(function(err) {
+          console.log(err);
         });
       }
       
