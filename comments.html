@@ -20,7 +20,8 @@
     <style>
       body { 
         font-family: -apple-system, Helvetica, Arial, Sans-Serif; 
-        font-size: 11pt;
+        font-size: 10pt;
+        line-height: 150%; 
         background-color: #F0EFEF;
         padding-bottom: 15px;
       }
@@ -38,6 +39,9 @@
         content: "";
         background-color: #DDD;
       }
+      hr {
+        border: 1px solid #CCC;
+      }
       table {
         border-collapse: collapse;
       }
@@ -48,19 +52,13 @@
         padding-right: 13px;
         padding-top: 6px;
       }
-      code {
-        background-color: #F7F7F7;
-        border-radius: 2px;
-        font-size: 10pt;
-        padding-top: 1px;
-        padding-bottom: 1px;
-        padding-left: 3px;
-        padding-right: 3px;
-      }
       pre { 
         padding: 13px;
         background-color: #F7F7F7;
         border-radius: 6px; 
+        font-size: 10pt;
+        font-family: menlo, consolas, monaco, sans-serif;
+        line-height: 130%;
       }
       div.comment {
         background-color: white;
@@ -112,15 +110,10 @@
       span.commentTimeAgo {
         color: #767676;
       }
-      ul {
-        line-height: 200%;
-      }
-      ol {
-        line-height: 200%;
-      }
       ul.taskList {
         list-style: none;
         margin-left: -20px;
+        line-height: 200%;
       }
       ul.taskList input {
         position: relative;
@@ -598,7 +591,13 @@
             } else if (db < da) {
               return 1;
             } else {
-              return 0;
+              if (a.id < b.id) {
+                return -1;
+              } else if (b.id < a.id) {
+                return 1;
+              } else {
+                return 0;
+              }
             }
           });
           
