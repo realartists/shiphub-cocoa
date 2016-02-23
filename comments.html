@@ -53,6 +53,16 @@
         padding-right: 13px;
         padding-top: 6px;
       }
+      code {
+        background-color: #F7F7F7;
+        border-radius: 2px;
+        font-size: 10pt;
+        font-family: menlo, consolas, monaco, sans-serif;
+        padding-top: 1px;
+        padding-bottom: 1px;
+        padding-left: 3px;
+        padding-right: 3px;
+      }
       pre { 
         padding: 13px;
         background-color: #F7F7F7;
@@ -60,6 +70,11 @@
         font-size: 10pt;
         font-family: menlo, consolas, monaco, sans-serif;
         line-height: 130%;
+      }
+      pre > code {
+        padding: 0;
+        background-color: inherit;
+        border-radius: 0;
       }
       div.comment {
         background-color: white;
@@ -221,6 +236,16 @@
         margin-top: 20px;        
       }
       
+      span.label {
+        padding-left: 4px;
+        padding-right: 4px;
+        padding-top: 2px;
+        padding-bottom: 2px;
+        border-radius: 2px;
+        font-weight: bold;
+        color: black;
+        margin-left: 4px;
+      }      
     </style>
   </head>
   <body>
@@ -463,7 +488,7 @@
               icon = "tags";
               break;
             case "unlabeled":
-              icon = "times";
+              icon = "tags";
               break;
             case "opened":
               icon = "circle-o";
@@ -503,6 +528,10 @@
       var AssignedEventDescription = React.createClass({
         propTypes: { event: React.PropTypes.object.isRequired },
         render: function() {
+          // XXX: GitHub bug always sets the actor to the assignee.
+          return React.createElement("span", {}, "was assigned");
+          
+          /*
           if (this.props.event.assignee.id == this.props.event.actor.id) {
             return React.createElement("span", {}, "self assigned this");
           } else {
@@ -510,7 +539,15 @@
               React.createElement("span", {}, "assigned this to "),
               React.createElement(EventUser, {user:this.props.event.assignee})
             );
-          }
+          }*/
+        }
+      });
+      
+      var UnassignedEventDescription = React.createClass({
+        propTypes: { event: React.PropTypes.object.isRequired },
+        render: function() {
+          // XXX: GitHub bug always sets the actor to the assignee.
+          return React.createElement("span", {}, "is no longer assigned");
         }
       });
       
@@ -528,6 +565,38 @@
         }
       });
       
+      var Label = React.createClass({
+        propTypes: { label: React.PropTypes.object.isRequired },
+        render: function() {
+          // See http://stackoverflow.com/questions/12043187/how-to-check-if-hex-color-is-too-black
+          var rgb = parseInt(this.props.label.color, 16);   // convert rrggbb to decimal
+          var r = (rgb >> 16) & 0xff;  // extract red
+          var g = (rgb >>  8) & 0xff;  // extract green
+          var b = (rgb >>  0) & 0xff;  // extract blue
+
+          var luma = 0.2126 * r + 0.7152 * g + 0.0722 * b; // per ITU-R BT.709
+
+          var textColor = luma < 128 ? "white" : "black";
+          
+          return React.createElement("span", 
+            {className:"label", style:{backgroundColor:"#"+this.props.label.color, color:textColor}},
+            this.props.label.name
+          );
+        }
+      });
+      
+      var LabelEventDescription = React.createClass({
+        propTypes: { event: React.PropTypes.object.isRequired },
+        render: function() {
+          var elements = [];
+          elements.push(this.props.event.event);
+          elements = elements.concat(this.props.event.labels.map(function(l) {
+            return React.createElement(Label, {key:l.name, label:l});
+          }));
+          return React.createElement("span", {}, elements);
+        }
+      });
+            
       var UnknownEventDescription = React.createClass({
         propTypes: { event: React.PropTypes.object.isRequired },
         render: function() {
@@ -538,7 +607,11 @@
       var ClassForEvent = function(event) {
         switch (event.event) {
           case "assigned": return AssignedEventDescription;
-          case "milestoned": return MilestoneEventDescription;
+          case "unassigned": return UnassignedEventDescription;
+          case "milestoned":
+          case "demilestoned": return MilestoneEventDescription;
+          case "labeled": 
+          case "unlabeled": return LabelEventDescription;
           default: return UnknownEventDescription
         }
       }
@@ -615,9 +688,38 @@
             } else {
               switch (e.event) {
                 case "subscribed": return false;
+                case "mentioned": return false; // mention events are beyond worthless in the GitHub API
                 default: return true;
               }
             }
+          });
+          
+          // roll up successive label elements into a single event
+          var labelRollup = null;
+          eventsAndComments.forEach(function(e) {
+            if (e.event == "labeled" || e.event == "unlabeled") {
+              if (labelRollup != null) {
+                if (labelRollup.event == e.event 
+                    && labelRollup.actor.id == e.actor.id 
+                    && new Date(e.created_at) - new Date(labelRollup.created_at) < (2*60*1000 /*2mins*/)) {
+                  labelRollup.labels.push(e.label);
+                  e._rolledUp = true;
+                } else {
+                  labelRollup = null;
+                }
+              }
+              if (labelRollup == null) {
+                labelRollup = e;
+                e.labels = [e.label];
+              }
+            } else {
+              labelRollup = null;
+            }
+          });
+          
+          // now filter rolled up labels
+          eventsAndComments = eventsAndComments.filter(function(e) { 
+            return !(e._rolledUp);
           });
           
           return React.createElement('div', {className:'activityContainer'},
@@ -648,7 +750,7 @@
           return React.createElement("div", {className:"debugLoader"},
             React.createElement("form", {onSubmit:this.loadProblem},
               React.createElement("span", {}, "Load Problem: "),
-              React.createElement("input", {type:"text", id:"debugInput", size:40, defaultValue:this.props.issue.url.replace(/https:\/\/api.github.com\/repos\/(.*?)\/(.*?)\/issues\/(\d+)/, "$1/$2/$3")}),
+              React.createElement("input", {type:"text", id:"debugInput", size:40, defaultValue:this.props.issue.url.replace(/https:\/\/api.github.com\/repos\/(.*?)\/(.*?)\/issues\/(\d+)/, "$1/$2#$3")}),
               React.createElement("a", {href:this.props.issue.url.replace("api.", "").replace("/repos", ""), target:"_blank"}, "source")
             )
           );
@@ -748,7 +850,7 @@
         )
       }
       
-      updateIssue("realartists", "shiphub-server", "9")
+      updateIssue("realartists", "shiphub-server", "10")
       
       //renderIssue({"assignee": {"login": "kogir", "starred_url": "https://api.github.com/users/kogir/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/kogir/repos", "events_url": "https://api.github.com/users/kogir/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/87309?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/kogir/gists{/gist_id}", "id": 87309, "site_admin": false, "organizations_url": "https://api.github.com/users/kogir/orgs", "type": "User", "followers_url": "https://api.github.com/users/kogir/followers", "url": "https://api.github.com/users/kogir", "following_url": "https://api.github.com/users/kogir/following{/other_user}", "received_events_url": "https://api.github.com/users/kogir/received_events", "subscriptions_url": "https://api.github.com/users/kogir/subscriptions", "html_url": "https://github.com/kogir"}, "state": "open", "allEvents": [{"assignee": {"login": "kogir", "starred_url": "https://api.github.com/users/kogir/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/kogir/repos", "events_url": "https://api.github.com/users/kogir/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/87309?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/kogir/gists{/gist_id}", "id": 87309, "site_admin": false, "organizations_url": "https://api.github.com/users/kogir/orgs", "type": "User", "followers_url": "https://api.github.com/users/kogir/followers", "url": "https://api.github.com/users/kogir", "following_url": "https://api.github.com/users/kogir/following{/other_user}", "received_events_url": "https://api.github.com/users/kogir/received_events", "subscriptions_url": "https://api.github.com/users/kogir/subscriptions", "html_url": "https://github.com/kogir"}, "actor": {"login": "kogir", "starred_url": "https://api.github.com/users/kogir/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/kogir/repos", "events_url": "https://api.github.com/users/kogir/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/87309?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/kogir/gists{/gist_id}", "id": 87309, "site_admin": false, "organizations_url": "https://api.github.com/users/kogir/orgs", "type": "User", "followers_url": "https://api.github.com/users/kogir/followers", "url": "https://api.github.com/users/kogir", "following_url": "https://api.github.com/users/kogir/following{/other_user}", "received_events_url": "https://api.github.com/users/kogir/received_events", "subscriptions_url": "https://api.github.com/users/kogir/subscriptions", "html_url": "https://github.com/kogir"}, "id": 549212947, "created_at": "2016-02-12T23:49:51Z", "url": "https://api.github.com/repos/realartists/shiphub-server/issues/events/549212947", "commit_id": null, "commit_url": null, "event": "assigned"}], "labels_url": "https://api.github.com/repos/realartists/shiphub-server/issues/13/labels{/name}", "locked": false, "created_at": "2016-02-11T20:31:37Z", "html_url": "https://github.com/realartists/shiphub-server/issues/13", "closed_by": null, "user": {"login": "james-howard", "starred_url": "https://api.github.com/users/james-howard/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/james-howard/repos", "events_url": "https://api.github.com/users/james-howard/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/2006254?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/james-howard/gists{/gist_id}", "id": 2006254, "site_admin": false, "organizations_url": "https://api.github.com/users/james-howard/orgs", "type": "User", "followers_url": "https://api.github.com/users/james-howard/followers", "url": "https://api.github.com/users/james-howard", "following_url": "https://api.github.com/users/james-howard/following{/other_user}", "received_events_url": "https://api.github.com/users/james-howard/received_events", "subscriptions_url": "https://api.github.com/users/james-howard/subscriptions", "html_url": "https://github.com/james-howard"}, "updated_at": "2016-02-15T22:14:47Z", "closed_at": null, "id": 133080754, "events_url": "https://api.github.com/repos/realartists/shiphub-server/issues/13/events", "allComments": [{"issue_url": "https://api.github.com/repos/realartists/shiphub-server/issues/13", "id": 183050352, "created_at": "2016-02-11T20:32:08Z", "url": "https://api.github.com/repos/realartists/shiphub-server/issues/comments/183050352", "user": {"login": "james-howard", "starred_url": "https://api.github.com/users/james-howard/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/james-howard/repos", "events_url": "https://api.github.com/users/james-howard/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/2006254?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/james-howard/gists{/gist_id}", "id": 2006254, "site_admin": false, "organizations_url": "https://api.github.com/users/james-howard/orgs", "type": "User", "followers_url": "https://api.github.com/users/james-howard/followers", "url": "https://api.github.com/users/james-howard", "following_url": "https://api.github.com/users/james-howard/following{/other_user}", "received_events_url": "https://api.github.com/users/james-howard/received_events", "subscriptions_url": "https://api.github.com/users/james-howard/subscriptions", "html_url": "https://github.com/james-howard"}, "updated_at": "2016-02-11T20:32:15Z", "body": "Revising my other comment", "html_url": "https://github.com/realartists/shiphub-server/issues/13#issuecomment-183050352"}, {"issue_url": "https://api.github.com/repos/realartists/shiphub-server/issues/13", "id": 184411177, "created_at": "2016-02-15T21:55:49Z", "url": "https://api.github.com/repos/realartists/shiphub-server/issues/comments/184411177", "user": {"login": "james-howard", "starred_url": "https://api.github.com/users/james-howard/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/james-howard/repos", "events_url": "https://api.github.com/users/james-howard/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/2006254?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/james-howard/gists{/gist_id}", "id": 2006254, "site_admin": false, "organizations_url": "https://api.github.com/users/james-howard/orgs", "type": "User", "followers_url": "https://api.github.com/users/james-howard/followers", "url": "https://api.github.com/users/james-howard", "following_url": "https://api.github.com/users/james-howard/following{/other_user}", "received_events_url": "https://api.github.com/users/james-howard/received_events", "subscriptions_url": "https://api.github.com/users/james-howard/subscriptions", "html_url": "https://github.com/james-howard"}, "updated_at": "2016-02-15T21:55:49Z", "body": "| Column 1 | Column 2|\n| --- | --- |\n| Data 1 | Data 2 |\n\n```C\nint main(void) {\n\treturn 0;\n}\n```", "html_url": "https://github.com/realartists/shiphub-server/issues/13#issuecomment-184411177"}], "labels": [], "number": 13, "repository_url": "https://api.github.com/repos/realartists/shiphub-server", "url": "https://api.github.com/repos/realartists/shiphub-server/issues/13", "milestone": null, "comments": 2, "title": "Support comment editing", "body": "- [x] First\r\n- [ ] Second\r\n- [x] Third", "comments_url": "https://api.github.com/repos/realartists/shiphub-server/issues/13/comments"});
     </script>
