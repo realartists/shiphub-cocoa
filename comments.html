@@ -151,39 +151,66 @@
       
       div.event {
         position: relative; 
-        margin-top: 17px;
-        margin-left: 26px;
+        margin-left: 34px;
         margin-right: 10px;
         font-size: 10pt;
         
-        height: 30px;
-        line-height: 30px;
+        min-height: 30px;
+        line-height: 20px;
         vertical-align: middle;
+        
+        box-sizing: border-box;
+        
+        padding-top: 14px;
+        padding-bottom: 9px;
+        
+        border-bottom: 1px solid #DDD;
         
         color: #555555;
 /*         background-color: blue; */
       }
-            
+      
+      div.eventFirst {
+        padding-top: 18px;
+      }
+      
       div.eventLast {
-        margin-bottom: -3px;
+        border-bottom: 0px;
+        padding-bottom: 0px;
+        margin-bottom: -2px;
+      }
+      
+      div.eventVeryLast::after {
+        position: absolute;
+        content: "";
+        left: -24px;
+        right: 0;
+        bottom: -1px;
+        height: 2px;
+        background-color: #DDD;
       }
       
       i.eventIcon {
         border: 1px solid #F0EFEF;
         background-color: #F0EFEF;
-        margin-right: 12px;
+        margin-top: -2px;
+        margin-left: -8px;
         font-size: 20px;
         display: inline-block;
         width: 24px;
         text-align: left;
         vertical-align: middle;
-        margin-bottom: 6px;
+        float: left;
+      }
+      
+      div.eventContent {
+        padding-left: 28px;
       }
       
       div.event img {
         border-radius: 4px;
-        width: 20px;
-        height: 20px;
+        width: 16px;
+        height: 16px;
         margin-right: 4px;
         vertical-align: middle;
         margin-bottom: 6px;
@@ -196,39 +223,6 @@
       }
       span.eventUser:hover {
         text-decoration: underline;
-      }
-      
-      div.eventDelimited::after {
-        position: absolute;
-        left: 10px;
-        right: 2px;
-        top: 37px;
-        z-index: -1;
-        content: "";
-        height: 1px;
-        background-color: #DDD;
-      }
-      
-      div.eventVeryLast::before {
-        position: absolute;
-        left: 8px;
-        top: 0px;
-        bottom: -8px;
-        z-index: -1;
-        content: "";
-        width: 2px;
-        background-color: #DDD;
-      }
-      
-      div.eventVeryLast::after {
-        position: absolute;
-        left: -14px;
-        right: 2px;
-        top: 37px;
-        z-index: -1;
-        content: "";
-        height: 1px;
-        background-color: #DDD;
       }
       
       div.debugLoader {
@@ -245,7 +239,11 @@
         font-weight: bold;
         color: black;
         margin-left: 4px;
-      }      
+      }
+      
+      span.eventTitle {
+        font-weight: bold;
+      }
     </style>
   </head>
   <body>
@@ -477,6 +475,7 @@
         
         render: function() {
           var icon;
+          var pushX = 0;
           switch (this.props.event) {
             case "assigned":
               icon = "user";
@@ -505,12 +504,29 @@
             case "unmilestoned":
               icon = "calendar-times-o";
               break;
+            case "locked":
+              icon = "lock";
+              pushX = "2";
+              break;
+            case "unlocked":
+              icon = "unlock";
+              break;
+            case "renamed":
+              icon = "pencil-square";
+              break;
+            case "referenced":
+              icon = "git-square";
+              break;
             default:
               icon = "exclamation-circle";
               break;
           }
           
-          return React.createElement("i", {className:"eventIcon fa fa-" + icon});
+          var opts = {className:"eventIcon fa fa-" + icon};
+          if (pushX != 0) {
+            opts.style = { paddingLeft: pushX };
+          }
+          return React.createElement("i", opts);
         }
       });
       
@@ -519,7 +535,7 @@
         
         render: function() {
           return React.createElement("span", {className:"eventUser"},
-            React.createElement("img", {className:"eventAvatar", src:this.props.user.avatar_url + "&s=64"}),
+            React.createElement("img", {className:"eventAvatar", src:this.props.user.avatar_url + "&s=32", width:16, height:16}),
             this.props.user.login
           );
         }
@@ -596,6 +612,18 @@
           return React.createElement("span", {}, elements);
         }
       });
+      
+      var RenameEventDescription = React.createClass({
+        propTypes: { event: React.PropTypes.object.isRequired },
+        render: function() {
+          return React.createElement("span", {}, 
+            "changed the title from ",
+            React.createElement("span", {className:"eventTitle"}, this.props.event.rename.from || "empty"),
+            " to ",
+            React.createElement("span", {className:"eventTitle"}, this.props.event.rename.to || "empty")
+          );
+        }
+      });
             
       var UnknownEventDescription = React.createClass({
         propTypes: { event: React.PropTypes.object.isRequired },
@@ -612,6 +640,7 @@
           case "demilestoned": return MilestoneEventDescription;
           case "labeled": 
           case "unlabeled": return LabelEventDescription;
+          case "renamed": return RenameEventDescription;
           default: return UnknownEventDescription
         }
       }
@@ -625,6 +654,9 @@
         
         render: function() {
           var className = "event";
+          if (this.props.first) {
+            className += " eventFirst";
+          }
           if (this.props.veryLast) {
             className += " eventVeryLast";
           } else if (!this.props.last) {
@@ -634,11 +666,13 @@
           }
           return React.createElement('div', {className:className},
             React.createElement(EventIcon, {event: this.props.event.event }),
-            React.createElement(EventUser, {user: this.props.event.actor }),
-            " ",
-            React.createElement(ClassForEvent(this.props.event), {event: this.props.event}),
-            " ",
-            React.createElement(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at})
+            React.createElement("div", {className: "eventContent"},
+              React.createElement(EventUser, {user: this.props.event.actor }),
+              " ",
+              React.createElement(ClassForEvent(this.props.event), {event: this.props.event}),
+              " ",
+              React.createElement(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at})
+            )
           );
         }
       });
@@ -730,6 +764,7 @@
                   return React.createElement(Event, {
                     key:e.id, 
                     event:e, 
+                    first:(i==0 || a[i-1].event == undefined),
                     last:(next!=undefined && next.event==undefined),
                     veryLast:(next==undefined)
                   });
