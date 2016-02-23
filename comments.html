@@ -16,6 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/0.11.0/fetch.js"></script>
     
     <script src="emojify.js"></script>
+    <script src="github_linkify.js"></script>
     
     <style>
       body { 
@@ -135,7 +136,7 @@
       
       div.event {
         position: relative; 
-        margin-top: 16px;
+        margin-top: 17px;
         margin-left: 26px;
         margin-right: 10px;
         font-size: 10pt;
@@ -146,6 +147,10 @@
         
         color: #555555;
 /*         background-color: blue; */
+      }
+            
+      div.eventLast {
+        margin-bottom: -3px;
       }
       
       i.eventIcon {
@@ -250,7 +255,7 @@
       }
       
       markedRenderer.text = function(text) {
-        return emojify(text);
+        return emojify(githubLinkify(window.currentIssue._bare_owner, window.currentIssue._bare_repo, text));
       }
     
       var markdownOpts = {
@@ -414,7 +419,7 @@
         
         render: function() {
           return React.createElement('div', {className:'commentHeader'},
-            React.createElement('img', {src:this.props.comment.user.avatar_url, width:32, height:32}),
+            React.createElement('img', {src:this.props.comment.user.avatar_url + "&s=64", width:32, height:32}),
             React.createElement('span', {className:'commentAuthor'}, this.props.comment.user.login),
             React.createElement('span', {className:'commentTimeAgo'}, " commented "),
             React.createElement(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
@@ -489,7 +494,7 @@
         
         render: function() {
           return React.createElement("span", {className:"eventUser"},
-            React.createElement("img", {className:"eventAvatar", src:this.props.user.avatar_url}),
+            React.createElement("img", {className:"eventAvatar", src:this.props.user.avatar_url + "&s=64"}),
             this.props.user.login
           );
         }
@@ -551,6 +556,8 @@
             className += " eventVeryLast";
           } else if (!this.props.last) {
             className += " eventDelimited";
+          } else {
+            className += " eventLast";
           }
           return React.createElement('div', {className:className},
             React.createElement(EventIcon, {event: this.props.event.event }),
@@ -722,6 +729,11 @@
         console.log("rendering:");
         console.log(issue);
         
+        var comps = issue.repository_url.replace("https://", "").split("/");
+        issue._bare_owner = comps[comps.length-2]
+        issue._bare_repo = comps[comps.length-1]
+        window.currentIssue = issue;
+        
         var activityElement = React.createElement(ActivityList, {key:issue["id"], issue:issue});
         var outerElement = activityElement;
         if (debugToken) {
@@ -736,7 +748,7 @@
         )
       }
       
-      updateIssue("realartists", "shiphub-cocoa", "1")
+      updateIssue("realartists", "shiphub-server", "9")
       
       //renderIssue({"assignee": {"login": "kogir", "starred_url": "https://api.github.com/users/kogir/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/kogir/repos", "events_url": "https://api.github.com/users/kogir/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/87309?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/kogir/gists{/gist_id}", "id": 87309, "site_admin": false, "organizations_url": "https://api.github.com/users/kogir/orgs", "type": "User", "followers_url": "https://api.github.com/users/kogir/followers", "url": "https://api.github.com/users/kogir", "following_url": "https://api.github.com/users/kogir/following{/other_user}", "received_events_url": "https://api.github.com/users/kogir/received_events", "subscriptions_url": "https://api.github.com/users/kogir/subscriptions", "html_url": "https://github.com/kogir"}, "state": "open", "allEvents": [{"assignee": {"login": "kogir", "starred_url": "https://api.github.com/users/kogir/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/kogir/repos", "events_url": "https://api.github.com/users/kogir/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/87309?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/kogir/gists{/gist_id}", "id": 87309, "site_admin": false, "organizations_url": "https://api.github.com/users/kogir/orgs", "type": "User", "followers_url": "https://api.github.com/users/kogir/followers", "url": "https://api.github.com/users/kogir", "following_url": "https://api.github.com/users/kogir/following{/other_user}", "received_events_url": "https://api.github.com/users/kogir/received_events", "subscriptions_url": "https://api.github.com/users/kogir/subscriptions", "html_url": "https://github.com/kogir"}, "actor": {"login": "kogir", "starred_url": "https://api.github.com/users/kogir/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/kogir/repos", "events_url": "https://api.github.com/users/kogir/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/87309?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/kogir/gists{/gist_id}", "id": 87309, "site_admin": false, "organizations_url": "https://api.github.com/users/kogir/orgs", "type": "User", "followers_url": "https://api.github.com/users/kogir/followers", "url": "https://api.github.com/users/kogir", "following_url": "https://api.github.com/users/kogir/following{/other_user}", "received_events_url": "https://api.github.com/users/kogir/received_events", "subscriptions_url": "https://api.github.com/users/kogir/subscriptions", "html_url": "https://github.com/kogir"}, "id": 549212947, "created_at": "2016-02-12T23:49:51Z", "url": "https://api.github.com/repos/realartists/shiphub-server/issues/events/549212947", "commit_id": null, "commit_url": null, "event": "assigned"}], "labels_url": "https://api.github.com/repos/realartists/shiphub-server/issues/13/labels{/name}", "locked": false, "created_at": "2016-02-11T20:31:37Z", "html_url": "https://github.com/realartists/shiphub-server/issues/13", "closed_by": null, "user": {"login": "james-howard", "starred_url": "https://api.github.com/users/james-howard/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/james-howard/repos", "events_url": "https://api.github.com/users/james-howard/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/2006254?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/james-howard/gists{/gist_id}", "id": 2006254, "site_admin": false, "organizations_url": "https://api.github.com/users/james-howard/orgs", "type": "User", "followers_url": "https://api.github.com/users/james-howard/followers", "url": "https://api.github.com/users/james-howard", "following_url": "https://api.github.com/users/james-howard/following{/other_user}", "received_events_url": "https://api.github.com/users/james-howard/received_events", "subscriptions_url": "https://api.github.com/users/james-howard/subscriptions", "html_url": "https://github.com/james-howard"}, "updated_at": "2016-02-15T22:14:47Z", "closed_at": null, "id": 133080754, "events_url": "https://api.github.com/repos/realartists/shiphub-server/issues/13/events", "allComments": [{"issue_url": "https://api.github.com/repos/realartists/shiphub-server/issues/13", "id": 183050352, "created_at": "2016-02-11T20:32:08Z", "url": "https://api.github.com/repos/realartists/shiphub-server/issues/comments/183050352", "user": {"login": "james-howard", "starred_url": "https://api.github.com/users/james-howard/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/james-howard/repos", "events_url": "https://api.github.com/users/james-howard/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/2006254?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/james-howard/gists{/gist_id}", "id": 2006254, "site_admin": false, "organizations_url": "https://api.github.com/users/james-howard/orgs", "type": "User", "followers_url": "https://api.github.com/users/james-howard/followers", "url": "https://api.github.com/users/james-howard", "following_url": "https://api.github.com/users/james-howard/following{/other_user}", "received_events_url": "https://api.github.com/users/james-howard/received_events", "subscriptions_url": "https://api.github.com/users/james-howard/subscriptions", "html_url": "https://github.com/james-howard"}, "updated_at": "2016-02-11T20:32:15Z", "body": "Revising my other comment", "html_url": "https://github.com/realartists/shiphub-server/issues/13#issuecomment-183050352"}, {"issue_url": "https://api.github.com/repos/realartists/shiphub-server/issues/13", "id": 184411177, "created_at": "2016-02-15T21:55:49Z", "url": "https://api.github.com/repos/realartists/shiphub-server/issues/comments/184411177", "user": {"login": "james-howard", "starred_url": "https://api.github.com/users/james-howard/starred{/owner}{/repo}", "repos_url": "https://api.github.com/users/james-howard/repos", "events_url": "https://api.github.com/users/james-howard/events{/privacy}", "avatar_url": "https://avatars.githubusercontent.com/u/2006254?v=3", "gravatar_id": "", "gists_url": "https://api.github.com/users/james-howard/gists{/gist_id}", "id": 2006254, "site_admin": false, "organizations_url": "https://api.github.com/users/james-howard/orgs", "type": "User", "followers_url": "https://api.github.com/users/james-howard/followers", "url": "https://api.github.com/users/james-howard", "following_url": "https://api.github.com/users/james-howard/following{/other_user}", "received_events_url": "https://api.github.com/users/james-howard/received_events", "subscriptions_url": "https://api.github.com/users/james-howard/subscriptions", "html_url": "https://github.com/james-howard"}, "updated_at": "2016-02-15T21:55:49Z", "body": "| Column 1 | Column 2|\n| --- | --- |\n| Data 1 | Data 2 |\n\n```C\nint main(void) {\n\treturn 0;\n}\n```", "html_url": "https://github.com/realartists/shiphub-server/issues/13#issuecomment-184411177"}], "labels": [], "number": 13, "repository_url": "https://api.github.com/repos/realartists/shiphub-server", "url": "https://api.github.com/repos/realartists/shiphub-server/issues/13", "milestone": null, "comments": 2, "title": "Support comment editing", "body": "- [x] First\r\n- [ ] Second\r\n- [x] Third", "comments_url": "https://api.github.com/repos/realartists/shiphub-server/issues/13/comments"});
     </script>
