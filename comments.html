@@ -26,6 +26,16 @@
         background-color: #F0EFEF;
         padding-bottom: 15px;
       }
+      a {
+        text-decoration: none;
+        color:#4078C0;
+      }
+      a:visited {
+        color:#4078C0;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
       div.activityList {
         position: relative;
       }
@@ -515,6 +525,7 @@
               icon = "pencil-square";
               break;
             case "referenced":
+            case "merged":
               icon = "git-square";
               break;
             default:
@@ -624,6 +635,49 @@
           );
         }
       });
+      
+      function expandCommit(event) {
+        var committish = event.commit_id.slice(0, 10);
+        var commitURL = event.commit_url.replace("api.github.com/repos/", "github.com/").replace("/commits/", "/commit/");
+        return [committish, commitURL];
+      }
+      
+      var ReferencedEventDescription = React.createClass({
+        propTypes: { event: React.PropTypes.object.isRequired },
+        render: function() {
+          var [committish, commitURL] = expandCommit(this.props.event);
+          return React.createElement("span", {},
+            "referenced this issue in commit ",
+            React.createElement("a", {href:commitURL, target:"_blank"}, committish)
+          );
+        }
+      });
+      
+      var MergedEventDescription = React.createClass({
+        propTypes: { event: React.PropTypes.object.isRequired },
+        render: function() {
+          var [committish, commitURL] = expandCommit(this.props.event);
+          return React.createElement("span", {},
+            "merged this request with commit ",
+            React.createElement("a", {href:commitURL, target:"_blank"}, committish)
+          );
+        }
+      });
+      
+      var ClosedEventDescription = React.createClass({
+        propTypes: { event: React.PropTypes.object.isRequired },
+        render: function() {
+          if (typeof(this.props.event.commit_id) === "string") {
+            var [committish, commitURL] = expandCommit(this.props.event);
+            return React.createElement("span", {},
+              "closed this issue with commit ",
+              React.createElement("a", {href:commitURL, target:"_blank"}, committish)
+            );
+          } else {
+            return React.createElement("span", {}, "closed this issue");
+          }
+        }
+      });
             
       var UnknownEventDescription = React.createClass({
         propTypes: { event: React.PropTypes.object.isRequired },
@@ -641,6 +695,9 @@
           case "labeled": 
           case "unlabeled": return LabelEventDescription;
           case "renamed": return RenameEventDescription;
+          case "referenced": return ReferencedEventDescription;
+          case "merged": return MergedEventDescription;
+          case "closed": return ClosedEventDescription;
           default: return UnknownEventDescription
         }
       }
@@ -723,6 +780,7 @@
               switch (e.event) {
                 case "subscribed": return false;
                 case "mentioned": return false; // mention events are beyond worthless in the GitHub API
+                case "referenced": return e.commit_id != null;
                 default: return true;
               }
             }
@@ -865,6 +923,8 @@
       function renderIssue(issue) {
         console.log("rendering:");
         console.log(issue);
+        
+        this.document.title = issue.title;
         
         var comps = issue.repository_url.replace("https://", "").split("/");
         issue._bare_owner = comps[comps.length-2]
