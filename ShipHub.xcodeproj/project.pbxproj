@@ -11,7 +11,83 @@
 		1A2217961C7E7B14006460E2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217951C7E7B14006460E2 /* main.m */; };
 		1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A2217971C7E7B14006460E2 /* Assets.xcassets */; };
 		1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2217991C7E7B14006460E2 /* MainMenu.xib */; };
+		1A2217C31C7E7BB9006460E2 /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2217B91C7E7B92006460E2 /* SocketRocket.framework */; };
+		1A2217C51C7E7BCE006460E2 /* SocketRocket.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2217B91C7E7B92006460E2 /* SocketRocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1A2217D11C7E80CE006460E2 /* Logging.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217D01C7E80CE006460E2 /* Logging.m */; };
+		1A2217D81C7E981D006460E2 /* Keychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217D71C7E981D006460E2 /* Keychain.m */; };
+		1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217DA1C7E99A1006460E2 /* Auth.m */; };
+		1A2305D91C7F80EA0034C871 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305D81C7F80EA0034C871 /* Defaults.m */; };
+		1A2305DD1C7F84D80034C871 /* Error.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305DC1C7F84D80034C871 /* Error.m */; };
+		1A2305E91C7FC2940034C871 /* AuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305DF1C7FC2940034C871 /* AuthController.m */; };
+		1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2305E01C7FC2940034C871 /* AuthController.xib */; };
+		1A2305EB1C7FC2940034C871 /* AuthViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305E21C7FC2940034C871 /* AuthViewController.m */; };
+		1A2305EC1C7FC2940034C871 /* WelcomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305E41C7FC2940034C871 /* WelcomeViewController.m */; };
+		1A2305ED1C7FC2940034C871 /* WelcomeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2305E51C7FC2940034C871 /* WelcomeViewController.xib */; };
+		1A2305EE1C7FC2940034C871 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305E71C7FC2940034C871 /* NavigationController.m */; };
+		1A2305EF1C7FC2940034C871 /* NavigationController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2305E81C7FC2940034C871 /* NavigationController.xib */; };
+		1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F11C7FC2E10034C871 /* FoundationExtras.m */; };
+		1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
+		1A2305FA1C7FC3030034C871 /* SignInController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F81C7FC3030034C871 /* SignInController.m */; };
+		1A2305FB1C7FC3030034C871 /* SignInController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2305F91C7FC3030034C871 /* SignInController.xib */; };
+		1A2305FF1C7FC39F0034C871 /* TwoFactorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305FD1C7FC39F0034C871 /* TwoFactorController.m */; };
+		1A2306001C7FC39F0034C871 /* TwoFactorController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2305FE1C7FC39F0034C871 /* TwoFactorController.xib */; };
+		1A2440CA1C84DEF800E070DA /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
+		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
+		1AD0DBC81C81151000CEE314 /* ChooseReposController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC61C81151000CEE314 /* ChooseReposController.m */; };
+		1AD0DBC91C81151000CEE314 /* ChooseReposController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC71C81151000CEE314 /* ChooseReposController.xib */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		1A2217B61C7E7B92006460E2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F6B2082D1450F597009315AF;
+			remoteInfo = SocketRocket;
+		};
+		1A2217B81C7E7B92006460E2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F668C880153E91210044DBAC;
+			remoteInfo = SocketRocketOSX;
+		};
+		1A2217BA1C7E7B92006460E2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F6BDA802145900D200FE3253;
+			remoteInfo = SRWebSocketTests;
+		};
+		1A2217BC1C7E7B92006460E2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = F62417E314D52F3C003CE997;
+			remoteInfo = TestChat;
+		};
+		1A2217BE1C7E7BAF006460E2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = F668C87F153E91210044DBAC;
+			remoteInfo = SocketRocketOSX;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1A2217C41C7E7BC1006460E2 /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+				1A2217C51C7E7BCE006460E2 /* SocketRocket.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1A22178E1C7E7B14006460E2 /* ShipHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShipHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -21,6 +97,47 @@
 		1A2217971C7E7B14006460E2 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1A22179A1C7E7B14006460E2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		1A22179C1C7E7B14006460E2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SocketRocket.xcodeproj; path = ext/SocketRocket/SocketRocket.xcodeproj; sourceTree = "<group>"; };
+		1A2217CF1C7E80CE006460E2 /* Logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logging.h; sourceTree = "<group>"; };
+		1A2217D01C7E80CE006460E2 /* Logging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Logging.m; sourceTree = "<group>"; };
+		1A2217D21C7E80F0006460E2 /* ShipHub-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ShipHub-Prefix.pch"; sourceTree = "<group>"; };
+		1A2217D61C7E981D006460E2 /* Keychain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Keychain.h; sourceTree = "<group>"; };
+		1A2217D71C7E981D006460E2 /* Keychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Keychain.m; sourceTree = "<group>"; };
+		1A2217D91C7E99A1006460E2 /* Auth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Auth.h; sourceTree = "<group>"; };
+		1A2217DA1C7E99A1006460E2 /* Auth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Auth.m; sourceTree = "<group>"; };
+		1A2305D71C7F80EA0034C871 /* Defaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defaults.h; sourceTree = "<group>"; };
+		1A2305D81C7F80EA0034C871 /* Defaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Defaults.m; sourceTree = "<group>"; };
+		1A2305DA1C7F81FA0034C871 /* JSONItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONItem.h; sourceTree = "<group>"; };
+		1A2305DB1C7F84D80034C871 /* Error.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Error.h; sourceTree = "<group>"; };
+		1A2305DC1C7F84D80034C871 /* Error.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Error.m; sourceTree = "<group>"; };
+		1A2305DE1C7FC2940034C871 /* AuthController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthController.h; sourceTree = "<group>"; };
+		1A2305DF1C7FC2940034C871 /* AuthController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthController.m; sourceTree = "<group>"; };
+		1A2305E01C7FC2940034C871 /* AuthController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AuthController.xib; sourceTree = "<group>"; };
+		1A2305E11C7FC2940034C871 /* AuthViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthViewController.h; sourceTree = "<group>"; };
+		1A2305E21C7FC2940034C871 /* AuthViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthViewController.m; sourceTree = "<group>"; };
+		1A2305E31C7FC2940034C871 /* WelcomeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WelcomeViewController.h; sourceTree = "<group>"; };
+		1A2305E41C7FC2940034C871 /* WelcomeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeViewController.m; sourceTree = "<group>"; };
+		1A2305E51C7FC2940034C871 /* WelcomeViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WelcomeViewController.xib; sourceTree = "<group>"; };
+		1A2305E61C7FC2940034C871 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
+		1A2305E71C7FC2940034C871 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
+		1A2305E81C7FC2940034C871 /* NavigationController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NavigationController.xib; sourceTree = "<group>"; };
+		1A2305F01C7FC2E10034C871 /* FoundationExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FoundationExtras.h; sourceTree = "<group>"; };
+		1A2305F11C7FC2E10034C871 /* FoundationExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FoundationExtras.m; sourceTree = "<group>"; };
+		1A2305F21C7FC2E10034C871 /* AppKitExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppKitExtras.h; sourceTree = "<group>"; };
+		1A2305F31C7FC2E10034C871 /* AppKitExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppKitExtras.m; sourceTree = "<group>"; };
+		1A2305F41C7FC2E10034C871 /* Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Extras.h; sourceTree = "<group>"; };
+		1A2305F71C7FC3030034C871 /* SignInController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignInController.h; sourceTree = "<group>"; };
+		1A2305F81C7FC3030034C871 /* SignInController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SignInController.m; sourceTree = "<group>"; };
+		1A2305F91C7FC3030034C871 /* SignInController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SignInController.xib; sourceTree = "<group>"; };
+		1A2305FC1C7FC39F0034C871 /* TwoFactorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TwoFactorController.h; sourceTree = "<group>"; };
+		1A2305FD1C7FC39F0034C871 /* TwoFactorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TwoFactorController.m; sourceTree = "<group>"; };
+		1A2305FE1C7FC39F0034C871 /* TwoFactorController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TwoFactorController.xib; sourceTree = "<group>"; };
+		1A2440C91C84DEF800E070DA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
+		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
+		1AD0DBC51C81151000CEE314 /* ChooseReposController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChooseReposController.h; sourceTree = "<group>"; };
+		1AD0DBC61C81151000CEE314 /* ChooseReposController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChooseReposController.m; sourceTree = "<group>"; };
+		1AD0DBC71C81151000CEE314 /* ChooseReposController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChooseReposController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -28,6 +145,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A2440CA1C84DEF800E070DA /* libz.tbd in Frameworks */,
+				1A2217C31C7E7BB9006460E2 /* SocketRocket.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -37,7 +156,9 @@
 		1A2217851C7E7B14006460E2 = {
 			isa = PBXGroup;
 			children = (
+				1A2440C91C84DEF800E070DA /* libz.tbd */,
 				1A2217901C7E7B14006460E2 /* ShipHub */,
+				1A2217A21C7E7B78006460E2 /* ext */,
 				1A22178F1C7E7B14006460E2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -53,11 +174,9 @@
 		1A2217901C7E7B14006460E2 /* ShipHub */ = {
 			isa = PBXGroup;
 			children = (
-				1A2217911C7E7B14006460E2 /* AppDelegate.h */,
-				1A2217921C7E7B14006460E2 /* AppDelegate.m */,
-				1A2217971C7E7B14006460E2 /* Assets.xcassets */,
-				1A2217991C7E7B14006460E2 /* MainMenu.xib */,
-				1A22179C1C7E7B14006460E2 /* Info.plist */,
+				1A2217CD1C7E7C52006460E2 /* App */,
+				1A2217CC1C7E7C49006460E2 /* Auth */,
+				1A2217CE1C7E80C0006460E2 /* Extras */,
 				1A2217941C7E7B14006460E2 /* Supporting Files */,
 			);
 			path = ShipHub;
@@ -66,9 +185,93 @@
 		1A2217941C7E7B14006460E2 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				1A22179C1C7E7B14006460E2 /* Info.plist */,
+				1A2217971C7E7B14006460E2 /* Assets.xcassets */,
 				1A2217951C7E7B14006460E2 /* main.m */,
+				1A2217D21C7E80F0006460E2 /* ShipHub-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		1A2217A21C7E7B78006460E2 /* ext */ = {
+			isa = PBXGroup;
+			children = (
+				1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */,
+			);
+			name = ext;
+			sourceTree = "<group>";
+		};
+		1A2217B01C7E7B92006460E2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1A2217B71C7E7B92006460E2 /* libSocketRocket.a */,
+				1A2217B91C7E7B92006460E2 /* SocketRocket.framework */,
+				1A2217BB1C7E7B92006460E2 /* SRWebSocketTests.xctest */,
+				1A2217BD1C7E7B92006460E2 /* TestChat.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		1A2217CC1C7E7C49006460E2 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				1A2217D91C7E99A1006460E2 /* Auth.h */,
+				1A2217DA1C7E99A1006460E2 /* Auth.m */,
+				1A2217D61C7E981D006460E2 /* Keychain.h */,
+				1A2217D71C7E981D006460E2 /* Keychain.m */,
+				1A2305DE1C7FC2940034C871 /* AuthController.h */,
+				1A2305DF1C7FC2940034C871 /* AuthController.m */,
+				1A2305E01C7FC2940034C871 /* AuthController.xib */,
+				1A2305E11C7FC2940034C871 /* AuthViewController.h */,
+				1A2305E21C7FC2940034C871 /* AuthViewController.m */,
+				1A2305E31C7FC2940034C871 /* WelcomeViewController.h */,
+				1A2305E41C7FC2940034C871 /* WelcomeViewController.m */,
+				1A2305E51C7FC2940034C871 /* WelcomeViewController.xib */,
+				1A2305E61C7FC2940034C871 /* NavigationController.h */,
+				1A2305E71C7FC2940034C871 /* NavigationController.m */,
+				1A2305E81C7FC2940034C871 /* NavigationController.xib */,
+				1A2305F71C7FC3030034C871 /* SignInController.h */,
+				1A2305F81C7FC3030034C871 /* SignInController.m */,
+				1A2305F91C7FC3030034C871 /* SignInController.xib */,
+				1A2305FC1C7FC39F0034C871 /* TwoFactorController.h */,
+				1A2305FD1C7FC39F0034C871 /* TwoFactorController.m */,
+				1A2305FE1C7FC39F0034C871 /* TwoFactorController.xib */,
+				1AD0DBC51C81151000CEE314 /* ChooseReposController.h */,
+				1AD0DBC61C81151000CEE314 /* ChooseReposController.m */,
+				1AD0DBC71C81151000CEE314 /* ChooseReposController.xib */,
+			);
+			name = Auth;
+			sourceTree = "<group>";
+		};
+		1A2217CD1C7E7C52006460E2 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				1A2217911C7E7B14006460E2 /* AppDelegate.h */,
+				1A2217921C7E7B14006460E2 /* AppDelegate.m */,
+				1A2217991C7E7B14006460E2 /* MainMenu.xib */,
+				1A2305D71C7F80EA0034C871 /* Defaults.h */,
+				1A2305D81C7F80EA0034C871 /* Defaults.m */,
+				1A2305DA1C7F81FA0034C871 /* JSONItem.h */,
+				1A2305DB1C7F84D80034C871 /* Error.h */,
+				1A2305DC1C7F84D80034C871 /* Error.m */,
+				1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */,
+				1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */,
+			);
+			name = App;
+			sourceTree = "<group>";
+		};
+		1A2217CE1C7E80C0006460E2 /* Extras */ = {
+			isa = PBXGroup;
+			children = (
+				1A2305F01C7FC2E10034C871 /* FoundationExtras.h */,
+				1A2305F11C7FC2E10034C871 /* FoundationExtras.m */,
+				1A2305F21C7FC2E10034C871 /* AppKitExtras.h */,
+				1A2305F31C7FC2E10034C871 /* AppKitExtras.m */,
+				1A2305F41C7FC2E10034C871 /* Extras.h */,
+				1A2217CF1C7E80CE006460E2 /* Logging.h */,
+				1A2217D01C7E80CE006460E2 /* Logging.m */,
+			);
+			name = Extras;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -81,10 +284,12 @@
 				1A22178A1C7E7B14006460E2 /* Sources */,
 				1A22178B1C7E7B14006460E2 /* Frameworks */,
 				1A22178C1C7E7B14006460E2 /* Resources */,
+				1A2217C41C7E7BC1006460E2 /* Copy Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				1A2217BF1C7E7BAF006460E2 /* PBXTargetDependency */,
 			);
 			name = ShipHub;
 			productName = ShipHub;
@@ -116,6 +321,12 @@
 			mainGroup = 1A2217851C7E7B14006460E2;
 			productRefGroup = 1A22178F1C7E7B14006460E2 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 1A2217B01C7E7B92006460E2 /* Products */;
+					ProjectRef = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				1A22178D1C7E7B14006460E2 /* ShipHub */,
@@ -123,12 +334,49 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXReferenceProxy section */
+		1A2217B71C7E7B92006460E2 /* libSocketRocket.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libSocketRocket.a;
+			remoteRef = 1A2217B61C7E7B92006460E2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1A2217B91C7E7B92006460E2 /* SocketRocket.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SocketRocket.framework;
+			remoteRef = 1A2217B81C7E7B92006460E2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1A2217BB1C7E7B92006460E2 /* SRWebSocketTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = SRWebSocketTests.xctest;
+			remoteRef = 1A2217BA1C7E7B92006460E2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1A2217BD1C7E7B92006460E2 /* TestChat.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = TestChat.app;
+			remoteRef = 1A2217BC1C7E7B92006460E2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
 /* Begin PBXResourcesBuildPhase section */
 		1A22178C1C7E7B14006460E2 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AD0DBC91C81151000CEE314 /* ChooseReposController.xib in Resources */,
+				1A2305ED1C7FC2940034C871 /* WelcomeViewController.xib in Resources */,
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
+				1A2305FB1C7FC3030034C871 /* SignInController.xib in Resources */,
+				1A2306001C7FC39F0034C871 /* TwoFactorController.xib in Resources */,
+				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
+				1A2305EF1C7FC2940034C871 /* NavigationController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -140,12 +388,35 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A2305E91C7FC2940034C871 /* AuthController.m in Sources */,
 				1A2217961C7E7B14006460E2 /* main.m in Sources */,
 				1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */,
+				1A2305FF1C7FC39F0034C871 /* TwoFactorController.m in Sources */,
+				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
+				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
+				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
+				1A2305DD1C7F84D80034C871 /* Error.m in Sources */,
+				1A2305EC1C7FC2940034C871 /* WelcomeViewController.m in Sources */,
+				1A2305FA1C7FC3030034C871 /* SignInController.m in Sources */,
+				1A2305EB1C7FC2940034C871 /* AuthViewController.m in Sources */,
+				1AD0DBC81C81151000CEE314 /* ChooseReposController.m in Sources */,
+				1A2305D91C7F80EA0034C871 /* Defaults.m in Sources */,
+				1A2305EE1C7FC2940034C871 /* NavigationController.m in Sources */,
+				1A2217D81C7E981D006460E2 /* Keychain.m in Sources */,
+				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
+				1A2217D11C7E80CE006460E2 /* Logging.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1A2217BF1C7E7BAF006460E2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SocketRocketOSX;
+			targetProxy = 1A2217BE1C7E7BAF006460E2 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		1A2217991C7E7B14006460E2 /* MainMenu.xib */ = {
@@ -191,11 +462,12 @@
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SHADOW = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
@@ -228,11 +500,12 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_SHADOW = YES;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
 			};
@@ -243,6 +516,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
 				INFOPLIST_FILE = ShipHub/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipHub;
@@ -255,6 +529,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
 				INFOPLIST_FILE = ShipHub/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipHub;
@@ -281,6 +556,7 @@
 				1A2217A11C7E7B14006460E2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

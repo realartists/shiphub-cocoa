@@ -8,8 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class Auth;
+
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
++ (instancetype)sharedDelegate;
+
+- (void)authFinished:(Auth *)auth;
 
 @end
 

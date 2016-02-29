@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NavigationController">
+            <connections>
+                <outlet property="backButton" destination="hEw-0S-oLJ" id="cVm-oO-yeC"/>
+                <outlet property="container" destination="8LU-0a-A14" id="mFP-lt-CeX"/>
+                <outlet property="titleField" destination="pMC-mM-ra4" id="Z6w-Yp-sUw"/>
+                <outlet property="view" destination="c22-O7-iKe" id="KSI-cB-fzM"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="c22-O7-iKe">
+            <rect key="frame" x="0.0" y="0.0" width="520" height="435"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <userGuides>
+                <userLayoutGuide location="261" affinity="minX"/>
+            </userGuides>
+            <subviews>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pMC-mM-ra4">
+                    <rect key="frame" x="107" y="388" width="306" height="27"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Title" id="kDr-wL-mbZ">
+                        <font key="font" metaFont="systemBold" size="22"/>
+                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hEw-0S-oLJ">
+                    <rect key="frame" x="20" y="390" width="72" height="14"/>
+                    <buttonCell key="cell" type="inline" title="← Go Back" bezelStyle="inline" alignment="center" imageScaling="proportionallyDown" inset="2" id="1cB-k0-U5z">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystemBold"/>
+                        <string key="keyEquivalent">[</string>
+                        <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="goBack:" target="-2" id="3jN-qn-h9U"/>
+                    </connections>
+                </button>
+                <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8LU-0a-A14">
+                    <rect key="frame" x="0.0" y="0.0" width="520" height="380"/>
+                </customView>
+            </subviews>
+            <point key="canvasLocation" x="266" y="385.5"/>
+        </customView>
+    </objects>
+</document>

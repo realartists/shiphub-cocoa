@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9532" systemVersion="15D21" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9532"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="SignInController">
+            <connections>
+                <outlet property="actionButton" destination="zvt-ex-uV7" id="9IA-pE-diu"/>
+                <outlet property="email" destination="T0R-Ri-Xvy" id="j1G-4c-09c"/>
+                <outlet property="label" destination="nKA-LI-hSj" id="HBB-xm-9az"/>
+                <outlet property="password" destination="Cww-q4-OHU" id="kub-KM-vfK"/>
+                <outlet property="progress" destination="jtW-jv-mP8" id="qVZ-ne-b31"/>
+                <outlet property="view" destination="vAV-np-YQ7" id="ng5-pG-9rh"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView wantsLayer="YES" id="vAV-np-YQ7" userLabel="View">
+            <rect key="frame" x="0.0" y="0.0" width="520" height="380"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="T0R-Ri-Xvy" userLabel="Login Field">
+                    <rect key="frame" x="130" y="221" width="260" height="22"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" state="on" borderStyle="bezel" placeholderString="Login or Email" drawsBackground="YES" id="aaO-xL-E4f">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <action selector="submit:" target="-2" id="d2X-ot-3Uh"/>
+                        <outlet property="delegate" destination="-2" id="YKT-Rv-23p"/>
+                        <outlet property="nextKeyView" destination="Cww-q4-OHU" id="JqF-k2-4FJ"/>
+                    </connections>
+                </textField>
+                <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cww-q4-OHU" userLabel="Password Field" customClass="NSSecureTextField">
+                    <rect key="frame" x="130" y="189" width="260" height="22"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" state="on" borderStyle="bezel" placeholderString="Password" drawsBackground="YES" id="pL5-tY-ywq">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                    <connections>
+                        <action selector="submit:" target="-2" id="kaO-dv-VhL"/>
+                        <outlet property="delegate" destination="-2" id="jlb-hp-Qiy"/>
+                        <outlet property="nextKeyView" destination="T0R-Ri-Xvy" id="YKX-ze-EaR"/>
+                    </connections>
+                </textField>
+                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zvt-ex-uV7" userLabel="Action Button" customClass="AlphaDisabledButton">
+                    <rect key="frame" x="397" y="191" width="18" height="18"/>
+                    <contentFilters>
+                        <ciFilter name="CIColorControls">
+                            <configuration>
+                                <real key="inputBrightness" value="1"/>
+                                <real key="inputContrast" value="1"/>
+                                <null key="inputImage"/>
+                                <real key="inputSaturation" value="1"/>
+                            </configuration>
+                        </ciFilter>
+                    </contentFilters>
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSFollowLinkFreestandingTemplate" imagePosition="overlaps" alignment="center" inset="2" id="aks-mX-HkN">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="submit:" target="-2" id="Klc-ib-edy"/>
+                    </connections>
+                </button>
+                <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="jtW-jv-mP8">
+                    <rect key="frame" x="398" y="192" width="16" height="16"/>
+                    <contentFilters>
+                        <ciFilter name="CIColorControls">
+                            <configuration>
+                                <real key="inputBrightness" value="1"/>
+                                <real key="inputContrast" value="1"/>
+                                <null key="inputImage"/>
+                                <real key="inputSaturation" value="1"/>
+                            </configuration>
+                        </ciFilter>
+                    </contentFilters>
+                </progressIndicator>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nKA-LI-hSj">
+                    <rect key="frame" x="128" y="251" width="288" height="17"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Logging in ..." id="pA5-vw-1f3">
+                        <font key="font" metaFont="smallSystem"/>
+                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zRx-Qy-vCk" customClass="AlphaDisabledButton">
+                    <rect key="frame" x="207" y="160" width="106" height="14"/>
+                    <contentFilters>
+                        <ciFilter name="CIColorControls">
+                            <configuration>
+                                <real key="inputBrightness" value="1"/>
+                                <real key="inputContrast" value="1"/>
+                                <null key="inputImage"/>
+                                <real key="inputSaturation" value="1"/>
+                            </configuration>
+                        </ciFilter>
+                    </contentFilters>
+                    <buttonCell key="cell" type="inline" title="Forgot Password" bezelStyle="inline" alignment="center" inset="2" id="gDC-aJ-19R">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystemBold"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="forgot:" target="-2" id="6Yp-Un-Ifh"/>
+                    </connections>
+                </button>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wsN-ba-dpB">
+                    <rect key="frame" x="120" y="20" width="281" height="17"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Ship for GitHub does not store your password" id="K7d-sr-PMB">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+            </subviews>
+            <point key="canvasLocation" x="388" y="268"/>
+        </customView>
+    </objects>
+    <resources>
+        <image name="NSFollowLinkFreestandingTemplate" width="14" height="14"/>
+    </resources>
+</document>

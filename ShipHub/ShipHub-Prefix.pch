@@ -1,0 +1,18 @@
+//
+//  ShipHub-Prefix.pch
+//  ShipHub
+//
+//  Created by James Howard on 2/24/16.
+//  Copyright © 2016 Real Artists, Inc. All rights reserved.
+//
+
+#ifndef ShipHub_Prefix_h
+#define ShipHub_Prefix_h
+
+#if __OBJC__
+#import <Cocoa/Cocoa.h>
+#import "Logging.h"
+#import "Defaults.h"
+#endif
+
+#endif /* ShipHub_Prefix_h */
