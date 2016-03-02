@@ -11,7 +11,7 @@
 #import "Auth.h"
 #import "AuthController.h"
 
-@interface AppDelegate () {
+@interface AppDelegate () <AuthControllerDelegate> {
     BOOL _authConfigured;
     BOOL _notificationsRegistered;
 }
@@ -47,9 +47,6 @@
             _auth = [Auth authWithLogin:[allAccounts firstObject]];
         }
     }
-    if (!_auth) {
-        _auth = [Auth authForPendingLogin];
-    }
     
     _authConfigured = YES;
 }
@@ -66,9 +63,9 @@
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
     _authController = [AuthController new];
+    _authController.delegate = self;
     [self configureAuth];
     [self registerForDataStoreNotifications];
-    _authController.auth = _auth;
     [self showAuthIfNeededAnimated:NO];
 }
 
@@ -82,7 +79,7 @@
 
 - (void)showAuthIfNeededAnimated:(BOOL)animated {
     if (_auth.authState != AuthStateValid) {
-        [_authController showIfNeeded:nil];
+        [_authController showWindow:self];
         
     }
 }
@@ -91,10 +88,11 @@
     [self showAuthIfNeededAnimated:YES];
 }
 
-- (void)authFinished:(Auth *)auth {
+- (void)authController:(AuthController *)controller authenticated:(Auth *)auth {
     Trace();
     
-    [_authController close];
+    [controller close];
+    self.auth = auth;
 }
 
 @end

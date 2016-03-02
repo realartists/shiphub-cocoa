@@ -10,9 +10,8 @@
 
 #import "Auth.h"
 #import "Extras.h"
-#import "WelcomeViewController.h"
-#import "NavigationController.h"
-#import "SignInController.h"
+
+#import <WebKit/WebKit.h>
 
 @interface AuthWindow : NSWindow
 
@@ -24,8 +23,7 @@
 
 @property IBOutlet NSView *container;
 
-@property NavigationController *navVC;
-@property WelcomeViewController *welcomeVC;
+@property WKWebView *webView;
 
 @end
 
@@ -36,82 +34,43 @@
 }
 
 - (void)windowDidLoad {
-    NSWindow *window = self.window;
-    window.movableByWindowBackground = YES;
+    WKWebViewConfiguration *config = [WKWebViewConfiguration new];
+    WKUserContentController *userContent = [WKUserContentController new];
     
-    window.delegate = self;
-    window.opaque = NO;
-    window.backgroundColor = [NSColor clearColor];
+    __weak __typeof(self) weakSelf = self;
+    [userContent addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf start];
+    } name:@"startOver"];
     
-    NSView *contentView = window.contentView;
-    contentView.layer.opaque = NO;
-    contentView.layer.contents = [NSImage imageNamed:@"hero"];
-    contentView.layer.contentsGravity = kCAGravityResizeAspectFill;
-    [contentView.layer setMasksToBounds:YES];
-    [contentView.layer setCornerRadius:8.0];
+    [userContent addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        NSDictionary *body = msg.body;
+        [weakSelf finishWithAccount:body[@"account"] token:body[@"token"]];
+    } name:@"finish"];
     
-    _welcomeVC = [[WelcomeViewController alloc] init];
-    _welcomeVC.authController = self;
-    _navVC = [[NavigationController alloc] initWithRootViewController:_welcomeVC];
+    config.userContentController = userContent;
     
-    [_container setContentView:_navVC.view];
-    
-    [[self window] display];
-    [[self window] setHasShadow:NO];
-    [[self window] setHasShadow:YES];
-}
-
-- (void)showWelcomeAnimated:(BOOL)animate {
-    [_navVC popToRootViewControllerAnimated:animate];
-}
-
-- (SignInController *)showSignInAnimated:(BOOL)animate {
-    if (!self.window.isVisible) {
-        [self showWindow:nil];
-    }
-    
-    if (![_navVC.topViewController isKindOfClass:[SignInController class]]) {
-        if ([_navVC.viewControllers count] > 1) {
-            [_navVC popToRootViewControllerAnimated:NO];
-        }
-        SignInController *vc = [SignInController new];
-        vc.authController = self;
-        [_navVC pushViewController:vc animated:animate];
-        return vc;
-    } else {
-        return (SignInController *)_navVC.topViewController;
-    }
-}
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (BOOL)presentError:(NSError *)error {
-    NSAlert *alert = [NSAlert alertWithError:error];
-    [alert beginSheetModalForWindow:[self window] completionHandler:^(NSModalResponse returnCode) { }];
-    return YES;
+    _webView = [[WKWebView alloc] initWithFrame:self.window.contentView.bounds configuration:config];
+    [self.window.contentView setContentView:_webView];
 }
 
 - (IBAction)showWindow:(id)sender {
     [self window];
-    if (self.auth.account != nil) {
-        [self showSignInAnimated:NO];
+    [self start];
+}
+
+- (void)start {
+    [_webView loa]
+}
+
+- (void)finishWithAccount:(NSDictionary *)accountInfo token:(NSString *)token {
+    AuthAccount *account = [[AuthAccount alloc] initWithDictionary:accountInfo];
+    if (account) {
+        Auth *auth = [Auth authWithAccount:account token:token];
+        [self.delegate authController:self authenticated:auth];
     } else {
-        [self showWelcomeAnimated:NO];
+        ErrLog(@"Received invalid account data: %@", accountInfo);
+        [self start];
     }
-    [super showWindow:sender];
-}
-
-- (IBAction)showIfNeeded:(id)sender {
-    if (_auth.authState != AuthStateValid) {
-        [self showWindow:sender];
-    }
-}
-
-- (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect {
-    rect.origin.y -= 5.0;
-    return rect;
 }
 
 @end

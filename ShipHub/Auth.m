@@ -71,10 +71,6 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     return [[self alloc] initWithLogin:accountName];
 }
 
-+ (Auth *)authForPendingLogin {
-    return [[self alloc] initWithLogin:nil];
-}
-
 - (instancetype)initWithLogin:(NSString *)login {
     if (self = [super init]) {
         self.account = [[AuthAccount alloc] init];
@@ -109,6 +105,39 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     return self;
 }
 
++ (Auth *)authWithAccount:(AuthAccount *)account token:(NSString *)token {
+    return [[self alloc] initWithAccount:account token:token];
+}
+
+- (instancetype)initWithAccount:(AuthAccount *)account token:(NSString *)token {
+    NSParameterAssert(account);
+    NSParameterAssert(token);
+    
+    if (self = [super init]) {
+        KeychainItem *keychainItem = [KeychainItem new];
+        keychainItem.account = account.login;
+        keychainItem.password = token;
+        NSError *error = nil;
+        keychainItem.applicationData = [NSJSONSerialization dataWithJSONObject:[account dictionaryRepresentation] options:0 error:&error];
+        if (error) {
+            ErrLog(@"%@", error);
+            return nil;
+        }
+        Keychain *keychain = [[self class] keychain];
+
+        [keychain storeItem:keychainItem error:&error];
+        if (error) {
+            ErrLog(@"%@", error);
+            return nil;
+        }
+        
+        self.account = account;
+        self.token = token;
+        [self changeAuthState:AuthStateValid];
+    }
+    return self;
+}
+
 - (void)changeAuthState:(AuthState)nextState {
     AuthState previous = self.authState;
     if (nextState != previous) {
@@ -123,125 +152,23 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     }
 }
 
-- (void)authorizeWithLogin:(NSString *)login
-                  password:(NSString *)password
-                 twoFactor:(void (^)(AuthTwoFactorContinuation))twoFactorContinuation
-               chooseRepos:(AuthChooseReposContinuation)chooseReposContinuation
-                completion:(void (^)(NSError *error))completion
-{
-    [self authorizeWithLogin:login password:password twoFactorCode:nil twoFactorContinuation:twoFactorContinuation chooseRepos:chooseReposContinuation completion:completion];
+- (void)invalidate {
+    [self changeAuthState:AuthStateInvalid];
 }
 
-- (void)authorizeWithLogin:(NSString *)login
-                  password:(NSString *)password
-             twoFactorCode:(NSString *)twoFactor
-     twoFactorContinuation:(void (^)(AuthTwoFactorContinuation))twoFactorContinuation
-               chooseRepos:(AuthChooseReposContinuation)chooseReposContinuation
-                completion:(void (^)(NSError *error))completion
-{
-    NSParameterAssert(login);
-    NSParameterAssert(password);
-    NSParameterAssert(twoFactorContinuation);
-    NSParameterAssert(chooseReposContinuation);
-    NSParameterAssert(completion);
-    
-    // XXX: To protect the client_secret, should probably obfuscate it.
-    // Additionally, should use certificate pinning to prevent people from MITM and then snarfing it off the wire.
-    
-    NSDictionary *body = @{ @"scopes" : @[@"repo", @"read:org", @"admin:repo_hook", @"admin:org_hook", @"notifications", @"user:email"],
-                            @"note" : @"ShipHub",
-                            @"client_id" : @"55456285644976e93634",
-                            @"client_secret" : @"044a8c057d8a00f023f4c19932d0fcbb77deaa57" };
-    
-    NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"https://api.github.com/authorizations/clients/%@", body[@"client_id"]]]];
-    req.HTTPMethod = @"PUT";
-    req.HTTPBody = [NSJSONSerialization dataWithJSONObject:body options:0 error:NULL];
-    
-    NSString *credentialStr = [NSString stringWithFormat:@"%@:%@", login, password];
-    NSData *credentialData = [credentialStr dataUsingEncoding:NSUTF8StringEncoding];
-    NSString *credentialB64 = [credentialData base64EncodedStringWithOptions:0];
-    
-    [req setValue:[NSString stringWithFormat:@"Basic %@", credentialB64] forHTTPHeaderField:@"Authorization"];
-    
-    if ([twoFactor length]) {
-        [req setValue:twoFactor forHTTPHeaderField:@"X-GitHub-OTP"];
-    }
-    
-    [[[NSURLSession sharedSession] dataTaskWithRequest:req completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+- (void)checkResponse:(NSURLResponse *)response {
+    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
         NSHTTPURLResponse *http = (NSHTTPURLResponse *)response;
-        
-        DebugLog(@"%@", http);
-        DebugLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-        if (http.statusCode == 200 || http.statusCode == 201) {
-            NSDictionary *reply = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
-            NSString *token = reply[@"token"];
-            DebugLog(@"Got token %@", token);
-            
-            if ([token length] == 0) {
-                error = [NSError shipErrorWithCode:ShipErrorCodeInvalidPassword];
-            } else {
-                ServerConnection *conn = [[ServerConnection alloc] initWithAuth:self];
-                [conn loadAccountWithCompletion:^(AuthAccount *account, NSArray *allRepos, NSArray *chosenRepos, NSError *accountError) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        if (accountError) {
-                            ErrLog(@"%@", accountError);
-                            completion(accountError);
-                        } else {
-                            dispatch_block_t commit = ^{
-                                DebugLog(@"Committing account to keychain");
-                                self.account = account;
-                                self.token = token;
-                                
-                                KeychainItem *keychainItem = [[KeychainItem alloc] init];
-                                keychainItem.account = self.account.login;
-                                keychainItem.password = self.token;
-                                keychainItem.applicationData = [NSJSONSerialization dataWithJSONObject:[self.account dictionaryRepresentation] options:0 error:NULL];
-                                
-                                NSError *keychainErr = nil;
-                                [[[self class] keychain] storeItem:keychainItem error:&keychainErr];
-                                [[[self class] accountsCache] insertObject:keychainItem.account atIndex:0];
-                                
-                                [[NSUserDefaults standardUserDefaults] setObject:self.account.login forKey:DefaultsLastUsedAccountKey];
-                                
-                                [self changeAuthState:AuthStateValid];
-                            };
-                            
-                            if ([chosenRepos count] == 0) {
-                                DebugLog(@"Must choose repos ...");
-                                chooseReposContinuation(conn /* this creates a cycle in conn, but only temporarily */, account, allRepos, commit);
-                            } else {
-                                commit();
-                            }
-                        }
-                    });
-                }];
-                return;
-            }
-        } else if (http.statusCode == 401 && [http allHeaderFields][@"X-GitHub-OTP"] != nil) {
-            // need to perform two factor auth.
-            dispatch_async(dispatch_get_main_queue(), ^{
-                AuthTwoFactorContinuation cont = ^(NSString *code) {
-                    if (!code) {
-                        completion([NSError shipErrorWithCode:ShipErrorCodeInvalidPassword]);
-                    } else {
-                        [self authorizeWithLogin:login password:password twoFactorCode:code twoFactorContinuation:twoFactorContinuation chooseRepos:chooseReposContinuation completion:completion];
-                    }
-                };
-                twoFactorContinuation(cont);
-            });
-            return;
-        } else {
-            ErrLog(@"Failed to get token with code %td: %@", http.statusCode, http);
-            
-            if (!error) {
-                error = [NSError shipErrorWithCode:ShipErrorCodeInvalidPassword];
-            }
+        if (http.statusCode == 401) {
+            [self invalidate];
         }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            completion(error);
-        });
-    }] resume];
+    }
+}
+
+- (void)checkError:(NSError *)error {
+    if ([error isShipError] && [error code] == ShipErrorCodeNeedsAuthToken) {
+        [self invalidate];
+    }
 }
 
 @end

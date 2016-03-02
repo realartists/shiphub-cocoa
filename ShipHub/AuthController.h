@@ -9,13 +9,16 @@
 #import <Cocoa/Cocoa.h>
 
 @class Auth;
+@protocol AuthControllerDelegate;
 
 @interface AuthController : NSWindowController
 
-@property Auth *auth;
+@property (weak) id<AuthControllerDelegate> delegate;
 
-- (IBAction)showIfNeeded:(id)sender;
+@end
 
-- (void)showWelcomeAnimated:(BOOL)animate;
+@protocol AuthControllerDelegate <NSObject>
+
+- (void)authController:(AuthController *)controller authenticated:(Auth *)auth;
 
 @end

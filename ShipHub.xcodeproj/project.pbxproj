@@ -20,21 +20,11 @@
 		1A2305DD1C7F84D80034C871 /* Error.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305DC1C7F84D80034C871 /* Error.m */; };
 		1A2305E91C7FC2940034C871 /* AuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305DF1C7FC2940034C871 /* AuthController.m */; };
 		1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2305E01C7FC2940034C871 /* AuthController.xib */; };
-		1A2305EB1C7FC2940034C871 /* AuthViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305E21C7FC2940034C871 /* AuthViewController.m */; };
-		1A2305EC1C7FC2940034C871 /* WelcomeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305E41C7FC2940034C871 /* WelcomeViewController.m */; };
-		1A2305ED1C7FC2940034C871 /* WelcomeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2305E51C7FC2940034C871 /* WelcomeViewController.xib */; };
-		1A2305EE1C7FC2940034C871 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305E71C7FC2940034C871 /* NavigationController.m */; };
-		1A2305EF1C7FC2940034C871 /* NavigationController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2305E81C7FC2940034C871 /* NavigationController.xib */; };
 		1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F11C7FC2E10034C871 /* FoundationExtras.m */; };
 		1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
-		1A2305FA1C7FC3030034C871 /* SignInController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F81C7FC3030034C871 /* SignInController.m */; };
-		1A2305FB1C7FC3030034C871 /* SignInController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2305F91C7FC3030034C871 /* SignInController.xib */; };
-		1A2305FF1C7FC39F0034C871 /* TwoFactorController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305FD1C7FC39F0034C871 /* TwoFactorController.m */; };
-		1A2306001C7FC39F0034C871 /* TwoFactorController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2305FE1C7FC39F0034C871 /* TwoFactorController.xib */; };
 		1A2440CA1C84DEF800E070DA /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
+		1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
-		1AD0DBC81C81151000CEE314 /* ChooseReposController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC61C81151000CEE314 /* ChooseReposController.m */; };
-		1AD0DBC91C81151000CEE314 /* ChooseReposController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC71C81151000CEE314 /* ChooseReposController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -113,31 +103,16 @@
 		1A2305DE1C7FC2940034C871 /* AuthController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthController.h; sourceTree = "<group>"; };
 		1A2305DF1C7FC2940034C871 /* AuthController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthController.m; sourceTree = "<group>"; };
 		1A2305E01C7FC2940034C871 /* AuthController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AuthController.xib; sourceTree = "<group>"; };
-		1A2305E11C7FC2940034C871 /* AuthViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AuthViewController.h; sourceTree = "<group>"; };
-		1A2305E21C7FC2940034C871 /* AuthViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AuthViewController.m; sourceTree = "<group>"; };
-		1A2305E31C7FC2940034C871 /* WelcomeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WelcomeViewController.h; sourceTree = "<group>"; };
-		1A2305E41C7FC2940034C871 /* WelcomeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeViewController.m; sourceTree = "<group>"; };
-		1A2305E51C7FC2940034C871 /* WelcomeViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WelcomeViewController.xib; sourceTree = "<group>"; };
-		1A2305E61C7FC2940034C871 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
-		1A2305E71C7FC2940034C871 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
-		1A2305E81C7FC2940034C871 /* NavigationController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NavigationController.xib; sourceTree = "<group>"; };
 		1A2305F01C7FC2E10034C871 /* FoundationExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FoundationExtras.h; sourceTree = "<group>"; };
 		1A2305F11C7FC2E10034C871 /* FoundationExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FoundationExtras.m; sourceTree = "<group>"; };
 		1A2305F21C7FC2E10034C871 /* AppKitExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppKitExtras.h; sourceTree = "<group>"; };
 		1A2305F31C7FC2E10034C871 /* AppKitExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppKitExtras.m; sourceTree = "<group>"; };
 		1A2305F41C7FC2E10034C871 /* Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Extras.h; sourceTree = "<group>"; };
-		1A2305F71C7FC3030034C871 /* SignInController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SignInController.h; sourceTree = "<group>"; };
-		1A2305F81C7FC3030034C871 /* SignInController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SignInController.m; sourceTree = "<group>"; };
-		1A2305F91C7FC3030034C871 /* SignInController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SignInController.xib; sourceTree = "<group>"; };
-		1A2305FC1C7FC39F0034C871 /* TwoFactorController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TwoFactorController.h; sourceTree = "<group>"; };
-		1A2305FD1C7FC39F0034C871 /* TwoFactorController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TwoFactorController.m; sourceTree = "<group>"; };
-		1A2305FE1C7FC39F0034C871 /* TwoFactorController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TwoFactorController.xib; sourceTree = "<group>"; };
 		1A2440C91C84DEF800E070DA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		1A2440CF1C85127C00E070DA /* WebKitExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitExtras.h; sourceTree = "<group>"; };
+		1A2440D01C85127C00E070DA /* WebKitExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebKitExtras.m; sourceTree = "<group>"; };
 		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
-		1AD0DBC51C81151000CEE314 /* ChooseReposController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChooseReposController.h; sourceTree = "<group>"; };
-		1AD0DBC61C81151000CEE314 /* ChooseReposController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChooseReposController.m; sourceTree = "<group>"; };
-		1AD0DBC71C81151000CEE314 /* ChooseReposController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChooseReposController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -156,7 +131,6 @@
 		1A2217851C7E7B14006460E2 = {
 			isa = PBXGroup;
 			children = (
-				1A2440C91C84DEF800E070DA /* libz.tbd */,
 				1A2217901C7E7B14006460E2 /* ShipHub */,
 				1A2217A21C7E7B78006460E2 /* ext */,
 				1A22178F1C7E7B14006460E2 /* Products */,
@@ -178,6 +152,7 @@
 				1A2217CC1C7E7C49006460E2 /* Auth */,
 				1A2217CE1C7E80C0006460E2 /* Extras */,
 				1A2217941C7E7B14006460E2 /* Supporting Files */,
+				1A2440CE1C850CD900E070DA /* Frameworks */,
 			);
 			path = ShipHub;
 			sourceTree = "<group>";
@@ -222,23 +197,6 @@
 				1A2305DE1C7FC2940034C871 /* AuthController.h */,
 				1A2305DF1C7FC2940034C871 /* AuthController.m */,
 				1A2305E01C7FC2940034C871 /* AuthController.xib */,
-				1A2305E11C7FC2940034C871 /* AuthViewController.h */,
-				1A2305E21C7FC2940034C871 /* AuthViewController.m */,
-				1A2305E31C7FC2940034C871 /* WelcomeViewController.h */,
-				1A2305E41C7FC2940034C871 /* WelcomeViewController.m */,
-				1A2305E51C7FC2940034C871 /* WelcomeViewController.xib */,
-				1A2305E61C7FC2940034C871 /* NavigationController.h */,
-				1A2305E71C7FC2940034C871 /* NavigationController.m */,
-				1A2305E81C7FC2940034C871 /* NavigationController.xib */,
-				1A2305F71C7FC3030034C871 /* SignInController.h */,
-				1A2305F81C7FC3030034C871 /* SignInController.m */,
-				1A2305F91C7FC3030034C871 /* SignInController.xib */,
-				1A2305FC1C7FC39F0034C871 /* TwoFactorController.h */,
-				1A2305FD1C7FC39F0034C871 /* TwoFactorController.m */,
-				1A2305FE1C7FC39F0034C871 /* TwoFactorController.xib */,
-				1AD0DBC51C81151000CEE314 /* ChooseReposController.h */,
-				1AD0DBC61C81151000CEE314 /* ChooseReposController.m */,
-				1AD0DBC71C81151000CEE314 /* ChooseReposController.xib */,
 			);
 			name = Auth;
 			sourceTree = "<group>";
@@ -267,11 +225,21 @@
 				1A2305F11C7FC2E10034C871 /* FoundationExtras.m */,
 				1A2305F21C7FC2E10034C871 /* AppKitExtras.h */,
 				1A2305F31C7FC2E10034C871 /* AppKitExtras.m */,
+				1A2440CF1C85127C00E070DA /* WebKitExtras.h */,
+				1A2440D01C85127C00E070DA /* WebKitExtras.m */,
 				1A2305F41C7FC2E10034C871 /* Extras.h */,
 				1A2217CF1C7E80CE006460E2 /* Logging.h */,
 				1A2217D01C7E80CE006460E2 /* Logging.m */,
 			);
 			name = Extras;
+			sourceTree = "<group>";
+		};
+		1A2440CE1C850CD900E070DA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1A2440C91C84DEF800E070DA /* libz.tbd */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -370,13 +338,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1AD0DBC91C81151000CEE314 /* ChooseReposController.xib in Resources */,
-				1A2305ED1C7FC2940034C871 /* WelcomeViewController.xib in Resources */,
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
-				1A2305FB1C7FC3030034C871 /* SignInController.xib in Resources */,
-				1A2306001C7FC39F0034C871 /* TwoFactorController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
-				1A2305EF1C7FC2940034C871 /* NavigationController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -391,19 +354,14 @@
 				1A2305E91C7FC2940034C871 /* AuthController.m in Sources */,
 				1A2217961C7E7B14006460E2 /* main.m in Sources */,
 				1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */,
-				1A2305FF1C7FC39F0034C871 /* TwoFactorController.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
 				1A2305DD1C7F84D80034C871 /* Error.m in Sources */,
-				1A2305EC1C7FC2940034C871 /* WelcomeViewController.m in Sources */,
-				1A2305FA1C7FC3030034C871 /* SignInController.m in Sources */,
-				1A2305EB1C7FC2940034C871 /* AuthViewController.m in Sources */,
-				1AD0DBC81C81151000CEE314 /* ChooseReposController.m in Sources */,
 				1A2305D91C7F80EA0034C871 /* Defaults.m in Sources */,
-				1A2305EE1C7FC2940034C871 /* NavigationController.m in Sources */,
 				1A2217D81C7E981D006460E2 /* Keychain.m in Sources */,
 				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
+				1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */,
 				1A2217D11C7E80CE006460E2 /* Logging.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

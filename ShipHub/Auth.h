@@ -22,9 +22,6 @@
 
 @end
 
-typedef void (^AuthTwoFactorContinuation)(NSString *twoFactorToken); // pass nil to abort
-typedef void (^AuthChooseReposContinuation)(ServerConnection *conn, AuthAccount *account, NSArray *repos, dispatch_block_t commit);
-
 typedef NS_ENUM(NSInteger, AuthState) {
     AuthStateInvalid,
     AuthStateValid
@@ -35,19 +32,21 @@ typedef NS_ENUM(NSInteger, AuthState) {
 + (NSArray<NSString *> *)allLogins;
 + (NSString *)lastUsedLogin;
 
+// Load an existing account by name from the keychain
 + (Auth *)authWithLogin:(NSString *)login;
-+ (Auth *)authForPendingLogin;
+
+// Add a new account and token to the keychain
++ (Auth *)authWithAccount:(AuthAccount *)account token:(NSString *)token;
 
 @property (readonly, strong) AuthAccount *account;
 @property (readonly, copy) NSString *token;
 
 @property (readonly) AuthState authState;
 
-- (void)authorizeWithLogin:(NSString *)login
-                  password:(NSString *)password
-                 twoFactor:(void (^)(AuthTwoFactorContinuation))twoFactorContinuation
-               chooseRepos:(AuthChooseReposContinuation)chooseReposContinuation
-                completion:(void (^)(NSError *error))completion;
+- (void)invalidate; // Call if the server has indicated that our token has become invalid
+
+- (void)checkResponse:(NSURLResponse *)response; // invalidate if response code is HTTP 401
+- (void)checkError:(NSError *)error; // invalidate if error is ShipErrorCodeNeedsAuthToken
 
 @end
 

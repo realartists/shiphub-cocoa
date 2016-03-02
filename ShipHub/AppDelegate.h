@@ -14,7 +14,5 @@
 
 + (instancetype)sharedDelegate;
 
-- (void)authFinished:(Auth *)auth;
-
 @end
 

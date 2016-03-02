@@ -7,6 +7,7 @@
 //
 
 #import "FoundationExtras.h"
+#import "WebKitExtras.h"
 
 #if !TARGET_OS_IPHONE
 #import "AppKitExtras.h"
