@@ -24,6 +24,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
 
 @property (readwrite, strong) AuthAccount *account;
 @property (readwrite, copy) NSString *token;
+@property (readwrite, copy) NSString *ghToken;
 @property (readwrite) AuthState authState;
 
 @end
@@ -43,7 +44,8 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     static dispatch_once_t onceToken;
     static Keychain *keychain;
     dispatch_once(&onceToken, ^{
-        keychain = [[Keychain alloc] initWithService:KeychainService accessGroup:KeychainAccessGroup];
+        NSString *service = [NSString stringWithFormat:@"%@.%@", KeychainService, ServerEnvironmentToString(DefaultsServerEnvironment())];
+        keychain = [[Keychain alloc] initWithService:service accessGroup:KeychainAccessGroup];
     });
     return keychain;
 }
@@ -74,49 +76,61 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
 - (instancetype)initWithLogin:(NSString *)login {
     if (self = [super init]) {
         self.account = [[AuthAccount alloc] init];
-        AuthState authState = AuthStateInvalid;
         Keychain *keychain = [[self class] keychain];
         KeychainItem *keychainItem = nil;
         if (login) {
             NSError *err = nil;
             keychainItem = [keychain itemForAccount:login error:&err];
-            if (err) {
+            if (err && !([[err domain] isEqualToString:@"Keychain"] && [err code] == -25300 /* ignore missing item error */)) {
                 ErrLog(@"%@", err);
             }
         }
         if (keychainItem) {
-            NSString *token = keychainItem.password;
-            NSData *userInfoData = keychainItem.applicationData;
-            NSError *err = nil;
-            NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:userInfoData options:0 error:&err];
-            if (err) {
-                ErrLog(@"%@", err);
+            NSArray *tokens = [keychainItem.password componentsSeparatedByString:@"&"];
+            if ([tokens count] == 2) {
+                NSString *token = tokens[0];
+                NSString *ghToken = tokens[1];
+                NSData *userInfoData = keychainItem.applicationData;
+                NSError *err = nil;
+                NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:userInfoData options:0 error:&err];
+                if (err) {
+                    ErrLog(@"%@", err);
+                } else {
+                    AuthAccount *account = [[AuthAccount alloc] initWithDictionary:userInfo];
+                    if (account) {
+                        self.account = account;
+                        self.token = token;
+                        self.ghToken = ghToken;
+                        [self changeAuthState:AuthStateValid];
+                        return self;
+                    }
+                }
             } else {
-                AuthAccount *account = [[AuthAccount alloc] initWithDictionary:userInfo];
-                if (account) {
-                    self.account = account;
-                    self.token = token;
-                    authState = AuthStateValid;
+                NSError *err = nil;
+                [keychain removeItemForAccount:login error:&err];
+                if (err) {
+                    ErrLog("%@", err);
                 }
             }
         }
-        [self changeAuthState:authState];
+        
     }
-    return self;
+    return nil;
 }
 
-+ (Auth *)authWithAccount:(AuthAccount *)account token:(NSString *)token {
-    return [[self alloc] initWithAccount:account token:token];
++ (Auth *)authWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken; {
+    return [[self alloc] initWithAccount:account shipToken:shipToken ghToken:ghToken];
 }
 
-- (instancetype)initWithAccount:(AuthAccount *)account token:(NSString *)token {
+- (instancetype)initWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken {
     NSParameterAssert(account);
-    NSParameterAssert(token);
+    NSParameterAssert(shipToken);
+    NSParameterAssert(ghToken);
     
     if (self = [super init]) {
         KeychainItem *keychainItem = [KeychainItem new];
         keychainItem.account = account.login;
-        keychainItem.password = token;
+        keychainItem.password = [NSString stringWithFormat:@"%@&%@", shipToken, ghToken];
         NSError *error = nil;
         keychainItem.applicationData = [NSJSONSerialization dataWithJSONObject:[account dictionaryRepresentation] options:0 error:&error];
         if (error) {
@@ -132,7 +146,8 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
         }
         
         self.account = account;
-        self.token = token;
+        self.token = shipToken;
+        self.ghToken = ghToken;
         [self changeAuthState:AuthStateValid];
     }
     return self;
@@ -169,6 +184,16 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     if ([error isShipError] && [error code] == ShipErrorCodeNeedsAuthToken) {
         [self invalidate];
     }
+}
+
+- (void)logout {
+    Keychain *keychain = [[self class] keychain];
+    NSError *err = nil;
+    [keychain removeItemForAccount:self.account.login error:&err];
+    if (err) {
+        ErrLog("%@", err);
+    }
+    [self changeAuthState:AuthStateInvalid];
 }
 
 @end

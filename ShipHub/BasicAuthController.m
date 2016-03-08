@@ -8,9 +8,12 @@
 
 #import "BasicAuthController.h"
 
+#import "Auth.h"
+#import "AuthController.h"
+#import "Error.h"
 #import "Extras.h"
 #import "NavigationController.h"
-#import "Error.h"
+#import "ServerConnection.h"
 
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
@@ -156,13 +159,19 @@ static NSString *client_secret() {
         return;
     }
     
+    Auth *existing = [Auth authWithLogin:_username.stringValue];
+    if (existing) {
+        [self finishWithAuth:existing];
+        return;
+    }
+    
     _username.enabled = NO;
     _password.enabled = NO;
     _goButton.hidden = YES;
     _progress.hidden = NO;
     [_progress startAnimation:nil];
     
-    // Step 1: Authenticate with GitHub
+    // Authenticate with GitHub
     
     // use a unique fingerprint since if we're here, we aren't aware of any tokens and therefore we need a new one.
     NSString *fingerprint = [[[NSUUID UUID] UUIDString] stringByReplacingOccurrencesOfString:@"-" withString:@""];
@@ -199,8 +208,11 @@ static NSString *client_secret() {
             if (decodeErr == nil && ![reply isKindOfClass:[NSDictionary class]]) {
                 decodeErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
             }
-            NSString *oauthToken = reply[@"token"];
-            if ([oauthToken length] == 0) {
+            NSString *oauthToken = nil;
+            if (!decodeErr) {
+                oauthToken = reply[@"token"];
+            }
+            if (!decodeErr && [oauthToken length] == 0) {
                 decodeErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
             }
             if (decodeErr) {
@@ -231,7 +243,89 @@ static NSString *client_secret() {
 }
 
 - (void)sayHello:(NSString *)oauthToken {
-    DebugLog(@"%@", oauthToken);
+    // callable from any queue, so we're not necessarily on the main queue here.
+    
+    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/authentication/hello",
+                  [ServerConnection defaultShipHubHost]]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+    
+    NSDictionary *body = @{ @"token" : oauthToken,
+                            @"client_id" : client_id() };
+    
+    [request setValue:@"application/json" forKey:@"Content-Type"];
+    [request setValue:@"application/json" forKey:@"Accept"];
+    
+    request.HTTPMethod = @"POST";
+    request.HTTPBody = [NSJSONSerialization dataWithJSONObject:body options:0 error:NULL];
+    
+    DebugLog(@"%@", request);
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        NSHTTPURLResponse *http = (NSHTTPURLResponse *)response;
+        DebugLog(@"%@", http);
+        if (data) {
+            DebugLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+        }
+        
+        if (http.statusCode == 200 || http.statusCode == 201) {
+            NSError *decodeErr = nil;
+            NSDictionary *reply = [NSJSONSerialization JSONObjectWithData:data options:0 error:&decodeErr];
+            if (decodeErr == nil && ![reply isKindOfClass:[NSDictionary class]]) {
+                decodeErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+            }
+            
+            NSString *shipToken = nil;
+            NSDictionary *userDict = nil;
+            NSDictionary *billingState = nil;
+            
+            if (!decodeErr) {
+                shipToken = reply[@"token"];
+                userDict = reply[@"user"];
+                billingState = reply[@"billing"];
+            }
+            
+            if (!decodeErr && ([shipToken length] == 0 || !userDict))
+            {
+                decodeErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+            }
+            
+            if (decodeErr) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self presentError:decodeErr];
+                });
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self finishWithShipToken:shipToken ghToken:oauthToken user:userDict billing:billingState];
+                });
+            }
+        } else {
+            if (!error) {
+                error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self presentError:error];
+            });
+        }
+    }] resume];
+}
+
+- (void)finishWithShipToken:(NSString *)shipToken ghToken:(NSString *)ghToken user:(NSDictionary *)user billing:(NSDictionary *)billing
+{
+    NSAssert([NSThread isMainThread], nil);
+    
+    [self resetUI];
+    
+    // FIXME: Do something with billing
+
+    AuthAccount *account = [[AuthAccount alloc] initWithDictionary:user];
+    Auth *auth = [Auth authWithAccount:account shipToken:shipToken ghToken:ghToken];
+
+    [self finishWithAuth:auth];
+}
+
+- (void)finishWithAuth:(Auth *)auth {
+    AuthController *ac = (AuthController *)self.view.window.delegate;
+    [ac.delegate authController:ac authenticated:auth];
 }
 
 - (IBAction)moreInformation:(id)sender {

@@ -43,7 +43,8 @@
 		</dict>
 	</dict>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2016 Real Artists, Inc. All rights reserved.</string>
+	<string>Copyright © 2016 Real Artists, Inc.
+All rights reserved.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

@@ -64,17 +64,6 @@
     [_container setContentView:_nav.view];
 }
 
-- (void)finishWithAccount:(NSDictionary *)accountInfo token:(NSString *)token {
-    AuthAccount *account = [[AuthAccount alloc] initWithDictionary:accountInfo];
-    if (account) {
-        Auth *auth = [Auth authWithAccount:account token:token];
-        [self.delegate authController:self authenticated:auth];
-    } else {
-        ErrLog(@"Received invalid account data: %@", accountInfo);
-        [self start];
-    }
-}
-
 - (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect {
     rect.origin.y -= 5.0;
     return rect;

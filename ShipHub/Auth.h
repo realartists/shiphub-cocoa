@@ -36,10 +36,11 @@ typedef NS_ENUM(NSInteger, AuthState) {
 + (Auth *)authWithLogin:(NSString *)login;
 
 // Add a new account and token to the keychain
-+ (Auth *)authWithAccount:(AuthAccount *)account token:(NSString *)token;
++ (Auth *)authWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken;
 
 @property (readonly, strong) AuthAccount *account;
 @property (readonly, copy) NSString *token;
+@property (readonly, copy) NSString *ghToken;
 
 @property (readonly) AuthState authState;
 
@@ -47,6 +48,8 @@ typedef NS_ENUM(NSInteger, AuthState) {
 
 - (void)checkResponse:(NSURLResponse *)response; // invalidate if response code is HTTP 401
 - (void)checkError:(NSError *)error; // invalidate if error is ShipErrorCodeNeedsAuthToken
+
+- (void)logout;
 
 @end
 

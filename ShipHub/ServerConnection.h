@@ -13,12 +13,12 @@
 
 @interface ServerConnection : NSObject
 
++ (NSString *)defaultShipHubHost;
+
 - (id)initWithAuth:(Auth *)auth;
 - (id)initWithAuth:(Auth *)auth gitHubEnterpriseHost:(NSString *)gitHubEnterpriseHost shipHubEnterpriseHost:(NSString *)shipHubEnterpriseHost;
 
-- (void)loadAccountWithCompletion:(void (^)(AuthAccount *account, NSArray *allRepos, NSArray *chosenRepos, NSError *error))completion;
-
-@property (readonly, weak) Auth *auth;
+@property (readonly, strong) Auth *auth;
 
 @property (readonly, copy) NSString *gitHubHost;
 @property (readonly, copy) NSString *shipHubHost;
