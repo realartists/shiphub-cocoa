@@ -26,7 +26,7 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
         case ShipErrorCodeIncompatibleQuery: return NSLocalizedString(@"The provided query is incompatible with the requested operation.", nil);
         case ShipErrorCodeInvalidSignUpDetails: return NSLocalizedString(@"Unable to sign up.", nil);
         case ShipErrorCodeInvalidQuery: return NSLocalizedString(@"Unable to run the provided query. Make sure you have the latest version of Ship installed.", nil);
-        case ShipErrorCodeInvalidPassword: return NSLocalizedString(@"Invalid login or password", nil);
+        case ShipErrorCodeInvalidPassword: return NSLocalizedString(@"Invalid username or password", nil);
         case ShipErrorCodeInvalidUserAccount: return NSLocalizedString(@"Invalid or non-existent account", nil);
         default: return NSLocalizedString(@"Unexpected Error", nil);
     }

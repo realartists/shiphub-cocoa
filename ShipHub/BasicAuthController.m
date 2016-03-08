@@ -267,8 +267,8 @@ static NSString *client_secret() {
     alert.messageText = [error localizedDescription];
     [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
         [self resetUI];
+        [self.view.window makeFirstResponder:_username];
     }];
-    [self.view.window makeFirstResponder:_username];
     return YES;
 }
 

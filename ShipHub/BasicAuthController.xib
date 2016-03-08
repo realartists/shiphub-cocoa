@@ -101,7 +101,7 @@
                                 </ciFilter>
                             </contentFilters>
                         </progressIndicator>
-                        <textField toolTip="Necessarify if you have enabled two factor authentication for GitHub" focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xYH-VO-Mwv">
+                        <textField toolTip="Necessary only if you have enabled two factor authentication for GitHub" focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xYH-VO-Mwv">
                             <rect key="frame" x="307" y="33" width="85" height="20"/>
                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" state="on" focusRingType="none" alignment="left" placeholderString="1 Time Code" id="CkH-kx-XEd">
                                 <font key="font" metaFont="system" size="14"/>

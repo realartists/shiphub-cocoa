@@ -28,7 +28,6 @@
 		1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */; };
 		1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */; };
 		1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */; };
-		1A7A41571C8E69AC0043DAF0 /* NSURLSession+PinnedSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A41561C8E69AC0043DAF0 /* NSURLSession+PinnedSession.m */; };
 		1A7A415B1C8F603E0043DAF0 /* CAExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A415A1C8F603E0043DAF0 /* CAExtras.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
 /* End PBXBuildFile section */
@@ -123,8 +122,6 @@
 		1A7A414E1C8E52D70043DAF0 /* BasicAuthController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicAuthController.h; sourceTree = "<group>"; };
 		1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BasicAuthController.m; sourceTree = "<group>"; };
 		1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BasicAuthController.xib; sourceTree = "<group>"; };
-		1A7A41551C8E69AC0043DAF0 /* NSURLSession+PinnedSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLSession+PinnedSession.h"; sourceTree = "<group>"; };
-		1A7A41561C8E69AC0043DAF0 /* NSURLSession+PinnedSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLSession+PinnedSession.m"; sourceTree = "<group>"; };
 		1A7A415A1C8F603E0043DAF0 /* CAExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CAExtras.m; sourceTree = "<group>"; };
 		1A7A415F1C8F604E0043DAF0 /* CAExtras.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CAExtras.h; sourceTree = "<group>"; };
 		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
@@ -219,8 +216,6 @@
 				1A7A414E1C8E52D70043DAF0 /* BasicAuthController.h */,
 				1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */,
 				1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */,
-				1A7A41551C8E69AC0043DAF0 /* NSURLSession+PinnedSession.h */,
-				1A7A41561C8E69AC0043DAF0 /* NSURLSession+PinnedSession.m */,
 			);
 			name = Auth;
 			sourceTree = "<group>";
@@ -387,7 +382,6 @@
 				1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
-				1A7A41571C8E69AC0043DAF0 /* NSURLSession+PinnedSession.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
 				1A2305DD1C7F84D80034C871 /* Error.m in Sources */,
 				1A2305D91C7F80EA0034C871 /* Defaults.m in Sources */,
