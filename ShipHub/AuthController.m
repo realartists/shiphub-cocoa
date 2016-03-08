@@ -8,22 +8,21 @@
 
 #import "AuthController.h"
 
+#import "NavigationController.h"
+#import "BasicAuthController.h"
+
 #import "Auth.h"
 #import "Extras.h"
-
-#import <WebKit/WebKit.h>
 
 @interface AuthWindow : NSWindow
 
 @end
 
-@interface AuthController () <NSWindowDelegate> {
-    BOOL _registered;
-}
+@interface AuthController () <NSWindowDelegate>
 
 @property IBOutlet NSView *container;
 
-@property WKWebView *webView;
+@property IBOutlet NavigationController *nav;
 
 @end
 
@@ -34,23 +33,23 @@
 }
 
 - (void)windowDidLoad {
-    WKWebViewConfiguration *config = [WKWebViewConfiguration new];
-    WKUserContentController *userContent = [WKUserContentController new];
+    NSWindow *window = self.window;
+    window.movableByWindowBackground = YES;
     
-    __weak __typeof(self) weakSelf = self;
-    [userContent addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
-        [weakSelf start];
-    } name:@"startOver"];
+    window.delegate = self;
+    window.opaque = NO;
+    window.backgroundColor = [NSColor clearColor];
     
-    [userContent addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
-        NSDictionary *body = msg.body;
-        [weakSelf finishWithAccount:body[@"account"] token:body[@"token"]];
-    } name:@"finish"];
+    NSView *contentView = window.contentView;
+    contentView.layer.opaque = NO;
+    contentView.layer.contents = [NSImage imageNamed:@"hero"];
+    contentView.layer.contentsGravity = kCAGravityResizeAspectFill;
+    [contentView.layer setMasksToBounds:YES];
+    [contentView.layer setCornerRadius:8.0];
     
-    config.userContentController = userContent;
-    
-    _webView = [[WKWebView alloc] initWithFrame:self.window.contentView.bounds configuration:config];
-    [self.window.contentView setContentView:_webView];
+    [[self window] display];
+    [[self window] setHasShadow:NO];
+    [[self window] setHasShadow:YES];
 }
 
 - (IBAction)showWindow:(id)sender {
@@ -59,7 +58,10 @@
 }
 
 - (void)start {
-    [_webView loa]
+    BasicAuthController *basic = [BasicAuthController new];
+    _nav = [[NavigationController alloc] initWithRootViewController:basic];
+    
+    [_container setContentView:_nav.view];
 }
 
 - (void)finishWithAccount:(NSDictionary *)accountInfo token:(NSString *)token {
@@ -73,12 +75,25 @@
     }
 }
 
+- (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect {
+    rect.origin.y -= 5.0;
+    return rect;
+}
+
 @end
 
-@implementation AuthWindow
+@implementation AuthWindow {
+    NSTextView *_whiteFieldEditor;
+}
 
 - (BOOL)canBecomeKeyWindow { return YES; }
 - (BOOL)canBecomeMainWindow { return YES; }
+
+- (nullable NSText *)fieldEditor:(BOOL)createFlag forObject:(nullable id)anObject {
+    NSTextView *view = (NSTextView *)[super fieldEditor:createFlag forObject:anObject];
+    view.insertionPointColor = [NSColor whiteColor];
+    return view;
+}
 
 @end
 

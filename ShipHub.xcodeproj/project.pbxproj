@@ -24,6 +24,11 @@
 		1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
 		1A2440CA1C84DEF800E070DA /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
 		1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
+		1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414A1C8E528A0043DAF0 /* NavigationController.m */; };
+		1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */; };
+		1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */; };
+		1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */; };
+		1A7A41571C8E69AC0043DAF0 /* NSURLSession+PinnedSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A41561C8E69AC0043DAF0 /* NSURLSession+PinnedSession.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
 /* End PBXBuildFile section */
 
@@ -70,7 +75,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
-			dstSubfolderSpec = 7;
+			dstSubfolderSpec = 10;
 			files = (
 				1A2217C51C7E7BCE006460E2 /* SocketRocket.framework in Copy Frameworks */,
 			);
@@ -111,6 +116,14 @@
 		1A2440C91C84DEF800E070DA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		1A2440CF1C85127C00E070DA /* WebKitExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitExtras.h; sourceTree = "<group>"; };
 		1A2440D01C85127C00E070DA /* WebKitExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebKitExtras.m; sourceTree = "<group>"; };
+		1A7A41491C8E528A0043DAF0 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
+		1A7A414A1C8E528A0043DAF0 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
+		1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NavigationController.xib; sourceTree = "<group>"; };
+		1A7A414E1C8E52D70043DAF0 /* BasicAuthController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasicAuthController.h; sourceTree = "<group>"; };
+		1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BasicAuthController.m; sourceTree = "<group>"; };
+		1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BasicAuthController.xib; sourceTree = "<group>"; };
+		1A7A41551C8E69AC0043DAF0 /* NSURLSession+PinnedSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURLSession+PinnedSession.h"; sourceTree = "<group>"; };
+		1A7A41561C8E69AC0043DAF0 /* NSURLSession+PinnedSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURLSession+PinnedSession.m"; sourceTree = "<group>"; };
 		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -194,9 +207,17 @@
 				1A2217DA1C7E99A1006460E2 /* Auth.m */,
 				1A2217D61C7E981D006460E2 /* Keychain.h */,
 				1A2217D71C7E981D006460E2 /* Keychain.m */,
+				1A7A41491C8E528A0043DAF0 /* NavigationController.h */,
+				1A7A414A1C8E528A0043DAF0 /* NavigationController.m */,
+				1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */,
 				1A2305DE1C7FC2940034C871 /* AuthController.h */,
 				1A2305DF1C7FC2940034C871 /* AuthController.m */,
 				1A2305E01C7FC2940034C871 /* AuthController.xib */,
+				1A7A414E1C8E52D70043DAF0 /* BasicAuthController.h */,
+				1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */,
+				1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */,
+				1A7A41551C8E69AC0043DAF0 /* NSURLSession+PinnedSession.h */,
+				1A7A41561C8E69AC0043DAF0 /* NSURLSession+PinnedSession.m */,
 			);
 			name = Auth;
 			sourceTree = "<group>";
@@ -339,7 +360,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
+				1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
+				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -353,9 +376,12 @@
 			files = (
 				1A2305E91C7FC2940034C871 /* AuthController.m in Sources */,
 				1A2217961C7E7B14006460E2 /* main.m in Sources */,
+				1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */,
 				1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */,
+				1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
+				1A7A41571C8E69AC0043DAF0 /* NSURLSession+PinnedSession.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
 				1A2305DD1C7F84D80034C871 /* Error.m in Sources */,
 				1A2305D91C7F80EA0034C871 /* Defaults.m in Sources */,
