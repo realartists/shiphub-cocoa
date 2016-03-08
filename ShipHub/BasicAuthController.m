@@ -12,6 +12,7 @@
 #import "NavigationController.h"
 #import "Error.h"
 
+#import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
 @interface AlphaDisabledButton : NSButton
@@ -28,6 +29,7 @@
 
 @property IBOutlet NSTextField *username;
 @property IBOutlet NSTextField *password;
+@property IBOutlet NSTextField *oneTimeCode;
 
 @property IBOutlet NSView *box;
 
@@ -81,6 +83,8 @@
     
     _password.placeholderAttributedString = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"Password", nil) attributes:@{ NSForegroundColorAttributeName : [[NSColor whiteColor] colorWithAlphaComponent:0.8], NSFontAttributeName : _password.font }];
     
+    _oneTimeCode.placeholderAttributedString = [[NSAttributedString alloc] initWithString:NSLocalizedString(@"1 Time Code", nil) attributes:@{ NSForegroundColorAttributeName : [[NSColor whiteColor] colorWithAlphaComponent:0.8], NSFontAttributeName : _oneTimeCode.font }];
+    
     _box.wantsLayer = YES;
     _box.layer.backgroundColor = [[[NSColor blackColor] colorWithAlphaComponent:0.2] CGColor];
     _box.layer.cornerRadius = 8.0;
@@ -94,18 +98,25 @@
 }
 
 - (void)flashField:(NSTextField *)field {
-    field.backgroundColor = [NSColor clearColor];
-    field.drawsBackground = YES;
-    [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
-        [context setDuration:0.1];
-        field.animator.backgroundColor = [NSColor whiteColor];
-    } completionHandler:^{
-        [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
-            [context setDuration:0.1];
-            field.animator.backgroundColor = [NSColor clearColor];
-        } completionHandler:^{
-            field.drawsBackground = NO;
-        }];
+    NSView *flash = [[NSView alloc] initWithFrame:field.frame];
+    flash.wantsLayer = YES;
+    flash.layer.backgroundColor = [[NSColor whiteColor] CGColor];
+    flash.layer.opacity = 0.0;
+    
+    CABasicAnimation *a = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    a.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    a.duration = 0.1;
+    a.fromValue = @0.0;
+    a.toValue = @0.5;
+    a.repeatCount = 1.5;
+    a.autoreverses = YES;
+    a.removedOnCompletion = YES;
+    
+    [[field superview] addSubview:flash positioned:NSWindowBelow relativeTo:field];
+    
+    NSView *toRemove = flash;
+    [flash.layer addAnimation:a forKey:@"flash" completion:^(BOOL finished) {
+        [toRemove removeFromSuperview];
     }];
 }
 
@@ -141,7 +152,7 @@ static NSString *client_secret() {
     }
     if ([_password.stringValue length] == 0) {
         [self.view.window makeFirstResponder:_password];
-        [self flashField:_username];
+        [self flashField:_password];
         return;
     }
     
@@ -199,6 +210,10 @@ static NSString *client_secret() {
             } else {
                 [self sayHello:oauthToken];
             }
+        } else if (http.statusCode == 401 && [http allHeaderFields][@"X-GitHub-OTP"] != nil) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self requestOneTimeCode];
+            });
         } else if (http.statusCode == 404 || http.statusCode == 401) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self presentError:[NSError shipErrorWithCode:ShipErrorCodeInvalidPassword]];
@@ -235,6 +250,16 @@ static NSString *client_secret() {
     }
 }
 
+- (IBAction)submitOneTimeCode:(id)sender {
+    if ([_username.stringValue length] == 0) {
+        [self.view.window makeFirstResponder:_username];
+    } else if ([_password.stringValue length] == 0) {
+        [self.view.window makeFirstResponder:_password];
+    } else {
+        [self go:sender]; // we don't require any one time code to proceed.
+    }
+}
+
 - (BOOL)presentError:(NSError *)error {
     [_progress stopAnimation:nil];
     _progress.hidden = YES;
@@ -253,6 +278,12 @@ static NSString *client_secret() {
     _goButton.hidden = NO;
     [_progress stopAnimation:nil];
     _progress.hidden = YES;
+}
+
+- (void)requestOneTimeCode {
+    [self resetUI];
+    [self.view.window makeFirstResponder:_oneTimeCode];
+    [self flashField:_oneTimeCode];
 }
 
 @end

@@ -10,6 +10,7 @@
                 <outlet property="box" destination="1co-4N-Wam" id="YkD-QF-jyv"/>
                 <outlet property="goButton" destination="55P-Qb-h41" id="DTR-ga-rqe"/>
                 <outlet property="infoButton" destination="NmF-IJ-3bt" id="vQa-fY-X9u"/>
+                <outlet property="oneTimeCode" destination="xYH-VO-Mwv" id="JhM-gO-3sg"/>
                 <outlet property="password" destination="Rmt-L6-Ibu" id="1IQ-qo-czy"/>
                 <outlet property="progress" destination="is9-Gb-wPx" id="HMR-Ii-0D8"/>
                 <outlet property="username" destination="WHf-kW-QC4" id="2S3-wZ-UMH"/>
@@ -27,10 +28,13 @@
             <subviews>
                 <customView wantsLayer="YES" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1co-4N-Wam">
                     <rect key="frame" x="36" y="159" width="449" height="118"/>
+                    <userGuides>
+                        <userLayoutGuide location="37" affinity="minY"/>
+                    </userGuides>
                     <subviews>
                         <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="WHf-kW-QC4">
                             <rect key="frame" x="18" y="67" width="350" height="20"/>
-                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" focusRingType="none" alignment="left" placeholderString="Username" id="7hz-Yp-KQN">
+                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" state="on" focusRingType="none" alignment="left" placeholderString="Username" id="7hz-Yp-KQN">
                                 <font key="font" metaFont="system" size="14"/>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -50,8 +54,8 @@
                             <color key="fillColor" red="1" green="1" blue="1" alpha="0.5" colorSpace="calibratedRGB"/>
                         </box>
                         <secureTextField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Rmt-L6-Ibu">
-                            <rect key="frame" x="18" y="33" width="350" height="20"/>
-                            <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" focusRingType="none" placeholderString="Password" usesSingleLineMode="YES" id="e0W-Sr-hTa">
+                            <rect key="frame" x="18" y="33" width="269" height="20"/>
+                            <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" focusRingType="none" placeholderString="Password" usesSingleLineMode="YES" id="e0W-Sr-hTa">
                                 <font key="font" metaFont="system" size="14"/>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -61,7 +65,7 @@
                             </secureTextFieldCell>
                             <connections>
                                 <action selector="submitPassword:" target="-2" id="t73-xL-xy5"/>
-                                <outlet property="nextKeyView" destination="WHf-kW-QC4" id="qSJ-Df-Qah"/>
+                                <outlet property="nextKeyView" destination="xYH-VO-Mwv" id="2rL-c6-1DR"/>
                             </connections>
                         </secureTextField>
                         <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="55P-Qb-h41" userLabel="Action Button" customClass="AlphaDisabledButton">
@@ -97,6 +101,18 @@
                                 </ciFilter>
                             </contentFilters>
                         </progressIndicator>
+                        <textField toolTip="Necessarify if you have enabled two factor authentication for GitHub" focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xYH-VO-Mwv">
+                            <rect key="frame" x="307" y="33" width="85" height="20"/>
+                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" state="on" focusRingType="none" alignment="left" placeholderString="1 Time Code" id="CkH-kx-XEd">
+                                <font key="font" metaFont="system" size="14"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                            <connections>
+                                <action selector="submitOneTimeCode:" target="-2" id="ld9-xr-iiQ"/>
+                                <outlet property="nextKeyView" destination="WHf-kW-QC4" id="1MP-NP-RXl"/>
+                            </connections>
+                        </textField>
                     </subviews>
                 </customView>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NRv-9U-rx6">
