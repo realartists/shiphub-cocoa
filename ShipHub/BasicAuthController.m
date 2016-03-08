@@ -153,6 +153,8 @@ static NSString *client_secret() {
     
     // Step 1: Authenticate with GitHub
     
+    // use a unique fingerprint since if we're here, we aren't aware of any tokens and therefore we need a new one.
+    NSString *fingerprint = [[[NSUUID UUID] UUIDString] stringByReplacingOccurrencesOfString:@"-" withString:@""];
     NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.github.com/authorizations/clients/%@", client_id()]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
     request.HTTPMethod = @"PUT";
@@ -162,16 +164,23 @@ static NSString *client_secret() {
     NSString *auth64 = [authData base64EncodedStringWithOptions:0];
     
     [request setValue:[NSString stringWithFormat:@"Basic %@", auth64] forHTTPHeaderField:@"Authorization"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
-    NSDictionary *bodyDict = @{ @"scopes": @"user:email,repo,write:repo_hook,admin:repo_hook,read:org,admin:org_hook",
+    NSDictionary *bodyDict = @{ @"scopes": [@"user:email,repo,write:repo_hook,admin:repo_hook,read:org" componentsSeparatedByString:@","],
                                 @"client_id": client_id(),
-                                @"client_secret": client_secret() };
+                                @"client_secret": client_secret(),
+                                @"fingerprint": fingerprint };
     
     request.HTTPBody = [NSJSONSerialization dataWithJSONObject:bodyDict options:0 error:NULL];
     
+    DebugLog(@"%@", request);
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
         NSHTTPURLResponse *http = (NSHTTPURLResponse *)response;
+        DebugLog(@"%@", http);
+        if (data) {
+            DebugLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+        }
         
         if (http.statusCode == 200 || http.statusCode == 201) {
             NSError *decodeErr = nil;
