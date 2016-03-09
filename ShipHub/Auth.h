@@ -16,7 +16,8 @@
 
 @property (copy) NSString *login;
 @property (copy) NSString *name;
-@property (strong) NSNumber *identifier;
+@property (strong) NSNumber *ghIdentifier;
+@property (strong) NSString *shipIdentifier;
 
 @property (strong) NSDictionary *extra;
 

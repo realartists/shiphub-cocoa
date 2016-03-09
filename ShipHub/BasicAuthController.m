@@ -186,7 +186,7 @@ static NSString *client_secret() {
     [request setValue:[NSString stringWithFormat:@"Basic %@", auth64] forHTTPHeaderField:@"Authorization"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
-    NSDictionary *bodyDict = @{ @"scopes": [@"user:email,repo,write:repo_hook,admin:repo_hook,read:org" componentsSeparatedByString:@","],
+    NSDictionary *bodyDict = @{ @"scopes": [@"user:email,repo,admin:repo_hook,read:org,admin:org_hook" componentsSeparatedByString:@","],
                                 @"client_id": client_id(),
                                 @"client_secret": client_secret(),
                                 @"fingerprint": fingerprint };
@@ -249,11 +249,12 @@ static NSString *client_secret() {
                   [ServerConnection defaultShipHubHost]]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
     
-    NSDictionary *body = @{ @"token" : oauthToken,
-                            @"client_id" : client_id() };
+    NSDictionary *body = @{ @"accessToken" : oauthToken,
+                            @"applicationId" : client_id(),
+                            @"clientName" : [[NSBundle mainBundle] bundleIdentifier] };
     
-    [request setValue:@"application/json" forKey:@"Content-Type"];
-    [request setValue:@"application/json" forKey:@"Accept"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
     request.HTTPMethod = @"POST";
     request.HTTPBody = [NSJSONSerialization dataWithJSONObject:body options:0 error:NULL];
@@ -279,7 +280,7 @@ static NSString *client_secret() {
             NSDictionary *billingState = nil;
             
             if (!decodeErr) {
-                shipToken = reply[@"token"];
+                shipToken = reply[@"session"];
                 userDict = reply[@"user"];
                 billingState = reply[@"billing"];
             }

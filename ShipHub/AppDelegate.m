@@ -88,8 +88,10 @@
 }
 
 - (void)authChanged:(NSNotification *)note {
-    [self rebuildAccountMenu];
-    [self showAuthIfNeededAnimated:YES];
+    if ([note object] == _auth) {
+        [self rebuildAccountMenu];
+        [self showAuthIfNeededAnimated:YES];
+    }
 }
 
 - (void)authController:(AuthController *)controller authenticated:(Auth *)auth {

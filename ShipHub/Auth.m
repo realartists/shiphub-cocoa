@@ -8,6 +8,7 @@
 
 #import "Auth.h"
 
+#import "Extras.h"
 #import "Keychain.h"
 #import "JSONItem.h"
 #import "Error.h"
@@ -204,7 +205,8 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     if (self = [super init]) {
         self.login = dict[@"login"];
         self.name = dict[@"name"];
-        self.identifier = dict[@"id"];
+        self.ghIdentifier = dict[@"gitHubId"];
+        self.shipIdentifier = dict[@"identifier"];
         self.extra = dict;
     }
     return self;
@@ -213,8 +215,9 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
 - (NSMutableDictionary *)dictionaryRepresentation {
     NSMutableDictionary *d = [NSMutableDictionary dictionaryWithDictionary:self.extra ?: @{}];
     d[@"login"] = self.login;
-    d[@"name"] = self.name;
-    d[@"id"] = self.identifier;
+    [d setOptional:self.name forKey:@"name"];
+    d[@"ghIdentifier"] = self.ghIdentifier;
+    d[@"shipIdentifier"] = self.shipIdentifier;
     return d;
 }
 
