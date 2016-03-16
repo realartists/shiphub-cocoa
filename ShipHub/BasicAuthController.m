@@ -123,7 +123,8 @@
     }];
 }
 
-static NSString *client_id() {
+
+- (NSString *)clientID {
     //return @"eac522c6b68c504b2aac";
     switch (DefaultsServerEnvironment()) {
         case ServerEnvironmentDevelopment:
@@ -135,7 +136,7 @@ static NSString *client_id() {
     }
 }
 
-static NSString *client_secret() {
+- (NSString *)clientSecret {
     //return @"cc3439df3a004194d920a6eabf303d7e8243281a";
     switch (DefaultsServerEnvironment()) {
         case ServerEnvironmentDevelopment:
@@ -145,6 +146,14 @@ static NSString *client_secret() {
         default:
             return @"044a8c057d8a00f023f4c19932d0fcbb77deaa57";
     }
+}
+
+- (NSString *)ghHost {
+    return @"api.github.com";
+}
+
+- (NSString *)shipHost {
+    return [ServerConnection defaultShipHubHost];
 }
 
 - (IBAction)go:(id)sender {
@@ -175,7 +184,7 @@ static NSString *client_secret() {
     
     // use a unique fingerprint since if we're here, we aren't aware of any tokens and therefore we need a new one.
     NSString *fingerprint = [[[NSUUID UUID] UUIDString] stringByReplacingOccurrencesOfString:@"-" withString:@""];
-    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://api.github.com/authorizations/clients/%@", client_id()]];
+    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/authorizations/clients/%@", [self ghHost], [self clientID]]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
     request.HTTPMethod = @"PUT";
 
@@ -187,8 +196,8 @@ static NSString *client_secret() {
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
     NSDictionary *bodyDict = @{ @"scopes": [@"user:email,repo,admin:repo_hook,read:org,admin:org_hook" componentsSeparatedByString:@","],
-                                @"client_id": client_id(),
-                                @"client_secret": client_secret(),
+                                @"client_id": [self clientID],
+                                @"client_secret": [self clientSecret],
                                 @"fingerprint": fingerprint };
     
     request.HTTPBody = [NSJSONSerialization dataWithJSONObject:bodyDict options:0 error:NULL];
@@ -246,11 +255,11 @@ static NSString *client_secret() {
     // callable from any queue, so we're not necessarily on the main queue here.
     
     NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/authentication/hello",
-                  [ServerConnection defaultShipHubHost]]];
+                  [self shipHost]]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
     
     NSDictionary *body = @{ @"accessToken" : oauthToken,
-                            @"applicationId" : client_id(),
+                            @"applicationId" : [self clientID],
                             @"clientName" : [[NSBundle mainBundle] bundleIdentifier] };
     
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
@@ -317,6 +326,10 @@ static NSString *client_secret() {
     [self resetUI];
     
     // FIXME: Do something with billing
+    
+    NSMutableDictionary *accountDict = [user mutableCopy];
+    [accountDict setObject:@"ghHost" forKey:[self ghHost]];
+    [accountDict setObject:@"shipHost" forKey:[self shipHost]];
 
     AuthAccount *account = [[AuthAccount alloc] initWithDictionary:user];
     Auth *auth = [Auth authWithAccount:account shipToken:shipToken ghToken:ghToken];

@@ -207,6 +207,8 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
         self.name = dict[@"name"];
         self.ghIdentifier = dict[@"gitHubId"];
         self.shipIdentifier = dict[@"identifier"];
+        self.ghHost = dict[@"ghHost"];
+        self.shipHost = dict[@"shipHost"];
         self.extra = dict;
     }
     return self;
@@ -218,6 +220,8 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     [d setOptional:self.name forKey:@"name"];
     d[@"ghIdentifier"] = self.ghIdentifier;
     d[@"shipIdentifier"] = self.shipIdentifier;
+    d[@"ghHost"] = self.ghHost;
+    d[@"shipHost"] = self.shipHost;
     return d;
 }
 

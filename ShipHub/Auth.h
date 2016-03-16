@@ -19,6 +19,9 @@
 @property (strong) NSNumber *ghIdentifier;
 @property (strong) NSString *shipIdentifier;
 
+@property (copy) NSString *ghHost;
+@property (copy) NSString *shipHost;
+
 @property (strong) NSDictionary *extra;
 
 @end

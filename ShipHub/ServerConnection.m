@@ -14,8 +14,6 @@
 @interface ServerConnection ()
 
 @property (strong) Auth *auth;
-@property (copy) NSString *gitHubHost;
-@property (copy) NSString *shipHubHost;
 
 @end
 
@@ -38,17 +36,6 @@
 - (id)initWithAuth:(Auth *)auth {
     if (self = [super init]) {
         self.auth = auth;
-        self.gitHubHost = @"api.github.com";
-        self.shipHubHost = [[self class] defaultShipHubHost];
-    }
-    return self;
-}
-
-- (id)initWithAuth:(Auth *)auth gitHubEnterpriseHost:(NSString *)gitHubEnterpriseHost shipHubEnterpriseHost:(NSString *)shipHubEnterpriseHost {
-    if (self = [super init]) {
-        self.auth = auth;
-        self.gitHubHost = gitHubEnterpriseHost;
-        self.shipHubHost = shipHubEnterpriseHost;
     }
     return self;
 }

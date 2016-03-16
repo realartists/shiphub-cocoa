@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="15D21" minimumToolsVersion="Xcode 7.0">
+    <entity name="LocalAccount" representedClassName="LocalAccount" isAbstract="YES" syncable="YES">
+        <attribute name="avatarURL" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="login" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="repos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalRepo" inverseName="owner" inverseEntity="LocalRepo" syncable="YES"/>
+    </entity>
+    <entity name="LocalComment" representedClassName="LocalComment" syncable="YES">
+        <attribute name="body" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="comments" inverseEntity="LocalUser" syncable="YES"/>
+    </entity>
+    <entity name="LocalEvent" representedClassName="LocalEvent" syncable="YES">
+        <attribute name="commitId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="commitURL" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="event" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <relationship name="actor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="actedEvents" inverseEntity="LocalUser" syncable="YES"/>
+        <relationship name="assignee" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="assignedEvents" inverseEntity="LocalUser" syncable="YES"/>
+        <relationship name="labels" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalLabel" inverseName="event" inverseEntity="LocalLabel" syncable="YES"/>
+        <relationship name="milestone" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalMilestone" inverseName="events" inverseEntity="LocalMilestone" syncable="YES"/>
+    </entity>
+    <entity name="LocalIssue" representedClassName="LocalIssue" syncable="YES">
+        <attribute name="body" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="closed" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="locked" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="number" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="assignee" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="assignedIssues" inverseEntity="LocalUser" syncable="YES"/>
+        <relationship name="childRelationships" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalRelationship" inverseName="child" inverseEntity="LocalRelationship" syncable="YES"/>
+        <relationship name="closedBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="closedIssues" inverseEntity="LocalUser" syncable="YES"/>
+        <relationship name="labels" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalLabel" inverseName="issue" inverseEntity="LocalLabel" syncable="YES"/>
+        <relationship name="milestone" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalMilestone" inverseName="issues" inverseEntity="LocalMilestone" syncable="YES"/>
+        <relationship name="originator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="originatedIssues" inverseEntity="LocalUser" syncable="YES"/>
+        <relationship name="relationships" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalRelationship" inverseName="parent" inverseEntity="LocalRelationship" syncable="YES"/>
+        <relationship name="repo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="issues" inverseEntity="LocalRepo" syncable="YES"/>
+    </entity>
+    <entity name="LocalLabel" representedClassName="LocalLabel" syncable="YES">
+        <attribute name="color" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="event" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalEvent" inverseName="labels" inverseEntity="LocalEvent" syncable="YES"/>
+        <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="labels" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="repo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="labels" inverseEntity="LocalRepo" syncable="YES"/>
+    </entity>
+    <entity name="LocalMilestone" representedClassName="LocalMilestone" syncable="YES">
+        <attribute name="closedAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="dueOn" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="milestoneDescription" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="events" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalEvent" inverseName="milestone" inverseEntity="LocalEvent" syncable="YES"/>
+        <relationship name="issues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="milestone" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="repo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="milestones" inverseEntity="LocalRepo" syncable="YES"/>
+    </entity>
+    <entity name="LocalOrg" representedClassName="LocalOrg" parentEntity="LocalAccount" syncable="YES">
+        <relationship name="users" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="orgs" inverseEntity="LocalUser" syncable="YES"/>
+    </entity>
+    <entity name="LocalRelationship" representedClassName="LocalRelationship" syncable="YES">
+        <attribute name="type" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <relationship name="child" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="childRelationships" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="parent" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="relationships" inverseEntity="LocalIssue" syncable="YES"/>
+    </entity>
+    <entity name="LocalRepo" representedClassName="LocalRepo" syncable="YES">
+        <attribute name="fullName" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="hidden" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="private" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="repoDescription" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="assignees" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="assignable" inverseEntity="LocalUser" syncable="YES"/>
+        <relationship name="issues" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalIssue" inverseName="repo" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="labels" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalLabel" inverseName="repo" inverseEntity="LocalLabel" syncable="YES"/>
+        <relationship name="milestones" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalMilestone" inverseName="repo" inverseEntity="LocalMilestone" syncable="YES"/>
+        <relationship name="owner" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="repos" inverseEntity="LocalAccount" syncable="YES"/>
+    </entity>
+    <entity name="LocalSyncVersion" representedClassName="LocalSyncVersion" syncable="YES">
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="version" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+    </entity>
+    <entity name="LocalUser" representedClassName="LocalUser" parentEntity="LocalAccount" syncable="YES">
+        <relationship name="actedEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalEvent" inverseName="actor" inverseEntity="LocalEvent" syncable="YES"/>
+        <relationship name="assignable" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="assignees" inverseEntity="LocalRepo" syncable="YES"/>
+        <relationship name="assignedEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalEvent" inverseName="assignee" inverseEntity="LocalEvent" syncable="YES"/>
+        <relationship name="assignedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="assignee" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="closedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="closedBy" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="comments" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalComment" inverseName="user" inverseEntity="LocalComment" syncable="YES"/>
+        <relationship name="orgs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalOrg" inverseName="users" inverseEntity="LocalOrg" syncable="YES"/>
+        <relationship name="originatedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="originator" inverseEntity="LocalIssue" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="LocalAccount" positionX="-497" positionY="-108" width="128" height="118"/>
+        <element name="LocalComment" positionX="412" positionY="-90" width="128" height="120"/>
+        <element name="LocalEvent" positionX="403" positionY="63" width="128" height="180"/>
+        <element name="LocalIssue" positionX="198" positionY="-54" width="128" height="285"/>
+        <element name="LocalLabel" positionX="-11" positionY="267" width="128" height="118"/>
+        <element name="LocalMilestone" positionX="-18" positionY="-115" width="128" height="208"/>
+        <element name="LocalOrg" positionX="-425" positionY="45" width="128" height="58"/>
+        <element name="LocalRelationship" positionX="421" positionY="335" width="128" height="88"/>
+        <element name="LocalRepo" positionX="-209" positionY="-108" width="128" height="208"/>
+        <element name="LocalSyncVersion" positionX="-351" positionY="-99" width="128" height="75"/>
+        <element name="LocalUser" positionX="-576" positionY="63" width="128" height="163"/>
+    </elements>
+</model>

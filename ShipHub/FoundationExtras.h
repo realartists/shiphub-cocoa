@@ -10,6 +10,12 @@
 #import <CoreData/CoreData.h>
 #import <CoreGraphics/CoreGraphics.h>
 
+#if TARGET_OS_IPHONE
+#import <UIKit/UIKit.h>
+#else
+#import <AppKit/AppKit.h>
+#endif
+
 @interface NSObject (Extras)
 
 - (void)sendAction:(SEL)action toTarget:(id)target;
@@ -127,7 +133,12 @@
 
 - (void)performBlock:(dispatch_block_t)block completion:(dispatch_block_t)completion;
 
-- (void)purge;
+// The following methods must be called within a queue managed by the NSManagedObjectContext
+
+- (void)purge; // removes all entities and calls save:
+
+- (void)batchDeleteEntitiesWithRequest:(NSFetchRequest *)request error:(NSError * __autoreleasing *)error; // removes entities described by request. does not call save:
+
 
 @end
 

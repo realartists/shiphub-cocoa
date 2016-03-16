@@ -549,7 +549,6 @@ static inline uint8_t h2b(uint8_t v) {
 
 - (void)purge {
     // In 10.11 there will be a more efficient way to do this.
-    
     NSUInteger purged = 0;
     NSManagedObjectModel *mom = self.persistentStoreCoordinator.managedObjectModel;
     for (NSEntityDescription *entity in mom.entities) {
@@ -567,6 +566,20 @@ static inline uint8_t h2b(uint8_t v) {
         ErrLog(@"%@", err);
     } else {
         DebugLog(@"Purged %tu entities", purged);
+    }
+}
+
+- (void)batchDeleteEntitiesWithRequest:(NSFetchRequest *)request error:(NSError * __autoreleasing *)error
+{
+    if ([NSBatchDeleteRequest class]) {
+        // 10.11/iOS 9 path
+        NSBatchDeleteRequest *batch = [[NSBatchDeleteRequest alloc] initWithFetchRequest:request];
+        [self executeRequest:batch error:error];
+    } else {
+        // 10.10 path
+        for (NSManagedObject *obj in [self executeFetchRequest:request error:error]) {
+            [self deleteObject:obj];
+        }
     }
 }
 

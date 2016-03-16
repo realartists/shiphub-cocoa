@@ -24,12 +24,79 @@
 		1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
 		1A2440CA1C84DEF800E070DA /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
 		1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
+		1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
+		1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
+		1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
+		1A3618EF1C8FC3DB008C11CB /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EE1C8FC3DB008C11CB /* Reachability.m */; };
+		1A3618F51C90C7F6008C11CB /* LocalModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618F31C90C7F6008C11CB /* LocalModel.xcdatamodeld */; };
+		1A3618FD1C9383CF008C11CB /* ShipHubTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618FC1C9383CF008C11CB /* ShipHubTests.m */; };
+		1A36190A1C9383E7008C11CB /* TestServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619031C9383E7008C11CB /* TestServerConnection.m */; };
+		1A36190B1C9383E7008C11CB /* TestSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619051C9383E7008C11CB /* TestSyncConnection.m */; };
+		1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619071C9383E7008C11CB /* TestDataStore.m */; };
+		1A36190D1C9383E7008C11CB /* TestMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619091C9383E7008C11CB /* TestMetadata.m */; };
 		1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414A1C8E528A0043DAF0 /* NavigationController.m */; };
 		1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */; };
 		1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */; };
 		1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */; };
 		1A7A415B1C8F603E0043DAF0 /* CAExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A415A1C8F603E0043DAF0 /* CAExtras.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
+		1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */; };
+		1AE09BEB1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */; };
+		1AE09BEC1C97687E00C5AC35 /* LocalMilestone.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC11C97687E00C5AC35 /* LocalMilestone.m */; };
+		1AE09BED1C97687E00C5AC35 /* LocalMilestone.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC11C97687E00C5AC35 /* LocalMilestone.m */; };
+		1AE09BEE1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC31C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m */; };
+		1AE09BEF1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC31C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m */; };
+		1AE09BF01C97687E00C5AC35 /* LocalRepo.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC51C97687E00C5AC35 /* LocalRepo.m */; };
+		1AE09BF11C97687E00C5AC35 /* LocalRepo.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC51C97687E00C5AC35 /* LocalRepo.m */; };
+		1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC71C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m */; };
+		1AE09BF31C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC71C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m */; };
+		1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC91C97687E00C5AC35 /* LocalIssue.m */; };
+		1AE09BF51C97687E00C5AC35 /* LocalIssue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC91C97687E00C5AC35 /* LocalIssue.m */; };
+		1AE09BF61C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BCB1C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m */; };
+		1AE09BF71C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BCB1C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m */; };
+		1AE09BF81C97687E00C5AC35 /* LocalRelationship.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BCD1C97687E00C5AC35 /* LocalRelationship.m */; };
+		1AE09BF91C97687E00C5AC35 /* LocalRelationship.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BCD1C97687E00C5AC35 /* LocalRelationship.m */; };
+		1AE09BFA1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BCF1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m */; };
+		1AE09BFB1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BCF1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m */; };
+		1AE09BFC1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD11C97687E00C5AC35 /* LocalSyncVersion.m */; };
+		1AE09BFD1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD11C97687E00C5AC35 /* LocalSyncVersion.m */; };
+		1AE09BFE1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD31C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m */; };
+		1AE09BFF1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD31C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m */; };
+		1AE09C001C97687E00C5AC35 /* LocalEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD51C97687E00C5AC35 /* LocalEvent.m */; };
+		1AE09C011C97687E00C5AC35 /* LocalEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD51C97687E00C5AC35 /* LocalEvent.m */; };
+		1AE09C021C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD71C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m */; };
+		1AE09C031C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD71C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m */; };
+		1AE09C041C97687E00C5AC35 /* LocalAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD91C97687E00C5AC35 /* LocalAccount.m */; };
+		1AE09C051C97687E00C5AC35 /* LocalAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD91C97687E00C5AC35 /* LocalAccount.m */; };
+		1AE09C061C97687E00C5AC35 /* LocalUser+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BDB1C97687E00C5AC35 /* LocalUser+CoreDataProperties.m */; };
+		1AE09C071C97687E00C5AC35 /* LocalUser+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BDB1C97687E00C5AC35 /* LocalUser+CoreDataProperties.m */; };
+		1AE09C081C97687E00C5AC35 /* LocalUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BDD1C97687E00C5AC35 /* LocalUser.m */; };
+		1AE09C091C97687E00C5AC35 /* LocalUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BDD1C97687E00C5AC35 /* LocalUser.m */; };
+		1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BDF1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m */; };
+		1AE09C0B1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BDF1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m */; };
+		1AE09C0C1C97687E00C5AC35 /* LocalLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BE11C97687E00C5AC35 /* LocalLabel.m */; };
+		1AE09C0D1C97687E00C5AC35 /* LocalLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BE11C97687E00C5AC35 /* LocalLabel.m */; };
+		1AE09C0E1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BE31C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m */; };
+		1AE09C0F1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BE31C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m */; };
+		1AE09C101C97687E00C5AC35 /* LocalOrg.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BE51C97687E00C5AC35 /* LocalOrg.m */; };
+		1AE09C111C97687E00C5AC35 /* LocalOrg.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BE51C97687E00C5AC35 /* LocalOrg.m */; };
+		1AE09C121C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BE71C97687E00C5AC35 /* LocalComment+CoreDataProperties.m */; };
+		1AE09C131C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BE71C97687E00C5AC35 /* LocalComment+CoreDataProperties.m */; };
+		1AE09C141C97687E00C5AC35 /* LocalComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BE91C97687E00C5AC35 /* LocalComment.m */; };
+		1AE09C151C97687E00C5AC35 /* LocalComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BE91C97687E00C5AC35 /* LocalComment.m */; };
+		1AE09C161C9779B000C5AC35 /* Auth.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217DA1C7E99A1006460E2 /* Auth.m */; };
+		1AE09C171C9779B300C5AC35 /* Keychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217D71C7E981D006460E2 /* Keychain.m */; };
+		1AE09C181C9779BB00C5AC35 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305D81C7F80EA0034C871 /* Defaults.m */; };
+		1AE09C191C9779BE00C5AC35 /* Error.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305DC1C7F84D80034C871 /* Error.m */; };
+		1AE09C1A1C9779C000C5AC35 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
+		1AE09C1B1C9779C200C5AC35 /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
+		1AE09C1C1C9779C400C5AC35 /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
+		1AE09C1D1C9779CA00C5AC35 /* LocalModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618F31C90C7F6008C11CB /* LocalModel.xcdatamodeld */; };
+		1AE09C1E1C9779D300C5AC35 /* FoundationExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F11C7FC2E10034C871 /* FoundationExtras.m */; };
+		1AE09C211C9779DE00C5AC35 /* Logging.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217D01C7E80CE006460E2 /* Logging.m */; };
+		1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
+		1AE09C231C9779E400C5AC35 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EE1C8FC3DB008C11CB /* Reachability.m */; };
+		1AE09C241C977A3400C5AC35 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -116,6 +183,26 @@
 		1A2440C91C84DEF800E070DA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		1A2440CF1C85127C00E070DA /* WebKitExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitExtras.h; sourceTree = "<group>"; };
 		1A2440D01C85127C00E070DA /* WebKitExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebKitExtras.m; sourceTree = "<group>"; };
+		1A3618E11C8FBF96008C11CB /* DataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStore.h; sourceTree = "<group>"; };
+		1A3618E21C8FBF96008C11CB /* DataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataStore.m; sourceTree = "<group>"; };
+		1A3618E71C8FC25B008C11CB /* SyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncConnection.h; sourceTree = "<group>"; };
+		1A3618E81C8FC25B008C11CB /* SyncConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SyncConnection.m; sourceTree = "<group>"; };
+		1A3618EA1C8FC3CC008C11CB /* KSReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KSReachability.h; sourceTree = "<group>"; };
+		1A3618EB1C8FC3CC008C11CB /* KSReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KSReachability.m; sourceTree = "<group>"; };
+		1A3618ED1C8FC3DB008C11CB /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reachability.h; sourceTree = "<group>"; };
+		1A3618EE1C8FC3DB008C11CB /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
+		1A3618F41C90C7F6008C11CB /* LocalModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = LocalModel.xcdatamodel; sourceTree = "<group>"; };
+		1A3618FA1C9383CF008C11CB /* ShipHubTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShipHubTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A3618FC1C9383CF008C11CB /* ShipHubTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShipHubTests.m; sourceTree = "<group>"; };
+		1A3618FE1C9383CF008C11CB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1A3619021C9383E7008C11CB /* TestServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestServerConnection.h; sourceTree = "<group>"; };
+		1A3619031C9383E7008C11CB /* TestServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestServerConnection.m; sourceTree = "<group>"; };
+		1A3619041C9383E7008C11CB /* TestSyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestSyncConnection.h; sourceTree = "<group>"; };
+		1A3619051C9383E7008C11CB /* TestSyncConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestSyncConnection.m; sourceTree = "<group>"; };
+		1A3619061C9383E7008C11CB /* TestDataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestDataStore.h; sourceTree = "<group>"; };
+		1A3619071C9383E7008C11CB /* TestDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDataStore.m; sourceTree = "<group>"; };
+		1A3619081C9383E7008C11CB /* TestMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMetadata.h; sourceTree = "<group>"; };
+		1A3619091C9383E7008C11CB /* TestMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestMetadata.m; sourceTree = "<group>"; };
 		1A7A41491C8E528A0043DAF0 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
 		1A7A414A1C8E528A0043DAF0 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
 		1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NavigationController.xib; sourceTree = "<group>"; };
@@ -126,6 +213,50 @@
 		1A7A415F1C8F604E0043DAF0 /* CAExtras.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CAExtras.h; sourceTree = "<group>"; };
 		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
+		1AE09BBE1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalMilestone+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalMilestone+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AE09BC01C97687E00C5AC35 /* LocalMilestone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalMilestone.h; sourceTree = "<group>"; };
+		1AE09BC11C97687E00C5AC35 /* LocalMilestone.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalMilestone.m; sourceTree = "<group>"; };
+		1AE09BC21C97687E00C5AC35 /* LocalRepo+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalRepo+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AE09BC31C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalRepo+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AE09BC41C97687E00C5AC35 /* LocalRepo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalRepo.h; sourceTree = "<group>"; };
+		1AE09BC51C97687E00C5AC35 /* LocalRepo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalRepo.m; sourceTree = "<group>"; };
+		1AE09BC61C97687E00C5AC35 /* LocalIssue+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalIssue+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AE09BC71C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalIssue+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AE09BC81C97687E00C5AC35 /* LocalIssue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalIssue.h; sourceTree = "<group>"; };
+		1AE09BC91C97687E00C5AC35 /* LocalIssue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalIssue.m; sourceTree = "<group>"; };
+		1AE09BCA1C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalRelationship+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AE09BCB1C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalRelationship+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AE09BCC1C97687E00C5AC35 /* LocalRelationship.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalRelationship.h; sourceTree = "<group>"; };
+		1AE09BCD1C97687E00C5AC35 /* LocalRelationship.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalRelationship.m; sourceTree = "<group>"; };
+		1AE09BCE1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalSyncVersion+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AE09BCF1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalSyncVersion+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AE09BD01C97687E00C5AC35 /* LocalSyncVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalSyncVersion.h; sourceTree = "<group>"; };
+		1AE09BD11C97687E00C5AC35 /* LocalSyncVersion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalSyncVersion.m; sourceTree = "<group>"; };
+		1AE09BD21C97687E00C5AC35 /* LocalEvent+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalEvent+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AE09BD31C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalEvent+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AE09BD41C97687E00C5AC35 /* LocalEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalEvent.h; sourceTree = "<group>"; };
+		1AE09BD51C97687E00C5AC35 /* LocalEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalEvent.m; sourceTree = "<group>"; };
+		1AE09BD61C97687E00C5AC35 /* LocalAccount+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalAccount+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AE09BD71C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalAccount+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AE09BD81C97687E00C5AC35 /* LocalAccount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalAccount.h; sourceTree = "<group>"; };
+		1AE09BD91C97687E00C5AC35 /* LocalAccount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalAccount.m; sourceTree = "<group>"; };
+		1AE09BDA1C97687E00C5AC35 /* LocalUser+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalUser+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AE09BDB1C97687E00C5AC35 /* LocalUser+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalUser+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AE09BDC1C97687E00C5AC35 /* LocalUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalUser.h; sourceTree = "<group>"; };
+		1AE09BDD1C97687E00C5AC35 /* LocalUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalUser.m; sourceTree = "<group>"; };
+		1AE09BDE1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalLabel+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AE09BDF1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalLabel+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AE09BE01C97687E00C5AC35 /* LocalLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalLabel.h; sourceTree = "<group>"; };
+		1AE09BE11C97687E00C5AC35 /* LocalLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalLabel.m; sourceTree = "<group>"; };
+		1AE09BE21C97687E00C5AC35 /* LocalOrg+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalOrg+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AE09BE31C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalOrg+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AE09BE41C97687E00C5AC35 /* LocalOrg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalOrg.h; sourceTree = "<group>"; };
+		1AE09BE51C97687E00C5AC35 /* LocalOrg.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalOrg.m; sourceTree = "<group>"; };
+		1AE09BE61C97687E00C5AC35 /* LocalComment+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalComment+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AE09BE71C97687E00C5AC35 /* LocalComment+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalComment+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AE09BE81C97687E00C5AC35 /* LocalComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalComment.h; sourceTree = "<group>"; };
+		1AE09BE91C97687E00C5AC35 /* LocalComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalComment.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -138,6 +269,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1A3618F71C9383CF008C11CB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AE09C241C977A3400C5AC35 /* libz.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -145,6 +284,7 @@
 			isa = PBXGroup;
 			children = (
 				1A2217901C7E7B14006460E2 /* ShipHub */,
+				1A3618FB1C9383CF008C11CB /* ShipHubTests */,
 				1A2217A21C7E7B78006460E2 /* ext */,
 				1A22178F1C7E7B14006460E2 /* Products */,
 			);
@@ -154,6 +294,7 @@
 			isa = PBXGroup;
 			children = (
 				1A22178E1C7E7B14006460E2 /* ShipHub.app */,
+				1A3618FA1C9383CF008C11CB /* ShipHubTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -162,6 +303,7 @@
 			isa = PBXGroup;
 			children = (
 				1A2217CD1C7E7C52006460E2 /* App */,
+				1A3618F11C90C7C2008C11CB /* Model */,
 				1A2217CC1C7E7C49006460E2 /* Auth */,
 				1A2217CE1C7E80C0006460E2 /* Extras */,
 				1A2217941C7E7B14006460E2 /* Supporting Files */,
@@ -233,6 +375,10 @@
 				1A2305DC1C7F84D80034C871 /* Error.m */,
 				1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */,
 				1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */,
+				1A3618E11C8FBF96008C11CB /* DataStore.h */,
+				1A3618E21C8FBF96008C11CB /* DataStore.m */,
+				1A3618E71C8FC25B008C11CB /* SyncConnection.h */,
+				1A3618E81C8FC25B008C11CB /* SyncConnection.m */,
 			);
 			name = App;
 			sourceTree = "<group>";
@@ -251,6 +397,10 @@
 				1A2217D01C7E80CE006460E2 /* Logging.m */,
 				1A7A415F1C8F604E0043DAF0 /* CAExtras.h */,
 				1A7A415A1C8F603E0043DAF0 /* CAExtras.m */,
+				1A3618EA1C8FC3CC008C11CB /* KSReachability.h */,
+				1A3618EB1C8FC3CC008C11CB /* KSReachability.m */,
+				1A3618ED1C8FC3DB008C11CB /* Reachability.h */,
+				1A3618EE1C8FC3DB008C11CB /* Reachability.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -261,6 +411,83 @@
 				1A2440C91C84DEF800E070DA /* libz.tbd */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		1A3618F11C90C7C2008C11CB /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				1A3618F21C90C7D8008C11CB /* CoreData */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		1A3618F21C90C7D8008C11CB /* CoreData */ = {
+			isa = PBXGroup;
+			children = (
+				1A3618F31C90C7F6008C11CB /* LocalModel.xcdatamodeld */,
+				1AE09BBE1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.h */,
+				1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */,
+				1AE09BC01C97687E00C5AC35 /* LocalMilestone.h */,
+				1AE09BC11C97687E00C5AC35 /* LocalMilestone.m */,
+				1AE09BC21C97687E00C5AC35 /* LocalRepo+CoreDataProperties.h */,
+				1AE09BC31C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m */,
+				1AE09BC41C97687E00C5AC35 /* LocalRepo.h */,
+				1AE09BC51C97687E00C5AC35 /* LocalRepo.m */,
+				1AE09BC61C97687E00C5AC35 /* LocalIssue+CoreDataProperties.h */,
+				1AE09BC71C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m */,
+				1AE09BC81C97687E00C5AC35 /* LocalIssue.h */,
+				1AE09BC91C97687E00C5AC35 /* LocalIssue.m */,
+				1AE09BCA1C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.h */,
+				1AE09BCB1C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m */,
+				1AE09BCC1C97687E00C5AC35 /* LocalRelationship.h */,
+				1AE09BCD1C97687E00C5AC35 /* LocalRelationship.m */,
+				1AE09BCE1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.h */,
+				1AE09BCF1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m */,
+				1AE09BD01C97687E00C5AC35 /* LocalSyncVersion.h */,
+				1AE09BD11C97687E00C5AC35 /* LocalSyncVersion.m */,
+				1AE09BD21C97687E00C5AC35 /* LocalEvent+CoreDataProperties.h */,
+				1AE09BD31C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m */,
+				1AE09BD41C97687E00C5AC35 /* LocalEvent.h */,
+				1AE09BD51C97687E00C5AC35 /* LocalEvent.m */,
+				1AE09BD61C97687E00C5AC35 /* LocalAccount+CoreDataProperties.h */,
+				1AE09BD71C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m */,
+				1AE09BD81C97687E00C5AC35 /* LocalAccount.h */,
+				1AE09BD91C97687E00C5AC35 /* LocalAccount.m */,
+				1AE09BDA1C97687E00C5AC35 /* LocalUser+CoreDataProperties.h */,
+				1AE09BDB1C97687E00C5AC35 /* LocalUser+CoreDataProperties.m */,
+				1AE09BDC1C97687E00C5AC35 /* LocalUser.h */,
+				1AE09BDD1C97687E00C5AC35 /* LocalUser.m */,
+				1AE09BDE1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.h */,
+				1AE09BDF1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m */,
+				1AE09BE01C97687E00C5AC35 /* LocalLabel.h */,
+				1AE09BE11C97687E00C5AC35 /* LocalLabel.m */,
+				1AE09BE21C97687E00C5AC35 /* LocalOrg+CoreDataProperties.h */,
+				1AE09BE31C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m */,
+				1AE09BE41C97687E00C5AC35 /* LocalOrg.h */,
+				1AE09BE51C97687E00C5AC35 /* LocalOrg.m */,
+				1AE09BE61C97687E00C5AC35 /* LocalComment+CoreDataProperties.h */,
+				1AE09BE71C97687E00C5AC35 /* LocalComment+CoreDataProperties.m */,
+				1AE09BE81C97687E00C5AC35 /* LocalComment.h */,
+				1AE09BE91C97687E00C5AC35 /* LocalComment.m */,
+			);
+			name = CoreData;
+			sourceTree = "<group>";
+		};
+		1A3618FB1C9383CF008C11CB /* ShipHubTests */ = {
+			isa = PBXGroup;
+			children = (
+				1A3619021C9383E7008C11CB /* TestServerConnection.h */,
+				1A3619031C9383E7008C11CB /* TestServerConnection.m */,
+				1A3619041C9383E7008C11CB /* TestSyncConnection.h */,
+				1A3619051C9383E7008C11CB /* TestSyncConnection.m */,
+				1A3619061C9383E7008C11CB /* TestDataStore.h */,
+				1A3619071C9383E7008C11CB /* TestDataStore.m */,
+				1A3619081C9383E7008C11CB /* TestMetadata.h */,
+				1A3619091C9383E7008C11CB /* TestMetadata.m */,
+				1A3618FC1C9383CF008C11CB /* ShipHubTests.m */,
+				1A3618FE1C9383CF008C11CB /* Info.plist */,
+			);
+			path = ShipHubTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -285,6 +512,23 @@
 			productReference = 1A22178E1C7E7B14006460E2 /* ShipHub.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1A3618F91C9383CF008C11CB /* ShipHubTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A3618FF1C9383CF008C11CB /* Build configuration list for PBXNativeTarget "ShipHubTests" */;
+			buildPhases = (
+				1A3618F61C9383CF008C11CB /* Sources */,
+				1A3618F71C9383CF008C11CB /* Frameworks */,
+				1A3618F81C9383CF008C11CB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShipHubTests;
+			productName = ShipHubTests;
+			productReference = 1A3618FA1C9383CF008C11CB /* ShipHubTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -295,6 +539,9 @@
 				ORGANIZATIONNAME = "Real Artists, Inc";
 				TargetAttributes = {
 					1A22178D1C7E7B14006460E2 = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
+					1A3618F91C9383CF008C11CB = {
 						CreatedOnToolsVersion = 7.2.1;
 					};
 				};
@@ -319,6 +566,7 @@
 			projectRoot = "";
 			targets = (
 				1A22178D1C7E7B14006460E2 /* ShipHub */,
+				1A3618F91C9383CF008C11CB /* ShipHubTests */,
 			);
 		};
 /* End PBXProject section */
@@ -367,6 +615,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1A3618F81C9383CF008C11CB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -376,19 +631,92 @@
 			files = (
 				1A7A415B1C8F603E0043DAF0 /* CAExtras.m in Sources */,
 				1A2305E91C7FC2940034C871 /* AuthController.m in Sources */,
+				1AE09BEC1C97687E00C5AC35 /* LocalMilestone.m in Sources */,
 				1A2217961C7E7B14006460E2 /* main.m in Sources */,
+				1AE09BF61C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
+				1A3618F51C90C7F6008C11CB /* LocalModel.xcdatamodeld in Sources */,
 				1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */,
 				1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */,
 				1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */,
+				1AE09BFC1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
+				1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
+				1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
 				1A2305DD1C7F84D80034C871 /* Error.m in Sources */,
+				1AE09C101C97687E00C5AC35 /* LocalOrg.m in Sources */,
+				1AE09BEE1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
+				1A3618EF1C8FC3DB008C11CB /* Reachability.m in Sources */,
+				1AE09C0C1C97687E00C5AC35 /* LocalLabel.m in Sources */,
+				1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
+				1AE09C061C97687E00C5AC35 /* LocalUser+CoreDataProperties.m in Sources */,
+				1AE09BF01C97687E00C5AC35 /* LocalRepo.m in Sources */,
 				1A2305D91C7F80EA0034C871 /* Defaults.m in Sources */,
+				1AE09C001C97687E00C5AC35 /* LocalEvent.m in Sources */,
+				1AE09C041C97687E00C5AC35 /* LocalAccount.m in Sources */,
 				1A2217D81C7E981D006460E2 /* Keychain.m in Sources */,
+				1AE09C081C97687E00C5AC35 /* LocalUser.m in Sources */,
 				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
+				1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */,
+				1AE09C021C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,
+				1AE09C121C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */,
+				1AE09BFE1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
+				1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */,
 				1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */,
+				1AE09C141C97687E00C5AC35 /* LocalComment.m in Sources */,
+				1AE09C0E1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */,
+				1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */,
+				1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */,
+				1AE09BFA1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m in Sources */,
 				1A2217D11C7E80CE006460E2 /* Logging.m in Sources */,
+				1AE09BF81C97687E00C5AC35 /* LocalRelationship.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A3618F61C9383CF008C11CB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1AE09BF11C97687E00C5AC35 /* LocalRepo.m in Sources */,
+				1AE09BF91C97687E00C5AC35 /* LocalRelationship.m in Sources */,
+				1AE09BFF1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
+				1AE09C161C9779B000C5AC35 /* Auth.m in Sources */,
+				1AE09C171C9779B300C5AC35 /* Keychain.m in Sources */,
+				1AE09C091C97687E00C5AC35 /* LocalUser.m in Sources */,
+				1AE09C031C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,
+				1AE09C181C9779BB00C5AC35 /* Defaults.m in Sources */,
+				1AE09BF71C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
+				1AE09C0F1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */,
+				1AE09BEB1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
+				1AE09BED1C97687E00C5AC35 /* LocalMilestone.m in Sources */,
+				1A36190B1C9383E7008C11CB /* TestSyncConnection.m in Sources */,
+				1AE09C231C9779E400C5AC35 /* Reachability.m in Sources */,
+				1AE09C1D1C9779CA00C5AC35 /* LocalModel.xcdatamodeld in Sources */,
+				1AE09C051C97687E00C5AC35 /* LocalAccount.m in Sources */,
+				1AE09C111C97687E00C5AC35 /* LocalOrg.m in Sources */,
+				1AE09C211C9779DE00C5AC35 /* Logging.m in Sources */,
+				1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */,
+				1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */,
+				1A36190D1C9383E7008C11CB /* TestMetadata.m in Sources */,
+				1AE09BEF1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
+				1AE09C131C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */,
+				1AE09BFD1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */,
+				1AE09C1A1C9779C000C5AC35 /* ServerConnection.m in Sources */,
+				1AE09C191C9779BE00C5AC35 /* Error.m in Sources */,
+				1A36190A1C9383E7008C11CB /* TestServerConnection.m in Sources */,
+				1AE09C1B1C9779C200C5AC35 /* DataStore.m in Sources */,
+				1A3618FD1C9383CF008C11CB /* ShipHubTests.m in Sources */,
+				1AE09BFB1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m in Sources */,
+				1AE09C1E1C9779D300C5AC35 /* FoundationExtras.m in Sources */,
+				1AE09C0D1C97687E00C5AC35 /* LocalLabel.m in Sources */,
+				1AE09BF31C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
+				1AE09BF51C97687E00C5AC35 /* LocalIssue.m in Sources */,
+				1AE09C071C97687E00C5AC35 /* LocalUser+CoreDataProperties.m in Sources */,
+				1AE09C0B1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
+				1AE09C011C97687E00C5AC35 /* LocalEvent.m in Sources */,
+				1AE09C1C1C9779C400C5AC35 /* SyncConnection.m in Sources */,
+				1AE09C151C97687E00C5AC35 /* LocalComment.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -521,6 +849,32 @@
 			};
 			name = Release;
 		};
+		1A3619001C9383CF008C11CB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
+				INFOPLIST_FILE = ShipHubTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipHubTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		1A3619011C9383CF008C11CB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
+				INFOPLIST_FILE = ShipHubTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipHubTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -542,7 +896,29 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		1A3618FF1C9383CF008C11CB /* Build configuration list for PBXNativeTarget "ShipHubTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A3619001C9383CF008C11CB /* Debug */,
+				1A3619011C9383CF008C11CB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		1A3618F31C90C7F6008C11CB /* LocalModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				1A3618F41C90C7F6008C11CB /* LocalModel.xcdatamodel */,
+			);
+			currentVersion = 1A3618F41C90C7F6008C11CB /* LocalModel.xcdatamodel */;
+			path = LocalModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 1A2217861C7E7B14006460E2 /* Project object */;
 }

@@ -10,6 +10,7 @@
 
 #import "Auth.h"
 #import "AuthController.h"
+#import "DataStore.h"
 
 @interface AppDelegate () <AuthControllerDelegate> {
     BOOL _authConfigured;
@@ -71,6 +72,7 @@
     [self registerForDataStoreNotifications];
     [self rebuildAccountMenu];
     [self showAuthIfNeededAnimated:NO];
+    [self configureDataStoreAndShowUI];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -100,7 +102,17 @@
     [controller close];
     self.auth = auth;
     
+    [self configureDataStoreAndShowUI];
     [self rebuildAccountMenu];
+}
+
+- (void)configureDataStoreAndShowUI {
+    if (_auth && [[DataStore activeStore] auth] != _auth) {
+        DataStore *store = [DataStore storeWithAuth:_auth];
+        [store activate];
+        
+        // Show overview
+    }
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
