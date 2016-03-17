@@ -15,7 +15,6 @@
 
 @dynamic color;
 @dynamic name;
-@dynamic events;
 @dynamic issues;
 @dynamic repo;
 

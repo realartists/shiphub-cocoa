@@ -20,7 +20,5 @@
 @dynamic identifier;
 @dynamic actor;
 @dynamic assignee;
-@dynamic labels;
-@dynamic milestone;
 
 @end

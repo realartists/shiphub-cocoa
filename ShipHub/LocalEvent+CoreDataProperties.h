@@ -25,17 +25,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) LocalUser *actor;
 @property (nullable, nonatomic, retain) LocalUser *assignee;
-@property (nullable, nonatomic, retain) NSSet<LocalLabel *> *labels;
-@property (nullable, nonatomic, retain) LocalMilestone *milestone;
 
 @end
 
 @interface LocalEvent (CoreDataGeneratedAccessors)
-
-- (void)addLabelsObject:(LocalLabel *)value;
-- (void)removeLabelsObject:(LocalLabel *)value;
-- (void)addLabels:(NSSet<LocalLabel *> *)values;
-- (void)removeLabels:(NSSet<LocalLabel *> *)values;
 
 @end
 

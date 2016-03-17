@@ -335,11 +335,28 @@ typedef NS_ENUM(NSInteger, SyncState) {
             // yield the users to the delegate
             [self yield:accountsWithRepos(dedupedAssignees, repos) type:@"user" version:1];
             
-            // now find the org membership
-            [self orgMembership:dedupedOrgs repos:repos validMembers:assigneesLookup completion:^{
-                // now yield the repos
-                [self yield:reposWithAssignees type:@"repo" version:1];
+            
+            // Need to wait for orgs and milestones before we can yield repos.
+            dispatch_group_t waitForOrgsAndMilestones = dispatch_group_create();
+            
+            // find the milestones for each repo
+            __block NSArray *reposWithInfo = nil;
+            dispatch_group_enter(waitForOrgsAndMilestones);
+            [self findMilestonesAndLabels:reposWithAssignees completion:^(NSArray *rwi) {
+                reposWithInfo = rwi;
+                dispatch_group_leave(waitForOrgsAndMilestones);
             }];
+            
+            // now find the org membership
+            dispatch_group_enter(waitForOrgsAndMilestones);
+            [self orgMembership:dedupedOrgs repos:repos validMembers:assigneesLookup completion:^{
+                dispatch_group_leave(waitForOrgsAndMilestones);
+            }];
+            
+            dispatch_group_notify(waitForOrgsAndMilestones, _q, ^{
+                // finally yield the repos
+                [self yield:reposWithInfo type:@"repo" version:1];
+            });
         }];
     }];
 }
@@ -377,6 +394,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
             if (err) {
                 _state = SyncStateIdle;
                 failed = YES;
+                completion();
                 return;
             }
             
@@ -389,6 +407,36 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                 [self yield:accountsWithRepos(spideredOrgs, repos) type:@"org" version:1];
                 completion();
             }
+        }];
+    }
+}
+
+- (void)findMilestonesAndLabels:(NSArray *)repos completion:(void (^)(NSArray *rwi))completion {
+    __block NSUInteger remaining = repos.count * 2;
+    NSMutableArray *rwis = [NSMutableArray arrayWithCapacity:repos.count];
+    
+    dispatch_block_t done = ^{
+        remaining--;
+        if (remaining == 0) {
+            completion(rwis);
+        }
+    };
+    
+    for (NSDictionary *repo in repos) {
+        NSMutableDictionary *rwi = [repo mutableCopy];
+        [rwis addObject:rwi];
+        
+        NSString *baseEndpoint = [NSString stringWithFormat:@"repos/%@/%@", repo[@"owner"][@"login"], repo[@"name"]];
+        NSString *labelsEndpoint = [baseEndpoint stringByAppendingPathComponent:@"labels"];
+        NSString *milestonesEndpoint = [baseEndpoint stringByAppendingPathComponent:@"milestones"];
+        [self fetchPaged:[self get:labelsEndpoint] completion:^(NSArray *data, NSError *err) {
+            rwi[@"labels"] = data;
+            done();
+        }];
+        
+        [self fetchPaged:[self get:milestonesEndpoint] completion:^(NSArray *data, NSError *err) {
+            rwi[@"milestones"] = data;
+            done();
         }];
     }
 }

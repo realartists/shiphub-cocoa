@@ -274,6 +274,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     _moc.persistentStoreCoordinator = _persistentCoordinator;
     _moc.undoManager = nil; // don't care about undo-ing here, and it costs performance to have an undo manager.
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mocDidChange:) name:NSManagedObjectContextObjectsDidChangeNotification object:_moc];
+    
     BOOL needsSnapshotRebuild = NO;
     BOOL needsKeywordUsageRebuild = NO;
     BOOL needsABResync = NO;
@@ -597,47 +599,46 @@ static NSString *const LastUpdated = @"LastUpdated";
             NSMutableArray *relatedObjs = [NSMutableArray arrayWithArray:existing];
             if (error) ErrLog(@"%@", error);
             
-            if (cascade) {
-                // if we're the owner of this relationship, we also want to create placeholders
-                // for anything that didn't come back in existing
-                NSMutableSet *toCreate = [relatedIDs mutableCopy];
-                for (NSManagedObject *relObj in existing) {
-                    NSString *identifier = [relObj valueForKey:@"identifier"];
-                    NSDictionary *updates = relatedLookup[identifier];
-                    if (updates) {
-                        [relObj mergeAttributesFromDictionary:updates];
-                    }
-                    [toCreate removeObject:identifier];
+            NSMutableSet *toCreate = [relatedIDs mutableCopy];
+            for (NSManagedObject *relObj in existing) {
+                NSString *identifier = [relObj valueForKey:@"identifier"];
+                NSDictionary *updates = relatedLookup[identifier];
+                if (updates) {
+                    [relObj mergeAttributesFromDictionary:updates];
                 }
-                
-                for (id identifier in toCreate) {
-                    DebugLog(@"Creating %@ of id %@", rel.destinationEntity.name, identifier);
-                    NSManagedObject *relObj = [NSEntityDescription insertNewObjectForEntityForName:rel.destinationEntity.name inManagedObjectContext:_moc];
-                    [relObj setValue:identifier forKey:@"identifier"];
-                    NSDictionary *populate = relatedLookup[identifier];
-                    if (populate) {
-                        [relObj mergeAttributesFromDictionary:populate];
-                    }
-                    [relatedObjs addObject:relObj];
-                }
+                [toCreate removeObject:identifier];
             }
             
-            DebugLog(@"Setting relationships on %@ %@ forKey:%@", obj, relatedObjs, key);
+            for (id identifier in toCreate) {
+                DebugLog(@"Creating %@ of id %@", rel.destinationEntity.name, identifier);
+                NSManagedObject *relObj = [NSEntityDescription insertNewObjectForEntityForName:rel.destinationEntity.name inManagedObjectContext:_moc];
+                [relObj setValue:identifier forKey:@"identifier"];
+                NSDictionary *populate = relatedLookup[identifier];
+                if (populate) {
+                    [relObj mergeAttributesFromDictionary:populate];
+                }
+                [relatedObjs addObject:relObj];
+            }
+            
             [obj setValue:[NSSet setWithArray:relatedObjs] forKey:key];
             
         } else /* rel.toOne */ {
-            // to one relationships are always considered weak in our schema
-            
             id related = syncDict[key];
             
             if (!related) continue;
             
-            if ([related isKindOfClass:[NSDictionary class]]) {
-                related = related[@"identifier"];
-            }
+            NSDictionary *populate = nil;
             NSString *relatedID = related;
+            if ([related isKindOfClass:[NSDictionary class]]) {
+                populate = related;
+                relatedID = populate[@"identifier"];
+            } else if (related == [NSNull null]) {
+                [obj setValue:nil forKey:key];
+                relatedID = nil;
+            }
+            
             if (relatedID != nil) {
-                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:rel.entity.name];
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:rel.destinationEntity.name];
                 fetch.predicate = [NSPredicate predicateWithFormat:@"identifier == %@", relatedID];
                 fetch.fetchLimit = 1;
                 
@@ -647,8 +648,12 @@ static NSString *const LastUpdated = @"LastUpdated";
                 if (relObj) {
                     [obj setValue:relObj forKey:key];
                 } else {
-                    DebugLog(@"Could not locate related object (%@) in relationship %@", relatedID, rel);
-                    [obj setValue:nil forKey:key];
+                    DebugLog(@"Creating %@ of id %@", rel.destinationEntity.name, relatedID);
+                    relObj = [NSEntityDescription insertNewObjectForEntityForName:rel.destinationEntity.name inManagedObjectContext:_moc];
+                    [relObj setValue:relatedID forKey:@"identifier"];
+                    if (populate) {
+                        [relObj mergeAttributesFromDictionary:populate];
+                    }
                 }
             }
         }
@@ -697,6 +702,18 @@ static NSString *const LastUpdated = @"LastUpdated";
         [_moc save:&error];
         if (error) ErrLog("%@", error);
     }];
+}
+
+- (void)syncConnectionDidConnect:(SyncConnection *)sync {
+    
+}
+
+- (void)syncConnectionDidDisconnect:(SyncConnection *)sync {
+    
+}
+
+- (void)mocDidChange:(NSNotification *)note {
+    DebugLog(@"%@", note);
 }
 
 @end

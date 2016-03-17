@@ -11,6 +11,7 @@
 
 #import "LocalUser.h"
 
+@class LocalEvent;
 @class LocalComment;
 @class LocalOrg;
 

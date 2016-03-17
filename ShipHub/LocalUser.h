@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "LocalAccount.h"
 
-@class LocalEvent, LocalIssue, LocalRepo;
+@class LocalIssue, LocalRepo;
 
 NS_ASSUME_NONNULL_BEGIN
 

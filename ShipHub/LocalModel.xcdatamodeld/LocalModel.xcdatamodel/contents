@@ -20,10 +20,9 @@
         <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="event" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="json" optional="YES" attributeType="Binary" syncable="YES"/>
         <relationship name="actor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="actedEvents" inverseEntity="LocalUser" syncable="YES"/>
         <relationship name="assignee" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="assignedEvents" inverseEntity="LocalUser" syncable="YES"/>
-        <relationship name="labels" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalLabel" inverseName="event" inverseEntity="LocalLabel" syncable="YES"/>
-        <relationship name="milestone" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalMilestone" inverseName="events" inverseEntity="LocalMilestone" syncable="YES"/>
     </entity>
     <entity name="LocalIssue" representedClassName="LocalIssue" syncable="YES">
         <attribute name="body" optional="YES" attributeType="String" syncable="YES"/>
@@ -46,7 +45,6 @@
     <entity name="LocalLabel" representedClassName="LocalLabel" syncable="YES">
         <attribute name="color" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="event" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalEvent" inverseName="labels" inverseEntity="LocalEvent" syncable="YES"/>
         <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="labels" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="repo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="labels" inverseEntity="LocalRepo" syncable="YES"/>
     </entity>
@@ -56,10 +54,9 @@
         <attribute name="dueOn" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="milestoneDescription" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
-        <relationship name="events" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalEvent" inverseName="milestone" inverseEntity="LocalEvent" syncable="YES"/>
         <relationship name="issues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="milestone" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="repo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="milestones" inverseEntity="LocalRepo" syncable="YES"/>
     </entity>
@@ -101,10 +98,10 @@
     <elements>
         <element name="LocalAccount" positionX="-497" positionY="-108" width="128" height="118"/>
         <element name="LocalComment" positionX="412" positionY="-90" width="128" height="120"/>
-        <element name="LocalEvent" positionX="403" positionY="63" width="128" height="180"/>
+        <element name="LocalEvent" positionX="403" positionY="63" width="128" height="165"/>
         <element name="LocalIssue" positionX="198" positionY="-54" width="128" height="285"/>
-        <element name="LocalLabel" positionX="-11" positionY="267" width="128" height="118"/>
-        <element name="LocalMilestone" positionX="-18" positionY="-115" width="128" height="208"/>
+        <element name="LocalLabel" positionX="-11" positionY="267" width="128" height="105"/>
+        <element name="LocalMilestone" positionX="-18" positionY="-115" width="128" height="195"/>
         <element name="LocalOrg" positionX="-425" positionY="45" width="128" height="58"/>
         <element name="LocalRelationship" positionX="421" positionY="335" width="128" height="88"/>
         <element name="LocalRepo" positionX="-209" positionY="-108" width="128" height="208"/>

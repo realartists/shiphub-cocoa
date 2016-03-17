@@ -14,14 +14,13 @@
 @implementation LocalMilestone (CoreDataProperties)
 
 @dynamic closed;
-@dynamic closedDate;
-@dynamic creationDate;
-@dynamic dueDate;
+@dynamic closedAt;
+@dynamic createdAt;
+@dynamic dueOn;
 @dynamic identifier;
 @dynamic milestoneDescription;
-@dynamic name;
-@dynamic updatedDate;
-@dynamic events;
+@dynamic title;
+@dynamic updatedAt;
 @dynamic issues;
 @dynamic repo;
 

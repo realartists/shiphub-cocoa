@@ -11,32 +11,26 @@
 
 #import "LocalMilestone.h"
 
-@class LocalEvent, LocalIssue;
+@class LocalIssue;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalMilestone (CoreDataProperties)
 
 @property (nullable, nonatomic, retain) NSNumber *closed;
-@property (nullable, nonatomic, retain) NSDate *closedDate;
-@property (nullable, nonatomic, retain) NSDate *creationDate;
-@property (nullable, nonatomic, retain) NSDate *dueDate;
+@property (nullable, nonatomic, retain) NSDate *closedAt;
+@property (nullable, nonatomic, retain) NSDate *createdAt;
+@property (nullable, nonatomic, retain) NSDate *dueOn;
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSString *milestoneDescription;
-@property (nullable, nonatomic, retain) NSString *name;
-@property (nullable, nonatomic, retain) NSDate *updatedDate;
-@property (nullable, nonatomic, retain) NSSet<LocalEvent *> *events;
+@property (nullable, nonatomic, retain) NSString *title;
+@property (nullable, nonatomic, retain) NSDate *updatedAt;
 @property (nullable, nonatomic, retain) NSSet<LocalIssue *> *issues;
 @property (nullable, nonatomic, retain) NSManagedObject *repo;
 
 @end
 
 @interface LocalMilestone (CoreDataGeneratedAccessors)
-
-- (void)addEventsObject:(LocalEvent *)value;
-- (void)removeEventsObject:(LocalEvent *)value;
-- (void)addEvents:(NSSet<LocalEvent *> *)values;
-- (void)removeEvents:(NSSet<LocalEvent *> *)values;
 
 - (void)addIssuesObject:(LocalIssue *)value;
 - (void)removeIssuesObject:(LocalIssue *)value;

@@ -17,18 +17,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nullable, nonatomic, retain) NSNumber *color;
 @property (nullable, nonatomic, retain) NSString *name;
-@property (nullable, nonatomic, retain) NSSet<LocalEvent *> *events;
 @property (nullable, nonatomic, retain) NSSet<LocalIssue *> *issues;
 @property (nullable, nonatomic, retain) LocalRepo *repo;
 
 @end
 
 @interface LocalLabel (CoreDataGeneratedAccessors)
-
-- (void)addEventsObject:(LocalEvent *)value;
-- (void)removeEventsObject:(LocalEvent *)value;
-- (void)addEvents:(NSSet<LocalEvent *> *)values;
-- (void)removeEvents:(NSSet<LocalEvent *> *)values;
 
 - (void)addIssuesObject:(LocalIssue *)value;
 - (void)removeIssuesObject:(LocalIssue *)value;

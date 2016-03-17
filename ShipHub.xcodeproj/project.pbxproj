@@ -39,6 +39,7 @@
 		1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */; };
 		1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */; };
 		1A7A415B1C8F603E0043DAF0 /* CAExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A415A1C8F603E0043DAF0 /* CAExtras.m */; };
+		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
 		1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */; };
@@ -709,6 +710,7 @@
 				1AE09C1D1C9779CA00C5AC35 /* LocalModel.xcdatamodeld in Sources */,
 				1AE09C051C97687E00C5AC35 /* LocalAccount.m in Sources */,
 				1AE09C111C97687E00C5AC35 /* LocalOrg.m in Sources */,
+				1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */,
 				1AE09C211C9779DE00C5AC35 /* Logging.m in Sources */,
 				1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */,
 				1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */,
