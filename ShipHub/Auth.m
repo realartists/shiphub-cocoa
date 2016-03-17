@@ -172,19 +172,23 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     [self changeAuthState:AuthStateInvalid];
 }
 
-- (void)checkResponse:(NSURLResponse *)response {
+- (BOOL)checkResponse:(NSURLResponse *)response {
     if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
         NSHTTPURLResponse *http = (NSHTTPURLResponse *)response;
         if (http.statusCode == 401) {
             [self invalidate];
+            return NO;
         }
     }
+    return YES;
 }
 
-- (void)checkError:(NSError *)error {
+- (BOOL)checkError:(NSError *)error {
     if ([error isShipError] && [error code] == ShipErrorCodeNeedsAuthToken) {
         [self invalidate];
+        return NO;
     }
+    return YES;
 }
 
 - (void)logout {

@@ -40,6 +40,7 @@
 		1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */; };
 		1A7A415B1C8F603E0043DAF0 /* CAExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A415A1C8F603E0043DAF0 /* CAExtras.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
+		1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */; };
 		1AE09BEB1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */; };
 		1AE09BEC1C97687E00C5AC35 /* LocalMilestone.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC11C97687E00C5AC35 /* LocalMilestone.m */; };
@@ -213,6 +214,8 @@
 		1A7A415F1C8F604E0043DAF0 /* CAExtras.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CAExtras.h; sourceTree = "<group>"; };
 		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
+		1AD470DA1C99FC2C0050AE4B /* GHSyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHSyncConnection.h; sourceTree = "<group>"; };
+		1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHSyncConnection.m; sourceTree = "<group>"; };
 		1AE09BBE1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalMilestone+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalMilestone+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BC01C97687E00C5AC35 /* LocalMilestone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalMilestone.h; sourceTree = "<group>"; };
@@ -303,6 +306,7 @@
 			isa = PBXGroup;
 			children = (
 				1A2217CD1C7E7C52006460E2 /* App */,
+				1AD470D61C99FB7C0050AE4B /* DataStore */,
 				1A3618F11C90C7C2008C11CB /* Model */,
 				1A2217CC1C7E7C49006460E2 /* Auth */,
 				1A2217CE1C7E80C0006460E2 /* Extras */,
@@ -373,12 +377,6 @@
 				1A2305DA1C7F81FA0034C871 /* JSONItem.h */,
 				1A2305DB1C7F84D80034C871 /* Error.h */,
 				1A2305DC1C7F84D80034C871 /* Error.m */,
-				1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */,
-				1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */,
-				1A3618E11C8FBF96008C11CB /* DataStore.h */,
-				1A3618E21C8FBF96008C11CB /* DataStore.m */,
-				1A3618E71C8FC25B008C11CB /* SyncConnection.h */,
-				1A3618E81C8FC25B008C11CB /* SyncConnection.m */,
 			);
 			name = App;
 			sourceTree = "<group>";
@@ -488,6 +486,21 @@
 				1A3618FE1C9383CF008C11CB /* Info.plist */,
 			);
 			path = ShipHubTests;
+			sourceTree = "<group>";
+		};
+		1AD470D61C99FB7C0050AE4B /* DataStore */ = {
+			isa = PBXGroup;
+			children = (
+				1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */,
+				1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */,
+				1A3618E11C8FBF96008C11CB /* DataStore.h */,
+				1A3618E21C8FBF96008C11CB /* DataStore.m */,
+				1A3618E71C8FC25B008C11CB /* SyncConnection.h */,
+				1A3618E81C8FC25B008C11CB /* SyncConnection.m */,
+				1AD470DA1C99FC2C0050AE4B /* GHSyncConnection.h */,
+				1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */,
+			);
+			name = DataStore;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -648,6 +661,7 @@
 				1AE09C101C97687E00C5AC35 /* LocalOrg.m in Sources */,
 				1AE09BEE1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
 				1A3618EF1C8FC3DB008C11CB /* Reachability.m in Sources */,
+				1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */,
 				1AE09C0C1C97687E00C5AC35 /* LocalLabel.m in Sources */,
 				1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
 				1AE09C061C97687E00C5AC35 /* LocalUser+CoreDataProperties.m in Sources */,

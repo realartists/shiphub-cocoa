@@ -41,7 +41,13 @@
 }
 
 - (NSMutableURLRequest *)requestWithHost:(NSString *)host endpoint:(NSString *)endpoint authenticated:(BOOL)authenticate {
-    NSURL *URL = [[NSURL alloc] initWithScheme:@"https" host:host path:endpoint];
+    NSURLComponents *comps = [NSURLComponents new];
+    comps.scheme = @"https";
+    comps.host = host;
+    comps.path = endpoint;
+    
+    NSURL *URL = [comps URL];
+    
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:URL];
     if (authenticate) {
         NSString *header = [host containsString:@"realartists.com"] ? @"Authorisation" : @"Authorization";

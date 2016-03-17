@@ -50,8 +50,8 @@ typedef NS_ENUM(NSInteger, AuthState) {
 
 - (void)invalidate; // Call if the server has indicated that our token has become invalid
 
-- (void)checkResponse:(NSURLResponse *)response; // invalidate if response code is HTTP 401
-- (void)checkError:(NSError *)error; // invalidate if error is ShipErrorCodeNeedsAuthToken
+- (BOOL)checkResponse:(NSURLResponse *)response; // invalidate if response code is HTTP 401. Returns YES if not invalidated.
+- (BOOL)checkError:(NSError *)error; // invalidate if error is ShipErrorCodeNeedsAuthToken. Returns YES if not invalidated.
 
 - (void)logout;
 

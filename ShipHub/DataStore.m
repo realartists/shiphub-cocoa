@@ -13,6 +13,7 @@
 #import "Reachability.h"
 #import "ServerConnection.h"
 #import "SyncConnection.h"
+#import "GHSyncConnection.h"
 
 #import "LocalAccount.h"
 #import "LocalUser.h"
@@ -141,7 +142,11 @@ static DataStore *sActiveStore = nil;
 }
 
 + (Class)syncConnectionClass {
-    return [SyncConnection class];
+    if (DefaultsServerEnvironment() == ServerEnvironmentLocal) {
+        return [GHSyncConnection class];
+    } else {
+        return [SyncConnection class];
+    }
 }
 
 + (DataStore *)storeWithAuth:(Auth *)auth {
@@ -550,8 +555,23 @@ static NSString *const LastUpdated = @"LastUpdated";
             // implies the ability to delete and create referenced objects as needed.
             BOOL cascade = rel.deleteRule == NSCascadeDeleteRule;
             
-            // to many relationships refer by identifiers
-            NSArray *relatedIDs = syncDict[key];
+            // to many relationships refer by identifiers or by actual populated objects that have identifiers
+            NSArray *related = syncDict[key];
+            
+            if (!related) {
+                continue;
+            }
+            
+            NSArray *relatedIDs = nil;
+            NSDictionary *relatedLookup = nil;
+            if ([[related firstObject] isKindOfClass:[NSDictionary class]]) {
+                relatedIDs = [related arrayByMappingObjects:^id(NSDictionary *x) {
+                    return x[@"identifier"];
+                }];
+                relatedLookup = [NSDictionary lookupWithObjects:related keyPath:@"identifier"];
+            } else {
+                relatedIDs = related;
+            }
             if (!relatedIDs) relatedIDs = @[];
             NSSet *relatedIDSet = [NSSet setWithArray:relatedIDs];
             
@@ -582,23 +602,40 @@ static NSString *const LastUpdated = @"LastUpdated";
                 // for anything that didn't come back in existing
                 NSMutableSet *toCreate = [relatedIDs mutableCopy];
                 for (NSManagedObject *relObj in existing) {
-                    [toCreate removeObject:[relObj valueForKey:@"identifier"]];
+                    NSString *identifier = [relObj valueForKey:@"identifier"];
+                    NSDictionary *updates = relatedLookup[identifier];
+                    if (updates) {
+                        [relObj mergeAttributesFromDictionary:updates];
+                    }
+                    [toCreate removeObject:identifier];
                 }
                 
                 for (id identifier in toCreate) {
+                    DebugLog(@"Creating %@ of id %@", rel.destinationEntity.name, identifier);
                     NSManagedObject *relObj = [NSEntityDescription insertNewObjectForEntityForName:rel.destinationEntity.name inManagedObjectContext:_moc];
                     [relObj setValue:identifier forKey:@"identifier"];
+                    NSDictionary *populate = relatedLookup[identifier];
+                    if (populate) {
+                        [relObj mergeAttributesFromDictionary:populate];
+                    }
                     [relatedObjs addObject:relObj];
                 }
             }
             
-            DebugLog(@"Setting relationships %@ forKey:%@", relatedObjs, key);
+            DebugLog(@"Setting relationships on %@ %@ forKey:%@", obj, relatedObjs, key);
             [obj setValue:[NSSet setWithArray:relatedObjs] forKey:key];
             
         } else /* rel.toOne */ {
             // to one relationships are always considered weak in our schema
             
-            NSString *relatedID = syncDict[key];
+            id related = syncDict[key];
+            
+            if (!related) continue;
+            
+            if ([related isKindOfClass:[NSDictionary class]]) {
+                related = related[@"identifier"];
+            }
+            NSString *relatedID = related;
             if (relatedID != nil) {
                 NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:rel.entity.name];
                 fetch.predicate = [NSPredicate predicateWithFormat:@"identifier == %@", relatedID];
@@ -640,6 +677,11 @@ static NSString *const LastUpdated = @"LastUpdated";
 #if DEBUG
         if ([objs count] != [mObjs count]) {
             ErrLog(@"Provided %@ list included unknown identifiers. This is a server bug. Unknown items will be ignored.", type);
+            DebugLog(@"I have %@ and server provided %@", [mObjs arrayByMappingObjects:^id(id obj) {
+                return [obj identifier];
+            }], [objs arrayByMappingObjects:^id(NSDictionary *obj) {
+                return obj[@"identifier"];
+            }]);
         }
 #endif
         

@@ -254,6 +254,11 @@
 - (void)sayHello:(NSString *)oauthToken {
     // callable from any queue, so we're not necessarily on the main queue here.
     
+    if (DefaultsServerEnvironment() == ServerEnvironmentLocal) {
+        [self sayHelloLocal:oauthToken];
+        return;
+    }
+    
     NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/authentication/hello",
                   [self shipHost]]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
@@ -319,6 +324,36 @@
     }] resume];
 }
 
+- (void)sayHelloLocal:(NSString *)oauthToken {
+    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/user",
+                                       [self ghHost]]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+    
+    [request setValue:[NSString stringWithFormat:@"token %@", oauthToken] forHTTPHeaderField:@"Authorization"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    
+    request.HTTPMethod = @"GET";
+    
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        if (error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self presentError:error];
+            });
+        } else {
+            NSMutableDictionary *user = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:NULL];
+            user[@"ghIdentifier"] = user[@"id"];
+            user[@"identifier"] = [NSString stringWithFormat:@"%@", user[@"id"]];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self finishWithShipToken:@"local" ghToken:oauthToken user:user billing:@{}];
+            });
+        }
+        
+    }] resume];
+}
+
 - (void)finishWithShipToken:(NSString *)shipToken ghToken:(NSString *)ghToken user:(NSDictionary *)user billing:(NSDictionary *)billing
 {
     NSAssert([NSThread isMainThread], nil);
@@ -328,10 +363,10 @@
     // FIXME: Do something with billing
     
     NSMutableDictionary *accountDict = [user mutableCopy];
-    [accountDict setObject:@"ghHost" forKey:[self ghHost]];
-    [accountDict setObject:@"shipHost" forKey:[self shipHost]];
+    accountDict[@"ghHost"] = [self ghHost];
+    accountDict[@"shipHost"] = [self shipHost];
 
-    AuthAccount *account = [[AuthAccount alloc] initWithDictionary:user];
+    AuthAccount *account = [[AuthAccount alloc] initWithDictionary:accountDict];
     Auth *auth = [Auth authWithAccount:account shipToken:shipToken ghToken:ghToken];
 
     [self finishWithAuth:auth];

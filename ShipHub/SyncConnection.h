@@ -16,6 +16,8 @@
 
 - (id)initWithAuth:(Auth *)auth;
 
+@property (readonly, strong) Auth *auth;
+
 - (void)syncWithVersions:(NSDictionary *)versions;
 
 @property (weak) id<SyncConnectionDelegate> delegate;
