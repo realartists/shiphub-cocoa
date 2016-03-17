@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) LocalMilestone *milestone;
 @property (nullable, nonatomic, retain) LocalUser *originator;
 @property (nullable, nonatomic, retain) NSSet<LocalRelationship *> *relationships;
-@property (nullable, nonatomic, retain) LocalRepo *repo;
+@property (nullable, nonatomic, retain) LocalRepo *repository;
 
 @end
 

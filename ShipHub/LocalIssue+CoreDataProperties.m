@@ -28,6 +28,6 @@
 @dynamic milestone;
 @dynamic originator;
 @dynamic relationships;
-@dynamic repo;
+@dynamic repository;
 
 @end

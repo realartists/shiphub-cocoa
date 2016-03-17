@@ -354,8 +354,10 @@ typedef NS_ENUM(NSInteger, SyncState) {
             }];
             
             dispatch_group_notify(waitForOrgsAndMilestones, _q, ^{
-                // finally yield the repos
+                // yield the repos
                 [self yield:reposWithInfo type:@"repo" version:1];
+                
+                [self findIssues:reposWithInfo];
             });
         }];
     }];
@@ -437,6 +439,76 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
         [self fetchPaged:[self get:milestonesEndpoint] completion:^(NSArray *data, NSError *err) {
             rwi[@"milestones"] = data;
             done();
+        }];
+    }
+}
+
+- (void)findIssues:(NSArray *)repos {
+    // calculate the since date for our query
+    
+    int64_t issuesSince = [_syncVersions[@"issue"] longLongValue];
+    NSDate *since = [NSDate dateWithTimeIntervalSinceReferenceDate:(double)(issuesSince / 1000)];
+    NSString *sinceStr = [since JSONString];
+    
+    NSDictionary *params = @{ @"filter": @"all",
+                              @"since": sinceStr,
+                              @"state": @"all",
+                              @"sort": @"updated",
+                              @"direction": @"asc" };
+    
+    // fetch all the issues per repo
+    
+    __block NSInteger remaining = repos.count;
+    __block NSMutableArray *issues = [NSMutableArray new];
+    
+    // XXX: This is truly awful since it doesn't stream and there's no progress ...
+    // But this whole class is a gross hack that needs to die in a radioactive fire so ...
+    
+    for (NSDictionary *repo in repos) {
+        NSString *endpoint = [NSString stringWithFormat:@"repos/%@/%@/issues", repo[@"owner"][@"login"], repo[@"name"]];
+        
+        [self fetchPaged:[self get:endpoint params:params] completion:^(NSArray *data, NSError *err) {
+            if (data) {
+                NSArray *issuesOnly = [data filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"pull_request = nil OR pull_request = NO"]];
+                
+                [issues addObjectsFromArray:[issuesOnly arrayByMappingObjects:^id(id obj) {
+                    NSMutableDictionary *issue = [obj mutableCopy];
+                    issue[@"repository"] = repo[@"id"];
+                    return issue;
+                }]];
+            }
+            
+            remaining--;
+            if (remaining == 0) {
+                
+                // calculate the max date in all of issues and that's our latest since str
+                NSString *maxDate = nil;
+                for (NSDictionary *issue in issues) {
+                    NSString *created = issue[@"created_at"];
+                    NSString *updated = issue[@"updated_at"];
+                    
+                    if (!maxDate || [created compare:maxDate] == NSOrderedDescending) {
+                        maxDate = created;
+                    }
+                    
+                    if (!maxDate || [updated compare:maxDate] == NSOrderedDescending) {
+                        maxDate = updated;
+                    }
+                }
+                
+                int64_t version = [_syncVersions[@"issue"] longLongValue];
+                if (maxDate) {
+                    version = ([[NSDate dateWithJSONString:maxDate] timeIntervalSinceReferenceDate] * 1000);
+                    NSMutableDictionary *newVersions = [_syncVersions mutableCopy];
+                    newVersions[@"issue"] = @(version);
+                    _syncVersions = newVersions;
+                }
+                
+                [self yield:issues type:@"issue" version:version];
+                
+                _state = SyncStateIdle;
+                
+            }
         }];
     }
 }

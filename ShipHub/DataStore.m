@@ -666,11 +666,15 @@ static NSString *const LastUpdated = @"LastUpdated";
     [_moc performBlock:^{
         NSError *error = nil;
         
-        NSString *entityName = [NSString stringWithFormat:@"Local%@", [type PascalCase]];
-        NSAssert(_mom.entitiesByName[entityName] != nil, @"Entity %@ must exist", entityName);
+        NSMutableSet *toCreate = [NSMutableSet setWithArray:objs];
         
-        // Fetch all of the managed objects that we are going to update.
-        // They should all exist already, if only just as placeholders in some cases.
+        NSString *entityName = [NSString stringWithFormat:@"Local%@", [type PascalCase]];
+        if (_mom.entitiesByName[entityName] == nil) {
+            DebugLog(@"Received unknown sync type: %@", type);
+            return;
+        }
+        
+        // Fetch all of the existing managed objects that we are going to update.
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:entityName];
         fetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@.identifier", objs];
         
@@ -679,20 +683,16 @@ static NSString *const LastUpdated = @"LastUpdated";
         if (error) ErrLog("%@", error);
         error = nil;
         
-#if DEBUG
-        if ([objs count] != [mObjs count]) {
-            ErrLog(@"Provided %@ list included unknown identifiers. This is a server bug. Unknown items will be ignored.", type);
-            DebugLog(@"I have %@ and server provided %@", [mObjs arrayByMappingObjects:^id(id obj) {
-                return [obj identifier];
-            }], [objs arrayByMappingObjects:^id(NSDictionary *obj) {
-                return obj[@"identifier"];
-            }]);
-        }
-#endif
-        
         NSDictionary *lookup = [NSDictionary lookupWithObjects:objs keyPath:@"identifier"];
         for (NSManagedObject *mObj in mObjs) {
             NSDictionary *objDict = lookup[[mObj valueForKey:@"identifier"]];
+            [mObj mergeAttributesFromDictionary:objDict];
+            [self updateRelationshipsOn:mObj fromSyncDict:objDict];
+            [toCreate removeObject:objDict];
+        }
+        
+        for (NSDictionary *objDict in toCreate) {
+            NSManagedObject *mObj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
             [mObj mergeAttributesFromDictionary:objDict];
             [self updateRelationshipsOn:mObj fromSyncDict:objDict];
         }
