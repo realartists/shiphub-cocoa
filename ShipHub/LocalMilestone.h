@@ -9,9 +9,11 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+#import "LocalMetadata.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LocalMilestone : NSManagedObject
+@interface LocalMilestone : NSManagedObject <LocalMetadata>
 
 // Insert code here to declare functionality of your managed object subclass
 

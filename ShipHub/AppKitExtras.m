@@ -396,6 +396,38 @@
     return color;
 }
 
++ (NSColor *)colorWithHexString:(NSString *)hexString {
+    if ([hexString hasPrefix:@"#"]) {
+        hexString = [hexString substringWithRange:NSMakeRange(1, hexString.length-1)];
+    }
+    
+    if ([hexString length] == 3) {
+        hexString = [NSString stringWithFormat:@"%C%C%C%C%C%C",
+                     [hexString characterAtIndex:0],
+                     [hexString characterAtIndex:0],
+                     [hexString characterAtIndex:1],
+                     [hexString characterAtIndex:1],
+                     [hexString characterAtIndex:2],
+                     [hexString characterAtIndex:2]];
+    }
+    
+    if ([hexString length] == 6) {
+        hexString = [hexString stringByAppendingString:@"00"];
+    }
+    
+    NSScanner *s = [NSScanner scannerWithString:hexString];
+    uint32_t c = 0;
+    if ([s scanHexInt:&c]) {
+        CGFloat r = (uint8_t)(c >> 24) / 255.0;
+        CGFloat g = (uint8_t)(c >> 16) / 255.0;
+        CGFloat b = (uint8_t)(c >> 8) / 255.0;
+        CGFloat a = (uint8_t)(c) / 255.0;
+        
+        return [NSColor colorWithRed:r green:g blue:b alpha:a];
+    } else {
+        return nil;
+    }
+}
 
 @end
 

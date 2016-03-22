@@ -11,7 +11,7 @@
 
 #import "LocalRepo.h"
 
-@class LocalUser, LocalIssue, LocalLabel, LocalMilestone;
+@class LocalAccount, LocalUser, LocalIssue, LocalLabel, LocalMilestone;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSSet<LocalIssue *> *issues;
 @property (nullable, nonatomic, retain) NSSet<LocalLabel *> *labels;
 @property (nullable, nonatomic, retain) NSSet<LocalMilestone *> *milestones;
-@property (nullable, nonatomic, retain) NSManagedObject *owner;
+@property (nullable, nonatomic, retain) LocalAccount *owner;
 
 @end
 

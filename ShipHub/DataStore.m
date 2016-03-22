@@ -14,6 +14,7 @@
 #import "ServerConnection.h"
 #import "SyncConnection.h"
 #import "GHSyncConnection.h"
+#import "MetadataStoreInternal.h"
 
 #import "LocalAccount.h"
 #import "LocalUser.h"
@@ -69,6 +70,7 @@ static const NSInteger CurrentLocalModelVersion = 1;
     NSPersistentStore *_persistentStore;
     NSPersistentStoreCoordinator *_persistentCoordinator;
     NSManagedObjectContext *_moc;
+    
     NSLock *_metadataLock;
     
     dispatch_queue_t _needsMetadataQueue;
@@ -94,6 +96,8 @@ static const NSInteger CurrentLocalModelVersion = 1;
 @property (strong) SyncConnection *syncConnection;
 
 @property (readwrite, strong) NSDate *lastUpdated;
+
+@property (readwrite, strong) MetadataStore *metadataStore;
 
 @end
 
@@ -386,7 +390,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (void)loadMetadata {
-    // FIXME: Implement
+    self.metadataStore = [[MetadataStore alloc] initWithMOC:_moc];
 }
 
 - (void)updateSyncConnectionWithVersions {
@@ -713,7 +717,20 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (void)mocDidChange:(NSNotification *)note {
-    DebugLog(@"%@", note);
+    //DebugLog(@"%@", note);
+    
+    if ([MetadataStore changeNotificationContainsMetadata:note]) {
+        DebugLog(@"Updating metadata store");
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            MetadataStore *store = [[MetadataStore alloc] initWithMOC:_moc];
+            self.metadataStore = store;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSDictionary *userInfo = @{ DataStoreMetadataKey : store };
+                [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMetadataNotification object:self userInfo:userInfo];
+            });
+        });
+    }
 }
 
 @end

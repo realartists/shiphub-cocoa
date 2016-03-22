@@ -127,6 +127,8 @@
 + (NSColor *)ra_teal;
 + (NSColor *)ra_slate;
 
++ (NSColor *)colorWithHexString:(NSString *)hexString;
+
 @end
 
 @interface UndoManagerTextView : NSTextView

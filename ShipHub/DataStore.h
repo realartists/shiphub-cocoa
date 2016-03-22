@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class Auth;
+@class MetadataStore;
 
 @interface DataStore : NSObject
 
@@ -27,6 +28,8 @@
 
 @property (nonatomic, readonly, getter=isMigrating) BOOL migrating;
 @property (nonatomic, readonly, getter=isPerformingInitialSync) BOOL performingInitialSync;
+
+@property (readonly) MetadataStore *metadataStore;
 
 @end
 

@@ -13,7 +13,6 @@
 
 @implementation LocalMilestone (CoreDataProperties)
 
-@dynamic closed;
 @dynamic closedAt;
 @dynamic createdAt;
 @dynamic dueOn;

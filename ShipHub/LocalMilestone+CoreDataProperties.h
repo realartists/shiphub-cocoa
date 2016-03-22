@@ -17,7 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalMilestone (CoreDataProperties)
 
-@property (nullable, nonatomic, retain) NSNumber *closed;
 @property (nullable, nonatomic, retain) NSDate *closedAt;
 @property (nullable, nonatomic, retain) NSDate *createdAt;
 @property (nullable, nonatomic, retain) NSDate *dueOn;

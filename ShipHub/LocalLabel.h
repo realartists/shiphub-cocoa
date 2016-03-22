@@ -9,11 +9,13 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
+#import "LocalMetadata.h"
+
 @class LocalIssue, LocalRepo;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LocalLabel : NSManagedObject
+@interface LocalLabel : NSManagedObject <LocalMetadata>
 
 // Insert code here to declare functionality of your managed object subclass
 
