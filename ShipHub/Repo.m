@@ -8,6 +8,19 @@
 
 #import "Repo.h"
 
+#import "LocalRepo.h"
+
 @implementation Repo
+
+- (instancetype)initWithLocalItem:(id)localItem {
+    LocalRepo *lr = localItem;
+    if (self = [super initWithLocalItem:localItem]) {
+        _fullName = lr.fullName;
+        _hidden = [lr.hidden boolValue];
+        _name = lr.name;
+        _private = [lr.private boolValue];
+    }
+    return self;
+}
 
 @end

@@ -93,6 +93,12 @@
                                     <action selector="newDocument:" target="-1" id="4Si-XN-c54"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="New Overview Window" keyEquivalent="n" id="4rE-a3-IqH">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="newOverviewController:" target="Voe-Tx-rLC" id="kLs-wc-HT3"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Open…" keyEquivalent="o" id="IAo-SY-fd9">
                                 <connections>
                                     <action selector="openDocument:" target="-1" id="bVn-NM-KNZ"/>
@@ -661,6 +667,12 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="performZoom:" target="-1" id="DIl-cC-cCs"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="2G4-iw-yER"/>
+                            <menuItem title="Overview" keyEquivalent="0" id="8cg-Sh-zZS">
+                                <connections>
+                                    <action selector="showOverviewController:" target="Voe-Tx-rLC" id="jaB-Ey-h9F"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="eu3-7i-yIM"/>

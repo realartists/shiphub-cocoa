@@ -12,7 +12,7 @@
 
 - (instancetype)initWithLocalItem:(id)localItem {
     if (self = [super init]) {
-        _identifier = [[localItem valueForKey:@"identifier"] longLongValue];
+        _identifier = [localItem valueForKey:@"identifier"];
     }
     return self;
 }

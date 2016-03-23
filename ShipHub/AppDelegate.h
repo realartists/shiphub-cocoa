@@ -9,10 +9,14 @@
 #import <Cocoa/Cocoa.h>
 
 @class Auth;
+@class OverviewController;
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
 + (instancetype)sharedDelegate;
+
+- (OverviewController *)defaultOverviewController;
+- (OverviewController *)activeOverviewController;
 
 @end
 

@@ -11,6 +11,7 @@
 #import "Auth.h"
 #import "AuthController.h"
 #import "DataStore.h"
+#import "OverviewController.h"
 
 @interface AppDelegate () <AuthControllerDelegate> {
     BOOL _authConfigured;
@@ -24,6 +25,8 @@
 
 @property IBOutlet NSMenu *accountMenu;
 @property IBOutlet NSMenuItem *accountMenuSeparator;
+
+@property (strong) IBOutlet NSMutableArray *overviewControllers;
 
 @end
 
@@ -66,6 +69,7 @@
 
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+    _overviewControllers = [NSMutableArray array];
     _authController = [AuthController new];
     _authController.delegate = self;
     [self configureAuth];
@@ -78,6 +82,42 @@
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
     // Insert code here to tear down your application
 }
+
+- (BOOL)applicationOpenUntitledFile:(NSApplication *)sender {
+    // Clicking dock icon shouldn't create a new problem. It should bring the viewer to front if there's nothing else being shown.
+    if ([[DataStore activeStore] isValid]) {
+        [self showOverviewController:nil];
+    }
+    return YES;
+}
+
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    if (menuItem.action == @selector(showFindProblems:)
+        || menuItem.action == @selector(logout:)
+        || menuItem.action == @selector(showOverviewController:)
+        || menuItem.action == @selector(newOverviewController:)
+        || menuItem.action == @selector(searchAllProblems:))
+    {
+        return _auth != nil && _auth.authState == AuthStateValid;
+    }
+    return YES;
+}
+
+- (void)migrationEnded:(NSNotification *)note {
+    DataStore *store = [DataStore activeStore];
+    if ([store isValid]) {
+        [self showOverviewController:nil];
+    }
+}
+
+- (void)willPurge:(NSNotification *)note {
+#if !INCOMPLETE
+    [[[ProblemDocumentController sharedDocumentController] documents] makeObjectsPerformSelector:@selector(close)];
+#endif
+    [_overviewControllers makeObjectsPerformSelector:@selector(close)];
+}
+
 
 - (void)showAuthIfNeeded {
     [self showAuthIfNeededAnimated:YES];
@@ -93,6 +133,9 @@
     if ([note object] == _auth) {
         [self rebuildAccountMenu];
         [self showAuthIfNeededAnimated:YES];
+        if (_auth.authState == AuthStateInvalid) {
+            [_overviewControllers makeObjectsPerformSelector:@selector(close)];
+        }
     }
 }
 
@@ -111,15 +154,8 @@
         DataStore *store = [DataStore storeWithAuth:_auth];
         [store activate];
         
-        // Show overview
+        [self showOverviewController:nil];
     }
-}
-
-- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    if (menuItem.action == @selector(logout:)) {
-        return _auth != nil && _auth.authState == AuthStateValid;
-    }
-    return YES;
 }
 
 - (IBAction)logout:(id)sender {
@@ -185,7 +221,7 @@
     
     dispatch_block_t changeBlock = ^{
         // FIXME: Bring this back
-#if 0
+#if !INCOMPLETE
         if (accountEmail) {
             _nextAuth = [Auth authWithAccountEmail:accountEmail];
         } else {
@@ -223,6 +259,53 @@
     } else {
         changeBlock();
     }
+}
+
+- (OverviewController *)activeOverviewController {
+    id activeDelegate = [[NSApp mainWindow] delegate];
+    if ([activeDelegate isKindOfClass:[OverviewController class]]) {
+        return activeDelegate;
+    } else {
+        return nil;
+    }
+}
+
+- (OverviewController *)defaultOverviewController {
+    OverviewController *active = [self activeOverviewController];
+    if (active) {
+        return active;
+    }
+    
+    if ([_overviewControllers count] == 0) {
+        [self newOverviewController:nil];
+        return [_overviewControllers firstObject];
+    } else {
+        return [_overviewControllers firstObject];
+    }
+}
+
+- (IBAction)showOverviewController:(id)sender {
+    if ([self activeOverviewController]) {
+        return;
+    }
+    
+    if ([_overviewControllers count] == 0) {
+        [self newOverviewController:sender];
+    } else {
+        [[_overviewControllers firstObject] showWindow:sender];
+    }
+}
+
+- (IBAction)newOverviewController:(id)sender {
+    OverviewController *controller = [OverviewController new];
+    [_overviewControllers addObject:controller];
+    [controller showWindow:nil];
+    NSMutableArray *controllers = _overviewControllers;
+    __weak id weakController = controller;
+    __block __weak id observer = [[NSNotificationCenter defaultCenter] addObserverForName:NSWindowWillCloseNotification object:[controller window] queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *note) {
+        [controllers removeObject:weakController];
+        [[NSNotificationCenter defaultCenter] removeObserver:observer];
+    }];
 }
 
 @end

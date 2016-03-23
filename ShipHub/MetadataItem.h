@@ -12,6 +12,6 @@
 
 - (instancetype)initWithLocalItem:(id)localItem;
 
-@property int64_t identifier;
+@property NSNumber *identifier;
 
 @end

@@ -303,7 +303,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     if (needsMetadataResync) {
         DebugLog(@"Forcing metadata resync");
         [_moc performBlockAndWait:^{
-#if 0
+#if !INCOMPLETE
             [self setLatestSequence:0 syncType:@"addressBook"];
             [self setLatestSequence:0 syncType:@"classifications"];
             [self setLatestSequence:0 syncType:@"components"];
@@ -316,7 +316,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     } else if (needsABResync) {
         DebugLog(@"Forcing address book resync");
         [_moc performBlockAndWait:^{
-#if 0
+#if !INCOMPLETE
             [self setLatestSequence:0 syncType:@"addressBook"];
 #endif
             [_moc save:NULL];
@@ -340,7 +340,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
         NSError *err = nil;
         
-#if 0
+#if !INCOMPLETE
         NSArray *problemIdentifiers = nil;
         if (rebuildSnapshots) {
             // Fetch the distinct set of problemIdentifiers in the database

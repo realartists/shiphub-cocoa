@@ -12,4 +12,11 @@
 
 @interface Repo : MetadataItem
 
+@property (readonly) NSString *fullName;
+@property (readonly) BOOL hidden;
+@property (readonly) NSString *name;
+@property (readonly, getter=isPrivate) BOOL private;
+
+@property (readonly) NSString *repoDescription;
+
 @end

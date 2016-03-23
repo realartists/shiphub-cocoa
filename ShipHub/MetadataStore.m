@@ -177,7 +177,7 @@ static BOOL IsMetadataObject(id obj) {
             for (NSArray *ma in [_milestonesByRepoID allValues]) {
                 for (Milestone *m in ma) {
                     [mergedMilestones addObject:m.title];
-                    milestonesByID[@(m.identifier)] = m;
+                    milestonesByID[m.identifier] = m;
                 }
             }
             
@@ -191,12 +191,12 @@ static BOOL IsMetadataObject(id obj) {
             
             for (Org *org in [orgsByID allValues]) {
                 NSFetchRequest *membersFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
-                membersFetch.predicate = [NSPredicate predicateWithFormat:@"ANY orgs.identifier = %@", @(org.identifier)];
+                membersFetch.predicate = [NSPredicate predicateWithFormat:@"ANY orgs.identifier = %@", org.identifier];
                 
                 NSArray *localMembers = [moc executeFetchRequest:membersFetch error:NULL];
                 
                 NSMutableArray *members = [NSMutableArray new];
-                orgIDToMembers[@(org.identifier)] = members;
+                orgIDToMembers[org.identifier] = members;
                 for (LocalUser *lu in localMembers) {
                     User *u = usersByID[lu.identifier];
                     if (u) {
@@ -217,7 +217,7 @@ static BOOL IsMetadataObject(id obj) {
 }
 
 - (NSArray<User *> *)assigneesForRepo:(Repo *)repo {
-    return _assigneesByRepoID[@(repo.identifier)];
+    return _assigneesByRepoID[repo.identifier];
 }
 
 - (User *)userWithIdentifier:(NSNumber *)identifier {
@@ -237,15 +237,15 @@ static BOOL IsMetadataObject(id obj) {
 }
 
 - (NSArray<User *> *)membersOfOrg:(Org *)org {
-    return _orgIDToMembers[@(org.identifier)];
+    return _orgIDToMembers[org.identifier];
 }
 
 - (NSArray<Milestone *> *)activeMilestonesForRepo:(Repo *)repo {
-    return _milestonesByRepoID[@(repo.identifier)];
+    return _milestonesByRepoID[repo.identifier];
 }
 
 - (NSArray<Repo *> *)reposForOwner:(Account *)owner {
-    return _reposByOwnerID[@(owner.identifier)];
+    return _reposByOwnerID[owner.identifier];
 }
 
 @end

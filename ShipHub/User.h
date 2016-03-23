@@ -12,4 +12,6 @@
 
 @interface User : Account
 
++ (User *)me;
+
 @end

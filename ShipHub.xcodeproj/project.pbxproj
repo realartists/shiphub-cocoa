@@ -50,6 +50,31 @@
 		1A694AFC1CA0A96500F73608 /* Account.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694AFA1CA0A96500F73608 /* Account.m */; };
 		1A694B001CA0ABEB00F73608 /* MetadataItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694AFF1CA0ABEB00F73608 /* MetadataItem.m */; };
 		1A694B011CA0ABEB00F73608 /* MetadataItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694AFF1CA0ABEB00F73608 /* MetadataItem.m */; };
+		1A694B0C1CA3413700F73608 /* OverviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B031CA3413700F73608 /* OverviewController.m */; };
+		1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A694B041CA3413700F73608 /* OverviewController.xib */; };
+		1A694B0E1CA3413700F73608 /* OverviewNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B061CA3413700F73608 /* OverviewNode.m */; };
+		1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A694B071CA3413700F73608 /* DateKnob.xib */; };
+		1A694B101CA3413700F73608 /* ResultsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B091CA3413700F73608 /* ResultsController.m */; };
+		1A694B111CA3413700F73608 /* ResultsViewModeItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B0B1CA3413700F73608 /* ResultsViewModeItem.m */; };
+		1A694B241CA341D500F73608 /* CustomToolbarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B151CA341D500F73608 /* CustomToolbarItem.m */; };
+		1A694B251CA341D500F73608 /* SearchFieldToolbarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B171CA341D500F73608 /* SearchFieldToolbarItem.m */; };
+		1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B1B1CA341D500F73608 /* ButtonToolbarItem.m */; };
+		1A694B281CA341D500F73608 /* SearchField.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B1D1CA341D500F73608 /* SearchField.m */; };
+		1A694B291CA341D500F73608 /* NSImage+Icons.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B1F1CA341D500F73608 /* NSImage+Icons.m */; };
+		1A694B2A1CA341D500F73608 /* NetworkStateWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B211CA341D500F73608 /* NetworkStateWindow.m */; };
+		1A694B2B1CA341D500F73608 /* NetworkStatusTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B231CA341D500F73608 /* NetworkStatusTextField.m */; };
+		1A694B2E1CA342B000F73608 /* Sparkline.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B2D1CA342B000F73608 /* Sparkline.m */; };
+		1A694B311CA342D500F73608 /* SearchResultsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B301CA342D500F73608 /* SearchResultsController.m */; };
+		1A694B351CA3431700F73608 /* ProblemTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B331CA3431700F73608 /* ProblemTableController.m */; };
+		1A694B361CA3431700F73608 /* ProblemTableController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A694B341CA3431700F73608 /* ProblemTableController.xib */; };
+		1A694B391CA344ED00F73608 /* MDPSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B381CA344ED00F73608 /* MDPSplitView.m */; };
+		1A694B3C1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */; };
+		1A694B3D1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */; };
+		1A694B421CA34B9000F73608 /* LabelButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B3F1CA34B9000F73608 /* LabelButton.m */; };
+		1A694B431CA34B9000F73608 /* LabelButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B3F1CA34B9000F73608 /* LabelButton.m */; };
+		1A694B441CA34B9000F73608 /* DeemphasizedRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B411CA34B9000F73608 /* DeemphasizedRowView.m */; };
+		1A694B451CA34B9000F73608 /* DeemphasizedRowView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B411CA34B9000F73608 /* DeemphasizedRowView.m */; };
+		1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B471CA34BCD00F73608 /* ImagePopUpButton.m */; };
 		1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414A1C8E528A0043DAF0 /* NavigationController.m */; };
 		1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */; };
 		1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */; };
@@ -239,6 +264,47 @@
 		1A694AFD1CA0A9C200F73608 /* LocalMetadata.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocalMetadata.h; sourceTree = "<group>"; };
 		1A694AFE1CA0ABEB00F73608 /* MetadataItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MetadataItem.h; sourceTree = "<group>"; };
 		1A694AFF1CA0ABEB00F73608 /* MetadataItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MetadataItem.m; sourceTree = "<group>"; };
+		1A694B021CA3413700F73608 /* OverviewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverviewController.h; sourceTree = "<group>"; };
+		1A694B031CA3413700F73608 /* OverviewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverviewController.m; sourceTree = "<group>"; };
+		1A694B041CA3413700F73608 /* OverviewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OverviewController.xib; sourceTree = "<group>"; };
+		1A694B051CA3413700F73608 /* OverviewNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OverviewNode.h; sourceTree = "<group>"; };
+		1A694B061CA3413700F73608 /* OverviewNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OverviewNode.m; sourceTree = "<group>"; };
+		1A694B071CA3413700F73608 /* DateKnob.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DateKnob.xib; sourceTree = "<group>"; };
+		1A694B081CA3413700F73608 /* ResultsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResultsController.h; sourceTree = "<group>"; };
+		1A694B091CA3413700F73608 /* ResultsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResultsController.m; sourceTree = "<group>"; };
+		1A694B0A1CA3413700F73608 /* ResultsViewModeItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ResultsViewModeItem.h; sourceTree = "<group>"; };
+		1A694B0B1CA3413700F73608 /* ResultsViewModeItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ResultsViewModeItem.m; sourceTree = "<group>"; };
+		1A694B141CA341D500F73608 /* CustomToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomToolbarItem.h; sourceTree = "<group>"; };
+		1A694B151CA341D500F73608 /* CustomToolbarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomToolbarItem.m; sourceTree = "<group>"; };
+		1A694B161CA341D500F73608 /* SearchFieldToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchFieldToolbarItem.h; sourceTree = "<group>"; };
+		1A694B171CA341D500F73608 /* SearchFieldToolbarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchFieldToolbarItem.m; sourceTree = "<group>"; };
+		1A694B1A1CA341D500F73608 /* ButtonToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ButtonToolbarItem.h; sourceTree = "<group>"; };
+		1A694B1B1CA341D500F73608 /* ButtonToolbarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ButtonToolbarItem.m; sourceTree = "<group>"; };
+		1A694B1C1CA341D500F73608 /* SearchField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchField.h; sourceTree = "<group>"; };
+		1A694B1D1CA341D500F73608 /* SearchField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchField.m; sourceTree = "<group>"; };
+		1A694B1E1CA341D500F73608 /* NSImage+Icons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSImage+Icons.h"; sourceTree = "<group>"; };
+		1A694B1F1CA341D500F73608 /* NSImage+Icons.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSImage+Icons.m"; sourceTree = "<group>"; };
+		1A694B201CA341D500F73608 /* NetworkStateWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkStateWindow.h; sourceTree = "<group>"; };
+		1A694B211CA341D500F73608 /* NetworkStateWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkStateWindow.m; sourceTree = "<group>"; };
+		1A694B221CA341D500F73608 /* NetworkStatusTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkStatusTextField.h; sourceTree = "<group>"; };
+		1A694B231CA341D500F73608 /* NetworkStatusTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkStatusTextField.m; sourceTree = "<group>"; };
+		1A694B2C1CA342B000F73608 /* Sparkline.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sparkline.h; sourceTree = "<group>"; };
+		1A694B2D1CA342B000F73608 /* Sparkline.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Sparkline.m; sourceTree = "<group>"; };
+		1A694B2F1CA342D500F73608 /* SearchResultsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchResultsController.h; sourceTree = "<group>"; };
+		1A694B301CA342D500F73608 /* SearchResultsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchResultsController.m; sourceTree = "<group>"; };
+		1A694B321CA3431700F73608 /* ProblemTableController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProblemTableController.h; sourceTree = "<group>"; };
+		1A694B331CA3431700F73608 /* ProblemTableController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProblemTableController.m; sourceTree = "<group>"; };
+		1A694B341CA3431700F73608 /* ProblemTableController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProblemTableController.xib; sourceTree = "<group>"; };
+		1A694B371CA344ED00F73608 /* MDPSplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MDPSplitView.h; sourceTree = "<group>"; };
+		1A694B381CA344ED00F73608 /* MDPSplitView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MDPSplitView.m; sourceTree = "<group>"; };
+		1A694B3A1CA3451D00F73608 /* NSPredicate+Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPredicate+Extras.h"; sourceTree = "<group>"; };
+		1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPredicate+Extras.m"; sourceTree = "<group>"; };
+		1A694B3E1CA34B9000F73608 /* LabelButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelButton.h; sourceTree = "<group>"; };
+		1A694B3F1CA34B9000F73608 /* LabelButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelButton.m; sourceTree = "<group>"; };
+		1A694B401CA34B9000F73608 /* DeemphasizedRowView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeemphasizedRowView.h; sourceTree = "<group>"; };
+		1A694B411CA34B9000F73608 /* DeemphasizedRowView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DeemphasizedRowView.m; sourceTree = "<group>"; };
+		1A694B461CA34BCD00F73608 /* ImagePopUpButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImagePopUpButton.h; sourceTree = "<group>"; };
+		1A694B471CA34BCD00F73608 /* ImagePopUpButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImagePopUpButton.m; sourceTree = "<group>"; };
 		1A7A41491C8E528A0043DAF0 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
 		1A7A414A1C8E528A0043DAF0 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
 		1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NavigationController.xib; sourceTree = "<group>"; };
@@ -344,6 +410,8 @@
 				1AD470D61C99FB7C0050AE4B /* DataStore */,
 				1A3618F11C90C7C2008C11CB /* Model */,
 				1A2217CC1C7E7C49006460E2 /* Auth */,
+				1A694B121CA3414800F73608 /* Overview UI */,
+				1A694B131CA3419900F73608 /* Shared UI */,
 				1A2217CE1C7E80C0006460E2 /* Extras */,
 				1A2217941C7E7B14006460E2 /* Supporting Files */,
 				1A2440CE1C850CD900E070DA /* Frameworks */,
@@ -434,6 +502,8 @@
 				1A3618EB1C8FC3CC008C11CB /* KSReachability.m */,
 				1A3618ED1C8FC3DB008C11CB /* Reachability.h */,
 				1A3618EE1C8FC3DB008C11CB /* Reachability.m */,
+				1A694B3A1CA3451D00F73608 /* NSPredicate+Extras.h */,
+				1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -536,6 +606,59 @@
 				1A3618FE1C9383CF008C11CB /* Info.plist */,
 			);
 			path = ShipHubTests;
+			sourceTree = "<group>";
+		};
+		1A694B121CA3414800F73608 /* Overview UI */ = {
+			isa = PBXGroup;
+			children = (
+				1A694B021CA3413700F73608 /* OverviewController.h */,
+				1A694B031CA3413700F73608 /* OverviewController.m */,
+				1A694B041CA3413700F73608 /* OverviewController.xib */,
+				1A694B051CA3413700F73608 /* OverviewNode.h */,
+				1A694B061CA3413700F73608 /* OverviewNode.m */,
+				1A694B071CA3413700F73608 /* DateKnob.xib */,
+				1A694B081CA3413700F73608 /* ResultsController.h */,
+				1A694B091CA3413700F73608 /* ResultsController.m */,
+				1A694B2F1CA342D500F73608 /* SearchResultsController.h */,
+				1A694B301CA342D500F73608 /* SearchResultsController.m */,
+				1A694B321CA3431700F73608 /* ProblemTableController.h */,
+				1A694B331CA3431700F73608 /* ProblemTableController.m */,
+				1A694B341CA3431700F73608 /* ProblemTableController.xib */,
+				1A694B0A1CA3413700F73608 /* ResultsViewModeItem.h */,
+				1A694B0B1CA3413700F73608 /* ResultsViewModeItem.m */,
+				1A694B2C1CA342B000F73608 /* Sparkline.h */,
+				1A694B2D1CA342B000F73608 /* Sparkline.m */,
+			);
+			name = "Overview UI";
+			sourceTree = "<group>";
+		};
+		1A694B131CA3419900F73608 /* Shared UI */ = {
+			isa = PBXGroup;
+			children = (
+				1A694B141CA341D500F73608 /* CustomToolbarItem.h */,
+				1A694B151CA341D500F73608 /* CustomToolbarItem.m */,
+				1A694B161CA341D500F73608 /* SearchFieldToolbarItem.h */,
+				1A694B171CA341D500F73608 /* SearchFieldToolbarItem.m */,
+				1A694B1A1CA341D500F73608 /* ButtonToolbarItem.h */,
+				1A694B1B1CA341D500F73608 /* ButtonToolbarItem.m */,
+				1A694B1C1CA341D500F73608 /* SearchField.h */,
+				1A694B1D1CA341D500F73608 /* SearchField.m */,
+				1A694B1E1CA341D500F73608 /* NSImage+Icons.h */,
+				1A694B1F1CA341D500F73608 /* NSImage+Icons.m */,
+				1A694B201CA341D500F73608 /* NetworkStateWindow.h */,
+				1A694B211CA341D500F73608 /* NetworkStateWindow.m */,
+				1A694B221CA341D500F73608 /* NetworkStatusTextField.h */,
+				1A694B231CA341D500F73608 /* NetworkStatusTextField.m */,
+				1A694B371CA344ED00F73608 /* MDPSplitView.h */,
+				1A694B381CA344ED00F73608 /* MDPSplitView.m */,
+				1A694B3E1CA34B9000F73608 /* LabelButton.h */,
+				1A694B3F1CA34B9000F73608 /* LabelButton.m */,
+				1A694B401CA34B9000F73608 /* DeemphasizedRowView.h */,
+				1A694B411CA34B9000F73608 /* DeemphasizedRowView.m */,
+				1A694B461CA34BCD00F73608 /* ImagePopUpButton.h */,
+				1A694B471CA34BCD00F73608 /* ImagePopUpButton.m */,
+			);
+			name = "Shared UI";
 			sourceTree = "<group>";
 		};
 		1AD470D61C99FB7C0050AE4B /* DataStore */ = {
@@ -673,9 +796,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A694B361CA3431700F73608 /* ProblemTableController.xib in Resources */,
+				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
 				1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
+				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
 			);
@@ -701,33 +827,49 @@
 				1A2217961C7E7B14006460E2 /* main.m in Sources */,
 				1AE09BF61C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
 				1A3618F51C90C7F6008C11CB /* LocalModel.xcdatamodeld in Sources */,
+				1A694B2A1CA341D500F73608 /* NetworkStateWindow.m in Sources */,
 				1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */,
+				1A694B441CA34B9000F73608 /* DeemphasizedRowView.m in Sources */,
 				1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */,
 				1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */,
 				1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */,
 				1A694B001CA0ABEB00F73608 /* MetadataItem.m in Sources */,
 				1A694AF61CA09EAD00F73608 /* Label.m in Sources */,
+				1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */,
 				1AE09BFC1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
+				1A694B101CA3413700F73608 /* ResultsController.m in Sources */,
 				1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
 				1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
+				1A694B351CA3431700F73608 /* ProblemTableController.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
+				1A694B2B1CA341D500F73608 /* NetworkStatusTextField.m in Sources */,
+				1A694B2E1CA342B000F73608 /* Sparkline.m in Sources */,
 				1A2305DD1C7F84D80034C871 /* Error.m in Sources */,
 				1AE09C101C97687E00C5AC35 /* LocalOrg.m in Sources */,
 				1AE09BEE1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
 				1A3618EF1C8FC3DB008C11CB /* Reachability.m in Sources */,
+				1A694B0C1CA3413700F73608 /* OverviewController.m in Sources */,
 				1A694AE61CA09E5800F73608 /* User.m in Sources */,
+				1A694B251CA341D500F73608 /* SearchFieldToolbarItem.m in Sources */,
 				1A694AEE1CA09E8000F73608 /* Org.m in Sources */,
+				1A694B391CA344ED00F73608 /* MDPSplitView.m in Sources */,
 				1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */,
 				1AE09C0C1C97687E00C5AC35 /* LocalLabel.m in Sources */,
+				1A694B311CA342D500F73608 /* SearchResultsController.m in Sources */,
 				1A694AEA1CA09E6A00F73608 /* Repo.m in Sources */,
 				1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
 				1AE09C061C97687E00C5AC35 /* LocalUser+CoreDataProperties.m in Sources */,
 				1AE09BF01C97687E00C5AC35 /* LocalRepo.m in Sources */,
 				1A2305D91C7F80EA0034C871 /* Defaults.m in Sources */,
+				1A694B421CA34B9000F73608 /* LabelButton.m in Sources */,
 				1AE09C001C97687E00C5AC35 /* LocalEvent.m in Sources */,
 				1AE09C041C97687E00C5AC35 /* LocalAccount.m in Sources */,
+				1A694B241CA341D500F73608 /* CustomToolbarItem.m in Sources */,
+				1A694B281CA341D500F73608 /* SearchField.m in Sources */,
+				1A694B291CA341D500F73608 /* NSImage+Icons.m in Sources */,
+				1A694B111CA3413700F73608 /* ResultsViewModeItem.m in Sources */,
 				1A2217D81C7E981D006460E2 /* Keychain.m in Sources */,
 				1A694AFB1CA0A96500F73608 /* Account.m in Sources */,
 				1AE09C081C97687E00C5AC35 /* LocalUser.m in Sources */,
@@ -739,10 +881,13 @@
 				1A694AF21CA09E9800F73608 /* Milestone.m in Sources */,
 				1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */,
 				1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */,
+				1A694B3C1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */,
 				1AE09C141C97687E00C5AC35 /* LocalComment.m in Sources */,
 				1AE09C0E1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */,
 				1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */,
+				1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */,
 				1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */,
+				1A694B0E1CA3413700F73608 /* OverviewNode.m in Sources */,
 				1AE09BFA1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m in Sources */,
 				1A2217D11C7E80CE006460E2 /* Logging.m in Sources */,
 				1AE09BF81C97687E00C5AC35 /* LocalRelationship.m in Sources */,
@@ -779,7 +924,9 @@
 				1AE09C211C9779DE00C5AC35 /* Logging.m in Sources */,
 				1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */,
 				1A694B011CA0ABEB00F73608 /* MetadataItem.m in Sources */,
+				1A694B431CA34B9000F73608 /* LabelButton.m in Sources */,
 				1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */,
+				1A694B3D1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */,
 				1A36190D1C9383E7008C11CB /* TestMetadata.m in Sources */,
 				1AE09BEF1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
 				1AE09C131C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */,
@@ -795,6 +942,7 @@
 				1AE09C1E1C9779D300C5AC35 /* FoundationExtras.m in Sources */,
 				1AE09C0D1C97687E00C5AC35 /* LocalLabel.m in Sources */,
 				1AE09BF31C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
+				1A694B451CA34B9000F73608 /* DeemphasizedRowView.m in Sources */,
 				1AE09BF51C97687E00C5AC35 /* LocalIssue.m in Sources */,
 				1AE09C071C97687E00C5AC35 /* LocalUser+CoreDataProperties.m in Sources */,
 				1AE09C0B1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
