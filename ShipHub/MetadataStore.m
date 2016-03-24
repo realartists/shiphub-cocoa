@@ -150,11 +150,11 @@ static BOOL IsMetadataObject(id obj) {
             
             _assigneesByRepoID = assigneesByRepoID;
             
-            _repoOwners = [repoOwners allObjects];
+            _repoOwners = [[repoOwners allObjects] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"login" ascending:YES]]];
             
             _reposByOwnerID = reposByOwnerID;
             
-            _repos = repos;
+            _repos = [repos sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
             
             _milestonesByRepoID = milestonesByRepoID;
             
@@ -174,7 +174,8 @@ static BOOL IsMetadataObject(id obj) {
             
             NSMutableSet *mergedMilestones = [NSMutableSet new];
             NSMutableDictionary *milestonesByID = [NSMutableDictionary new];
-            for (NSArray *ma in [_milestonesByRepoID allValues]) {
+            for (NSMutableArray *ma in [_milestonesByRepoID allValues]) {
+                [ma sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES]]];
                 for (Milestone *m in ma) {
                     [mergedMilestones addObject:m.title];
                     milestonesByID[m.identifier] = m;
@@ -183,7 +184,7 @@ static BOOL IsMetadataObject(id obj) {
             
             _milestonesByID = milestonesByID;
             
-            _mergedMilestoneNames = [mergedMilestones allObjects];
+            _mergedMilestoneNames = [[mergedMilestones allObjects] sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
             
             _reposByID = [NSDictionary lookupWithObjects:_repos keyPath:@"identifier"];
             

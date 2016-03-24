@@ -283,6 +283,7 @@ NSTextFieldDelegate>
     
     NSMutableArray *roots = [NSMutableArray array];
     
+#if 0
     OverviewNode *inbox = [OverviewNode new];
     inbox.title = NSLocalizedString(@"Unread", nil);
     [roots addObject:inbox];
@@ -302,6 +303,7 @@ NSTextFieldDelegate>
     inboxWatching.allowChart = NO;
     inboxWatching.icon = [NSImage overviewIconNamed:@"878-binoculars-selected"];
     [inbox addChild:inboxWatching];
+#endif
     
     OverviewNode *milestonesRoot = [OverviewNode new];
 //    milestonesRoot.representedObject = _milestoneMap;
@@ -325,7 +327,7 @@ NSTextFieldDelegate>
         openAll.title = NSLocalizedString(@"Open : All", nil);
         openAll.path = [NSString stringWithFormat:@"%@ : %@", milestone, openAll.title];
         openAll.showCount = YES;
-        openAll.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@ AND (state = nil OR state.resolved = NO)", milestone];
+        openAll.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@ AND closed = NO", milestone];
         openAll.icon = milestoneIcon;
         [node addChild:openAll];
         
@@ -334,7 +336,7 @@ NSTextFieldDelegate>
         openMe.title = NSLocalizedString(@"Open : Mine", nil);
         openMe.path = [NSString stringWithFormat:@"%@ : %@", milestone, openMe.title];
         openMe.showCount = YES;
-        openMe.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@ AND (state = nil OR state.resolved = NO) AND assignee.identifier = %@", milestone, [User me].identifier];
+        openMe.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@ AND closed = NO AND assignee.identifier = %@", milestone, [User me].identifier];
         openMe.icon = milestoneIcon;
         [node addChild:openMe];
         
@@ -342,11 +344,12 @@ NSTextFieldDelegate>
         closed.representedObject = milestone;
         closed.title = NSLocalizedString(@"Closed", nil);
         closed.path = [NSString stringWithFormat:@"%@ : %@", milestone, closed.title];
-        closed.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@ AND state.resolved = YES", milestone];
+        closed.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@ AND closed = YES", milestone];
         closed.icon = milestoneIcon;
         [node addChild:closed];
     }
     
+#if 0
     OverviewNode *backlog = [OverviewNode new];
     backlog.title = NSLocalizedString(@"Backlog", nil);
     [roots addObject:backlog];
@@ -355,7 +358,7 @@ NSTextFieldDelegate>
     backlogAll.title = NSLocalizedString(@"All Backlog", nil);
     backlogAll.path = NSLocalizedString(@"Backlog : All", nil);
     backlogAll.showCount = YES;
-    backlogAll.predicate = [NSPredicate predicateWithFormat:@"milestone.identifier = nil AND (state = nil OR state.resolved = NO)"];
+    backlogAll.predicate = [NSPredicate predicateWithFormat:@"milestone.identifier = nil AND closed = NO"];
     backlogAll.icon = [NSImage overviewIconNamed:@"832-stack-1"];
     [backlog addChild:backlogAll];
     
@@ -363,9 +366,10 @@ NSTextFieldDelegate>
     backlogMine.title = NSLocalizedString(@"My Backlog", nil);
     backlogMine.path = NSLocalizedString(@"Backlog : Mine", nil);
     backlogMine.showCount = YES;
-    backlogMine.predicate = [NSPredicate predicateWithFormat:@"milestone.identifier = nil AND (state = nil OR state.resolved = NO) AND assignee.identifier = %@", [[User me] identifier]];
+    backlogMine.predicate = [NSPredicate predicateWithFormat:@"milestone.identifier = nil AND closed = NO AND assignee.identifier = %@", [[User me] identifier]];
     backlogMine.icon = [NSImage overviewIconNamed:@"832-stack-1-selected"];
     [backlog addChild:backlogMine];
+#endif
     
     // List repos
     OverviewNode *repoRoot = [OverviewNode new];
@@ -379,7 +383,7 @@ NSTextFieldDelegate>
         
         if (multipleOwners) {
             OverviewNode *accountNode = [OverviewNode new];
-            accountNode.predicate = [NSPredicate predicateWithFormat:@"repo.owner.identifier = %@", repoOwner.identifier];
+            accountNode.predicate = [NSPredicate predicateWithFormat:@"repository.owner.identifier = %@", repoOwner.identifier];
             accountNode.icon = [NSImage overviewIconNamed:@"973-user-selected"];
             accountNode.title = repoOwner.login;
             [repoRoot addChild:accountNode];
@@ -392,7 +396,7 @@ NSTextFieldDelegate>
             OverviewNode *repoNode = [OverviewNode new];
             repoNode.title = repo.name;
             repoNode.path = repo.fullName;
-            repoNode.predicate = [NSPredicate predicateWithFormat:@"repo.fullName = %@", repo.fullName];
+            repoNode.predicate = [NSPredicate predicateWithFormat:@"repository.fullName = %@", repo.fullName];
             repoNode.icon = [NSImage overviewIconNamed:@"961-book-32"];
             [accountRoot addChild:repoNode];
             
