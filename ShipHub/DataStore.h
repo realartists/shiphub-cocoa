@@ -10,6 +10,7 @@
 
 @class Auth;
 @class MetadataStore;
+@class Issue;
 
 @interface DataStore : NSObject
 
@@ -30,6 +31,10 @@
 @property (nonatomic, readonly, getter=isPerformingInitialSync) BOOL performingInitialSync;
 
 @property (readonly) MetadataStore *metadataStore;
+
+- (void)issuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion;
+- (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion;
+- (void)countIssuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSUInteger count, NSError *error))completion;
 
 @end
 

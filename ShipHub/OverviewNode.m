@@ -88,6 +88,17 @@
     return _path;
 }
 
+@synthesize title = _title;
+
+- (void)setTitle:(NSString *)title {
+    NSParameterAssert(title);
+    _title = title;
+}
+
+- (NSString *)title {
+    return _title;
+}
+
 @end
 
 @implementation OverviewKnob

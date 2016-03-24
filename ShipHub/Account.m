@@ -6,7 +6,7 @@
 //  Copyright © 2016 Real Artists, Inc. All rights reserved.
 //
 
-#import "Account.h"
+#import "AccountInternal.h"
 
 #import "LocalAccount.h"
 

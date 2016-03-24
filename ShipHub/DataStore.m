@@ -15,6 +15,7 @@
 #import "SyncConnection.h"
 #import "GHSyncConnection.h"
 #import "MetadataStoreInternal.h"
+#import "NSPredicate+Extras.h"
 
 #import "LocalAccount.h"
 #import "LocalUser.h"
@@ -26,6 +27,9 @@
 #import "LocalEvent.h"
 #import "LocalComment.h"
 #import "LocalRelationship.h"
+
+#import "Issue.h"
+#import "Error.h"
 
 NSString *const DataStoreWillBeginMigrationNotification = @"DataStoreWillBeginMigrationNotification";
 NSString *const DataStoreDidEndMigrationNotification = @"DataStoreDidEndMigrationNotification";
@@ -731,6 +735,65 @@ static NSString *const LastUpdated = @"LastUpdated";
             });
         });
     }
+}
+
+- (void)issuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
+    return [self issuesMatchingPredicate:predicate sortDescriptors:@[] completion:completion];
+}
+
+- (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
+    __block NSArray *results = nil;
+    __block NSError *error = nil;
+    [_moc performBlock:^{
+        @try {
+            NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+            fetchRequest.predicate = [predicate predicateByFoldingExpressions];
+            fetchRequest.sortDescriptors = sortDescriptors;
+            
+            NSError *err = nil;
+            NSArray *entities = [_moc executeFetchRequest:fetchRequest error:&err];
+            if (err) {
+                ErrLog(@"%@", err);
+            }
+            MetadataStore *ms = self.metadataStore;
+            results = [entities arrayByMappingObjects:^id(LocalIssue *obj) {
+                return [[Issue alloc] initWithLocalIssue:obj metadataStore:ms];
+            }];
+        } @catch (id exc) {
+            error = [NSError shipErrorWithCode:ShipErrorCodeInvalidQuery];
+            ErrLog(@"%@", exc);
+        }
+    } completion:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(results, error);
+        });
+    }];
+
+}
+
+- (void)countIssuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSUInteger count, NSError *error))completion {
+    __block NSUInteger result = 0;
+    __block NSError *error = nil;
+    [_moc performBlock:^{
+        @try {
+            NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+            fetchRequest.predicate = [predicate predicateByFoldingExpressions];
+            NSError *err = nil;
+            result = [_moc countForFetchRequest:fetchRequest error:&err];
+            
+            if (err) {
+                ErrLog(@"%@", err);
+                result = 0;
+            }
+        } @catch (id exc) {
+            error = [NSError shipErrorWithCode:ShipErrorCodeInvalidQuery];
+            ErrLog(@"%@", exc);
+        }
+    } completion:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(result, error);
+        });
+    }];
 }
 
 @end

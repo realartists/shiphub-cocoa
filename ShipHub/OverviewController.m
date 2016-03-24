@@ -404,22 +404,26 @@ NSTextFieldDelegate>
             repoOpen.title = NSLocalizedString(@"Open : All", nil);
             repoOpen.predicate = [repoNode.predicate and:[NSPredicate predicateWithFormat:@"closed = NO"]];
             repoOpen.icon = [NSImage overviewIconNamed:@"961-book-32"];
+            repoOpen.showCount = YES;
             [repoNode addChild:repoOpen];
             
             OverviewNode *repoOpenMine = [OverviewNode new];
             repoOpenMine.title = NSLocalizedString(@"Open : Mine", nil);
             repoOpenMine.predicate = [repoOpen.predicate and:[NSPredicate predicateWithFormat:@"assignee.identifier = %@", [[User me] identifier]]];
             repoOpenMine.icon = [NSImage overviewIconNamed:@"961-book-32"];
+            repoOpenMine.showCount = YES;
             [repoNode addChild:repoOpenMine];
             
             for (Milestone *milestone in [metadata activeMilestonesForRepo:repo]) {
                 OverviewNode *rmNode = [OverviewNode new];
                 rmNode.title = milestone.title;
+                rmNode.showCount = YES;
                 rmNode.predicate = [repoOpen.predicate and:[NSPredicate predicateWithFormat:@"milestone.identifier = %@", milestone.identifier]];
                 rmNode.icon = milestoneIcon;
                 [repoNode addChild:rmNode];
                 
                 OverviewNode *rmMineNode = [OverviewNode new];
+                rmMineNode.showCount = YES;
                 rmMineNode.title = [NSString stringWithFormat:NSLocalizedString(@"%@ : Mine", nil), milestone.title];
                 rmMineNode.predicate = [repoOpenMine.predicate and:[NSPredicate predicateWithFormat:@"milestone.identifier = %@", milestone.identifier]];
                 rmMineNode.icon = milestoneIcon;
@@ -654,15 +658,12 @@ NSTextFieldDelegate>
             }
         }
     };
-#if !INCOMPLETE
-    (void)updateCount;
-#endif
     
     if (node.predicate && node.showCount) {
-#if 0
-        [[DataStore activeStore] countProblemsMatchingPredicate:node.predicate completion:^(NSUInteger count, NSError *error) {
+        [[DataStore activeStore] countIssuesMatchingPredicate:node.predicate completion:^(NSUInteger count, NSError *error) {
             updateCount(count);
         }];
+#if 0
         if ([[NSUserDefaults standardUserDefaults] boolForKey:@"sparklines"]
             && [[DataStore activeStore] predicateCanBeUsedForTimeSeries:node.predicate])
         {
@@ -689,7 +690,7 @@ NSTextFieldDelegate>
         }
 #endif
     } else if (node == _outboxNode) {
-#if 0
+#if !INCOMPLETE
         [[DataStore activeStore] outboxWithCompletion:^(NSArray *outbox) {
             NSUInteger count = outbox.count;
             updateCount(count > 0 ? count : NSNotFound);
@@ -817,6 +818,25 @@ NSTextFieldDelegate>
     }
     
     _modeItem.chartEnabled = (selectedItem == nil || [selectedItem allowChart]) && [[DataStore activeStore] predicateCanBeUsedForTimeSeries:predicate];
+    
+    [[self activeResultsController] setPredicate:predicate];
+    [self updateCount:selectedItem];
+#else
+    id selectedItem = [_outlineView selectedItem];
+    NSPredicate *predicate = nil;
+    predicate = [selectedItem predicate];
+    
+    NSString *title = [[_searchItem.searchField stringValue] trim];
+    NSInteger number = [title isDigits] ? [title integerValue] : 0;
+    NSPredicate *searchPredicate = [title length] > 0 ? [NSPredicate predicateWithFormat:@"title CONTAINS[cd] %@", title] : nil;
+    if (number != 0) {
+        searchPredicate = [searchPredicate or:[NSPredicate predicateWithFormat:@"identifier = %ld", (long)number]];
+    }
+    if (predicate && searchPredicate) {
+        predicate = [predicate and:searchPredicate];
+    } else if (searchPredicate) {
+        predicate = searchPredicate;
+    }
     
     [[self activeResultsController] setPredicate:predicate];
     [self updateCount:selectedItem];

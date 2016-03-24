@@ -29,6 +29,7 @@
 - (NSArray<NSString *> *)mergedMilestoneNames;
 
 - (NSArray<Label *> *)mergedLabels;
+- (NSArray<Label *> *)labelsForRepo:(Repo *)repo;
 
 - (NSArray<Milestone *> *)activeMilestonesForRepo:(Repo *)repo;
 

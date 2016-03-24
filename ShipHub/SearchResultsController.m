@@ -8,16 +8,17 @@
 
 #import "SearchResultsController.h"
 #import "Extras.h"
-#import "ProblemTableController.h"
+#import "IssueTableController.h"
 #import "DataStore.h"
+#import "Issue.h"
 
-@interface SearchTableItem : NSObject <ProblemTableItem>
+@interface SearchTableItem : NSObject <IssueTableItem>
 
-@property (nonatomic, strong) id<ProblemSnapshot> problemSnapshot;
+@property (nonatomic, strong) Issue *issue;
 
 @end
 
-@interface ProblemTableController (Internal)
+@interface IssueTableController (Internal)
 @property (nonatomic, assign) BOOL loading;
 @end
 
@@ -25,7 +26,7 @@
     NSInteger _searchGeneration;
 }
 
-@property ProblemTableController *table;
+@property IssueTableController *table;
 @property (nonatomic, assign) BOOL searching;
 @property NSTimer *titleTimer;
 
@@ -38,7 +39,7 @@
 }
 
 - (void)loadView {
-    _table = [[ProblemTableController alloc] init];
+    _table = [[IssueTableController alloc] init];
     _table.autosaveName = @"SearchResults";
     NSView *tableView = _table.view;
     self.view = [[NSView alloc] initWithFrame:tableView.frame];
@@ -69,16 +70,16 @@
     }
     
     // FIXME: Hook up
-#if !INCOMPLETE
     NSInteger generation = _searchGeneration;
     self.searching = YES;
-    [[DataStore activeStore] findProblemsMatchingPredicate:self.predicate completion:^(NSArray *snapshots, NSError *error) {
+    
+    [[DataStore activeStore] issuesMatchingPredicate:self.predicate completion:^(NSArray<Issue *> *issues, NSError *error) {
         if (generation != _searchGeneration) return;
         
-        if (snapshots) {
-            _table.tableItems = [snapshots arrayByMappingObjects:^id(id obj) {
+        if (issues) {
+            _table.tableItems = [issues arrayByMappingObjects:^id(id obj) {
                 SearchTableItem *item = [SearchTableItem new];
-                item.problemSnapshot = obj;
+                item.issue = obj;
                 return item;
             }];
         } else {
@@ -86,7 +87,6 @@
         }
         self.searching = NO;
     }];
-#endif
 }
 
 - (IBAction)revertDocumentToSaved:(id)sender {
@@ -131,13 +131,8 @@
 
 @implementation SearchTableItem
 
-- (NSNumber *)problemIdentifier {
-    // FIXME: Hook up
-#if !INCOMPLETE
-    return self.problemSnapshot.identifier;
-#else
-    return @0;
-#endif
+- (id)issueFullIdentifier {
+    return self.issue.fullIdentifier;
 }
 
 - (id<NSCopying>)identifier {

@@ -76,6 +76,7 @@ static BOOL IsMetadataObject(id obj) {
         [moc performBlockAndWait:^{
             
             NSFetchRequest *reposFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
+            reposFetch.predicate = [NSPredicate predicateWithFormat:@"name != nil"];
             NSArray *localRepos = [moc executeFetchRequest:reposFetch error:NULL];
             
             NSMutableArray *repos = [NSMutableArray arrayWithCapacity:localRepos.count];
@@ -222,14 +223,17 @@ static BOOL IsMetadataObject(id obj) {
 }
 
 - (User *)userWithIdentifier:(NSNumber *)identifier {
+    if (!identifier) return nil;
     return _usersByID[identifier];
 }
 
 - (Org *)orgWithIdentifier:(NSNumber *)identifier {
+    if (!identifier) return nil;
     return _orgsByID[identifier];
 }
 
 - (Repo *)repoWithIdentifier:(NSNumber *)identifier {
+    if (!identifier) return nil;
     return _reposByID[identifier];
 }
 
@@ -247,6 +251,10 @@ static BOOL IsMetadataObject(id obj) {
 
 - (NSArray<Repo *> *)reposForOwner:(Account *)owner {
     return _reposByOwnerID[owner.identifier];
+}
+
+- (NSArray<Label *> *)labelsForRepo:(Repo *)repo {
+    return _labelsByRepoID[repo.identifier];
 }
 
 @end

@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Real Artists, Inc. All rights reserved.
 //
 
-#import "ProblemTableController.h"
+#import "IssueTableController.h"
 
 // FIXME: Hook up
 #if !INCOMPLETE
@@ -15,6 +15,8 @@
 
 #import "DataStore.h"
 #import "Extras.h"
+#import "Issue.h"
+#import "IssueIdentifier.h"
 
 @protocol ProblemTableViewDelegate <NSTableViewDelegate>
 @optional
@@ -30,16 +32,16 @@
 
 @interface ProblemTableItem : NSObject
 
-@property (strong) id<ProblemTableItem> info;
-@property (strong) id<ProblemSnapshot> problem;
+@property (strong) id<IssueTableItem> info;
+@property (strong) Issue *issue;
 
 - (id<NSCopying>)identifier;
 
-+ (instancetype)itemWithInfo:(id<ProblemTableItem>)info;
++ (instancetype)itemWithInfo:(id<IssueTableItem>)info;
 
 @end
 
-@interface ProblemTableController () <ProblemTableViewDelegate, NSTableViewDataSource, NSMenuDelegate>
+@interface IssueTableController () <ProblemTableViewDelegate, NSTableViewDataSource, NSMenuDelegate>
 
 @property (strong) IBOutlet NSTableView *table;
 
@@ -54,17 +56,17 @@
 
 @end
 
-@implementation ProblemTableController
+@implementation IssueTableController
 
 - (void)commonInit {
     _items = [NSMutableArray array];
     _itemLookup = [NSMutableDictionary dictionary];
     _problemCache = [NSMutableDictionary dictionary];
-    _defaultColumns = [NSSet setWithArray:@[@"info.problemIdentifier", @"problem.title", @"problem.assignee.name"]];
+    _defaultColumns = [NSSet setWithArray:@[@"issue.number", @"issue.title", @"issue.assignee.login", @"issue.repo.fullName"]];
 }
 
 - (id)init {
-    return [self initWithNibName:@"ProblemTableController" bundle:[NSBundle bundleForClass:[self class]]];
+    return [self initWithNibName:@"IssueTableController" bundle:[NSBundle bundleForClass:[self class]]];
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
@@ -110,19 +112,19 @@
     [self _makeColumnHeaderMenu];
 }
 
-static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
+static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
 
 + (NSArray *)columnSpecs {
     static NSArray *specs;
     if (!specs) {
         specs = @[
-                  @{ @"identifier" : ProblemPopupIdentifier,
+                  @{ @"identifier" : IssuePopupIdentifier,
                      @"title" : NSLocalizedString(@"Action", nil),
                      @"width" : @90,
                      @"fixed" : @YES,
                      @"editable" : @YES },
                   
-                  @{ @"identifier" : @"problem.read",
+                  @{ @"identifier" : @"issue.read",
                      @"title" : NSLocalizedString(@"•", nil),
                      @"menuTitle" : NSLocalizedString(@"Unread", nil),
                      @"formatter" : [BooleanDotFormatter new],
@@ -133,76 +135,69 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
                      @"cellClass" : @"ReadIndicatorCell",
                      @"titleFont" : [NSFont boldSystemFontOfSize:12.0] },
                   
-                  @{ @"identifier" : @"info.problemIdentifier",
+                  @{ @"identifier" : @"issue.number",
                      @"title" : NSLocalizedString(@"#", nil),
                      @"formatter" : [NSNumberFormatter positiveAndNegativeIntegerFormatter],
                      @"width" : @46,
                      @"maxWidth" : @46,
                      @"minWidth" : @46 },
                   
-                  @{ @"identifier" : @"problem.title",
+                  @{ @"identifier" : @"info.issueFullIdentifier",
+                     @"title" : NSLocalizedString(@"Path", nil),
+                     @"width" : @100,
+                     @"maxWidth" : @160,
+                     @"minWidth" : @60 },
+                  
+                  @{ @"identifier" : @"issue.title",
                      @"title" : NSLocalizedString(@"Title", nil),
                      @"width" : @271,
                      @"minWidth" : @100,
                      @"maxWidth" : @10000 },
                   
-                  @{ @"identifier" : @"problem.assignee.name",
+                  @{ @"identifier" : @"issue.assignee.login",
                      @"title" : NSLocalizedString(@"Assignee", nil),
                      @"width" : @160,
                      @"minWidth" : @130,
                      @"maxWidth" : @200 },
                   
-                  @{ @"identifier" : @"problem.originator.name",
+                  @{ @"identifier" : @"issue.originator.login",
                      @"title" : NSLocalizedString(@"Originator", nil),
                      @"width" : @160,
                      @"minWidth" : @130,
                      @"maxWidth" : @200 },
                   
-                  @{ @"identifier" : @"problem.resolver.name",
+                  @{ @"identifier" : @"issue.closedBy.login",
                      @"title" : NSLocalizedString(@"Resolver", nil),
                      @"width" : @160,
                      @"minWidth" : @130,
                      @"maxWidth" : @200 },
                   
-                  @{ @"identifier" : @"problem.component.fullName",
-                     @"title" : NSLocalizedString(@"Component", nil),
+                  @{ @"identifier" : @"issue.repository.fullName",
+                     @"title" : NSLocalizedString(@"Repo", nil),
                      @"width" : @160,
                      @"minWidth" : @130,
                      @"maxWidth" : @250 },
                   
-                  @{ @"identifier": @"problem.classification.name",
-                     @"title" : NSLocalizedString(@"Classification", nil),
-                     @"width" : @160 },
-                  
-                  @{ @"identifier" : @"problem.milestone.name",
+                  @{ @"identifier" : @"issue.milestone.title",
                      @"title" : NSLocalizedString(@"Milestone", nil),
                      @"width" : @160,
                      @"minWidth" : @130,
                      @"maxWidth" : @250 },
                   
-                  @{ @"identifier" : @"problem.priority.order",
-                     @"title" : NSLocalizedString(@"Priority", nil),
-                     @"width" : @50 },
-                  
-                  @{ @"identifier" : @"problem.state.name",
-                     @"title" : NSLocalizedString(@"State", nil),
+                  @{ @"identifier" : @"issue.closed",
+                     @"title" : NSLocalizedString(@"Closed", nil),
                      @"width" : @130,
                      @"minWidth" : @100,
                      @"maxWidth" : @150 },
                   
-                  @{ @"identifier" : @"problem.modificationDate",
+                  @{ @"identifier" : @"issue.updatedAt",
                      @"title" : NSLocalizedString(@"Modified", nil),
                      @"formatter" : [NSDateFormatter shortDateAndTimeFormatter],
                      @"width" : @130 },
                   
-                  @{ @"identifier" : @"problem.creationDate",
+                  @{ @"identifier" : @"issue.createdAt",
                      @"formatter" : [NSDateFormatter shortDateAndTimeFormatter],
                      @"title" : NSLocalizedString(@"Created", nil),
-                     @"width" : @130 },
-                  
-                  @{ @"identifier" : @"problem.resolveDate",
-                     @"formatter" : [NSDateFormatter shortDateAndTimeFormatter],
-                     @"title" : NSLocalizedString(@"Resolve Date", nil),
                      @"width" : @130 },
                   ];
     }
@@ -233,7 +228,7 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
     [[_table headerView] setMenu:menu];
     //loop through columns, creating a menu item for each
     for (NSTableColumn *col in _tableColumns) {
-        if ([[col identifier] isEqualToString:ProblemPopupIdentifier]) {
+        if ([[col identifier] isEqualToString:IssuePopupIdentifier]) {
             continue;
         }
         NSDictionary *spec = [[self class] columnSpecWithIdentifier:col.identifier];
@@ -355,7 +350,7 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
         }
         NSCell *dataCell = column.dataCell;
         dataCell.formatter = columnSpec[@"formatter"];
-        if ([columnIdentifier isEqualToString:ProblemPopupIdentifier]) {
+        if ([columnIdentifier isEqualToString:IssuePopupIdentifier]) {
             column.title = _popupColumnTitle ?: column.title;
             column.hidden = [_popupItems count] == 0;
             NSPopUpButtonCell *cell = [[NSPopUpButtonCell alloc] init];
@@ -392,17 +387,17 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
 
 - (void)setPopupItems:(NSArray *)popupItems {
     _popupItems = [popupItems copy];
-    NSTableColumn *popCol = [_table tableColumnWithIdentifier:ProblemPopupIdentifier];
+    NSTableColumn *popCol = [_table tableColumnWithIdentifier:IssuePopupIdentifier];
     popCol.hidden = [_popupItems count] == 0;
     NSPopUpButtonCell *cell = popCol.dataCell;
     [cell removeAllItems];
     [cell addItemsWithTitles:popupItems];
-    [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _items.count)] columnIndexes:[NSIndexSet indexSetWithIndex:[_table columnWithIdentifier:ProblemPopupIdentifier]]];
+    [_table reloadDataForRowIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, _items.count)] columnIndexes:[NSIndexSet indexSetWithIndex:[_table columnWithIdentifier:IssuePopupIdentifier]]];
 }
 
 - (void)setPopupColumnTitle:(NSString *)popupColumnTitle {
     _popupColumnTitle = [popupColumnTitle copy];
-    NSTableColumn *popCol = [_table tableColumnWithIdentifier:ProblemPopupIdentifier];
+    NSTableColumn *popCol = [_table tableColumnWithIdentifier:IssuePopupIdentifier];
     popCol.title = popupColumnTitle;
 }
 
@@ -428,8 +423,8 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
     [_items removeAllObjects];
     [_itemLookup removeAllObjects];
     // Create item for each tableItem
-    for (id<ProblemTableItem> tableItem in _tableItems) {
-        id identifier = tableItem.problemIdentifier;
+    for (id<IssueTableItem> tableItem in _tableItems) {
+        id identifier = tableItem.issueFullIdentifier;
         ProblemTableItem *item = [ProblemTableItem itemWithInfo:tableItem];
         [_items addObject:item];
         if (_itemLookup[identifier]) {
@@ -442,7 +437,7 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
     // Compute set of all problemIdentifiers
     NSMutableSet *knownIdentifiers = [NSMutableSet set];
     for (ProblemTableItem *item in _items) {
-        [knownIdentifiers addObject:item.info.problemIdentifier];
+        [knownIdentifiers addObject:item.info.issueFullIdentifier];
     }
     
     // Filter out items from cache that are no longer referenced
@@ -453,39 +448,38 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
     // Populate items's problems for anything already in cache.
     NSMutableSet *loadThese = [NSMutableSet set];
     for (ProblemTableItem *item in _items) {
-        id problemIdentifier = item.info.problemIdentifier;
-        id<ProblemSnapshot> snapshot = nil;
-        if ([item.info respondsToSelector:@selector(problemSnapshot)]) {
-            snapshot = item.info.problemSnapshot;
+        id problemIdentifier = item.info.issueFullIdentifier;
+        Issue *snapshot = nil;
+        if ([item.info respondsToSelector:@selector(issue)]) {
+            snapshot = item.info.issue;
         }
         if (!snapshot) {
             snapshot = _problemCache[problemIdentifier];
             [loadThese addObject:problemIdentifier];
         }
-        item.problem = snapshot;
+        item.issue = snapshot;
     }
     
     // Load any needed problems from the store
     self.loading = YES;
     NSInteger loadGeneration = ++_loadGeneration;
-    // FIXME: Hook up
-#if !INCOMPLETE
-    [[DataStore activeStore] loadProblemsWithIdentifiers:[loadThese allObjects] handler:^(NSNumber *identifier, Problem *p, NSError *error, BOOL finished) {
+    
+    [[DataStore activeStore] issuesMatchingPredicate:[NSPredicate predicateWithFormat:@"fullIdentifier IN %@", loadThese] completion:^(NSArray<Issue *> *issues, NSError *error) {
         if (_loadGeneration != loadGeneration) {
             return;
         }
-        
-        if (identifier && p) {
-            _problemCache[identifier] = p;
-            NSArray *items = _itemLookup[identifier];
+
+        for (Issue *i in issues) {
+            _problemCache[i.fullIdentifier] = i;
+            NSArray *items = _itemLookup[i.fullIdentifier];
             BOOL shouldReload = !self.shouldReloadData;
             self.shouldReloadData = YES;
-
-//            NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
+            
+            //            NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
             for (ProblemTableItem *item in items) {
-                item.problem = p;
-//                NSUInteger idx = [_items indexOfObjectIdenticalTo:item];
-//                [indexes addIndex:idx];
+                item.issue = i;
+                //                NSUInteger idx = [_items indexOfObjectIdenticalTo:item];
+                //                [indexes addIndex:idx];
             }
             
             if (shouldReload) {
@@ -496,16 +490,14 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
                 });
             }
         }
-        if (finished) {
-            self.loading = NO;
-            if (_table.sortDescriptors) {
-                [_items sortUsingDescriptors:_table.sortDescriptors];
-                [_table reloadData];
-            }
-            [self selectItemsByIdentifiers:previouslySelectedIdentifiers];
+        
+        self.loading = NO;
+        if (_table.sortDescriptors) {
+            [_items sortUsingDescriptors:_table.sortDescriptors];
+            [_table reloadData];
         }
+        [self selectItemsByIdentifiers:previouslySelectedIdentifiers];
     }];
-#endif
     
     [_table reloadData];
 }
@@ -525,10 +517,10 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
     NSArray *cols = _tableColumns;
     NSUInteger maxCols = [cols count];
     for (NSTableColumn *column in cols) {
-        if ([column.identifier isEqualToString:ProblemPopupIdentifier] && column.hidden) {
+        if ([column.identifier isEqualToString:IssuePopupIdentifier] && column.hidden) {
             i++;
             continue;
-        } else if ([column.identifier isEqualToString:@"problem.read"]) {
+        } else if ([column.identifier isEqualToString:@"issue.read"]) {
             i++;
             continue;
         }
@@ -550,14 +542,14 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
     NSUInteger maxCols = [cols count];
     for (NSTableColumn *column in cols) {
         NSString *value = @"--";
-        if ([column.identifier isEqualToString:ProblemPopupIdentifier]) {
+        if ([column.identifier isEqualToString:IssuePopupIdentifier]) {
             if (column.hidden) {
                 i++;
                 continue;
             } else {
                 value = _popupItems[[[problem valueForKeyPath:column.identifier] unsignedIntegerValue]];
             }
-        } else if ([column.identifier isEqualToString:@"problem.read"]) {
+        } else if ([column.identifier isEqualToString:@"issue.read"]) {
             i++;
             continue;
         } else {
@@ -658,13 +650,13 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
 
 - (void)tableView:(NSTableView *)tableView setObjectValue:(id)object forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    if (![tableColumn.identifier isEqualToString:ProblemPopupIdentifier]) {
+    if (![tableColumn.identifier isEqualToString:IssuePopupIdentifier]) {
         return;
     }
     
     ProblemTableItem *item = _items[row];
     NSNumber *idx = object;
-    [_delegate problemTableController:self item:item.info popupSelectedItemAtIndex:[idx integerValue]];
+    [_delegate issueTableController:self item:item.info popupSelectedItemAtIndex:[idx integerValue]];
 }
 
 - (NSSet *)selectedItemIdentifiers {
@@ -680,9 +672,9 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
     [_table selectRowIndexes:selected byExtendingSelection:NO];
 }
 
-- (NSArray <id<ProblemSnapshot>> *)selectedProblemSnapshots {
+- (NSArray <Issue*> *)selectedProblemSnapshots {
     return [[self selectedItems] arrayByMappingObjects:^id(id obj) {
-        return [obj problem];
+        return [obj issue];
     }];
 }
 
@@ -737,7 +729,7 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
     }
     
     NSNumber *identifier = [Problem identifierFromURL:[URLs lastObject]];
-    if (identifier && [_delegate respondsToSelector:@selector(problemTableController:shouldAcceptDrag:)] &&[_delegate problemTableController:self shouldAcceptDrag:identifier]) {
+    if (identifier && [_delegate respondsToSelector:@selector(issueTableController:shouldAcceptDrag:)] &&[_delegate issueTableController:self shouldAcceptDrag:identifier]) {
         return NSDragOperationLink;
     } else {
         return NSDragOperationNone;
@@ -754,8 +746,8 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
     NSArray *URLs = [pb readObjectsForClasses:@[[NSURL class]] options:nil];
     
     NSNumber *identifier = [Problem identifierFromURL:[URLs firstObject]];
-    if (identifier && [_delegate respondsToSelector:@selector(problemTableController:didAcceptDrag:)]) {
-        return [_delegate problemTableController:self didAcceptDrag:identifier];
+    if (identifier && [_delegate respondsToSelector:@selector(issueTableController:didAcceptDrag:)]) {
+        return [_delegate issueTableController:self didAcceptDrag:identifier];
     }
     
     return NO;
@@ -778,7 +770,7 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
 
 - (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
-    if (![tableColumn.identifier isEqualToString:ProblemPopupIdentifier]) {
+    if (![tableColumn.identifier isEqualToString:IssuePopupIdentifier]) {
         [cell setFont:[NSFont systemFontOfSize:12.0]];
     }
 }
@@ -802,11 +794,11 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
 }
 
 - (BOOL)tableView:(NSTableView *)tableView handleKeyPressEvent:(NSEvent *)event {
-    if ([event isDelete] && [_delegate respondsToSelector:@selector(problemTableController:deleteItem:)]) {
+    if ([event isDelete] && [_delegate respondsToSelector:@selector(issueTableController:deleteItem:)]) {
         NSArray *selected = [self selectedItems];
         BOOL deletedAny = NO;
         for (ProblemTableItem *item in selected) {
-            if ([_delegate problemTableController:self deleteItem:item.info]) {
+            if ([_delegate issueTableController:self deleteItem:item.info]) {
                 [_items removeObjectIdenticalTo:item];
                 deletedAny = YES;
             }
@@ -826,7 +818,7 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
 
 @implementation ProblemTableItem
          
-+ (instancetype)itemWithInfo:(id<ProblemTableItem>)info {
++ (instancetype)itemWithInfo:(id<IssueTableItem>)info {
     ProblemTableItem *item = [[self alloc] init];
     item.info = info;
     return item;
@@ -837,7 +829,7 @@ static NSString *const ProblemPopupIdentifier = @"info.problemPopupIndex";
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<%@ %p> info: %@ problem: %@", NSStringFromClass([self class]), self, self.info, self.problem];
+    return [NSString stringWithFormat:@"<%@ %p> info: %@ problem: %@", NSStringFromClass([self class]), self, self.info, self.issue];
 }
 
 @end

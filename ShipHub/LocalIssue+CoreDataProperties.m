@@ -29,5 +29,6 @@
 @dynamic originator;
 @dynamic relationships;
 @dynamic repository;
+@dynamic fullIdentifier;
 
 @end
