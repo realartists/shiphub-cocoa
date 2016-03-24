@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59CD1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
+		1A0D59D11CA48B8A004F2578 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
 		1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217921C7E7B14006460E2 /* AppDelegate.m */; };
 		1A2217961C7E7B14006460E2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217951C7E7B14006460E2 /* main.m */; };
 		1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A2217971C7E7B14006460E2 /* Assets.xcassets */; };
@@ -939,6 +940,7 @@
 				1AE09C111C97687E00C5AC35 /* LocalOrg.m in Sources */,
 				1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */,
 				1AE09C211C9779DE00C5AC35 /* Logging.m in Sources */,
+				1A0D59D11CA48B8A004F2578 /* AppKitExtras.m in Sources */,
 				1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */,
 				1A694B011CA0ABEB00F73608 /* MetadataItem.m in Sources */,
 				1A694B431CA34B9000F73608 /* LabelButton.m in Sources */,

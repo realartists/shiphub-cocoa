@@ -57,7 +57,8 @@
           
           @"assignees" : [self ids:[self users]],
           @"labels" : [self labels],
-          @"milestones": [self ids:[self milestones]] },
+          @"milestones": [self ids:[self milestones]],
+          @"owner" : [self users][0] },
     ];
 }
 
@@ -73,9 +74,9 @@
 + (NSArray *)milestones {
     return
     @[ @{ @"identifier" : @1,
-          @"name" : @"v1.0" },
+          @"title" : @"v1.0" },
        @{ @"identifier" : @2,
-          @"name" : @"v2.0" }];
+          @"title" : @"v2.0" }];
 }
 
 @end
