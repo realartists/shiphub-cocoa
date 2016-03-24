@@ -27,6 +27,7 @@
 @property (readonly) NSDate *updatedAt;
 @property (readonly) BOOL locked;
 @property (readonly) User *assignee;
+@property (readonly) User *originator;
 @property (readonly) User *closedBy;
 @property (readonly) NSArray<Label*> *labels;
 @property (readonly) Milestone *milestone;

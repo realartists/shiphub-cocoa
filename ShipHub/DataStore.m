@@ -560,13 +560,16 @@ static NSString *const LastUpdated = @"LastUpdated";
             continue;
         }
         
+        NSString *syncDictKey = rel.userInfo[@"jsonKey"];
+        if (!syncDictKey) syncDictKey = key;
+        
         if (rel.toMany) {
             // Anything that cascades is considered a "strong" relationship, which
             // implies the ability to delete and create referenced objects as needed.
             BOOL cascade = rel.deleteRule == NSCascadeDeleteRule;
             
             // to many relationships refer by identifiers or by actual populated objects that have identifiers
-            NSArray *related = syncDict[key];
+            NSArray *related = syncDict[syncDictKey];
             
             if (!related) {
                 continue;
@@ -631,7 +634,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             [obj setValue:[NSSet setWithArray:relatedObjs] forKey:key];
             
         } else /* rel.toOne */ {
-            id related = syncDict[key];
+            id related = syncDict[syncDictKey];
             
             if (!related) continue;
             

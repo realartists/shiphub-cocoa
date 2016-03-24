@@ -37,6 +37,7 @@
         _updatedAt = li.updatedAt;
         _locked = [li.locked boolValue];
         _assignee = [ms userWithIdentifier:li.assignee.identifier];
+        _originator = [ms userWithIdentifier:li.originator.identifier];
         _closedBy = [ms userWithIdentifier:li.closedBy.identifier];
         _labels = [[li.labels allObjects] arrayByMappingObjects:^id(id obj) {
             return [[Label alloc] initWithLocalItem:obj];

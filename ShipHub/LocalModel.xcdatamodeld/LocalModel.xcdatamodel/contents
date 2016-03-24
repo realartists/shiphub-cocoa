@@ -39,7 +39,11 @@
         <relationship name="closedBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="closedIssues" inverseEntity="LocalUser" syncable="YES"/>
         <relationship name="labels" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalLabel" inverseName="issue" inverseEntity="LocalLabel" syncable="YES"/>
         <relationship name="milestone" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalMilestone" inverseName="issues" inverseEntity="LocalMilestone" syncable="YES"/>
-        <relationship name="originator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="originatedIssues" inverseEntity="LocalUser" syncable="YES"/>
+        <relationship name="originator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="originatedIssues" inverseEntity="LocalUser" syncable="YES">
+            <userInfo>
+                <entry key="jsonKey" value="user"/>
+            </userInfo>
+        </relationship>
         <relationship name="relationships" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalRelationship" inverseName="parent" inverseEntity="LocalRelationship" syncable="YES"/>
         <relationship name="repository" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="issues" inverseEntity="LocalRepo" syncable="YES"/>
     </entity>

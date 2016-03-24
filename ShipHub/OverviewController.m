@@ -372,43 +372,28 @@ NSTextFieldDelegate>
 #endif
     
     // List repos
-    OverviewNode *repoRoot = [OverviewNode new];
-    repoRoot.title = NSLocalizedString(@"Repos", nil);
-    [roots addObject:repoRoot];
-    
     BOOL multipleOwners = [[metadata repoOwners] count] > 1;
     
     for (Account *repoOwner in [metadata repoOwners]) {
-        OverviewNode *accountRoot = repoRoot;
-        
-        if (multipleOwners) {
-            OverviewNode *accountNode = [OverviewNode new];
-            accountNode.predicate = [NSPredicate predicateWithFormat:@"repository.owner.identifier = %@", repoOwner.identifier];
-            accountNode.icon = [NSImage overviewIconNamed:@"973-user-selected"];
-            accountNode.title = repoOwner.login;
-            [repoRoot addChild:accountNode];
-            accountRoot = accountNode;
-        } else {
-            accountRoot = repoRoot;
-        }
         
         for (Repo *repo in [metadata reposForOwner:repoOwner]) {
             OverviewNode *repoNode = [OverviewNode new];
-            repoNode.title = repo.name;
-            repoNode.path = repo.fullName;
-            repoNode.predicate = [NSPredicate predicateWithFormat:@"repository.fullName = %@", repo.fullName];
-            repoNode.icon = [NSImage overviewIconNamed:@"961-book-32"];
-            [accountRoot addChild:repoNode];
+            repoNode.title = multipleOwners ? repo.fullName : repo.name;
+            [roots addObject:repoNode];
+            
+            NSPredicate *repoPredicate = [NSPredicate predicateWithFormat:@"repository.fullName = %@", repo.fullName];
             
             OverviewNode *repoOpen = [OverviewNode new];
             repoOpen.title = NSLocalizedString(@"Open : All", nil);
-            repoOpen.predicate = [repoNode.predicate and:[NSPredicate predicateWithFormat:@"closed = NO"]];
+            repoOpen.path = [NSString stringWithFormat:@"%@ : %@", repoNode.title, repoOpen.title];
+            repoOpen.predicate = [repoPredicate and:[NSPredicate predicateWithFormat:@"closed = NO"]];
             repoOpen.icon = [NSImage overviewIconNamed:@"961-book-32"];
             repoOpen.showCount = YES;
             [repoNode addChild:repoOpen];
             
             OverviewNode *repoOpenMine = [OverviewNode new];
             repoOpenMine.title = NSLocalizedString(@"Open : Mine", nil);
+            repoOpenMine.path = [NSString stringWithFormat:@"%@ : %@", repoNode.title, repoOpenMine.title];
             repoOpenMine.predicate = [repoOpen.predicate and:[NSPredicate predicateWithFormat:@"assignee.identifier = %@", [[User me] identifier]]];
             repoOpenMine.icon = [NSImage overviewIconNamed:@"961-book-32"];
             repoOpenMine.showCount = YES;
@@ -417,6 +402,7 @@ NSTextFieldDelegate>
             for (Milestone *milestone in [metadata activeMilestonesForRepo:repo]) {
                 OverviewNode *rmNode = [OverviewNode new];
                 rmNode.title = milestone.title;
+                rmNode.path = [NSString stringWithFormat:@"%@ : %@", repoNode.title, rmNode.title];
                 rmNode.showCount = YES;
                 rmNode.predicate = [repoOpen.predicate and:[NSPredicate predicateWithFormat:@"milestone.identifier = %@", milestone.identifier]];
                 rmNode.icon = milestoneIcon;
@@ -425,6 +411,7 @@ NSTextFieldDelegate>
                 OverviewNode *rmMineNode = [OverviewNode new];
                 rmMineNode.showCount = YES;
                 rmMineNode.title = [NSString stringWithFormat:NSLocalizedString(@"%@ : Mine", nil), milestone.title];
+                rmMineNode.path = [NSString stringWithFormat:@"%@ : %@", repoNode.title, rmMineNode.title];
                 rmMineNode.predicate = [repoOpenMine.predicate and:[NSPredicate predicateWithFormat:@"milestone.identifier = %@", milestone.identifier]];
                 rmMineNode.icon = milestoneIcon;
                 [rmNode addChild:rmMineNode];
@@ -447,7 +434,7 @@ NSTextFieldDelegate>
     recentlyCreated.predicateBuilder = ^{
         NSTimeInterval interval = -(recentlyCreatedDateKnob.daysAgo * 24 * 60 * 60);
         NSDate *then = [[NSDate date] dateByAddingTimeInterval:interval];
-        return [NSPredicate predicateWithFormat:@"creationDate > %@", then];
+        return [NSPredicate predicateWithFormat:@"createdAt > %@", then];
     };
     recentlyCreated.target = self;
     recentlyCreated.action = @selector(nodeUpdatedPredicate:);
@@ -461,7 +448,7 @@ NSTextFieldDelegate>
     recentlyCreatedByMe.predicateBuilder = ^{
         NSTimeInterval interval = -(recentlyCreatedByMeDateKnob.daysAgo * 24 * 60 * 60);
         NSDate *then = [[NSDate date] dateByAddingTimeInterval:interval];
-        return [NSPredicate predicateWithFormat:@"creationDate > %@ AND originator.identifier = %@", then, [[User me] identifier]];
+        return [NSPredicate predicateWithFormat:@"createdAt > %@ AND originator.identifier = %@", then, [[User me] identifier]];
     };
     recentlyCreatedByMe.target = self;
     recentlyCreatedByMe.action = @selector(nodeUpdatedPredicate:);
@@ -475,13 +462,14 @@ NSTextFieldDelegate>
     recentlyModified.predicateBuilder = ^{
         NSTimeInterval interval = -(recentlyModifiedDateKnob.daysAgo * 24 * 60 * 60);
         NSDate *then = [[NSDate date] dateByAddingTimeInterval:interval];
-        return [NSPredicate predicateWithFormat:@"modificationDate > %@", then];
+        return [NSPredicate predicateWithFormat:@"updatedAt > %@", then];
     };
     recentlyModified.target = self;
     recentlyModified.action = @selector(nodeUpdatedPredicate:);
     recentlyModified.icon = queryIcon;
     [queriesRoot addChild:recentlyModified];
 
+#if 0
     OverviewNode *recentlyModifiedByMe = [OverviewNode new];
     recentlyModifiedByMe.title = NSLocalizedString(@"Recently Modified By Me", nil);
     DateKnob *recentlyModifiedByMeDateKnob = [DateKnob knobWithDefaultsIdentifier:@"recentlyModifiedByMe"];
@@ -495,15 +483,16 @@ NSTextFieldDelegate>
     recentlyModifiedByMe.action = @selector(nodeUpdatedPredicate:);
     recentlyModifiedByMe.icon = queryIcon;
     [queriesRoot addChild:recentlyModifiedByMe];
+#endif
     
     OverviewNode *openToMe = [OverviewNode new];
     openToMe.title = NSLocalizedString(@"My Open Problems", nil);
     openToMe.identifier = @"MyOpenProblems";
-    openToMe.predicate = [NSPredicate predicateWithFormat:@"assignee.identifier = %@ AND (state = nil OR state.resolved = NO)", [[User me] identifier]];
+    openToMe.predicate = [NSPredicate predicateWithFormat:@"assignee.identifier = %@ AND closed = NO", [[User me] identifier]];
     openToMe.icon = queryIcon;
     [queriesRoot addChild:openToMe];
     
-    OverviewNode *allProblems = _allProblemsNode =[OverviewNode new];
+    OverviewNode *allProblems = _allProblemsNode = [OverviewNode new];
     allProblems.title = NSLocalizedString(@"All Problems", nil);
     allProblems.predicate = [NSPredicate predicateWithFormat:@"YES = YES"];
     allProblems.icon = queryIcon;
@@ -511,7 +500,7 @@ NSTextFieldDelegate>
     
     OverviewNode *allOpenProblems = [OverviewNode new];
     allOpenProblems.title = NSLocalizedString(@"All Open Problems", nil);
-    allOpenProblems.predicate = [NSPredicate predicateWithFormat:@"(state = nil OR state.resolved = NO)"];
+    allOpenProblems.predicate = [NSPredicate predicateWithFormat:@"closed = NO"];
     allOpenProblems.icon = queryIcon;
     [queriesRoot addChild:allOpenProblems];
     
