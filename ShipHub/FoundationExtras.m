@@ -605,7 +605,7 @@ static inline uint8_t h2b(uint8_t v) {
         NSAttributeDescription *desc = attributes[key];
         NSString *dictKey = desc.userInfo[@"jsonKey"];
         if (!dictKey) dictKey = key;
-        id val = d[key];
+        id val = d[dictKey];
         if ([val isKindOfClass:[NSString class]] && [desc attributeType] == NSDateAttributeType) {
             val = [NSDate dateWithJSONString:val];
         }
