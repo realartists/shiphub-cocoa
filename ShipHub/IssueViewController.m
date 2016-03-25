@@ -29,6 +29,9 @@
     WKUserContentController *userContent = [WKUserContentController new];
     config.userContentController = userContent;
 
+    WKUserScript *inApp = [[WKUserScript alloc] initWithSource:@"window.inApp = true" injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
+    [userContent addUserScript:inApp];
+    
     _web = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) configuration:config];
     _web.navigationDelegate = self;
     self.view = _web;

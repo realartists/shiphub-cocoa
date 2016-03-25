@@ -681,7 +681,7 @@ function renderIssue(issue) {
   
   var activityElement = React.createElement(ActivityList, {key:issue["id"], issue:issue});
   var outerElement = activityElement;
-  if (debugToken) {
+  if (debugToken && !window.inApp) {
     outerElement = React.createElement("div", {},
       React.createElement(DebugLoader, {issue:issue}),
       activityElement
