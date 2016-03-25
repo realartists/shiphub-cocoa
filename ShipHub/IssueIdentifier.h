@@ -10,6 +10,7 @@
 
 @interface NSString (IssueIdentifier)
 
++ (NSString *)issueIdentifierWithGitHubURL:(NSURL *)URL;
 + (NSString *)issueIdentifierWithOwner:(NSString *)ownerLogin repo:(NSString *)repoName number:(NSNumber *)number;
 
 @property (readonly, getter=isIssueIdentifier) BOOL issueIdentifier;
@@ -17,5 +18,7 @@
 - (NSString *)issueRepoOwner;
 - (NSString *)issueRepoName;
 - (NSNumber *)issueNumber;
+
+- (NSURL *)issueGitHubURL;
 
 @end

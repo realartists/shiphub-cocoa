@@ -8,7 +8,29 @@
 
 #import "IssueIdentifier.h"
 
+#import "Auth.h"
+#import "DataStore.h"
+
 @implementation NSString (IssueIdentifier)
+
++ (NSString *)issueIdentifierWithGitHubURL:(NSURL *)URL {
+    // https://github.com/realartists/shiphub-server/issues/22
+    
+    NSURLComponents *components = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
+    NSString *path = [components path];
+    
+    NSArray *pathParts = [path componentsSeparatedByString:@"/"];
+    if (pathParts.count != 4 || ![pathParts[2] isEqualToString:@"issues"]) {
+        return nil;
+    }
+    
+    NSString *owner = pathParts[0];
+    NSString *repo = pathParts[1];
+    NSString *numberStr = pathParts[3];
+    NSNumber *number = @([numberStr longLongValue]);
+    
+    return [self issueIdentifierWithOwner:owner repo:repo number:number];
+}
 
 + (NSString *)issueIdentifierWithOwner:(NSString *)ownerLogin repo:(NSString *)repoName number:(NSNumber *)number
 {
@@ -37,7 +59,7 @@
     if (firstDelim.length == 0 || secondDelim.length == 0) {
         return nil;
     }
-    return [self substringWithRange:NSMakeRange(NSMaxRange(firstDelim), secondDelim.location - firstDelim.location)];
+    return [self substringWithRange:NSMakeRange(NSMaxRange(firstDelim), secondDelim.location - NSMaxRange(firstDelim))];
 }
 
 - (NSNumber *)issueNumber {
@@ -50,6 +72,16 @@
     } else {
         return nil;
     }
+}
+
+- (NSURL *)issueGitHubURL {
+    AuthAccount *account = [[[DataStore activeStore] auth] account];
+    NSString *host = [account.ghHost stringByReplacingOccurrencesOfString:@"api." withString:@""] ?: @"github.com";
+    
+    
+    NSString *URLStr = [NSString stringWithFormat:@"https://%@/%@/%@/issues/%@", host, [self issueRepoOwner], [self issueRepoName], [self issueNumber]];
+    
+    return [NSURL URLWithString:URLStr];
 }
 
 @end

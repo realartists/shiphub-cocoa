@@ -27,7 +27,8 @@
 #import "Sparkline.h"
 #import "NetworkStateWindow.h"
 
-//#import "ProblemDocumentController.h"
+#import "IssueDocumentController.h"
+
 //#import "OutboxViewController.h"
 //#import "AttachmentProgressViewController.h"
 //#import "SearchEditorViewController.h"
@@ -1124,9 +1125,7 @@ NSTextFieldDelegate>
 }
 
 - (IBAction)newDocument:(id)sender {
-#if !INCOMPLETE
-    [[ProblemDocumentController sharedDocumentController] newDocument:sender];
-#endif
+    [[IssueDocumentController sharedDocumentController] newDocument:sender];
 }
 
 - (IBAction)searchItemChanged:(id)sender {

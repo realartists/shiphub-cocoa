@@ -8,10 +8,7 @@
 
 #import "IssueTableController.h"
 
-// FIXME: Hook up
-#if !INCOMPLETE
-#import "ProblemDocumentController.h"
-#endif
+#import "IssueDocumentController.h"
 
 #import "DataStore.h"
 #import "Extras.h"
@@ -289,13 +286,11 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
 
 - (void)openFromMenu:(id)sender {
     // FIXME: Hook up
-#if !INCOMPLETE
     NSArray *selected = [self selectedItemsForMenu];
     NSArray *identifiers = [selected arrayByMappingObjects:^id(id obj) {
-        return [[obj problem] identifier];
+        return [[obj issue] fullIdentifier];
     }];
-    [[ProblemDocumentController sharedDocumentController] openProblemsWithIdentifiers:identifiers];
-#endif
+    [[IssueDocumentController sharedDocumentController] openIssuesWithIdentifiers:identifiers];
 }
 
 - (void)copyURLFromMenu:(id)sender {
@@ -617,14 +612,11 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
 }
 
 - (IBAction)openDocument:(id)sender {
-    // FIXME: Hook up
-#if !INCOMPLETE
     NSArray *selected = [self selectedItems];
     NSArray *identifiers = [selected arrayByMappingObjects:^id(id obj) {
-        return [[obj problem] identifier];
+        return [[obj issue] fullIdentifier];
     }];
-    [[ProblemDocumentController sharedDocumentController] openProblemsWithIdentifiers:identifiers];
-#endif
+    [[IssueDocumentController sharedDocumentController] openIssuesWithIdentifiers:identifiers];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)item {
@@ -757,15 +749,12 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
 }
 
 - (void)tableViewDoubleClicked:(id)sender {
-    // FIXME: Hook up
-#if !INCOMPLETE
     NSInteger row = [_table clickedRow];
     if (row != NSNotFound && row < [_items count]) {
         ProblemTableItem *item = _items[row];
         
-        [[ProblemDocumentController sharedDocumentController] openProblemWithIdentifier:item.info.problemIdentifier];
+        [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:item.info.issueFullIdentifier];
     }
-#endif
 }
 
 - (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row

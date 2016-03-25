@@ -308,4 +308,8 @@
     }];
 }
 
+- (IBAction)newDocument:(id)sender {
+    
+}
+
 @end

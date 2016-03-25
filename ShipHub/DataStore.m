@@ -741,7 +741,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
-    return [self issuesMatchingPredicate:predicate sortDescriptors:@[] completion:completion];
+    return [self issuesMatchingPredicate:predicate sortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"number" ascending:YES]] completion:completion];
 }
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
