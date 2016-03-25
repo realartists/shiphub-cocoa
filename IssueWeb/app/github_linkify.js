@@ -1,4 +1,4 @@
-function githubLinkify(owner, repo, text) {
+export function githubLinkify(owner, repo, text) {
   var issues = /(^|[^\&<>])([\w+\-\d]+)?\/?([\w+\-\d]+)?#(\d+)/g;
   var mentions = /(^|[^<>])@([\w+\-\d]+)/g;
 

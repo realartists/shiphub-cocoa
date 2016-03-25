@@ -37,7 +37,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    NSString *indexPath = [[NSBundle mainBundle] pathForResource:@"comments" ofType:@"html" inDirectory:@"IssueWeb"];
+    NSString *indexPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"IssueWeb"];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:indexPath]];
     [_web loadRequest:request];
 }

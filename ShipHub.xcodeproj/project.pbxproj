@@ -6,16 +6,26 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		1AFE21391CA5E6B200B51CF6 /* IssueWeb */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 1AFE213A1CA5E6B200B51CF6 /* Build configuration list for PBXAggregateTarget "IssueWeb" */;
+			buildPhases = (
+				1AFE213D1CA5E6C800B51CF6 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = IssueWeb;
+			productName = IssueWeb;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59CD1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59D11CA48B8A004F2578 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
 		1A0D59D51CA4A8D1004F2578 /* IssueViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59D41CA4A8D1004F2578 /* IssueViewController.m */; };
 		1A0D59D61CA4A8D1004F2578 /* IssueViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59D41CA4A8D1004F2578 /* IssueViewController.m */; };
-		1A0D59E11CA4A9C9004F2578 /* comments.html in Copy Issue Web Content */ = {isa = PBXBuildFile; fileRef = 1A0D59D81CA4A964004F2578 /* comments.html */; };
-		1A0D59E21CA4A9C9004F2578 /* emojify.js in Copy Issue Web Content */ = {isa = PBXBuildFile; fileRef = 1A0D59D91CA4A964004F2578 /* emojify.js */; };
-		1A0D59E31CA4A9C9004F2578 /* github_linkify.js in Copy Issue Web Content */ = {isa = PBXBuildFile; fileRef = 1A0D59DA1CA4A964004F2578 /* github_linkify.js */; };
-		1A0D59E41CA4A9C9004F2578 /* marked.min.js in Copy Issue Web Content */ = {isa = PBXBuildFile; fileRef = 1A0D59DB1CA4A964004F2578 /* marked.min.js */; };
 		1A0D59EB1CA4AA3A004F2578 /* IssueDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59E91CA4AA3A004F2578 /* IssueDocument.m */; };
 		1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A0D59EA1CA4AA3A004F2578 /* IssueDocument.xib */; };
 		1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */; };
@@ -154,6 +164,8 @@
 		1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
 		1AE09C231C9779E400C5AC35 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EE1C8FC3DB008C11CB /* Reachability.m */; };
 		1AE09C241C977A3400C5AC35 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
+		1AFE21FE1CA5EC5B00B51CF6 /* index.html in Copy Issue Web Content */ = {isa = PBXBuildFile; fileRef = 1AFE21F91CA5EC3F00B51CF6 /* index.html */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1AFE21FF1CA5EC5B00B51CF6 /* index_bundle.js in Copy Issue Web Content */ = {isa = PBXBuildFile; fileRef = 1AFE21FA1CA5EC3F00B51CF6 /* index_bundle.js */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -201,10 +213,8 @@
 			dstPath = IssueWeb;
 			dstSubfolderSpec = 7;
 			files = (
-				1A0D59E11CA4A9C9004F2578 /* comments.html in Copy Issue Web Content */,
-				1A0D59E21CA4A9C9004F2578 /* emojify.js in Copy Issue Web Content */,
-				1A0D59E31CA4A9C9004F2578 /* github_linkify.js in Copy Issue Web Content */,
-				1A0D59E41CA4A9C9004F2578 /* marked.min.js in Copy Issue Web Content */,
+				1AFE21FE1CA5EC5B00B51CF6 /* index.html in Copy Issue Web Content */,
+				1AFE21FF1CA5EC5B00B51CF6 /* index_bundle.js in Copy Issue Web Content */,
 			);
 			name = "Copy Issue Web Content";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -227,10 +237,6 @@
 		1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueIdentifier.m; sourceTree = "<group>"; };
 		1A0D59D31CA4A8D1004F2578 /* IssueViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueViewController.h; sourceTree = "<group>"; };
 		1A0D59D41CA4A8D1004F2578 /* IssueViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueViewController.m; sourceTree = "<group>"; };
-		1A0D59D81CA4A964004F2578 /* comments.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = comments.html; sourceTree = "<group>"; };
-		1A0D59D91CA4A964004F2578 /* emojify.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = emojify.js; sourceTree = "<group>"; };
-		1A0D59DA1CA4A964004F2578 /* github_linkify.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = github_linkify.js; sourceTree = "<group>"; };
-		1A0D59DB1CA4A964004F2578 /* marked.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = marked.min.js; sourceTree = "<group>"; };
 		1A0D59E81CA4AA3A004F2578 /* IssueDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueDocument.h; sourceTree = "<group>"; };
 		1A0D59E91CA4AA3A004F2578 /* IssueDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueDocument.m; sourceTree = "<group>"; };
 		1A0D59EA1CA4AA3A004F2578 /* IssueDocument.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = IssueDocument.xib; sourceTree = "<group>"; };
@@ -405,6 +411,19 @@
 		1AE09BE71C97687E00C5AC35 /* LocalComment+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalComment+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BE81C97687E00C5AC35 /* LocalComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalComment.h; sourceTree = "<group>"; };
 		1AE09BE91C97687E00C5AC35 /* LocalComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalComment.m; sourceTree = "<group>"; };
+		1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
+		1AFE21F01CA5EC3F00B51CF6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		1AFE21F21CA5EC3F00B51CF6 /* emojify.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = emojify.js; sourceTree = "<group>"; };
+		1AFE21F31CA5EC3F00B51CF6 /* github_linkify.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = github_linkify.js; sourceTree = "<group>"; };
+		1AFE21F41CA5EC3F00B51CF6 /* index.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = index.css; sourceTree = "<group>"; };
+		1AFE21F51CA5EC3F00B51CF6 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		1AFE21F61CA5EC3F00B51CF6 /* index.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index.js; sourceTree = "<group>"; };
+		1AFE21F71CA5EC3F00B51CF6 /* marked.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = marked.min.js; sourceTree = "<group>"; };
+		1AFE21F91CA5EC3F00B51CF6 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		1AFE21FA1CA5EC3F00B51CF6 /* index_bundle.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index_bundle.js; sourceTree = "<group>"; };
+		1AFE21FB1CA5EC3F00B51CF6 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
+		1AFE21FC1CA5EC3F00B51CF6 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		1AFE21FD1CA5EC3F00B51CF6 /* webpack.config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = webpack.config.js; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -431,7 +450,7 @@
 		1A0D59D21CA4A8B4004F2578 /* Issue UI */ = {
 			isa = PBXGroup;
 			children = (
-				1A0D59D71CA4A964004F2578 /* Comments */,
+				1AFE21EE1CA5EC3F00B51CF6 /* IssueWeb */,
 				1A0D59D31CA4A8D1004F2578 /* IssueViewController.h */,
 				1A0D59D41CA4A8D1004F2578 /* IssueViewController.m */,
 				1A0D59E81CA4AA3A004F2578 /* IssueDocument.h */,
@@ -439,18 +458,6 @@
 				1A0D59EA1CA4AA3A004F2578 /* IssueDocument.xib */,
 			);
 			name = "Issue UI";
-			sourceTree = "<group>";
-		};
-		1A0D59D71CA4A964004F2578 /* Comments */ = {
-			isa = PBXGroup;
-			children = (
-				1A0D59D81CA4A964004F2578 /* comments.html */,
-				1A0D59D91CA4A964004F2578 /* emojify.js */,
-				1A0D59DA1CA4A964004F2578 /* github_linkify.js */,
-				1A0D59DB1CA4A964004F2578 /* marked.min.js */,
-			);
-			name = Comments;
-			path = ../../Comments;
 			sourceTree = "<group>";
 		};
 		1A2217851C7E7B14006460E2 = {
@@ -756,6 +763,42 @@
 			name = DataStore;
 			sourceTree = "<group>";
 		};
+		1AFE21EE1CA5EC3F00B51CF6 /* IssueWeb */ = {
+			isa = PBXGroup;
+			children = (
+				1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */,
+				1AFE21F01CA5EC3F00B51CF6 /* .gitignore */,
+				1AFE21F11CA5EC3F00B51CF6 /* app */,
+				1AFE21F81CA5EC3F00B51CF6 /* dist */,
+				1AFE21FB1CA5EC3F00B51CF6 /* package.json */,
+				1AFE21FC1CA5EC3F00B51CF6 /* README */,
+				1AFE21FD1CA5EC3F00B51CF6 /* webpack.config.js */,
+			);
+			path = IssueWeb;
+			sourceTree = SOURCE_ROOT;
+		};
+		1AFE21F11CA5EC3F00B51CF6 /* app */ = {
+			isa = PBXGroup;
+			children = (
+				1AFE21F21CA5EC3F00B51CF6 /* emojify.js */,
+				1AFE21F31CA5EC3F00B51CF6 /* github_linkify.js */,
+				1AFE21F41CA5EC3F00B51CF6 /* index.css */,
+				1AFE21F51CA5EC3F00B51CF6 /* index.html */,
+				1AFE21F61CA5EC3F00B51CF6 /* index.js */,
+				1AFE21F71CA5EC3F00B51CF6 /* marked.min.js */,
+			);
+			path = app;
+			sourceTree = "<group>";
+		};
+		1AFE21F81CA5EC3F00B51CF6 /* dist */ = {
+			isa = PBXGroup;
+			children = (
+				1AFE21F91CA5EC3F00B51CF6 /* index.html */,
+				1AFE21FA1CA5EC3F00B51CF6 /* index_bundle.js */,
+			);
+			path = dist;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -811,6 +854,9 @@
 					1A3618F91C9383CF008C11CB = {
 						CreatedOnToolsVersion = 7.2.1;
 					};
+					1AFE21391CA5E6B200B51CF6 = {
+						CreatedOnToolsVersion = 7.2.1;
+					};
 				};
 			};
 			buildConfigurationList = 1A2217891C7E7B14006460E2 /* Build configuration list for PBXProject "ShipHub" */;
@@ -834,6 +880,7 @@
 			targets = (
 				1A22178D1C7E7B14006460E2 /* ShipHub */,
 				1A3618F91C9383CF008C11CB /* ShipHubTests */,
+				1AFE21391CA5E6B200B51CF6 /* IssueWeb */,
 			);
 		};
 /* End PBXProject section */
@@ -894,6 +941,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		1AFE213D1CA5E6C800B51CF6 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "cd $PROJECT_DIR/IssueWeb\n\nnpm install\nnpm run production\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		1A22178A1C7E7B14006460E2 /* Sources */ = {
@@ -1195,6 +1258,20 @@
 			};
 			name = Release;
 		};
+		1AFE213B1CA5E6B200B51CF6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		1AFE213C1CA5E6B200B51CF6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1224,6 +1301,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		1AFE213A1CA5E6B200B51CF6 /* Build configuration list for PBXAggregateTarget "IssueWeb" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AFE213B1CA5E6B200B51CF6 /* Debug */,
+				1AFE213C1CA5E6B200B51CF6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 

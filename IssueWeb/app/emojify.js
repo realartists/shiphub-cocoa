@@ -1,22 +1,4 @@
-function emojify(text) {
-  try {
-    return text.replace(/:([\w\+\-_\d]+?):/g, function(p0, p1) {
-      var code = emojify.dictionary[p1];
-      if (code == undefined) return p0;
-      if (code.indexOf("https") == -1) {
-        var codepoint = parseInt(code, 16);
-        return String.fromCodePoint(codepoint);
-      } else {
-        return "<img src='" + code + "' class='emoji' alt='" + p0 + "' title='" + p0 + "' width=20 height=20>";
-      }
-    });
-  } catch (ex) {
-    console.log(ex);
-    return text;
-  }
-}
-
-emojify.dictionary = {
+var dictionary = {
   "+1": "1f44d",
   "-1": "1f44e",
   "100": "1f4af",
@@ -906,3 +888,21 @@ emojify.dictionary = {
   "zero": "0030-20e3",
   "zzz": "1f4a4"
 };
+
+export function emojify(text) {
+  try {
+    return text.replace(/:([\w\+\-_\d]+?):/g, function(p0, p1) {
+      var code = dictionary[p1];
+      if (code == undefined) return p0;
+      if (code.indexOf("https") == -1) {
+        var codepoint = parseInt(code, 16);
+        return String.fromCodePoint(codepoint);
+      } else {
+        return "<img src='" + code + "' class='emoji' alt='" + p0 + "' title='" + p0 + "' width=20 height=20>";
+      }
+    });
+  } catch (ex) {
+    console.log(ex);
+    return text;
+  }
+}

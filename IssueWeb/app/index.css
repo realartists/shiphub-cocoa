@@ -1,0 +1,235 @@
+body { 
+  font-family: -apple-system, Helvetica, Arial, Sans-Serif; 
+  font-size: 10pt;
+  line-height: 150%; 
+  background-color: #F0EFEF;
+  padding-bottom: 15px;
+}
+a {
+  text-decoration: none;
+  color: #4078C0;
+}
+a:visited {
+  color: #4078C0;
+}
+a:hover {
+  text-decoration: underline;
+}
+div.activityList {
+  position: relative;
+}
+div.activityList::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 34px;
+  z-index: -1;
+  display: block;
+  width: 2px;
+  content: "";
+  background-color: #DDD;
+}
+hr {
+  border: 1px solid #CCC;
+}
+table {
+  border-collapse: collapse;
+}
+table, th, td {
+  border: 1px solid #CCC;
+  padding-bottom: 6px;
+  padding-left: 13px;
+  padding-right: 13px;
+  padding-top: 6px;
+}
+code {
+  background-color: #F7F7F7;
+  border-radius: 2px;
+  font-size: 10pt;
+  font-family: menlo, consolas, monaco, sans-serif;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+pre { 
+  padding: 13px;
+  background-color: #F7F7F7;
+  border-radius: 6px; 
+  font-size: 10pt;
+  font-family: menlo, consolas, monaco, sans-serif;
+  line-height: 130%;
+}
+pre > code {
+  padding: 0;
+  background-color: inherit;
+  border-radius: 0;
+}
+div.comment {
+  background-color: white;
+  border: 1px solid #D6D5D5;
+  overflow: hidden;
+  margin-top: 16px;
+  margin-left: 10px;
+  margin-right: 10px;
+  box-shadow: 0px 5px 8px #CCC;
+}
+div.commentBody {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+div.commentBody h1 {
+  padding-bottom: 6px;
+  border-bottom: 1px solid #eee;
+}
+div.commentBody blockquote {
+  margin: 0;
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd
+}
+div.commentHeader {
+  height: 32px;
+  margin-top: 6px;
+  padding-bottom: 6px;
+  margin-left: 12px;
+  margin-right: 12px;
+  vertical-align: middle;
+  line-height: 32px;
+  font-size: 10pt;
+  border-bottom: 1px solid #EFEFEF;
+}
+div.commentHeader img {
+  margin-right: 12px;
+  float: left;
+}
+span.commentAuthor {
+  color: #555555;
+  font-weight: bold;
+  cursor: default;
+}
+span.commentAuthor:hover {
+  text-decoration: underline;
+}
+
+span.commentTimeAgo {
+  color: #767676;
+}
+ul.taskList {
+  list-style: none;
+  margin-left: -20px;
+  line-height: 200%;
+}
+ul.taskList input {
+  position: relative;
+  top: -1px;
+}
+div.commentControls {
+  display: inline-block;
+  float: right;
+  padding-left: 10px;
+  padding-right: 12px; 
+}
+div.commentControls i {
+  margin-left: 16px;
+  color: #BBB;
+}
+div.commentControls i:hover {
+  color: #0085E4;
+}
+
+div.event {
+  position: relative; 
+  margin-left: 34px;
+  margin-right: 10px;
+  font-size: 10pt;
+  
+  min-height: 30px;
+  line-height: 20px;
+  vertical-align: middle;
+  
+  box-sizing: border-box;
+  
+  padding-top: 14px;
+  padding-bottom: 9px;
+  
+  border-bottom: 1px solid #DDD;
+  
+  color: #555555;
+/*         background-color: blue; */
+}
+
+div.eventFirst {
+  padding-top: 18px;
+}
+
+div.eventLast {
+  border-bottom: 0px;
+  padding-bottom: 0px;
+  margin-bottom: -2px;
+}
+
+div.eventVeryLast::after {
+  position: absolute;
+  content: "";
+  left: -24px;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background-color: #DDD;
+}
+
+i.eventIcon {
+  border: 1px solid #F0EFEF;
+  background-color: #F0EFEF;
+  margin-top: -2px;
+  margin-left: -8px;
+  font-size: 20px;
+  display: inline-block;
+  width: 24px;
+  text-align: left;
+  vertical-align: middle;
+  float: left;
+}
+
+div.eventContent {
+  padding-left: 28px;
+}
+
+div.event img {
+  border-radius: 4px;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  vertical-align: middle;
+  margin-bottom: 6px;
+}
+
+span.eventUser {
+  color: #555555;
+  font-weight: bold;
+  cursor: default;
+}
+span.eventUser:hover {
+  text-decoration: underline;
+}
+
+div.debugLoader {
+  margin-left: 20px;
+  margin-top: 20px;        
+}
+
+span.label {
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-radius: 2px;
+  font-weight: bold;
+  color: black;
+  margin-left: 4px;
+}
+
+span.eventTitle {
+  font-weight: bold;
+}
