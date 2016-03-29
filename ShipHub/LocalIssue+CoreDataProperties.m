@@ -30,5 +30,7 @@
 @dynamic relationships;
 @dynamic repository;
 @dynamic fullIdentifier;
+@dynamic events;
+@dynamic comments;
 
 @end

@@ -605,7 +605,12 @@ static inline uint8_t h2b(uint8_t v) {
         NSAttributeDescription *desc = attributes[key];
         NSString *dictKey = desc.userInfo[@"jsonKey"];
         if (!dictKey) dictKey = key;
-        id val = d[dictKey];
+        id val = nil;
+        if ([key isEqualToString:@"rawJSON"]) {
+            val = [NSJSONSerialization dataWithJSONObject:d options:0 error:NULL];
+        } else {
+            val = d[dictKey];
+        }
         if ([val isKindOfClass:[NSString class]] && [desc attributeType] == NSDateAttributeType) {
             val = [NSDate dateWithJSONString:val];
         }
@@ -670,6 +675,32 @@ static inline uint8_t h2b(uint8_t v) {
 
 @end
 
+@implementation NSNotification (CoreDataExtras)
+
+- (void)enumerateModifiedObjects:(void (^)(id obj, CoreDataModificationType modType, BOOL *stop))block
+{
+    NSParameterAssert(block);
+    
+    NSDictionary *info = [self userInfo];
+    BOOL stop = NO;
+    
+    for (id obj in info[NSInsertedObjectsKey]) {
+        block(obj, CoreDataModificationTypeInserted, &stop);
+        if (stop) return;
+    }
+    
+    for (id obj in info[NSUpdatedObjectsKey]) {
+        block(obj, CoreDataModificationTypeUpdated, &stop);
+        if (stop) return;
+    }
+    
+    for (id obj in info[NSDeletedObjectsKey]) {
+        block(obj, CoreDataModificationTypeDeleted, &stop);
+        if (stop) return;
+    }
+}
+
+@end
 
 void Extras_dispatch_assert_current_queue(dispatch_queue_t q) {
 #pragma clang diagnostic push

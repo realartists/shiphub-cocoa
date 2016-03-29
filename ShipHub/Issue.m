@@ -20,16 +20,23 @@
 #import "User.h"
 #import "Milestone.h"
 #import "Label.h"
+#import "IssueEvent.h"
+#import "IssueComment.h"
 
 #import "MetadataStore.h"
 
 @implementation Issue
 
-- (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms
+- (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms {
+    return [self initWithLocalIssue:li metadataStore:ms includeEventsAndComments:NO];
+}
+
+- (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms includeEventsAndComments:(BOOL)includeECs
 {
     if (self = [super init]) {
         _number = li.number;
         _fullIdentifier = li.fullIdentifier;
+        _identifier = li.identifier;
         _body = li.body;
         _title = li.title;
         _closed = [li.closed boolValue];
@@ -44,6 +51,21 @@
         }];
         _milestone = [ms milestoneWithIdentifier:li.milestone.identifier];
         _repository = [ms repoWithIdentifier:li.repository.identifier];
+        
+        if (includeECs) {
+            NSSortDescriptor *createSort = [NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES];
+            
+            NSArray<LocalEvent *> *localEvents = [[li.events allObjects] sortedArrayUsingDescriptors:@[createSort]];
+            NSArray<LocalComment *> *localComments = [[li.comments allObjects] sortedArrayUsingDescriptors:@[createSort]];
+            
+            _events = [localEvents arrayByMappingObjects:^id(LocalEvent *obj) {
+                return [[IssueEvent alloc] initWithLocalEvent:obj metadataStore:ms];
+            }];
+            
+            _comments = [localComments arrayByMappingObjects:^id(LocalComment *obj) {
+                return [[IssueComment alloc] initWithLocalComment:obj metadataStore:ms];
+            }];
+        }
     }
     return self;
 }

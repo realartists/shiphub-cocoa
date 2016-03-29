@@ -12,6 +12,7 @@
 #import "DataStore.h"
 #import "MetadataStore.h"
 #import "Auth.h"
+#import "Extras.h"
 
 @implementation User
 

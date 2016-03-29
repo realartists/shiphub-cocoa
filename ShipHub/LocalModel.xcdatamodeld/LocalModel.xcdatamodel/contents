@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="9525" systemVersion="15D21" minimumToolsVersion="Xcode 7.0">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10171" systemVersion="15D21" minimumToolsVersion="Xcode 7.0">
     <entity name="LocalAccount" representedClassName="LocalAccount" isAbstract="YES" syncable="YES">
         <attribute name="avatarURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -12,6 +12,7 @@
         <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="comments" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="comments" inverseEntity="LocalUser" syncable="YES"/>
     </entity>
     <entity name="LocalEvent" representedClassName="LocalEvent" syncable="YES">
@@ -20,9 +21,10 @@
         <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="event" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
-        <attribute name="json" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="rawJSON" optional="YES" attributeType="Binary" syncable="YES"/>
         <relationship name="actor" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="actedEvents" inverseEntity="LocalUser" syncable="YES"/>
         <relationship name="assignee" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="assignedEvents" inverseEntity="LocalUser" syncable="YES"/>
+        <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="events" inverseEntity="LocalIssue" syncable="YES"/>
     </entity>
     <entity name="LocalIssue" representedClassName="LocalIssue" syncable="YES">
         <attribute name="body" optional="YES" attributeType="String" syncable="YES"/>
@@ -37,6 +39,8 @@
         <relationship name="assignee" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="assignedIssues" inverseEntity="LocalUser" syncable="YES"/>
         <relationship name="childRelationships" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalRelationship" inverseName="child" inverseEntity="LocalRelationship" syncable="YES"/>
         <relationship name="closedBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="closedIssues" inverseEntity="LocalUser" syncable="YES"/>
+        <relationship name="comments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalComment" inverseName="issue" inverseEntity="LocalComment" syncable="YES"/>
+        <relationship name="events" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalEvent" inverseName="issue" inverseEntity="LocalEvent" syncable="YES"/>
         <relationship name="labels" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalLabel" inverseName="issue" inverseEntity="LocalLabel" syncable="YES"/>
         <relationship name="milestone" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalMilestone" inverseName="issues" inverseEntity="LocalMilestone" syncable="YES"/>
         <relationship name="originator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="originatedIssues" inverseEntity="LocalUser" syncable="YES">
@@ -102,9 +106,9 @@
     </entity>
     <elements>
         <element name="LocalAccount" positionX="-497" positionY="-108" width="128" height="118"/>
-        <element name="LocalComment" positionX="412" positionY="-90" width="128" height="120"/>
-        <element name="LocalEvent" positionX="403" positionY="63" width="128" height="165"/>
-        <element name="LocalIssue" positionX="198" positionY="-54" width="128" height="300"/>
+        <element name="LocalComment" positionX="412" positionY="-90" width="128" height="135"/>
+        <element name="LocalEvent" positionX="403" positionY="63" width="128" height="180"/>
+        <element name="LocalIssue" positionX="198" positionY="-54" width="128" height="330"/>
         <element name="LocalLabel" positionX="-11" positionY="267" width="128" height="105"/>
         <element name="LocalMilestone" positionX="-18" positionY="-115" width="128" height="195"/>
         <element name="LocalOrg" positionX="-425" positionY="45" width="128" height="58"/>

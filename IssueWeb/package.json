@@ -10,7 +10,6 @@
   "author": "",
   "dependencies": {
     "font-awesome": "^4.5.0",
-    "font-awesome-webpack": "0.0.4",
     "highlight.js": "^9.2.0",
     "react": "^0.14.7",
     "react-dom": "^0.14.7",

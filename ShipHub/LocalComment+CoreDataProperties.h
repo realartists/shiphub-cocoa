@@ -11,6 +11,8 @@
 
 #import "LocalComment.h"
 
+@class LocalIssue;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalComment (CoreDataProperties)
@@ -20,6 +22,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSDate *updatedAt;
 @property (nullable, nonatomic, retain) LocalUser *user;
+@property (nullable, nonatomic, retain) LocalIssue *issue;
 
 @end
 

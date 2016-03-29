@@ -159,6 +159,18 @@
 
 @end
 
+typedef NS_ENUM(NSInteger, CoreDataModificationType) {
+    CoreDataModificationTypeInserted,
+    CoreDataModificationTypeUpdated,
+    CoreDataModificationTypeDeleted,
+};
+
+@interface NSNotification (CoreDataExtras)
+
+- (void)enumerateModifiedObjects:(void (^)(id obj, CoreDataModificationType modType, BOOL *stop))block;
+
+@end
+
 BOOL NSRangeContainsRange(NSRange outer, NSRange inner);
 BOOL NSRangeIntersectsRange(NSRange a, NSRange b);
 

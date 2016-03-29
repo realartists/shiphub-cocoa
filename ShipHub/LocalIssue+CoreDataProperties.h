@@ -15,6 +15,8 @@
 @class LocalUser;
 @class LocalLabel;
 @class LocalRepo;
+@class LocalEvent;
+@class LocalComment;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -37,6 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) LocalUser *originator;
 @property (nullable, nonatomic, retain) NSSet<LocalRelationship *> *relationships;
 @property (nullable, nonatomic, retain) LocalRepo *repository;
+@property (nullable, nonatomic, retain) NSSet<LocalEvent *> *events;
+@property (nullable, nonatomic, retain) NSSet<LocalComment *> *comments;
 
 @end
 
@@ -56,6 +60,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeRelationshipsObject:(LocalRelationship *)value;
 - (void)addRelationships:(NSSet<LocalRelationship *> *)values;
 - (void)removeRelationships:(NSSet<LocalRelationship *> *)values;
+
+- (void)addEventsObject:(LocalEvent *)value;
+- (void)removeEventsObject:(LocalEvent *)value;
+- (void)addEvents:(NSSet<LocalEvent *> *)values;
+- (void)removeEvents:(NSSet<LocalEvent *> *)values;
+
+- (void)addCommentsObject:(LocalComment *)value;
+- (void)removeCommentsObject:(LocalComment *)value;
+- (void)addComments:(NSSet<LocalComment *> *)values;
+- (void)removeComments:(NSSet<LocalComment *> *)values;
 
 @end
 

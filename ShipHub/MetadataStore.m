@@ -51,21 +51,15 @@ static BOOL IsMetadataObject(id obj) {
 
 + (BOOL)changeNotificationContainsMetadata:(NSNotification *)mocNote {
     
-    NSDictionary *info = mocNote.userInfo;
+    __block BOOL result = NO;
+    [mocNote enumerateModifiedObjects:^(id obj, CoreDataModificationType modType, BOOL *stop) {
+        if (IsMetadataObject(obj)) {
+            result = YES;
+            *stop = YES;
+        }
+    }];
     
-    for (id obj in info[NSInsertedObjectsKey]) {
-        if (IsMetadataObject(obj)) return YES;
-    }
-    
-    for (id obj in info[NSUpdatedObjectsKey]) {
-        if (IsMetadataObject(obj)) return YES;
-    }
-    
-    for (id obj in info[NSDeletedObjectsKey]) {
-        if (IsMetadataObject(obj)) return YES;
-    }
-    
-    return NO;
+    return result;
 }
 
 // Read data out of ctx and store in immutable data objects accessible from any thread.
@@ -255,6 +249,16 @@ static BOOL IsMetadataObject(id obj) {
 
 - (NSArray<Label *> *)labelsForRepo:(Repo *)repo {
     return _labelsByRepoID[repo.identifier];
+}
+
+- (User *)userWithLocalUser:(LocalUser *)lu {
+    if (!lu) return nil;
+    
+    User *u = [self userWithIdentifier:lu.identifier];
+    if (!u) {
+        u = [[User alloc] initWithLocalItem:lu];
+    }
+    return u;
 }
 
 @end

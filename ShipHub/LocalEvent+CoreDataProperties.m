@@ -20,5 +20,7 @@
 @dynamic identifier;
 @dynamic actor;
 @dynamic assignee;
+@dynamic issue;
+@dynamic rawJSON;
 
 @end

@@ -29,6 +29,7 @@
 #import "LocalRelationship.h"
 
 #import "Issue.h"
+#import "IssueIdentifier.h"
 #import "Error.h"
 
 NSString *const DataStoreWillBeginMigrationNotification = @"DataStoreWillBeginMigrationNotification";
@@ -501,7 +502,9 @@ static NSString *const LastUpdated = @"LastUpdated";
         
         [self createPlaceholderEntitiesWithName:@"LocalOrg" withIdentifiers:rootIdentifiers[@"orgs"]];
         
-        [self setLatestSyncVersion:version syncType:@"root"];
+        if (version != 0) {
+            [self setLatestSyncVersion:version syncType:@"root"];
+        }
         
         [_moc save:&error];
         
@@ -723,6 +726,25 @@ static NSString *const LastUpdated = @"LastUpdated";
     
 }
 
+- (NSString *)issueFullIdentifier:(LocalIssue *)li {
+    NSParameterAssert(li);
+    return [NSString issueIdentifierWithOwner:li.repository.owner.login repo:li.repository.name number:li.identifier];
+}
+
+- (NSArray *)changedIssueIdentifiers:(NSNotification *)note {
+    NSMutableSet *changed = [NSMutableSet new];
+    
+    [note enumerateModifiedObjects:^(id obj, CoreDataModificationType modType, BOOL *stop) {
+        if ([obj isKindOfClass:[LocalIssue class]]) {
+            [changed addObject:[self issueFullIdentifier:obj]];
+        } else if ([obj isKindOfClass:[LocalEvent class]] || [obj isKindOfClass:[LocalComment class]]) {
+            [changed addObject:[self issueFullIdentifier:[obj issue]]];
+        }
+    }];
+    
+    return changed.count > 0 ? [changed allObjects] : nil;
+}
+
 - (void)mocDidChange:(NSNotification *)note {
     //DebugLog(@"%@", note);
     
@@ -736,6 +758,16 @@ static NSString *const LastUpdated = @"LastUpdated";
                 NSDictionary *userInfo = @{ DataStoreMetadataKey : store };
                 [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMetadataNotification object:self userInfo:userInfo];
             });
+        });
+    }
+    
+    // calculate which issues are affected by this change
+    NSArray *changedIssueIdentifiers = [self changedIssueIdentifiers:note];
+    if (changedIssueIdentifiers) {
+        DebugLog(@"Updated issues %@", changedIssueIdentifiers);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSDictionary *userInfo = @{ DataStoreUpdatedProblemsKey : changedIssueIdentifiers };
+            [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateProblemsNotification object:self userInfo:userInfo];
         });
     }
 }
@@ -797,6 +829,33 @@ static NSString *const LastUpdated = @"LastUpdated";
             completion(result, error);
         });
     }];
+}
+
+- (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion {
+    [_moc performBlock:^{
+        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+        fetchRequest.relationshipKeyPathsForPrefetching = @[@"events", @"comments"];
+        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier = %@", issueIdentifier];
+        
+        NSArray *entities = [_moc executeFetchRequest:fetchRequest error:NULL];
+        
+        LocalIssue *i = [entities firstObject];
+        
+        if (i) {
+            Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore includeEventsAndComments:YES];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(issue, nil);
+            });
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(nil, [NSError shipErrorWithCode:ShipErrorCodeProblemDoesNotExist]);
+            });
+        }
+    }];
+}
+
+- (void)checkForIssueUpdates:(id)issueIdentifier {
+    [_syncConnection updateIssue:issueIdentifier];
 }
 
 @end

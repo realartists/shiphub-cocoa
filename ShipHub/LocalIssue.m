@@ -18,6 +18,8 @@
 - (void)willSave {
     if (self.fullIdentifier == nil && self.repository && self.number) {
         self.fullIdentifier = [NSString issueIdentifierWithOwner:self.repository.owner.login repo:self.repository.name number:self.number];
+    } else {
+        NSAssert(self.fullIdentifier != nil, @"Wha?");
     }
     [super willSave];
 }

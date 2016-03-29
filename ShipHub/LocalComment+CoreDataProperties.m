@@ -18,5 +18,6 @@
 @dynamic identifier;
 @dynamic updatedAt;
 @dynamic user;
+@dynamic issue;
 
 @end

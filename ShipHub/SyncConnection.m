@@ -29,4 +29,8 @@
     
 }
 
+- (void)updateIssue:(id)issueIdentifier {
+    
+}
+
 @end

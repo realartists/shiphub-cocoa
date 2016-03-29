@@ -129,6 +129,8 @@
 
 + (NSColor *)colorWithHexString:(NSString *)hexString;
 
+- (NSString *)hexString;
+
 @end
 
 @interface UndoManagerTextView : NSTextView

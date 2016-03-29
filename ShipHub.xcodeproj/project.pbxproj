@@ -29,6 +29,8 @@
 		1A0D59EB1CA4AA3A004F2578 /* IssueDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59E91CA4AA3A004F2578 /* IssueDocument.m */; };
 		1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A0D59EA1CA4AA3A004F2578 /* IssueDocument.xib */; };
 		1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */; };
+		1A0D87741CA9E25F0069782D /* JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.m */; };
+		1A0D87751CA9E25F0069782D /* JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.m */; };
 		1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217921C7E7B14006460E2 /* AppDelegate.m */; };
 		1A2217961C7E7B14006460E2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217951C7E7B14006460E2 /* main.m */; };
 		1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A2217971C7E7B14006460E2 /* Assets.xcassets */; };
@@ -164,8 +166,10 @@
 		1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
 		1AE09C231C9779E400C5AC35 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EE1C8FC3DB008C11CB /* Reachability.m */; };
 		1AE09C241C977A3400C5AC35 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
-		1AFE21FE1CA5EC5B00B51CF6 /* index.html in Copy Issue Web Content */ = {isa = PBXBuildFile; fileRef = 1AFE21F91CA5EC3F00B51CF6 /* index.html */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		1AFE21FF1CA5EC5B00B51CF6 /* index_bundle.js in Copy Issue Web Content */ = {isa = PBXBuildFile; fileRef = 1AFE21FA1CA5EC3F00B51CF6 /* index_bundle.js */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22011CA6053B00B51CF6 /* IssueEvent.m */; };
+		1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
+		1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
+		1AFE22071CA6069600B51CF6 /* IssueEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22011CA6053B00B51CF6 /* IssueEvent.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -207,18 +211,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		1A0D59E01CA4A99F004F2578 /* Copy Issue Web Content */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = IssueWeb;
-			dstSubfolderSpec = 7;
-			files = (
-				1AFE21FE1CA5EC5B00B51CF6 /* index.html in Copy Issue Web Content */,
-				1AFE21FF1CA5EC5B00B51CF6 /* index_bundle.js in Copy Issue Web Content */,
-			);
-			name = "Copy Issue Web Content";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		1A2217C41C7E7BC1006460E2 /* Copy Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -242,6 +234,8 @@
 		1A0D59EA1CA4AA3A004F2578 /* IssueDocument.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = IssueDocument.xib; sourceTree = "<group>"; };
 		1A0D59ED1CA4ABF5004F2578 /* IssueDocumentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueDocumentController.h; sourceTree = "<group>"; };
 		1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueDocumentController.m; sourceTree = "<group>"; };
+		1A0D87721CA9E25F0069782D /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSON.h; sourceTree = "<group>"; };
+		1A0D87731CA9E25F0069782D /* JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSON.m; sourceTree = "<group>"; };
 		1A22178E1C7E7B14006460E2 /* ShipHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShipHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A2217911C7E7B14006460E2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1A2217921C7E7B14006460E2 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -424,6 +418,10 @@
 		1AFE21FB1CA5EC3F00B51CF6 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
 		1AFE21FC1CA5EC3F00B51CF6 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		1AFE21FD1CA5EC3F00B51CF6 /* webpack.config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = webpack.config.js; sourceTree = "<group>"; };
+		1AFE22001CA6053B00B51CF6 /* IssueEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueEvent.h; sourceTree = "<group>"; };
+		1AFE22011CA6053B00B51CF6 /* IssueEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueEvent.m; sourceTree = "<group>"; };
+		1AFE22031CA6069300B51CF6 /* IssueComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueComment.h; sourceTree = "<group>"; };
+		1AFE22041CA6069300B51CF6 /* IssueComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueComment.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -583,6 +581,8 @@
 				1A3618EE1C8FC3DB008C11CB /* Reachability.m */,
 				1A694B3A1CA3451D00F73608 /* NSPredicate+Extras.h */,
 				1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */,
+				1A0D87721CA9E25F0069782D /* JSON.h */,
+				1A0D87731CA9E25F0069782D /* JSON.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -618,6 +618,10 @@
 				1A694B4A1CA367E300F73608 /* Issue.m */,
 				1A0D59CA1CA46926004F2578 /* IssueIdentifier.h */,
 				1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */,
+				1AFE22001CA6053B00B51CF6 /* IssueEvent.h */,
+				1AFE22011CA6053B00B51CF6 /* IssueEvent.m */,
+				1AFE22031CA6069300B51CF6 /* IssueComment.h */,
+				1AFE22041CA6069300B51CF6 /* IssueComment.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -809,7 +813,7 @@
 				1A22178A1C7E7B14006460E2 /* Sources */,
 				1A22178B1C7E7B14006460E2 /* Frameworks */,
 				1A22178C1C7E7B14006460E2 /* Resources */,
-				1A0D59E01CA4A99F004F2578 /* Copy Issue Web Content */,
+				1A0D87791CAB03710069782D /* Copy Issue Web Content */,
 				1A2217C41C7E7BC1006460E2 /* Copy Frameworks */,
 			);
 			buildRules = (
@@ -943,6 +947,21 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		1A0D87791CAB03710069782D /* Copy Issue Web Content */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Issue Web Content";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "ISSUE_WEB_DST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/IssueWeb\"\nISSUE_WEB_SRC=\"${PROJECT_DIR}/IssueWeb/dist\"\n\necho ISSUE_WEB_SRC=$ISSUE_WEB_SRC\necho ISSUE_WEB_DST=$ISSUE_WEB_DST\n\nmkdir -p \"$ISSUE_WEB_DST\"\n\nrsync -avz -u --delete \"$ISSUE_WEB_SRC/\" \"$ISSUE_WEB_DST/\"\n";
+			showEnvVarsInLog = 0;
+		};
 		1AFE213D1CA5E6C800B51CF6 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -976,6 +995,7 @@
 				1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */,
 				1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */,
 				1A694B001CA0ABEB00F73608 /* MetadataItem.m in Sources */,
+				1A0D87741CA9E25F0069782D /* JSON.m in Sources */,
 				1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */,
 				1A694AF61CA09EAD00F73608 /* Label.m in Sources */,
 				1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */,
@@ -989,6 +1009,7 @@
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
 				1A694B2B1CA341D500F73608 /* NetworkStatusTextField.m in Sources */,
 				1A694B2E1CA342B000F73608 /* Sparkline.m in Sources */,
+				1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */,
 				1A2305DD1C7F84D80034C871 /* Error.m in Sources */,
 				1A694B4B1CA367E300F73608 /* Issue.m in Sources */,
 				1AE09C101C97687E00C5AC35 /* LocalOrg.m in Sources */,
@@ -1027,6 +1048,7 @@
 				1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */,
 				1A694B3C1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */,
 				1AE09C141C97687E00C5AC35 /* LocalComment.m in Sources */,
+				1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */,
 				1AE09C0E1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */,
 				1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */,
 				1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */,
@@ -1050,6 +1072,7 @@
 				1AE09BF91C97687E00C5AC35 /* LocalRelationship.m in Sources */,
 				1AE09BFF1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
 				1AE09C161C9779B000C5AC35 /* Auth.m in Sources */,
+				1A0D87751CA9E25F0069782D /* JSON.m in Sources */,
 				1AE09C171C9779B300C5AC35 /* Keychain.m in Sources */,
 				1A694AE01CA09E0800F73608 /* MetadataStore.m in Sources */,
 				1A694B4C1CA367E300F73608 /* Issue.m in Sources */,
@@ -1071,6 +1094,7 @@
 				1AE09C111C97687E00C5AC35 /* LocalOrg.m in Sources */,
 				1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */,
 				1AE09C211C9779DE00C5AC35 /* Logging.m in Sources */,
+				1AFE22071CA6069600B51CF6 /* IssueEvent.m in Sources */,
 				1A0D59D11CA48B8A004F2578 /* AppKitExtras.m in Sources */,
 				1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */,
 				1A694B011CA0ABEB00F73608 /* MetadataItem.m in Sources */,
@@ -1082,6 +1106,7 @@
 				1AE09C131C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */,
 				1AE09BFD1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */,
 				1AE09C1A1C9779C000C5AC35 /* ServerConnection.m in Sources */,
+				1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */,
 				1AE09C191C9779BE00C5AC35 /* Error.m in Sources */,
 				1A694AFC1CA0A96500F73608 /* Account.m in Sources */,
 				1A36190A1C9383E7008C11CB /* TestServerConnection.m in Sources */,
@@ -1309,6 +1334,7 @@
 				1AFE213C1CA5E6B200B51CF6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 

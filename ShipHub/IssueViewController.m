@@ -8,8 +8,10 @@
 
 #import "IssueViewController.h"
 
+#import "DataStore.h"
 #import "Issue.h"
 #import "IssueIdentifier.h"
+#import "JSON.h"
 
 #import <WebKit/WebKit.h>
 
@@ -24,10 +26,23 @@
 
 @implementation IssueViewController
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)loadView {
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:DataStoreDidUpdateProblemsNotification object:nil];
+    
+    WKPreferences *prefs = [WKPreferences new];
+#if DEBUG
+    [prefs setValue:@YES forKey:@"developerExtrasEnabled"];
+#endif
+    
     WKWebViewConfiguration *config = [WKWebViewConfiguration new];
     WKUserContentController *userContent = [WKUserContentController new];
     config.userContentController = userContent;
+    config.preferences = prefs;
+    DebugLog(@"Persistent data store: %@ (isPersistent:%d)", config.websiteDataStore, config.websiteDataStore.persistent);
 
     WKUserScript *inApp = [[WKUserScript alloc] initWithSource:@"window.inApp = true" injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
     [userContent addUserScript:inApp];
@@ -46,10 +61,25 @@
 }
 
 - (void)setIssue:(Issue *)issue {
-    NSString *issueIdentifier = [issue fullIdentifier];
-    NSString *js = [NSString stringWithFormat:@"updateIssue('%@', '%@', '%@')", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
+    NSString *issueJSON = [JSON stringifyObject:issue withNameTransformer:[JSON underbarsAndIDNameTransformer]];
+    NSString *js = [NSString stringWithFormat:@"renderIssue(%@)", issueJSON];
+    DebugLog(@"%@", js);
     [self evaluateJavaScript:js];
     self.title = issue.title ?: NSLocalizedString(@"Untitled Issue", nil);
+}
+
+- (void)issueDidUpdate:(NSNotification *)note {
+    if (!_issue) return;
+    if ([note object] == [DataStore activeStore]) {
+        NSArray *updated = note.userInfo[DataStoreUpdatedProblemsKey];
+        if ([updated containsObject:_issue.fullIdentifier]) {
+            [[DataStore activeStore] loadFullIssue:_issue.fullIdentifier completion:^(Issue *issue, NSError *error) {
+                if (issue) {
+                    self.issue = issue;
+                }
+            }];
+        }
+    }
 }
 
 - (void)evaluateJavaScript:(NSString *)js {
@@ -69,6 +99,22 @@
     if (_javaScriptToRun) {
         [self evaluateJavaScript:_javaScriptToRun];
         _javaScriptToRun = nil;
+    }
+}
+
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+{
+    if (navigationAction.navigationType == WKNavigationTypeReload) {
+        [self reload:nil];
+        decisionHandler(WKNavigationActionPolicyCancel);
+    } else {
+        decisionHandler(WKNavigationActionPolicyAllow);
+    }
+}
+
+- (IBAction)reload:(id)sender {
+    if (_issue) {
+        [[DataStore activeStore] checkForIssueUpdates:_issue.fullIdentifier];
     }
 }
 

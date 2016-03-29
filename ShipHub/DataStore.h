@@ -36,6 +36,10 @@
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion;
 - (void)countIssuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSUInteger count, NSError *error))completion;
 
+- (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion;
+
+- (void)checkForIssueUpdates:(id)issueIdentifier;
+
 @end
 
 extern NSString *const DataStoreWillBeginMigrationNotification;

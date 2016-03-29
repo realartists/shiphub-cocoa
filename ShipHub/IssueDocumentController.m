@@ -27,16 +27,21 @@
 }
 
 - (void)openIssueWithIdentifier:(id)issueIdentifier {
-    [[DataStore activeStore] issuesMatchingPredicate:[NSPredicate predicateWithFormat:@"fullIdentifier = %@", issueIdentifier] completion:^(NSArray<Issue *> *issues, NSError *error) {
-        
-        if (issues.count == 1) {
+    for (IssueDocument *doc in [self documents]) {
+        if ([[doc.issueViewController.issue fullIdentifier] isEqual:issueIdentifier]) {
+            [doc showWindows];
+            return;
+        }
+    }
+    
+    [[DataStore activeStore] loadFullIssue:issueIdentifier completion:^(Issue *issue, NSError *error) {
+        if (issue) {
             IssueDocument *doc = [self openUntitledDocumentAndDisplay:YES error:NULL];
-            doc.issueViewController.issue = [issues firstObject];
+            doc.issueViewController.issue = issue;
+            [[DataStore activeStore] checkForIssueUpdates:issueIdentifier];
         } else {
-            // cannot find, open it on github
             [[NSWorkspace sharedWorkspace] openURL:[issueIdentifier issueGitHubURL]];
         }
-        
     }];
 }
 

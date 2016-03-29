@@ -22,6 +22,10 @@
 
 @property (weak) id<SyncConnectionDelegate> delegate;
 
+// Fetch the latest details for issueIdentifier
+// and deliver them asynchronously over the normal delegate channel
+- (void)updateIssue:(id)issueIdentifier;
+
 @end
 
 @protocol SyncConnectionDelegate

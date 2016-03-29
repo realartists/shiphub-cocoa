@@ -11,6 +11,7 @@
 #import "Auth.h"
 #import "Error.h"
 #import "Extras.h"
+#import "IssueIdentifier.h"
 
 #define POLL_INTERVAL 120.0
 
@@ -521,6 +522,12 @@ static NSString *barsToCamels(NSString *s) {
     if ([s isEqualToString:@"id"]) {
         return @"identifier";
     }
+    if ([s isEqualToString:@"comments"]) {
+        return @"commentsCount";
+    }
+    if ([s isEqualToString:@"events"]) {
+        return @"eventsCount";
+    }
     if ([s rangeOfString:@"_"].location == NSNotFound) {
         return s;
     }
@@ -551,6 +558,51 @@ static id renameFields(id json) {
     } else {
         return json;
     }
+}
+
+- (void)updateIssue:(id)issueIdentifier {
+    
+    NSString *issueEndpoint = [NSString stringWithFormat:@"repos/%@/%@/issues/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
+    NSString *eventsEndpoint = [issueEndpoint stringByAppendingPathComponent:@"events"];
+    NSString *commentsEndpoint = [issueEndpoint stringByAppendingPathComponent:@"comments"];
+    
+    NSURLRequest *eventsRequest = [self get:eventsEndpoint];
+    NSURLRequest *commentsRequest = [self get:commentsEndpoint];
+    
+    [self jsonTask:[self get:issueEndpoint] completion:^(id json, NSHTTPURLResponse *response, NSError *err) {
+        
+        if (err) {
+            ErrLog(@"%@", err);
+            return;
+        }
+        
+        NSString *issueID = [json objectForKey:@"id"];
+        
+        [self yield:@[json] type:@"issue" version:0];
+        
+        [self fetchPaged:commentsRequest completion:^(NSArray *data, NSError *commentErr) {
+            if (!err) {
+                NSArray *cs = [data arrayByMappingObjects:^id(id obj) {
+                    NSMutableDictionary *d = [obj mutableCopy];
+                    d[@"issue"] = issueID;
+                    return d;
+                }];
+                [self yield:cs type:@"comment" version:1];
+            }
+        }];
+        
+        [self fetchPaged:eventsRequest completion:^(NSArray *data, NSError *eventErr) {
+            if (!err) {
+                NSArray *es = [data arrayByMappingObjects:^id(id obj) {
+                    NSMutableDictionary *d = [obj mutableCopy];
+                    d[@"issue"] = issueID;
+                    return d;
+                }];
+                [self yield:es type:@"event" version:1];
+            }
+        }];
+        
+    }];
 }
 
 @end

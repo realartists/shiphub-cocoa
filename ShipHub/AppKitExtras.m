@@ -429,6 +429,16 @@
     }
 }
 
+- (NSString *)hexString {
+    uint8_t r, g, b;
+    CGFloat rf, gf, bf, af;
+    [self getRed:&rf green:&gf blue:&bf alpha:&af];
+    r = (rf * 255.0) / 1.0;
+    g = (gf * 255.0) / 1.0;
+    b = (bf * 255.0) / 1.0;
+    return [NSString stringWithFormat:@"%02x%02x%02x", r, g, b];
+}
+
 @end
 
 @implementation UndoManagerTextView {
