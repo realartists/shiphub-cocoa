@@ -3,7 +3,11 @@ import 'font-awesome/css/font-awesome.css'
 
 import React from 'react'
 import ReactDOM from 'react-dom'
-import highlight from 'highlight.js'
+import hljs from 'highlight.js'
+import pnglib from 'pnglib'
+window.PNGlib = pnglib;
+import identicon from 'identicon.js'
+import md5 from 'md5'
 import 'whatwg-fetch'
 
 import { emojify } from './emojify.js'
@@ -183,18 +187,71 @@ var AvatarIMG = React.createClass({
     size: React.PropTypes.number
   },
   
-  render: function() {
-    var avatarURL = this.props.user.avatar_url;
+  getInitialState: function() {
+    return {
+      loading: true,
+      failed: false,
+      identicon: null,
+    }
+  },
+  
+  pointSize: function() {
     var s = 32;
     if (this.props.size) {
       s = this.props.size;
     }
+    return s;
+  },
+  
+  pixelSize: function() {
+    return this.pointSize() * 2;
+  },
+  
+  avatarURL: function() {
+    var avatarURL = this.props.user.avatar_url;
     if (avatarURL == null) {
       avatarURL = "https://avatars.githubusercontent.com/u/" + this.props.user.id + "?v=3";
     }
-    avatarURL += "&s=" + (s*2);
+    avatarURL += "&s=" + this.pixelSize();
+    return avatarURL;
+  },
+  
+  fail: function() {
+    this.setState(Object.assign({}, this.state, {failed:true}));
+  },
+  
+  loaded: function() {
+    this.setState(Object.assign({}, this.state, {loading:false}));
+  },
+  
+  render: function() {    
+    var s = this.pointSize();
+    if (this.state.failed || this.state.loading) {
+      return React.createElement('img', Object.assign({}, this.props, {src:this.state.identicon, width:s, height:s}));
+    } else {
+      return React.createElement('img', Object.assign({}, this.props, {src:this.avatarURL(), width:s, height:s, onerror:this.fail}));
+    }
+  },
+  
+  componentWillMount: function() {
+    var url = this.avatarURL();
+    var cacheKey = url;
+    if (!window.identiconCache) {
+      window.identiconCache = {};
+    }
+    var myIdenticon = window.identiconCache[cacheKey];
+    if (myIdenticon == null) {
+      var hash = md5(this.props.user.login);
+      myIdenticon = "data:image/png;base64," + new Identicon(hash, { size: this.pixelSize(), margin: 0.05 }).toString();
+      console.log("identicon len: " + myIdenticon.length);
+      window.identiconCache[cacheKey] = myIdenticon;
+    }
     
-    return React.createElement('img', Object.assign({}, this.props, {src:avatarURL, width:s, height:s}))
+    this.setState(Object.assign({}, this.state, {identicon: myIdenticon}));
+    
+    var img = document.createElement('img');
+    img.onload = () => { this.loaded(); };
+    img.src = url;
   }
 });
 
@@ -744,8 +801,8 @@ function renderIssue(issue) {
 window.updateIssue = updateIssue;
 window.renderIssue = renderIssue;
 
-if (!window.inApp) {
-  updateIssue("realartists", "shiphub-server", "10")
-}
+// if (!window.inApp) {
+//   updateIssue("realartists", "shiphub-server", "10")
+// }
 
-//renderIssue({"id":132299185,"body":"- [ ] Identifier is github username (or id? investigate renames)\r\n- [ ] Your address book is the union of people who have interacted with your repos\r\n- [ ] Assignability is scoped by repo\r\n- [ ] Each user in the address book has a set of repos in which they are assignable (may be empty set)","events":[],"full_identifier":"realartists\/shiphub-server#2","closed":0,"originator":{"login":"kogir","id":87309},"created_at":"2016-02-09T00:39:28.0000000Z","assignee":{"login":"kogir","id":87309},"labels":[],"comments":[],"title":"Scoped address books","milestone":{"id":1664918,"title":"Public Beta","updated_at":"2016-03-24T23:23:44.0000000Z","due_on":"2016-06-05T07:00:00.0000000Z"},"number":2,"locked":0,"updated_at":"2016-03-24T23:23:43.0000000Z","repository":{"full_name":"realartists\/shiphub-server","private":1,"id":51336290,"name":"shiphub-server","hidden":0}})
+renderIssue({"id":132304507,"body":"- [ ] Pass through to Github for now.","events":[{"id":543761951,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-02-09T01:16:24.0000000Z"},{"id":543761950,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-02-09T01:16:24.0000000Z"},{"assignee":{"login":"kogir","id":87309},"id":543762077,"actor":{"login":"kogir","id":87309},"event":"assigned","created_at":"2016-02-09T01:16:32.0000000Z"},{"assignee":{"login":"kogir","id":87309},"id":549212855,"actor":{"login":"kogir","id":87309},"event":"unassigned","created_at":"2016-02-12T23:49:39.0000000Z"},{"assignee":{"login":"kogir","id":87309},"id":549212943,"actor":{"login":"kogir","id":87309},"event":"assigned","created_at":"2016-02-12T23:49:51.0000000Z"},{"assignee":{"login":"james-howard","id":2006254},"id":557234562,"actor":{"login":"james-howard","id":2006254},"event":"assigned","created_at":"2016-02-19T23:12:34.0000000Z"},{"assignee":{"login":"kogir","id":87309},"id":557234561,"actor":{"login":"kogir","id":87309},"event":"unassigned","created_at":"2016-02-19T23:12:34.0000000Z"},{"id":562310307,"actor":{"login":"james-howard","id":2006254},"event":"labeled","created_at":"2016-02-23T20:21:26.0000000Z"},{"id":562329516,"actor":{"login":"james-howard","id":2006254},"event":"labeled","created_at":"2016-02-23T20:33:07.0000000Z"},{"id":562346774,"actor":{"login":"james-howard","id":2006254},"event":"unlabeled","created_at":"2016-02-23T20:44:55.0000000Z"},{"id":562346772,"actor":{"login":"james-howard","id":2006254},"event":"unlabeled","created_at":"2016-02-23T20:44:55.0000000Z"},{"id":562587856,"actor":{"login":"james-howard","id":2006254},"event":"locked","created_at":"2016-02-23T23:19:29.0000000Z"},{"id":562590752,"actor":{"login":"james-howard","id":2006254},"event":"unlocked","created_at":"2016-02-23T23:21:46.0000000Z"},{"id":602479909,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-03-24T23:22:17.0000000Z"},{"id":602479910,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-03-24T23:22:17.0000000Z"},{"id":602479908,"actor":{"login":"kogir","id":87309},"event":"demilestoned","created_at":"2016-03-24T23:22:17.0000000Z"},{"id":602479911,"actor":{"login":"kogir","id":87309},"event":"demilestoned","created_at":"2016-03-24T23:22:17.0000000Z"},{"id":602480259,"actor":{"login":"kogir","id":87309},"event":"demilestoned","created_at":"2016-03-24T23:22:36.0000000Z"},{"id":602480258,"actor":{"login":"kogir","id":87309},"event":"demilestoned","created_at":"2016-03-24T23:22:36.0000000Z"},{"id":602481375,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-03-24T23:23:43.0000000Z"},{"id":602481376,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-03-24T23:23:43.0000000Z"}],"full_identifier":"realartists\/shiphub-server#10","closed":0,"originator":{"login":"kogir","id":87309},"created_at":"2016-02-09T01:16:10.0000000Z","assignee":{"login":"james-howard","id":2006254},"labels":[],"comments":[],"title":"Support watching","milestone":{"id":1664918,"title":"Public Beta","updated_at":"2016-03-24T23:23:44.0000000Z","due_on":"2016-06-05T07:00:00.0000000Z"},"number":10,"locked":0,"updated_at":"2016-03-24T23:23:43.0000000Z","repository":{"full_name":"realartists\/shiphub-server","private":1,"id":51336290,"name":"shiphub-server","hidden":0}})

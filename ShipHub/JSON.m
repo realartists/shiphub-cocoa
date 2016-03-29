@@ -58,7 +58,9 @@ static id serializeProperties(id obj, JSONNameTransformer nt) {
 static id serializeObject(id obj, JSONNameTransformer nt) {
     if ([obj isKindOfClass:[NSArray class]]) {
         return [obj arrayByMappingObjects:^id(id o) {
-            return serializeObject(o, nt);
+            id v = serializeObject(o, nt);
+            NSCAssert(v != nil, nil);
+            return v;
         }];
     } else if ([obj isKindOfClass:[NSSet class]]) {
         return serializeObject([obj allObjects], nt);
@@ -67,6 +69,7 @@ static id serializeObject(id obj, JSONNameTransformer nt) {
         for (NSString *k in obj) {
             d[nt(k)] = serializeObject(obj[k], nt);
         }
+        return d;
     } else if ([obj isKindOfClass:[NSNumber class]]) {
         return obj;
     } else if ([obj isKindOfClass:[NSValue class]]) {
@@ -83,10 +86,13 @@ static id serializeObject(id obj, JSONNameTransformer nt) {
         return [obj hexString];
     } else if (obj == [NSNull null]) {
         return obj;
-    } else {
+    } else if ([obj respondsToSelector:@selector(JSONDescription)]) {
+        return serializeObject([obj JSONDescription], nt);
+    } else if (obj) {
         return serializeProperties(obj, nt);
+    } else {
+        return [NSNull null];
     }
-    return nil;
 }
 
 + (id)stringifyObject:(id)obj {

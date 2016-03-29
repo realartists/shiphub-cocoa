@@ -21,3 +21,9 @@ typedef NSString* (^JSONNameTransformer)(NSString *original);
 + (JSONNameTransformer)underbarsAndIDNameTransformer;
 
 @end
+
+@interface NSObject (JSONStringify)
+
+- (id)JSONDescription;
+
+@end

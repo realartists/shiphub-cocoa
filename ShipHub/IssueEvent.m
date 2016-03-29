@@ -12,6 +12,7 @@
 #import "LocalUser.h"
 #import "MetadataStoreInternal.h"
 #import "User.h"
+#import "JSON.h"
 
 @implementation IssueEvent
 
@@ -30,6 +31,10 @@
         }
     }
     return self;
+}
+
+- (id)JSONDescription {
+    return _extra;
 }
 
 @end
