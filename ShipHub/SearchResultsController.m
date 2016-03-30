@@ -136,12 +136,7 @@
 }
 
 - (id<NSCopying>)identifier {
-    // FIXME: Hook up
-#if !INCOMPLETE
-    return self.problemSnapshot.identifier;
-#else
-    return @0;
-#endif
+    return [self issueFullIdentifier];
 }
 
 @end
