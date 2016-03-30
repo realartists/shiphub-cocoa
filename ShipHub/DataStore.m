@@ -728,7 +728,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 
 - (NSString *)issueFullIdentifier:(LocalIssue *)li {
     NSParameterAssert(li);
-    return [NSString issueIdentifierWithOwner:li.repository.owner.login repo:li.repository.name number:li.identifier];
+    return [NSString issueIdentifierWithOwner:li.repository.owner.login repo:li.repository.name number:li.number];
 }
 
 - (NSArray *)changedIssueIdentifiers:(NSNotification *)note {

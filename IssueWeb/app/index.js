@@ -44,6 +44,12 @@ markedRenderer.text = function(text) {
   return emojify(githubLinkify(window.currentIssue._bare_owner, window.currentIssue._bare_repo, text));
 }
 
+var ghost = {
+  login: "ghost",
+  id: 10137,
+  avatar_url: "https://avatars1.githubusercontent.com/u/10137?v=3"
+};
+
 var markdownOpts = {
   renderer: markedRenderer,
   gfm: true,
@@ -183,8 +189,15 @@ var TimeAgo = React.createClass(
 
 var AvatarIMG = React.createClass({
   propTypes: {
-    user: React.PropTypes.object.isRequired,
+    user: React.PropTypes.object,
     size: React.PropTypes.number
+  },
+  
+  getDefaultProps: function() {
+    return {
+      user: ghost,
+      size: 32
+    };
   },
   
   getInitialState: function() {
@@ -278,10 +291,11 @@ var CommentHeader = React.createClass({
   },
   
   render: function() {
-    console.log(this.props.comment);
+    var user = this.props.comment.user||this.props.comment.author;
+    if (!user) user = ghost;
     return React.createElement('div', {className:'commentHeader'},
-      React.createElement(AvatarIMG, {user:this.props.comment.user||this.props.comment.author, size:32}),
-      React.createElement('span', {className:'commentAuthor'}, this.props.comment.user.login),
+      React.createElement(AvatarIMG, {user:user, size:32}),
+      React.createElement('span', {className:'commentAuthor'}, user.login),
       React.createElement('span', {className:'commentTimeAgo'}, " commented "),
       React.createElement(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
       React.createElement(CommentControls, {comment:this.props.comment, first:this.props.first})
@@ -370,12 +384,18 @@ var EventIcon = React.createClass({
 });
 
 var EventUser = React.createClass({
-  propTypes: { user: React.PropTypes.object.isRequired },
+  propTypes: { user: React.PropTypes.object },
+  getDefaultProps: function() {
+    return {
+      user: ghost
+    };
+  },
   
   render: function() {
+    var user = this.props.user || ghost;
     return React.createElement("span", {className:"eventUser"},
-      React.createElement(AvatarIMG, {user:this.props.user, size:16, className:"eventAvatar"}),
-      this.props.user.login
+      React.createElement(AvatarIMG, {user:user, size:16, className:"eventAvatar"}),
+      user.login
     );
   }
 });
@@ -445,8 +465,9 @@ var LabelEventDescription = React.createClass({
   render: function() {
     var elements = [];
     elements.push(this.props.event.event);
-    elements = elements.concat(this.props.event.labels.map(function(l) {
-      return React.createElement(Label, {key:l.name, label:l});
+    var labels = this.props.event.labels.filter(function(l) { return l != null && l.name != null; });
+    elements = elements.concat(labels.map(function(l) {
+      return React.createElement(Label, {key:l.name||"", label:l});
     }));
     return React.createElement("span", {}, elements);
   }
@@ -549,10 +570,11 @@ var Event = React.createClass({
     } else {
       className += " eventLast";
     }
+    var user = this.props.event.actor;
     return React.createElement('div', {className:className},
       React.createElement(EventIcon, {event: this.props.event.event }),
       React.createElement("div", {className: "eventContent"},
-        React.createElement(EventUser, {user: this.props.event.actor }),
+        React.createElement(EventUser, {user: user}),
         " ",
         React.createElement(ClassForEvent(this.props.event), {event: this.props.event}),
         " ",
@@ -578,7 +600,9 @@ var ActivityList = React.createClass({
     
     // need to merge events and comments together into one array, ordered by date
     var eventsAndComments = [firstComment];
-
+    
+    var events = this.props.issue.allEvents;
+    
     eventsAndComments = eventsAndComments.concat(this.props.issue.allEvents);
     eventsAndComments = eventsAndComments.concat(this.props.issue.allComments);
     
@@ -801,8 +825,8 @@ function renderIssue(issue) {
 window.updateIssue = updateIssue;
 window.renderIssue = renderIssue;
 
-// if (!window.inApp) {
-//   updateIssue("realartists", "shiphub-server", "10")
-// }
+if (!window.inApp) {
+  updateIssue("realartists", "shiphub-server", "10")
+}
 
-renderIssue({"id":132304507,"body":"- [ ] Pass through to Github for now.","events":[{"id":543761951,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-02-09T01:16:24.0000000Z"},{"id":543761950,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-02-09T01:16:24.0000000Z"},{"assignee":{"login":"kogir","id":87309},"id":543762077,"actor":{"login":"kogir","id":87309},"event":"assigned","created_at":"2016-02-09T01:16:32.0000000Z"},{"assignee":{"login":"kogir","id":87309},"id":549212855,"actor":{"login":"kogir","id":87309},"event":"unassigned","created_at":"2016-02-12T23:49:39.0000000Z"},{"assignee":{"login":"kogir","id":87309},"id":549212943,"actor":{"login":"kogir","id":87309},"event":"assigned","created_at":"2016-02-12T23:49:51.0000000Z"},{"assignee":{"login":"james-howard","id":2006254},"id":557234562,"actor":{"login":"james-howard","id":2006254},"event":"assigned","created_at":"2016-02-19T23:12:34.0000000Z"},{"assignee":{"login":"kogir","id":87309},"id":557234561,"actor":{"login":"kogir","id":87309},"event":"unassigned","created_at":"2016-02-19T23:12:34.0000000Z"},{"id":562310307,"actor":{"login":"james-howard","id":2006254},"event":"labeled","created_at":"2016-02-23T20:21:26.0000000Z"},{"id":562329516,"actor":{"login":"james-howard","id":2006254},"event":"labeled","created_at":"2016-02-23T20:33:07.0000000Z"},{"id":562346774,"actor":{"login":"james-howard","id":2006254},"event":"unlabeled","created_at":"2016-02-23T20:44:55.0000000Z"},{"id":562346772,"actor":{"login":"james-howard","id":2006254},"event":"unlabeled","created_at":"2016-02-23T20:44:55.0000000Z"},{"id":562587856,"actor":{"login":"james-howard","id":2006254},"event":"locked","created_at":"2016-02-23T23:19:29.0000000Z"},{"id":562590752,"actor":{"login":"james-howard","id":2006254},"event":"unlocked","created_at":"2016-02-23T23:21:46.0000000Z"},{"id":602479909,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-03-24T23:22:17.0000000Z"},{"id":602479910,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-03-24T23:22:17.0000000Z"},{"id":602479908,"actor":{"login":"kogir","id":87309},"event":"demilestoned","created_at":"2016-03-24T23:22:17.0000000Z"},{"id":602479911,"actor":{"login":"kogir","id":87309},"event":"demilestoned","created_at":"2016-03-24T23:22:17.0000000Z"},{"id":602480259,"actor":{"login":"kogir","id":87309},"event":"demilestoned","created_at":"2016-03-24T23:22:36.0000000Z"},{"id":602480258,"actor":{"login":"kogir","id":87309},"event":"demilestoned","created_at":"2016-03-24T23:22:36.0000000Z"},{"id":602481375,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-03-24T23:23:43.0000000Z"},{"id":602481376,"actor":{"login":"kogir","id":87309},"event":"milestoned","created_at":"2016-03-24T23:23:43.0000000Z"}],"full_identifier":"realartists\/shiphub-server#10","closed":0,"originator":{"login":"kogir","id":87309},"created_at":"2016-02-09T01:16:10.0000000Z","assignee":{"login":"james-howard","id":2006254},"labels":[],"comments":[],"title":"Support watching","milestone":{"id":1664918,"title":"Public Beta","updated_at":"2016-03-24T23:23:44.0000000Z","due_on":"2016-06-05T07:00:00.0000000Z"},"number":10,"locked":0,"updated_at":"2016-03-24T23:23:43.0000000Z","repository":{"full_name":"realartists\/shiphub-server","private":1,"id":51336290,"name":"shiphub-server","hidden":0}})
+
