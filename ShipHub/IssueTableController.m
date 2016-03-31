@@ -121,7 +121,7 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
                      @"fixed" : @YES,
                      @"editable" : @YES },
                   
-                  @{ @"identifier" : @"issue.read",
+                  @{ @"identifier" : @"issue.number",
                      @"title" : NSLocalizedString(@"•", nil),
                      @"menuTitle" : NSLocalizedString(@"Unread", nil),
                      @"formatter" : [BooleanDotFormatter new],

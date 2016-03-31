@@ -755,18 +755,57 @@ var IssueIdentifier = React.createClass({
   }
 });
 
+var HeaderLabel = React.createClass({
+  propTypes: { title: React.PropTypes.string },
+  
+  render: function() {
+    return h('span', {className:'HeaderLabel'}, this.props.title + ": ");
+  }
+});
+
+var HeaderSeparator = React.createClass({
+  render: function() {
+    return h('div', {className:'HeaderSeparator'});
+  }
+});
+
 var IssueTitle = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
   render: function() {
-    return h(Textarea, {defaultValue: this.props.issue.title, className:'TitleArea', placeholder:"Title"});
+    return h('div', {className:'IssueTitle'},
+      h(HeaderLabel, {title:'Title'}),
+      h(Textarea, {defaultValue: this.props.issue.title, className:'TitleArea'}),
+      h(IssueNumber, {issue: this.props.issue})
+    );
   }
 });
 
-var AddLabel = React.createClass({
-  propTypes: { onCreate: React.PropTypes.func },
+var IssueNumber = React.createClass({
+  propTypes: { issue: React.PropTypes.object },
   render: function() {
-    return h('span', {className: 'AddLabel Clickable'}, "+ Add Label");
+    var val = "";
+    if (this.props.issue.number) {
+      val = this.props.issue.number;
+    }
+    return h('div', {className:'IssueNumber'},
+      val      
+    );
+  }
+});
+
+var RepoField = React.createClass({
+  propTypes: { 
+    issue: React.PropTypes.object,
+    onChange: React.PropTypes.func 
+  },
+  
+  render: function() {
+    var repoValue = "" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo;
+    return h('div', {className: 'RepoField'},
+      h(HeaderLabel, {title: 'Repo'}),
+      h('input', {placeholder: 'Required', onChange:this.props.onChange, defaultValue:repoValue})
+    );
   }
 });
 
@@ -778,8 +817,8 @@ var MilestoneField = React.createClass({
   
   render: function() {
     return h('div', {className: 'MilestoneField'},
-      h('i', {className: 'fa fa-calendar', title: 'Milestone'}),
-      h('input', {placeholder: 'Milestone', onChange:this.props.onChange, defaultValue:keypath(this.props.issue, "milestone.title")})
+      h(HeaderLabel, {title:"Milestone"}),
+      h('input', {placeholder: 'Backlog', onChange:this.props.onChange, defaultValue:keypath(this.props.issue, "milestone.title")})
     );
   }
 });
@@ -792,8 +831,18 @@ var AssigneeField = React.createClass({
   
   render: function() {
     return h('div', {className: 'AssigneeField'},
-      h('i', {className: 'fa fa-user', title: 'Assignee'}),
+      h(HeaderLabel, {title:"Assignee"}),
       h('input', {placeholder: 'Unassigned', onChange:this.props.onChange, defaultValue:keypath(this.props.issue, "assignee.login")})
+    );
+  }
+});
+
+var AddLabel = React.createClass({
+  propTypes: { onCreate: React.PropTypes.func },
+  render: function() {
+    return h('div', {className:'AddLabel Clickable'},
+      h('i', {className: 'fa fa-plus-circle AddLabel Clickable'}),
+      " Add Label"
     );
   }
 });
@@ -803,6 +852,7 @@ var IssueLabels = React.createClass({
   
   render: function() {
     return h('div', {className:'IssueLabels'},
+      h(HeaderLabel, {title:"Labels"}),
       h(AddLabel, {}),
       this.props.issue.labels.map(function(l) { 
         return [" ", h(Label, {key:l.name, label:l, canDelete:true})];
@@ -816,10 +866,14 @@ var Header = React.createClass({
   
   render: function() {
     return h('div', {className: 'IssueHeader'}, 
-      h(IssueIdentifier, {issue: this.props.issue}),
       h(IssueTitle, {issue: this.props.issue}),
+      h(HeaderSeparator, {}),
+      h(RepoField, {issue: this.props.issue}),
+      h(HeaderSeparator, {}),
       h(MilestoneField, {issue: this.props.issue}),
+      h(HeaderSeparator, {}),
       h(AssigneeField, {issue: this.props.issue}),
+      h(HeaderSeparator, {}),
       h(IssueLabels, {issue: this.props.issue})
     );
   }
