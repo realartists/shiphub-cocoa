@@ -10,6 +10,7 @@
 
 #import "DataStore.h"
 #import "Issue.h"
+#import "IssueDocumentController.h"
 #import "IssueIdentifier.h"
 #import "JSON.h"
 
@@ -61,6 +62,7 @@
 }
 
 - (void)setIssue:(Issue *)issue {
+    _issue = issue;
     NSString *issueJSON = [JSON stringifyObject:issue withNameTransformer:[JSON underbarsAndIDNameTransformer]];
     NSString *js = [NSString stringWithFormat:@"renderIssue(%@)", issueJSON];
     DebugLog(@"%@", js);
@@ -107,8 +109,19 @@
     if (navigationAction.navigationType == WKNavigationTypeReload) {
         [self reload:nil];
         decisionHandler(WKNavigationActionPolicyCancel);
-    } else {
+    } else if (navigationAction.navigationType == WKNavigationTypeOther) {
         decisionHandler(WKNavigationActionPolicyAllow);
+    } else {
+        NSURL *URL = navigationAction.request.URL;
+        id issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
+        
+        if (issueIdentifier) {
+            [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier];
+        } else {
+            [[NSWorkspace sharedWorkspace] openURL:URL];
+        }
+        
+        decisionHandler(WKNavigationActionPolicyCancel);
     }
 }
 

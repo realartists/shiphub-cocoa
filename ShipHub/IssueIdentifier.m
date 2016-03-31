@@ -20,13 +20,13 @@
     NSString *path = [components path];
     
     NSArray *pathParts = [path componentsSeparatedByString:@"/"];
-    if (pathParts.count != 4 || ![pathParts[2] isEqualToString:@"issues"]) {
+    if (pathParts.count != 5 || ![pathParts[3] isEqualToString:@"issues"]) {
         return nil;
     }
     
-    NSString *owner = pathParts[0];
-    NSString *repo = pathParts[1];
-    NSString *numberStr = pathParts[3];
+    NSString *owner = pathParts[1];
+    NSString *repo = pathParts[2];
+    NSString *numberStr = pathParts[4];
     NSNumber *number = @([numberStr longLongValue]);
     
     return [self issueIdentifierWithOwner:owner repo:repo number:number];

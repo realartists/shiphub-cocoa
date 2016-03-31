@@ -121,7 +121,8 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
                      @"fixed" : @YES,
                      @"editable" : @YES },
                   
-                  @{ @"identifier" : @"issue.number",
+#if !INCOMPLETE
+                  @{ @"identifier" : @"issue.read",
                      @"title" : NSLocalizedString(@"•", nil),
                      @"menuTitle" : NSLocalizedString(@"Unread", nil),
                      @"formatter" : [BooleanDotFormatter new],
@@ -131,6 +132,7 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
                      @"centered" : @YES,
                      @"cellClass" : @"ReadIndicatorCell",
                      @"titleFont" : [NSFont boldSystemFontOfSize:12.0] },
+#endif
                   
                   @{ @"identifier" : @"issue.number",
                      @"title" : NSLocalizedString(@"#", nil),
