@@ -17,6 +17,10 @@ a:visited {
 a:hover {
   text-decoration: underline;
 }
+.Clickable:active {
+  opacity: 0.7;
+  user-select: none;
+}
 div.IssueHeader {
   padding-left: 18px;
   padding-right: 18px;
@@ -42,7 +46,13 @@ textarea.TitleArea {
   outline: none;
   box-shadow: none;
 }
-
+div.IssueLabels {
+  margin-left: 2px;
+  line-height: 24px;
+}
+div.IssueLabels span {
+  cursor: default;
+}
 div.activityList {
   position: relative;
 }
@@ -247,6 +257,10 @@ div.debugLoader {
   margin-top: 20px;        
 }
 
+span.LabelContainer {
+  white-space: nowrap;
+}
+
 span.label {
   padding-left: 4px;
   padding-right: 4px;
@@ -255,8 +269,7 @@ span.label {
   border-radius: 2px;
   font-weight: bold;
   color: black;
-  margin-left: 4px;
-  height: 14px;
+  -webkit-user-select: none;
 }
 
 span.LabelDelete {
@@ -271,8 +284,21 @@ span.LabelDelete {
   border-bottom-right-radius: 2px;
   color: white;
   background-color: #333;
+  -webkit-user-select: none;
 }
 
+span.AddLabel {
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  border: 1px solid #0085E4;
+  border-radius: 2px;
+  font-weight: bold;
+  color: #0085E4;
+  -webkit-user-select: none;
+  white-space: nowrap;
+}
 span.eventTitle {
   font-weight: bold;
 }

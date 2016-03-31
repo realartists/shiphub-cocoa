@@ -466,13 +466,13 @@ var Label = React.createClass({
     var style = {backgroundColor:"#"+this.props.label.color, color:textColor};
     
     if (this.props.canDelete) {
-      extra.push(h('span', {className:'LabelDelete', onClick:this.props.onDelete}, 
+      extra.push(h('span', {className:'LabelDelete Clickable', onClick:this.props.onDelete}, 
         h('i', {className:'fa fa-trash-o'})
       ));
       style = Object.assign({}, style, {borderTopRightRadius:"0px", borderBottomRightRadius:"0px"});
     }
     
-    return h("span", {},
+    return h("span", {className:"LabelContainer"},
       h("span", {className:"label", style:style},
         this.props.label.name
       ),
@@ -488,8 +488,8 @@ var LabelEventDescription = React.createClass({
     elements.push(this.props.event.event);
     var labels = this.props.event.labels.filter(function(l) { return l != null && l.name != null; });
     elements = elements.concat(labels.map(function(l) {
-      return h(Label, {key:l.name||"", label:l});
-    }));
+      return [" ", h(Label, {key:l.name||"", label:l})]
+    }).reduce(function(c, v) { return c.concat(v); }, []));
     return h("span", {}, elements);
   }
 });
@@ -733,12 +733,22 @@ var IssueTitle = React.createClass({
   }
 });
 
+var AddLabel = React.createClass({
+  propTypes: { onCreate: React.PropTypes.func },
+  render: function() {
+    return h('span', {className: 'AddLabel Clickable'}, "+ Add Label");
+  }
+});
+
 var IssueLabels = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
   render: function() {
-    return h('div', 'IssueLabels',
-      this.props.issue.labels.map(function(l) { return h(Label, {label:l, canDelete:true}) })
+    return h('div', {className:'IssueLabels'},
+      h(AddLabel, {}),
+      this.props.issue.labels.map(function(l) { 
+        return [" ", h(Label, {label:l, canDelete:true})];
+      }).reduce(function(c, v) { return c.concat(v); }, [])
     );
   }
 });
