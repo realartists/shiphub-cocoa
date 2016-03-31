@@ -137,7 +137,7 @@
 
 - (void)purge; // removes all entities and calls save:
 
-- (void)batchDeleteEntitiesWithRequest:(NSFetchRequest *)request error:(NSError * __autoreleasing *)error; // removes entities described by request. does not call save:
+- (BOOL)batchDeleteEntitiesWithRequest:(NSFetchRequest *)request error:(NSError * __autoreleasing *)error; // removes entities described by request. does not call save:
 
 
 @end

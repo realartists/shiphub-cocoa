@@ -141,8 +141,8 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
                   
                   @{ @"identifier" : @"info.issueFullIdentifier",
                      @"title" : NSLocalizedString(@"Path", nil),
-                     @"width" : @100,
-                     @"maxWidth" : @160,
+                     @"width" : @180,
+                     @"maxWidth" : @260,
                      @"minWidth" : @60 },
                   
                   @{ @"identifier" : @"issue.title",

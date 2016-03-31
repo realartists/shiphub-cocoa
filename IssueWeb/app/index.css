@@ -3,6 +3,8 @@ body {
   font-size: 10pt;
   line-height: 150%; 
   background-color: #F0EFEF;
+  padding: 0px;
+  margin: 0px;
   padding-bottom: 15px;
 }
 a {
@@ -15,6 +17,32 @@ a:visited {
 a:hover {
   text-decoration: underline;
 }
+div.IssueHeader {
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-top: 4px;
+  padding-bottom: 10px;
+  background-color: white;
+  margin: 0px;
+  box-shadow: 0px 5px 8px #CCC;
+  border-bottom: 1px solid #D6D5D5;
+}
+div.IssueIdentifier {
+  padding-left: 3px;
+  font-size: 9pt;
+}
+span.IssueIdentifierNumber {
+  font-weight: bold;
+}
+textarea.TitleArea {
+  width: 100%;
+  resize: none;
+  border: none;
+  font-size: 14pt;
+  outline: none;
+  box-shadow: none;
+}
+
 div.activityList {
   position: relative;
 }
@@ -228,6 +256,21 @@ span.label {
   font-weight: bold;
   color: black;
   margin-left: 4px;
+  height: 14px;
+}
+
+span.LabelDelete {
+  padding-left: 6px;
+  padding-right: 6px;
+  cursor: default;
+  padding-top: 4px;
+  padding-bottom: 3px;
+  font-weight: normal;
+  font-size: 8pt;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  color: white;
+  background-color: #333;
 }
 
 span.eventTitle {

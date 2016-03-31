@@ -569,17 +569,24 @@ static inline uint8_t h2b(uint8_t v) {
     }
 }
 
-- (void)batchDeleteEntitiesWithRequest:(NSFetchRequest *)request error:(NSError * __autoreleasing *)error
+- (BOOL)batchDeleteEntitiesWithRequest:(NSFetchRequest *)request error:(NSError * __autoreleasing *)error
 {
+    NSError *err = nil;
     if ([NSBatchDeleteRequest class]) {
         // 10.11/iOS 9 path
         NSBatchDeleteRequest *batch = [[NSBatchDeleteRequest alloc] initWithFetchRequest:request];
-        [self executeRequest:batch error:error];
+        [self executeRequest:batch error:&err];
     } else {
         // 10.10 path
-        for (NSManagedObject *obj in [self executeFetchRequest:request error:error]) {
+        for (NSManagedObject *obj in [self executeFetchRequest:request error:&err]) {
             [self deleteObject:obj];
         }
+    }
+    if (error) {
+        *error = err;
+        return NO;
+    } else {
+        return YES;
     }
 }
 

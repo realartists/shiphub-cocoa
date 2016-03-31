@@ -9,10 +9,15 @@ window.PNGlib = pnglib;
 import identicon from 'identicon.js'
 import md5 from 'md5'
 import 'whatwg-fetch'
+import Textarea from 'react-textarea-autosize';
 
 import { emojify } from './emojify.js'
 import marked from './marked.min.js'
 import { githubLinkify } from './github_linkify.js'
+
+var h = function(/*...*/) {
+  return React.createElement(...arguments);
+}
 
 var markedRenderer = new marked.Renderer();
       
@@ -182,7 +187,7 @@ var TimeAgo = React.createClass(
 
       var props = this.props;
 
-      return React.createElement( this.props.component, props, this.props.formatter(value, unit, suffix, then) )
+      return h( this.props.component, props, this.props.formatter(value, unit, suffix, then) )
     }
   }
 );
@@ -240,9 +245,9 @@ var AvatarIMG = React.createClass({
   render: function() {    
     var s = this.pointSize();
     if (this.state.failed || this.state.loading) {
-      return React.createElement('img', Object.assign({}, this.props, {src:this.state.identicon, width:s, height:s}));
+      return h('img', Object.assign({}, this.props, {src:this.state.identicon, width:s, height:s}));
     } else {
-      return React.createElement('img', Object.assign({}, this.props, {src:this.avatarURL(), width:s, height:s, onerror:this.fail}));
+      return h('img', Object.assign({}, this.props, {src:this.avatarURL(), width:s, height:s, onerror:this.fail}));
     }
   },
   
@@ -276,11 +281,11 @@ var CommentControls = React.createClass({
   
   render: function() {
     var els = [];
-    els.push(React.createElement('i', {key:"edit", className:'fa fa-pencil'}));
+    els.push(h('i', {key:"edit", className:'fa fa-pencil'}));
     if (!this.props.first) {
-      els.push(React.createElement('i', {key:"trash", className:'fa fa-trash-o'}));
+      els.push(h('i', {key:"trash", className:'fa fa-trash-o'}));
     }
-    return React.createElement('div', {className:'commentControls'}, els);
+    return h('div', {className:'commentControls'}, els);
   }
 });
 
@@ -293,12 +298,12 @@ var CommentHeader = React.createClass({
   render: function() {
     var user = this.props.comment.user||this.props.comment.author;
     if (!user) user = ghost;
-    return React.createElement('div', {className:'commentHeader'},
-      React.createElement(AvatarIMG, {user:user, size:32}),
-      React.createElement('span', {className:'commentAuthor'}, user.login),
-      React.createElement('span', {className:'commentTimeAgo'}, " commented "),
-      React.createElement(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
-      React.createElement(CommentControls, {comment:this.props.comment, first:this.props.first})
+    return h('div', {className:'commentHeader'},
+      h(AvatarIMG, {user:user, size:32}),
+      h('span', {className:'commentAuthor'}, user.login),
+      h('span', {className:'commentTimeAgo'}, " commented "),
+      h(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
+      h(CommentControls, {comment:this.props.comment, first:this.props.first})
     );
   }
 });
@@ -310,9 +315,9 @@ var Comment = React.createClass({
   },
   
   render: function() {
-    return React.createElement('div', {className:'comment'},
-      React.createElement(CommentHeader, {comment:this.props.comment, first:this.props.first}),            
-      React.createElement('div', { 
+    return h('div', {className:'comment'},
+      h(CommentHeader, {comment:this.props.comment, first:this.props.first}),            
+      h('div', { 
         className:'commentBody', 
         dangerouslySetInnerHTML: {__html:marked(this.props.comment.body, markdownOpts)}
       })
@@ -379,7 +384,7 @@ var EventIcon = React.createClass({
     if (pushX != 0) {
       opts.style = { paddingLeft: pushX };
     }
-    return React.createElement("i", opts);
+    return h("i", opts);
   }
 });
 
@@ -393,8 +398,8 @@ var EventUser = React.createClass({
   
   render: function() {
     var user = this.props.user || ghost;
-    return React.createElement("span", {className:"eventUser"},
-      React.createElement(AvatarIMG, {user:user, size:16, className:"eventAvatar"}),
+    return h("span", {className:"eventUser"},
+      h(AvatarIMG, {user:user, size:16, className:"eventAvatar"}),
       user.login
     );
   }
@@ -404,15 +409,15 @@ var AssignedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
     // XXX: GitHub bug always sets the actor to the assignee.
-    return React.createElement("span", {}, "was assigned");
+    return h("span", {}, "was assigned");
     
     /*
     if (this.props.event.assignee.id == this.props.event.actor.id) {
-      return React.createElement("span", {}, "self assigned this");
+      return h("span", {}, "self assigned this");
     } else {
-      return React.createElement("span", {},
-        React.createElement("span", {}, "assigned this to "),
-        React.createElement(EventUser, {user:this.props.event.assignee})
+      return h("span", {},
+        h("span", {}, "assigned this to "),
+        h(EventUser, {user:this.props.event.assignee})
       );
     }*/
   }
@@ -422,7 +427,7 @@ var UnassignedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
     // XXX: GitHub bug always sets the actor to the assignee.
-    return React.createElement("span", {}, "is no longer assigned");
+    return h("span", {}, "is no longer assigned");
   }
 });
 
@@ -430,18 +435,22 @@ var MilestoneEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
     if (this.props.event.milestone) {
-      return React.createElement("span", {},
+      return h("span", {},
         "modified the milestone: ",
-        React.createElement("span", {className: "eventMilestone"}, this.props.event.milestone.title)
+        h("span", {className: "eventMilestone"}, this.props.event.milestone.title)
       );
     } else {
-      return React.createElement("span", {}, "unset the milestone");
+      return h("span", {}, "unset the milestone");
     }
   }
 });
 
 var Label = React.createClass({
-  propTypes: { label: React.PropTypes.object.isRequired },
+  propTypes: { 
+    label: React.PropTypes.object.isRequired,
+    canDelete: React.PropTypes.bool,
+    onDelete: React.PropTypes.func,
+  },
   render: function() {
     // See http://stackoverflow.com/questions/12043187/how-to-check-if-hex-color-is-too-black
     var rgb = parseInt(this.props.label.color, 16);   // convert rrggbb to decimal
@@ -453,9 +462,21 @@ var Label = React.createClass({
 
     var textColor = luma < 128 ? "white" : "black";
     
-    return React.createElement("span", 
-      {className:"label", style:{backgroundColor:"#"+this.props.label.color, color:textColor}},
-      this.props.label.name
+    var extra = [];
+    var style = {backgroundColor:"#"+this.props.label.color, color:textColor};
+    
+    if (this.props.canDelete) {
+      extra.push(h('span', {className:'LabelDelete', onClick:this.props.onDelete}, 
+        h('i', {className:'fa fa-trash-o'})
+      ));
+      style = Object.assign({}, style, {borderTopRightRadius:"0px", borderBottomRightRadius:"0px"});
+    }
+    
+    return h("span", {},
+      h("span", {className:"label", style:style},
+        this.props.label.name
+      ),
+      ...extra
     );
   }
 });
@@ -467,20 +488,20 @@ var LabelEventDescription = React.createClass({
     elements.push(this.props.event.event);
     var labels = this.props.event.labels.filter(function(l) { return l != null && l.name != null; });
     elements = elements.concat(labels.map(function(l) {
-      return React.createElement(Label, {key:l.name||"", label:l});
+      return h(Label, {key:l.name||"", label:l});
     }));
-    return React.createElement("span", {}, elements);
+    return h("span", {}, elements);
   }
 });
 
 var RenameEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    return React.createElement("span", {}, 
+    return h("span", {}, 
       "changed the title from ",
-      React.createElement("span", {className:"eventTitle"}, this.props.event.rename.from || "empty"),
+      h("span", {className:"eventTitle"}, this.props.event.rename.from || "empty"),
       " to ",
-      React.createElement("span", {className:"eventTitle"}, this.props.event.rename.to || "empty")
+      h("span", {className:"eventTitle"}, this.props.event.rename.to || "empty")
     );
   }
 });
@@ -495,9 +516,9 @@ var ReferencedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
     var [committish, commitURL] = expandCommit(this.props.event);
-    return React.createElement("span", {},
+    return h("span", {},
       "referenced this issue in commit ",
-      React.createElement("a", {href:commitURL, target:"_blank"}, committish)
+      h("a", {href:commitURL, target:"_blank"}, committish)
     );
   }
 });
@@ -506,9 +527,9 @@ var MergedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
     var [committish, commitURL] = expandCommit(this.props.event);
-    return React.createElement("span", {},
+    return h("span", {},
       "merged this request with commit ",
-      React.createElement("a", {href:commitURL, target:"_blank"}, committish)
+      h("a", {href:commitURL, target:"_blank"}, committish)
     );
   }
 });
@@ -518,12 +539,12 @@ var ClosedEventDescription = React.createClass({
   render: function() {
     if (typeof(this.props.event.commit_id) === "string") {
       var [committish, commitURL] = expandCommit(this.props.event);
-      return React.createElement("span", {},
+      return h("span", {},
         "closed this issue with commit ",
-        React.createElement("a", {href:commitURL, target:"_blank"}, committish)
+        h("a", {href:commitURL, target:"_blank"}, committish)
       );
     } else {
-      return React.createElement("span", {}, "closed this issue");
+      return h("span", {}, "closed this issue");
     }
   }
 });
@@ -531,7 +552,7 @@ var ClosedEventDescription = React.createClass({
 var UnknownEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    return React.createElement("span", {}, this.props.event.event);
+    return h("span", {}, this.props.event.event);
   }
 });
 
@@ -571,14 +592,14 @@ var Event = React.createClass({
       className += " eventLast";
     }
     var user = this.props.event.actor;
-    return React.createElement('div', {className:className},
-      React.createElement(EventIcon, {event: this.props.event.event }),
-      React.createElement("div", {className: "eventContent"},
-        React.createElement(EventUser, {user: user}),
+    return h('div', {className:className},
+      h(EventIcon, {event: this.props.event.event }),
+      h("div", {className: "eventContent"},
+        h(EventUser, {user: user}),
         " ",
-        React.createElement(ClassForEvent(this.props.event), {event: this.props.event}),
+        h(ClassForEvent(this.props.event), {event: this.props.event}),
         " ",
-        React.createElement(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at})
+        h(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at})
       )
     );
   }
@@ -666,13 +687,13 @@ var ActivityList = React.createClass({
       return !(e._rolledUp);
     });
     
-    return React.createElement('div', {className:'activityContainer'},
-      React.createElement('div', {className:'activityList'}, 
+    return h('div', {className:'activityContainer'},
+      h('div', {className:'activityList'}, 
         eventsAndComments.map(function(e, i, a) {
           if (e.event != undefined) {
             var next = a[i+1];
             console.log(e.id);
-            return React.createElement(Event, {
+            return h(Event, {
               key:e.id, 
               event:e, 
               first:(i==0 || a[i-1].event == undefined),
@@ -681,10 +702,55 @@ var ActivityList = React.createClass({
             });
           } else {
             console.log(e.id);
-            return React.createElement(Comment, {key:e.id, comment:e, first:i==0})
+            return h(Comment, {key:e.id, comment:e, first:i==0})
           }
         })
       )
+    );
+  }
+});
+
+var IssueIdentifier = React.createClass({
+  propTypes: { issue: React.PropTypes.object },
+  
+  render: function() {
+    return h('div', { className: 'IssueIdentifier' },
+      h('span', { className: 'IssueIdentifierOwnerRepo' },
+        this.props.issue._bare_owner + "/" + this.props.issue._bare_repo
+      ),
+      h('span', { className: 'IssueIdentifierNumber' },
+        "#" + this.props.issue.number
+      )
+    );
+  }
+});
+
+var IssueTitle = React.createClass({
+  propTypes: { issue: React.PropTypes.object },
+  
+  render: function() {
+    return h(Textarea, {defaultValue: this.props.issue.title, className:'TitleArea'});
+  }
+});
+
+var IssueLabels = React.createClass({
+  propTypes: { issue: React.PropTypes.object },
+  
+  render: function() {
+    return h('div', 'IssueLabels',
+      this.props.issue.labels.map(function(l) { return h(Label, {label:l, canDelete:true}) })
+    );
+  }
+});
+
+var Header = React.createClass({
+  propTypes: { issue: React.PropTypes.object },
+  
+  render: function() {
+    return h('div', {className: 'IssueHeader'}, 
+      h(IssueIdentifier, {issue: this.props.issue}),
+      h(IssueTitle, {issue: this.props.issue}),
+      h(IssueLabels, {issue: this.props.issue})
     );
   }
 });
@@ -696,11 +762,11 @@ var DebugLoader = React.createClass({
   render: function() {
     var ghURL = "https://github.com/" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo + "/issues/" + this.props.issue.number;
   
-    return React.createElement("div", {className:"debugLoader"},
-      React.createElement("form", {onSubmit:this.loadProblem},
-        React.createElement("span", {}, "Load Problem: "),
-        React.createElement("input", {type:"text", id:"debugInput", size:40, defaultValue:"" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo + "#" + this.props.issue.number}),
-        React.createElement("a", {href:ghURL, target:"_blank"}, "source")
+    return h("div", {className:"debugLoader"},
+      h("form", {onSubmit:this.loadProblem},
+        h("span", {}, "Load Problem: "),
+        h("input", {type:"text", id:"debugInput", size:40, defaultValue:"" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo + "#" + this.props.issue.number}),
+        h("a", {href:ghURL, target:"_blank"}, "source")
       )
     );
   },
@@ -776,6 +842,32 @@ function updateIssue(owner, repo, number) {
   });
 }
 
+var App = React.createClass({
+  propTypes: { issue: React.PropTypes.object },
+  
+  render: function() {
+    var issue = this.props.issue;
+
+    var header = h(Header, {issue: issue});
+    var activity = h(ActivityList, {key:issue["id"], issue:issue});
+    
+    var issueElement = h('div', {},
+      header,
+      activity
+    );
+
+    var outerElement = issueElement;
+    if (debugToken && !window.inApp) {
+      outerElement = h("div", {},
+        h(DebugLoader, {issue:issue}),
+        issueElement
+      );
+    }
+    
+    return outerElement;
+  }
+});
+
 function renderIssue(issue) {
   console.log("rendering:");
   console.log(issue);
@@ -808,16 +900,8 @@ function renderIssue(issue) {
   
   window.currentIssue = issue;
   
-  var activityElement = React.createElement(ActivityList, {key:issue["id"], issue:issue});
-  var outerElement = activityElement;
-  if (debugToken && !window.inApp) {
-    outerElement = React.createElement("div", {},
-      React.createElement(DebugLoader, {issue:issue}),
-      activityElement
-    );
-  }
   ReactDOM.render(
-    outerElement,
+    h(App, {issue: issue}),
     document.getElementById('react-app')
   )
 }
