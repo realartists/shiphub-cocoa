@@ -156,6 +156,9 @@ NSTextFieldDelegate>
     
     _searchResults = [[SearchResultsController alloc] init];
     [_searchResults addObserver:self forKeyPath:@"title" options:0 context:NULL];
+    
+    _searchItem.searchField.nextKeyView = [_searchResults.view subviews][0];
+    _searchItem.searchField.nextKeyView.nextKeyView = _searchItem.searchField;
 
 #if !INCOMPLETE
     _chartController = [[ChartController alloc] init];

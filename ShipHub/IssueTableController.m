@@ -841,6 +841,19 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
     return YES;
 }
 
+- (BOOL)becomeFirstResponder {
+    BOOL became = [super becomeFirstResponder];
+    
+    if (became) {
+        NSIndexSet *selected = [self selectedRowIndexes];
+        if ([selected count] == 0 && self.numberOfRows > 0) {
+            [self selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:0];
+        }
+    }
+    
+    return became;
+}
+
 @end
 
 @interface ReadIndicatorCell : NSTextFieldCell
