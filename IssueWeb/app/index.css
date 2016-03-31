@@ -45,6 +45,18 @@ textarea.TitleArea {
   font-size: 14pt;
   outline: none;
   box-shadow: none;
+  padding-bottom: 0px;
+  padding-top: 0px;
+}
+div.MilestoneField {
+  margin-left: 2px;
+  margin-bottom: 2px;
+}
+div.MilestoneField input {
+  resize: none;
+  border: none;
+  outline: none;
+  box-shadow: none;
 }
 div.IssueLabels {
   margin-left: 2px;

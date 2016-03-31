@@ -19,6 +19,21 @@ var h = function(/*...*/) {
   return React.createElement(...arguments);
 }
 
+var keypath = function(obj, path) {
+  if (!obj) return null;
+  if (!path) return obj;
+  path = path.split('.')
+  for (var i = 0; i < path.length; i++) {
+    var prop = path[i];
+    if (obj != null && prop in obj) {
+      obj = obj[prop];
+    } else {
+      return null;
+    }
+  }
+  return obj;
+}
+
 var markedRenderer = new marked.Renderer();
       
 markedRenderer.defaultListItem = markedRenderer.listitem;
@@ -298,10 +313,14 @@ var CommentHeader = React.createClass({
   render: function() {
     var user = this.props.comment.user||this.props.comment.author;
     if (!user) user = ghost;
+    var desc = " commented ";
+    if (this.props.first) {
+      desc = " filed ";
+    }
     return h('div', {className:'commentHeader'},
       h(AvatarIMG, {user:user, size:32}),
       h('span', {className:'commentAuthor'}, user.login),
-      h('span', {className:'commentTimeAgo'}, " commented "),
+      h('span', {className:'commentTimeAgo'}, desc),
       h(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
       h(CommentControls, {comment:this.props.comment, first:this.props.first})
     );
@@ -315,12 +334,23 @@ var Comment = React.createClass({
   },
   
   render: function() {
-    return h('div', {className:'comment'},
-      h(CommentHeader, {comment:this.props.comment, first:this.props.first}),            
-      h('div', { 
+    var body =  h('div', { 
+      className:'commentBody', 
+      dangerouslySetInnerHTML: {__html:marked(this.props.comment.body, markdownOpts)}
+    })
+    
+    if (this.props.comment.body == null || this.props.comment.body.length == 0) {
+      var body =  h('div', { 
         className:'commentBody', 
-        dangerouslySetInnerHTML: {__html:marked(this.props.comment.body, markdownOpts)}
-      })
+        style: {padding: "14px"},
+        dangerouslySetInnerHTML: {__html:'<i style="color: #777;">No Description Given.</i>'}
+      });
+    }
+
+  
+    return h('div', {className:'comment'},
+      h(CommentHeader, {comment:this.props.comment, first:this.props.first}),  
+      body       
     );
   }
 });
@@ -729,7 +759,7 @@ var IssueTitle = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
   render: function() {
-    return h(Textarea, {defaultValue: this.props.issue.title, className:'TitleArea'});
+    return h(Textarea, {defaultValue: this.props.issue.title, className:'TitleArea', placeholder:"Title"});
   }
 });
 
@@ -740,6 +770,34 @@ var AddLabel = React.createClass({
   }
 });
 
+var MilestoneField = React.createClass({
+  propTypes: { 
+    issue: React.PropTypes.object,
+    onChange: React.PropTypes.func 
+  },
+  
+  render: function() {
+    return h('div', {className: 'MilestoneField'},
+      h('i', {className: 'fa fa-calendar', title: 'Milestone'}),
+      h('input', {placeholder: 'Milestone', onChange:this.props.onChange, defaultValue:keypath(this.props.issue, "milestone.title")})
+    );
+  }
+});
+
+var AssigneeField = React.createClass({
+  propTypes: {
+    issue: React.PropTypes.object,
+    onChange: React.PropTypes.func
+  },
+  
+  render: function() {
+    return h('div', {className: 'AssigneeField'},
+      h('i', {className: 'fa fa-user', title: 'Assignee'}),
+      h('input', {placeholder: 'Unassigned', onChange:this.props.onChange, defaultValue:keypath(this.props.issue, "assignee.login")})
+    );
+  }
+});
+
 var IssueLabels = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
@@ -747,7 +805,7 @@ var IssueLabels = React.createClass({
     return h('div', {className:'IssueLabels'},
       h(AddLabel, {}),
       this.props.issue.labels.map(function(l) { 
-        return [" ", h(Label, {label:l, canDelete:true})];
+        return [" ", h(Label, {key:l.name, label:l, canDelete:true})];
       }).reduce(function(c, v) { return c.concat(v); }, [])
     );
   }
@@ -760,6 +818,8 @@ var Header = React.createClass({
     return h('div', {className: 'IssueHeader'}, 
       h(IssueIdentifier, {issue: this.props.issue}),
       h(IssueTitle, {issue: this.props.issue}),
+      h(MilestoneField, {issue: this.props.issue}),
+      h(AssigneeField, {issue: this.props.issue}),
       h(IssueLabels, {issue: this.props.issue})
     );
   }
