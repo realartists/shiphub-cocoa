@@ -363,10 +363,10 @@ span.eventTitle {
   margin: 0px -3px;
   padding: 0px 0;
   overflow: hidden;
-  background-color: #fff;
+  background-color: #ECECEC;
   border: 1px solid #ccc;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
+  border-radius: 4px;
   box-shadow: 0 5px 10px rgba(0,0,0,.2);
 }
 .tt-suggestion {
@@ -377,11 +377,11 @@ span.eventTitle {
 .tt-suggestion:hover {
   cursor: pointer;
   color: #fff;
-  background-color: #0085E4;
+  background-color: #0069D9;
 }
 .tt-suggestion.tt-cursor {
   color: #fff;
-  background-color: #0085E4;
+  background-color: #0069D9;
 }
 .tt-suggestion p {
   margin: 0;
