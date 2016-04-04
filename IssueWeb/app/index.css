@@ -98,7 +98,7 @@ div.activityList::before {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 34px;
+  left: 37px;
   z-index: -1;
   display: block;
   width: 2px;
@@ -220,7 +220,7 @@ div.commentControls i:hover {
 
 div.event {
   position: relative; 
-  margin-left: 34px;
+  margin-left: 37px;
   margin-right: 10px;
   font-size: 10pt;
   
@@ -252,7 +252,7 @@ div.eventLast {
 div.eventVeryLast::after {
   position: absolute;
   content: "";
-  left: -24px;
+  left: -27px;
   right: 0;
   bottom: -1px;
   height: 2px;
@@ -301,6 +301,7 @@ div.debugLoader {
 
 span.LabelContainer {
   white-space: nowrap;
+  cursor: default;
 }
 
 span.label {
