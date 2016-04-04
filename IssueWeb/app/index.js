@@ -11,18 +11,31 @@ import md5 from 'md5'
 import 'whatwg-fetch'
 import Textarea from 'react-textarea-autosize'
 
-import $ from 'jquery'
-window.$ = $;
-window.jQuery = $;
-window.jquery = $;
-require('script-loader!typeahead.js')
-
+import h from './h.js'
+import Completer from './completer.js'
+import SmartInput from './smart-input.js'
 import { emojify } from './emojify.js'
 import marked from './marked.min.js'
 import { githubLinkify } from './github_linkify.js'
 
-var h = function(/*...*/) {
-  return React.createElement(...arguments);
+/*
+Issue State Storage
+*/
+var ivars = {
+  issue: {},
+  repos: [],
+  assignees: [],
+  milestones: [],
+  labels: []
+};
+window.ivars = ivars;
+
+function getIvars() {
+  return window.ivars;
+}
+
+function setIvars(iv) {
+  window.ivars = iv;
 }
 
 var keypath = function(obj, path) {
@@ -57,28 +70,6 @@ var setKeypath = function(obj, path, value) {
   obj[prop] = value;
 }
 
-var SmartInput = React.createClass({
-  getInitialState: function() {
-    return { value: this.props.value };
-  },
-  
-  componentWillReceiveProps: function(newProps) {
-    this.setState({value: newProps.value})
-  },
-  
-  onChange: function(e) {
-    this.setState({value: e.target.value});
-    if (this.props.onChange != null) {
-      this.props.onChange(this.state.value);
-    }
-  },
-  
-  render: function() {
-    var elementType = this.props.element || 'input';
-    return h(elementType, Object.assign({}, this.props, this.state, {onChange:this.onChange}), this.children);
-  }
-});
-
 var markedRenderer = new marked.Renderer();
 
 markedRenderer.defaultListItem = markedRenderer.listitem;
@@ -106,7 +97,7 @@ markedRenderer.list = function(body, ordered) {
 }
 
 markedRenderer.text = function(text) {
-  return emojify(githubLinkify(window.currentIssue._bare_owner, window.currentIssue._bare_repo, text));
+  return emojify(githubLinkify(getIvars().issue._bare_owner, getIvars().issue._bare_repo, text));
 }
 
 var ghost = {
@@ -843,10 +834,19 @@ var RepoField = React.createClass({
   },
   
   render: function() {
+    var opts = getIvars().repos.map((r) => r.full_name);
+    var matcher = Completer.SubstrMatcher(opts);
+    
+    var canEdit = this.props.issue.number == null;
+    var inputType = Completer;
+    if (!canEdit) {
+      inputType = 'input';
+    }
+  
     var repoValue = "" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo;
     return h('div', {className: 'IssueInput RepoField'},
       h(HeaderLabel, {title: 'Repo'}),
-      h(SmartInput, {placeholder: 'Required', onChange:this.props.onChange, value:repoValue})
+      h(inputType, {placeholder: 'Required', onChange:this.props.onChange, value:repoValue, matcher: matcher, readOnly:!canEdit})
     );
   }
 });
@@ -858,9 +858,17 @@ var MilestoneField = React.createClass({
   },
   
   render: function() {
+    var opts = getIvars().milestones.map((m) => m.title);
+    var matcher = Completer.SubstrMatcher(opts);
+    
     return h('div', {className: 'IssueInput MilestoneField'},
       h(HeaderLabel, {title:"Milestone"}),
-      h(SmartInput, {placeholder: 'Backlog', onChange:this.props.onChange, value:keypath(this.props.issue, "milestone.title")})
+      h(Completer, {
+        placeholder: 'Backlog',
+        onChange: this.props.onChange,
+        value: keypath(this.props.issue, "milestone.title"),
+        matcher: matcher
+      })
     );
   }
 });
@@ -870,32 +878,18 @@ var AssigneeField = React.createClass({
     issue: React.PropTypes.object,
     onChange: React.PropTypes.func
   },
-  
-  getInitialState: function() {
-    return {
-      assignees: []
-    }
-  },
-  
+    
   render: function() {
-    return h('div', {className: 'IssueInput AssigneeField'},
-      h(HeaderLabel, {title:"Assignee"}),
-      h(SmartInput, {
-        className: 'typeahead',
-        ref: 'typeInput',
-        placeholder: 'Unassigned', 
-        onChange:this.props.onChange, 
-        value:keypath(this.props.issue, "assignee.login")
-      })
-    );
-  },
-  
-  updateTypeahead: function() {
-    var el = ReactDOM.findDOMNode(this.refs.typeInput);
+    var ls = getIvars().assignees.map((a) => {
+      var lowerLogin = a.login.toLowerCase();
+      var lowerName = null;
+      if (a.name != null) {
+        lowerName = a.name.toLowerCase();
+      }
+      return Object.assign({}, a, { lowerLogin: lowerLogin, lowerName: lowerName });
+    });
     
     var matcher = (q, cb) => {
-      var ls = this.state.assignees;
-    
       var yieldAssignees = function(a) {
         cb(a.map((x) => x.login));
       };
@@ -917,77 +911,16 @@ var AssigneeField = React.createClass({
     
       yieldAssignees(matches);      
     };
-            
-    $(el).typeahead('destroy');
-        
-    $(el).typeahead({
-      hint: true,
-      highlight: true,
-      minLength: 0,
-      autoselect: true
-    }, {
-      source: matcher,
-      name: 'assignee'
-    })
     
-    
-    $(el).on('typeahead:beforeautocomplete', function() {
-      return (el.value !== '');
-    });
-    
-    // work around a bug where WebKit doesn't draw the text caret
-    // when tabbing to the field and nothing is in it.
-    $(el).focus(function() {
-      setTimeout(function() {
-        el.setSelectionRange(0, el.value.length);
-      }, 0);
-    });
-    
-    var completeOrFail = function() {
-      var val = el.value;
-      matcher(val, (matches) => {
-        if (val.length == 0 || matches.length == 0) {
-          el.value = "";
-        } else {
-          var first = matches[0];
-          el.value = first;
-        }
-      });
-    }
-    
-    $(el).blur(completeOrFail);
-    
-    $(el).keypress(function(evt) {
-      if (evt.which == 13) {
-        completeOrFail();
-        evt.preventDefault();
-      }
-    });
-  },
-  
-  componentDidUpdate: function() {
-    this.updateTypeahead();
-  },
-  
-  componentDidMount: function() {
-    this.updateTypeahead();
-  },
-    
-  componentWillMount: function() {
-    fetchAssignees(this.props.issue).then((assignees) => {
-      var ls = assignees.map((a) => {
-        var lowerLogin = a.login.toLowerCase();
-        var lowerName = null;
-        if (a.name != null) {
-          lowerName = a.name.toLowerCase();
-        }
-        return Object.assign({}, a, { lowerLogin: lowerLogin, lowerName: lowerName });
-      });
-
-      this.setState(Object.assign({}, this.state, {assignees:ls}));
-    }).catch((err) => {
-      console.log("Unable to load assignees: " + err);
-    });
+    return h('div', {className: 'IssueInput AssigneeField'},
+      h(HeaderLabel, {title:"Assignee"}),
+      h(Completer, {
+        placeholder: 'Unassigned', 
+        onChange: this.props.onChange, 
+        value: keypath(this.props.issue, "assignee.login"),
+        matcher: matcher
+      })
+    );
   }
 });
 
@@ -1102,15 +1035,27 @@ function pagedFetch(url) /* => Promise */ {
 function updateIssue(owner, repo, number) {
   var reqs = [simpleFetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number),
               pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/events"),
-              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/comments")];
+              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/comments"),
+              pagedFetch("https://api.github.com/user/repos"),
+              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/assignees"),
+              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/milestones"),
+              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/labels")];
   
   Promise.all(reqs).then(function(parts) {
     var issue = parts[0];
     issue.allEvents = parts[1];
     issue.allComments = parts[2];
     
+    var state = { 
+      issue: issue,
+      repos: parts[3].filter((r) => r.has_issues),
+      assignees: parts[4],
+      milestones: parts[5],
+      labels: parts[6]
+    }
+    
     if (issue.id) {
-      renderIssue(issue);
+      applyIssueState(state);
     }
   }).catch(function(err) {
     console.log(err);
@@ -1143,9 +1088,11 @@ var App = React.createClass({
   }
 });
 
-function renderIssue(issue) {
+function applyIssueState(state) {
   console.log("rendering:");
-  console.log(issue);
+  console.log(state);
+  
+  var issue = state.issue;
   
   window.document.title = issue.title;
   
@@ -1173,7 +1120,7 @@ function renderIssue(issue) {
     issue.user = issue.originator;
   }
   
-  window.currentIssue = issue;
+  setIvars(state);
   
   ReactDOM.render(
     h(App, {issue: issue}),
@@ -1181,13 +1128,11 @@ function renderIssue(issue) {
   )
 }
 
-function fetchAssignees(issue) {
-  var url = "https://api.github.com/repos/" + issue._bare_owner + "/" + issue._bare_repo + "/assignees";
-  return pagedFetch(url);
-}
-
 window.updateIssue = updateIssue;
-window.renderIssue = renderIssue;
+window.applyIssueState = applyIssueState;
+window.renderIssue = function(issue) {
+  applyIssueState({issue: issue});
+};
 
 if (!window.inApp) {
   updateIssue("realartists", "shiphub-server", "10")

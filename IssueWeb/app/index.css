@@ -51,7 +51,7 @@ div.HeaderSeparator {
 .HeaderLabel {
   color: #797979;
   float: left;
-  margin-right: 4px;
+  margin-right: 5px;
   flex: none;
 }
 div.IssueIdentifier {
@@ -74,7 +74,6 @@ textarea.TitleArea {
   box-shadow: none;
   padding: 0px;
   margin: 2px;
-  margin-left: 3px;
   margin-bottom: 0px;
   white-space: normal;
 }
@@ -359,15 +358,20 @@ span.eventTitle {
   width: 100%;
 }
 .tt-menu {
-  min-width: 200px;
+  max-height: 148px;
+  overflow-y: auto;
+  width: 300px;
   margin: 0px -3px;
   padding: 0px 0;
-  overflow: hidden;
   background-color: #ECECEC;
   border: 1px solid #ccc;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 4px;
   box-shadow: 0 5px 10px rgba(0,0,0,.2);
+}
+.tt-dropdown-menu {
+  max-height: 150px;
+  overflow-y: auto;
 }
 .tt-suggestion {
   padding: 0px;
