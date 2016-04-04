@@ -28,7 +28,30 @@ var Completer = React.createClass({
   
   updateTypeahead: function() {
     var el = ReactDOM.findDOMNode(this.refs.typeInput);
-    var matcher = this.props.matcher;
+    var baseMatcher = this.props.matcher;
+    
+    var matcher = (text, cb) => {
+      if (this.opening) {
+        /* 
+          If opening for the first time, show all possible choices, but put the
+          current choice (if any) first
+        */
+        this.opening = false;
+        baseMatcher("", function(results) {
+          // move text to front of results
+          var re = new RegExp("^" + text + "$", 'i');
+          var ft = results.filter((r) => {
+            return !re.test(r);
+          });
+          if (ft.length < results.length) {
+            ft = [text, ...ft];
+          }
+          cb(ft);
+        });
+      } else {
+        baseMatcher(text, cb);
+      }
+    };
     
     $(el).typeahead('destroy');
         
@@ -48,11 +71,17 @@ var Completer = React.createClass({
       return (el.value !== '');
     });
     
+    $(el).on('typeahead:beforeopen', () => {
+      this.opening = true;
+    });
+    
     // work around a bug where WebKit doesn't draw the text caret
     // when tabbing to the field and nothing is in it.
     $(el).focus(function() {
       setTimeout(function() {
-        el.setSelectionRange(0, el.value.length);
+        if (el.value.length == 0) {
+          el.setSelectionRange(0, el.value.length);
+        }
       }, 0);
     });
     
