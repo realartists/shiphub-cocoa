@@ -844,7 +844,7 @@ var RepoField = React.createClass({
   
   render: function() {
     var repoValue = "" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo;
-    return h('div', {className: 'RepoField'},
+    return h('div', {className: 'IssueInput RepoField'},
       h(HeaderLabel, {title: 'Repo'}),
       h(SmartInput, {placeholder: 'Required', onChange:this.props.onChange, value:repoValue})
     );
@@ -858,7 +858,7 @@ var MilestoneField = React.createClass({
   },
   
   render: function() {
-    return h('div', {className: 'MilestoneField'},
+    return h('div', {className: 'IssueInput MilestoneField'},
       h(HeaderLabel, {title:"Milestone"}),
       h(SmartInput, {placeholder: 'Backlog', onChange:this.props.onChange, value:keypath(this.props.issue, "milestone.title")})
     );
@@ -878,7 +878,7 @@ var AssigneeField = React.createClass({
   },
   
   render: function() {
-    return h('div', {className: 'AssigneeField'},
+    return h('div', {className: 'IssueInput AssigneeField'},
       h(HeaderLabel, {title:"Assignee"}),
       h(SmartInput, {
         className: 'typeahead',
@@ -917,7 +917,7 @@ var AssigneeField = React.createClass({
     
       yieldAssignees(matches);      
     };
-        
+            
     $(el).typeahead('destroy');
         
     $(el).typeahead({
