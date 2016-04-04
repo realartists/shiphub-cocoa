@@ -9,7 +9,13 @@ window.PNGlib = pnglib;
 import identicon from 'identicon.js'
 import md5 from 'md5'
 import 'whatwg-fetch'
-import Textarea from 'react-textarea-autosize';
+import Textarea from 'react-textarea-autosize'
+
+import $ from 'jquery'
+window.$ = $;
+window.jQuery = $;
+window.jquery = $;
+require('script-loader!typeahead.js')
 
 import { emojify } from './emojify.js'
 import marked from './marked.min.js'
@@ -34,8 +40,47 @@ var keypath = function(obj, path) {
   return obj;
 }
 
+var setKeypath = function(obj, path, value) {
+  if (!obj) return;
+  if (!path) return;
+  path = path.split('.')
+  for (var i = 0; i < path.length - 1; i++) {
+    var prop = path[i];
+    if (obj != null && prop in obj) {
+      obj = obj[prop];
+    } else {
+      return;
+    }
+  }
+  
+  var prop = path[path.length-1];
+  obj[prop] = value;
+}
+
+var SmartInput = React.createClass({
+  getInitialState: function() {
+    return { value: this.props.value };
+  },
+  
+  componentWillReceiveProps: function(newProps) {
+    this.setState({value: newProps.value})
+  },
+  
+  onChange: function(e) {
+    this.setState({value: e.target.value});
+    if (this.props.onChange != null) {
+      this.props.onChange(this.state.value);
+    }
+  },
+  
+  render: function() {
+    var elementType = this.props.element || 'input';
+    return h(elementType, Object.assign({}, this.props, this.state, {onChange:this.onChange}), this.children);
+  }
+});
+
 var markedRenderer = new marked.Renderer();
-      
+
 markedRenderer.defaultListItem = markedRenderer.listitem;
 markedRenderer.listitem = function(text) {
   var result = this.defaultListItem(text);
@@ -276,7 +321,6 @@ var AvatarIMG = React.createClass({
     if (myIdenticon == null) {
       var hash = md5(this.props.user.login);
       myIdenticon = "data:image/png;base64," + new Identicon(hash, { size: this.pixelSize(), margin: 0.05 }).toString();
-      console.log("identicon len: " + myIdenticon.length);
       window.identiconCache[cacheKey] = myIdenticon;
     }
     
@@ -722,7 +766,6 @@ var ActivityList = React.createClass({
         eventsAndComments.map(function(e, i, a) {
           if (e.event != undefined) {
             var next = a[i+1];
-            console.log(e.id);
             return h(Event, {
               key:e.id, 
               event:e, 
@@ -731,7 +774,6 @@ var ActivityList = React.createClass({
               veryLast:(next==undefined)
             });
           } else {
-            console.log(e.id);
             return h(Comment, {key:e.id, comment:e, first:i==0})
           }
         })
@@ -775,7 +817,7 @@ var IssueTitle = React.createClass({
   render: function() {
     return h('div', {className:'IssueTitle'},
       h(HeaderLabel, {title:'Title'}),
-      h(Textarea, {defaultValue: this.props.issue.title, className:'TitleArea'}),
+      h(SmartInput, {element:Textarea, value: this.props.issue.title, className:'TitleArea'}),
       h(IssueNumber, {issue: this.props.issue})
     );
   }
@@ -804,7 +846,7 @@ var RepoField = React.createClass({
     var repoValue = "" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo;
     return h('div', {className: 'RepoField'},
       h(HeaderLabel, {title: 'Repo'}),
-      h('input', {placeholder: 'Required', onChange:this.props.onChange, defaultValue:repoValue})
+      h(SmartInput, {placeholder: 'Required', onChange:this.props.onChange, value:repoValue})
     );
   }
 });
@@ -818,7 +860,7 @@ var MilestoneField = React.createClass({
   render: function() {
     return h('div', {className: 'MilestoneField'},
       h(HeaderLabel, {title:"Milestone"}),
-      h('input', {placeholder: 'Backlog', onChange:this.props.onChange, defaultValue:keypath(this.props.issue, "milestone.title")})
+      h(SmartInput, {placeholder: 'Backlog', onChange:this.props.onChange, value:keypath(this.props.issue, "milestone.title")})
     );
   }
 });
@@ -829,11 +871,123 @@ var AssigneeField = React.createClass({
     onChange: React.PropTypes.func
   },
   
+  getInitialState: function() {
+    return {
+      assignees: []
+    }
+  },
+  
   render: function() {
     return h('div', {className: 'AssigneeField'},
       h(HeaderLabel, {title:"Assignee"}),
-      h('input', {placeholder: 'Unassigned', onChange:this.props.onChange, defaultValue:keypath(this.props.issue, "assignee.login")})
+      h(SmartInput, {
+        className: 'typeahead',
+        ref: 'typeInput',
+        placeholder: 'Unassigned', 
+        onChange:this.props.onChange, 
+        value:keypath(this.props.issue, "assignee.login")
+      })
     );
+  },
+  
+  updateTypeahead: function() {
+    var el = ReactDOM.findDOMNode(this.refs.typeInput);
+    
+    var matcher = (q, cb) => {
+      var ls = this.state.assignees;
+    
+      var yieldAssignees = function(a) {
+        cb(a.map((x) => x.login));
+      };
+      
+      q = q.toLowerCase();
+        
+      if (q === '') {
+        yieldAssignees(ls);
+        return;
+      }
+      
+      var matches = ls.filter((a) => {
+        var lowerLogin = a.lowerLogin;
+        var lowerName = a.lowerName;
+        
+        return lowerLogin.indexOf(q) != -1 ||
+          (lowerName != null && lowerName.indexOf(q) != -1);
+      });
+    
+      yieldAssignees(matches);      
+    };
+        
+    $(el).typeahead('destroy');
+        
+    $(el).typeahead({
+      hint: true,
+      highlight: true,
+      minLength: 0,
+      autoselect: true
+    }, {
+      source: matcher,
+      name: 'assignee'
+    })
+    
+    
+    $(el).on('typeahead:beforeautocomplete', function() {
+      return (el.value !== '');
+    });
+    
+    // work around a bug where WebKit doesn't draw the text caret
+    // when tabbing to the field and nothing is in it.
+    $(el).focus(function() {
+      setTimeout(function() {
+        el.setSelectionRange(0, el.value.length);
+      }, 0);
+    });
+    
+    var completeOrFail = function() {
+      var val = el.value;
+      matcher(val, (matches) => {
+        if (val.length == 0 || matches.length == 0) {
+          el.value = "";
+        } else {
+          var first = matches[0];
+          el.value = first;
+        }
+      });
+    }
+    
+    $(el).blur(completeOrFail);
+    
+    $(el).keypress(function(evt) {
+      if (evt.which == 13) {
+        completeOrFail();
+        evt.preventDefault();
+      }
+    });
+  },
+  
+  componentDidUpdate: function() {
+    this.updateTypeahead();
+  },
+  
+  componentDidMount: function() {
+    this.updateTypeahead();
+  },
+    
+  componentWillMount: function() {
+    fetchAssignees(this.props.issue).then((assignees) => {
+      var ls = assignees.map((a) => {
+        var lowerLogin = a.login.toLowerCase();
+        var lowerName = null;
+        if (a.name != null) {
+          lowerName = a.name.toLowerCase();
+        }
+        return Object.assign({}, a, { lowerLogin: lowerLogin, lowerName: lowerName });
+      });
+
+      this.setState(Object.assign({}, this.state, {assignees:ls}));
+    }).catch((err) => {
+      console.log("Unable to load assignees: " + err);
+    });
   }
 });
 
@@ -885,11 +1039,14 @@ var DebugLoader = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   render: function() {
     var ghURL = "https://github.com/" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo + "/issues/" + this.props.issue.number;
+    var val = "" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo + "#" + this.props.issue.number;
+    
+    console.log("val => " + val);
   
     return h("div", {className:"debugLoader"},
       h("form", {onSubmit:this.loadProblem},
         h("span", {}, "Load Problem: "),
-        h("input", {type:"text", id:"debugInput", size:40, defaultValue:"" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo + "#" + this.props.issue.number}),
+        h(SmartInput, {type:"text", id:"debugInput", size:40, value:val}),
         h("a", {href:ghURL, target:"_blank"}, "source")
       )
     );
@@ -927,15 +1084,11 @@ function pagedFetch(url) /* => Promise */ {
       var [next, last] = link.split(", ");
       var matchNext = next.match(/\<(.*?)\>; rel="next"/);
       var matchLast = last.match(/\<(.*?)\>; rel="last"/);
-      console.log(matchNext);
-      console.log(matchLast);
       if (matchNext && matchLast) {
         var second = parseInt(matchNext[1].match(/page=(\d+)/)[1]);
         var last = parseInt(matchLast[1].match(/page=(\d+)/)[1]);
-        console.log("second: " + second + " last: " + last);
         for (var i = second; i <= last; i++) {
           var pageURL = matchNext[1].replace(/page=\d+/, "page=" + i);
-          console.log("Adding pageURL: " + pageURL);
           pages.push(fetch(pageURL, opts).then(function(resp) { return resp.json(); }));
         }
       }
@@ -952,11 +1105,9 @@ function updateIssue(owner, repo, number) {
               pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/comments")];
   
   Promise.all(reqs).then(function(parts) {
-    console.log("all resolved");
     var issue = parts[0];
     issue.allEvents = parts[1];
     issue.allComments = parts[2];
-    console.log(issue);
     
     if (issue.id) {
       renderIssue(issue);
@@ -1030,11 +1181,15 @@ function renderIssue(issue) {
   )
 }
 
+function fetchAssignees(issue) {
+  var url = "https://api.github.com/repos/" + issue._bare_owner + "/" + issue._bare_repo + "/assignees";
+  return pagedFetch(url);
+}
+
 window.updateIssue = updateIssue;
 window.renderIssue = renderIssue;
 
 if (!window.inApp) {
   updateIssue("realartists", "shiphub-server", "10")
 }
-
 

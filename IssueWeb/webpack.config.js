@@ -14,6 +14,9 @@ module.exports = {
     filename: "index_bundle.js"
   },
   module: {
+    preLoaders: [
+        { test: /\.json$/, loader: 'json'},
+    ],
     loaders: [
       { test: /\.js$/, include: __dirname + "/app", loader: "babel-loader" },
       { test: /\.jpe?g$|\.gif$|\.png$/, loader: "file" },
