@@ -84,12 +84,6 @@ div.IssueNumber {
 div.IssueInput {
   display: flex;
 }
-div.IssueLabels {
-  line-height: 24px;
-}
-div.IssueLabels span {
-  cursor: default;
-}
 div.activityList {
   position: relative;
 }
@@ -329,19 +323,6 @@ span.LabelDelete {
   -webkit-user-select: none;
 }
 
-.AddLabel {
-  display: inline-block;
-  border-radius: 14px;
-  color: #0085E4;
-  -webkit-user-select: none;
-  white-space: nowrap;
-  margin-left: 2px;
-  margin-right: 2px;
-}
-.AddLabel i {
-  font-size: 12pt;
-  margin: 0px;
-}
 span.eventTitle {
   font-weight: bold;
 }
@@ -358,7 +339,7 @@ span.eventTitle {
   width: 100%;
 }
 .tt-menu {
-  max-height: 148px;
+  max-height: 178px;
   overflow-y: auto;
   width: 300px;
   margin: 0px -3px;
@@ -370,7 +351,7 @@ span.eventTitle {
   box-shadow: 0 5px 10px rgba(0,0,0,.2);
 }
 .tt-dropdown-menu {
-  max-height: 150px;
+  max-height: 180px;
   overflow-y: auto;
 }
 .tt-suggestion {
@@ -389,4 +370,77 @@ span.eventTitle {
 }
 .tt-suggestion p {
   margin: 0;
+}
+
+.AddLabel {
+  color: #0085E4;
+  -webkit-user-select: none;
+  margin-left: 2px;
+  margin-right: 2px;
+}
+.AddLabel i {
+  font-size: 12pt;
+  margin: 0px;
+}
+.AddLabelEmpty {
+  min-height: 8px;
+  display: inline-block;  
+}
+
+div.IssueLabels {
+  line-height: 24px;
+}
+div.IssueLabels span {
+  cursor: default;
+}
+
+div.IssueLabels .typeahead,
+div.IssueLabels .tt-query,
+div.IssueLabels .tt-hint,
+div.IssueLabels .twitter-typeahead {
+  width: 100px;
+  padding: 0px;
+  padding-top: 2px;
+  margin: 0px;
+}
+
+div.IssueLabels .tt-suggestion {
+  padding: 0px;
+  margin: 0px;
+}
+
+div.IssueLabels .tt-suggestion p {
+  padding: 0px;
+}
+
+div.IssueLabels .LabelContainer {
+  position: relative;
+  top: -2px;
+}
+
+.LabelPicker {
+  display: inline-block;
+}
+
+.LabelPicker i {
+  position: relative;
+  top: -2px;
+  margin: 0px;
+  padding: 1px;
+  margin-right: 4px;
+}
+
+.LabelSuggestionColor {
+  width: 10px;
+  height: 10px;
+  display: inline-block;
+  border-radius: 2px;
+  margin-left: 4px;
+  margin-right: 4px;
+  border: 0.5px solid black;
+}
+
+.tt-label-suggestion-text {
+  position: relative;
+  top: -1px;
 }

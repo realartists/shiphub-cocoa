@@ -1,7 +1,7 @@
 import './index.css'
 import 'font-awesome/css/font-awesome.css'
 
-import React from 'react'
+import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
 import hljs from 'highlight.js'
 import pnglib from 'pnglib'
@@ -11,12 +11,17 @@ import md5 from 'md5'
 import 'whatwg-fetch'
 import Textarea from 'react-textarea-autosize'
 
-import h from './h.js'
+import $ from 'jquery'
+window.$ = $;
+window.jQuery = $;
+window.jquery = $;
+
 import Completer from './completer.js'
 import SmartInput from './smart-input.js'
 import { emojify } from './emojify.js'
 import marked from './marked.min.js'
 import { githubLinkify } from './github_linkify.js'
+import LabelPicker from './label-picker.js'
 
 /*
 Issue State Storage
@@ -925,12 +930,25 @@ var AssigneeField = React.createClass({
 });
 
 var AddLabel = React.createClass({
-  propTypes: { onCreate: React.PropTypes.func },
+  propTypes: { 
+    issue: React.PropTypes.object,
+    onCreate: React.PropTypes.func
+  },
   render: function() {
-    return h('div', {className:'AddLabel Clickable'},
-      h('i', {className: 'fa fa-plus-circle AddLabel Clickable'}),
-      " Add Label"
-    );
+    var allLabels = getIvars().labels;
+    var chosenLabels = keypath(this.props.issue, "labels") || [];
+    var chosenLabelsLookup = {};
+    chosenLabels.forEach((l) => {chosenLabelsLookup[l.name] = l});
+  
+    var filteredLabels = allLabels.filter((l) => !(l.name in chosenLabels));
+    
+    if (filteredLabels.length == 0) {
+      return h('div', {className:'AddLabelEmpty'});
+    } else {
+      return h(LabelPicker, {
+        labels: filteredLabels
+      });
+    }
   }
 });
 
@@ -940,7 +958,7 @@ var IssueLabels = React.createClass({
   render: function() {
     return h('div', {className:'IssueLabels'},
       h(HeaderLabel, {title:"Labels"}),
-      h(AddLabel, {}),
+      h(AddLabel, {issue: this.props.issue}),
       this.props.issue.labels.map(function(l) { 
         return [" ", h(Label, {key:l.name, label:l, canDelete:true})];
       }).reduce(function(c, v) { return c.concat(v); }, [])

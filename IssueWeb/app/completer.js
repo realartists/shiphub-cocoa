@@ -1,20 +1,17 @@
-import React from 'react'
+import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
 import SmartInput from './smart-input.js'
-import h from './h.js'
 
-import $ from 'jquery'
-window.$ = $;
-window.jQuery = $;
-window.jquery = $;
-require('script-loader!typeahead.js')
+import 'typeahead.js'
 
 var Completer = React.createClass({
   propTypes: {
     value: React.PropTypes.string,
     placeholder: React.PropTypes.string,
     onChange: React.PropTypes.func,
+    onEnter: React.PropTypes.func,
     matcher: React.PropTypes.func.isRequired, /* function matcher(text, callback) => ( callback([match1, match2, ...]) ) */
+    suggestionFormatter: React.PropTypes.func /* function formatter(value) => "html" */
   },
   
   render: function() {
@@ -54,16 +51,26 @@ var Completer = React.createClass({
     };
     
     $(el).typeahead('destroy');
-        
-    $(el).typeahead({
+    
+    var typeaheadDataOpts = {
+      limit: 20,
+      source: matcher
+    };
+    
+    if (this.props.suggestionFormatter) {
+      typeaheadDataOpts.templates = {
+        suggestion: this.props.suggestionFormatter
+      };
+    }
+    
+    var typeaheadConfigOpts = {
       hint: true,
       highlight: true,
       minLength: 0,
       autoselect: true,
-    }, {
-      limit: 20,
-      source: matcher
-    })
+    };
+    
+    $(el).typeahead(typeaheadConfigOpts, typeaheadDataOpts)
     
     // avoid choosing the first option if we're empty
     // (allow empty to be chosen)
@@ -85,6 +92,12 @@ var Completer = React.createClass({
       }, 0);
     });
     
+    if (this.props.onEnter) {
+      $(el).on('typeahead:select', (evt, obj) => {
+        this.props.onEnter();
+      });
+    }
+    
     var completeOrFail = () => {
       var val = el.value;
       matcher(val, (matches) => {
@@ -99,10 +112,14 @@ var Completer = React.createClass({
     
     $(el).blur(completeOrFail);
     
-    $(el).keypress(function(evt) {
+    $(el).keypress((evt) => {
       if (evt.which == 13) {
         completeOrFail();
         evt.preventDefault();
+        
+        if (this.props.onEnter) {
+          this.props.onEnter();
+        }
       }
     });
   },

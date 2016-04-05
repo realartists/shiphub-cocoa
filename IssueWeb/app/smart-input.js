@@ -1,5 +1,4 @@
-import React from 'react'
-import h from './h.js'
+import React, { createElement as h } from 'react'
 
 var SmartInput = React.createClass({
   getInitialState: function() {
