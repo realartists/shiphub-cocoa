@@ -49,6 +49,18 @@ function applyPatch(patch) {
   if (window.webkit && window.webkit.messageHandlers.applyPatch) {
     window.webkit.applyPatch(patch);
   } else {
+    var ghPatch = Object.assign({}, patch);
+  
+    if (patch.milestone != null) {
+      ghPatch.milestone = patch.milestone.number;
+    }
+  
+    if (patch.assignee != null) {
+      ghPatch.assignee = patch.assignee.login;
+    }
+  
+    console.log("patching", patch, ghPatch);
+    
     // PATCH /repos/:owner/:repo/issues/:number
     var owner = getIvars().issue._bare_owner;
     var repo = getIvars().issue._bare_repo;
@@ -63,7 +75,7 @@ function applyPatch(patch) {
           'Accept': 'application/json'
         }, 
         method: "PATCH",
-        body: JSON.stringify(patch)
+        body: JSON.stringify(ghPatch)
       });
       request.then(function(resp) {
         return resp.json()
@@ -88,7 +100,7 @@ var keypath = function(obj, path) {
   path = path.split('.')
   for (var i = 0; i < path.length; i++) {
     var prop = path[i];
-    if (obj != null && prop in obj) {
+    if (obj != null && typeof(obj) === 'object' && prop in obj) {
       obj = obj[prop];
     } else {
       return null;
@@ -853,19 +865,65 @@ var HeaderSeparator = React.createClass({
   }
 });
 
+var InputSaveButton = React.createClass({
+  
+  render: function() {
+    var props = Object.assign({}, {className:'InputSaveButton'}, this.props);
+    return h('span', props, 'Save ↩︎');
+  }
+});
+
 var IssueTitle = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
   titleChanged: function(newTitle) {
-    patchIssue({title: newTitle});
+    if (this.state.edited) {
+      this.setState({edited: false});
+      patchIssue({title: newTitle});
+    }
   },
-    
+
+  getInitialState: function() {
+    return { edited: false };
+  },
+  
+  componentWillReceiveProps: function(newProps) {
+    if (this.state.edited) {
+      if (newProps.issue.number == this.props.issue.number) {
+        // ignore the change, we're editing!
+      } else {
+        this.setState({edited: false})
+      }
+    } else {
+      this.setState({edited: false})
+    }
+  },
+  
+  onEdit: function(didEdit, editedVal) {
+    this.setState({edited: this.props.issue.title != editedVal, editedValue: editedVal})
+  },
+  
+  titleSaveClicked: function(evt) {
+    this.titleChanged(this.state.editedValue);
+  },
+  
   render: function() {
-    return h('div', {className:'IssueTitle'},
+    var val = this.props.issue.title;
+    if (this.state.edited) {
+      val = this.state.editedValue;
+    }
+  
+    var children = [
       h(HeaderLabel, {title:'Title'}),
-      h(SmartInput, {element:Textarea, value:this.props.issue.title, className:'TitleArea', onChange:this.titleChanged}),
+      h(SmartInput, {element:Textarea, initialValue:this.props.issue.title, value:val, className:'TitleArea', onChange:this.titleChanged, onEdit:this.onEdit}),
       h(IssueNumber, {issue: this.props.issue})
-    );
+    ];
+    
+    if (this.state.edited && this.props.issue.number != null) {
+      children.splice(2, 0, h(InputSaveButton, {key: "titleSave", onClick: this.titleSaveClicked, style: { marginRight: "8px" } }));
+    }
+  
+    return h('div', {className:'IssueTitle'}, ...children);
   }
 });
 
@@ -888,7 +946,7 @@ var RepoField = React.createClass({
     onChange: React.PropTypes.func 
   },
   
-  render: function() {
+  render: function() {  
     var opts = getIvars().repos.map((r) => r.full_name);
     var matcher = Completer.SubstrMatcher(opts);
     
@@ -911,8 +969,47 @@ var MilestoneField = React.createClass({
     issue: React.PropTypes.object,
   },
   
+  lookupMilestone: function(value) {
+    var ms = getIvars().milestones.filter((m) => m.title === value);
+    if (ms.length == 0) {
+      return null;
+    } else {
+      return ms[0];
+    }
+  },
+  
   milestoneChanged: function(value) {
-    patchIssue({milestone: value});
+    var initial = keypath(this.props.issue, "milestone.title") || "";
+    if (value != initial) {
+      if (value.length == 0) { 
+        value = null;
+      }
+      
+      patchIssue({milestone: this.lookupMilestone(value)});
+    }
+  },
+  
+  onEnter: function() {
+    var completer = this.refs.completer;
+    var el = ReactDOM.findDOMNode(completer.refs.typeInput);
+    var val = el.value;
+    
+    completer.props.matcher(val, (results) => {
+      if (results.length >= 1) {
+        var result = results[0];
+        this.milestoneChanged(result);
+      }
+    });
+  },
+  
+  shouldComponentUpdate: function(nextProps, nextState) {
+    var nextNum = keypath(nextProps, "issue.number");
+    var oldNum = keypath(this.props, "issue.number");
+    
+    if (nextNum == oldNum && this.refs.completer.isEdited()) {
+      return false;
+    }
+    return true;
   },
   
   render: function() {
@@ -922,8 +1019,10 @@ var MilestoneField = React.createClass({
     return h('div', {className: 'IssueInput MilestoneField'},
       h(HeaderLabel, {title:"Milestone"}),
       h(Completer, {
+        ref: 'completer',
         placeholder: 'Backlog',
-        onChange: this.props.onChange,
+        onChange: this.milestoneChanged,
+        onEnter: this.onEnter,
         value: keypath(this.props.issue, "milestone.title"),
         matcher: matcher
       })
@@ -953,8 +1052,46 @@ var AssigneeField = React.createClass({
     issue: React.PropTypes.object
   },
   
+  lookupAssignee: function(value) {
+    var us = getIvars().assignees.filter((a) => a.login === value);
+    if (us.length == 0) {
+      return null;
+    } else {
+      return us[0];
+    }
+  },
+  
   assigneeChanged: function(value) {
-    patchIssue({assignee: value});
+    var initial = keypath(this.props.issue, "assignee.login") || "";
+    if (value != initial) {
+      if (value.length == 0) {
+        value = null;
+      }
+      patchIssue({assignee: this.lookupAssignee(value)});
+    }
+  },
+  
+  onEnter: function() {
+    var completer = this.refs.completer;
+    var el = ReactDOM.findDOMNode(completer.refs.typeInput);
+    var val = el.value;
+    
+    completer.props.matcher(val, (results) => {
+      if (results.length >= 1) {
+        var result = results[0];
+        this.assigneeChanged(result);
+      }
+    });
+  },
+  
+  shouldComponentUpdate: function(nextProps, nextState) {
+    var nextNum = keypath(nextProps, "issue.number");
+    var oldNum = keypath(this.props, "issue.number");
+    
+    if (nextNum == oldNum && this.refs.completer.isEdited()) {
+      return false;
+    }
+    return true;
   },
     
   render: function() {
@@ -993,8 +1130,10 @@ var AssigneeField = React.createClass({
     return h('div', {className: 'IssueInput AssigneeField'},
       h(HeaderLabel, {title:"Assignee"}),
       h(Completer, {
+        ref: 'completer',
         placeholder: 'Unassigned', 
         onChange: this.assigneeChanged,
+        onEnter: this.onEnter,
         value: keypath(this.props.issue, "assignee.login"),
         matcher: matcher
       }),
@@ -1042,7 +1181,6 @@ var IssueLabels = React.createClass({
   },
   
   render: function() {
-    console.log(this.props.issue.labels);
     return h('div', {className:'IssueLabels'},
       h(HeaderLabel, {title:"Labels"}),
       h(AddLabel, {issue: this.props.issue}),

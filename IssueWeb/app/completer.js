@@ -23,6 +23,10 @@ var Completer = React.createClass({
     return h(SmartInput, props);
   },
   
+  isEdited: function() {
+    return this.refs.typeInput != null && this.refs.typeInput.isEdited();
+  },
+  
   updateTypeahead: function() {
     var el = ReactDOM.findDOMNode(this.refs.typeInput);
     var baseMatcher = this.props.matcher;

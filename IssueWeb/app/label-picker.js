@@ -15,22 +15,23 @@ var LabelPicker = React.createClass({
     var el = ReactDOM.findDOMNode(completer.refs.typeInput);
     var val = el.value;
     
-    completer.props.matcher(val, (results) => {
-      console.log(results);
-      if (results.length >= 1) {
-        var result = results[0];
+    if (val.length > 0) {
+      completer.props.matcher(val, (results) => {
+        if (results.length >= 1) {
+          var result = results[0];
         
-        for (var i = 0; i < this.props.labels.length; i++) {
-          if (this.props.labels[i].name == result) {
-            if (this.props.onAdd) {
-              this.props.onAdd(this.props.labels[i]);
+          for (var i = 0; i < this.props.labels.length; i++) {
+            if (this.props.labels[i].name == result) {
+              if (this.props.onAdd) {
+                this.props.onAdd(this.props.labels[i]);
+              }
+              break;
             }
-            break;
           }
         }
-      }
-    });
-    
+      });
+    }
+        
     $(el).typeahead('val', "");
     $(el).focus();
   },
