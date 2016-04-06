@@ -23,6 +23,8 @@ import marked from './marked.min.js'
 import { githubLinkify } from './github_linkify.js'
 import LabelPicker from './label-picker.js'
 
+var debugToken = "8de44b7cf7050c827165d3f509abb1bd187a62e4";
+
 /*
 Issue State Storage
 */
@@ -41,6 +43,43 @@ function getIvars() {
 
 function setIvars(iv) {
   window.ivars = iv;
+}
+
+function applyPatch(patch) {
+  if (window.webkit && window.webkit.messageHandlers.applyPatch) {
+    window.webkit.applyPatch(patch);
+  } else {
+    // PATCH /repos/:owner/:repo/issues/:number
+    var owner = getIvars().issue._bare_owner;
+    var repo = getIvars().issue._bare_repo;
+    var num = getIvars().issue.number;
+    
+    if (num != null) {
+      var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}`
+      var request = fetch(url, { 
+        headers: { 
+          Authorization: "token " + debugToken,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }, 
+        method: "PATCH",
+        body: JSON.stringify(patch)
+      });
+      request.then(function(resp) {
+        return resp.json()
+      }).then(function(body) {
+        console.log(body);
+      }).catch(function(err) {
+        console.log(err);
+      });
+    }
+  }
+}
+
+function patchIssue(patch) {
+  window.ivars.issue = Object.assign({}, window.ivars.issue, patch);
+  applyIssueState(window.ivars);
+  applyPatch(patch);
 }
 
 var keypath = function(obj, path) {
@@ -521,6 +560,13 @@ var Label = React.createClass({
     canDelete: React.PropTypes.bool,
     onDelete: React.PropTypes.func,
   },
+  
+  onDeleteClick: function() {
+    if (this.props.onDelete) {
+      this.props.onDelete(this.props.label);
+    }
+  },
+  
   render: function() {
     // See http://stackoverflow.com/questions/12043187/how-to-check-if-hex-color-is-too-black
     var rgb = parseInt(this.props.label.color, 16);   // convert rrggbb to decimal
@@ -536,7 +582,7 @@ var Label = React.createClass({
     var style = {backgroundColor:"#"+this.props.label.color, color:textColor};
     
     if (this.props.canDelete) {
-      extra.push(h('span', {className:'LabelDelete Clickable', onClick:this.props.onDelete}, 
+      extra.push(h('span', {className:'LabelDelete Clickable', onClick:this.onDeleteClick}, 
         h('i', {className:'fa fa-trash-o'})
       ));
       style = Object.assign({}, style, {borderTopRightRadius:"0px", borderBottomRightRadius:"0px"});
@@ -557,8 +603,8 @@ var LabelEventDescription = React.createClass({
     var elements = [];
     elements.push(this.props.event.event);
     var labels = this.props.event.labels.filter(function(l) { return l != null && l.name != null; });
-    elements = elements.concat(labels.map(function(l) {
-      return [" ", h(Label, {key:l.name||"", label:l})]
+    elements = elements.concat(labels.map(function(l, i) {
+      return [" ", h(Label, {key:i, label:l})]
     }).reduce(function(c, v) { return c.concat(v); }, []));
     return h("span", {}, elements);
   }
@@ -810,10 +856,14 @@ var HeaderSeparator = React.createClass({
 var IssueTitle = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
+  titleChanged: function(newTitle) {
+    patchIssue({title: newTitle});
+  },
+    
   render: function() {
     return h('div', {className:'IssueTitle'},
       h(HeaderLabel, {title:'Title'}),
-      h(SmartInput, {element:Textarea, value: this.props.issue.title, className:'TitleArea'}),
+      h(SmartInput, {element:Textarea, value:this.props.issue.title, className:'TitleArea', onChange:this.titleChanged}),
       h(IssueNumber, {issue: this.props.issue})
     );
   }
@@ -859,7 +909,10 @@ var RepoField = React.createClass({
 var MilestoneField = React.createClass({
   propTypes: { 
     issue: React.PropTypes.object,
-    onChange: React.PropTypes.func 
+  },
+  
+  milestoneChanged: function(value) {
+    patchIssue({milestone: value});
   },
   
   render: function() {
@@ -878,10 +931,30 @@ var MilestoneField = React.createClass({
   }
 });
 
+var StateField = React.createClass({
+  propTypes: { 
+    issue: React.PropTypes.object
+  },
+  
+  stateChanged: function(evt) {
+    patchIssue({state: evt.target.value});
+  },
+  
+  render: function() {
+    return h('select', {className:'IssueState', value:this.props.issue.state, onChange:this.stateChanged},
+      h('option', {value: 'open'}, "Open"),
+      h('option', {value: 'closed'}, "Closed")
+    );
+  }
+});
+
 var AssigneeField = React.createClass({
   propTypes: {
-    issue: React.PropTypes.object,
-    onChange: React.PropTypes.func
+    issue: React.PropTypes.object
+  },
+  
+  assigneeChanged: function(value) {
+    patchIssue({assignee: value});
   },
     
   render: function() {
@@ -921,10 +994,11 @@ var AssigneeField = React.createClass({
       h(HeaderLabel, {title:"Assignee"}),
       h(Completer, {
         placeholder: 'Unassigned', 
-        onChange: this.props.onChange, 
+        onChange: this.assigneeChanged,
         value: keypath(this.props.issue, "assignee.login"),
         matcher: matcher
-      })
+      }),
+      h(StateField, {issue: this.props.issue})
     );
   }
 });
@@ -932,8 +1006,14 @@ var AssigneeField = React.createClass({
 var AddLabel = React.createClass({
   propTypes: { 
     issue: React.PropTypes.object,
-    onCreate: React.PropTypes.func
   },
+  
+  addLabel: function(label) {
+    console.log(label);
+    var labels = [label, ...this.props.issue.labels];
+    patchIssue({labels: labels});
+  },
+  
   render: function() {
     var allLabels = getIvars().labels;
     var chosenLabels = keypath(this.props.issue, "labels") || [];
@@ -946,7 +1026,8 @@ var AddLabel = React.createClass({
       return h('div', {className:'AddLabelEmpty'});
     } else {
       return h(LabelPicker, {
-        labels: filteredLabels
+        labels: filteredLabels,
+        onAdd: this.addLabel
       });
     }
   }
@@ -955,12 +1036,18 @@ var AddLabel = React.createClass({
 var IssueLabels = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
+  deleteLabel: function(label) {
+    var labels = this.props.issue.labels.filter((l) => (l.name != label.name));
+    patchIssue({labels: labels});
+  },
+  
   render: function() {
+    console.log(this.props.issue.labels);
     return h('div', {className:'IssueLabels'},
       h(HeaderLabel, {title:"Labels"}),
       h(AddLabel, {issue: this.props.issue}),
-      this.props.issue.labels.map(function(l) { 
-        return [" ", h(Label, {key:l.name, label:l, canDelete:true})];
+      this.props.issue.labels.map((l, i) => { 
+        return [" ", h(Label, {key:i, label:l, canDelete:true, onDelete: this.deleteLabel})];
       }).reduce(function(c, v) { return c.concat(v); }, [])
     );
   }
@@ -984,8 +1071,6 @@ var Header = React.createClass({
   }
 });
 
-var debugToken = "8de44b7cf7050c827165d3f509abb1bd187a62e4";
-
 var DebugLoader = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   render: function() {
@@ -995,18 +1080,12 @@ var DebugLoader = React.createClass({
     console.log("val => " + val);
   
     return h("div", {className:"debugLoader"},
-      h("form", {onSubmit:this.loadProblem},
-        h("span", {}, "Load Problem: "),
-        h(SmartInput, {type:"text", id:"debugInput", size:40, value:val}),
-        h("a", {href:ghURL, target:"_blank"}, "source")
-      )
+      h("span", {}, "Load Problem: "),
+      h(SmartInput, {type:"text", size:40, value:val, onChange:this.loadProblem}),
+      h("a", {href:ghURL, target:"_blank"}, "source")
     );
   },
-  loadProblem: function(e) {
-    e.preventDefault();
-    
-    var problemEl = document.getElementById("debugInput");
-    var problemRef = problemEl.value;
+  loadProblem: function(problemRef) {
     var [owner, repo, number] = problemRef.split(/[\/#]/);
     updateIssue(...problemRef.split(/[\/#]/));          
   }
