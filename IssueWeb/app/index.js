@@ -549,7 +549,6 @@ var Comment = React.createClass({
   
   findTaskItems: function() {
     var el = ReactDOM.findDOMNode(this.refs.commentBody);
-    console.log(el);
     
     // traverse dom, pre-order, rooted at el, looking for checkboxes
     // we're going to bind to those guys as we find them
