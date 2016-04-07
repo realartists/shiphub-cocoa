@@ -221,8 +221,8 @@ ul.taskList input {
 div.commentControls {
   display: inline-block;
   float: right;
+  padding-right: 1px;
   padding-left: 10px;
-  padding-right: 12px; 
   -webkit-user-select: none;
 }
 div.commentControls i {
@@ -475,7 +475,6 @@ div.IssueLabels .LabelContainer {
 
 .CodeMirrorContainer {
   margin: 8px;
-  min-height: 50px;
 }
 
 .CodeMirror {

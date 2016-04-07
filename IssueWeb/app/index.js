@@ -997,9 +997,15 @@ var AddComment = React.createClass({
 	
 	togglePreview: function() {
 	  var previewing = !this.state.previewing;
+	  this.doFocus = !previewing;
 	  this.setState(Object.assign({}, this.state, {previewing:previewing}));
     var el = ReactDOM.findDOMNode(this);
-	  setTimeout(() => { el.scrollIntoView() }, 0);
+	  setTimeout(() => { 
+	    el.scrollIntoView();
+	    if (!previewing) {
+	      this.focusCodemirror();
+	    }
+	  }, 0);
 	},
 	
 	focusCodemirror: function() {
@@ -1019,7 +1025,6 @@ var AddComment = React.createClass({
         h('div', {className: 'CodeMirrorContainer', onClick:this.focusCodemirror},
           h(Codemirror, {
             ref: 'codemirror',
-            style: { height: "auto", minHeight: "100px" },
             value: this.state.code,
             onChange: this.updateCode,
             options: {
@@ -1031,7 +1036,7 @@ var AddComment = React.createClass({
         )
       )
     );
-  },
+  }
 });
 
 var IssueIdentifier = React.createClass({
