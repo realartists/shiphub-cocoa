@@ -88,10 +88,47 @@ function applyPatch(patch) {
   }
 }
 
+function applyCommentEdit(commentIdentifier, newBody) {
+  // PATCH /repos/:owner/:repo/issues/comments/:id
+  var owner = getIvars().issue._bare_owner;
+  var repo = getIvars().issue._bare_repo;
+  var num = getIvars().issue.number;
+  
+  if (num != null) {
+    var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
+    var request = fetch(url, { 
+      headers: { 
+        Authorization: "token " + debugToken,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }, 
+      method: "PATCH",
+      body: JSON.stringify({body: newBody})
+    });
+    request.then(function(resp) {
+      return resp.json()
+    }).then(function(body) {
+      console.log(body);
+    }).catch(function(err) {
+      console.log(err);
+    });
+  }
+}
+
 function patchIssue(patch) {
   window.ivars.issue = Object.assign({}, window.ivars.issue, patch);
   applyIssueState(window.ivars);
   applyPatch(patch);
+}
+
+function editComment(commentIdx, newBody) {
+  if (commentIdx == 0) {
+    patchIssue({body: newBody});
+  } else {
+    window.ivars.issue.allComments[commentIdx].body = newBody;
+    applyIssueState(window.ivars);
+    applyCommentEdit(window.ivars.issue.allComments[commentidx].id, newBody);
+  }
 }
 
 var keypath = function(obj, path) {
@@ -418,15 +455,41 @@ var CommentHeader = React.createClass({
   }
 });
 
+function preOrderTraverseDOM(root, handler) {
+  var stack = [root];
+  var i = 0;
+  while (stack.length != 0) {
+    var x = stack.shift();
+    
+    handler(x, i);
+    i++;
+    
+    if (x.childNodes != null) {
+      stack.unshift(...x.childNodes);
+    }
+  }
+}
+
+function matchAll(re, str) {
+  var matches = [];
+  var match;
+  while ((match = re.exec(str)) !== null) {
+    matches.push(match);
+  }
+  return matches;
+}
+
 var Comment = React.createClass({
   propTypes: {
     comment: React.PropTypes.object.isRequired,
+    commentIdx: React.PropTypes.number,
     first: React.PropTypes.bool
   },
   
   render: function() {
     var body =  h('div', { 
       className:'commentBody', 
+      ref: 'commentBody',
       dangerouslySetInnerHTML: {__html:marked(this.props.comment.body, markdownOpts)}
     })
     
@@ -434,6 +497,7 @@ var Comment = React.createClass({
       var body =  h('div', { 
         className:'commentBody', 
         style: {padding: "14px"},
+        ref: 'commentBody',
         dangerouslySetInnerHTML: {__html:'<i style="color: #777;">No Description Given.</i>'}
       });
     }
@@ -443,7 +507,68 @@ var Comment = React.createClass({
       h(CommentHeader, {comment:this.props.comment, first:this.props.first}),  
       body       
     );
-  }
+  },
+  
+  updateCheckbox: function(i, checked) {
+    console.log("i", i);
+    // find the i-th checkbox in the markdown
+    var body = this.props.comment.body;
+    var pattern = /((?:(?:\d+\.)|(?:\-)|(?:\*))\s+)\[[x ]\]/g;
+    var matches = matchAll(pattern, body);
+    
+    for (var j = 0; j < matches.length; j++) {
+      console.log("j", j, "start", matches[j].index);
+    }
+        
+    if (i < matches.length) {
+      var match = matches[i];
+      
+      var start = match.index;
+      start += match[1].length;
+      
+      var checkText;
+      if (checked) {
+        checkText = "[x]";
+      } else {
+        checkText = "[ ]";
+      }
+      body = body.slice(0, start) + checkText + body.slice(start + 3);
+      
+      editComment(this.props.commentIdx, body);
+    }
+  },
+  
+  findTaskItems: function() {
+    var el = ReactDOM.findDOMNode(this.refs.commentBody);
+    console.log(el);
+    
+    // traverse dom, pre-order, rooted at el, looking for checkboxes
+    // we're going to bind to those guys as we find them
+    
+    var nodes = [];
+    preOrderTraverseDOM(el, (x) => nodes.push(x));
+    
+    var checks = nodes.filter((x) => x.nodeName == 'INPUT' && x.type == 'checkbox');
+    
+    console.log(checks)
+    
+    checks.forEach((x, i) => {
+      x.onchange = (evt) => {
+        var checked = evt.target.checked;
+        this.updateCheckbox(i, checked);
+      };
+    });
+  },
+  
+  componentDidUpdate: function() {
+    this.findTaskItems();
+  },
+  
+  componentDidMount: function() {
+    this.findTaskItems();
+  },
+  
+  
 });
 
 var EventIcon = React.createClass({
@@ -815,10 +940,12 @@ var ActivityList = React.createClass({
       return !(e._rolledUp);
     });
     
+    var counter = { c: 0, e: 0 };
     return h('div', {className:'activityContainer'},
       h('div', {className:'activityList'}, 
         eventsAndComments.map(function(e, i, a) {
           if (e.event != undefined) {
+            counter.e = counter.e + 1;
             var next = a[i+1];
             return h(Event, {
               key:e.id, 
@@ -828,7 +955,8 @@ var ActivityList = React.createClass({
               veryLast:(next==undefined)
             });
           } else {
-            return h(Comment, {key:e.id, comment:e, first:i==0})
+            counter.c = counter.c + 1;
+            return h(Comment, {key:e.id, comment:e, first:i==0, commentIdx:counter.c-1})
           }
         })
       )
