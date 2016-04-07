@@ -1,5 +1,6 @@
-import './index.css'
 import 'font-awesome/css/font-awesome.css'
+import 'codemirror/lib/codemirror.css'
+import './index.css'
 
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
@@ -10,6 +11,12 @@ import identicon from 'identicon.js'
 import md5 from 'md5'
 import 'whatwg-fetch'
 import Textarea from 'react-textarea-autosize'
+import Codemirror from 'react-codemirror'
+import 'codemirror/mode/gfm/gfm'
+import 'codemirror/mode/clike/clike'
+import 'codemirror/mode/swift/swift'
+import 'codemirror/mode/javascript/javascript'
+import 'codemirror/addon/display/placeholder.js'
 
 import $ from 'jquery'
 window.$ = $;
@@ -33,7 +40,8 @@ var ivars = {
   repos: [],
   assignees: [],
   milestones: [],
-  labels: []
+  labels: [],
+  me: null
 };
 window.ivars = ivars;
 
@@ -550,8 +558,6 @@ var Comment = React.createClass({
     
     var checks = nodes.filter((x) => x.nodeName == 'INPUT' && x.type == 'checkbox');
     
-    console.log(checks)
-    
     checks.forEach((x, i) => {
       x.onchange = (evt) => {
         var checked = evt.target.checked;
@@ -962,6 +968,51 @@ var ActivityList = React.createClass({
       )
     );
   }
+});
+
+var AddCommentHeader = React.createClass({
+  render: function() {
+    return h('div', {className:'commentHeader'},
+      h(AvatarIMG, {user:getIvars().me, size:32}),
+      h('span', {className:'addCommentLabel'}, 'Add Comment')
+    );
+  }
+});
+
+var AddComment = React.createClass({
+  getInitialState: function() {
+		return {
+			code: ""
+		};
+	},
+	updateCode: function(newCode) {
+		this.setState({
+			code: newCode
+		});
+	},
+	
+	focusCodemirror: function() {
+	  this.refs.codemirror.focus()
+	},
+
+  render: function() {
+    return h('div', {className:'comment addComment'},
+      h(AddCommentHeader, {}),
+      h('div', {className: 'CodeMirrorContainer', onClick:this.focusCodemirror},
+        h(Codemirror, {
+          ref: 'codemirror',
+          style: { height: "auto", minHeight: "100px" },
+          value: this.state.code,
+          onChange: this.updateCode,
+          options: {
+            readOnly: false,
+            mode: 'gfm',
+            placeholder: "Leave a comment",
+          }
+        })
+      )
+    );
+  },
 });
 
 var IssueIdentifier = React.createClass({
@@ -1402,7 +1453,8 @@ function updateIssue(owner, repo, number) {
               pagedFetch("https://api.github.com/user/repos"),
               pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/assignees"),
               pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/milestones"),
-              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/labels")];
+              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/labels"),
+              simpleFetch("https://api.github.com/user")];
   
   Promise.all(reqs).then(function(parts) {
     var issue = parts[0];
@@ -1414,7 +1466,8 @@ function updateIssue(owner, repo, number) {
       repos: parts[3].filter((r) => r.has_issues),
       assignees: parts[4],
       milestones: parts[5],
-      labels: parts[6]
+      labels: parts[6],
+      me: parts[7]
     }
     
     if (issue.id) {
@@ -1433,10 +1486,12 @@ var App = React.createClass({
 
     var header = h(Header, {issue: issue});
     var activity = h(ActivityList, {key:issue["id"], issue:issue});
+    var addComment = h(AddComment);
     
     var issueElement = h('div', {},
       header,
-      activity
+      activity,
+      addComment
     );
 
     var outerElement = issueElement;

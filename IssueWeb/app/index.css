@@ -465,3 +465,22 @@ div.IssueLabels .LabelContainer {
   position: relative;
   top: -1px;
 }
+
+.addCommentLabel {
+  color: #555555;
+  font-weight: bold;
+  cursor: default;
+}
+
+.CodeMirrorContainer {
+  margin: 8px;
+  min-height: 50px;
+}
+
+.CodeMirror {
+  height: auto;
+  font-family: menlo, consolas, monaco, monospace;
+  font-size: 10pt;
+}
+
+.CodeMirror pre.CodeMirror-placeholder { color: #999; }
