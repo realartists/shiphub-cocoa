@@ -1,5 +1,6 @@
 import 'font-awesome/css/font-awesome.css'
 import 'codemirror/lib/codemirror.css'
+import 'highlight.js/styles/xcode.css'
 import './index.css'
 
 import React, { createElement as h } from 'react'
@@ -974,7 +975,12 @@ var AddCommentHeader = React.createClass({
   render: function() {
     return h('div', {className:'commentHeader'},
       h(AvatarIMG, {user:getIvars().me, size:32}),
-      h('span', {className:'addCommentLabel'}, 'Add Comment')
+      h('span', {className:'addCommentLabel'}, 'Add Comment'),
+      h('div', {className:'commentControls'},
+        (this.props.previewing ?
+          h('i', {className:'fa fa-eye-slash', title:"Toggle Preview", onClick:this.props.togglePreview})
+          : h('i', {className:'fa fa-eye', title:"Toggle Preview", onClick:this.props.togglePreview}))
+      )
     );
   }
 });
@@ -982,13 +988,19 @@ var AddCommentHeader = React.createClass({
 var AddComment = React.createClass({
   getInitialState: function() {
 		return {
-			code: ""
+			code: "",
+			previewing: false,
 		};
 	},
 	updateCode: function(newCode) {
-		this.setState({
-			code: newCode
-		});
+	  this.setState(Object.assign({}, this.state, {code: newCode}));
+	},
+	
+	togglePreview: function() {
+	  var previewing = !this.state.previewing;
+	  this.setState(Object.assign({}, this.state, {previewing:previewing}));
+    var el = ReactDOM.findDOMNode(this);
+	  setTimeout(() => { el.scrollIntoView() }, 0);
 	},
 	
 	focusCodemirror: function() {
@@ -997,19 +1009,27 @@ var AddComment = React.createClass({
 
   render: function() {
     return h('div', {className:'comment addComment'},
-      h(AddCommentHeader, {}),
-      h('div', {className: 'CodeMirrorContainer', onClick:this.focusCodemirror},
-        h(Codemirror, {
-          ref: 'codemirror',
-          style: { height: "auto", minHeight: "100px" },
-          value: this.state.code,
-          onChange: this.updateCode,
-          options: {
-            readOnly: false,
-            mode: 'gfm',
-            placeholder: "Leave a comment",
-          }
-        })
+      h(AddCommentHeader, {ref:'header', previewing:this.state.previewing, togglePreview:this.togglePreview}),
+      
+      (this.state.previewing ?
+        h('div', { 
+          className:'commentBody', 
+          ref: 'commentBody',
+          dangerouslySetInnerHTML: {__html:marked(this.state.code, markdownOpts)}
+        }) :      
+        h('div', {className: 'CodeMirrorContainer', onClick:this.focusCodemirror},
+          h(Codemirror, {
+            ref: 'codemirror',
+            style: { height: "auto", minHeight: "100px" },
+            value: this.state.code,
+            onChange: this.updateCode,
+            options: {
+              readOnly: false,
+              mode: 'gfm',
+              placeholder: "Leave a comment",
+            }
+          })
+        )
       )
     );
   },
