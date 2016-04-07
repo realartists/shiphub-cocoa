@@ -223,6 +223,7 @@ div.commentControls {
   float: right;
   padding-left: 10px;
   padding-right: 12px; 
+  -webkit-user-select: none;
 }
 div.commentControls i {
   margin-left: 16px;
