@@ -124,6 +124,41 @@ function applyCommentEdit(commentIdentifier, newBody) {
   }
 }
 
+function applyComment(commentBody) {
+  // POST /repos/:owner/:repo/issues/:number/comments
+  
+  var owner = getIvars().issue._bare_owner;
+  var repo = getIvars().issue._bare_repo;
+  var num = getIvars().issue.number;
+  
+  if (num != null) {
+    var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}/comments`
+    var request = fetch(url, { 
+      headers: { 
+        Authorization: "token " + debugToken,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }, 
+      method: "POST",
+      body: JSON.stringify({body: commentBody})
+    });
+    request.then(function(resp) {
+      return resp.json()
+    }).then(function(body) {
+      var id = body.id;
+      console.log("updating id to " + id);
+      window.ivars.issue.allComments.forEach((m) => {
+        if (m.id === 'new') {
+          m.id = id;
+        }
+      });
+      applyIssueState(window.ivars);
+    }).catch(function(err) {
+      console.log(err);
+    });
+  }
+}
+
 function patchIssue(patch) {
   window.ivars.issue = Object.assign({}, window.ivars.issue, patch);
   applyIssueState(window.ivars);
@@ -138,6 +173,19 @@ function editComment(commentIdx, newBody) {
     applyIssueState(window.ivars);
     applyCommentEdit(window.ivars.issue.allComments[commentidx].id, newBody);
   }
+}
+
+function addComment(body) {
+  var now = new Date().toISOString();
+  window.ivars.issue.allComments.push({
+    body: body,
+    user: getIvars().me,
+    id: "new",
+    updated_at: now,
+    created_at: now
+  });
+  applyIssueState(window.ivars);
+  applyComment(body);
 }
 
 var keypath = function(obj, path) {
@@ -314,8 +362,11 @@ var TimeAgo = React.createClass(
       var suffix = then < now ? 'ago' : 'from now'
 
       var value, unit
+      
+      var props = this.props;
 
       if(seconds < 60){
+        return h( this.props.component, props, "just now" )
         value = Math.round(seconds)
         unit = 'second'
       } else if(seconds < 60*60) {
@@ -337,8 +388,6 @@ var TimeAgo = React.createClass(
         value = Math.round(seconds/(60*60*24*365))
         unit = 'year'
       }
-
-      var props = this.props;
 
       return h( this.props.component, props, this.props.formatter(value, unit, suffix, then) )
     }
@@ -984,6 +1033,15 @@ var AddCommentHeader = React.createClass({
   }
 });
 
+var AddCommentFooter = React.createClass({
+  render: function() {
+    return h('div', {className:'commentFooter'},
+      h('div', {className:'Clickable addCommentButton addCommentCloseButton', onClick:this.props.onClose}, 'Close Issue'),
+      h('div', {className:'Clickable addCommentButton addCommentSaveButton', onClick:this.props.onSave}, 'Comment')
+    )
+  }
+});
+
 var AddComment = React.createClass({
   getInitialState: function() {
 		return {
@@ -991,6 +1049,7 @@ var AddComment = React.createClass({
 			previewing: false,
 		};
 	},
+	
 	updateCode: function(newCode) {
 	  this.setState(Object.assign({}, this.state, {code: newCode}));
 	},
@@ -1010,6 +1069,19 @@ var AddComment = React.createClass({
 	
 	focusCodemirror: function() {
 	  this.refs.codemirror.focus()
+	},
+	
+	save: function() {
+    var body = this.state.code;
+    if (body.trim().length > 0) {
+      addComment(body);
+    }
+    this.setState({code: "", previewing: false});
+	},
+	
+	saveAndClose: function() {
+	  this.save();
+	  patchIssue({"state": "closed"});
 	},
 
   render: function() {
@@ -1034,7 +1106,9 @@ var AddComment = React.createClass({
             }
           })
         )
-      )
+      ),
+      
+      h(AddCommentFooter, {ref:'footer', onClose: this.saveAndClose, onSave: this.save })
     );
   }
 });
