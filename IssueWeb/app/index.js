@@ -256,6 +256,11 @@ var ghost = {
   avatar_url: "https://avatars1.githubusercontent.com/u/10137?v=3"
 };
 
+var langMapping = {
+  'objective-c': 'objc',
+  'c#' : 'cs'
+}
+
 var markdownOpts = {
   renderer: markedRenderer,
   gfm: true,
@@ -267,6 +272,7 @@ var markdownOpts = {
   smartypants: false,
   highlight: function (code, lang) {
     if (lang) {
+      lang = langMapping[lang] || lang;
       return hljs.highlightAuto(code, [lang]).value;
     } else {
       return code;
