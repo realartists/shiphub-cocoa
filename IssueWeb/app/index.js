@@ -12,12 +12,15 @@ import identicon from 'identicon.js'
 import md5 from 'md5'
 import 'whatwg-fetch'
 import Textarea from 'react-textarea-autosize'
+import CodeMirror from 'codemirror'
 import Codemirror from 'react-codemirror'
 import 'codemirror/mode/gfm/gfm'
 import 'codemirror/mode/clike/clike'
 import 'codemirror/mode/swift/swift'
 import 'codemirror/mode/javascript/javascript'
 import 'codemirror/addon/display/placeholder.js'
+import 'codemirror/addon/hint/show-hint.css'
+import 'codemirror/addon/hint/show-hint.js'
 
 import $ from 'jquery'
 window.$ = $;
@@ -1116,6 +1119,32 @@ var AddComment = React.createClass({
       
       h(AddCommentFooter, {ref:'footer', onClose: this.saveAndClose, onSave: this.save })
     );
+  },
+  
+  installCompletion: function() {
+    if (!(this.refs.codemirror)) {
+      return;
+    }
+    
+    var cm = this.refs.codemirror.getCodeMirror();
+    if (cm && cm.gfmAssigneeCompletion === undefined) {
+      cm.gfmAssigneeCompletion = true;
+      cm.on('change', function(cm, change) {
+        if (change.text.length == 1 && change.text[0] === '@') {
+          CodeMirror.showHint(cm, CodeMirror.hint.fromList, {
+            words: getIvars().assignees.map((a) => a.login)
+          });
+        }
+      });
+    }
+  },
+  
+  componentDidUpdate: function() {
+    this.installCompletion();
+  },
+  
+  componentDidMount: function() {
+    this.installCompletion();
   }
 });
 
