@@ -1,4 +1,5 @@
 import 'font-awesome/css/font-awesome.css'
+import '../markdown-mark/style.css'
 import 'codemirror/lib/codemirror.css'
 import 'highlight.js/styles/xcode.css'
 import './index.css'
@@ -1052,7 +1053,9 @@ var AddCommentHeader = React.createClass({
       buttons.push(h('i', {key:"eye-slash", className:'fa fa-eye-slash', title:"Toggle Preview", onClick:this.props.togglePreview}));
     } else {
       buttons.push(h('i', {key:"paperclip", className:'fa fa-paperclip', title:"Attach Files", onClick:this.props.attachFiles}));
-      buttons.push(h('i', {key:"eye", className:'fa fa-eye', title:"Toggle Preview", onClick:this.props.togglePreview}));
+      if (this.props.hasContents) {
+        buttons.push(h('i', {key:"eye", className:'fa fa-eye', title:"Toggle Preview", onClick:this.props.togglePreview}));
+      }
     }
   
     return h('div', {className:'commentHeader'},
@@ -1064,11 +1067,21 @@ var AddCommentHeader = React.createClass({
 });
 
 var AddCommentFooter = React.createClass({
+  markdownClicked: function() {
+    
+  },
+
   render: function() {
-    return h('div', {className:'commentFooter'},
-      h('div', {className:'Clickable addCommentButton addCommentCloseButton', onClick:this.props.onClose}, 'Close Issue'),
-      h('div', {className:'Clickable addCommentButton addCommentSaveButton', onClick:this.props.onSave}, 'Comment')
-    )
+    var contents = [];
+    
+    if (!this.props.previewing) {
+      contents.push(h('a', {key:'markdown', className:'markdown-mark formattingHelpButton', target:"_blank", href:"https://guides.github.com/features/mastering-markdown/", title:"Markdown formatting guide"}));
+    }
+    
+    contents.push(h('div', {key:'close', className:'Clickable addCommentButton addCommentCloseButton', onClick:this.props.onClose}, 'Close Issue'));
+    contents.push(h('div', {key:'save', className:'Clickable addCommentButton addCommentSaveButton', onClick:this.props.onSave}, 'Comment'));
+  
+    return h('div', {className:'commentFooter'}, contents);
   }
 });
 
@@ -1128,6 +1141,7 @@ var AddComment = React.createClass({
     return h('div', {className:'comment addComment'},
       h(AddCommentHeader, {
         ref:'header', 
+        hasContents:this.state.code.trim().length>0,
         previewing:this.state.previewing,
         togglePreview:this.togglePreview,
         attachFiles:this.selectFiles
@@ -1156,7 +1170,12 @@ var AddComment = React.createClass({
       
       (this.state.uploadCount > 0 ?
         h(AddCommentUploadProgress, {ref:'uploadProgress'}) :  
-        h(AddCommentFooter, {ref:'footer', onClose: this.saveAndClose, onSave: this.save })
+        h(AddCommentFooter, {
+          ref:'footer', 
+          previewing: this.state.previewing,
+          onClose: this.saveAndClose, 
+          onSave: this.save 
+        })
       )
     );
   },

@@ -531,3 +531,16 @@ div.IssueLabels .LabelContainer {
   color: #555;
 }
 
+.formattingHelpButton {
+  float: left;
+  font-size: 17px;
+  color: #BBB;
+  position: relative;
+  top: 7px;
+}
+.formattingHelpButton:hover {
+  text-decoration: none;
+}
+.formattingHelpButton:visited {
+  color: #BBB;
+}
