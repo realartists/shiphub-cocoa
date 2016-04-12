@@ -1256,7 +1256,7 @@ var AddComment = React.createClass({
       cm.on('drop', (cm, e) => {
         console.log("ondrop", e);
         var files = e.dataTransfer.files;
-        if (files) {
+        if (files.length > 0) {
           this.attachFiles(files);
           e.stopPropagation();
           e.preventDefault();
