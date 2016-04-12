@@ -521,3 +521,13 @@ div.IssueLabels .LabelContainer {
   font-weight: bold;
   border: 1px solid #0085E4;
 }
+
+.commentUploadingLabel {
+  color: #555;
+}
+
+.commentFooter i {
+  font-size: 14px;
+  color: #555;
+}
+

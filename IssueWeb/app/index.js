@@ -34,6 +34,7 @@ import marked from './marked.min.js'
 import { githubLinkify } from './github_linkify.js'
 import LabelPicker from './label-picker.js'
 import uploadAttachment from './file-uploader.js'
+import FilePicker from './file-picker.js'
 
 var debugToken = "8de44b7cf7050c827165d3f509abb1bd187a62e4";
 
@@ -1032,14 +1033,19 @@ var ActivityList = React.createClass({
 
 var AddCommentHeader = React.createClass({
   render: function() {
+    var buttons = [];
+    
+    if (this.props.previewing) {
+      buttons.push(h('i', {key:"eye-slash", className:'fa fa-eye-slash', title:"Toggle Preview", onClick:this.props.togglePreview}));
+    } else {
+      buttons.push(h('i', {key:"paperclip", className:'fa fa-paperclip', title:"Attach Files", onClick:this.props.attachFiles}));
+      buttons.push(h('i', {key:"eye", className:'fa fa-eye', title:"Toggle Preview", onClick:this.props.togglePreview}));
+    }
+  
     return h('div', {className:'commentHeader'},
       h(AvatarIMG, {user:getIvars().me, size:32}),
       h('span', {className:'addCommentLabel'}, 'Add Comment'),
-      h('div', {className:'commentControls'},
-        (this.props.previewing ?
-          h('i', {className:'fa fa-eye-slash', title:"Toggle Preview", onClick:this.props.togglePreview})
-          : h('i', {className:'fa fa-eye', title:"Toggle Preview", onClick:this.props.togglePreview}))
-      )
+      h('div', {className:'commentControls'}, buttons)
     );
   }
 });
@@ -1053,11 +1059,21 @@ var AddCommentFooter = React.createClass({
   }
 });
 
+var AddCommentUploadProgress = React.createClass({
+  render: function() {
+    return h('div', {className:'commentFooter'},
+      h('span', {className:'commentUploadingLabel'}, "Uploading files "),
+      h('i', {className:'fa fa-circle-o-notch fa-spin fa-3x fa-fw margin-bottom'})
+    );
+  }
+});
+
 var AddComment = React.createClass({
   getInitialState: function() {
 		return {
 			code: "",
 			previewing: false,
+			uploadCount: 0,
 		};
 	},
 	
@@ -1097,7 +1113,12 @@ var AddComment = React.createClass({
 
   render: function() {
     return h('div', {className:'comment addComment'},
-      h(AddCommentHeader, {ref:'header', previewing:this.state.previewing, togglePreview:this.togglePreview}),
+      h(AddCommentHeader, {
+        ref:'header', 
+        previewing:this.state.previewing,
+        togglePreview:this.togglePreview,
+        attachFiles:this.selectFiles
+      }),
       
       (this.state.previewing ?
         h('div', { 
@@ -1120,40 +1141,66 @@ var AddComment = React.createClass({
         )
       ),
       
-      h(AddCommentFooter, {ref:'footer', onClose: this.saveAndClose, onSave: this.save })
+      (this.state.uploadCount > 0 ?
+        h(AddCommentUploadProgress, {ref:'uploadProgress'}) :  
+        h(AddCommentFooter, {ref:'footer', onClose: this.saveAndClose, onSave: this.save })
+      )
     );
   },
   
-  attachFiles: function(files) {
+  selectFiles: function() {
+    FilePicker({
+      multiple: true
+    }, (files) => {
+      this.attachFiles(files);
+    });
+  },
+  
+  updateUploadCount: function(delta) {
+    this.setState(Object.assign({}, this.state, {uploadCount:this.state.uploadCount+delta}));
+  },
+  
+  attachFiles: function(fileList) {
     if (!(this.refs.codemirror)) {
       return;
     }
-  
+    
+    var files = [];
+    for (var i = 0; i < fileList.length; i++) {
+      files.push(fileList[i]);
+    }
+    
+    this.updateUploadCount(files.length);
     var cm = this.refs.codemirror.getCodeMirror();
-    for (var i = 0; i < files.length; i++) {
-      var filename = files[i].name;
-      var isImage = files[i].type.indexOf("image/") == 0;
+    files.forEach((file) => {
+      var filename = file.name;
+      var isImage = file.type.indexOf("image/") == 0;
       var placeholder = `[Uploading ${filename}](...)`;
       if (isImage) {
         placeholder = "!" + placeholder;
       }
-      cm.replaceSelection(placeholder);
+      cm.replaceSelection(placeholder + "\n");
       
-      uploadAttachment(getIvars().ghToken, files[i]).then((url) => {
+      uploadAttachment(getIvars().ghToken, file).then((url) => {
         var link = `[${filename}](${url})`
         if (isImage) {
           link = "!" + link;
         }
         var newCode = this.state.code;
+        if (newCode.indexOf(placeholder) == -1) {
+          console.log("Couldn't find placeholder", placeholder, "in", newCode);
+        }
         newCode = newCode.replace(placeholder, link);
         this.updateCode(newCode);
+        this.updateUploadCount(-1);
       }).catch((err) => {
         console.log(err);
+        this.updateUploadCount(-1);
         var newCode = this.state.code.replace(placeholder, "");
         this.updateCode(newCode);
         alert(err);
       });
-    }
+    });
   },
   
   configureCM: function() {
