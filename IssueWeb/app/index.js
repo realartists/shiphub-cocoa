@@ -646,6 +646,7 @@ var EventIcon = React.createClass({
   render: function() {
     var icon;
     var pushX = 0;
+    var color = null;
     switch (this.props.event) {
       case "assigned":
         icon = "user";
@@ -660,18 +661,19 @@ var EventIcon = React.createClass({
         icon = "tags";
         break;
       case "opened":
+      case "reopened":
         icon = "circle-o";
+        color = "green";
         break;
       case "closed":
         icon = "times-circle-o";
-        break;
-      case "reopened":
-        icon = "circle-o";
+        color = "red";
         break;
       case "milestoned":
         icon = "calendar";
         break;
       case "unmilestoned":
+      case "demilestoned":
         icon = "calendar-times-o";
         break;
       case "locked":
@@ -689,13 +691,17 @@ var EventIcon = React.createClass({
         icon = "git-square";
         break;
       default:
+        console.log("unknown event", this.props.event);
         icon = "exclamation-circle";
         break;
     }
     
-    var opts = {className:"eventIcon fa fa-" + icon};
+    var opts = {className:"eventIcon fa fa-" + icon, style: {}};
     if (pushX != 0) {
-      opts.style = { paddingLeft: pushX };
+      opts.style.paddingLeft = pushX;
+    }
+    if (color) {
+      opts.style.color = color;
     }
     return h("i", opts);
   }
@@ -748,10 +754,17 @@ var MilestoneEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
     if (this.props.event.milestone) {
-      return h("span", {},
-        "modified the milestone: ",
-        h("span", {className: "eventMilestone"}, this.props.event.milestone.title)
-      );
+      if (this.props.event.event == "milestoned") {
+        return h("span", {},
+          "modified the milestone: ",
+          h("span", {className: "eventMilestone"}, this.props.event.milestone.title)
+        );
+      } else {
+        return h("span", {},
+          "removed the milestone: ",
+          h("span", {className: "eventMilestone"}, this.props.event.milestone.title)
+        );
+      }
     } else {
       return h("span", {}, "unset the milestone");
     }
