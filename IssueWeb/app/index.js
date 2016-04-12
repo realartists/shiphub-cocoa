@@ -33,6 +33,7 @@ import { emojify } from './emojify.js'
 import marked from './marked.min.js'
 import { githubLinkify } from './github_linkify.js'
 import LabelPicker from './label-picker.js'
+import uploadAttachment from './file-uploader.js'
 
 var debugToken = "8de44b7cf7050c827165d3f509abb1bd187a62e4";
 
@@ -45,7 +46,8 @@ var ivars = {
   assignees: [],
   milestones: [],
   labels: [],
-  me: null
+  me: null,
+  ghToken: debugToken
 };
 window.ivars = ivars;
 
@@ -1112,6 +1114,7 @@ var AddComment = React.createClass({
               readOnly: false,
               mode: 'gfm',
               placeholder: "Leave a comment",
+              cursorHeight: 0.85
             }
           })
         )
@@ -1121,14 +1124,48 @@ var AddComment = React.createClass({
     );
   },
   
-  installCompletion: function() {
+  attachFiles: function(files) {
+    if (!(this.refs.codemirror)) {
+      return;
+    }
+  
+    var cm = this.refs.codemirror.getCodeMirror();
+    for (var i = 0; i < files.length; i++) {
+      var filename = files[i].name;
+      var isImage = files[i].type.indexOf("image/") == 0;
+      var placeholder = `[Uploading ${filename}](...)`;
+      if (isImage) {
+        placeholder = "!" + placeholder;
+      }
+      cm.replaceSelection(placeholder);
+      
+      uploadAttachment(getIvars().ghToken, files[i]).then((url) => {
+        var link = `[${filename}](${url})`
+        if (isImage) {
+          link = "!" + link;
+        }
+        var newCode = this.state.code;
+        newCode = newCode.replace(placeholder, link);
+        this.updateCode(newCode);
+      }).catch((err) => {
+        console.log(err);
+        var newCode = this.state.code.replace(placeholder, "");
+        this.updateCode(newCode);
+        alert(err);
+      });
+    }
+  },
+  
+  configureCM: function() {
     if (!(this.refs.codemirror)) {
       return;
     }
     
     var cm = this.refs.codemirror.getCodeMirror();
-    if (cm && cm.gfmAssigneeCompletion === undefined) {
-      cm.gfmAssigneeCompletion = true;
+    if (cm && cm.issueWebConfigured === undefined) {
+      cm.issueWebConfigured = true;
+      
+      // Show assignees completion on @ press
       cm.on('change', function(cm, change) {
         if (change.text.length == 1 && change.text[0] === '@') {
           CodeMirror.showHint(cm, CodeMirror.hint.fromList, {
@@ -1136,15 +1173,28 @@ var AddComment = React.createClass({
           });
         }
       });
+      
+      cm.on('drop', (cm, e) => {
+        console.log("ondrop", e);
+        var files = e.dataTransfer.files;
+        if (files) {
+          this.attachFiles(files);
+          e.stopPropagation();
+          e.preventDefault();
+          return true;
+        } else {
+          return false;
+        }
+      });
     }
   },
   
   componentDidUpdate: function() {
-    this.installCompletion();
+    this.configureCM();
   },
   
   componentDidMount: function() {
-    this.installCompletion();
+    this.configureCM();
   }
 });
 
@@ -1600,7 +1650,8 @@ function updateIssue(owner, repo, number) {
       assignees: parts[4],
       milestones: parts[5],
       labels: parts[6],
-      me: parts[7]
+      me: parts[7],
+      ghToken: getIvars().ghToken
     }
     
     if (issue.id) {
