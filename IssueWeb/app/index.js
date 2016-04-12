@@ -1075,7 +1075,7 @@ var AddCommentFooter = React.createClass({
     var contents = [];
     
     if (!this.props.previewing) {
-      contents.push(h('a', {key:'markdown', className:'markdown-mark formattingHelpButton', target:"_blank", href:"https://guides.github.com/features/mastering-markdown/", title:"Markdown formatting guide"}));
+      contents.push(h('a', {key:'markdown', className:'markdown-mark formattingHelpButton', target:"_blank", href:"https://guides.github.com/features/mastering-markdown/", title:"Open Markdown Formatting Guide"}));
     }
     
     contents.push(h('div', {key:'close', className:'Clickable addCommentButton addCommentCloseButton', onClick:this.props.onClose}, 'Close Issue'));
