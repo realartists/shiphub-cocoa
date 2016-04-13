@@ -1300,12 +1300,14 @@ var AddComment = React.createClass({
         if (change.text.length == 1 && change.text[0] === '@') {
           CodeMirror.showHint(cm, sentinelHint, {
             words: getIvars().assignees.map((a) => '@' + a.login),
-            sentinel: '@'
+            sentinel: '@',
+            completeSingle: false
           });
         } else if (change.text.length == 1 && change.text[0] === ':' && !cm.state.completionActive) {
           CodeMirror.showHint(cm, sentinelHint, {
             words: Object.keys(emojify.dictionary).map((w) => ':' + w + ":"),
             sentinel: ':',
+            completeSingle: false,
             render: (element, self, data) => {
               var base = document.createTextNode(data.text);
               element.appendChild(base);
