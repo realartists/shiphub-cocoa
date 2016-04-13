@@ -3,7 +3,7 @@ import {encode as b64ArrayBufferEncode } from 'base64-arraybuffer'
 
 var endpoint = "https://86qvuywske.execute-api.us-east-1.amazonaws.com/prod/shiphub-attachments";
 
-var maxFileSize = 10 * 1024 * 1024; /* 10 MB */
+var maxFileSize = 4 * 1024 * 1024;
 
 /* Takes a File object and returns a promise to upload it, which itself resolves
    to either a URL where the file now lives or an error.
@@ -34,7 +34,6 @@ export default function uploadAttachment(token, file) {
       file: b64ArrayBufferEncode(fileArrayBuffer)
     };
     
-    console.log("Putting attachment", body);
     return new Promise((resolve, reject) => {
       var f = fetch(endpoint, { 
         headers:{"Content-Type": "application/json"}, 
