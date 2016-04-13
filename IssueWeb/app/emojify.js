@@ -889,7 +889,11 @@ var dictionary = {
   "zzz": "1f4a4"
 };
 
-export function emojify(text) {
+export function emojify(text, opts) {
+  var size = 20;
+  if (opts && opts.size) {
+    size = opts.size;
+  }
   try {
     return text.replace(/:([\w\+\-_\d]+?):/g, function(p0, p1) {
       var code = dictionary[p1];
@@ -898,7 +902,7 @@ export function emojify(text) {
         var codepoint = parseInt(code, 16);
         return String.fromCodePoint(codepoint);
       } else {
-        return "<img src='" + code + "' class='emoji' alt='" + p0 + "' title='" + p0 + "' width=20 height=20>";
+        return "<img src='" + code + "' class='emoji' alt='" + p0 + "' title='" + p0 + "' width=" + size + " height=" + size + ">";
       }
     });
   } catch (ex) {
@@ -906,3 +910,6 @@ export function emojify(text) {
     return text;
   }
 }
+
+emojify.dictionary = dictionary;
+

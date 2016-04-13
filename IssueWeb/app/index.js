@@ -1244,11 +1244,81 @@ var AddComment = React.createClass({
     if (cm && cm.issueWebConfigured === undefined) {
       cm.issueWebConfigured = true;
       
-      // Show assignees completion on @ press
+      var sentinelHint = function(cm, options) {
+        var cur = cm.getCursor();
+        var wordRange = cm.findWordAt(cur);
+
+        var sentinel = options.sentinel || " ";        
+        var term = cm.getRange(wordRange.anchor, wordRange.head);
+        
+        if (term != sentinel) {          
+          wordRange.anchor.ch -= 1;
+          term = cm.getRange(wordRange.anchor, wordRange.head);
+          
+          if (term.indexOf(sentinel) != 0) {
+            // return if we didn't begin with sentinel
+            return;
+          }
+        }
+        
+        if (wordRange.anchor.ch != 0) {
+          var prev = {line:wordRange.anchor.line, ch:wordRange.anchor.ch-1};
+          var thingBefore = cm.getRange(prev, wordRange.anchor);
+          if (!(/\s/.test(thingBefore))) {
+            // return if the thing before sentinel isn't either the beginning of the line or a space
+            return;
+          }
+        }
+        
+        // use the hint function to append a space after the completion
+        var hint = function(cm, data, completion) {
+          return cm.replaceRange(completion.text + " ", completion.from || data.from, completion.to || data.to, "complete");
+        }
+        
+        var found = options.words.
+        filter((w) => w.slice(0, term.length) == term).
+        map(function(w) { return { text: w, hint: hint } })
+        
+        if (found.length) {
+          var ret = {list: found, from: wordRange.anchor, to: wordRange.head};
+          if (options.render) {
+            ret.list = ret.list.map((c) => {
+              return Object.assign({}, c, {render: options.render});
+            });
+          }
+          return ret;
+        }
+      };
+      
+      // Show assignees and emoji completions on @ or : press
       cm.on('change', function(cm, change) {
+        if (!cm.hasFocus()) return;
+        var cursor = cm.getCursor();
+        var mode = cm.getModeAt(cursor);
+        if (mode.name != 'markdown') return; // don't do completions outside of markdown mode
+        
         if (change.text.length == 1 && change.text[0] === '@') {
-          CodeMirror.showHint(cm, CodeMirror.hint.fromList, {
-            words: getIvars().assignees.map((a) => a.login)
+          CodeMirror.showHint(cm, sentinelHint, {
+            words: getIvars().assignees.map((a) => '@' + a.login),
+            sentinel: '@'
+          });
+        } else if (change.text.length == 1 && change.text[0] === ':' && !cm.state.completionActive) {
+          CodeMirror.showHint(cm, sentinelHint, {
+            words: Object.keys(emojify.dictionary).map((w) => ':' + w + ":"),
+            sentinel: ':',
+            render: (element, self, data) => {
+              var base = document.createTextNode(data.text);
+              element.appendChild(base);
+              var emoji = emojify(data.text, {size:14});
+              if (emoji.indexOf('<img') != -1) {
+                var span = document.createElement('span');
+                span.innerHTML = emoji;
+                element.appendChild(span);
+              } else {
+                var enode = document.createTextNode(emoji);
+                element.appendChild(enode);
+              }
+            }
           });
         }
       });
