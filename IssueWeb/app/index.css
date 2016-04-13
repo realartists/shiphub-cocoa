@@ -488,6 +488,10 @@ div.IssueLabels .LabelContainer {
 
 .CodeMirror pre.CodeMirror-placeholder { color: #999; }
 
+/* Use system highlight color for selected text */
+.CodeMirror-focused .CodeMirror-selected { background: Highlight; }
+.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: Highlight; }
+
 .commentFooter {
   text-align: right;
   height: 40px;
