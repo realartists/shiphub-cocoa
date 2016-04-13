@@ -1842,8 +1842,7 @@ var App = React.createClass({
 });
 
 function applyIssueState(state) {
-  console.log("rendering:");
-  console.log(state);
+  console.log("rendering:", state);
   
   var issue = state.issue;
   
