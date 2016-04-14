@@ -137,6 +137,31 @@ function applyCommentEdit(commentIdentifier, newBody) {
   }
 }
 
+function applyCommentDelete(commentIdentifier) {
+  // DELETE /repos/:owner/:repo/issues/comments/:id
+  
+  var owner = getIvars().issue._bare_owner;
+  var repo = getIvars().issue._bare_repo;
+  var num = getIvars().issue.number;
+  
+  if (num != null) {
+    var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
+    var request = fetch(url, { 
+      headers: { 
+        Authorization: "token " + debugToken,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }, 
+      method: "DELETE"
+    });
+    request.then(function(resp) {
+      // success
+    }).catch(function(err) {
+      console.log(err);
+    });
+  }
+}
+
 function applyComment(commentBody) {
   // POST /repos/:owner/:repo/issues/:number/comments
   
@@ -182,10 +207,23 @@ function editComment(commentIdx, newBody) {
   if (commentIdx == 0) {
     patchIssue({body: newBody});
   } else {
+    commentIdx--;
     window.ivars.issue.allComments[commentIdx].body = newBody;
     applyIssueState(window.ivars);
-    applyCommentEdit(window.ivars.issue.allComments[commentidx].id, newBody);
+    applyCommentEdit(window.ivars.issue.allComments[commentIdx].id, newBody);
   }
+}
+
+function deleteComment(commentIdx) {
+  console.log("deleteComment", commentIdx);
+  console.log("allComments", window.ivars.issue.allComments);
+  if (commentIdx == 0) return; // cannot delete first comment
+  commentIdx--;
+  var c = window.ivars.issue.allComments[commentIdx];
+  console.log("Delete", c);
+  window.ivars.issue.allComments = window.ivars.issue.allComments.splice(commentIdx, 1);
+  applyIssueState(window.ivars);
+  applyCommentDelete(c.id);
 }
 
 function addComment(body) {
@@ -371,158 +409,6 @@ var AvatarIMG = React.createClass({
     img.onload = () => { this.loaded(); };
     img.src = url;
   }
-});
-
-var CommentControls = React.createClass({
-  propTypes: {
-    comment: React.PropTypes.object.isRequired,
-    first: React.PropTypes.bool
-  },
-  
-  render: function() {
-    var els = [];
-    els.push(h('i', {key:"edit", className:'fa fa-pencil'}));
-    if (!this.props.first) {
-      els.push(h('i', {key:"trash", className:'fa fa-trash-o'}));
-    }
-    return h('div', {className:'commentControls'}, els);
-  }
-});
-
-var CommentHeader = React.createClass({
-  propTypes: {
-    comment: React.PropTypes.object.isRequired,
-    first: React.PropTypes.bool
-  },
-  
-  render: function() {
-    var user = this.props.comment.user||this.props.comment.author;
-    if (!user) user = ghost;
-    var desc = " commented ";
-    if (this.props.first) {
-      desc = " filed ";
-    }
-    return h('div', {className:'commentHeader'},
-      h(AvatarIMG, {user:user, size:32}),
-      h('span', {className:'commentAuthor'}, user.login),
-      h('span', {className:'commentTimeAgo'}, desc),
-      h(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
-      h(CommentControls, {comment:this.props.comment, first:this.props.first})
-    );
-  }
-});
-
-function preOrderTraverseDOM(root, handler) {
-  var stack = [root];
-  var i = 0;
-  while (stack.length != 0) {
-    var x = stack.shift();
-    
-    handler(x, i);
-    i++;
-    
-    if (x.childNodes != null) {
-      stack.unshift(...x.childNodes);
-    }
-  }
-}
-
-function matchAll(re, str) {
-  var matches = [];
-  var match;
-  while ((match = re.exec(str)) !== null) {
-    matches.push(match);
-  }
-  return matches;
-}
-
-var Comment = React.createClass({
-  propTypes: {
-    comment: React.PropTypes.object.isRequired,
-    commentIdx: React.PropTypes.number,
-    first: React.PropTypes.bool
-  },
-  
-  render: function() {
-    var body =  h('div', { 
-      className:'commentBody', 
-      ref: 'commentBody',
-      dangerouslySetInnerHTML: {__html:marked(this.props.comment.body, markdownOpts)}
-    })
-    
-    if (this.props.comment.body == null || this.props.comment.body.length == 0) {
-      var body =  h('div', { 
-        className:'commentBody', 
-        style: {padding: "14px"},
-        ref: 'commentBody',
-        dangerouslySetInnerHTML: {__html:'<i style="color: #777;">No Description Given.</i>'}
-      });
-    }
-
-  
-    return h('div', {className:'comment'},
-      h(CommentHeader, {comment:this.props.comment, first:this.props.first}),  
-      body       
-    );
-  },
-  
-  updateCheckbox: function(i, checked) {
-    console.log("i", i);
-    // find the i-th checkbox in the markdown
-    var body = this.props.comment.body;
-    var pattern = /((?:(?:\d+\.)|(?:\-)|(?:\*))\s+)\[[x ]\]/g;
-    var matches = matchAll(pattern, body);
-    
-    for (var j = 0; j < matches.length; j++) {
-      console.log("j", j, "start", matches[j].index);
-    }
-        
-    if (i < matches.length) {
-      var match = matches[i];
-      
-      var start = match.index;
-      start += match[1].length;
-      
-      var checkText;
-      if (checked) {
-        checkText = "[x]";
-      } else {
-        checkText = "[ ]";
-      }
-      body = body.slice(0, start) + checkText + body.slice(start + 3);
-      
-      editComment(this.props.commentIdx, body);
-    }
-  },
-  
-  findTaskItems: function() {
-    var el = ReactDOM.findDOMNode(this.refs.commentBody);
-    
-    // traverse dom, pre-order, rooted at el, looking for checkboxes
-    // we're going to bind to those guys as we find them
-    
-    var nodes = [];
-    preOrderTraverseDOM(el, (x) => nodes.push(x));
-    
-    var checks = nodes.filter((x) => x.nodeName == 'INPUT' && x.type == 'checkbox');
-    
-    checks.forEach((x, i) => {
-      x.onchange = (evt) => {
-        var checked = evt.target.checked;
-        this.updateCheckbox(i, checked);
-      };
-    });
-  },
-  
-  componentDidUpdate: function() {
-    this.findTaskItems();
-  },
-  
-  componentDidMount: function() {
-    this.findTaskItems();
-  },
-  
-  
 });
 
 var EventIcon = React.createClass({
@@ -953,22 +839,42 @@ var AddCommentHeader = React.createClass({
 });
 
 var AddCommentFooter = React.createClass({
-  markdownClicked: function() {
-    
-  },
-
   render: function() {
     var contents = [];
     
     if (!this.props.previewing) {
-      contents.push(h('a', {key:'markdown', className:'markdown-mark formattingHelpButton', target:"_blank", href:"https://guides.github.com/features/mastering-markdown/", title:"Open Markdown Formatting Guide"}));
+      contents.push(h('a', {
+        key:'markdown', 
+        className:'markdown-mark formattingHelpButton', 
+        target:"_blank", 
+        href:"https://guides.github.com/features/mastering-markdown/", 
+        title:"Open Markdown Formatting Guide"
+      }));
     }
     
     if (this.props.canClose) {
-      contents.push(h('div', {key:'close', className:'Clickable addCommentButton addCommentCloseButton', onClick:this.props.onClose}, 'Close Issue'));
+      contents.push(h('div', {
+        key:'close', 
+        className:'Clickable addCommentButton addCommentCloseButton', 
+        onClick:this.props.onClose}, 
+        'Close Issue'
+      ));
+    } else if (this.props.editingExisting) {
+      contents.push(h('div', {
+        key:'cancel', 
+        className:'Clickable addCommentButton addCommentCloseButton', 
+        onClick:this.props.onCancel}, 
+        'Cancel'
+      ));
     }
-    contents.push(h('div', {key:'save', className:'Clickable addCommentButton addCommentSaveButton', onClick:this.props.onSave}, 'Comment'));
-  
+    
+    contents.push(h('div', {
+      key:'save', 
+      className:'Clickable addCommentButton addCommentSaveButton', 
+      onClick:this.props.onSave}, 
+      (this.props.editingExisting ? 'Update' : 'Comment')
+    ));
+    
     return h('div', {className:'commentFooter'}, contents);
   }
 });
@@ -982,17 +888,162 @@ var AddCommentUploadProgress = React.createClass({
   }
 });
 
-var AddComment = React.createClass({
+var CommentControls = React.createClass({
+  propTypes: {
+    comment: React.PropTypes.object.isRequired,
+    first: React.PropTypes.bool,
+    editing: React.PropTypes.bool,
+    hasContents: React.PropTypes.bool,
+    previewing: React.PropTypes.bool,
+    togglePreview: React.PropTypes.func,
+    attachFiles: React.PropTypes.func,
+    beginEditing: React.PropTypes.func,
+    cancelEditing: React.PropTypes.func,
+    deleteComment: React.PropTypes.func,
+  },
+  
+  getInitialState: function() {
+    return {
+      confirmingDelete: false
+    }
+  },
+  
+  confirmDelete: function() {
+    this.setState({confirmingDelete: true});
+  },
+  
+  cancelDelete: function() {
+    this.setState({confirmingDelete: false});
+  },
+  
+  performDelete: function() {
+    this.setState({confirmingDelete: false});
+    if (this.props.deleteComment) {
+      this.props.deleteComment();
+    }
+  },
+    
+  render: function() {
+    var buttons = [];
+    if (this.props.editing) {
+      if (this.props.previewing) {
+        buttons.push(h('i', {key:"eye-slash", className:'fa fa-eye-slash', title:"Toggle Preview", onClick:this.props.togglePreview}));
+      } else {
+        buttons.push(h('i', {key:"paperclip", className:'fa fa-paperclip', title:"Attach Files", onClick:this.props.attachFiles}));
+        if (this.props.hasContents) {
+          buttons.push(h('i', {key:"eye", className:'fa fa-eye', title:"Toggle Preview", onClick:this.props.togglePreview}));
+        }
+      }
+      buttons.push(h('i', {key:"edit", className:'fa fa-pencil-square', onClick:this.props.cancelEditing}));
+    } else {  
+      if (this.state.confirmingDelete) {
+        buttons.push(h('span', {key:'confirm', className:'confirmCommentDelete'}, 
+          "Really delete this comment? ",
+          h('span', {key:'no', className:'confirmDeleteControl Clickable', onClick:this.cancelDelete}, 'No'),
+          " ",
+          h('span', {key:'yes', className:'confirmDeleteControl Clickable', onClick:this.performDelete}, 'Yes')
+        ));
+      } else {
+        buttons.push(h('i', {key:"edit", className:'fa fa-pencil', onClick:this.props.beginEditing}));
+        if (!this.props.first) {
+          buttons.push(h('i', {key:"trash", className:'fa fa-trash-o', onClick:this.confirmDelete}));
+        }
+      }
+    }
+    return h('div', {className:'commentControls'}, buttons);
+  }
+});
+
+var CommentHeader = React.createClass({  
+  render: function() {
+    var user = this.props.comment.user||this.props.comment.author;
+    if (!user) user = ghost;
+    var desc = " commented ";
+    if (this.props.first) {
+      desc = " filed ";
+    }
+    return h('div', {className:'commentHeader'},
+      h(AvatarIMG, {user:user, size:32}),
+      h('span', {className:'commentAuthor'}, user.login),
+      h('span', {className:'commentTimeAgo'}, desc),
+      h(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
+      h(CommentControls, this.props)
+    );
+  }
+});
+
+function preOrderTraverseDOM(root, handler) {
+  var stack = [root];
+  var i = 0;
+  while (stack.length != 0) {
+    var x = stack.shift();
+    
+    handler(x, i);
+    i++;
+    
+    if (x.childNodes != null) {
+      stack.unshift(...x.childNodes);
+    }
+  }
+}
+
+function matchAll(re, str) {
+  var matches = [];
+  var match;
+  while ((match = re.exec(str)) !== null) {
+    matches.push(match);
+  }
+  return matches;
+}
+
+var Comment = React.createClass({
+  propTypes: {
+    comment: React.PropTypes.object,
+    commentIdx: React.PropTypes.number,
+    first: React.PropTypes.bool
+  },
+
   getInitialState: function() {
 		return {
+		  editing: !(this.props.comment),
 			code: "",
 			previewing: false,
 			uploadCount: 0,
 		};
 	},
 	
+	componentWillReceiveProps: function(nextProps) {
+	  if (this.state.editing && nextProps.comment && this.props.comment && nextProps.comment.id != this.props.comment.id) {
+	    this.setState(Object.assign({}, this.state, {editing: false}));
+	  }
+	},
+	
 	updateCode: function(newCode) {
 	  this.setState(Object.assign({}, this.state, {code: newCode}));
+	},
+	
+	beginEditing: function() {
+	  if (!this.state.editing) {
+      this.setState(Object.assign({}, this.state, {
+        previewing: false,
+        editing: true,
+        code: this.props.comment.body || ""
+      }));
+    }
+	},
+	
+	cancelEditing: function() {
+	  if (this.state.editing) {
+      this.setState(Object.assign({}, this.state, {
+        previewing: false,
+        editing: false,
+        code: ""
+      }));
+    }
+	},
+	
+	deleteComment: function() {
+	  deleteComment(this.props.commentIdx);
 	},
 	
 	togglePreview: function() {
@@ -1014,10 +1065,16 @@ var AddComment = React.createClass({
 	
 	save: function() {
     var body = this.state.code;
+    this.setState(Object.assign({}, this.state, {code: "", previewing: false, editing: false}));
     if (body.trim().length > 0) {
-      addComment(body);
+      if (this.props.comment) {
+        if (this.props.comment.body != body) {
+          editComment(this.props.commentIdx, body);
+        }
+      } else {
+        addComment(body);
+      }
     }
-    this.setState({code: "", previewing: false});
 	},
 	
 	saveAndClose: function() {
@@ -1025,49 +1082,105 @@ var AddComment = React.createClass({
 	  patchIssue({"state": "closed"});
 	},
 
-  render: function() {
-    var canClose = getIvars().issue.number > 0 && getIvars().issue.state === "open";
+  renderCodemirror: function() {
+    return h('div', {className: 'CodeMirrorContainer', onClick:this.focusCodemirror},
+      h(Codemirror, {
+        ref: 'codemirror',
+        value: this.state.code,
+        onChange: this.updateCode,
+        options: {
+          readOnly: false,
+          mode: 'gfm',
+          placeholder: "Leave a comment",
+          cursorHeight: 0.85
+        }
+      })
+    )
+  },
   
-    return h('div', {className:'comment addComment'},
-      h(AddCommentHeader, {
+  renderCommentBody: function(body) {
+    if (!body || body.trim().length == 0) {
+      return h('div', { 
+        className:'commentBody', 
+        style: {padding: "14px"},
+        ref: 'commentBody',
+        dangerouslySetInnerHTML: {__html:'<i style="color: #777;">No Description Given.</i>'}
+      });
+    } else {
+      return h('div', { 
+        className:'commentBody', 
+        ref: 'commentBody',
+        dangerouslySetInnerHTML: {__html:marked(body, markdownOpts)}
+      });
+    }
+  },
+  
+  renderHeader: function() {
+    if (this.props.comment) {
+      return h(CommentHeader, {
+        ref:'header',
+        comment:this.props.comment, 
+        first:this.props.first,
+        editing:this.state.editing,
+        hasContents:this.state.code.trim().length>0,
+        previewing:this.state.previewing,
+        togglePreview:this.togglePreview,
+        attachFiles:this.selectFiles,
+        beginEditing:this.beginEditing,
+        cancelEditing:this.cancelEditing,
+        deleteComment:this.deleteComment,
+      });
+    } else {
+      return h(AddCommentHeader, {
         ref:'header', 
         hasContents:this.state.code.trim().length>0,
         previewing:this.state.previewing,
         togglePreview:this.togglePreview,
         attachFiles:this.selectFiles
-      }),
-      
-      (this.state.previewing ?
-        h('div', { 
-          className:'commentBody', 
-          ref: 'commentBody',
-          dangerouslySetInnerHTML: {__html:marked(this.state.code, markdownOpts)}
-        }) :      
-        h('div', {className: 'CodeMirrorContainer', onClick:this.focusCodemirror},
-          h(Codemirror, {
-            ref: 'codemirror',
-            value: this.state.code,
-            onChange: this.updateCode,
-            options: {
-              readOnly: false,
-              mode: 'gfm',
-              placeholder: "Leave a comment",
-              cursorHeight: 0.85
-            }
-          })
-        )
-      ),
-      
-      (this.state.uploadCount > 0 ?
-        h(AddCommentUploadProgress, {ref:'uploadProgress'}) :  
-        h(AddCommentFooter, {
+      });
+    }
+  },
+  
+  renderFooter: function() {
+    if (this.state.editing) {
+      if (this.state.uploadCount > 0) {
+        return h(AddCommentUploadProgress, {ref:'uploadProgress'});
+      } else {
+        var editingExisting = !!(this.props.comment);
+        var canClose = !editingExisting && getIvars().issue.number > 0 && getIvars().issue.state === "open";
+        return h(AddCommentFooter, {
           ref:'footer', 
           canClose: canClose,
           previewing: this.state.previewing,
           onClose: this.saveAndClose, 
-          onSave: this.save 
+          onSave: this.save,
+          onCancel: this.cancelEditing,
+          editingExisting: !!(this.props.comment)
         })
-      )
+      }
+    } else {
+      return h('span');
+    }
+  },
+
+  render: function() {
+    if (!this.state.editing && !this.props.comment) {
+      console.log("Invalid state detected! Must always be editing if no comment");
+    }
+  
+    var showEditor = this.state.editing && !this.state.previewing;
+    var body = this.state.editing ? this.state.code : this.props.comment.body;
+    
+    var outerClass = 'comment';
+    
+    if (!this.props.comment) {
+      outerClass += ' addComment';
+    }
+
+    return h('div', {className:'comment addComment'},
+      this.renderHeader(),
+      (showEditor ? this.renderCodemirror() : this.renderCommentBody(body)),
+      this.renderFooter()
     );
   },
   
@@ -1337,12 +1450,65 @@ var AddComment = React.createClass({
     }
   },
   
+  updateCheckbox: function(i, checked) {
+    if (!(this.props.comment)) return;
+    
+    // find the i-th checkbox in the markdown
+    var body = this.props.comment.body;
+    var pattern = /((?:(?:\d+\.)|(?:\-)|(?:\*))\s+)\[[x ]\]/g;
+    var matches = matchAll(pattern, body);
+    
+    for (var j = 0; j < matches.length; j++) {
+      console.log("j", j, "start", matches[j].index);
+    }
+        
+    if (i < matches.length) {
+      var match = matches[i];
+      
+      var start = match.index;
+      start += match[1].length;
+      
+      var checkText;
+      if (checked) {
+        checkText = "[x]";
+      } else {
+        checkText = "[ ]";
+      }
+      body = body.slice(0, start) + checkText + body.slice(start + 3);
+      
+      editComment(this.props.commentIdx, body);
+    }
+  },
+  
+  findTaskItems: function() {
+    if (!(this.props.comment) || this.state.editing) return;
+  
+    var el = ReactDOM.findDOMNode(this.refs.commentBody);
+    
+    // traverse dom, pre-order, rooted at el, looking for checkboxes
+    // we're going to bind to those guys as we find them
+    
+    var nodes = [];
+    preOrderTraverseDOM(el, (x) => nodes.push(x));
+    
+    var checks = nodes.filter((x) => x.nodeName == 'INPUT' && x.type == 'checkbox');
+    
+    checks.forEach((x, i) => {
+      x.onchange = (evt) => {
+        var checked = evt.target.checked;
+        this.updateCheckbox(i, checked);
+      };
+    });
+  },
+  
   componentDidUpdate: function() {
     this.configureCM();
+    this.findTaskItems();
   },
   
   componentDidMount: function() {
     this.configureCM();
+    this.findTaskItems();
   }
 });
 
@@ -1818,7 +1984,7 @@ var App = React.createClass({
 
     var header = h(Header, {issue: issue});
     var activity = h(ActivityList, {key:issue["id"], issue:issue});
-    var addComment = h(AddComment);
+    var addComment = h(Comment);
     
     var issueElement = h('div', {},
       header,

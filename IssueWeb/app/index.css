@@ -548,3 +548,14 @@ div.IssueLabels .LabelContainer {
 .formattingHelpButton:visited {
   color: #BBB;
 }
+
+.confirmCommentDelete {
+  color: #555;
+  cursor: default;
+  -webkit-user-select: none;
+  white-space: nowrap;
+}
+
+.confirmDeleteControl:hover {
+  color: #0085E4;
+}
