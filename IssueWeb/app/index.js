@@ -215,13 +215,10 @@ function editComment(commentIdx, newBody) {
 }
 
 function deleteComment(commentIdx) {
-  console.log("deleteComment", commentIdx);
-  console.log("allComments", window.ivars.issue.allComments);
   if (commentIdx == 0) return; // cannot delete first comment
   commentIdx--;
   var c = window.ivars.issue.allComments[commentIdx];
-  console.log("Delete", c);
-  window.ivars.issue.allComments = window.ivars.issue.allComments.splice(commentIdx, 1);
+  window.ivars.issue.allComments = window.ivars.issue.allComments.splice(commentIdx+1, 1);
   applyIssueState(window.ivars);
   applyCommentDelete(c.id);
 }
