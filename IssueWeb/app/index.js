@@ -1078,7 +1078,9 @@ var AddCommentFooter = React.createClass({
       contents.push(h('a', {key:'markdown', className:'markdown-mark formattingHelpButton', target:"_blank", href:"https://guides.github.com/features/mastering-markdown/", title:"Open Markdown Formatting Guide"}));
     }
     
-    contents.push(h('div', {key:'close', className:'Clickable addCommentButton addCommentCloseButton', onClick:this.props.onClose}, 'Close Issue'));
+    if (this.props.canClose) {
+      contents.push(h('div', {key:'close', className:'Clickable addCommentButton addCommentCloseButton', onClick:this.props.onClose}, 'Close Issue'));
+    }
     contents.push(h('div', {key:'save', className:'Clickable addCommentButton addCommentSaveButton', onClick:this.props.onSave}, 'Comment'));
   
     return h('div', {className:'commentFooter'}, contents);
@@ -1138,6 +1140,8 @@ var AddComment = React.createClass({
 	},
 
   render: function() {
+    var canClose = getIvars().issue.number > 0 && getIvars().issue.state === "open";
+  
     return h('div', {className:'comment addComment'},
       h(AddCommentHeader, {
         ref:'header', 
@@ -1172,6 +1176,7 @@ var AddComment = React.createClass({
         h(AddCommentUploadProgress, {ref:'uploadProgress'}) :  
         h(AddCommentFooter, {
           ref:'footer', 
+          canClose: canClose,
           previewing: this.state.previewing,
           onClose: this.saveAndClose, 
           onSave: this.save 
