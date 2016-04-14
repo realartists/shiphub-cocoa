@@ -1089,7 +1089,8 @@ var Comment = React.createClass({
           readOnly: false,
           mode: 'gfm',
           placeholder: "Leave a comment",
-          cursorHeight: 0.85
+          cursorHeight: 0.85,
+          lineWrapping: true
         }
       })
     )
