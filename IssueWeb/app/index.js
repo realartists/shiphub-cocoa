@@ -184,7 +184,6 @@ function applyComment(commentBody) {
       return resp.json()
     }).then(function(body) {
       var id = body.id;
-      console.log("updating id to " + id);
       window.ivars.issue.allComments.forEach((m) => {
         if (m.id === 'new') {
           m.id = id;
@@ -723,7 +722,7 @@ var ActivityList = React.createClass({
     };
     
     // need to merge events and comments together into one array, ordered by date
-    var eventsAndComments = [firstComment];
+    var eventsAndComments = firstComment.id ? [firstComment] : [];
     
     var events = this.props.issue.allEvents;
     
@@ -837,6 +836,16 @@ var AddCommentHeader = React.createClass({
 
 var AddCommentFooter = React.createClass({
   render: function() {
+    var issue = getIvars().issue;
+    var isNewIssue = !(issue.number);
+    var canSave = false;
+    
+    if (isNewIssue) {
+      canSave = (issue.title || "").trim().length > 0 && !!(issue._bare_owner) && !!(issue._bare_repo);
+    } else {
+      canSave = this.props.hasContents;
+    }
+    
     var contents = [];
     
     if (!this.props.previewing) {
@@ -865,12 +874,20 @@ var AddCommentFooter = React.createClass({
       ));
     }
     
-    contents.push(h('div', {
-      key:'save', 
-      className:'Clickable addCommentButton addCommentSaveButton', 
-      onClick:this.props.onSave}, 
-      (this.props.editingExisting ? 'Update' : 'Comment')
-    ));
+    if (canSave) {
+      contents.push(h('div', {
+        key:'save', 
+        className:'Clickable addCommentButton addCommentSaveButton', 
+        onClick:this.props.onSave}, 
+        (this.props.editingExisting ? 'Update' : (isNewIssue ? 'Save' : 'Comment'))
+      ));
+    } else {
+      contents.push(h('div', {
+        key:'save', 
+        className:'Clickable addCommentButton addCommentSaveButton addCommentSaveButtonDisabled'}, 
+        (this.props.editingExisting ? 'Update' : (isNewIssue ? 'Save' : 'Comment'))
+      ));
+    }
     
     return h('div', {className:'commentFooter'}, contents);
   }
@@ -1061,15 +1078,22 @@ var Comment = React.createClass({
 	},
 	
 	save: function() {
+	  var isNewIssue = !(getIvars().issue.number);
+	  var isAddNew = !(this.props.comment);
     var body = this.state.code;
-    this.setState(Object.assign({}, this.state, {code: "", previewing: false, editing: false}));
-    if (body.trim().length > 0) {
-      if (this.props.comment) {
-        if (this.props.comment.body != body) {
-          editComment(this.props.commentIdx, body);
+    this.setState(Object.assign({}, this.state, {code: "", previewing: false, editing: isAddNew}));
+    
+    if (isNewIssue) {
+      
+    } else {    
+      if (body.trim().length > 0) {
+        if (this.props.comment) {
+          if (this.props.comment.body != body) {
+            editComment(this.props.commentIdx, body);
+          }
+        } else {
+          addComment(body);
         }
-      } else {
-        addComment(body);
       }
     }
 	},
@@ -1080,6 +1104,8 @@ var Comment = React.createClass({
 	},
 
   renderCodemirror: function() {
+    var isNewIssue = !(getIvars().issue.number);
+  
     return h('div', {className: 'CodeMirrorContainer', onClick:this.focusCodemirror},
       h(Codemirror, {
         ref: 'codemirror',
@@ -1088,7 +1114,7 @@ var Comment = React.createClass({
         options: {
           readOnly: false,
           mode: 'gfm',
-          placeholder: "Leave a comment",
+          placeholder: (isNewIssue ? "Describe the issue" : "Leave a comment"),
           cursorHeight: 0.85,
           lineWrapping: true
         }
@@ -1153,6 +1179,7 @@ var Comment = React.createClass({
           onClose: this.saveAndClose, 
           onSave: this.save,
           onCancel: this.cancelEditing,
+          hasContents: this.state.code.trim().length > 0,
           editingExisting: !!(this.props.comment)
         })
       }
@@ -1329,7 +1356,6 @@ var Comment = React.createClass({
       
       // Configure file attachment handling
       cm.on('drop', (cm, e) => {
-        console.log("ondrop", e);
         var files = e.dataTransfer.files;
         if (files.length > 0) {
           this.attachFiles(files);
@@ -1455,11 +1481,7 @@ var Comment = React.createClass({
     var body = this.props.comment.body;
     var pattern = /((?:(?:\d+\.)|(?:\-)|(?:\*))\s+)\[[x ]\]/g;
     var matches = matchAll(pattern, body);
-    
-    for (var j = 0; j < matches.length; j++) {
-      console.log("j", j, "start", matches[j].index);
-    }
-        
+            
     if (i < matches.length) {
       var match = matches[i];
       
@@ -1581,6 +1603,14 @@ var IssueTitle = React.createClass({
     this.titleChanged(this.state.editedValue);
   },
   
+  focus: function() {
+    this.refs.input.focus()
+  },
+  
+  componentDidMount: function() {
+    this.focus();
+  },
+  
   render: function() {
     var val = this.props.issue.title;
     if (this.state.edited) {
@@ -1589,7 +1619,7 @@ var IssueTitle = React.createClass({
   
     var children = [
       h(HeaderLabel, {title:'Title'}),
-      h(SmartInput, {element:Textarea, initialValue:this.props.issue.title, value:val, className:'TitleArea', onChange:this.titleChanged, onEdit:this.onEdit}),
+      h(SmartInput, {ref:"input", element:Textarea, initialValue:this.props.issue.title, value:val, className:'TitleArea', onChange:this.titleChanged, onEdit:this.onEdit, placeholder:"Required"}),
       h(IssueNumber, {issue: this.props.issue})
     ];
     
@@ -1616,8 +1646,68 @@ var IssueNumber = React.createClass({
 
 var RepoField = React.createClass({
   propTypes: { 
-    issue: React.PropTypes.object,
-    onChange: React.PropTypes.func 
+    issue: React.PropTypes.object
+  },
+  
+  onChange: function(newRepo) {
+    var fail = () => {
+      this.refs.input.setState({value: ""});
+    };
+  
+    if (newRepo.indexOf('/') == -1) {
+      fail();
+      return;
+    }
+    
+    var [owner, repo] = newRepo.split("/");
+    
+    var repoInfo = getIvars().repos.find((x) => x.full_name == newRepo);
+    
+    if (!repoInfo) {
+      fail();
+      return;
+    }
+    
+    // fetch new metadata and merge it in
+    loadMetadata(newRepo).then((meta) => {
+      var state = getIvars();
+      state = Object.assign({}, state, meta);
+      state.issue = Object.assign({}, state.issue, { 
+        _bare_repo: repo, 
+        _bare_owner: owner,
+        milestone: null,
+        assignee: null,
+        labels: []
+      });
+      try {
+        if (this.refs.input.refs.typeInput.hasFocus()) {
+          this.props.focusNext("repo")
+        }
+      } catch (e) { }
+      applyIssueState(state);
+    }).catch((err) => {
+      console.log("Could not load metadata for repo", newRepo, err);
+      fail();
+    });      
+  },
+  
+  onEnter: function() {
+    var completer = this.refs.input;
+    var el = ReactDOM.findDOMNode(completer.refs.typeInput);
+    var val = el.value;
+    
+    completer.props.matcher(val, (results) => {
+      if (results.length >= 1) {
+        var result = results[0];
+        this.onChange(result);
+      }
+    });
+  },
+  
+  focus: function() {
+    if (this.refs.input) {
+      this.refs.input.focus();
+    }
   },
   
   render: function() {  
@@ -1629,11 +1719,15 @@ var RepoField = React.createClass({
     if (!canEdit) {
       inputType = 'input';
     }
-  
-    var repoValue = "" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo;
+    
+    var repoValue = "";
+    if (this.props.issue._bare_owner && this.props.issue._bare_repo) {
+      repoValue = "" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo;
+    }
+    
     return h('div', {className: 'IssueInput RepoField'},
       h(HeaderLabel, {title: 'Repo'}),
-      h(inputType, {placeholder: 'Required', onChange:this.props.onChange, value:repoValue, matcher: matcher, readOnly:!canEdit})
+      h(inputType, {ref:'input', placeholder: 'Required', onChange:this.onChange, onEnter:this.onEnter, value:repoValue, matcher: matcher, readOnly:!canEdit})
     );
   }
 });
@@ -1672,15 +1766,24 @@ var MilestoneField = React.createClass({
       if (results.length >= 1) {
         var result = results[0];
         this.milestoneChanged(result);
+      } else {
+        this.milestoneChanged(null);
       }
+      this.props.focusNext("milestone");
     });
+  },
+  
+  focus: function() {
+    if (this.refs.completer) {
+      this.refs.completer.focus();
+    }
   },
   
   shouldComponentUpdate: function(nextProps, nextState) {
     var nextNum = keypath(nextProps, "issue.number");
     var oldNum = keypath(this.props, "issue.number");
     
-    if (nextNum == oldNum && this.refs.completer.isEdited()) {
+    if (nextNum && nextNum == oldNum && this.refs.completer.isEdited()) {
       return false;
     }
     return true;
@@ -1714,6 +1817,12 @@ var StateField = React.createClass({
   },
   
   render: function() {
+    var isNewIssue = !(this.props.issue.number);
+    
+    if (isNewIssue) {
+      return h('span');
+    }
+  
     return h('select', {className:'IssueState', value:this.props.issue.state, onChange:this.stateChanged},
       h('option', {value: 'open'}, "Open"),
       h('option', {value: 'closed'}, "Closed")
@@ -1754,15 +1863,24 @@ var AssigneeField = React.createClass({
       if (results.length >= 1) {
         var result = results[0];
         this.assigneeChanged(result);
+      } else {
+        this.assigneeChanged(null);
       }
+      this.props.focusNext("assignee");
     });
+  },
+  
+  focus: function() {
+    if (this.refs.completer) {
+      this.refs.completer.focus();
+    }
   },
   
   shouldComponentUpdate: function(nextProps, nextState) {
     var nextNum = keypath(nextProps, "issue.number");
     var oldNum = keypath(this.props, "issue.number");
     
-    if (nextNum == oldNum && this.refs.completer.isEdited()) {
+    if (nextNum && nextNum == oldNum && this.refs.completer.isEdited()) {
       return false;
     }
     return true;
@@ -1822,23 +1940,28 @@ var AddLabel = React.createClass({
   },
   
   addLabel: function(label) {
-    console.log(label);
     var labels = [label, ...this.props.issue.labels];
     patchIssue({labels: labels});
+  },
+  
+  focus: function() {
+    if (this.refs.picker) {
+      this.refs.picker.focus();
+    }
   },
   
   render: function() {
     var allLabels = getIvars().labels;
     var chosenLabels = keypath(this.props.issue, "labels") || [];
-    var chosenLabelsLookup = {};
-    chosenLabels.forEach((l) => {chosenLabelsLookup[l.name] = l});
-  
-    var filteredLabels = allLabels.filter((l) => !(l.name in chosenLabels));
+    
+    var chosenLabelsLookup = chosenLabels.reduce((o, l) => { o[l.name] = l; return o; }, {});  
+    var filteredLabels = allLabels.filter((l) => !(l.name in chosenLabelsLookup));
     
     if (filteredLabels.length == 0) {
       return h('div', {className:'AddLabelEmpty'});
     } else {
       return h(LabelPicker, {
+        ref: "picker",
         labels: filteredLabels,
         onAdd: this.addLabel
       });
@@ -1854,10 +1977,16 @@ var IssueLabels = React.createClass({
     patchIssue({labels: labels});
   },
   
+  focus: function() {
+    if (this.refs.add) {
+      this.refs.add.focus();
+    }
+  },
+  
   render: function() {
     return h('div', {className:'IssueLabels'},
       h(HeaderLabel, {title:"Labels"}),
-      h(AddLabel, {issue: this.props.issue}),
+      h(AddLabel, {issue: this.props.issue, ref:"add"}),
       this.props.issue.labels.map((l, i) => { 
         return [" ", h(Label, {key:i, label:l, canDelete:true, onDelete: this.deleteLabel})];
       }).reduce(function(c, v) { return c.concat(v); }, [])
@@ -1868,18 +1997,56 @@ var IssueLabels = React.createClass({
 var Header = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
+  focusNext: function(current) {
+    var next = null;
+    switch (current) {
+      case "title": next = "repo"; break;
+      case "repo": next = "milestone"; break;
+      case "milestone": next = "assignee"; break;
+      case "assignee": next = "labels"; break;
+      case "labels": next = "labels"; break;
+    }
+    
+    if (this.refs[next]) {
+      var x = this.refs[next];
+      setTimeout(() => { x.focus() }, 1);
+    } else {
+      this.queuedFocus = next;
+    }
+  },
+  
+  dequeueFocus: function() {
+    if (this.queuedFocus) {
+      var x = this.refs[this.queuedFocus];
+      this.queuedFocus = null;
+      x.focus();
+    }
+  },
+  
+  componentDidMount: function() {
+    this.dequeueFocus();
+  },
+  
+  componentDidUpdate: function() {
+    this.dequeueFocus();
+  },
+  
   render: function() {
-    return h('div', {className: 'IssueHeader'}, 
-      h(IssueTitle, {issue: this.props.issue}),
-      h(HeaderSeparator, {}),
-      h(RepoField, {issue: this.props.issue}),
-      h(HeaderSeparator, {}),
-      h(MilestoneField, {issue: this.props.issue}),
-      h(HeaderSeparator, {}),
-      h(AssigneeField, {issue: this.props.issue}),
-      h(HeaderSeparator, {}),
-      h(IssueLabels, {issue: this.props.issue})
-    );
+    var hasRepo = this.props.issue._bare_repo && this.props.issue._bare_owner;
+    var els = [];
+    
+    els.push(h(IssueTitle, {key:"title", ref:"title", issue: this.props.issue, focusNext:this.focusNext}),
+             h(HeaderSeparator, {key:"sep0"}),
+             h(RepoField, {key:"repo", ref:"repo", issue: this.props.issue, focusNext:this.focusNext}));
+             
+    els.push(h(HeaderSeparator, {key:"sep1"}),
+             h(MilestoneField, {key:"milestone", ref:"milestone", issue: this.props.issue, focusNext:this.focusNext}),
+             h(HeaderSeparator, {key:"sep2"}),
+             h(AssigneeField, {key:"assignee", ref:"assignee", issue: this.props.issue, focusNext:this.focusNext}),
+             h(HeaderSeparator, {key:"sep3"}),
+             h(IssueLabels, {key:"labels", ref:"labels", issue: this.props.issue}));
+  
+    return h('div', {className: 'IssueHeader'}, els);
   }
 });
 
@@ -1889,8 +2056,6 @@ var DebugLoader = React.createClass({
     var ghURL = "https://github.com/" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo + "/issues/" + this.props.issue.number;
     var val = "" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo + "#" + this.props.issue.number;
     
-    console.log("val => " + val);
-  
     return h("div", {className:"debugLoader"},
       h("span", {}, "Load Problem: "),
       h(SmartInput, {type:"text", size:40, value:val, onChange:this.loadProblem}),
@@ -1974,6 +2139,41 @@ function updateIssue(owner, repo, number) {
   });
 }
 
+function loadMetadata(repoFullName) {
+  var owner = null;
+  var repo = null;
+  
+  if (repoFullName) {
+    [owner, repo] = repoFullName.split("/");
+  }
+
+  var reqs = [pagedFetch("https://api.github.com/user/repos"),
+              simpleFetch("https://api.github.com/user")];
+              
+  if (owner && repo) {
+    reqs.push(pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/assignees"),
+              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/milestones"),
+              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/labels"));
+  }
+  
+  return Promise.all(reqs).then(function(parts) {
+    var meta = {
+      repos: parts[0].filter((r) => r.has_issues),
+      me: parts[1],
+      assignees: (parts.length > 2 ? parts[2] : []),
+      milestones: (parts.length > 3 ? parts[3] : []),
+      labels: (parts.length > 4 ? parts[4] : []),
+      ghToken: getIvars().ghToken,
+    };
+    
+    return new Promise((resolve, reject) => {
+      resolve(meta);
+    });
+  }).catch(function(err) {
+    console.log(err);
+  });
+}
+
 var App = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
@@ -1989,7 +2189,7 @@ var App = React.createClass({
       activity,
       addComment
     );
-
+    
     var outerElement = issueElement;
     if (debugToken && !window.inApp) {
       outerElement = h("div", {},
@@ -2007,7 +2207,7 @@ function applyIssueState(state) {
   
   var issue = state.issue;
   
-  window.document.title = issue.title;
+  window.document.title = issue.title || "New Issue";
   
   if (issue.repository_url) {
     var comps = issue.repository_url.replace("https://", "").split("/");
@@ -2041,6 +2241,44 @@ function applyIssueState(state) {
   )
 }
 
+
+
+function configureNewIssue(initialRepo, meta) {
+  if (!meta) {
+    loadMetadata(initialRepo).then((meta) => {
+      configureNewIssue(initialRepo, meta);
+    }).catch((err) => {
+      console.log("error rendering new issue", err);
+    });
+    return;
+  }
+  
+  var owner = null, repo = null;
+  
+  if (initialRepo) {
+    [owner, repo] = initialRepo.split("/");
+  }
+  
+  var issue = {
+    title: "",
+    state: "open",
+    milestone: null,
+    assignee: null,
+    labels: [],
+    comments: [],
+    events: [],
+    _bare_owner: owner,
+    _bare_repo: repo,
+    user: meta.me
+  };
+  
+  var state = Object.assign({}, meta, {
+    issue: issue
+  });
+  
+  applyIssueState(state);
+}
+
 window.updateIssue = updateIssue;
 window.applyIssueState = applyIssueState;
 window.renderIssue = function(issue) {
@@ -2048,6 +2286,7 @@ window.renderIssue = function(issue) {
 };
 
 if (!window.inApp) {
-  updateIssue("realartists", "shiphub-server", "10")
+  //updateIssue("realartists", "shiphub-server", "10")
+  configureNewIssue();
 }
 

@@ -1,4 +1,5 @@
 import React, { createElement as h } from 'react'
+import ReactDOM from 'react-dom'
 
 /* Component which calls its onChange only if the value is changed on enter or blur */
 var SmartInput = React.createClass({
@@ -13,7 +14,26 @@ var SmartInput = React.createClass({
   },
   
   componentWillReceiveProps: function(newProps) {
-    this.setState({value: newProps.value})
+    this.setState({value: newProps.value || ""})
+  },
+  
+  focus: function() {
+    if (this.refs.input) {
+      var el = ReactDOM.findDOMNode(this.refs.input);
+      if (el) {
+        el.focus();
+      }
+    }
+  },
+  
+  hasFocus: function() {
+    if (this.refs.input) {
+      var el = ReactDOM.findDOMNode(this.refs.input);
+      if (el) {
+        return document.activeElement == el;
+      }
+    }
+    return false;
   },
   
   onChange: function(e) {
@@ -53,7 +73,7 @@ var SmartInput = React.createClass({
   
   render: function() {
     var elementType = this.props.element || 'input';
-    var props = Object.assign({}, this.props, this.state, {onChange:this.onChange, onKeyPress:this.onKeyPress, onBlur:this.onBlur});
+    var props = Object.assign({}, this.props, this.state, {ref:'input', onChange:this.onChange, onKeyPress:this.onKeyPress, onBlur:this.onBlur});
     return h(elementType, props, this.children);
   }
 });

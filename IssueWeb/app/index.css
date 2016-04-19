@@ -386,8 +386,7 @@ span.eventTitle {
 }
 .tt-suggestion:hover {
   cursor: pointer;
-  color: #fff;
-  background-color: #0069D9;
+  background-color: #DDD;
 }
 .tt-suggestion.tt-cursor {
   color: #fff;
@@ -524,6 +523,11 @@ div.IssueLabels .LabelContainer {
   color: #0085E4;
   font-weight: bold;
   border: 1px solid #0085E4;
+}
+
+.addCommentSaveButtonDisabled {
+  color: #CCC;
+  border: 1px solid #CCC;
 }
 
 .commentUploadingLabel {

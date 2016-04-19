@@ -36,6 +36,12 @@ var LabelPicker = React.createClass({
     $(el).focus();
   },
   
+  focus: function() {
+    if (this.refs.completer) {
+      this.refs.completer.focus();
+    }
+  },
+  
   render: function() {
     var matcher = Completer.SubstrMatcher(
       this.props.labels.map((l) => l.name)

@@ -23,6 +23,12 @@ var Completer = React.createClass({
     return h(SmartInput, props);
   },
   
+  focus: function() {
+    if (this.refs.typeInput) {
+      this.refs.typeInput.focus();
+    }
+  },
+  
   isEdited: function() {
     return this.refs.typeInput != null && this.refs.typeInput.isEdited();
   },
