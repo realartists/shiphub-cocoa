@@ -8,11 +8,14 @@
 
 #import "IssueViewController.h"
 
+#import "Auth.h"
 #import "DataStore.h"
+#import "MetadataStore.h"
 #import "Issue.h"
 #import "IssueDocumentController.h"
 #import "IssueIdentifier.h"
 #import "JSON.h"
+#import "User.h"
 
 #import <WebKit/WebKit.h>
 
@@ -61,10 +64,33 @@
     [_web loadRequest:request];
 }
 
+- (NSString *)issueStateJSON:(Issue *)issue {
+    MetadataStore *meta = [[DataStore activeStore] metadataStore];
+    
+    NSMutableDictionary *state = [NSMutableDictionary new];
+    state[@"issue"] = issue;
+    
+    state[@"me"] = [User me];
+    state[@"ghToken"] = [[[DataStore activeStore] auth] ghToken];
+    state[@"repos"] = [meta activeRepos];
+    
+    if (issue.repository) {
+        state[@"assignees"] = [meta assigneesForRepo:issue.repository];
+        state[@"milestones"] = [meta activeMilestonesForRepo:issue.repository];
+        state[@"labels"] = [meta labelsForRepo:issue.repository];
+    } else {
+        state[@"assignees"] = @[];
+        state[@"milestones"] = @[];
+        state[@"labels"] = @[];
+    }
+    
+    return [JSON stringifyObject:state withNameTransformer:[JSON underbarsAndIDNameTransformer]];
+}
+
 - (void)setIssue:(Issue *)issue {
     _issue = issue;
-    NSString *issueJSON = [JSON stringifyObject:issue withNameTransformer:[JSON underbarsAndIDNameTransformer]];
-    NSString *js = [NSString stringWithFormat:@"renderIssue(%@)", issueJSON];
+    NSString *issueJSON = [self issueStateJSON:issue];
+    NSString *js = [NSString stringWithFormat:@"applyIssueState(%@)", issueJSON];
     DebugLog(@"%@", js);
     [self evaluateJavaScript:js];
     self.title = issue.title ?: NSLocalizedString(@"Untitled Issue", nil);

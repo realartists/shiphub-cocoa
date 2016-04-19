@@ -2303,11 +2303,10 @@ function applyIssueState(state) {
     issue._bare_owner = comps[comps.length-2]
     issue._bare_repo = comps[comps.length-1]
   } else {
-    if (issue.owner) {
-      issue._bare_owner = issue.owner.login;
-    }
     if (issue.repository) {
-      issue._bare_repo = issue.repository.name;
+      var comps = issue.repository.full_name.split("/");
+      issue._bare_owner = comps[0];
+      issue._bare_repo = comps[1];
     }
   }
   
