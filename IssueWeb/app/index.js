@@ -1501,7 +1501,8 @@ var Comment = React.createClass({
             
       cm.setOption('extraKeys', {
         'Cmd-B': toggleFormat('**', 'strong'),
-        'Cmd-I': toggleFormat('_', 'em')
+        'Cmd-I': toggleFormat('_', 'em'),
+        'Cmd-S': () => { this.save(); }
       });
     }
   },
