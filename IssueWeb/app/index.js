@@ -199,9 +199,25 @@ function applyComment(commentBody) {
 function saveNewIssue() {
   // POST /repos/:owner/:repo/issues
   
+  console.log("saveNewIssue");
+  
   var issue = getIvars().issue;
+  
+  if (issue.number) {
+    console.log("already have a number");
+    return;
+  }
+  
+  if (!issue.title || issue.title.trim().length == 0) {
+    return;
+  }
+  
   var owner = issue._bare_owner;
   var repo = issue._bare_repo;
+  
+  if (!owner || !repo) {
+    return;
+  }
 
   var url = `https://api.github.com/repos/${owner}/${repo}/issues`;
   var request = fetch(url, {
@@ -1108,16 +1124,32 @@ var Comment = React.createClass({
 	  this.refs.codemirror.focus()
 	},
 	
-	save: function() {
+	onBlur: function() {
 	  var isNewIssue = !(getIvars().issue.number);
+	  if (isNewIssue) {
+	    editComment(0, this.state.code);
+	  }
+	},
+	
+	save: function() {
+	  var issue = getIvars().issue;
+	  var isNewIssue = !(issue.number);
 	  var isAddNew = !(this.props.comment);
     var body = this.state.code;
-    this.setState(Object.assign({}, this.state, {code: "", previewing: false, editing: isAddNew}));
+    
+    var resetState = () => {
+      this.setState(Object.assign({}, this.state, {code: "", previewing: false, editing: isAddNew}));
+    };
     
     if (isNewIssue) {
-      editComment(0, body);
-      saveNewIssue();
-    } else {    
+      var canSave = (issue.title || "").trim().length > 0 && !!(issue._bare_owner) && !!(issue._bare_repo);
+      if (canSave) {
+        resetState();
+        editComment(0, body);
+        saveNewIssue();
+      }
+    } else {
+      resetState();
       if (body.trim().length > 0) {
         if (this.props.comment) {
           if (this.props.comment.body != body) {
@@ -1504,6 +1536,8 @@ var Comment = React.createClass({
         'Cmd-I': toggleFormat('_', 'em'),
         'Cmd-S': () => { this.save(); }
       });
+      
+      cm.on('blur', () => { this.onBlur(); });
     }
   },
   
@@ -1605,10 +1639,13 @@ var InputSaveButton = React.createClass({
 var IssueTitle = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
-  titleChanged: function(newTitle) {
+  titleChanged: function(newTitle, goNext) {
     if (this.state.edited) {
       this.setState({edited: false});
       patchIssue({title: newTitle});
+    }
+    if (goNext) {
+      this.props.focusNext("title");
     }
   },
 
@@ -1633,7 +1670,7 @@ var IssueTitle = React.createClass({
   },
   
   titleSaveClicked: function(evt) {
-    this.titleChanged(this.state.editedValue);
+    this.titleChanged(this.state.editedValue, false);
   },
   
   focus: function() {
@@ -1682,7 +1719,7 @@ var RepoField = React.createClass({
     issue: React.PropTypes.object
   },
   
-  onChange: function(newRepo) {
+  onChange: function(newRepo, goNext) {
     var fail = () => {
       this.refs.input.setState({value: ""});
     };
@@ -1713,7 +1750,7 @@ var RepoField = React.createClass({
         labels: []
       });
       try {
-        if (this.refs.input.refs.typeInput.hasFocus()) {
+        if (goNext && this.refs.input.refs.typeInput.hasFocus()) {
           this.props.focusNext("repo")
         }
       } catch (e) { }
@@ -1982,7 +2019,7 @@ var AddLabel = React.createClass({
       this.refs.picker.focus();
     }
   },
-  
+    
   render: function() {
     var allLabels = getIvars().labels;
     var chosenLabels = keypath(this.props.issue, "labels") || [];
@@ -2232,7 +2269,26 @@ var App = React.createClass({
     }
     
     return outerElement;
-  }
+  },
+  
+  componentDidMount: function() {
+    this.registerGlobalEventHandlers();
+  },
+  
+  componentDidUpdate: function() {
+    this.registerGlobalEventHandlers();  
+  },
+  
+  registerGlobalEventHandlers() {
+    var doc = window.document;
+    doc.onkeypress = function(evt) {
+      if (evt.which == 115 && evt.metaKey) {
+        console.log("global save");
+        saveNewIssue();
+        evt.preventDefault();
+      }
+    };
+  },
 });
 
 function applyIssueState(state) {

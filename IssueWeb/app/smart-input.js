@@ -52,20 +52,23 @@ var SmartInput = React.createClass({
     }
   },
   
-  dispatchChangeIfNeeded: function() {
+  dispatchChangeIfNeeded: function(goNext) {
     if (this.props.onChange != null && this.isEdited()) {
-      this.props.onChange(this.state.value);
+      this.props.onChange(this.state.value, goNext);
     }
   },
   
   onBlur: function(e) {
-    this.dispatchChangeIfNeeded();
+    this.dispatchChangeIfNeeded(false);
   },
   
   onKeyPress: function(evt) {
     if (evt.which == 13) {
-      this.dispatchChangeIfNeeded();
+      this.dispatchChangeIfNeeded(true);
       evt.preventDefault();
+    } else if (evt.which == 115 && evt.metaKey) {
+      // cmd-s
+      this.dispatchChangeIfNeeded(false);
     }
   },
   
