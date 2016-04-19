@@ -92,7 +92,7 @@ function applyPatch(patch) {
       var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}`
       var request = fetch(url, { 
         headers: { 
-          Authorization: "token " + debugToken,
+          Authorization: "token " + getIvars().ghToken,
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         }, 
@@ -120,7 +120,7 @@ function applyCommentEdit(commentIdentifier, newBody) {
     var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
     var request = fetch(url, { 
       headers: { 
-        Authorization: "token " + debugToken,
+        Authorization: "token " + getIvars().ghToken,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }, 
@@ -148,7 +148,7 @@ function applyCommentDelete(commentIdentifier) {
     var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
     var request = fetch(url, { 
       headers: { 
-        Authorization: "token " + debugToken,
+        Authorization: "token " + getIvars().ghToken,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }, 
@@ -173,7 +173,7 @@ function applyComment(commentBody) {
     var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}/comments`
     var request = fetch(url, { 
       headers: { 
-        Authorization: "token " + debugToken,
+        Authorization: "token " + getIvars().ghToken,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }, 
@@ -194,6 +194,39 @@ function applyComment(commentBody) {
       console.log(err);
     });
   }
+}
+
+function saveNewIssue() {
+  // POST /repos/:owner/:repo/issues
+  
+  var issue = getIvars().issue;
+  var owner = issue._bare_owner;
+  var repo = issue._bare_repo;
+
+  var url = `https://api.github.com/repos/${owner}/${repo}/issues`;
+  var request = fetch(url, {
+    headers: { 
+      Authorization: "token " + getIvars().ghToken,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    }, 
+    method: "POST",
+    body: JSON.stringify({
+      title: issue.title,
+      body: issue.body,
+      assignee: keypath(issue, "assignee.login"),
+      milestone: keypath(issue, "milestone.number"),
+      labels: issue.labels.map((l) => l.name)
+    })
+  });
+  request.then(function(resp) {
+    return resp.json()
+  }).then(function(body) {
+    window.ivars.issue = body;
+    applyIssueState(window.ivars);
+  }).catch(function(err) {
+    console.log(err);
+  });
 }
 
 function patchIssue(patch) {
@@ -722,12 +755,10 @@ var ActivityList = React.createClass({
     };
     
     // need to merge events and comments together into one array, ordered by date
-    var eventsAndComments = firstComment.id ? [firstComment] : [];
+    var eventsAndComments = !!(firstComment.id) ? [firstComment] : [];
     
-    var events = this.props.issue.allEvents;
-    
-    eventsAndComments = eventsAndComments.concat(this.props.issue.allEvents);
-    eventsAndComments = eventsAndComments.concat(this.props.issue.allComments);
+    eventsAndComments = eventsAndComments.concat(this.props.issue.allEvents || []);
+    eventsAndComments = eventsAndComments.concat(this.props.issue.allComments || []);
     
     eventsAndComments = eventsAndComments.sort(function(a, b) {
       var da = new Date(a.created_at);
@@ -1084,7 +1115,8 @@ var Comment = React.createClass({
     this.setState(Object.assign({}, this.state, {code: "", previewing: false, editing: isAddNew}));
     
     if (isNewIssue) {
-      
+      editComment(0, body);
+      saveNewIssue();
     } else {    
       if (body.trim().length > 0) {
         if (this.props.comment) {
@@ -2070,7 +2102,7 @@ var DebugLoader = React.createClass({
       
 function simpleFetch(url) {
   return new Promise(function(resolve, reject) {
-    var initial = fetch(url, { headers: { Authorization: "token " + debugToken }, method: "GET" });
+    var initial = fetch(url, { headers: { Authorization: "token " + getIvars().ghToken }, method: "GET" });
     initial.then(function(resp) {
       return resp.json();
     }).then(function(body) {
@@ -2082,7 +2114,7 @@ function simpleFetch(url) {
 }
       
 function pagedFetch(url) /* => Promise */ {
-  var opts = { headers: { Authorization: "token " + debugToken }, method: "GET" };
+  var opts = { headers: { Authorization: "token " + getIvars().ghToken }, method: "GET" };
   var initial = fetch(url, opts);
   return initial.then(function(resp) {
     var pages = []
