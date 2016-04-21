@@ -58,6 +58,8 @@
 		1A36190B1C9383E7008C11CB /* TestSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619051C9383E7008C11CB /* TestSyncConnection.m */; };
 		1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619071C9383E7008C11CB /* TestDataStore.m */; };
 		1A36190D1C9383E7008C11CB /* TestMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619091C9383E7008C11CB /* TestMetadata.m */; };
+		1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
+		1A563F7B1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
 		1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694ADE1CA09E0800F73608 /* MetadataStore.m */; };
 		1A694AE01CA09E0800F73608 /* MetadataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694ADE1CA09E0800F73608 /* MetadataStore.m */; };
 		1A694AE61CA09E5800F73608 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694AE51CA09E5800F73608 /* User.m */; };
@@ -287,6 +289,8 @@
 		1A3619071C9383E7008C11CB /* TestDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDataStore.m; sourceTree = "<group>"; };
 		1A3619081C9383E7008C11CB /* TestMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMetadata.h; sourceTree = "<group>"; };
 		1A3619091C9383E7008C11CB /* TestMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestMetadata.m; sourceTree = "<group>"; };
+		1A563F781CC823CF00755AAC /* APIProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIProxy.h; sourceTree = "<group>"; };
+		1A563F791CC823CF00755AAC /* APIProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIProxy.m; sourceTree = "<group>"; };
 		1A694ADD1CA09E0800F73608 /* MetadataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MetadataStore.h; sourceTree = "<group>"; };
 		1A694ADE1CA09E0800F73608 /* MetadataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MetadataStore.m; sourceTree = "<group>"; };
 		1A694AE41CA09E5800F73608 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
@@ -454,6 +458,8 @@
 				1A0D59E81CA4AA3A004F2578 /* IssueDocument.h */,
 				1A0D59E91CA4AA3A004F2578 /* IssueDocument.m */,
 				1A0D59EA1CA4AA3A004F2578 /* IssueDocument.xib */,
+				1A563F781CC823CF00755AAC /* APIProxy.h */,
+				1A563F791CC823CF00755AAC /* APIProxy.m */,
 			);
 			name = "Issue UI";
 			sourceTree = "<group>";
@@ -973,7 +979,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd $PROJECT_DIR/IssueWeb\n\nnpm install\nnpm run production\n";
+			shellScript = "cd $PROJECT_DIR/IssueWeb\n\nnpm install\nif [ $CONFIGURATION == \"Debug\" ] ; then\n    npm run debug\nelse\n    npm run production\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1017,6 +1023,7 @@
 				1A3618EF1C8FC3DB008C11CB /* Reachability.m in Sources */,
 				1A694B0C1CA3413700F73608 /* OverviewController.m in Sources */,
 				1A694AE61CA09E5800F73608 /* User.m in Sources */,
+				1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */,
 				1A694B251CA341D500F73608 /* SearchFieldToolbarItem.m in Sources */,
 				1A694AEE1CA09E8000F73608 /* Org.m in Sources */,
 				1A694B391CA344ED00F73608 /* MDPSplitView.m in Sources */,
@@ -1074,6 +1081,7 @@
 				1AE09C161C9779B000C5AC35 /* Auth.m in Sources */,
 				1A0D87751CA9E25F0069782D /* JSON.m in Sources */,
 				1AE09C171C9779B300C5AC35 /* Keychain.m in Sources */,
+				1A563F7B1CC823CF00755AAC /* APIProxy.m in Sources */,
 				1A694AE01CA09E0800F73608 /* MetadataStore.m in Sources */,
 				1A694B4C1CA367E300F73608 /* Issue.m in Sources */,
 				1AE09C091C97687E00C5AC35 /* LocalUser.m in Sources */,

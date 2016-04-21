@@ -28,4 +28,14 @@
     return self;
 }
 
+- (NSString *)description {
+    NSString *body = _body;
+    if (body.length > 40) {
+        body = [NSString stringWithFormat:@"\"%@ ...\"", [_body substringToIndex:40]];
+    } else {
+        body = [NSString stringWithFormat:@"\"%@\"", _body];
+    }
+    return [NSString stringWithFormat:@"<%@ %p> %@", NSStringFromClass([self class]), self, body];
+}
+
 @end

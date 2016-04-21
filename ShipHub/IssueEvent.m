@@ -37,4 +37,8 @@
     return _extra;
 }
 
+- (NSString *)description {
+    return [_extra description];
+}
+
 @end

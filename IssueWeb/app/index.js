@@ -67,46 +67,86 @@ function setIvars(iv) {
   window.ivars = iv;
 }
 
-function applyPatch(patch) {
-  if (window.webkit && window.webkit.messageHandlers.applyPatch) {
-    window.webkit.applyPatch(patch);
+var pendingAPIHandlers = [];
+var apiHandle = 0;
+
+// either performs the request directly or proxies it through the app
+function api(url, opts) {
+  if (window.inApp) {
+    var handle = ++apiHandle;
+    console.log("Making api call", handle, url, opts);
+    return new Promise((resolve, reject) => {
+      try {
+        pendingAPIHandlers[handle] = {resolve, reject};
+        window.webkit.messageHandlers.api.postMessage({handle, url, opts});
+      } catch (exc) {
+        console.log(exc);
+        reject(exc);
+      }
+    });
   } else {
-    var ghPatch = Object.assign({}, patch);
+    return fetch(url, opts).then(function(resp) {
+      if (resp.status == 204) {
+        return Promise.resolve(null); // no content
+      } else {
+        return resp.json();
+      }
+    });
+  }
+}
+
+// used by the app to return an api call result
+function apiCallback(handle, result, err) {
+  console.log("Received apiCallback", handle, result, err);
+  if (!(handle in pendingAPIHandlers)) {
+    console.log("Received unknown apiCallback", handle, result, err);
+    return;
+  }
   
-    if (patch.milestone != null) {
-      ghPatch.milestone = patch.milestone.number;
-    }
+  var callbacks = pendingAPIHandlers[handle];
+  delete pendingAPIHandlers[handle];
   
-    if (patch.assignee != null) {
-      ghPatch.assignee = patch.assignee.login;
-    }
+  if (err) {
+    callbacks.reject(err);
+  } else {
+    callbacks.resolve(result);
+  }
+};
+
+function applyPatch(patch) {
+  var ghPatch = Object.assign({}, patch);
+
+  if (patch.milestone != null) {
+    ghPatch.milestone = patch.milestone.number;
+  }
+
+  if (patch.assignee != null) {
+    ghPatch.assignee = patch.assignee.login;
+  }
+
+  console.log("patching", patch, ghPatch);
   
-    console.log("patching", patch, ghPatch);
-    
-    // PATCH /repos/:owner/:repo/issues/:number
-    var owner = getIvars().issue._bare_owner;
-    var repo = getIvars().issue._bare_repo;
-    var num = getIvars().issue.number;
-    
-    if (num != null) {
-      var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}`
-      var request = fetch(url, { 
-        headers: { 
-          Authorization: "token " + getIvars().ghToken,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }, 
-        method: "PATCH",
-        body: JSON.stringify(ghPatch)
-      });
-      request.then(function(resp) {
-        return resp.json()
-      }).then(function(body) {
-        console.log(body);
-      }).catch(function(err) {
-        console.log(err);
-      });
-    }
+  // PATCH /repos/:owner/:repo/issues/:number
+  var owner = getIvars().issue._bare_owner;
+  var repo = getIvars().issue._bare_repo;
+  var num = getIvars().issue.number;
+  
+  if (num != null) {
+    var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}`
+    var request = api(url, { 
+      headers: { 
+        Authorization: "token " + getIvars().ghToken,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }, 
+      method: "PATCH",
+      body: JSON.stringify(ghPatch)
+    });
+    request.then(function(body) {
+      console.log(body);
+    }).catch(function(err) {
+      console.log(err);
+    });
   }
 }
 
@@ -118,7 +158,7 @@ function applyCommentEdit(commentIdentifier, newBody) {
   
   if (num != null) {
     var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
-    var request = fetch(url, { 
+    var request = api(url, { 
       headers: { 
         Authorization: "token " + getIvars().ghToken,
         'Content-Type': 'application/json',
@@ -127,9 +167,7 @@ function applyCommentEdit(commentIdentifier, newBody) {
       method: "PATCH",
       body: JSON.stringify({body: newBody})
     });
-    request.then(function(resp) {
-      return resp.json()
-    }).then(function(body) {
+    request.then(function(body) {
       console.log(body);
     }).catch(function(err) {
       console.log(err);
@@ -146,7 +184,7 @@ function applyCommentDelete(commentIdentifier) {
   
   if (num != null) {
     var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
-    var request = fetch(url, { 
+    var request = api(url, { 
       headers: { 
         Authorization: "token " + getIvars().ghToken,
         'Content-Type': 'application/json',
@@ -171,7 +209,7 @@ function applyComment(commentBody) {
   
   if (num != null) {
     var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}/comments`
-    var request = fetch(url, { 
+    var request = api(url, { 
       headers: { 
         Authorization: "token " + getIvars().ghToken,
         'Content-Type': 'application/json',
@@ -180,9 +218,7 @@ function applyComment(commentBody) {
       method: "POST",
       body: JSON.stringify({body: commentBody})
     });
-    request.then(function(resp) {
-      return resp.json()
-    }).then(function(body) {
+    request.then(function(body) {
       var id = body.id;
       window.ivars.issue.allComments.forEach((m) => {
         if (m.id === 'new') {
@@ -220,7 +256,7 @@ function saveNewIssue() {
   }
 
   var url = `https://api.github.com/repos/${owner}/${repo}/issues`;
-  var request = fetch(url, {
+  var request = api(url, {
     headers: { 
       Authorization: "token " + getIvars().ghToken,
       'Content-Type': 'application/json',
@@ -235,9 +271,7 @@ function saveNewIssue() {
       labels: issue.labels.map((l) => l.name)
     })
   });
-  request.then(function(resp) {
-    return resp.json()
-  }).then(function(body) {
+  request.then(function(body) {
     window.ivars.issue = body;
     applyIssueState(window.ivars);
   }).catch(function(err) {
@@ -2139,19 +2173,14 @@ var DebugLoader = React.createClass({
 });
       
 function simpleFetch(url) {
-  return new Promise(function(resolve, reject) {
-    var initial = fetch(url, { headers: { Authorization: "token " + getIvars().ghToken }, method: "GET" });
-    initial.then(function(resp) {
-      return resp.json();
-    }).then(function(body) {
-      resolve(body);
-    }).catch(function(err) {
-      reject(err);
-    });
-  });
+  return api(url, { headers: { Authorization: "token " + getIvars().ghToken }, method: "GET" });
 }
       
 function pagedFetch(url) /* => Promise */ {
+  if (window.inApp) {
+    return simpleFetch(url);
+  }
+
   var opts = { headers: { Authorization: "token " + getIvars().ghToken }, method: "GET" };
   var initial = fetch(url, opts);
   return initial.then(function(resp) {
@@ -2367,8 +2396,10 @@ function configureNewIssue(initialRepo, meta) {
   applyIssueState(state);
 }
 
+window.apiCallback = apiCallback;
 window.updateIssue = updateIssue;
 window.applyIssueState = applyIssueState;
+window.configureNewIssue = configureNewIssue;
 window.renderIssue = function(issue) {
   applyIssueState({issue: issue});
 };

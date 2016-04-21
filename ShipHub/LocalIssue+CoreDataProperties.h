@@ -24,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nullable, nonatomic, retain) NSString *body;
 @property (nullable, nonatomic, retain) NSNumber *closed;
+@property (nullable, nonatomic, retain) NSString *state;
 @property (nullable, nonatomic, retain) NSDate *createdAt;
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSNumber *locked;

@@ -47,7 +47,6 @@
 @property (strong) NSMutableArray *items;
 @property (strong) NSMutableDictionary *itemLookup;
 @property (strong) NSMutableDictionary *problemCache;
-@property BOOL shouldReloadData;
 @property BOOL loading;
 @property NSInteger loadGeneration;
 
@@ -414,6 +413,17 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
     [self _updateItemsAndClearSelection:clearSelection];
 }
 
+- (void)_sortItems {
+    NSArray *sortDescriptors = _table.sortDescriptors;
+    NSSortDescriptor *stability = [NSSortDescriptor sortDescriptorWithKey:@"info.issueFullIdentifier" ascending:YES];
+    if (!sortDescriptors) {
+        sortDescriptors = @[stability];
+    } else {
+        sortDescriptors = [sortDescriptors arrayByAddingObject:stability];
+    }
+    [_items sortUsingDescriptors:sortDescriptors];
+}
+
 - (void)_updateItemsAndClearSelection:(BOOL)clearSelection {
     NSSet *previouslySelectedIdentifiers = clearSelection ? nil : [self selectedItemIdentifiers];
 
@@ -461,42 +471,36 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
     self.loading = YES;
     NSInteger loadGeneration = ++_loadGeneration;
     
-    [[DataStore activeStore] issuesMatchingPredicate:[NSPredicate predicateWithFormat:@"fullIdentifier IN %@", loadThese] completion:^(NSArray<Issue *> *issues, NSError *error) {
-        if (_loadGeneration != loadGeneration) {
-            return;
-        }
+    if ([loadThese count] > 0) {
+        [[DataStore activeStore] issuesMatchingPredicate:[NSPredicate predicateWithFormat:@"fullIdentifier IN %@", loadThese] completion:^(NSArray<Issue *> *issues, NSError *error) {
+            if (_loadGeneration != loadGeneration) {
+                return;
+            }
 
-        for (Issue *i in issues) {
-            _problemCache[i.fullIdentifier] = i;
-            NSArray *items = _itemLookup[i.fullIdentifier];
-            BOOL shouldReload = !self.shouldReloadData;
-            self.shouldReloadData = YES;
-            
-            //            NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
-            for (ProblemTableItem *item in items) {
-                item.issue = i;
-                //                NSUInteger idx = [_items indexOfObjectIdenticalTo:item];
-                //                [indexes addIndex:idx];
+            for (Issue *i in issues) {
+                _problemCache[i.fullIdentifier] = i;
+                NSArray *items = _itemLookup[i.fullIdentifier];
+                
+                //            NSMutableIndexSet *indexes = [NSMutableIndexSet indexSet];
+                for (ProblemTableItem *item in items) {
+                    item.issue = i;
+                    //                NSUInteger idx = [_items indexOfObjectIdenticalTo:item];
+                    //                [indexes addIndex:idx];
+                }
             }
             
-            if (shouldReload) {
-                // This is because NSTableView is busted and will drop more than 13 successive reloadDataForRowIndexes called within the same turn of the runloop.
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [_table reloadData];
-                    self.shouldReloadData = NO;
-                });
-            }
-        }
-        
-        self.loading = NO;
-        if (_table.sortDescriptors) {
-            [_items sortUsingDescriptors:_table.sortDescriptors];
+            self.loading = NO;
+            [self _sortItems];
             [_table reloadData];
-        }
-        [self selectItemsByIdentifiers:previouslySelectedIdentifiers];
-    }];
+            [self selectItemsByIdentifiers:previouslySelectedIdentifiers];
+        }];
+    } else {
+        self.loading = NO;
+    }
     
+    [self _sortItems];
     [_table reloadData];
+    [self selectItemsByIdentifiers:previouslySelectedIdentifiers];
 }
          
 - (void)reloadProblemsAndClearSelection:(BOOL)invalidateSelection {
@@ -691,7 +695,7 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
     }
     
     NSArray *selected = [self selectedItems];
-    [_items sortUsingDescriptors:tableView.sortDescriptors];
+    [self _sortItems];
     [_table reloadData];
     [self selectItems:selected];
 }

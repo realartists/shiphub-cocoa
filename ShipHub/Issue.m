@@ -71,7 +71,11 @@
 }
 
 - (NSString *)description {
-    return [NSString stringWithFormat:@"<%@ %p> %@ %@", NSStringFromClass([self class]), self, self.fullIdentifier, self.title];
+    return [NSString stringWithFormat:@"<%@ %p> %@ %@\nlabels:%@\ncomments:%@\nevents:%@", NSStringFromClass([self class]), self, self.fullIdentifier, self.title, self.labels, self.comments, self.events];
+}
+
+- (NSString *)state {
+    return _closed ? @"closed" : @"open";
 }
 
 @end

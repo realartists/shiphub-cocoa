@@ -95,19 +95,42 @@ static id serializeObject(id obj, JSONNameTransformer nt) {
     }
 }
 
+static NSString *stringifyJSONObject(id obj) {
+    // NSJSONSerialization only takes dictionaries and arrays as top level objects
+    // while this is probably correct from a strict JSON point of view, we actually
+    // just want interop with Javascript here, so we'll take anything Javascript can parse.
+    
+    if (!obj || obj == [NSNull null]) {
+        return @"null";
+    }
+    
+    if ([NSJSONSerialization isValidJSONObject:obj]) {
+        NSError *err = nil;
+        NSData *d = [NSJSONSerialization dataWithJSONObject:obj options:0 error:&err];
+        if (err) {
+            ErrLog(@"%@", err);
+            return nil;
+        }
+        return [[NSString alloc] initWithData:d encoding:NSUTF8StringEncoding];
+    } else if ([obj isKindOfClass:[NSString class]]) {
+        return [NSString stringWithFormat:@"\"%@\"", obj];
+    } else if ([obj isKindOfClass:[NSNumber class]]) {
+        return [obj description];
+    } else {
+        ErrLog(@"Cannot stringify %@", obj);
+        return nil;
+    }
+}
+
 + (id)stringifyObject:(id)obj {
     return [self stringifyObject:obj withNameTransformer:[self passthroughNameTransformer]];
 }
 
 + (id)stringifyObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer {
+    if (!src) return @"null";
+    
     id json = serializeObject(src, nameTransformer);
-    NSError *err = nil;
-    NSData *d = [NSJSONSerialization dataWithJSONObject:json options:0 error:&err];
-    if (err) {
-        ErrLog(@"%@", err);
-        return nil;
-    }
-    return [[NSString alloc] initWithData:d encoding:NSUTF8StringEncoding];
+    return stringifyJSONObject(json);
 }
 
 + (JSONNameTransformer)passthroughNameTransformer {

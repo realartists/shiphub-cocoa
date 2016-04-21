@@ -15,6 +15,7 @@
 
 @dynamic body;
 @dynamic closed;
+@dynamic state;
 @dynamic createdAt;
 @dynamic identifier;
 @dynamic locked;

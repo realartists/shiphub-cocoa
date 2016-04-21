@@ -53,6 +53,8 @@ typedef NS_ENUM(NSInteger, AuthState) {
 - (BOOL)checkResponse:(NSURLResponse *)response; // invalidate if response code is HTTP 401. Returns YES if not invalidated.
 - (BOOL)checkError:(NSError *)error; // invalidate if error is ShipErrorCodeNeedsAuthToken. Returns YES if not invalidated.
 
+- (void)addAuthHeadersToRequest:(NSMutableURLRequest *)request;
+
 - (void)logout;
 
 @end

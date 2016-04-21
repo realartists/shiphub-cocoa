@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "production": "webpack -p",
+    "debug": "webpack -d",
     "start": "webpack-dev-server --open"
   },
   "author": "",

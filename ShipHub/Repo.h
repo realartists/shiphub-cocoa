@@ -16,6 +16,7 @@
 @property (readonly) BOOL hidden;
 @property (readonly) NSString *name;
 @property (readonly, getter=isPrivate) BOOL private;
+@property (readonly) BOOL hasIssues;
 
 @property (readonly) NSString *repoDescription;
 

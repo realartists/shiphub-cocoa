@@ -292,6 +292,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     BOOL needsMetadataResync = NO;
     
     (void)needsToWatchOwnQueries;
+    (void)previousStoreVersion;
     
     if (needsSnapshotRebuild || needsKeywordUsageRebuild) {
         _migrating = YES;

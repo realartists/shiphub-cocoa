@@ -93,8 +93,7 @@
 
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    if (menuItem.action == @selector(showFindProblems:)
-        || menuItem.action == @selector(logout:)
+    if (menuItem.action == @selector(logout:)
         || menuItem.action == @selector(showOverviewController:)
         || menuItem.action == @selector(newOverviewController:)
         || menuItem.action == @selector(searchAllProblems:))

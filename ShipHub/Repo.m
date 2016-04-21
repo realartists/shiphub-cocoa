@@ -23,4 +23,8 @@
     return self;
 }
 
+- (BOOL)hasIssues {
+    return YES;
+}
+
 @end

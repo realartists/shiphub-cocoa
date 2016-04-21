@@ -44,4 +44,9 @@
     }
 }
 
+- (void)updateChangeCount:(NSDocumentChangeType)change {
+    // FIXME: Make this work right!
+    // for now, disable change tracking
+}
+
 @end

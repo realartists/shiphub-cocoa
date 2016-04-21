@@ -8,6 +8,7 @@
 
 #import "IssueViewController.h"
 
+#import "APIProxy.h"
 #import "Auth.h"
 #import "DataStore.h"
 #import "MetadataStore.h"
@@ -16,6 +17,7 @@
 #import "IssueIdentifier.h"
 #import "JSON.h"
 #import "User.h"
+#import "WebKitExtras.h"
 
 #import <WebKit/WebKit.h>
 
@@ -51,6 +53,11 @@
     WKUserScript *inApp = [[WKUserScript alloc] initWithSource:@"window.inApp = true" injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
     [userContent addUserScript:inApp];
     
+    __weak __typeof(self) weakSelf = self;
+    [userContent addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf proxyAPI:msg];
+    } name:@"api"];
+    
     _web = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) configuration:config];
     _web.navigationDelegate = self;
     self.view = _web;
@@ -62,6 +69,14 @@
     NSString *indexPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"IssueWeb"];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:indexPath]];
     [_web loadRequest:request];
+    
+    if (!_issue) {
+        [self configureNewIssue];
+    }
+}
+
+- (void)configureNewIssue {
+    [self evaluateJavaScript:@"configureNewIssue();"];
 }
 
 - (NSString *)issueStateJSON:(Issue *)issue {
@@ -88,6 +103,7 @@
 }
 
 - (void)setIssue:(Issue *)issue {
+    DebugLog(@"%@", issue);
     _issue = issue;
     NSString *issueJSON = [self issueStateJSON:issue];
     NSString *js = [NSString stringWithFormat:@"applyIssueState(%@)", issueJSON];
@@ -149,6 +165,22 @@
         
         decisionHandler(WKNavigationActionPolicyCancel);
     }
+}
+
+- (void)proxyAPI:(WKScriptMessage *)msg {
+    DebugLog(@"%@", msg.body);
+    
+    APIProxy *proxy = [APIProxy proxyWithRequest:msg.body completion:^(NSString *jsonResult, NSError *err) {
+        NSString *callback;
+        if (err) {
+            callback = [NSString stringWithFormat:@"apiCallback(%@, null, %@)", msg.body[@"handle"], [JSON stringifyObject:[err localizedDescription]]];
+        } else {
+            callback = [NSString stringWithFormat:@"apiCallback(%@, %@, null)", msg.body[@"handle"], jsonResult];
+        }
+        DebugLog(@"%@", callback);
+        [self evaluateJavaScript:callback];
+    }];
+    [proxy resume];
 }
 
 - (IBAction)reload:(id)sender {

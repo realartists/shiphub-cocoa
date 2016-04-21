@@ -24,4 +24,12 @@
     [super willSave];
 }
 
+- (void)didChangeValueForKey:(NSString *)key {
+    [super didChangeValueForKey:key];
+    if ([key isEqualToString:@"state"]) {
+        NSString *state = [self valueForKey:key];
+        [self setClosed:@([state isEqualToString:@"closed"])];
+    }
+}
+
 @end

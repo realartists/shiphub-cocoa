@@ -26,6 +26,7 @@
 @property (readonly) NSString *body;
 @property (readonly) NSString *title;
 @property (readonly) BOOL closed;
+@property (readonly) NSString *state;
 @property (readonly) NSDate *createdAt;
 @property (readonly) NSDate *updatedAt;
 @property (readonly) BOOL locked;
