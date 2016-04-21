@@ -215,7 +215,7 @@ typedef NS_ENUM(NSInteger, SyncState) {
             last = [comps lastObject];
             
             NSTextCheckingResult *matchNext = [[[NSRegularExpression regularExpressionWithPattern:@"\\<(.*?)\\>; rel=\"next\"" options:0 error:NULL] matchesInString:next options:0 range:NSMakeRange(0, next.length)] firstObject];
-            NSTextCheckingResult *matchLast = [[[NSRegularExpression regularExpressionWithPattern:@"\\<(.*?)\\>; rel=\"last\"" options:0 error:NULL] matchesInString:next options:0 range:NSMakeRange(0, last.length)] firstObject];
+            NSTextCheckingResult *matchLast = [[[NSRegularExpression regularExpressionWithPattern:@"\\<(.*?)\\>; rel=\"last\"" options:0 error:NULL] matchesInString:last options:0 range:NSMakeRange(0, last.length)] firstObject];
             
             if (matchNext && matchLast) {
                 NSString *nextPageURLStr = [next substringWithRange:[matchNext rangeAtIndex:1]];

@@ -195,6 +195,10 @@
     [request setValue:[NSString stringWithFormat:@"Basic %@", auth64] forHTTPHeaderField:@"Authorization"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
+    if (_oneTimeCode.stringValue.length > 0) {
+        [request setValue:[_oneTimeCode.stringValue trim] forHTTPHeaderField:@"X-GitHub-OTP"];
+    }
+    
     NSDictionary *bodyDict = @{ @"scopes": [@"user:email,repo,admin:repo_hook,read:org,admin:org_hook" componentsSeparatedByString:@","],
                                 @"client_id": [self clientID],
                                 @"client_secret": [self clientSecret],
