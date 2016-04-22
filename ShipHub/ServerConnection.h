@@ -17,6 +17,8 @@
 
 - (id)initWithAuth:(Auth *)auth;
 
+- (void)perform:(NSString *)method on:(NSString *)endpoint body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion;
+
 @property (readonly, strong) Auth *auth;
 
 @end

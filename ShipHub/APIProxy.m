@@ -28,6 +28,7 @@
 @interface APIProxy ()
 
 @property (strong) NSDictionary *request;
+@property (strong) Issue *existingIssue;
 @property (copy) APIProxyCompletion completion;
 
 @end
@@ -37,9 +38,10 @@
 #define BIND(request, boundSelector) \
     request : NSStringFromSelector(@selector(boundSelector))
 
-+ (instancetype)proxyWithRequest:(NSDictionary *)request completion:(APIProxyCompletion)completion {
++ (instancetype)proxyWithRequest:(NSDictionary *)request existingIssue:(Issue *)existingIssue completion:(APIProxyCompletion)completion {
     
     APIProxy *p = [[[self class] alloc] init];
+    p.existingIssue = existingIssue;
     p.completion = completion;
     p.request = request;
     
@@ -164,6 +166,16 @@
     }] resume];
 }
 
+- (void)yieldUpdatedIssue:(Issue *)issue {
+    DebugLog(@"%@", issue);
+    RunOnMain(^{
+        APIProxyUpdatedIssue u = self.updatedIssueHandler;
+        if (u) {
+            u(issue);
+        }
+    });
+}
+
 - (void)yield:(id)resp err:(NSError *)err {
     resp = [JSON stringifyObject:resp withNameTransformer:[JSON underbarsAndIDNameTransformer]];
     
@@ -233,27 +245,46 @@
 
 - (void)patchIssue:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo number:(id)number
 {
-    [self dispatchGeneric:request];
+    [[DataStore activeStore] patchIssue:request.bodyJSON issueIdentifier:[NSString issueIdentifierWithOwner:owner repo:repo number:number] completion:^(Issue *issue, NSError *error) {
+        [self yieldUpdatedIssue:issue];
+        [self yield:issue err:error];
+    }];
 }
          
 - (void)editComment:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo commentIdentifier:(id)commentIdentifier
 {
-    [self dispatchGeneric:request];
+    NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
+    [[DataStore activeStore] editComment:commentNumber body:request.bodyJSON[@"body"] inIssue:_existingIssue.fullIdentifier completion:^(IssueComment *comment, NSError *error) {
+        [self yield:comment err:error];
+    }];
 }
 
 - (void)deleteComment:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo commentIdentifier:(id)commentIdentifier
 {
-    [self dispatchGeneric:request];
+    NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
+    [[DataStore activeStore] deleteComment:commentNumber inIssue:_existingIssue.fullIdentifier completion:^(NSError *error) {
+        [self yield:nil err:error];
+    }];
 }
 
 - (void)postComment:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo number:(id)number
 {
-    [self dispatchGeneric:request];
+    [[DataStore activeStore] postComment:request.bodyJSON[@"body"] inIssue:_existingIssue.fullIdentifier completion:^(IssueComment *comment, NSError *error) {
+        [self yield:comment err:error];
+    }];
 }
 
 - (void)postIssue:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo
 {
-    [self dispatchGeneric:request];
+    Repo *r = [self findRepoWithOwner:owner repo:repo];
+    if (r) {
+        [[DataStore activeStore] saveNewIssue:request.bodyJSON inRepo:r completion:^(Issue *issue, NSError *error) {
+            [self yieldUpdatedIssue:issue];
+            [self yield:issue err:error];
+        }];
+    } else {
+        [self yield:nil err:[NSError shipErrorWithCode:ShipErrorCodeProblemDoesNotExist localizedMessage:[NSString stringWithFormat:NSLocalizedString(@"Could not locate repo %@/%@", nil), owner, repo]]];
+    }
 }
 
 - (void)getIssue:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo number:(id)number

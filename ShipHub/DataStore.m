@@ -16,6 +16,7 @@
 #import "GHSyncConnection.h"
 #import "MetadataStoreInternal.h"
 #import "NSPredicate+Extras.h"
+#import "JSON.h"
 
 #import "LocalAccount.h"
 #import "LocalUser.h"
@@ -29,7 +30,10 @@
 #import "LocalRelationship.h"
 
 #import "Issue.h"
+#import "IssueComment.h"
 #import "IssueIdentifier.h"
+#import "Repo.h"
+
 #import "Error.h"
 
 NSString *const DataStoreWillBeginMigrationNotification = @"DataStoreWillBeginMigrationNotification";
@@ -675,45 +679,51 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
 }
 
+// Must be called on _moc. Does not call save. Does not update sync version
+- (void)writeSyncObjects:(NSArray *)objs type:(NSString *)type {
+    NSError *error = nil;
+    
+    NSMutableSet *toCreate = [NSMutableSet setWithArray:objs];
+    
+    NSString *entityName = [NSString stringWithFormat:@"Local%@", [type PascalCase]];
+    if (_mom.entitiesByName[entityName] == nil) {
+        DebugLog(@"Received unknown sync type: %@", type);
+        return;
+    }
+    
+    // Fetch all of the existing managed objects that we are going to update.
+    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:entityName];
+    fetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@.identifier", objs];
+    
+    NSArray *mObjs = [_moc executeFetchRequest:fetch error:&error];
+    
+    if (error) ErrLog("%@", error);
+    error = nil;
+    
+    NSDictionary *lookup = [NSDictionary lookupWithObjects:objs keyPath:@"identifier"];
+    for (NSManagedObject *mObj in mObjs) {
+        NSDictionary *objDict = lookup[[mObj valueForKey:@"identifier"]];
+        [mObj mergeAttributesFromDictionary:objDict];
+        [self updateRelationshipsOn:mObj fromSyncDict:objDict];
+        [toCreate removeObject:objDict];
+    }
+    
+    for (NSDictionary *objDict in toCreate) {
+        NSManagedObject *mObj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
+        [mObj mergeAttributesFromDictionary:objDict];
+        [self updateRelationshipsOn:mObj fromSyncDict:objDict];
+    }
+}
+
 - (void)syncConnection:(SyncConnection *)sync receivedSyncObjects:(NSArray *)objs type:(NSString *)type version:(int64_t)version {
     DebugLog(@"%@: %@\nversion:%qd", type, objs, version);
     
     [_moc performBlock:^{
-        NSError *error = nil;
-        
-        NSMutableSet *toCreate = [NSMutableSet setWithArray:objs];
-        
-        NSString *entityName = [NSString stringWithFormat:@"Local%@", [type PascalCase]];
-        if (_mom.entitiesByName[entityName] == nil) {
-            DebugLog(@"Received unknown sync type: %@", type);
-            return;
-        }
-        
-        // Fetch all of the existing managed objects that we are going to update.
-        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:entityName];
-        fetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@.identifier", objs];
-        
-        NSArray *mObjs = [_moc executeFetchRequest:fetch error:&error];
-        
-        if (error) ErrLog("%@", error);
-        error = nil;
-        
-        NSDictionary *lookup = [NSDictionary lookupWithObjects:objs keyPath:@"identifier"];
-        for (NSManagedObject *mObj in mObjs) {
-            NSDictionary *objDict = lookup[[mObj valueForKey:@"identifier"]];
-            [mObj mergeAttributesFromDictionary:objDict];
-            [self updateRelationshipsOn:mObj fromSyncDict:objDict];
-            [toCreate removeObject:objDict];
-        }
-        
-        for (NSDictionary *objDict in toCreate) {
-            NSManagedObject *mObj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
-            [mObj mergeAttributesFromDictionary:objDict];
-            [self updateRelationshipsOn:mObj fromSyncDict:objDict];
-        }
+        [self writeSyncObjects:objs type:type];
         
         [self setLatestSyncVersion:version syncType:type];
         
+        NSError *error = nil;
         [_moc save:&error];
         if (error) ErrLog("%@", error);
     }];
@@ -857,6 +867,220 @@ static NSString *const LastUpdated = @"LastUpdated";
 
 - (void)checkForIssueUpdates:(id)issueIdentifier {
     [_syncConnection updateIssue:issueIdentifier];
+}
+
+- (void)storeSingleSyncObject:(id)obj type:(NSString *)type completion:(dispatch_block_t)completion
+{
+    [_moc performBlock:^{
+        [self writeSyncObjects:@[obj] type:type];
+        NSError *err = nil;
+        [_moc save:&err];
+        if (err) ErrLog(@"%@", err);
+    } completion:completion];
+}
+
+- (void)patchIssue:(NSDictionary *)patch issueIdentifier:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion
+{
+    NSParameterAssert(patch);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    // PATCH /repos/:owner/:repo/issues/:number
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/issues/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
+    
+    [self.serverConnection perform:@"PATCH" on:endpoint body:patch completion:^(id jsonResponse, NSError *error) {
+        
+        if (!error) {
+            id myJSON = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
+            
+            [self storeSingleSyncObject:myJSON type:@"issue" completion:^{
+                
+                [self loadFullIssue:issueIdentifier completion:completion];
+            }];
+            
+        } else {
+            RunOnMain(^{
+                completion(nil, error);
+            });
+        }
+    }];
+}
+
+- (void)saveNewIssue:(NSDictionary *)issueJSON inRepo:(Repo *)r completion:(void (^)(Issue *issue, NSError *error))completion
+{
+    NSParameterAssert(issueJSON);
+    NSParameterAssert(r);
+    NSParameterAssert(completion);
+    
+    // POST /repos/:owner/:repo/issues
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues", r.fullName];
+    [self.serverConnection perform:@"POST" on:endpoint body:issueJSON completion:^(id jsonResponse, NSError *error) {
+    
+        if (!error) {
+            NSMutableDictionary *myJSON = [[JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
+            myJSON[@"repository"] = r.identifier;
+            [self storeSingleSyncObject:myJSON type:@"issue" completion:^{
+                
+                id issueIdentifier = [NSString stringWithFormat:@"%@#%@", r.fullName, myJSON[@"number"]];
+                
+                [self loadFullIssue:issueIdentifier completion:completion];
+            }];
+        } else {
+            RunOnMain(^{
+                completion(nil, error);
+            });
+        }
+        
+    }];
+}
+
+- (void)deleteComment:(NSNumber *)commentIdentifier inIssue:(id)issueIdentifier completion:(void (^)(NSError *error))completion
+{
+    NSParameterAssert(commentIdentifier);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    // DELETE /repos/:owner/:repo/issues/comments/:commentIdentifier
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/issues/comments/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], commentIdentifier];
+    [self.serverConnection perform:@"DELETE" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
+        if (!error) {
+            
+            [_moc performBlock:^{
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
+                
+                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
+                fetch.fetchLimit = 1;
+                
+                NSError *err = nil;
+                LocalComment *lc = [[_moc executeFetchRequest:fetch error:&err] firstObject];;
+                
+                if (err) {
+                    ErrLog(@"%@", err);
+                }
+                
+                if (lc) {
+                    [_moc deleteObject:lc];
+                }
+            }];
+        }
+        
+        RunOnMain(^{
+            completion(error);
+        });
+    }];
+}
+
+- (void)postComment:(NSString *)body inIssue:(NSString *)issueIdentifier completion:(void (^)(IssueComment *comment, NSError *error))completion
+{
+    NSParameterAssert(body);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    // POST /repos/:owner/:repo/issues/:number/comments
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/issues/%@/comments", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
+    
+    [self.serverConnection perform:@"POST" on:endpoint body:@{@"body": body} completion:^(id jsonResponse, NSError *error) {
+        
+        if (!error) {
+            
+            [_moc performBlock:^{
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier = %@", issueIdentifier];
+                fetch.fetchLimit = 1;
+                
+                NSError *err = nil;
+                LocalIssue *issue = [[_moc executeFetchRequest:fetch error:&err] firstObject];
+                
+                if (err) ErrLog(@"%@", err);
+                
+                if (issue) {
+                    NSMutableDictionary *d = [jsonResponse mutableCopy];
+                    d[@"issue"] = issue.identifier;
+                    
+                    d = [JSON parseObject:d withNameTransformer:[JSON githubToCocoaNameTransformer]];
+                    
+                    [self writeSyncObjects:@[d] type:@"LocalComment"];
+                    
+                    NSFetchRequest *fetch2 = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
+                    fetch2.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", d[@"identifier"]];
+                    err = nil;
+                    LocalComment *lc = [[_moc executeFetchRequest:fetch2 error:&err] firstObject];
+                    if (err) ErrLog(@"%@", err);
+                    
+                    IssueComment *ic = nil;
+                    if (lc) {
+                         ic = [[IssueComment alloc] initWithLocalComment:lc metadataStore:self.metadataStore];
+                    }
+                    
+                    err = nil;
+                    [_moc save:&err];
+                    if (err) ErrLog(@"%@", err);
+                    
+                    RunOnMain(^{
+                        completion(ic, nil);
+                    });
+                } else {
+                    RunOnMain(^{
+                        completion(nil, nil);
+                    });
+                }
+            }];
+            
+        } else {
+            RunOnMain(^{
+                completion(nil, error);
+            });
+        }
+    }];
+}
+
+- (void)editComment:(NSNumber *)commentIdentifier body:(NSString *)newCommentBody inIssue:(NSString *)issueIdentifier completion:(void (^)(IssueComment *comment, NSError *error))completion
+{
+    NSParameterAssert(commentIdentifier);
+    NSParameterAssert(newCommentBody);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    // PATCH /repos/:owner/:repo/issues/comments/:commentIdentifier
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/issues/comments/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], commentIdentifier];
+    
+    [self.serverConnection perform:@"PATCH" on:endpoint body:@{ @"body" : newCommentBody } completion:^(id jsonResponse, NSError *error)
+    {
+        if (!error) {
+            [_moc performBlock:^{
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
+                fetch.fetchLimit = 1;
+                
+                NSError *err = nil;
+                LocalComment *lc = [[_moc executeFetchRequest:fetch error:&err] firstObject];
+                if (err) ErrLog(@"%@", err);
+                
+                id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
+                
+                IssueComment *ic = nil;
+                if (lc) {
+                    [lc mergeAttributesFromDictionary:d];
+                    ic = [[IssueComment alloc] initWithLocalComment:lc metadataStore:self.metadataStore];
+                    err = nil;
+                    [_moc save:&err];
+                    if (err) ErrLog(@"%@", err);
+                }
+                
+                RunOnMain(^{
+                    completion(ic, nil);
+                });
+            }];
+        } else {
+            RunOnMain(^{
+                completion(nil, error);
+            });
+        }
+    }];
 }
 
 @end

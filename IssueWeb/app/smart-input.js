@@ -45,7 +45,8 @@ var SmartInput = React.createClass({
   },
   
   isEdited: function() {
-    if (this.props.initialValue != null) {
+    console.log("isEdited. initialValue:", this.props.initialValue, "value", this.props.value, "state.value:", this.state.value);
+    if (this.props.initialValue) {
       return this.props.initialValue != this.state.value;
     } else {
       return this.props.value != this.state.value;

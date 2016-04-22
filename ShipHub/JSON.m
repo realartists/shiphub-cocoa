@@ -133,6 +133,28 @@ static NSString *stringifyJSONObject(id obj) {
     return stringifyJSONObject(json);
 }
 
+static id renameFields(id json, JSONNameTransformer transformer) {
+    if ([json isKindOfClass:[NSArray class]]) {
+        return [json arrayByMappingObjects:^id(id obj) {
+            return renameFields(obj, transformer);
+        }];
+    } else if ([json isKindOfClass:[NSDictionary class]]) {
+        NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:[json count]];
+        for (NSString *key in [json allKeys]) {
+            d[transformer(key)] = renameFields(json[key], transformer);
+        }
+        return d;
+    } else {
+        return json;
+    }
+}
+
+
++ (id)parseObject:(id)json withNameTransformer:(JSONNameTransformer)nameTransformer
+{
+    return renameFields(json, nameTransformer);
+}
+
 + (JSONNameTransformer)passthroughNameTransformer {
     return ^(NSString *s) { return s; };
 }
@@ -197,6 +219,34 @@ static NSString *camelsToBars(NSString *s) {
         } else {
             return camelsToBars(s);
         }
+    };
+}
+
++ (JSONNameTransformer)githubToCocoaNameTransformer {
+    return ^(NSString *s) {
+        if ([s isEqualToString:@"id"]) {
+            return @"identifier";
+        }
+        if ([s isEqualToString:@"comments"]) {
+            return @"commentsCount";
+        }
+        if ([s isEqualToString:@"events"]) {
+            return @"eventsCount";
+        }
+        if ([s rangeOfString:@"_"].location == NSNotFound) {
+            return s;
+        }
+        NSArray *comps = [s componentsSeparatedByString:@"_"];
+        __block NSInteger i = 0;
+        comps = [comps arrayByMappingObjects:^id(id obj) {
+            i++;
+            if (i > 1) {
+                return [obj PascalCase];
+            } else {
+                return obj;
+            }
+        }];
+        return [comps componentsJoinedByString:@""];
     };
 }
 

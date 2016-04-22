@@ -102,6 +102,10 @@
     return [JSON stringifyObject:state withNameTransformer:[JSON underbarsAndIDNameTransformer]];
 }
 
+- (void)updateTitle {
+    self.title = _issue.title ?: NSLocalizedString(@"New Issue", nil);
+}
+
 - (void)setIssue:(Issue *)issue {
     DebugLog(@"%@", issue);
     _issue = issue;
@@ -109,7 +113,7 @@
     NSString *js = [NSString stringWithFormat:@"applyIssueState(%@)", issueJSON];
     DebugLog(@"%@", js);
     [self evaluateJavaScript:js];
-    self.title = issue.title ?: NSLocalizedString(@"Untitled Issue", nil);
+    [self updateTitle];
 }
 
 - (void)issueDidUpdate:(NSNotification *)note {
@@ -170,7 +174,7 @@
 - (void)proxyAPI:(WKScriptMessage *)msg {
     DebugLog(@"%@", msg.body);
     
-    APIProxy *proxy = [APIProxy proxyWithRequest:msg.body completion:^(NSString *jsonResult, NSError *err) {
+    APIProxy *proxy = [APIProxy proxyWithRequest:msg.body existingIssue:_issue completion:^(NSString *jsonResult, NSError *err) {
         NSString *callback;
         if (err) {
             callback = [NSString stringWithFormat:@"apiCallback(%@, null, %@)", msg.body[@"handle"], [JSON stringifyObject:[err localizedDescription]]];
@@ -179,6 +183,10 @@
         }
         DebugLog(@"%@", callback);
         [self evaluateJavaScript:callback];
+    }];
+    [proxy setUpdatedIssueHandler:^(Issue *updatedIssue) {
+        _issue = updatedIssue;
+        [self updateTitle];
     }];
     [proxy resume];
 }

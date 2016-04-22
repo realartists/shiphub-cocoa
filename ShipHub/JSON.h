@@ -16,9 +16,13 @@ typedef NSString* (^JSONNameTransformer)(NSString *original);
 
 + (id)stringifyObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer;
 
++ (id)parseObject:(id)json withNameTransformer:(JSONNameTransformer)nameTransformer;
+
 + (JSONNameTransformer)passthroughNameTransformer;
 + (JSONNameTransformer)underbarsNameTransformer; // turns camelCase to camel_case
 + (JSONNameTransformer)underbarsAndIDNameTransformer;
+
++ (JSONNameTransformer)githubToCocoaNameTransformer; // turns bar_case to barCase and renames a few field names (id => identifier, comments => commentsCount, events => eventsCount)
 
 @end
 

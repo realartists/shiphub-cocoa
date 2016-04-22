@@ -12,6 +12,7 @@
 #import "Error.h"
 #import "Extras.h"
 #import "IssueIdentifier.h"
+#import "JSON.h"
 
 #define POLL_INTERVAL 120.0
 
@@ -515,49 +516,8 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
 }
 
 - (void)yield:(id)json type:(NSString *)type version:(int64_t)version {
-    [self.delegate syncConnection:self receivedSyncObjects:renameFields(json) type:type version:version];
-}
-
-static NSString *barsToCamels(NSString *s) {
-    if ([s isEqualToString:@"id"]) {
-        return @"identifier";
-    }
-    if ([s isEqualToString:@"comments"]) {
-        return @"commentsCount";
-    }
-    if ([s isEqualToString:@"events"]) {
-        return @"eventsCount";
-    }
-    if ([s rangeOfString:@"_"].location == NSNotFound) {
-        return s;
-    }
-    NSArray *comps = [s componentsSeparatedByString:@"_"];
-    __block NSInteger i = 0;
-    comps = [comps arrayByMappingObjects:^id(id obj) {
-        i++;
-        if (i > 1) {
-            return [obj PascalCase];
-        } else {
-            return obj;
-        }
-    }];
-    return [comps componentsJoinedByString:@""];
-}
-
-static id renameFields(id json) {
-    if ([json isKindOfClass:[NSArray class]]) {
-        return [json arrayByMappingObjects:^id(id obj) {
-            return renameFields(obj);
-        }];
-    } else if ([json isKindOfClass:[NSDictionary class]]) {
-        NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:[json count]];
-        for (NSString *key in [json allKeys]) {
-            d[barsToCamels(key)] = renameFields(json[key]);
-        }
-        return d;
-    } else {
-        return json;
-    }
+    id syncObjs = [JSON parseObject:json withNameTransformer:[JSON githubToCocoaNameTransformer]];
+    [self.delegate syncConnection:self receivedSyncObjects:syncObjs type:type version:version];
 }
 
 - (void)updateIssue:(id)issueIdentifier {

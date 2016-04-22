@@ -11,6 +11,8 @@
 @class Auth;
 @class MetadataStore;
 @class Issue;
+@class IssueComment;
+@class Repo;
 
 @interface DataStore : NSObject
 
@@ -39,6 +41,20 @@
 - (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion;
 
 - (void)checkForIssueUpdates:(id)issueIdentifier;
+
+@end
+
+@interface DataStore (APIProxyMutations)
+
+- (void)patchIssue:(NSDictionary *)patch issueIdentifier:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion;
+
+- (void)saveNewIssue:(NSDictionary *)issueJSON inRepo:(Repo *)r completion:(void (^)(Issue *issue, NSError *error))completion;
+
+- (void)deleteComment:(NSNumber *)commentIdentifier inIssue:(id)issueIdentifier completion:(void (^)(NSError *error))completion;
+
+- (void)postComment:(NSString *)body inIssue:(NSString *)issueIdentifier completion:(void (^)(IssueComment *comment, NSError *error))completion;
+
+- (void)editComment:(NSNumber *)commentIdentifier body:(NSString *)newCommentBody inIssue:(NSString *)issueIdentifier completion:(void (^)(IssueComment *comment, NSError *error))completion;
 
 @end
 

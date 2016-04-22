@@ -1197,8 +1197,8 @@ var Comment = React.createClass({
 	},
 	
 	saveAndClose: function() {
-	  this.save();
-	  patchIssue({"state": "closed"});
+    patchIssue({state: "closed"});
+	  this.save();	  
 	},
 
   renderCodemirror: function() {
@@ -1927,6 +1927,7 @@ var StateField = React.createClass({
       return h('span');
     }
   
+    console.log("StateField state is", this.props.issue.state);
     return h('select', {className:'IssueState', value:this.props.issue.state, onChange:this.stateChanged},
       h('option', {value: 'open'}, "Open"),
       h('option', {value: 'closed'}, "Closed")
@@ -1934,7 +1935,7 @@ var StateField = React.createClass({
   }
 });
 
-var AssigneeField = React.createClass({
+var AssigneeInput = React.createClass({
   propTypes: {
     issue: React.PropTypes.object
   },
@@ -2023,16 +2024,22 @@ var AssigneeField = React.createClass({
       yieldAssignees(matches);      
     };
     
+    return h(Completer, {
+      ref: 'completer',
+      placeholder: 'Unassigned', 
+      onChange: this.assigneeChanged,
+      onEnter: this.onEnter,
+      value: keypath(this.props.issue, "assignee.login"),
+      matcher: matcher
+    });
+  }
+});
+
+var AssigneeField = React.createClass({
+  render: function() {
     return h('div', {className: 'IssueInput AssigneeField'},
       h(HeaderLabel, {title:"Assignee"}),
-      h(Completer, {
-        ref: 'completer',
-        placeholder: 'Unassigned', 
-        onChange: this.assigneeChanged,
-        onEnter: this.onEnter,
-        value: keypath(this.props.issue, "assignee.login"),
-        matcher: matcher
-      }),
+      h(AssigneeInput, {issue: this.props.issue, focusNext:this.props.focusNext}),
       h(StateField, {issue: this.props.issue})
     );
   }
@@ -2163,12 +2170,16 @@ var DebugLoader = React.createClass({
     return h("div", {className:"debugLoader"},
       h("span", {}, "Load Problem: "),
       h(SmartInput, {type:"text", size:40, value:val, onChange:this.loadProblem}),
-      h("a", {href:ghURL, target:"_blank"}, "source")
+      h("a", {href:ghURL, target:"_blank"}, "source"),
+      h("input", {type:"button", onClick:this.rerender, value:"Rerender"})
     );
   },
   loadProblem: function(problemRef) {
     var [owner, repo, number] = problemRef.split(/[\/#]/);
     updateIssue(...problemRef.split(/[\/#]/));          
+  },
+  rerender: function() {
+    applyIssueState(getIvars());
   }
 });
       

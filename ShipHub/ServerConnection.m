@@ -21,6 +21,8 @@
 
 + (NSString *)defaultShipHubHost {
     switch (DefaultsServerEnvironment()) {
+        case ServerEnvironmentLocal:
+            return @"api.github.com";
         case ServerEnvironmentDevelopment:
             return @"hub-nick.realartists.com";
         case ServerEnvironmentJW:
@@ -50,12 +52,63 @@
     
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:URL];
     if (authenticate) {
-        NSString *header = [host containsString:@"realartists.com"] ? @"Authorisation" : @"Authorization";
-        [req setValue:[NSString stringWithFormat:@"token %@", self.auth.token] forHTTPHeaderField:header];
+        [_auth addAuthHeadersToRequest:req];
     }
     [req setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
     return req;
+}
+
+- (void)perform:(NSString *)method on:(NSString *)endpoint body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
+{
+    NSMutableURLRequest *request = [self requestWithHost:_auth.account.shipHost endpoint:endpoint authenticated:YES];
+    request.HTTPMethod = method;
+    
+    if (jsonBody) {
+        NSError *err = nil;
+        request.HTTPBody = [NSJSONSerialization dataWithJSONObject:jsonBody options:0 error:&err];
+        
+        if (err) {
+            completion(nil, err);
+            return;
+        }
+    }
+    
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        NSHTTPURLResponse *http = (id)response;
+        if ([_auth checkResponse:http]) {
+            
+            if (http.statusCode <= 200 || http.statusCode >= 400) {
+                if (!error) {
+                    error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+                }
+            }
+            
+            if (!error) {
+                id responseJSON = nil;
+                if (data.length) {
+                    NSError *err = nil;
+                    responseJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:&err];
+                    if (err) {
+                        error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+                    }
+                }
+                
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    completion(responseJSON, error);
+                });
+            }
+            
+        } else {
+            error = [NSError shipErrorWithCode:ShipErrorCodeNeedsAuthToken];
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                completion(nil, error);
+            });
+        }
+        
+    }] resume];
 }
 
 #define DebugResponse(data, response, error) do { DebugLog(@"response:\n%@\ndata:\n%@\nerror:%@", [response debugDescription], [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], error); } while (0)
