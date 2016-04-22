@@ -979,7 +979,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd $PROJECT_DIR/IssueWeb\n\nnpm install\nif [ $CONFIGURATION == \"Debug\" ] ; then\n    npm run debug\nelse\n    npm run production\nfi\n";
+			shellScript = "cd $PROJECT_DIR/IssueWeb\n\nnpm install\n#if [ $CONFIGURATION == \"Debug\" ] ; then\n#    npm run debug\n#else\n#    npm run production\n#fi\n\nnpm run production\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
