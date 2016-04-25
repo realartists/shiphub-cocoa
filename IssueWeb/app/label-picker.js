@@ -12,6 +12,8 @@ var LabelPicker = React.createClass({
   
   addLabel: function() {
     var completer = this.refs.completer;
+    if (!completer || !(completer.refs.typeInput)) return;
+    
     var el = ReactDOM.findDOMNode(completer.refs.typeInput);
     var val = el.value;
     
@@ -39,6 +41,14 @@ var LabelPicker = React.createClass({
   focus: function() {
     if (this.refs.completer) {
       this.refs.completer.focus();
+    }
+  },
+  
+  hasFocus: function() {
+    if (this.refs.completer) {
+      return this.refs.completer.hasFocus();
+    } else {
+      return false;
     }
   },
   

@@ -59,7 +59,12 @@ var SmartInput = React.createClass({
   },
   
   onBlur: function(e) {
-    this.dispatchChangeIfNeeded(false);
+    if (this.props.onBlur) {
+      this.props.onBlur();
+    } else {
+      this.dispatchChangeIfNeeded(false);
+    }
+    return true;
   },
   
   onKeyPress: function(evt) {

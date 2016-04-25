@@ -414,6 +414,7 @@ span.eventTitle {
 
 div.IssueLabels {
   line-height: 24px;
+  min-height: 27px;
 }
 div.IssueLabels span {
   cursor: default;
@@ -421,12 +422,18 @@ div.IssueLabels span {
 
 div.IssueLabels .typeahead,
 div.IssueLabels .tt-query,
-div.IssueLabels .tt-hint,
 div.IssueLabels .twitter-typeahead {
   width: 100px;
   padding: 0px;
   padding-top: 2px;
   margin: 0px;
+}
+
+div.IssueLabels .tt-hint {
+  width: 100px;
+  padding: 0px;
+  padding-top: 4px;
+  color: #999;
 }
 
 div.IssueLabels .tt-suggestion {

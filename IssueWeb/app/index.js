@@ -1711,6 +1711,10 @@ var IssueTitle = React.createClass({
     this.refs.input.focus()
   },
   
+  hasFocus: function() {
+    return this.refs.input.hasFocus();
+  },
+  
   componentDidMount: function() {
     this.focus();
   },
@@ -1755,7 +1759,9 @@ var RepoField = React.createClass({
   
   onChange: function(newRepo, goNext) {
     var fail = () => {
-      this.refs.input.setState({value: ""});
+      setTimeout(() => {
+        this.refs.input.refs.typeInput.setState({value: this.repoValue()});
+      }, 1);
     };
   
     if (newRepo.indexOf('/') == -1) {
@@ -1783,11 +1789,6 @@ var RepoField = React.createClass({
         assignee: null,
         labels: []
       });
-      try {
-        if (goNext && this.refs.input.refs.typeInput.hasFocus()) {
-          this.props.focusNext("repo")
-        }
-      } catch (e) { }
       applyIssueState(state);
     }).catch((err) => {
       console.log("Could not load metadata for repo", newRepo, err);
@@ -1806,12 +1807,30 @@ var RepoField = React.createClass({
         this.onChange(result);
       }
     });
+    
+    this.props.focusNext("repo");
   },
   
   focus: function() {
     if (this.refs.input) {
       this.refs.input.focus();
     }
+  },
+  
+  hasFocus: function() {
+    if (this.refs.completer) {
+      return this.refs.input.hasFocus();
+    } else {
+      return false;
+    }
+  },
+  
+  repoValue: function() {
+    var repoValue = "";
+    if (this.props.issue._bare_owner && this.props.issue._bare_repo) {
+      repoValue = "" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo;
+    }
+    return repoValue;
   },
   
   render: function() {  
@@ -1824,14 +1843,9 @@ var RepoField = React.createClass({
       inputType = 'input';
     }
     
-    var repoValue = "";
-    if (this.props.issue._bare_owner && this.props.issue._bare_repo) {
-      repoValue = "" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo;
-    }
-    
     return h('div', {className: 'IssueInput RepoField'},
       h(HeaderLabel, {title: 'Repo'}),
-      h(inputType, {ref:'input', placeholder: 'Required', onChange:this.onChange, onEnter:this.onEnter, value:repoValue, matcher: matcher, readOnly:!canEdit})
+      h(inputType, {ref:'input', placeholder: 'Required', onChange:this.onChange, onEnter:this.onEnter, value:this.repoValue(), matcher: matcher, readOnly:!canEdit})
     );
   }
 });
@@ -1883,6 +1897,14 @@ var MilestoneField = React.createClass({
     }
   },
   
+  hasFocus: function() {
+    if (this.refs.completer) {
+      return this.refs.completer.hasFocus();
+    } else {
+      return false;
+    }
+  },
+  
   shouldComponentUpdate: function(nextProps, nextState) {
     var nextNum = keypath(nextProps, "issue.number");
     var oldNum = keypath(this.props, "issue.number");
@@ -1927,7 +1949,6 @@ var StateField = React.createClass({
       return h('span');
     }
   
-    console.log("StateField state is", this.props.issue.state);
     return h('select', {className:'IssueState', value:this.props.issue.state, onChange:this.stateChanged},
       h('option', {value: 'open'}, "Open"),
       h('option', {value: 'closed'}, "Closed")
@@ -1978,6 +1999,14 @@ var AssigneeInput = React.createClass({
   focus: function() {
     if (this.refs.completer) {
       this.refs.completer.focus();
+    }
+  },
+  
+  hasFocus: function() {
+    if (this.refs.completer) {
+      return this.refs.completer.hasFocus();
+    } else {
+      return false;
     }
   },
   
@@ -2036,10 +2065,24 @@ var AssigneeInput = React.createClass({
 });
 
 var AssigneeField = React.createClass({
+  focus: function() {
+    if (this.refs.assignee) {
+      this.refs.assignee.focus();
+    }
+  },
+  
+  hasFocus: function() {
+    if (this.refs.assignee) {
+      return this.refs.assignee.hasFocus();
+    } else {
+      return false;
+    }
+  },
+
   render: function() {
     return h('div', {className: 'IssueInput AssigneeField'},
       h(HeaderLabel, {title:"Assignee"}),
-      h(AssigneeInput, {issue: this.props.issue, focusNext:this.props.focusNext}),
+      h(AssigneeInput, {key:'assignee', issue: this.props.issue, focusNext:this.props.focusNext}),
       h(StateField, {issue: this.props.issue})
     );
   }
@@ -2058,6 +2101,14 @@ var AddLabel = React.createClass({
   focus: function() {
     if (this.refs.picker) {
       this.refs.picker.focus();
+    }
+  },
+  
+  hasFocus: function() {
+    if (this.refs.picker) {
+      return this.refs.picker.hasFocus();
+    } else {
+      return false;
     }
   },
     
@@ -2094,6 +2145,14 @@ var IssueLabels = React.createClass({
     }
   },
   
+  hasFocus: function() {
+    if (this.refs.add) {
+      return this.refs.add.hasFocus();
+    } else {
+      return false;
+    }
+  },
+  
   render: function() {
     return h('div', {className:'IssueLabels'},
       h(HeaderLabel, {title:"Labels"}),
@@ -2108,6 +2167,33 @@ var IssueLabels = React.createClass({
 var Header = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
+  focussed: function() {
+    if (this.queuedFocus) {
+      return this.queuedFocus;
+    }
+    
+    var a = ["title", "repo", "milestone", "assignee", "labels"];
+    
+    for (var i = 0; i < a.length; i++) {
+      var n = a[i];
+      var x = this.refs[n];
+      if (x && x.hasFocus()) {
+        return n;
+      }
+    }
+    
+    return null;
+  },
+  
+  focusField: function(field) {
+    if (this.refs[field]) {
+      var x = this.refs[field];
+      setTimeout(() => { x.focus() }, 1);
+    } else {
+      this.queuedFocus = field;
+    }
+  },
+  
   focusNext: function(current) {
     var next = null;
     switch (current) {
@@ -2118,12 +2204,7 @@ var Header = React.createClass({
       case "labels": next = "labels"; break;
     }
     
-    if (this.refs[next]) {
-      var x = this.refs[next];
-      setTimeout(() => { x.focus() }, 1);
-    } else {
-      this.queuedFocus = next;
-    }
+    this.focusField(next);
   },
   
   dequeueFocus: function() {

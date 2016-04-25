@@ -17,7 +17,8 @@ var Completer = React.createClass({
   render: function() {
     var props = Object.assign({}, this.props, {
       className: 'typeahead',
-      ref: 'typeInput'
+      ref: 'typeInput',
+      onBlur: this.onBlur
     });
   
     return h(SmartInput, props);
@@ -26,6 +27,12 @@ var Completer = React.createClass({
   focus: function() {
     if (this.refs.typeInput) {
       this.refs.typeInput.focus();
+    }
+  },
+  
+  hasFocus: function() {
+    if (this.refs.typeInput) {
+      this.refs.typeInput.hasFocus();
     }
   },
   
@@ -59,6 +66,10 @@ var Completer = React.createClass({
         baseMatcher(text, cb);
       }
     };
+    this.matcher = matcher;
+    
+    var hadFocus = this.refs.typeInput.hasFocus();
+    this.remounting = true;
     
     $(el).typeahead('destroy');
     
@@ -82,10 +93,9 @@ var Completer = React.createClass({
     
     $(el).typeahead(typeaheadConfigOpts, typeaheadDataOpts)
     
-    // avoid choosing the first option if we're empty
-    // (allow empty to be chosen)
-    $(el).on('typeahead:beforeautocomplete', function() {
-      return (el.value !== '');
+    $(el).on('typeahead:beforeautocomplete', () => {
+      this.completeOrFail();
+      return false;
     });
     
     $(el).on('typeahead:beforeopen', () => {
@@ -108,30 +118,22 @@ var Completer = React.createClass({
       });
     }
     
-    var completeOrFail = () => {
-      var val = el.value;
-      matcher(val, (matches) => {
-        if (val.length == 0 || matches.length == 0) {
-          el.value = "";
-        } else {
-          var first = matches[0];
-          el.value = first;
-        }
-      });
-    }
-    
-    $(el).blur(completeOrFail);
-    
     $(el).keypress((evt) => {
       if (evt.which == 13) {
-        completeOrFail();
         evt.preventDefault();
-        
-        if (this.props.onEnter) {
-          this.props.onEnter();
-        }
+        this.completeOrFail(() => {
+          if (this.props.onEnter) {
+            this.props.onEnter();
+          }
+        });
       }
     });
+    
+    if (hadFocus) {
+      this.refs.typeInput.focus();
+      $(el).typeahead('open');
+    }
+    this.remounting = false;
   },
   
   componentDidUpdate: function() {
@@ -140,6 +142,35 @@ var Completer = React.createClass({
   
   componentDidMount: function() {
     this.updateTypeahead();
+  },
+  
+  completeOrFail: function(completion) {
+    if (!this.matcher || !this.refs.typeInput) {
+      completion();
+      return;
+    }
+
+    var el = ReactDOM.findDOMNode(this.refs.typeInput);
+    var val = $(el).typeahead('val') || "";
+    this.matcher(val, (matches) => {
+      var newVal = "";
+      if (val.length == 0 || matches.length == 0) {
+        newVal = "";
+      } else {
+        var first = matches[0];
+        newVal = first;
+      }
+      $(el).typeahead('val', newVal);
+      this.refs.typeInput.setState({value: newVal}, completion);
+    });
+  },
+  
+  onBlur: function() {
+    if (this.remounting) return;  
+    this.completeOrFail(() => {
+      this.refs.typeInput.dispatchChangeIfNeeded(false);
+    });
+    return true;
   }
 });
 
