@@ -40,6 +40,7 @@
     _web.UIDelegate = nil;
     _web.frameLoadDelegate = nil;
     _web.policyDelegate = nil;
+    [_web close];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
