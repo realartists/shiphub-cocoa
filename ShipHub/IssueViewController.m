@@ -36,6 +36,9 @@
 @implementation IssueViewController
 
 - (void)dealloc {
+    _web.UIDelegate = nil;
+    _web.frameLoadDelegate = nil;
+    _web.policyDelegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -45,6 +48,7 @@
     _web = [[WebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) frameName:nil groupName:nil];
     _web.UIDelegate = self;
     _web.frameLoadDelegate = self;
+    _web.policyDelegate = self;
     
     self.view = _web;
 }
@@ -68,7 +72,7 @@
     state[@"issue"] = issue;
     
     state[@"me"] = [User me];
-    state[@"ghToken"] = [[[DataStore activeStore] auth] ghToken];
+    state[@"token"] = [[[DataStore activeStore] auth] ghToken];
     state[@"repos"] = [meta activeRepos];
     
     if (issue.repository) {
@@ -135,6 +139,9 @@
     @"window.inApp = true;\n"
     @"window.postAppMessage = function(msg) { window.inAppAPI.postMessage(msg); }\n";
     
+    NSString *apiToken = [[[DataStore activeStore] auth] ghToken];
+    setupJS = [setupJS stringByAppendingFormat:@"window.setAPIToken(\"%@\");\n", apiToken];
+    
     [windowObject evaluateWebScript:setupJS];
 }
 
@@ -152,6 +159,8 @@
 
 - (void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request frame:(WebFrame *)frame decisionListener:(id<WebPolicyDecisionListener>)listener
 {
+    DebugLog(@"%@", actionInformation);
+    
     WebNavigationType navigationType = [actionInformation[WebActionNavigationTypeKey] integerValue];
     
     if (navigationType == WebNavigationTypeReload) {

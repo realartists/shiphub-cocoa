@@ -55,7 +55,7 @@ var ivars = {
   milestones: [],
   labels: [],
   me: null,
-  ghToken: debugToken
+  token: debugToken
 };
 window.ivars = ivars;
 
@@ -65,6 +65,10 @@ function getIvars() {
 
 function setIvars(iv) {
   window.ivars = iv;
+}
+
+window.setAPIToken = function(token) {
+  window.ivars.token = token;
 }
 
 var pendingAPIHandlers = [];
@@ -135,7 +139,7 @@ function applyPatch(patch) {
     var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}`
     var request = api(url, { 
       headers: { 
-        Authorization: "token " + getIvars().ghToken,
+        Authorization: "token " + getIvars().token,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }, 
@@ -160,7 +164,7 @@ function applyCommentEdit(commentIdentifier, newBody) {
     var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
     var request = api(url, { 
       headers: { 
-        Authorization: "token " + getIvars().ghToken,
+        Authorization: "token " + getIvars().token,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }, 
@@ -186,7 +190,7 @@ function applyCommentDelete(commentIdentifier) {
     var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
     var request = api(url, { 
       headers: { 
-        Authorization: "token " + getIvars().ghToken,
+        Authorization: "token " + getIvars().token,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }, 
@@ -211,7 +215,7 @@ function applyComment(commentBody) {
     var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}/comments`
     var request = api(url, { 
       headers: { 
-        Authorization: "token " + getIvars().ghToken,
+        Authorization: "token " + getIvars().token,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }, 
@@ -258,7 +262,7 @@ function saveNewIssue() {
   var url = `https://api.github.com/repos/${owner}/${repo}/issues`;
   var request = api(url, {
     headers: { 
-      Authorization: "token " + getIvars().ghToken,
+      Authorization: "token " + getIvars().token,
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     }, 
@@ -1340,7 +1344,7 @@ var Comment = React.createClass({
       }
       cm.replaceSelection(placeholder + "\n");
       
-      uploadAttachment(getIvars().ghToken, file).then((url) => {
+      uploadAttachment(getIvars().token, file).then((url) => {
         var link = `[${filename}](${url})`
         if (isImage) {
           link = "!" + link;
@@ -2265,7 +2269,7 @@ var DebugLoader = React.createClass({
 });
       
 function simpleFetch(url) {
-  return api(url, { headers: { Authorization: "token " + getIvars().ghToken }, method: "GET" });
+  return api(url, { headers: { Authorization: "token " + getIvars().token }, method: "GET" });
 }
       
 function pagedFetch(url) /* => Promise */ {
@@ -2273,7 +2277,7 @@ function pagedFetch(url) /* => Promise */ {
     return simpleFetch(url);
   }
 
-  var opts = { headers: { Authorization: "token " + getIvars().ghToken }, method: "GET" };
+  var opts = { headers: { Authorization: "token " + getIvars().token }, method: "GET" };
   var initial = fetch(url, opts);
   return initial.then(function(resp) {
     var pages = []
@@ -2319,7 +2323,7 @@ function updateIssue(owner, repo, number) {
       milestones: parts[5],
       labels: parts[6],
       me: parts[7],
-      ghToken: getIvars().ghToken
+      token: getIvars().token
     }
     
     if (issue.id) {
@@ -2354,7 +2358,7 @@ function loadMetadata(repoFullName) {
       assignees: (parts.length > 2 ? parts[2] : []),
       milestones: (parts.length > 3 ? parts[3] : []),
       labels: (parts.length > 4 ? parts[4] : []),
-      ghToken: getIvars().ghToken,
+      token: getIvars().token,
     };
     
     return new Promise((resolve, reject) => {
