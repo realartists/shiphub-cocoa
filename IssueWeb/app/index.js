@@ -901,7 +901,7 @@ var AddCommentHeader = React.createClass({
     if (this.props.previewing) {
       buttons.push(h('i', {key:"eye-slash", className:'fa fa-eye-slash', title:"Toggle Preview", onClick:this.props.togglePreview}));
     } else {
-      buttons.push(h('i', {key:"paperclip", className:'fa fa-paperclip', title:"Attach Files", onClick:this.props.attachFiles}));
+      buttons.push(h('i', {key:"paperclip", className:'fa fa-paperclip fa-flip-horizontal', title:"Attach Files", onClick:this.props.attachFiles}));
       if (this.props.hasContents) {
         buttons.push(h('i', {key:"eye", className:'fa fa-eye', title:"Toggle Preview", onClick:this.props.togglePreview}));
       }
@@ -1024,7 +1024,7 @@ var CommentControls = React.createClass({
       if (this.props.previewing) {
         buttons.push(h('i', {key:"eye-slash", className:'fa fa-eye-slash', title:"Toggle Preview", onClick:this.props.togglePreview}));
       } else {
-        buttons.push(h('i', {key:"paperclip", className:'fa fa-paperclip', title:"Attach Files", onClick:this.props.attachFiles}));
+        buttons.push(h('i', {key:"paperclip", className:'fa fa-paperclip fa-flip-horizontal', title:"Attach Files", onClick:this.props.attachFiles}));
         if (this.props.hasContents) {
           buttons.push(h('i', {key:"eye", className:'fa fa-eye', title:"Toggle Preview", onClick:this.props.togglePreview}));
         }
