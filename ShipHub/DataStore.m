@@ -848,7 +848,10 @@ static NSString *const LastUpdated = @"LastUpdated";
         fetchRequest.relationshipKeyPathsForPrefetching = @[@"events", @"comments"];
         fetchRequest.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier = %@", issueIdentifier];
         
-        NSArray *entities = [_moc executeFetchRequest:fetchRequest error:NULL];
+        NSError *err = nil;
+        NSArray *entities = [_moc executeFetchRequest:fetchRequest error:&err];
+        
+        if (err) ErrLog(@"%@", err);
         
         LocalIssue *i = [entities firstObject];
         

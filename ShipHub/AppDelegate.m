@@ -68,7 +68,7 @@
 }
 
 
-- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+- (void)applicationDidFinishLaunching:(NSNotification *)notification {
     _overviewControllers = [NSMutableArray array];
     _authController = [AuthController new];
     _authController.delegate = self;

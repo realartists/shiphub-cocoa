@@ -9,6 +9,7 @@
 #import "IssueDocument.h"
 
 #import "Extras.h"
+#import "Issue.h"
 
 @implementation IssueDocument
 
@@ -16,6 +17,19 @@
     // Override returning the nib file name of the document
     // If you need to use a subclass of NSWindowController or if your document supports multiple NSWindowControllers, you should remove this method and override -makeWindowControllers instead.
     return @"IssueDocument";
+}
+
+- (NSString *)defaultDraftName {
+    return NSLocalizedString(@"New Issue", nil);
+}
+
+- (void)encodeRestorableStateWithCoder:(NSCoder *)coder {
+    [super encodeRestorableStateWithCoder:coder];
+    id issueIdentifier = _issueViewController.issue.fullIdentifier;
+    if (issueIdentifier) {
+        DebugLog(@"Encoding %@", issueIdentifier);
+        [coder encodeObject:issueIdentifier forKey:@"IssueIdentifier"];
+    }
 }
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController {
