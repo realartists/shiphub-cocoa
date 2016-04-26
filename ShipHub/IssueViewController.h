@@ -14,4 +14,6 @@
 
 @property (nonatomic) Issue *issue;
 
+- (void)configureNewIssue;
+
 @end

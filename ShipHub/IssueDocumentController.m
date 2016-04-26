@@ -31,7 +31,8 @@
 
 - (IBAction)newDocument:(id)sender {
     if ([[DataStore activeStore] isValid]) {
-        [super newDocument:sender];
+        IssueDocument *doc = [self openUntitledDocumentAndDisplay:YES error:NULL];
+        [doc.issueViewController configureNewIssue];
     }
 }
 

@@ -8,6 +8,8 @@
 
 #import "WebKitExtras.h"
 
+#import <JavaScriptCore/JavaScriptCore.h>
+
 @interface ScriptMessageHandler : NSObject <WKScriptMessageHandler>
 @property (copy) ScriptMessageHandlerBlock block;
 @end
@@ -30,6 +32,41 @@
     ScriptMessageHandler *handler = [ScriptMessageHandler new];
     handler.block = block;
     [self addScriptMessageHandler:handler name:name];
+}
+
+@end
+
+@interface LegacyScriptMessageHandler : NSObject
+
+@property (copy) LegacyScriptMessageHandlerBlock block;
+
+@end
+
+@implementation WebScriptObject (Extras)
+
+- (void)addScriptMessageHandlerBlock:(LegacyScriptMessageHandlerBlock)block name:(NSString *)name {
+    LegacyScriptMessageHandler *handler = [LegacyScriptMessageHandler new];
+    handler.block = block;
+    [self setValue:handler forKey:name];
+}
+
+@end
+
+@implementation LegacyScriptMessageHandler
+
++ (NSString *)webScriptNameForSelector:(SEL)selector {
+    if (selector == @selector(postMessage:)) {
+        return @"postMessage";
+    }
+    return nil;
+}
+
++ (BOOL)isSelectorExcludedFromWebScript:(SEL)selector {
+    return selector != @selector(postMessage:);
+}
+
+- (void)postMessage:(WebScriptObject *)msg {
+    self.block([[msg JSValue] toDictionary]);
 }
 
 @end

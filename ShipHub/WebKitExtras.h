@@ -15,3 +15,11 @@ typedef void (^ScriptMessageHandlerBlock)(WKScriptMessage *msg);
 - (void)addScriptMessageHandlerBlock:(ScriptMessageHandlerBlock)block name:(NSString *)name;
 
 @end
+
+typedef void (^LegacyScriptMessageHandlerBlock)(NSDictionary *msg);
+
+@interface WebScriptObject (Extras)
+
+- (void)addScriptMessageHandlerBlock:(LegacyScriptMessageHandlerBlock)block name:(NSString *)name;
+
+@end

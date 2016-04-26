@@ -16,6 +16,9 @@
         [[NSUserDefaults standardUserDefaults] registerDefaults:
   @{ DefaultsLocalStoragePathKey : @"~/Library/RealArtists/ShipHub/LocalStore",
      @"InactiveMilestones.Collapsed" : @YES,
+#if DEBUG
+     @"WebKitDeveloperExtras" : @YES,
+#endif
      @"NSUseTextDragAlerts" : @NO // XXX: This is a gross hack to suppress an alert panel shown by NSTextView when dragging in large attachments.
      }];
     });

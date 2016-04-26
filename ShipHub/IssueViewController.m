@@ -21,12 +21,15 @@
 
 #import <WebKit/WebKit.h>
 
-@interface IssueViewController () <WKNavigationDelegate> {
+@interface IssueViewController () <WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate> {
     BOOL _didFinishLoading;
-    NSString *_javaScriptToRun;
+    NSMutableArray *_javaScriptToRun;
 }
 
-@property WKWebView *web;
+// Why legacy WebView?
+// Because WKWebView doesn't support everything we need :(
+// See https://bugs.webkit.org/show_bug.cgi?id=137759
+@property WebView *web;
 
 @end
 
@@ -39,27 +42,10 @@
 - (void)loadView {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:DataStoreDidUpdateProblemsNotification object:nil];
     
-    WKPreferences *prefs = [WKPreferences new];
-#if DEBUG
-    [prefs setValue:@YES forKey:@"developerExtrasEnabled"];
-#endif
+    _web = [[WebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) frameName:nil groupName:nil];
+    _web.UIDelegate = self;
+    _web.frameLoadDelegate = self;
     
-    WKWebViewConfiguration *config = [WKWebViewConfiguration new];
-    WKUserContentController *userContent = [WKUserContentController new];
-    config.userContentController = userContent;
-    config.preferences = prefs;
-    DebugLog(@"Persistent data store: %@ (isPersistent:%d)", config.websiteDataStore, config.websiteDataStore.persistent);
-
-    WKUserScript *inApp = [[WKUserScript alloc] initWithSource:@"window.inApp = true" injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
-    [userContent addUserScript:inApp];
-    
-    __weak __typeof(self) weakSelf = self;
-    [userContent addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
-        [weakSelf proxyAPI:msg];
-    } name:@"api"];
-    
-    _web = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) configuration:config];
-    _web.navigationDelegate = self;
     self.view = _web;
 }
 
@@ -68,11 +54,7 @@
     
     NSString *indexPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"IssueWeb"];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:indexPath]];
-    [_web loadRequest:request];
-    
-    if (!_issue) {
-        [self configureNewIssue];
-    }
+    [_web.mainFrame loadRequest:request];
 }
 
 - (void)configureNewIssue {
@@ -132,33 +114,53 @@
 
 - (void)evaluateJavaScript:(NSString *)js {
     if (!_didFinishLoading) {
-        _javaScriptToRun = js;
+        if (!_javaScriptToRun) {
+            _javaScriptToRun = [NSMutableArray new];
+        }
+        [_javaScriptToRun addObject:js];
     } else {
-        [_web evaluateJavaScript:js completionHandler:^(id o, NSError *e) {
-            if (e) {
-                ErrLog(@"%@", e);
-            }
-        }];
+        [_web stringByEvaluatingJavaScriptFromString:js];
     }
 }
 
-- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+#pragma mark - WebFrameLoadDelegate
+
+- (void)webView:(WebView *)webView didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
+    __weak __typeof(self) weakSelf = self;
+    [windowObject addScriptMessageHandlerBlock:^(id msg) {
+        [weakSelf proxyAPI:msg];
+    } name:@"inAppAPI"];
+    
+    NSString *setupJS =
+    @"window.inApp = true;\n"
+    @"window.postAppMessage = function(msg) { window.inAppAPI.postMessage(msg); }\n";
+    
+    [windowObject evaluateWebScript:setupJS];
+}
+
+- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
     _didFinishLoading = YES;
-    if (_javaScriptToRun) {
-        [self evaluateJavaScript:_javaScriptToRun];
-        _javaScriptToRun = nil;
+    [self evaluateJavaScript:@"window.inApp = true;"];
+    NSArray *toRun = _javaScriptToRun;
+    _javaScriptToRun = nil;
+    for (NSString *script in toRun) {
+        [self evaluateJavaScript:script];
     }
 }
 
-- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
+#pragma mark - WebPolicyDelegate
+
+- (void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request frame:(WebFrame *)frame decisionListener:(id<WebPolicyDecisionListener>)listener
 {
-    if (navigationAction.navigationType == WKNavigationTypeReload) {
+    WebNavigationType navigationType = [actionInformation[WebActionNavigationTypeKey] integerValue];
+    
+    if (navigationType == WebNavigationTypeReload) {
         [self reload:nil];
-        decisionHandler(WKNavigationActionPolicyCancel);
-    } else if (navigationAction.navigationType == WKNavigationTypeOther) {
-        decisionHandler(WKNavigationActionPolicyAllow);
+        [listener ignore];
+    } else if (navigationType == WebNavigationTypeOther) {
+        [listener use];
     } else {
-        NSURL *URL = navigationAction.request.URL;
+        NSURL *URL = actionInformation[WebActionOriginalURLKey];
         id issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
         
         if (issueIdentifier) {
@@ -167,19 +169,19 @@
             [[NSWorkspace sharedWorkspace] openURL:URL];
         }
         
-        decisionHandler(WKNavigationActionPolicyCancel);
+        [listener ignore];
     }
 }
 
-- (void)proxyAPI:(WKScriptMessage *)msg {
-    DebugLog(@"%@", msg.body);
+- (void)proxyAPI:(NSDictionary *)msg {
+    DebugLog(@"%@", msg);
     
-    APIProxy *proxy = [APIProxy proxyWithRequest:msg.body existingIssue:_issue completion:^(NSString *jsonResult, NSError *err) {
+    APIProxy *proxy = [APIProxy proxyWithRequest:msg existingIssue:_issue completion:^(NSString *jsonResult, NSError *err) {
         NSString *callback;
         if (err) {
-            callback = [NSString stringWithFormat:@"apiCallback(%@, null, %@)", msg.body[@"handle"], [JSON stringifyObject:[err localizedDescription]]];
+            callback = [NSString stringWithFormat:@"apiCallback(%@, null, %@)", msg[@"handle"], [JSON stringifyObject:[err localizedDescription]]];
         } else {
-            callback = [NSString stringWithFormat:@"apiCallback(%@, %@, null)", msg.body[@"handle"], jsonResult];
+            callback = [NSString stringWithFormat:@"apiCallback(%@, %@, null)", msg[@"handle"], jsonResult];
         }
         DebugLog(@"%@", callback);
         [self evaluateJavaScript:callback];

@@ -78,7 +78,7 @@ function api(url, opts) {
     return new Promise((resolve, reject) => {
       try {
         pendingAPIHandlers[handle] = {resolve, reject};
-        window.webkit.messageHandlers.api.postMessage({handle, url, opts});
+        window.postAppMessage({handle, url, opts});
       } catch (exc) {
         console.log(exc);
         reject(exc);
