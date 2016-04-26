@@ -11,6 +11,7 @@
 #import "APIProxy.h"
 #import "Auth.h"
 #import "DataStore.h"
+#import "Extras.h"
 #import "MetadataStore.h"
 #import "Issue.h"
 #import "IssueDocumentController.h"
@@ -127,6 +128,27 @@
     }
 }
 
+#pragma mark - WebUIDelegate
+
+- (void)webView:(WebView *)sender runOpenPanelForFileButtonWithResultListener:(id<WebOpenPanelResultListener>)resultListener allowMultipleFiles:(BOOL)allowMultipleFiles
+{
+    NSOpenPanel* panel = [NSOpenPanel openPanel];
+    
+    panel.canChooseFiles = YES;
+    panel.canChooseDirectories = NO;
+    panel.allowsMultipleSelection = allowMultipleFiles;
+    
+    [panel beginSheetModalForWindow:self.view.window completionHandler:^(NSInteger result) {
+        if (result == NSFileHandlingPanelOKButton) {
+            [resultListener chooseFilenames:[panel.URLs arrayByMappingObjects:^id(NSURL * obj) {
+                return [obj path];
+            }]];
+        } else {
+            [resultListener cancel];
+        }
+    }];
+}
+
 #pragma mark - WebFrameLoadDelegate
 
 - (void)webView:(WebView *)webView didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
@@ -147,7 +169,6 @@
 
 - (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
     _didFinishLoading = YES;
-    [self evaluateJavaScript:@"window.inApp = true;"];
     NSArray *toRun = _javaScriptToRun;
     _javaScriptToRun = nil;
     for (NSString *script in toRun) {
@@ -182,6 +203,8 @@
     }
 }
 
+#pragma mark - Javascript Bridge
+
 - (void)proxyAPI:(NSDictionary *)msg {
     DebugLog(@"%@", msg);
     
@@ -201,6 +224,8 @@
     }];
     [proxy resume];
 }
+
+#pragma mark -
 
 - (IBAction)reload:(id)sender {
     if (_issue) {
