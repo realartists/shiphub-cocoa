@@ -79,7 +79,7 @@
         NSHTTPURLResponse *http = (id)response;
         if ([_auth checkResponse:http]) {
             
-            if (http.statusCode <= 200 || http.statusCode >= 400) {
+            if (http.statusCode < 200 || http.statusCode >= 400) {
                 if (!error) {
                     error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
                 }
@@ -97,6 +97,10 @@
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     completion(responseJSON, error);
+                });
+            } else {
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                    completion(nil, error);
                 });
             }
             
