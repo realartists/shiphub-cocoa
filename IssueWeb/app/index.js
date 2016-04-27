@@ -1568,11 +1568,36 @@ var Comment = React.createClass({
           }
         };
       }
+      
+      var shiftTab = function(cm) {
+        var from = cm.getCursor("from");
+        var to = cm.getCursor("to");
+        
+        if (from.line == 0 && from.ch == 0 && to.line == 0 && to.ch == 0) {
+          // find the previous input and select it
+          var inputs = document.getElementsByTagName('input');
+          
+          var x = null;
+          for (var i = inputs.length-1; i >= 0; i--) {
+            if (inputs.item(i).type == 'text') {
+              x = inputs.item(i);
+              break;
+            }
+          }
+          
+          if (x) x.focus();
+          
+        } else {
+          cm.execCommand('indentLess');
+        }
+      };
             
       cm.setOption('extraKeys', {
         'Cmd-B': toggleFormat('**', 'strong'),
         'Cmd-I': toggleFormat('_', 'em'),
-        'Cmd-S': () => { this.save(); }
+        'Cmd-S': () => { this.save(); },
+        'Shift-Tab': shiftTab,
+        'Tab': 'indentMore'
       });
       
       cm.on('blur', () => { this.onBlur(); });
