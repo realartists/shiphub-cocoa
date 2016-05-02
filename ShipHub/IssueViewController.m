@@ -48,6 +48,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:DataStoreDidUpdateProblemsNotification object:nil];
     
     _web = [[WebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) frameName:nil groupName:nil];
+    _web.drawsBackground = NO;
     _web.UIDelegate = self;
     _web.frameLoadDelegate = self;
     _web.policyDelegate = self;
