@@ -181,6 +181,23 @@
                                     <action selector="copy:" target="-1" id="G1f-GL-Joy"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Copy Issue #" keyEquivalent="c" id="ACR-5V-9Ll">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                <connections>
+                                    <action selector="copyIssueNumber:" target="-1" id="YUo-wf-dAa"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Copy Issue # and Title" keyEquivalent="C" id="Nbs-SQ-Ops">
+                                <connections>
+                                    <action selector="copyIssueNumberWithTitle:" target="-1" id="4Nn-KS-W0J"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Copy GitHub URL" keyEquivalent="c" id="vwC-Ne-Oag">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="copyIssueGitHubURL:" target="-1" id="bZp-Zg-Xbh"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Paste" keyEquivalent="v" id="gVA-U4-sdL">
                                 <connections>
                                     <action selector="paste:" target="-1" id="UvS-8e-Qdg"/>

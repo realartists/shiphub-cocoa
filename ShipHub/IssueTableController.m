@@ -93,7 +93,8 @@
     NSMenu *menu = [[NSMenu alloc] init];
     menu.delegate = self;
     [menu addItemWithTitle:NSLocalizedString(@"Open", nil) action:@selector(openFromMenu:) keyEquivalent:@""];
-    [menu addItemWithTitle:NSLocalizedString(@"Copy URL", nil) action:@selector(copyURLFromMenu:) keyEquivalent:@""];
+    [menu addItemWithTitle:NSLocalizedString(@"Copy #", nil) action:@selector(copyNumberFromMenu:) keyEquivalent:@""];
+    [menu addItemWithTitle:NSLocalizedString(@"Copy GitHub URL", nil) action:@selector(copyGitHubURLFromMenu:) keyEquivalent:@""];
     [menu addItemWithTitle:NSLocalizedString(@"Mark As Read", nil) action:@selector(markAsReadFromMenu:) keyEquivalent:@""];
     _table.menu = menu;
 }
@@ -294,9 +295,14 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
     [[IssueDocumentController sharedDocumentController] openIssuesWithIdentifiers:identifiers];
 }
 
-- (void)copyURLFromMenu:(id)sender {
+- (IBAction)copyNumberFromMenu:(id)sender {
     NSArray *selected = [self selectedItemsForMenu];
-    [self copyURLs:selected];
+    [self copyNumbers:selected];
+}
+
+- (IBAction)copyGitHubURLFromMenu:(id)sender {
+    NSArray *selected = [self selectedItemsForMenu];
+    [[[[selected firstObject] issue] fullIdentifier] copyIssueGitHubURLToPasteboard:[NSPasteboard generalPasteboard]];
 }
 
 - (void)markAsReadFromMenu:(id)sender {
@@ -590,31 +596,33 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
     [pb writeObjects:@[str]];
 }
 
-- (void)copyURLs:(NSArray *)selected {
-    // FIXME: Hook up
-#if !INCOMPLETE
-    NSPasteboard *pb = [NSPasteboard generalPasteboard];
-    if ([selected count] == 1) {
-        id<ProblemSnapshot> item = [[selected firstObject] problem];
-        NSString *urlAndTitle = [Problem URLWithIdentifier:item.identifier andTitle:item.title];
-        NSURL *url = [Problem URLWithIdentifier:item.identifier];
-        [pb clearContents];
-        [pb writeURL:url string:urlAndTitle];
-    } else if ([selected count] > 1) {
-        NSArray *identifiers = [selected arrayByMappingObjects:^id(id obj) {
-            return [[obj info] problemIdentifier];
-        }];
-        NSOrderedSet *identifierSet = [NSOrderedSet orderedSetWithArray:identifiers];
-        [pb clearContents];
-        NSURL *URL = [Problem URLWithIdentifiers:[identifierSet array]];
-        [pb writeURL:URL];
-    }
-#endif
+- (void)copyNumbers:(NSArray *)selected {
+    [NSString copyIssueIdentifiers:[selected arrayByMappingObjects:^id(id obj) {
+        return [[obj issue] fullIdentifier];
+    }] toPasteboard:[NSPasteboard generalPasteboard]];
 }
 
-- (IBAction)copyURL:(id)sender {
+- (void)copyNumbersAndTitles:(NSArray *)selected {
+    [NSString copyIssueIdentifiers:[selected arrayByMappingObjects:^id(id obj) {
+        return [[obj issue] fullIdentifier];
+    }] withTitles:[selected arrayByMappingObjects:^id(id obj) {
+        return [[obj issue] title];
+    }] toPasteboard:[NSPasteboard generalPasteboard]];
+}
+
+- (IBAction)copyIssueNumber:(id)sender {
     NSArray *selected = [self selectedItems];
-    [self copyURLs:selected];
+    [self copyNumbers:selected];
+}
+
+- (IBAction)copyIssueNumberWithTitle:(id)sender {
+    NSArray *selected = [self selectedItems];
+    [self copyNumbersAndTitles:selected];
+}
+
+- (IBAction)copyIssueGitHubURL:(id)sender {
+    NSArray *selected = [self selectedItems];
+    [[[[selected firstObject] issue] fullIdentifier] copyIssueGitHubURLToPasteboard:[NSPasteboard generalPasteboard]];
 }
 
 - (IBAction)openDocument:(id)sender {
@@ -626,9 +634,13 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)item {
-    if (item.action == @selector(copyURL:)
+    if (item.action == @selector(copyIssueNumber:)
+        || item.action == @selector(copyIssueNumberWithTitle:)
         || item.action == @selector(openDocument:)) {
         return [[self selectedItems] count] > 0;
+    }
+    if (item.action == @selector(copyIssueGitHubURL:)) {
+        return [[self selectedItems] count] == 1;
     }
     return YES;
 }
@@ -702,15 +714,10 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
 
 - (BOOL)tableView:(NSTableView *)tableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard
 {
-    // FIXME: Hook up
-#if !INCOMPLETE
     NSArray *items = [_items objectsAtIndexes:rowIndexes];
-    NSArray *identifiers = [items arrayByMappingObjects:^id(ProblemTableItem *obj) {
-        return obj.info.problemIdentifier;
-    }];
-    
-    [pboard writeURL:[Problem URLWithIdentifiers:identifiers]];
-#endif
+    [NSString copyIssueIdentifiers:[items arrayByMappingObjects:^id(id obj) {
+        return [[obj issue] fullIdentifier];
+    }] toPasteboard:pboard];
     
     return YES;
 }

@@ -151,3 +151,9 @@
 - (void)setTextColor:(NSColor *)color;
 
 @end
+
+@interface MultiRepresentationPasteboardData : NSObject <NSPasteboardWriting>
+
++ (id<NSPasteboardWriting>)representationWithArray:(NSArray<id<NSPasteboardWriting>> *)array;
+
+@end

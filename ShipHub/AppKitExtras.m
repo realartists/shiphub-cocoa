@@ -487,3 +487,53 @@
 }
 
 @end
+
+@implementation MultiRepresentationPasteboardData {
+    NSArray *_objs;
+}
+
++ (id<NSPasteboardWriting>)representationWithArray:(NSArray<id<NSPasteboardWriting>> *)array {
+    return [[self alloc] initWithArray:array];
+}
+
+- (id)initWithArray:(NSArray *)array {
+    if (self = [super init]) {
+        _objs = array;
+    }
+    return self;
+}
+
+- (NSArray<NSString *> *)writableTypesForPasteboard:(NSPasteboard *)pasteboard {
+    
+    NSMutableOrderedSet *s = [NSMutableOrderedSet new];
+    for (id obj in _objs) {
+        [s addObjectsFromArray:[obj writableTypesForPasteboard:pasteboard]];
+    }
+    
+    return [s array];
+}
+
+- (id<NSPasteboardWriting>)pbObjForType:(NSString *)type pasteboard:(NSPasteboard *)pasteboard {
+    for (id obj in _objs) {
+        if ([[obj writableTypesForPasteboard:pasteboard] containsObject:type]) {
+            return obj;
+        }
+    }
+    
+    return nil;
+}
+
+- (NSPasteboardWritingOptions)writingOptionsForType:(NSString *)type pasteboard:(NSPasteboard *)pasteboard {
+    return [[self pbObjForType:type pasteboard:pasteboard] writingOptionsForType:type pasteboard:pasteboard];
+}
+
+- (nullable id)pasteboardPropertyListForType:(NSString *)type {
+    for (id obj in _objs) {
+        id r = [obj pasteboardPropertyListForType:type];
+        if (r) return r;
+    }
+    
+    return nil;
+}
+
+@end

@@ -458,4 +458,20 @@
     }
 }
 
+- (IBAction)copyIssueNumber:(id)sender {
+    [[_issue fullIdentifier] copyIssueIdentifierToPasteboard:[NSPasteboard generalPasteboard]];
+}
+
+- (IBAction)copyIssueNumberWithTitle:(id)sender {
+    [[_issue fullIdentifier] copyIssueIdentifierToPasteboard:[NSPasteboard generalPasteboard] withTitle:_issue.title];
+}
+
+- (IBAction)copyIssueGitHubURL:(id)sender {
+    [[_issue fullIdentifier] copyIssueGitHubURLToPasteboard:[NSPasteboard generalPasteboard]];
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    return _issue.fullIdentifier != nil;
+}
+
 @end
