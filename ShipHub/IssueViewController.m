@@ -9,6 +9,7 @@
 #import "IssueViewController.h"
 
 #import "APIProxy.h"
+#import "AttachmentManager.h"
 #import "Auth.h"
 #import "DataStore.h"
 #import "Extras.h"
@@ -25,6 +26,7 @@
 @interface IssueViewController () <WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate> {
     BOOL _didFinishLoading;
     NSMutableArray *_javaScriptToRun;
+    NSInteger _pastedImageCount;
 }
 
 // Why legacy WebView?
@@ -155,9 +157,13 @@
 
 - (void)webView:(WebView *)webView didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
     __weak __typeof(self) weakSelf = self;
-    [windowObject addScriptMessageHandlerBlock:^(id msg) {
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
         [weakSelf proxyAPI:msg];
     } name:@"inAppAPI"];
+    
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf pasteHelper:msg];
+    } name:@"inAppPasteHelper"];
     
     NSString *setupJS =
     @"window.inApp = true;\n"
@@ -225,6 +231,213 @@
         [self updateTitle];
     }];
     [proxy resume];
+}
+
+- (NSString *)placeholderWithWrapper:(NSFileWrapper *)wrapper {
+    NSString *filename = wrapper.preferredFilename ?: @"attachment";
+    if ([wrapper isImageType]) {
+        return [NSString stringWithFormat:@"![Uploading %@](...)", filename];
+    } else {
+        return [NSString stringWithFormat:@"[Uploading %@](...)", filename];
+    }
+}
+
+- (NSString *)linkWithWrapper:(NSFileWrapper *)wrapper URL:(NSURL *)linkURL {
+    NSString *filename = wrapper.preferredFilename ?: @"attachment";
+    if ([wrapper isImageType]) {
+        return [NSString stringWithFormat:@"![%@](%@)", filename, linkURL];
+    } else {
+        return [NSString stringWithFormat:@"[%@](%@)", filename, linkURL];
+    }
+}
+
+- (void)pasteWrappers:(NSArray<NSFileWrapper *> *)wrappers handle:(NSNumber *)handle {
+    NSMutableString *pasteString = [NSMutableString new];
+    
+    __block NSInteger pendingUploads = wrappers.count;
+    for (NSFileWrapper *wrapper in wrappers) {
+        NSString *placeholder = [self placeholderWithWrapper:wrapper];
+        
+        [[AttachmentManager sharedManager] uploadAttachment:wrapper completion:^(NSURL *destinationURL, NSError *error) {
+            NSString *js = nil;
+            
+            dispatch_assert_current_queue(dispatch_get_main_queue());
+            
+            if (error) {
+                js = [NSString stringWithFormat:@"pasteCallback(%@, 'uploadFailed', %@)", handle, [JSON stringifyObject:@{@"placeholder": placeholder, @"err": [error localizedDescription]}]];
+            } else {
+                NSString *link = [self linkWithWrapper:wrapper URL:destinationURL];
+                js = [NSString stringWithFormat:@"pasteCallback(%@, 'uploadFinished', %@)", handle, [JSON stringifyObject:@{@"placeholder": placeholder, @"link": link}]];
+            }
+            
+            DebugLog(@"%@", js);
+            [self evaluateJavaScript:js];
+            
+            pendingUploads--;
+            
+            if (pendingUploads == 0) {
+                js = [NSString stringWithFormat:@"pasteCallback(%@, 'complete')", handle];
+                [self evaluateJavaScript:js];
+            }
+        }];
+        
+        [pasteString appendFormat:@"%@\n", placeholder];
+    }
+    
+    NSString *js = [NSString stringWithFormat:
+                    @"pasteCallback(%@, 'pasteText', %@);\n"
+                    @"pasteCallback(%@, 'uploadsStarted', %tu);\n",
+                    handle, [JSON stringifyObject:pasteString],
+                    handle, wrappers.count];
+    DebugLog(@"%@", js);
+    [self evaluateJavaScript:js];
+}
+
+- (void)pasteHelper:(NSDictionary *)msg {
+    NSNumber *handle = msg[@"handle"];
+    
+    NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+    
+    NSString *callback;
+    
+    for (NSPasteboardItem *item in pasteboard.pasteboardItems) {
+        DebugLog(@"Saw item %@, with types %@", item, item.types);
+    }
+    
+    if ([pasteboard canReadItemWithDataConformingToTypes:@[NSFilenamesPboardType, NSFilesPromisePboardType, (__bridge NSString *)kPasteboardTypeFileURLPromise, (__bridge NSString *)kUTTypeFileURL]]) {
+        // file data
+        DebugLog(@"paste files: %@", pasteboard.pasteboardItems);
+        
+        NSMutableArray *wrappers = [NSMutableArray new];
+        for (NSPasteboardItem *item in pasteboard.pasteboardItems) {
+            NSString *URLString = [item stringForType:(__bridge NSString *)kUTTypeFileURL];
+            if (URLString) {
+                NSURL *URL = [NSURL URLWithString:URLString];
+                NSFileWrapper *wrapper = [[NSFileWrapper alloc] initWithURL:URL options:0 error:NULL];
+                [wrappers addObject:wrapper];
+            }
+        }
+        
+        [self pasteWrappers:wrappers handle:handle];
+    } else if ([pasteboard canReadItemWithDataConformingToTypes:@[NSPasteboardTypeRTFD]]) {
+        // find out if the rich text contains files in it we need to upload
+        NSData *data = [pasteboard dataForType:NSPasteboardTypeRTFD];
+        NSAttributedString *attrStr = [[NSAttributedString alloc] initWithRTFD:data documentAttributes:nil];
+        
+        DebugLog(@"paste attrStr: %@", attrStr);
+        
+        // find all the attachments
+        NSMutableArray *attachments = [NSMutableArray new];
+        NSMutableArray *ranges = [NSMutableArray new];
+        [attrStr enumerateAttribute:NSAttachmentAttributeName inRange:NSMakeRange(0, attrStr.length) options:0 usingBlock:^(id  _Nullable value, NSRange range, BOOL * _Nonnull stop) {
+            if ([value isKindOfClass:[NSTextAttachment class]]) {
+                NSFileWrapper *wrapper = [value fileWrapper];
+                if (wrapper) {
+                    [attachments addObject:wrapper];
+                    [ranges addObject:[NSValue valueWithRange:range]];
+                }
+            }
+        }];
+        
+        if (attachments.count == 0) {
+            NSString *js = [NSString stringWithFormat:
+                            @"pasteCallback(%@, 'pasteText', %@);\n"
+                            @"pasteCallback(%@, 'completed');\n",
+                            handle, [JSON stringifyObject:[attrStr string]],
+                            handle];
+            [self evaluateJavaScript:js];
+        } else {
+            NSMutableAttributedString *pasteStr = [attrStr mutableCopy];
+            
+            __block NSInteger pendingUploads = attachments.count;
+            for (NSInteger i = pendingUploads; i > 0; i--) {
+                NSRange range = [ranges[i-1] rangeValue];
+                NSFileWrapper *attachment = attachments[i-1];
+                
+                NSString *placeholder = [self placeholderWithWrapper:attachment];
+                [pasteStr replaceCharactersInRange:range withString:placeholder];
+                
+                [[AttachmentManager sharedManager] uploadAttachment:attachment completion:^(NSURL *destinationURL, NSError *error) {
+                    NSString *js = nil;
+                    
+                    dispatch_assert_current_queue(dispatch_get_main_queue());
+                    
+                    if (error) {
+                        js = [NSString stringWithFormat:@"pasteCallback(%@, 'uploadFailed', %@)", handle, [JSON stringifyObject:@{@"placeholder": placeholder, @"err": [error localizedDescription]}]];
+                    } else {
+                        NSString *link = [self linkWithWrapper:attachment URL:destinationURL];
+                        js = [NSString stringWithFormat:@"pasteCallback(%@, 'uploadFinished', %@)", handle, [JSON stringifyObject:@{@"placeholder": placeholder, @"link": link}]];
+                    }
+                    
+                    DebugLog(@"%@", js);
+                    [self evaluateJavaScript:js];
+                    
+                    pendingUploads--;
+                    
+                    if (pendingUploads == 0) {
+                        js = [NSString stringWithFormat:@"pasteCallback(%@, 'complete')", handle];
+                        [self evaluateJavaScript:js];
+                    }
+                }];
+            }
+            
+            NSString *js = [NSString stringWithFormat:
+                            @"pasteCallback(%@, 'pasteText', %@);\n"
+                            @"pasteCallback(%@, 'uploadsStarted', %tu);\n",
+                            handle, [JSON stringifyObject:[pasteStr string]],
+                            handle, attachments.count];
+            DebugLog(@"%@", js);
+            [self evaluateJavaScript:js];
+        }
+        
+    } else if ([pasteboard canReadItemWithDataConformingToTypes:@[NSPasteboardTypeString]]) {
+        // just plain text
+        NSString *contents = [pasteboard stringForType:NSPasteboardTypeString];
+        callback = [NSString stringWithFormat:@"pasteCallback(%@, 'pasteText', %@);", handle, [JSON stringifyObject:contents]];
+        DebugLog(@"paste text: %@", callback);
+        [self evaluateJavaScript:callback];
+        
+        callback = [NSString stringWithFormat:@"pasteCallback(%@, 'completed');", handle];
+        DebugLog(@"%@", callback);
+        [self evaluateJavaScript:callback];
+    } else if ([pasteboard canReadItemWithDataConformingToTypes:@[(__bridge NSString *)kUTTypeGIF, NSPasteboardTypePNG, NSPasteboardTypePDF, NSPasteboardTypeTIFF]]) {
+        // images
+        DebugLog(@"paste images: %@", pasteboard.pasteboardItems);
+        NSMutableArray *imageWrappers = [NSMutableArray new];
+        for (NSPasteboardItem *item in pasteboard.pasteboardItems) {
+            NSData *imgData = [item dataForType:(__bridge NSString *)kUTTypeGIF];
+            NSString *ext = @"gif";
+            if (!imgData) {
+                imgData = [item dataForType:NSPasteboardTypePNG];
+                ext = @"png";
+            }
+            if (!imgData) {
+                imgData = [item dataForType:NSPasteboardTypePDF];
+                ext = @"pdf";
+            }
+            if (!imgData) {
+                imgData = [item dataForType:NSPasteboardTypeTIFF];
+                ext = @"tiff";
+            }
+            
+            if (imgData) {
+                NSFileWrapper *wrapper = [[NSFileWrapper alloc] initRegularFileWithContents:imgData];
+                
+                NSString *filename = [NSString stringWithFormat:NSLocalizedString(@"Pasted Image %td.%@", nil), ++_pastedImageCount, ext];
+                wrapper.preferredFilename = filename;
+                
+                [imageWrappers addObject:wrapper];
+            }
+        }
+        
+        [self pasteWrappers:imageWrappers handle:handle];
+        
+    } else {
+        // can't read anything
+        DebugLog(@"nothing readable in pasteboard: %@", pasteboard.pasteboardItems);
+        callback = [NSString stringWithFormat:@"pasteCallback(%@, 'completed');", handle];
+        [self evaluateJavaScript:callback];
+    }
 }
 
 #pragma mark -

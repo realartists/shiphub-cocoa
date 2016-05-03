@@ -113,7 +113,13 @@ static NSString *stringifyJSONObject(id obj) {
         }
         return [[NSString alloc] initWithData:d encoding:NSUTF8StringEncoding];
     } else if ([obj isKindOfClass:[NSString class]]) {
-        return [NSString stringWithFormat:@"\"%@\"", obj];
+        NSArray *a = @[obj];
+        NSData *d = [NSJSONSerialization dataWithJSONObject:a options:0 error:NULL];
+        NSString *s = [[NSString alloc] initWithData:d encoding:NSUTF8StringEncoding];
+        NSString *ret = [s substringWithRange:NSMakeRange(1, s.length-2)];
+        [ret writeToFile:@"/tmp/foo.txt" atomically:NO encoding:NSUTF8StringEncoding error:NULL];
+        NSCAssert([ret rangeOfString:@"\r"].location == NSNotFound, @"No newlines!");
+        return ret;
     } else if ([obj isKindOfClass:[NSNumber class]]) {
         return [obj description];
     } else {

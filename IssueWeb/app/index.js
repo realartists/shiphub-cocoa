@@ -71,6 +71,39 @@ window.setAPIToken = function(token) {
   window.ivars.token = token;
 }
 
+var pendingPasteHandlers = [];
+var pasteHandle = 0;
+
+function pasteHelper(pasteText, uploadsStarted, uploadFinished, uploadFailed) {
+  var handle = ++pasteHandle;
+  pendingPasteHandlers[handle] = { pasteText, uploadsStarted, uploadFinished, uploadFailed };
+  window.inAppPasteHelper.postMessage({handle});
+}
+
+function pasteCallback(handle, type, data) {
+  var handlers = pendingPasteHandlers[handle];
+  switch (type) {
+    case 'pasteText':
+      handlers.pasteText(data);
+      break;
+    case 'uploadsStarted':
+      handlers.uploadsStarted(data);
+      break;
+    case 'uploadFinished':
+      handlers.uploadFinished(data.placeholder, data.link);
+      break;
+    case 'uploadFailed':
+      handlers.uploadFailed(data.placeholder, data.err);
+      break;
+    case 'complete':
+      delete handlers[handle];
+      break;
+    default:
+      console.log("Unknown pasteCallback type", type);
+      break;
+  }
+}
+
 var pendingAPIHandlers = [];
 var apiHandle = 0;
 
@@ -1121,6 +1154,12 @@ var Comment = React.createClass({
 	  this.setState(Object.assign({}, this.state, {code: newCode}));
 	},
 	
+	replaceInCode: function(original, replacement) {
+    var c = this.state.code;
+    c = c.replace(original, replacement);
+    this.updateCode(c);
+	},
+	
 	beginEditing: function() {
 	  if (!this.state.editing) {
       this.setState(Object.assign({}, this.state, {
@@ -1349,18 +1388,12 @@ var Comment = React.createClass({
         if (isImage) {
           link = "!" + link;
         }
-        var newCode = this.state.code;
-        if (newCode.indexOf(placeholder) == -1) {
-          console.log("Couldn't find placeholder", placeholder, "in", newCode);
-        }
-        newCode = newCode.replace(placeholder, link);
-        this.updateCode(newCode);
+        this.replaceInCode(placeholder, link);
         this.updateUploadCount(-1);
       }).catch((err) => {
         console.log(err);
+        this.replaceInCode(placeholder, "");
         this.updateUploadCount(-1);
-        var newCode = this.state.code.replace(placeholder, "");
-        this.updateCode(newCode);
         alert(err);
       });
     });
@@ -1466,6 +1499,37 @@ var Comment = React.createClass({
           return true;
         } else {
           return false;
+        }
+      });
+      
+      cm.on('paste', (cm, e) => {
+        if (window.inAppPasteHelper) {
+          var pasteText = (text) => {
+            cm.replaceSelection(text);
+          };
+                    
+          var uploadsStarted = (count, placeholders) => {
+            this.updateUploadCount(count);
+          };
+          
+          var uploadFinished = (placeholder, link) => {
+            this.replaceInCode(placeholder, link);
+            this.updateUploadCount(-1);
+          };
+          
+          var uploadFailed = (placeholder, err) => {
+            this.replaceInCode(placeholder, "");
+            this.updateUploadCount(-1);
+            alert(err);
+          };
+          
+          pasteHelper(pasteText, uploadsStarted, uploadFinished, uploadFailed);
+          
+          e.stopPropagation();
+          e.preventDefault();
+          return true;
+        } else {
+          return false; // use default 
         }
       });
       
@@ -2524,6 +2588,8 @@ window.configureNewIssue = configureNewIssue;
 window.renderIssue = function(issue) {
   applyIssueState({issue: issue});
 };
+
+window.pasteCallback = pasteCallback;
 
 if (!window.inApp) {
   //updateIssue("realartists", "shiphub-server", "10")
