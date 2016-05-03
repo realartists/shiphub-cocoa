@@ -153,6 +153,14 @@
     }];
 }
 
+- (void)webView:(WebView *)sender runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WebFrame *)frame
+{
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = message;
+    
+    [alert beginSheetModalForWindow:self.view.window completionHandler:nil];
+}
+
 #pragma mark - WebFrameLoadDelegate
 
 - (void)webView:(WebView *)webView didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {

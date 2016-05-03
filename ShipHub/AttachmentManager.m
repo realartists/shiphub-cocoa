@@ -146,7 +146,7 @@ static NSString *const UploadEndpoint = @"https://86qvuywske.execute-api.us-east
     
     if (fileSize > MaxFileSize) {
         int maxMB = MaxFileSize / (1024 * 1024);
-        NSString *reason = [NSString stringWithFormat:NSLocalizedString(@"%@ is too big to upload. Maximum file upload size is %dMB", nil), attachment.preferredFilename, maxMB];
+        NSString *reason = [NSString stringWithFormat:NSLocalizedString(@"%@ is too big to upload. Maximum file upload size is %dMB.", nil), attachment.preferredFilename, maxMB];
         
         completion(nil, [NSError attachmentManagerErrorWithCode:AttachmentManagerErrorFileTooBig userInfo:@{NSLocalizedDescriptionKey : reason}]);
         return;
@@ -228,7 +228,7 @@ static NSString *AttachmentManagerLocalizedDescriptionForErrorCode(AttachmentMan
     switch (code) {
         case AttachmentManagerErrorFileTooBig: {
             int maxMB = MaxFileSize / (1024 * 1024);
-            NSString *reason = [NSString stringWithFormat:NSLocalizedString(@"Maximum file upload size is %dMB", nil), maxMB];
+            NSString *reason = [NSString stringWithFormat:NSLocalizedString(@"Maximum file upload size is %dMB.", nil), maxMB];
             return reason;
         }
         case AttachmentManagerErrorIO: return NSLocalizedString(@"I/O Error", nil);
