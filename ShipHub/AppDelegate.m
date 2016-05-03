@@ -311,4 +311,9 @@
     
 }
 
+- (IBAction)searchAllProblems:(id)sender {
+    [self showOverviewController:nil];
+    [[self activeOverviewController] searchAllProblems:nil];
+}
+
 @end
