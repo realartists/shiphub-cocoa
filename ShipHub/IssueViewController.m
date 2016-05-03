@@ -308,9 +308,11 @@
     
     NSString *callback;
     
+#if DEBUG
     for (NSPasteboardItem *item in pasteboard.pasteboardItems) {
         DebugLog(@"Saw item %@, with types %@", item, item.types);
     }
+#endif
     
     if ([pasteboard canReadItemWithDataConformingToTypes:@[NSFilenamesPboardType, NSFilesPromisePboardType, (__bridge NSString *)kPasteboardTypeFileURLPromise, (__bridge NSString *)kUTTypeFileURL]]) {
         // file data

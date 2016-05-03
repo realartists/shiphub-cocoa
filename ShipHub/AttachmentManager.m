@@ -39,7 +39,11 @@ static NSString *const UploadEndpoint = @"https://86qvuywske.execute-api.us-east
     
     char *templateChars = strdup([tmpTemplate UTF8String]);
     
+#if __clang_analyzer__
+    mkstemp(templateChars); // unfortunately, zip doesn't want to operate on an existing file, so we have to actually use mktemp
+#else
     mktemp(templateChars);
+#endif
     
     NSString *temporaryContainer = [NSString stringWithUTF8String:templateChars];
     NSString *temporaryPath = [temporaryContainer stringByAppendingPathComponent:directoryFilename];
