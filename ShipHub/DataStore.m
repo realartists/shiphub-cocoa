@@ -17,6 +17,7 @@
 #import "MetadataStoreInternal.h"
 #import "NSPredicate+Extras.h"
 #import "JSON.h"
+#import "TimeSeries.h"
 
 #import "LocalAccount.h"
 #import "LocalUser.h"
@@ -882,6 +883,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     } completion:completion];
 }
 
+#pragma mark - Issue Mutation
+
 - (void)patchIssue:(NSDictionary *)patch issueIdentifier:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion
 {
     NSParameterAssert(patch);
@@ -1080,6 +1083,45 @@ static NSString *const LastUpdated = @"LastUpdated";
             }];
         } else {
             RunOnMain(^{
+                completion(nil, error);
+            });
+        }
+    }];
+}
+
+#pragma mark - Time Series
+
+- (void)timeSeriesMatchingPredicate:(NSPredicate *)predicate startDate:(NSDate *)startDate endDate:(NSDate *)endDate completion:(void (^)(TimeSeries *series, NSError *error))completion {
+    [_moc performBlock:^{
+        NSError *error = nil;
+        @try {
+            NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+            fetchRequest.predicate = [TimeSeries timeSeriesPredicateWithPredicate:[predicate predicateByFoldingExpressions] startDate:startDate endDate:endDate];
+            fetchRequest.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]];
+            
+            NSError *err = nil;
+            NSArray *entities = [_moc executeFetchRequest:fetchRequest error:&err];
+            if (err) {
+                ErrLog(@"%@", err);
+                error = error;
+            }
+            MetadataStore *ms = self.metadataStore;
+            NSArray<Issue *> *issues = [entities arrayByMappingObjects:^id(LocalIssue *obj) {
+                return [[Issue alloc] initWithLocalIssue:obj metadataStore:ms];
+            }];
+            
+            TimeSeries *ts = [[TimeSeries alloc] initWithPredicate:predicate startDate:startDate endDate:endDate];
+            [ts selectRecordsFrom:issues];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(error==nil?ts:nil, error);
+            });
+            
+        } @catch (id exc) {
+            error = [NSError shipErrorWithCode:ShipErrorCodeInvalidQuery];
+            ErrLog(@"%@", exc);
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
                 completion(nil, error);
             });
         }

@@ -29,6 +29,7 @@
 @property (readonly) NSString *state;
 @property (readonly) NSDate *createdAt;
 @property (readonly) NSDate *updatedAt;
+@property (readonly) NSDate *closedAt;
 @property (readonly) BOOL locked;
 @property (readonly) User *assignee;
 @property (readonly) User *originator;

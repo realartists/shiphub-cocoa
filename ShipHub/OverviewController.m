@@ -26,6 +26,8 @@
 #import "ResultsViewModeItem.h"
 #import "Sparkline.h"
 #import "NetworkStateWindow.h"
+#import "ChartController.h"
+#import "TimeSeries.h"
 
 #import "IssueDocumentController.h"
 
@@ -34,8 +36,6 @@
 //#import "SearchEditorViewController.h"
 //#import "CustomQuery.h"
 //#import "SaveSearchController.h"
-//#import "ChartController.h"
-//#import "TimeSeries.h"
 //#import "ProblemProgressController.h"
 
 #import <QuartzCore/QuartzCore.h>
@@ -74,9 +74,7 @@ SearchEditorViewControllerDelegate,
 NSTextFieldDelegate>
 
 @property SearchResultsController *searchResults;
-#if !INCOMPLETE
 @property ChartController *chartController;
-#endif
 
 @property (strong) IBOutlet NSSplitView *splitView;
 @property (strong) IBOutlet OverviewOutlineView *outlineView;
@@ -113,9 +111,7 @@ NSTextFieldDelegate>
     if ([self isWindowLoaded]) {
         [[self window] removeObserver:self forKeyPath:@"firstResponder"];
         [_searchResults removeObserver:self forKeyPath:@"title"];
-#if !INCOMPLETE
         [_chartController removeObserver:self forKeyPath:@"title"];
-#endif
     }
     _outlineView.delegate = nil;
     _outlineView.dataSource = nil;
@@ -160,10 +156,8 @@ NSTextFieldDelegate>
     _searchItem.searchField.nextKeyView = [_searchResults.view subviews][0];
     _searchItem.searchField.nextKeyView.nextKeyView = _searchItem.searchField;
 
-#if !INCOMPLETE
     _chartController = [[ChartController alloc] init];
     [_chartController addObserver:self forKeyPath:@"title" options:0 context:NULL];
-#endif
     
     NSView *rightPane = [_splitView.subviews lastObject];
     
@@ -779,11 +773,7 @@ NSTextFieldDelegate>
     switch (_modeItem.mode) {
         case ResultsViewModeList: return _searchResults;
         case ResultsViewModeChart:
-#if !INCOMPLETE
             return _chartController;
-#else
-            return _searchResults;
-#endif
     }
 }
 
@@ -830,6 +820,8 @@ NSTextFieldDelegate>
     } else if (searchPredicate) {
         predicate = searchPredicate;
     }
+    
+    _modeItem.chartEnabled = (selectedItem == nil || [selectedItem allowChart]);
     
     [[self activeResultsController] setPredicate:predicate];
     [self updateCount:selectedItem];
@@ -1176,9 +1168,7 @@ NSTextFieldDelegate>
             }
         }
     } else if (object == _searchResults
-#if !INCOMPLETE
                || object == _chartController
-#endif
                ) {
         if ([keyPath isEqualToString:@"title"]) {
             [self updateTitle];
@@ -1482,9 +1472,7 @@ NSTextFieldDelegate>
 }
 
 - (IBAction)showChartOptions:(id)sender {
-#if !INCOMPLETE
     [_chartController configure:sender];
-#endif
 }
 
 #pragma mark -

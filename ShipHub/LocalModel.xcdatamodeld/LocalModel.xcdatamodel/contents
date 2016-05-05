@@ -29,6 +29,7 @@
     <entity name="LocalIssue" representedClassName="LocalIssue" syncable="YES">
         <attribute name="body" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="closed" optional="YES" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
+        <attribute name="closedAt" optional="YES" attributeType="Date" indexed="YES" syncable="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" indexed="YES" syncable="YES"/>
         <attribute name="fullIdentifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
@@ -109,7 +110,7 @@
         <element name="LocalAccount" positionX="-497" positionY="-108" width="128" height="118"/>
         <element name="LocalComment" positionX="412" positionY="-90" width="128" height="135"/>
         <element name="LocalEvent" positionX="403" positionY="63" width="128" height="180"/>
-        <element name="LocalIssue" positionX="198" positionY="-54" width="128" height="345"/>
+        <element name="LocalIssue" positionX="198" positionY="-54" width="128" height="360"/>
         <element name="LocalLabel" positionX="-11" positionY="267" width="128" height="105"/>
         <element name="LocalMilestone" positionX="-18" positionY="-115" width="128" height="195"/>
         <element name="LocalOrg" positionX="-425" positionY="45" width="128" height="58"/>

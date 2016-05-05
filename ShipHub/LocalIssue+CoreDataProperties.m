@@ -22,6 +22,7 @@
 @dynamic number;
 @dynamic title;
 @dynamic updatedAt;
+@dynamic closedAt;
 @dynamic assignee;
 @dynamic childRelationships;
 @dynamic closedBy;

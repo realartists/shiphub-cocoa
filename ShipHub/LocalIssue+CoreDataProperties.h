@@ -32,6 +32,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *fullIdentifier;
 @property (nullable, nonatomic, retain) NSString *title;
 @property (nullable, nonatomic, retain) NSDate *updatedAt;
+@property (nullable, nonatomic, retain) NSDate *closedAt;
 @property (nullable, nonatomic, retain) LocalUser *assignee;
 @property (nullable, nonatomic, retain) NSSet<LocalRelationship *> *childRelationships;
 @property (nullable, nonatomic, retain) LocalUser *closedBy;

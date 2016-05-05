@@ -170,6 +170,16 @@
 		1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
 		1AE09C231C9779E400C5AC35 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EE1C8FC3DB008C11CB /* Reachability.m */; };
 		1AE09C241C977A3400C5AC35 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
+		1AF349501CDA95F000A5BEB0 /* TimeSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */; };
+		1AF349511CDA95F000A5BEB0 /* TimeSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */; };
+		1AF349751CDAC1E900A5BEB0 /* ChartController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3496F1CDAC1E900A5BEB0 /* ChartController.m */; };
+		1AF349771CDAC1E900A5BEB0 /* ChartConfigController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF349711CDAC1E900A5BEB0 /* ChartConfigController.m */; };
+		1AF349791CDAC1E900A5BEB0 /* ChartConfigController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF349721CDAC1E900A5BEB0 /* ChartConfigController.xib */; };
+		1AF3497B1CDAC1E900A5BEB0 /* ChartConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF349741CDAC1E900A5BEB0 /* ChartConfig.m */; };
+		1AF349881CDAC4AC00A5BEB0 /* d3.min.js in Copy Chart Web Content */ = {isa = PBXBuildFile; fileRef = 1AF3497E1CDAC25900A5BEB0 /* d3.min.js */; };
+		1AF349891CDAC4AC00A5BEB0 /* index.html in Copy Chart Web Content */ = {isa = PBXBuildFile; fileRef = 1AF3497F1CDAC25900A5BEB0 /* index.html */; };
+		1AF3498A1CDAC4AC00A5BEB0 /* nv.d3.min.css in Copy Chart Web Content */ = {isa = PBXBuildFile; fileRef = 1AF349801CDAC25900A5BEB0 /* nv.d3.min.css */; };
+		1AF3498B1CDAC4AC00A5BEB0 /* nv.d3.min.js in Copy Chart Web Content */ = {isa = PBXBuildFile; fileRef = 1AF349811CDAC25900A5BEB0 /* nv.d3.min.js */; };
 		1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22011CA6053B00B51CF6 /* IssueEvent.m */; };
 		1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
 		1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
@@ -224,6 +234,20 @@
 				1A2217C51C7E7BCE006460E2 /* SocketRocket.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = ChartWeb;
+			dstSubfolderSpec = 7;
+			files = (
+				1AF349881CDAC4AC00A5BEB0 /* d3.min.js in Copy Chart Web Content */,
+				1AF349891CDAC4AC00A5BEB0 /* index.html in Copy Chart Web Content */,
+				1AF3498A1CDAC4AC00A5BEB0 /* nv.d3.min.css in Copy Chart Web Content */,
+				1AF3498B1CDAC4AC00A5BEB0 /* nv.d3.min.js in Copy Chart Web Content */,
+			);
+			name = "Copy Chart Web Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -413,6 +437,19 @@
 		1AE09BE71C97687E00C5AC35 /* LocalComment+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalComment+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BE81C97687E00C5AC35 /* LocalComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalComment.h; sourceTree = "<group>"; };
 		1AE09BE91C97687E00C5AC35 /* LocalComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalComment.m; sourceTree = "<group>"; };
+		1AF3494E1CDA95F000A5BEB0 /* TimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeries.h; sourceTree = "<group>"; };
+		1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeSeries.m; sourceTree = "<group>"; };
+		1AF3496E1CDAC1E900A5BEB0 /* ChartController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChartController.h; sourceTree = "<group>"; };
+		1AF3496F1CDAC1E900A5BEB0 /* ChartController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChartController.m; sourceTree = "<group>"; };
+		1AF349701CDAC1E900A5BEB0 /* ChartConfigController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChartConfigController.h; sourceTree = "<group>"; };
+		1AF349711CDAC1E900A5BEB0 /* ChartConfigController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChartConfigController.m; sourceTree = "<group>"; };
+		1AF349721CDAC1E900A5BEB0 /* ChartConfigController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChartConfigController.xib; sourceTree = "<group>"; };
+		1AF349731CDAC1E900A5BEB0 /* ChartConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChartConfig.h; sourceTree = "<group>"; };
+		1AF349741CDAC1E900A5BEB0 /* ChartConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChartConfig.m; sourceTree = "<group>"; };
+		1AF3497E1CDAC25900A5BEB0 /* d3.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = d3.min.js; sourceTree = "<group>"; };
+		1AF3497F1CDAC25900A5BEB0 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		1AF349801CDAC25900A5BEB0 /* nv.d3.min.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = nv.d3.min.css; sourceTree = "<group>"; };
+		1AF349811CDAC25900A5BEB0 /* nv.d3.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = nv.d3.min.js; sourceTree = "<group>"; };
 		1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
 		1AFE21F01CA5EC3F00B51CF6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		1AFE21F21CA5EC3F00B51CF6 /* emojify.js */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.javascript; path = emojify.js; sourceTree = "<group>"; tabWidth = 2; };
@@ -496,6 +533,7 @@
 				1A2217CC1C7E7C49006460E2 /* Auth */,
 				1A694B121CA3414800F73608 /* Overview UI */,
 				1A0D59D21CA4A8B4004F2578 /* Issue UI */,
+				1AF3494A1CDA95D100A5BEB0 /* Charting */,
 				1A694B131CA3419900F73608 /* Shared UI */,
 				1A2217CE1C7E80C0006460E2 /* Extras */,
 				1A2217941C7E7B14006460E2 /* Supporting Files */,
@@ -779,6 +817,34 @@
 			name = DataStore;
 			sourceTree = "<group>";
 		};
+		1AF3494A1CDA95D100A5BEB0 /* Charting */ = {
+			isa = PBXGroup;
+			children = (
+				1AF3497D1CDAC25900A5BEB0 /* ChartWeb */,
+				1AF3494E1CDA95F000A5BEB0 /* TimeSeries.h */,
+				1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */,
+				1AF3496E1CDAC1E900A5BEB0 /* ChartController.h */,
+				1AF3496F1CDAC1E900A5BEB0 /* ChartController.m */,
+				1AF349701CDAC1E900A5BEB0 /* ChartConfigController.h */,
+				1AF349711CDAC1E900A5BEB0 /* ChartConfigController.m */,
+				1AF349721CDAC1E900A5BEB0 /* ChartConfigController.xib */,
+				1AF349731CDAC1E900A5BEB0 /* ChartConfig.h */,
+				1AF349741CDAC1E900A5BEB0 /* ChartConfig.m */,
+			);
+			name = Charting;
+			sourceTree = "<group>";
+		};
+		1AF3497D1CDAC25900A5BEB0 /* ChartWeb */ = {
+			isa = PBXGroup;
+			children = (
+				1AF3497E1CDAC25900A5BEB0 /* d3.min.js */,
+				1AF3497F1CDAC25900A5BEB0 /* index.html */,
+				1AF349801CDAC25900A5BEB0 /* nv.d3.min.css */,
+				1AF349811CDAC25900A5BEB0 /* nv.d3.min.js */,
+			);
+			path = ChartWeb;
+			sourceTree = SOURCE_ROOT;
+		};
 		1AFE21EE1CA5EC3F00B51CF6 /* IssueWeb */ = {
 			isa = PBXGroup;
 			children = (
@@ -826,6 +892,7 @@
 				1A22178B1C7E7B14006460E2 /* Frameworks */,
 				1A22178C1C7E7B14006460E2 /* Resources */,
 				1A0D87791CAB03710069782D /* Copy Issue Web Content */,
+				1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */,
 				1A2217C41C7E7BC1006460E2 /* Copy Frameworks */,
 			);
 			buildRules = (
@@ -941,6 +1008,7 @@
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
 				1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */,
+				1AF349791CDAC1E900A5BEB0 /* ChartConfigController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
@@ -994,6 +1062,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AF349751CDAC1E900A5BEB0 /* ChartController.m in Sources */,
 				1A7A415B1C8F603E0043DAF0 /* CAExtras.m in Sources */,
 				1A2305E91C7FC2940034C871 /* AuthController.m in Sources */,
 				1AE09BEC1C97687E00C5AC35 /* LocalMilestone.m in Sources */,
@@ -1009,6 +1078,7 @@
 				1A694B001CA0ABEB00F73608 /* MetadataItem.m in Sources */,
 				1A0D87741CA9E25F0069782D /* JSON.m in Sources */,
 				1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */,
+				1AF3497B1CDAC1E900A5BEB0 /* ChartConfig.m in Sources */,
 				1A694AF61CA09EAD00F73608 /* Label.m in Sources */,
 				1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */,
 				1AE09BFC1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */,
@@ -1064,10 +1134,12 @@
 				1AE09C141C97687E00C5AC35 /* LocalComment.m in Sources */,
 				1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */,
 				1AE09C0E1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */,
+				1AF349501CDA95F000A5BEB0 /* TimeSeries.m in Sources */,
 				1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */,
 				1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */,
 				1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */,
 				1A694B0E1CA3413700F73608 /* OverviewNode.m in Sources */,
+				1AF349771CDAC1E900A5BEB0 /* ChartConfigController.m in Sources */,
 				1A0D59D51CA4A8D1004F2578 /* IssueViewController.m in Sources */,
 				1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */,
 				1AE09BFA1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m in Sources */,
@@ -1111,6 +1183,7 @@
 				1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */,
 				1AE09C211C9779DE00C5AC35 /* Logging.m in Sources */,
 				1AFE22071CA6069600B51CF6 /* IssueEvent.m in Sources */,
+				1AF349511CDA95F000A5BEB0 /* TimeSeries.m in Sources */,
 				1A0D59D11CA48B8A004F2578 /* AppKitExtras.m in Sources */,
 				1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */,
 				1A694B011CA0ABEB00F73608 /* MetadataItem.m in Sources */,

@@ -68,6 +68,26 @@
     }
 }
 
+- (NSPredicate *)predicateByRewriting:(PredicateRewriter)rewriter {
+    if ([self isKindOfClass:[NSCompoundPredicate class]]) {
+        NSPredicate *rewritten = rewriter(self);
+        
+        if (rewritten != self) {
+            return rewritten;
+        } else {
+            NSCompoundPredicate *c0 = (id)self;
+            NSArray *subpredicates = [c0.subpredicates arrayByMappingObjects:^id(id obj) {
+                return [obj predicateByRewriting:rewriter];
+            }];
+            NSCompoundPredicate *result = [[NSCompoundPredicate alloc] initWithType:c0.compoundPredicateType subpredicates:subpredicates];
+            return result;
+        }
+    } else {
+        NSPredicate *result = rewriter(self);
+        return result;
+    }
+}
+
 @end
 
 @implementation NSExpression (Walking)

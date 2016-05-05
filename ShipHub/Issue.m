@@ -42,6 +42,7 @@
         _closed = [li.closed boolValue];
         _createdAt = li.createdAt;
         _updatedAt = li.updatedAt;
+        _closedAt = li.closedAt;
         _locked = [li.locked boolValue];
         _assignee = [ms userWithIdentifier:li.assignee.identifier];
         _originator = [ms userWithIdentifier:li.originator.identifier];
