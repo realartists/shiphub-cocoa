@@ -1455,6 +1455,9 @@ NSTextFieldDelegate>
         }
 #endif
         return NO;
+    } else if (menuItem.action == @selector(copy:)) {
+        return [[self activeResultsController] respondsToSelector:@selector(copy:)]
+        && (![[self activeResultsController] respondsToSelector:@selector(validateMenuItem:)] || [[self activeResultsController] validateMenuItem:menuItem]);
     }
     return YES;
 }
@@ -1473,6 +1476,12 @@ NSTextFieldDelegate>
 
 - (IBAction)showChartOptions:(id)sender {
     [_chartController configure:sender];
+}
+
+- (IBAction)copy:(id)sender {
+    if ([[self activeResultsController] respondsToSelector:@selector(copy:)]) {
+        [(id)[self activeResultsController] copy:sender];
+    }
 }
 
 #pragma mark -

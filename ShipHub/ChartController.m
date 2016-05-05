@@ -15,14 +15,15 @@
 #import "Issue.h"
 #import "WebKitExtras.h"
 
-@interface ChartController () <WKNavigationDelegate, ChartConfigControllerDelegate, NSPopoverDelegate> {
+@interface ChartController () <WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate, ChartConfigControllerDelegate, NSPopoverDelegate> {
     NSInteger _searchGeneration;
     NSString *_javaScriptToRun;
     NSMenu *_menu;
+    NSInteger _resultsCount;
     BOOL _didFinishLoading;
 }
 
-@property WKWebView *web;
+@property WebView *web;
 
 @property ChartConfigController *config;
 @property NSPopover *popover;
@@ -36,21 +37,11 @@
 }
 
 - (void)loadView {
-    WKWebViewConfiguration *config = [WKWebViewConfiguration new];
-    WKUserContentController *userContent = [WKUserContentController new];
-    config.userContentController = userContent;
+    _web = [[WebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) frameName:nil groupName:nil];
+    _web.UIDelegate = self;
+    _web.frameLoadDelegate = self;
+    _web.policyDelegate = self;
     
-    __weak __typeof(self) weakSelf = self;
-    [userContent addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
-        [weakSelf configure:nil];
-    } name:@"configure"];
-    
-    [userContent addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
-        [weakSelf showContextMenu:nil];
-    } name:@"context"];
-    
-    _web = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) configuration:config];
-    _web.navigationDelegate = self;
     self.view = _web;
     
     _config = [ChartConfigController new];
@@ -66,7 +57,9 @@
     
     NSString *indexPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"ChartWeb"];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:indexPath]];
-    [_web loadRequest:request];
+    [_web.mainFrame loadRequest:request];
+    
+    [[[_web mainFrame] frameView] setAllowsScrolling:NO];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataSourceUpdated:) name:DataStoreDidUpdateProblemsNotification object:nil];
 }
@@ -92,7 +85,7 @@
     
     if (!self.predicate) {
         self.inProgress = NO;
-        [self evaluateJavaScript:@"updateChart({intervals:[]})"];
+        [self evaluateJavaScript:@"window.updateChart({intervals:[]})"];
         return;
     }
     
@@ -114,6 +107,7 @@
     
     [[DataStore activeStore] timeSeriesMatchingPredicate:self.predicate startDate:start endDate:end completion:^(TimeSeries *series, NSError *error) {
         if (generation == _searchGeneration) {
+            _resultsCount = series.records.count;
             [self timeSeriesToJSON:series partition:config.partitionKeyPath completion:^(NSString *js) {
                 if (generation == _searchGeneration) {
                     [self evaluateJavaScript:js];
@@ -181,7 +175,7 @@ static NSInteger dateToJSONTS(NSDate *d) {
         }
         
         NSString *json = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:d options:0 error:NULL] encoding:NSUTF8StringEncoding];
-        NSString *functionCall = [NSString stringWithFormat:@"updateChart(%@);", json];
+        NSString *functionCall = [NSString stringWithFormat:@"window.updateChart(%@);", json];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             completion(functionCall);
@@ -193,15 +187,31 @@ static NSInteger dateToJSONTS(NSDate *d) {
     if (!_didFinishLoading) {
         _javaScriptToRun = js;
     } else {
-        [_web evaluateJavaScript:js completionHandler:^(id o, NSError *e) {
-            if (e) {
-                ErrLog(@"%@", e);
-            }
-        }];
+        [_web stringByEvaluatingJavaScriptFromString:js];
     }
 }
 
-- (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+- (void)webView:(WebView *)webView didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
+    __weak __typeof(self) weakSelf = self;
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf configure:nil];
+    } name:@"configure"];
+    
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf showContextMenu:nil];
+    } name:@"context"];
+    
+    NSString *setupJS =
+    @"if (!window.webkit) window.webkit = {};\n"
+    @"if (!window.webkit.messageHandlers) window.webkit.messageHandlers = {};\n"
+    @"window.webkit.messageHandlers.configure = window.configure;\n"
+    @"window.webkit.messageHandlers.context = window.context;\n";
+    
+    [windowObject evaluateWebScript:setupJS];
+}
+
+
+- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
     _didFinishLoading = YES;
     if (_javaScriptToRun) {
         [self evaluateJavaScript:_javaScriptToRun];
@@ -229,9 +239,46 @@ static NSInteger dateToJSONTS(NSDate *d) {
         _menu = [NSMenu new];
         NSMenuItem *item = [_menu addItemWithTitle:NSLocalizedString(@"Configure Chart ...", nil) action:@selector(configure:) keyEquivalent:@""];
         item.target = self;
+        item = [_menu addItemWithTitle:NSLocalizedString(@"Copy Chart Image", nil) action:@selector(copy:) keyEquivalent:@""];
+        item.target = self;
     }
     [_menu popUpMenuPositioningItem:[_menu itemAtIndex:0] atLocation:[NSEvent mouseLocation] inView:nil];
 }
 
+- (IBAction)copy:(id)sender {
+    NSView *webFrameViewDocView = [[[_web mainFrame] frameView] documentView];
+    NSRect cacheRect = [webFrameViewDocView bounds];
+    
+    NSBitmapImageRep *bitmapRep = [webFrameViewDocView bitmapImageRepForCachingDisplayInRect:cacheRect];
+    [webFrameViewDocView cacheDisplayInRect:cacheRect toBitmapImageRep:bitmapRep];
+    
+    NSSize imgSize = cacheRect.size;
+    
+    NSRect srcRect = NSZeroRect;
+    srcRect.size = imgSize;
+    NSRect destRect = NSZeroRect;
+    destRect.size = imgSize;
+    
+    NSImage *image = [[NSImage alloc] initWithSize:imgSize];
+    [image lockFocus];
+    [bitmapRep drawInRect:destRect
+                 fromRect:srcRect
+                operation:NSCompositeCopy
+                 fraction:1.0
+           respectFlipped:YES
+                    hints:nil];
+    [image unlockFocus];
+    
+    NSPasteboard *pboard = [NSPasteboard generalPasteboard];
+    [pboard clearContents];
+    [pboard writeObjects:@[image]];
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    if (menuItem.action == @selector(copy:)) {
+        return _resultsCount > 0;
+    }
+    return YES;
+}
 
 @end
