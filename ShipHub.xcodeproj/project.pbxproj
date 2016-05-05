@@ -110,6 +110,8 @@
 		1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */; };
 		1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */; };
 		1A7A415B1C8F603E0043DAF0 /* CAExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A415A1C8F603E0043DAF0 /* CAExtras.m */; };
+		1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */; };
+		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
 		1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
@@ -389,6 +391,12 @@
 		1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BasicAuthController.xib; sourceTree = "<group>"; };
 		1A7A415A1C8F603E0043DAF0 /* CAExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CAExtras.m; sourceTree = "<group>"; };
 		1A7A415F1C8F604E0043DAF0 /* CAExtras.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CAExtras.h; sourceTree = "<group>"; };
+		1A9905061CDBC93A00EAA474 /* Issue3PaneTableController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Issue3PaneTableController.h; sourceTree = "<group>"; };
+		1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Issue3PaneTableController.m; sourceTree = "<group>"; };
+		1A99050C1CDBC98900EAA474 /* IssueTableControllerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueTableControllerPrivate.h; sourceTree = "<group>"; };
+		1A99050D1CDBCD1100EAA474 /* ThreePaneController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreePaneController.h; sourceTree = "<group>"; };
+		1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThreePaneController.m; sourceTree = "<group>"; };
+		1A9905101CDBD28A00EAA474 /* SearchResultsControllerPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchResultsControllerPrivate.h; sourceTree = "<group>"; };
 		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 		1AD470DA1C99FC2C0050AE4B /* GHSyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHSyncConnection.h; sourceTree = "<group>"; };
@@ -756,14 +764,20 @@
 				1A694B081CA3413700F73608 /* ResultsController.h */,
 				1A694B091CA3413700F73608 /* ResultsController.m */,
 				1A694B2F1CA342D500F73608 /* SearchResultsController.h */,
+				1A9905101CDBD28A00EAA474 /* SearchResultsControllerPrivate.h */,
 				1A694B301CA342D500F73608 /* SearchResultsController.m */,
 				1A694B321CA3431700F73608 /* IssueTableController.h */,
+				1A99050C1CDBC98900EAA474 /* IssueTableControllerPrivate.h */,
 				1A694B331CA3431700F73608 /* IssueTableController.m */,
 				1A694B341CA3431700F73608 /* IssueTableController.xib */,
+				1A9905061CDBC93A00EAA474 /* Issue3PaneTableController.h */,
+				1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */,
 				1A694B0A1CA3413700F73608 /* ResultsViewModeItem.h */,
 				1A694B0B1CA3413700F73608 /* ResultsViewModeItem.m */,
 				1A694B2C1CA342B000F73608 /* Sparkline.h */,
 				1A694B2D1CA342B000F73608 /* Sparkline.m */,
+				1A99050D1CDBCD1100EAA474 /* ThreePaneController.h */,
+				1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */,
 			);
 			name = "Overview UI";
 			sourceTree = "<group>";
@@ -1089,6 +1103,7 @@
 				1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
 				1A694B351CA3431700F73608 /* IssueTableController.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
+				1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */,
 				1A694B2B1CA341D500F73608 /* NetworkStatusTextField.m in Sources */,
 				1A694B2E1CA342B000F73608 /* Sparkline.m in Sources */,
 				1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */,
@@ -1139,6 +1154,7 @@
 				1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */,
 				1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */,
 				1A694B0E1CA3413700F73608 /* OverviewNode.m in Sources */,
+				1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */,
 				1AF349771CDAC1E900A5BEB0 /* ChartConfigController.m in Sources */,
 				1A0D59D51CA4A8D1004F2578 /* IssueViewController.m in Sources */,
 				1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */,

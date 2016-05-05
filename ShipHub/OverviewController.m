@@ -28,6 +28,7 @@
 #import "NetworkStateWindow.h"
 #import "ChartController.h"
 #import "TimeSeries.h"
+#import "ThreePaneController.h"
 
 #import "IssueDocumentController.h"
 
@@ -74,6 +75,7 @@ SearchEditorViewControllerDelegate,
 NSTextFieldDelegate>
 
 @property SearchResultsController *searchResults;
+@property ThreePaneController *threePaneController;
 @property ChartController *chartController;
 
 @property (strong) IBOutlet NSSplitView *splitView;
@@ -112,6 +114,7 @@ NSTextFieldDelegate>
         [[self window] removeObserver:self forKeyPath:@"firstResponder"];
         [_searchResults removeObserver:self forKeyPath:@"title"];
         [_chartController removeObserver:self forKeyPath:@"title"];
+        [_threePaneController removeObserver:self forKeyPath:@"title"];
     }
     _outlineView.delegate = nil;
     _outlineView.dataSource = nil;
@@ -155,6 +158,9 @@ NSTextFieldDelegate>
     
     _searchItem.searchField.nextKeyView = [_searchResults.view subviews][0];
     _searchItem.searchField.nextKeyView.nextKeyView = _searchItem.searchField;
+    
+    _threePaneController = [[ThreePaneController alloc] init];
+    [_threePaneController addObserver:self forKeyPath:@"title" options:0 context:NULL];
 
     _chartController = [[ChartController alloc] init];
     [_chartController addObserver:self forKeyPath:@"title" options:0 context:NULL];
@@ -772,8 +778,8 @@ NSTextFieldDelegate>
 - (ResultsController *)activeResultsController {
     switch (_modeItem.mode) {
         case ResultsViewModeList: return _searchResults;
-        case ResultsViewModeChart:
-            return _chartController;
+        case ResultsViewMode3Pane: return _threePaneController;
+        case ResultsViewModeChart: return _chartController;
     }
 }
 
@@ -1144,7 +1150,7 @@ NSTextFieldDelegate>
 - (IBAction)searchAllProblems:(id)sender {
     self.window.toolbar.visible = YES;
     [self selectAllProblemsNode];
-    if (_modeItem.mode != ResultsViewModeList) {
+    if (_modeItem.mode == ResultsViewModeChart) {
         [self showList:nil];
     }
     _searchItem.searchField.stringValue = @"";
@@ -1167,9 +1173,7 @@ NSTextFieldDelegate>
                 [self selectAllProblemsNode];
             }
         }
-    } else if (object == _searchResults
-               || object == _chartController
-               ) {
+    } else if (object == [self activeResultsController]) {
         if ([keyPath isEqualToString:@"title"]) {
             [self updateTitle];
         }
@@ -1471,6 +1475,11 @@ NSTextFieldDelegate>
 
 - (IBAction)showChart:(id)sender {
     _modeItem.mode = ResultsViewModeChart;
+    [self changeResultsMode:sender];
+}
+
+- (IBAction)showBrowser:(id)sender {
+    _modeItem.mode = ResultsViewMode3Pane;
     [self changeResultsMode:sender];
 }
 

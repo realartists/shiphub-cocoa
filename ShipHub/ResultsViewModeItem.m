@@ -18,19 +18,24 @@
 @implementation ResultsViewModeItem
 
 - (void)configureView {
-    CGSize size = CGSizeMake(72, 23);
+    NSInteger segmentCount = 3;
+    CGFloat segmentWidth = 36;
+    CGSize size = CGSizeMake(segmentWidth*segmentCount, 23);
     _segmented  = [[NSSegmentedControl alloc] initWithFrame:(CGRect){ .origin = CGPointZero, .size = size }];
-    _segmented.segmentCount = 2;
-    [_segmented setWidth:36 forSegment:0];
-    [_segmented setWidth:36 forSegment:1];
+    _segmented.segmentCount = segmentCount;
+    [_segmented setWidth:segmentWidth forSegment:0];
+    [_segmented setWidth:segmentWidth forSegment:1];
+    [_segmented setWidth:segmentWidth forSegment:2];
     [_segmented.cell setTrackingMode:NSSegmentSwitchTrackingSelectOne];
     
     [_segmented setImage:[NSImage searchResultsIcon] forSegment:0];
-    [_segmented setImage:[NSImage chartingIcon] forSegment:1];
+    [_segmented setImage:[NSImage threePaneIcon] forSegment:1];
+    [_segmented setImage:[NSImage chartingIcon] forSegment:2];
     [_segmented setSelectedSegment:0];
 
-    [[_segmented cell] setToolTip:NSLocalizedString(@"List Items", nil) forSegment:0];
-    [[_segmented cell] setToolTip:NSLocalizedString(@"Chart Items", nil) forSegment:1];
+    [[_segmented cell] setToolTip:NSLocalizedString(@"Issue List", nil) forSegment:0];
+    [[_segmented cell] setToolTip:NSLocalizedString(@"Issue Browser", nil) forSegment:1];
+    [[_segmented cell] setToolTip:NSLocalizedString(@"Progress Chart", nil) forSegment:2];
     
     CGSize overallSize = size;
     overallSize.width += 8.0;

@@ -54,4 +54,6 @@
 - (void)issueTableController:(IssueTableController *)controller item:(id<IssueTableItem>)item popupSelectedItemAtIndex:(NSInteger)index;
 - (BOOL)issueTableController:(IssueTableController *)controller deleteItem:(id<IssueTableItem>)item;
 
+- (void)issueTableController:(IssueTableController *)controller didChangeSelection:(NSArray<Issue *> *)selectedIssues;
+
 @end

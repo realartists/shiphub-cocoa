@@ -10,7 +10,8 @@
 
 typedef NS_ENUM(NSInteger, ResultsViewMode) {
     ResultsViewModeList,
-    ResultsViewModeChart
+    ResultsViewMode3Pane,
+    ResultsViewModeChart,
 };
 
 @interface ResultsViewModeItem : CustomToolbarItem

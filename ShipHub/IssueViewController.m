@@ -68,6 +68,7 @@
 
 - (void)configureNewIssue {
     [self evaluateJavaScript:@"configureNewIssue();"];
+    _web.hidden = NO;
 }
 
 - (NSString *)issueStateJSON:(Issue *)issue {
@@ -105,6 +106,7 @@
     DebugLog(@"%@", js);
     [self evaluateJavaScript:js];
     [self updateTitle];
+    _web.hidden = _issue == nil;
 }
 
 - (void)issueDidUpdate:(NSNotification *)note {

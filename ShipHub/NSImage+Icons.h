@@ -13,6 +13,7 @@
 + (NSImage *)advancedSearchIcon;
 
 + (NSImage *)searchResultsIcon;
++ (NSImage *)threePaneIcon;
 + (NSImage *)chartingIcon;
 
 + (NSImage *)watchStarOff;

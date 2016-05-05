@@ -6,17 +6,11 @@
 //  Copyright (c) 2015 Real Artists, Inc. All rights reserved.
 //
 
-#import "SearchResultsController.h"
+#import "SearchResultsControllerPrivate.h"
 #import "Extras.h"
 #import "IssueTableController.h"
 #import "DataStore.h"
 #import "Issue.h"
-
-@interface SearchTableItem : NSObject <IssueTableItem>
-
-@property (nonatomic, strong) Issue *issue;
-
-@end
 
 @interface IssueTableController (Internal)
 @property (nonatomic, assign) BOOL loading;

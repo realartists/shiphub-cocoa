@@ -50,6 +50,10 @@
     return [NSImage imageNamed:NSImageNameListViewTemplate];
 }
 
++ (NSImage *)threePaneIcon {
+    return [NSImage imageNamed:NSImageNameColumnViewTemplate];
+}
+
 + (NSImage *)chartingIcon {
     static dispatch_once_t onceToken;
     static NSImage *image = nil;

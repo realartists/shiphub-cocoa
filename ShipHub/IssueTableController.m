@@ -6,7 +6,7 @@
 //  Copyright (c) 2015 Real Artists, Inc. All rights reserved.
 //
 
-#import "IssueTableController.h"
+#import "IssueTableControllerPrivate.h"
 
 #import "IssueDocumentController.h"
 
@@ -24,17 +24,6 @@
 @interface ProblemTableView : NSTableView
 
 @property id<ProblemTableViewDelegate> delegate;
-
-@end
-
-@interface ProblemTableItem : NSObject
-
-@property (strong) id<IssueTableItem> info;
-@property (strong) Issue *issue;
-
-- (id<NSCopying>)identifier;
-
-+ (instancetype)itemWithInfo:(id<IssueTableItem>)info;
 
 @end
 
@@ -699,6 +688,12 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
         return [set containsObject:obj];
     }];
     [_table selectRowIndexes:selected byExtendingSelection:NO];
+}
+
+- (void)tableViewSelectionDidChange:(NSNotification *)notification {
+    if ([self.delegate respondsToSelector:@selector(issueTableController:didChangeSelection:)]) {
+        [self.delegate issueTableController:self didChangeSelection:[self selectedProblemSnapshots]];
+    }
 }
 
 - (void)tableView:(NSTableView *)tableView sortDescriptorsDidChange:(NSArray *)oldDescriptors {
