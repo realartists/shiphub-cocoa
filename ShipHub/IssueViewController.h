@@ -12,6 +12,8 @@
 
 @interface IssueViewController : NSViewController
 
+@property (nonatomic, getter=isColumnBrowser) BOOL columnBrowser;
+
 @property (nonatomic) Issue *issue;
 
 - (void)configureNewIssue;

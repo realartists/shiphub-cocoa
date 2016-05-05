@@ -99,6 +99,7 @@
 }
 
 - (void)setIssue:(Issue *)issue {
+    dispatch_assert_current_queue(dispatch_get_main_queue());
     DebugLog(@"%@", issue);
     _issue = issue;
     NSString *issueJSON = [self issueStateJSON:issue];
@@ -107,6 +108,15 @@
     [self evaluateJavaScript:js];
     [self updateTitle];
     _web.hidden = _issue == nil;
+}
+
+- (void)setColumnBrowser:(BOOL)columnBrowser {
+    _columnBrowser = columnBrowser;
+    
+    [self evaluateJavaScript:
+     [NSString stringWithFormat:
+      @"window.setInColumnBrowser(%@)",
+      (_columnBrowser ? @"true" : @"false")]];
 }
 
 - (void)issueDidUpdate:(NSNotification *)note {

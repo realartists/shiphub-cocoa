@@ -32,12 +32,20 @@
     _tableController.delegate = self;
     
     _issueController = [IssueViewController new];
+    _issueController.columnBrowser = YES;
     
     _splitController = [NSSplitViewController new];
     
-    [_splitController addSplitViewItem:[NSSplitViewItem splitViewItemWithViewController:_tableController]];
+    NSSplitViewItem *tableItem = [NSSplitViewItem splitViewItemWithViewController:_tableController];
+    NSSplitViewItem *issueItem = [NSSplitViewItem splitViewItemWithViewController:_issueController];
     
-    [_splitController addSplitViewItem:[NSSplitViewItem splitViewItemWithViewController:_issueController]];
+    if ([tableItem respondsToSelector:@selector(setMinimumThickness:)]) {
+        tableItem.minimumThickness = 200.0;
+        issueItem.minimumThickness = 400.0;
+    }
+    
+    [_splitController addSplitViewItem:tableItem];
+    [_splitController addSplitViewItem:issueItem];
     
     NSView *view = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
     [view setContentView:_splitController.view];

@@ -1809,7 +1809,9 @@ var IssueTitle = React.createClass({
   },
   
   componentDidMount: function() {
-    this.focus();
+    if (!window.inColumnBrowser) {
+      this.focus();
+    }
   },
   
   render: function() {
@@ -2595,4 +2597,36 @@ if (!window.inApp) {
   //updateIssue("realartists", "shiphub-server", "10")
   configureNewIssue();
 }
+
+function findCSSRule(selector) {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    var rules = sheets[i].cssRules;
+    for (var j = 0; j < rules.length; j++) {
+      if (rules[j].selectorText == selector) {
+        return rules[j];
+      }
+    }
+  }
+  return null;
+}
+
+function setInColumnBrowser(inBrowser) {
+  window.inColumnBrowser = inBrowser;
+  
+  var body = document.getElementsByTagName('body')[0];
+  body.style.padding = inBrowser ? '14px' : '0px';
+  
+  var commentRule = findCSSRule('div.comment');
+  commentRule.style.borderLeft = inBrowser ? commentRule.style.borderTop : '0px';
+  commentRule.style.borderRight = inBrowser ? commentRule.style.borderTop : '0px';
+  
+  var headerRule = findCSSRule('div.IssueHeader');
+  headerRule.style.borderLeft = inBrowser ? headerRule.style.borderBottom : '0px';
+  headerRule.style.borderRight = inBrowser ? headerRule.style.borderBottom : '0px';
+  headerRule.style.borderTop = inBrowser ? headerRule.style.borderBottom : '0px';
+}
+
+window.setInColumnBrowser = setInColumnBrowser;
+
 
