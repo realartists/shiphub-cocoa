@@ -360,6 +360,15 @@
     return color;
 }
 
++ (NSColor *)extras_tableSeparator {
+    static dispatch_once_t onceToken;
+    static NSColor *color;
+    dispatch_once(&onceToken, ^{
+        color = [NSColor colorWithWhite:0.898 alpha:1.0];
+    });
+    return color;
+}
+
 + (NSColor *)ra_orange {
     static dispatch_once_t onceToken;
     static NSColor *color;
@@ -412,7 +421,7 @@
     }
     
     if ([hexString length] == 6) {
-        hexString = [hexString stringByAppendingString:@"00"];
+        hexString = [hexString stringByAppendingString:@"FF"];
     }
     
     NSScanner *s = [NSScanner scannerWithString:hexString];
@@ -437,6 +446,25 @@
     g = (gf * 255.0) / 1.0;
     b = (bf * 255.0) / 1.0;
     return [NSString stringWithFormat:@"%02x%02x%02x", r, g, b];
+}
+
+- (BOOL)isDark {
+    CGFloat r, g, b, a;
+    [self getRed:&r green:&g blue:&b alpha:&a];
+    
+    CGFloat luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    
+    return luma < 0.5;
+}
+
+- (NSColor *)colorByAdjustingBrightness:(CGFloat)amount {
+    CGFloat h, s, b, a;
+    [self getHue:&h saturation:&s brightness:&b alpha:&a];
+    b *= amount;
+    b = MIN(b, 1.0);
+    b = MAX(b, 0.0);
+    
+    return [NSColor colorWithHue:h saturation:s brightness:b alpha:a];
 }
 
 @end

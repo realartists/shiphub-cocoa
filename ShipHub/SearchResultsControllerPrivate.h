@@ -13,6 +13,8 @@
 
 @property IssueTableController *table;
 
+- (void)didUpdateItems;
+
 @end
 
 @interface SearchTableItem : NSObject <IssueTableItem>

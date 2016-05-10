@@ -100,11 +100,11 @@
 
 - (void)setIssue:(Issue *)issue {
     dispatch_assert_current_queue(dispatch_get_main_queue());
-    DebugLog(@"%@", issue);
+    //DebugLog(@"%@", issue);
     _issue = issue;
     NSString *issueJSON = [self issueStateJSON:issue];
     NSString *js = [NSString stringWithFormat:@"applyIssueState(%@)", issueJSON];
-    DebugLog(@"%@", js);
+    //DebugLog(@"%@", js);
     [self evaluateJavaScript:js];
     [self updateTitle];
     _web.hidden = _issue == nil;
@@ -208,7 +208,7 @@
 
 - (void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request frame:(WebFrame *)frame decisionListener:(id<WebPolicyDecisionListener>)listener
 {
-    DebugLog(@"%@", actionInformation);
+    //DebugLog(@"%@", actionInformation);
     
     WebNavigationType navigationType = [actionInformation[WebActionNavigationTypeKey] integerValue];
     
@@ -234,7 +234,7 @@
 #pragma mark - Javascript Bridge
 
 - (void)proxyAPI:(NSDictionary *)msg {
-    DebugLog(@"%@", msg);
+    //DebugLog(@"%@", msg);
     
     APIProxy *proxy = [APIProxy proxyWithRequest:msg existingIssue:_issue completion:^(NSString *jsonResult, NSError *err) {
         NSString *callback;
@@ -243,7 +243,7 @@
         } else {
             callback = [NSString stringWithFormat:@"apiCallback(%@, %@, null)", msg[@"handle"], jsonResult];
         }
-        DebugLog(@"%@", callback);
+        //DebugLog(@"%@", callback);
         [self evaluateJavaScript:callback];
     }];
     [proxy setUpdatedIssueHandler:^(Issue *updatedIssue) {
@@ -290,7 +290,7 @@
                 js = [NSString stringWithFormat:@"pasteCallback(%@, 'uploadFinished', %@)", handle, [JSON stringifyObject:@{@"placeholder": placeholder, @"link": link}]];
             }
             
-            DebugLog(@"%@", js);
+            //DebugLog(@"%@", js);
             [self evaluateJavaScript:js];
             
             pendingUploads--;
@@ -309,7 +309,7 @@
                     @"pasteCallback(%@, 'uploadsStarted', %tu);\n",
                     handle, [JSON stringifyObject:pasteString],
                     handle, wrappers.count];
-    DebugLog(@"%@", js);
+    //DebugLog(@"%@", js);
     [self evaluateJavaScript:js];
 }
 

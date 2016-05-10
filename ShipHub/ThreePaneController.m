@@ -41,7 +41,8 @@
     
     if ([tableItem respondsToSelector:@selector(setMinimumThickness:)]) {
         tableItem.minimumThickness = 200.0;
-        issueItem.minimumThickness = 400.0;
+        tableItem.maximumThickness = 400.0;
+        issueItem.minimumThickness = 440.0;
     }
     
     [_splitController addSplitViewItem:tableItem];
@@ -58,6 +59,11 @@
 
 - (void)issueTableController:(IssueTableController *)controller didChangeSelection:(NSArray<Issue *> *)selectedIssues {
     Issue *i = [selectedIssues firstObject];
+    
+    if ([[_displayedIssue fullIdentifier] isEqualToString:[i fullIdentifier]]) {
+        return;
+    }
+    
     self.displayedIssue = i;
     
     DebugLog(@"%@", i.fullIdentifier);
@@ -71,6 +77,21 @@
         }];
     } else {
         _issueController.issue = nil;
+    }
+}
+
+- (NSSize)preferredMinimumSize {
+    NSSize s = NSMakeSize(0.0, 200.0);
+    for (NSSplitViewItem *item in _splitController.splitViewItems) {
+        s.width += item.minimumThickness;
+        s.width += [NSScroller scrollerWidthForControlSize:NSRegularControlSize scrollerStyle:NSScrollerStyleLegacy];
+    }
+    return s;
+}
+
+- (void)didUpdateItems {
+    if (!self.displayedIssue) {
+        [self.table selectSomething];
     }
 }
 

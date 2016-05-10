@@ -37,6 +37,7 @@
 @property (readonly) NSArray<Label*> *labels;
 @property (readonly) Milestone *milestone;
 @property (readonly) Repo *repository;
+@property (readonly) NSUInteger commentsCount;
 
 // events and comments are conditionally populated.
 // if they're just nonexistent, then they will be empty arrays.

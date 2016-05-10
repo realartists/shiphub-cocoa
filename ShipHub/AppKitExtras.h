@@ -121,6 +121,7 @@
 
 + (NSColor *)extras_controlBlue;
 + (NSColor *)extras_outlineGray;
++ (NSColor *)extras_tableSeparator;
 
 + (NSColor *)ra_orange;
 + (NSColor *)ra_beige;
@@ -130,6 +131,10 @@
 + (NSColor *)colorWithHexString:(NSString *)hexString;
 
 - (NSString *)hexString;
+
+- (BOOL)isDark; // returns YES if color is closer to black than to white
+
+- (NSColor *)colorByAdjustingBrightness:(CGFloat)amount; // amount < 1.0, color gets darker, amount > 1.0, color gets brighter
 
 @end
 

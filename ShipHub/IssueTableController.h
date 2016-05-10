@@ -44,6 +44,8 @@
 
 @property (nonatomic, readonly) NSArray *selectedProblemSnapshots;
 
+- (void)selectSomething;
+
 @end
 
 @protocol IssueTableControllerDelegate <NSObject>

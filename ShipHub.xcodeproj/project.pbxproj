@@ -112,6 +112,9 @@
 		1A7A415B1C8F603E0043DAF0 /* CAExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A415A1C8F603E0043DAF0 /* CAExtras.m */; };
 		1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */; };
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
+		1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsView.m */; };
+		1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */; };
+		1A99051D1CE141AF00EAA474 /* CompactIssueCellViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A99051B1CE141AF00EAA474 /* CompactIssueCellViewController.xib */; };
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
 		1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
@@ -397,6 +400,11 @@
 		1A99050D1CDBCD1100EAA474 /* ThreePaneController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreePaneController.h; sourceTree = "<group>"; };
 		1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThreePaneController.m; sourceTree = "<group>"; };
 		1A9905101CDBD28A00EAA474 /* SearchResultsControllerPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchResultsControllerPrivate.h; sourceTree = "<group>"; };
+		1A9905161CE11A0700EAA474 /* LabelsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelsView.h; sourceTree = "<group>"; };
+		1A9905171CE11A0700EAA474 /* LabelsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelsView.m; sourceTree = "<group>"; };
+		1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompactIssueCellViewController.h; sourceTree = "<group>"; };
+		1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompactIssueCellViewController.m; sourceTree = "<group>"; };
+		1A99051B1CE141AF00EAA474 /* CompactIssueCellViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CompactIssueCellViewController.xib; sourceTree = "<group>"; };
 		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 		1AD470DA1C99FC2C0050AE4B /* GHSyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHSyncConnection.h; sourceTree = "<group>"; };
@@ -778,6 +786,9 @@
 				1A694B2D1CA342B000F73608 /* Sparkline.m */,
 				1A99050D1CDBCD1100EAA474 /* ThreePaneController.h */,
 				1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */,
+				1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */,
+				1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */,
+				1A99051B1CE141AF00EAA474 /* CompactIssueCellViewController.xib */,
 			);
 			name = "Overview UI";
 			sourceTree = "<group>";
@@ -807,6 +818,8 @@
 				1A694B411CA34B9000F73608 /* DeemphasizedRowView.m */,
 				1A694B461CA34BCD00F73608 /* ImagePopUpButton.h */,
 				1A694B471CA34BCD00F73608 /* ImagePopUpButton.m */,
+				1A9905161CE11A0700EAA474 /* LabelsView.h */,
+				1A9905171CE11A0700EAA474 /* LabelsView.m */,
 			);
 			name = "Shared UI";
 			sourceTree = "<group>";
@@ -1023,6 +1036,7 @@
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
 				1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */,
 				1AF349791CDAC1E900A5BEB0 /* ChartConfigController.xib in Resources */,
+				1A99051D1CE141AF00EAA474 /* CompactIssueCellViewController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
@@ -1096,6 +1110,7 @@
 				1A694AF61CA09EAD00F73608 /* Label.m in Sources */,
 				1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */,
 				1AE09BFC1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */,
+				1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
 				1A694B101CA3413700F73608 /* ResultsController.m in Sources */,
 				1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
@@ -1157,6 +1172,7 @@
 				1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */,
 				1AF349771CDAC1E900A5BEB0 /* ChartConfigController.m in Sources */,
 				1A0D59D51CA4A8D1004F2578 /* IssueViewController.m in Sources */,
+				1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */,
 				1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */,
 				1AE09BFA1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m in Sources */,
 				1A2217D11C7E80CE006460E2 /* Logging.m in Sources */,

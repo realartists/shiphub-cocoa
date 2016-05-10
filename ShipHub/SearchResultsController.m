@@ -76,11 +76,16 @@
                 item.issue = obj;
                 return item;
             }];
+            [self didUpdateItems];
         } else {
             [self presentError:error modalForWindow:self.view.window delegate:nil didPresentSelector:nil contextInfo:NULL];
         }
         self.searching = NO;
     }];
+}
+
+- (void)didUpdateItems {
+    
 }
 
 - (IBAction)revertDocumentToSaved:(id)sender {

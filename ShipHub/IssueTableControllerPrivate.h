@@ -19,6 +19,18 @@
 
 @end
 
+@protocol ProblemTableViewDelegate <NSTableViewDelegate>
+@optional
+- (BOOL)tableView:(NSTableView *)tableView handleKeyPressEvent:(NSEvent *)event; // return YES if delegate handled, NO if table should handle by itself
+
+@end
+
+@interface ProblemTableView : NSTableView
+
+@property id<ProblemTableViewDelegate> delegate;
+
+@end
+
 @interface IssueTableController (Private) <NSTableViewDataSource, NSTableViewDelegate>
 
 @property (strong) IBOutlet NSTableView *table;
@@ -29,10 +41,14 @@
 
 - (void)commonInit NS_REQUIRES_SUPER;
 
+- (void)_makeColumns;
+
 - (NSArray<ProblemTableItem *> *)selectedItemsForMenu;
 - (void)_sortItems;
 
 - (NSArray<ProblemTableItem *> *)selectedItems;
 - (void)selectItems:(NSArray *)items;
+
++ (Class)tableClass; // returns [ProblemTableView class]. Subclassers may override.
 
 @end

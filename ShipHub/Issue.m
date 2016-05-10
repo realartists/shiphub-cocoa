@@ -47,9 +47,9 @@
         _assignee = [ms userWithIdentifier:li.assignee.identifier];
         _originator = [ms userWithIdentifier:li.originator.identifier];
         _closedBy = [ms userWithIdentifier:li.closedBy.identifier];
-        _labels = [[li.labels allObjects] arrayByMappingObjects:^id(id obj) {
+        _labels = [[[li.labels allObjects] arrayByMappingObjects:^id(id obj) {
             return [[Label alloc] initWithLocalItem:obj];
-        }];
+        }] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
         _milestone = [ms milestoneWithIdentifier:li.milestone.identifier];
         _repository = [ms repoWithIdentifier:li.repository.identifier];
         
@@ -66,6 +66,9 @@
             _comments = [localComments arrayByMappingObjects:^id(LocalComment *obj) {
                 return [[IssueComment alloc] initWithLocalComment:obj metadataStore:ms];
             }];
+            _commentsCount = _comments.count;
+        } else {
+            _commentsCount = [li.comments count];
         }
     }
     return self;

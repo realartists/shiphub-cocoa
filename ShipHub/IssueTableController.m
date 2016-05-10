@@ -15,18 +15,6 @@
 #import "Issue.h"
 #import "IssueIdentifier.h"
 
-@protocol ProblemTableViewDelegate <NSTableViewDelegate>
-@optional
-- (BOOL)tableView:(NSTableView *)tableView handleKeyPressEvent:(NSEvent *)event; // return YES if delegate handled, NO if table should handle by itself
-
-@end
-
-@interface ProblemTableView : NSTableView
-
-@property id<ProblemTableViewDelegate> delegate;
-
-@end
-
 @interface IssueTableController () <ProblemTableViewDelegate, NSTableViewDataSource, NSMenuDelegate>
 
 @property (strong) IBOutlet NSTableView *table;
@@ -43,6 +31,10 @@
 
 @implementation IssueTableController
 
++ (Class)tableClass {
+    return [ProblemTableView class];
+}
+
 - (void)commonInit {
     _items = [NSMutableArray array];
     _itemLookup = [NSMutableDictionary dictionary];
@@ -51,11 +43,7 @@
 }
 
 - (id)init {
-    return [self initWithNibName:@"IssueTableController" bundle:[NSBundle bundleForClass:[self class]]];
-}
-
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
-    if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+    if (self = [super init]) {
         [self commonInit];
     }
     return self;
@@ -71,6 +59,30 @@
 - (void)dealloc {
     _table.dataSource = nil;
     _table.delegate = nil;
+}
+
+- (void)loadView {
+    CGRect r = CGRectMake(0, 0, 600, 600);
+    NSScrollView *scroll = [[NSScrollView alloc] initWithFrame:r];
+    scroll.hasVerticalScroller = YES;
+    scroll.hasHorizontalScroller = YES;
+    scroll.autohidesScrollers = YES;
+    scroll.borderType = NSNoBorder;
+    
+    NSTableView *table = [[[[self class] tableClass] alloc] initWithFrame:r];
+    table.columnAutoresizingStyle = NSTableViewUniformColumnAutoresizingStyle;
+    table.allowsColumnReordering = YES;
+    table.allowsColumnResizing = YES;
+    table.allowsColumnSelection = YES;
+    table.allowsMultipleSelection = YES;
+    table.usesAlternatingRowBackgroundColors = YES;
+    [scroll setDocumentView:table];
+    
+    _table = table;
+    _table.delegate = self;
+    _table.dataSource = self;
+    
+    self.view = scroll;
 }
 
 - (void)viewDidLoad {
@@ -658,6 +670,16 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
     [_delegate issueTableController:self item:item.info popupSelectedItemAtIndex:[idx integerValue]];
 }
 
+- (void)selectSomething {
+    NSIndexSet *selected = [_table selectedRowIndexes];
+    if ([selected count] == 0 && _items.count != 0) {
+        [_table selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
+        if ([self.delegate respondsToSelector:@selector(issueTableController:didChangeSelection:)]) {
+            [self.delegate issueTableController:self didChangeSelection:[self selectedProblemSnapshots]];
+        }
+    }
+}
+
 - (NSSet *)selectedItemIdentifiers {
     return [NSSet setWithArray:[[self selectedItems] arrayByMappingObjects:^id(id obj) {
         return [obj identifier];
@@ -669,6 +691,9 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
         return [identifiers containsObject:[obj identifier]];
     }];
     [_table selectRowIndexes:selected byExtendingSelection:NO];
+    if ([self.delegate respondsToSelector:@selector(issueTableController:didChangeSelection:)]) {
+        [self.delegate issueTableController:self didChangeSelection:[self selectedProblemSnapshots]];
+    }
 }
 
 - (NSArray <Issue*> *)selectedProblemSnapshots {

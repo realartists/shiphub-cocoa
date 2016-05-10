@@ -68,7 +68,7 @@ static NSString *const LastSelectedNodeDefaultsKey = @"OverviewLastSelectedNode"
 
 @end
 
-@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate,
+@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate,
 #if !INCOMPLETE
 SearchEditorViewControllerDelegate,
 #endif
@@ -911,6 +911,7 @@ NSTextFieldDelegate>
     [[_searchSplit subviews][1] setContentView:[[self activeResultsController] view]];
     [self updatePredicate];
     [self updateTitle];
+    [self adjustWindowToMinimumSize];
 }
 
 #pragma mark -
@@ -1521,6 +1522,38 @@ NSTextFieldDelegate>
         return [_searchResults selectedProblemSnapshots];
     }
     return nil;
+}
+
+#pragma mark -
+
+- (NSSize)minimumWindowSize {
+    ResultsController *active = [self activeResultsController];
+    NSSize minSize = active.preferredMinimumSize;
+    
+    CGFloat sidebarWidth = [_splitView isSubviewCollapsed:[[_splitView subviews] firstObject]] ? 0.0 : _outlineView.frame.size.width;
+    minSize.width += sidebarWidth;
+    
+    return minSize;
+}
+
+- (void)adjustWindowToMinimumSize {
+    NSSize min = [self minimumWindowSize];
+    
+    NSRect frame = self.window.frame;
+    
+    frame.size.width = MAX(min.width, frame.size.width);
+    frame.size.height = MAX(min.height, frame.size.height);
+    
+    [self.window setFrame:frame display:YES animate:YES];
+}
+
+- (NSSize)windowWillResize:(NSWindow *)sender toSize:(NSSize)frameSize {
+    NSSize min = [self minimumWindowSize];
+    
+    frameSize.width = MAX(min.width, frameSize.width);
+    frameSize.height = MAX(min.height, frameSize.height);
+    
+    return frameSize;
 }
 
 @end
