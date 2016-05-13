@@ -231,6 +231,18 @@ static inline uint8_t h2b(uint8_t v) {
     return formatter;
 }
 
++ (NSDateFormatter *)shortRelativeDateFormatter {
+    static dispatch_once_t onceToken;
+    static NSDateFormatter *formatter;
+    dispatch_once(&onceToken, ^{
+        formatter = [[NSDateFormatter alloc] init];
+        [formatter setDateStyle:NSDateFormatterShortStyle];
+        [formatter setTimeStyle:NSDateFormatterNoStyle];
+        formatter.doesRelativeDateFormatting = YES;
+    });
+    return formatter;
+}
+
 + (NSDateFormatter *)shortDateAndTimeFormatter {
     static dispatch_once_t onceToken;
     static NSDateFormatter *formatter;

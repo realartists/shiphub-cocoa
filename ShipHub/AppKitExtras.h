@@ -162,3 +162,16 @@
 + (id<NSPasteboardWriting>)representationWithArray:(NSArray<id<NSPasteboardWriting>> *)array;
 
 @end
+
+
+@interface NSString (AppKitExtras)
+
+- (void)drawWithTruncationInRect:(NSRect)rect attributes:(NSDictionary *)attrs;
+
+@end
+
+@interface NSAttributedString (AppKitExtras)
+
+- (void)drawWithTruncationInRect:(NSRect)rect;
+
+@end

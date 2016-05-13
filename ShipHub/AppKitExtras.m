@@ -565,3 +565,182 @@
 }
 
 @end
+
+@implementation NSString (AppKitExtras)
+
+- (void)drawWithTruncationInRect:(NSRect)rect attributes:(NSDictionary *)attrs {
+    [[[NSAttributedString alloc] initWithString:self attributes:attrs] drawWithTruncationInRect:rect];
+}
+
+@end
+
+@implementation NSAttributedString (AppKitExtras)
+
+static CGFloat GetAttachmentAscent(void *ref) {
+    NSTextAttachment *att = (__bridge id)ref;
+    return att.image.size.height;
+}
+
+static CGFloat GetAttachmentDescent(void *ref) {
+    return 0.0;
+}
+
+static CGFloat GetAttachmentWidth(void *ref) {
+    NSTextAttachment *att = (__bridge id)ref;
+    return att.image.size.width;
+}
+
+- (void)drawWithTruncationInRect:(NSRect)rect {
+    // On 10.11, this can be accomplished easily with NSStringDrawing API, but we need 10.10, so reimplement the API using CoreText.
+    
+    CGContextRef ctx = [[NSGraphicsContext currentContext] CGContext];
+    CGContextSaveGState(ctx);
+    
+    if ([[NSGraphicsContext currentContext] isFlipped]) {
+        // CoreText has to have the origin at the bottom left, so if we're flipped, unflip
+        CGAffineTransform t = CGAffineTransformMakeTranslation(0.0, CGContextGetClipBoundingBox(ctx).size.height);
+        t = CGAffineTransformScale(t, 1.0, -1.0);
+        CGContextConcatCTM(ctx, t);
+        
+        rect = CGRectApplyAffineTransform(rect, t);
+    }
+    
+    NSAttributedString *str = self;
+    
+    BOOL hasAtt = [self containsAttachments];
+    
+    if (hasAtt) {
+        NSMutableAttributedString *delegateStr = [str mutableCopy];
+        
+        [str enumerateAttribute:NSAttachmentAttributeName inRange:NSMakeRange(0, str.length) options:0 usingBlock:^(id  _Nullable value, NSRange range, BOOL * _Nonnull stop) {
+            if (!value || range.length > 1) return;
+            
+            CTRunDelegateCallbacks callbacks = {
+                kCTRunDelegateCurrentVersion,
+                NULL, /* dealloc */
+                GetAttachmentAscent,
+                GetAttachmentDescent,
+                GetAttachmentWidth
+            };
+            CTRunDelegateRef runDelegate = CTRunDelegateCreate(&callbacks, (__bridge void *)value);
+            [delegateStr removeAttribute:NSAttachmentAttributeName range:range];
+            [delegateStr addAttribute:(__bridge id)kCTRunDelegateAttributeName value:(__bridge id)runDelegate range:range];
+            CFRelease(runDelegate);
+        }];
+        
+        str = delegateStr;
+    }
+    
+    CGContextSetTextMatrix(ctx, CGAffineTransformIdentity);
+    CGPathRef path = CGPathCreateWithRect(rect, NULL);
+    CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)str);
+    CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, str.length), path, NULL);
+    CFRelease(path);
+    
+    CFArrayRef lines = CTFrameGetLines(frame);
+    NSUInteger lineCount = CFArrayGetCount(lines);
+    
+    if (lineCount == 0) {
+        CFRelease(frame);
+        CFRelease(framesetter);
+        CGContextRestoreGState(ctx);
+        return;
+    }
+    
+    // Find out where all of our text attachments lie (if any)
+    NSMutableArray *attLocations = hasAtt ? [NSMutableArray new] : nil;
+    
+    void (^noteAttLocations)(CTLineRef) = ^(CTLineRef line){
+        if (hasAtt) {
+            CFArrayRef runs = CTLineGetGlyphRuns(line);
+            NSUInteger runCount = CFArrayGetCount(runs);
+            for (NSUInteger j = 0; j < runCount; j++) {
+                CTRunRef run = CFArrayGetValueAtIndex(runs, j);
+                CFDictionaryRef attr = CTRunGetAttributes(run);
+                if (CFDictionaryGetValue(attr, kCTRunDelegateAttributeName)) {
+                    CGPoint origin = CGPointZero;
+                    CTFrameGetLineOrigins(frame, CFRangeMake(j, 1), &origin);
+                    origin.x += rect.origin.x;
+                    origin.y += rect.origin.y;
+                    
+                    CFRange runRange = CTRunGetStringRange(run);
+                    CGRect runBounds;
+                    CGFloat ascent, descent;
+                    runBounds.size.width = CTRunGetTypographicBounds(run, CFRangeMake(0, 0), &ascent, &descent, NULL);
+                    runBounds.size.height = ascent + descent;
+                    
+                    CGFloat xOffset = CTLineGetOffsetForStringIndex(line, runRange.location, NULL);
+                    
+                    runBounds.origin.x = origin.x + xOffset;
+                    runBounds.origin.y = origin.y;
+                    runBounds.origin.y -= descent;
+                    
+                    [attLocations addObject:[NSValue valueWithRect:runBounds]];
+                }
+            }
+        }
+    };
+    
+    // now draw up to maxLine
+    for (NSUInteger i = 0; i < lineCount-1; i++) {
+        CTLineRef line = CFArrayGetValueAtIndex(lines, i);
+        noteAttLocations(line);
+        CGPoint origin = CGPointZero;
+        CTFrameGetLineOrigins(frame, CFRangeMake(i, 1), &origin);
+        origin.x += rect.origin.x;
+        origin.y += rect.origin.y;
+        CGContextSetTextPosition(ctx, origin.x, origin.y);
+        CTLineDraw(line, ctx);
+    }
+    
+    // now draw the final line optionally with truncation
+    {
+        CTLineRef line = CFArrayGetValueAtIndex(lines, lineCount-1);
+        noteAttLocations(line);
+        
+        CGPoint origin = CGPointZero;
+        CTFrameGetLineOrigins(frame, CFRangeMake(lineCount-1, 1), &origin);
+        origin.x += rect.origin.x;
+        origin.y += rect.origin.y;
+        CGContextSetTextPosition(ctx, origin.x, origin.y);
+        
+        CFRange lineRange = CTLineGetStringRange(line);
+        
+        if (lineRange.location + lineRange.length < str.length) {
+            NSAttributedString *ellipsis = [[NSAttributedString alloc] initWithString:@"…" attributes:[str attributesAtIndex:lineRange.location effectiveRange:NULL]];
+            
+            CTLineRef truncChar = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)ellipsis);
+            NSAttributedString *lastStr = [str attributedSubstringFromRange:NSMakeRange(lineRange.location, str.length-lineRange.location)];
+            CTLineRef fullLine = CTLineCreateWithAttributedString((__bridge CFAttributedStringRef)lastStr);
+            CTLineRef trunc = CTLineCreateTruncatedLine(fullLine, rect.size.width, kCTLineTruncationEnd, truncChar);
+            CFRelease(truncChar);
+            CTLineDraw(trunc, ctx);
+            CFRelease(trunc);
+            CFRelease(fullLine);
+        } else {
+            CTLineDraw(line, ctx);
+        }
+    }
+    
+    CFRelease(frame);
+    CFRelease(framesetter);
+    
+    if ([attLocations count]) {
+        __block NSUInteger k = 0;
+        [self enumerateAttribute:NSAttachmentAttributeName inRange:NSMakeRange(0, self.length) options:0 usingBlock:^(id  _Nullable value, NSRange range, BOOL * _Nonnull stop) {
+            if (value) {
+                NSTextAttachment *att = value;
+                CGRect r = [attLocations[k] rectValue];
+                NSDictionary *attrs = [self attributesAtIndex:range.location effectiveRange:NULL];
+                CGFloat adj = [attrs[NSBaselineOffsetAttributeName] doubleValue];
+                r.origin.y += adj;
+                NSImage *img = [att image];
+                [img drawInRect:r];
+            }
+        }];
+    }
+    
+    CGContextRestoreGState(ctx);
+}
+
+@end

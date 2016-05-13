@@ -88,7 +88,7 @@
 }
 
 - (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
-    return 98.0;
+    return [CompactIssueCellViewController cellHeight];
 }
 
 @end

@@ -114,7 +114,6 @@
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsView.m */; };
 		1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */; };
-		1A99051D1CE141AF00EAA474 /* CompactIssueCellViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A99051B1CE141AF00EAA474 /* CompactIssueCellViewController.xib */; };
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
 		1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
@@ -404,7 +403,6 @@
 		1A9905171CE11A0700EAA474 /* LabelsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelsView.m; sourceTree = "<group>"; };
 		1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompactIssueCellViewController.h; sourceTree = "<group>"; };
 		1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompactIssueCellViewController.m; sourceTree = "<group>"; };
-		1A99051B1CE141AF00EAA474 /* CompactIssueCellViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CompactIssueCellViewController.xib; sourceTree = "<group>"; };
 		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 		1AD470DA1C99FC2C0050AE4B /* GHSyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHSyncConnection.h; sourceTree = "<group>"; };
@@ -788,7 +786,6 @@
 				1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */,
 				1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */,
 				1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */,
-				1A99051B1CE141AF00EAA474 /* CompactIssueCellViewController.xib */,
 			);
 			name = "Overview UI";
 			sourceTree = "<group>";
@@ -1036,7 +1033,6 @@
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
 				1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */,
 				1AF349791CDAC1E900A5BEB0 /* ChartConfigController.xib in Resources */,
-				1A99051D1CE141AF00EAA474 /* CompactIssueCellViewController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,

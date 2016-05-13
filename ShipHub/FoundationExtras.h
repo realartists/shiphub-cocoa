@@ -50,6 +50,7 @@
 + (NSDateFormatter *)shortDateAndTimeFormatter;
 + (NSDateFormatter *)longDateAndTimeFormatter;
 + (NSDateFormatter *)shortDateFormatter;
++ (NSDateFormatter *)shortRelativeDateFormatter;
 
 @end
 
