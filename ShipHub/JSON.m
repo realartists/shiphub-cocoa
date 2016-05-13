@@ -34,6 +34,8 @@ static void enumerateProperties(id obj, void (^block)(NSString *propName)) {
             }
         }
         
+        free(props);
+        
         c = [c superclass];
     }
 }
