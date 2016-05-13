@@ -76,6 +76,7 @@ textarea.TitleArea {
   margin: 2px;
   margin-bottom: 0px;
   white-space: normal;
+  overflow-y: hidden;
 }
 
 span.InputSaveButton {
