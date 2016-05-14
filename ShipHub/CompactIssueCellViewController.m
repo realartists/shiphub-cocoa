@@ -98,6 +98,23 @@ static const CGFloat marginLeft = 22.0;
 static const CGFloat marginTop = 8.0;
 static const CGFloat marginBottom = 8.0;
 
+- (void)drawBackgroundInRect:(NSRect)dirtyRect {
+    [super drawBackgroundInRect:dirtyRect];
+    
+    NSColor *background = [NSColor whiteColor];
+    if (self.selected) {
+        if (self.emphasized) {
+            background = [NSColor alternateSelectedControlColor];
+        } else {
+            background = [NSColor secondarySelectedControlColor];
+        }
+    }
+    [background setFill];
+    
+    CGRect gap = CGRectMake(0, CGRectGetHeight(self.bounds) - 1.0, self.bounds.size.width, 1.0);
+    NSRectFill(gap);
+}
+
 - (void)drawSeparatorInRect:(NSRect)dirtyRect {
     
     CGRect r = CGRectMake(0.0, 0.0, self.bounds.size.width, 1.0);
