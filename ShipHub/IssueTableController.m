@@ -89,6 +89,7 @@
     [super viewDidLoad];
     
     _table.doubleAction = @selector(tableViewDoubleClicked:);
+    [_table setDraggingSourceOperationMask:NSDragOperationEvery forLocal:NO];
     [_table registerForDraggedTypes:@[(__bridge NSString *)kUTTypeURL]];
     
     NSMenu *menu = [[NSMenu alloc] init];
@@ -740,6 +741,67 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
     }] toPasteboard:pboard];
     
     return YES;
+}
+
+- (void)tableView:(NSTableView *)tableView draggingSession:(NSDraggingSession *)session willBeginAtPoint:(NSPoint)screenPoint forRowIndexes:(NSIndexSet *)rowIndexes
+{
+    CGPoint dragLoc = session.draggingLocation;
+    NSImage *dragImage = [NSImage imageNamed:@"AppIcon"];
+    CGSize imageSize = { 32.0, 32.0 };
+    CGFloat xOff = imageSize.width / 2.0;
+    if (rowIndexes.count > 1) {
+        NSDictionary *attr = @{ NSFontAttributeName : [NSFont boldSystemFontOfSize:11.0],
+                                NSForegroundColorAttributeName : [NSColor whiteColor] };
+        NSString *pillStr = [NSString localizedStringWithFormat:@"%tu", rowIndexes.count];
+        
+        CGSize strSize = [pillStr sizeWithAttributes:attr];
+        
+        CGSize pillSize = CGSizeMake(strSize.width + 14.0, strSize.height + 2.0);
+        
+        CGSize compositeSize = CGSizeMake(imageSize.width + pillSize.width - (pillSize.height / 2.0), imageSize.height);
+        NSImage *composite = [[NSImage alloc] initWithSize:compositeSize];
+        
+        [composite lockFocus];
+        
+        [[NSColor clearColor] set];
+        NSRectFill(CGRectMake(0, 0, compositeSize.width, compositeSize.height));
+        
+        [dragImage drawInRect:CGRectMake(0, 0, imageSize.width, imageSize.height)];
+        
+        CGRect pathRect = CGRectMake(compositeSize.width - pillSize.width - 1.0, 1.0, pillSize.width - 2.0, pillSize.height - 2.0);
+        NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:pathRect xRadius:(pillSize.height - 2.0) / 2.0 yRadius:(pillSize.height - 2.0) / 2.0];
+        [[NSColor whiteColor] setStroke];
+        [[NSColor redColor] setFill];
+        path.lineWidth = 1.0;
+        [path fill];
+        [path stroke];
+        
+        [pillStr drawInRect:CGRectMake(CGRectGetMinX(pathRect) + (CGRectGetWidth(pathRect) - strSize.width) / 2.0,
+                                       CGRectGetMinY(pathRect) + (CGRectGetHeight(pathRect) - strSize.height) / 2.0,
+                                       strSize.width, strSize.height) withAttributes:attr];
+        
+        [composite unlockFocus];
+        dragImage = composite;
+        imageSize = compositeSize;
+        // leave xOff alone, we want the icon to be centered under the cursor, but not the count pill.
+    }
+    
+    CGRect imageRect = CGRectMake(dragLoc.x - xOff,
+                                 dragLoc.y - imageSize.height / 2.0,
+                                 imageSize.width,
+                                 imageSize.height);
+
+    
+    
+    [session enumerateDraggingItemsWithOptions:0
+                                       forView:nil
+                                       classes:@[[NSPasteboardItem class]]
+                                 searchOptions:@{}
+                                    usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop)
+     {
+         [draggingItem setDraggingFrame:imageRect contents:dragImage];
+         *stop = YES;
+     }];
 }
 
 - (NSDragOperation)tableView:(NSTableView *)aTableView validateDrop:(id < NSDraggingInfo >)info proposedRow:(NSInteger)row proposedDropOperation:(NSTableViewDropOperation)operation
