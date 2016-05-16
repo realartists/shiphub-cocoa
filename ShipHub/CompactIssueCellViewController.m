@@ -302,7 +302,7 @@ static const CGFloat marginBottom = 8.0;
         bodyAttrs = @{ NSFontAttributeName : [NSFont italicSystemFontOfSize:11.0],
                        NSForegroundColorAttributeName : infoLabelAttrs[NSForegroundColorAttributeName] };
     } else {
-        body = [[_issue.body stringByReplacingOccurrencesOfString:@"\n" withString:@"  "] stringByReplacingOccurrencesOfString:@"\r" withString:@""];
+        body = [_issue.body stringByCollapsingNewlines];
         bodyAttrs = @{ NSFontAttributeName : [NSFont systemFontOfSize:11.0],
                        NSForegroundColorAttributeName : infoLabelAttrs[NSForegroundColorAttributeName] };
     }

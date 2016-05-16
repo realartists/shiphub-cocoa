@@ -42,6 +42,8 @@
 
 - (BOOL)validateEmail;
 
+- (NSString *)stringByCollapsingNewlines; // replace one or more newlines with a single space.
+
 @end
 
 @interface NSDateFormatter (Extras)

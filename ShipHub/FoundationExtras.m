@@ -190,6 +190,16 @@ static inline uint8_t h2b(uint8_t v) {
     return [expr numberOfMatchesInString:chars options:0 range:NSMakeRange(0, self.length)] == 1;
 }
 
+- (NSString *)stringByCollapsingNewlines {
+    static dispatch_once_t onceToken;
+    static NSRegularExpression *re;
+    dispatch_once(&onceToken, ^{
+        re = [NSRegularExpression regularExpressionWithPattern:@"[\n\r]+" options:0 error:NULL];
+    });
+    
+    return [re stringByReplacingMatchesInString:self options:0 range:NSMakeRange(0, self.length) withTemplate:@" "];
+}
+
 @end
 
 @implementation NSDateFormatter (Extras)
