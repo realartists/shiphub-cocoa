@@ -47,6 +47,15 @@
     return re;
 }
 
++ (NSRegularExpression *)gitHubURLRE {
+    static NSRegularExpression *re = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        re = [NSRegularExpression regularExpressionWithPattern:@"http(?:s?)://[\\w\\.\\-\\d]+/\\w[\\w\\-\\d]*/\\w[\\w\\-\\d]*/issues/\\d+" options:0 error:NULL];
+    });
+    return re;
+}
+
 - (BOOL)isIssueIdentifier {
     return [[NSString issueIdentifierRE] numberOfMatchesInString:self options:0 range:NSMakeRange(0, self.length)] == 1;
 }
@@ -185,12 +194,21 @@
 
 + (NSArray<NSString *> *)readIssueIdentifiersFromPasteboard:(NSPasteboard *)pboard {
     NSString *plainText = [pboard stringForType:NSPasteboardTypeString];
-    NSRegularExpression *re = [NSString issueIdentifierRE];
+    NSRegularExpression *re1 = [NSString issueIdentifierRE];
+    NSRegularExpression *re2 = [NSString gitHubURLRE];
     NSMutableArray *identifiers = [NSMutableArray new];
-    [re enumerateMatchesInString:plainText options:0 range:NSMakeRange(0, plainText.length) usingBlock:^(NSTextCheckingResult * _Nullable result, NSMatchingFlags flags, BOOL * _Nonnull stop) {
+    [re1 enumerateMatchesInString:plainText options:0 range:NSMakeRange(0, plainText.length) usingBlock:^(NSTextCheckingResult * _Nullable result, NSMatchingFlags flags, BOOL * _Nonnull stop) {
         NSString *substr = [plainText substringWithRange:result.range];
         NSAssert([substr isIssueIdentifier], @"check range");
         [identifiers addObject:substr];
+    }];
+    [re2 enumerateMatchesInString:plainText options:0 range:NSMakeRange(0, plainText.length) usingBlock:^(NSTextCheckingResult * _Nullable result, NSMatchingFlags flags, BOOL * _Nonnull stop) {
+        NSString *substr = [plainText substringWithRange:result.range];
+        @try {
+            NSURL *URL = [[NSURL alloc] initWithString:substr];
+            NSString *issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
+            [identifiers addObject:issueIdentifier];
+        } @catch (id exc) { }
     }];
     return identifiers;
 }

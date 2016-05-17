@@ -11,6 +11,8 @@
 #import "Auth.h"
 #import "AuthController.h"
 #import "DataStore.h"
+#import "IssueIdentifier.h"
+#import "IssueDocumentController.h"
 #import "OverviewController.h"
 
 @interface AppDelegate () <AuthControllerDelegate> {
@@ -77,6 +79,8 @@
     [self rebuildAccountMenu];
     [self showAuthIfNeededAnimated:NO];
     [self configureDataStoreAndShowUI];
+    
+    [NSApp setServicesProvider:self];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -91,6 +95,17 @@
     return YES;
 }
 
+- (BOOL)openById:(NSPasteboard *)pboard userData:(NSString *)userData error:(NSError **)error {
+    if (![NSString canReadIssueIdentifiersFromPasteboard:pboard]) {
+        return NO;
+    }
+    
+    NSArray<NSString *> *identifiers = [NSString readIssueIdentifiersFromPasteboard:pboard];
+    
+    [[IssueDocumentController sharedDocumentController] openIssuesWithIdentifiers:identifiers];
+    
+    return YES;
+}
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     if (menuItem.action == @selector(logout:)
