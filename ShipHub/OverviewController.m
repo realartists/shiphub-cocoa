@@ -42,6 +42,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 static NSString *const LastSelectedNodeDefaultsKey = @"OverviewLastSelectedNode";
+static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode";
 
 @interface OverviewWindow : NetworkStateWindow
 
@@ -179,8 +180,11 @@ NSTextFieldDelegate>
     _predicateEditor.delegate = self;
 #endif
     
-    [[[_searchSplit subviews] lastObject] setContentView:_searchResults.view];
     [_searchSplit setPosition:0.0 ofDividerAtIndex:0];
+    
+    ResultsViewMode initialMode = [[Defaults defaults] integerForKey:LastSelectedModeDefaultsKey fallback:ResultsViewMode3Pane];
+    _modeItem.mode = initialMode;
+    [self changeResultsMode:nil];
     
     [rightPane setContentView:_searchSplit];
     
@@ -908,6 +912,7 @@ NSTextFieldDelegate>
 #pragma mark -
 
 - (IBAction)changeResultsMode:(id)sender {
+    [[Defaults defaults] setInteger:_modeItem.mode forKey:LastSelectedModeDefaultsKey];
     [[_searchSplit subviews][1] setContentView:[[self activeResultsController] view]];
     [self updatePredicate];
     [self updateTitle];

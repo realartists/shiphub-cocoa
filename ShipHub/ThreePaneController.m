@@ -51,6 +51,8 @@
     NSView *view = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
     [view setContentView:_splitController.view];
     self.view = view;
+    
+    _splitController.splitView.autosaveName = @"3Pane";
 }
 
 - (void)viewDidLoad {
