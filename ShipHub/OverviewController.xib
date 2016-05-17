@@ -12,6 +12,7 @@
                 <outlet property="outlineView" destination="o8o-FX-L1T" id="s2d-nd-TQT"/>
                 <outlet property="predicateItem" destination="vrH-7W-hiG" id="Ajb-D9-tL3"/>
                 <outlet property="searchItem" destination="crY-qw-SRN" id="Y6R-ri-fpG"/>
+                <outlet property="sidebarItem" destination="Reu-OX-Qqz" id="crz-Ds-yrz"/>
                 <outlet property="splitView" destination="vnh-Rr-NQS" id="Qrh-7s-bCn"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>
@@ -247,8 +248,14 @@
                             <action selector="changeResultsMode:" target="-2" id="yUE-Jc-C8H"/>
                         </connections>
                     </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="54978459-76D5-47F5-8EB7-DC7E31B3CD26" label="Sidebar" paletteLabel="Sidebar" tag="-1" id="Reu-OX-Qqz" customClass="ButtonToolbarItem">
+                        <connections>
+                            <action selector="toggleSidebar:" target="-2" id="8io-uT-Br0"/>
+                        </connections>
+                    </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
+                    <toolbarItem reference="Reu-OX-Qqz"/>
                     <toolbarItem reference="Ml2-8r-xpV"/>
                     <toolbarItem reference="YWH-7I-dsP"/>
                     <toolbarItem reference="Won-wM-vi6"/>

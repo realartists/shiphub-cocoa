@@ -12,6 +12,10 @@
 
 @implementation NSImage (Icons)
 
++ (NSImage *)sidebarIcon {
+    return [NSImage imageNamed:@"NSSidebarTemplate"];
+}
+
 + (NSImage *)advancedSearchIcon {
     static dispatch_once_t onceToken;
     static NSImage *image = nil;

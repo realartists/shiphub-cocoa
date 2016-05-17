@@ -9,6 +9,8 @@
 #import "AppKitExtras.h"
 #import "FoundationExtras.h"
 
+#import <objc/runtime.h>
+
 @implementation NSTextView (Extras)
 
 - (CGFloat)heightForWidth:(CGFloat)width {
@@ -741,6 +743,46 @@ static CGFloat GetAttachmentWidth(void *ref) {
     }
     
     CGContextRestoreGState(ctx);
+}
+
+@end
+
+@implementation NSSplitView (AppKitExtras)
+
+- (void)setPosition:(CGFloat)position ofDividerAtIndex:(NSInteger)idx animated:(BOOL)animate
+{
+    NSTimer *existing = objc_getAssociatedObject(self, @"extras_animationTimer");
+    if (existing) {
+        [existing invalidate];
+    }
+    
+    double start = CACurrentMediaTime();
+    
+    CGRect f = [[self subviews][idx] frame];
+    CGFloat ipos = self.vertical ? CGRectGetWidth(f) : CGRectGetHeight(f);
+    
+    NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:1.0/20.0 target:self selector:@selector(extras_animatePosition:) userInfo:@{@"start":@(start), @"pos":@(position), @"ipos":@(ipos), @"idx":@(idx)} repeats:YES];
+    objc_setAssociatedObject(self, @"extras_animationTimer", timer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (void)extras_animatePosition:(NSTimer *)t {
+    NSDictionary *info = t.userInfo;
+    double now = CACurrentMediaTime();
+    double start = [info[@"start"] doubleValue];
+    double ipos = [info[@"ipos"] doubleValue];
+    double position = [info[@"pos"] doubleValue];
+    NSInteger idx = [info[@"idx"] integerValue];
+    
+    double frac = (now - start) / 0.3;
+    
+    if (frac >= 1.0) {
+        [self setPosition:position ofDividerAtIndex:idx];
+        [t invalidate];
+        objc_setAssociatedObject(self, @"extras_animationTimer", nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    } else {
+        double p = ipos + (position - ipos) * frac;
+        [self setPosition:p ofDividerAtIndex:idx];
+    }
 }
 
 @end

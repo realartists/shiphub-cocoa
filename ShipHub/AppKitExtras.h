@@ -175,3 +175,9 @@
 - (void)drawWithTruncationInRect:(NSRect)rect;
 
 @end
+
+@interface NSSplitView (AppKitExtras)
+
+- (void)setPosition:(CGFloat)position ofDividerAtIndex:(NSInteger)idx animated:(BOOL)animate;
+
+@end

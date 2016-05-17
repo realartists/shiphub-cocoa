@@ -10,6 +10,8 @@
 
 @interface NSImage (Icons)
 
++ (NSImage *)sidebarIcon;
+
 + (NSImage *)advancedSearchIcon;
 
 + (NSImage *)searchResultsIcon;

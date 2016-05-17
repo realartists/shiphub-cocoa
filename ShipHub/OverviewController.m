@@ -85,6 +85,7 @@ NSTextFieldDelegate>
 @property (strong) IBOutlet SearchFieldToolbarItem *searchItem;
 @property (strong) IBOutlet ButtonToolbarItem *predicateItem;
 @property (strong) IBOutlet ButtonToolbarItem *createNewItem;
+@property (strong) IBOutlet ButtonToolbarItem *sidebarItem;
 @property (strong) IBOutlet ResultsViewModeItem *modeItem;
 
 #if !INCOMPLETE
@@ -144,6 +145,11 @@ NSTextFieldDelegate>
         _splitView.wantsLayer = YES;
     }
     
+    NSImage *sidebarImage = [NSImage sidebarIcon];
+    _sidebarItem.buttonImage = sidebarImage;
+    _sidebarItem.toolTip = NSLocalizedString(@"Toggle Sidebar", nil);
+    _sidebarItem.trackingMode = NSSegmentSwitchTrackingSelectAny;
+    
     _createNewItem.buttonImage = [NSImage imageNamed:@"NSToolbarCompose"];
     _createNewItem.toolTip = NSLocalizedString(@"New Problem ⌘N", nil);
     
@@ -198,6 +204,7 @@ NSTextFieldDelegate>
     CGFloat dividerPos = [[[_splitView subviews] objectAtIndex:0] frame].size.width;
     if (dividerPos > 0.0 && dividerPos < 180.0) {
         [_splitView setPosition:240.0 ofDividerAtIndex:0];
+        [self updateSidebarItem];
     }
 
     [self buildOutline];
@@ -1229,6 +1236,18 @@ NSTextFieldDelegate>
     return [[splitView subviews] indexOfObjectIdenticalTo:view] == 1;
 }
 
+- (void)splitViewDidResizeSubviews:(NSNotification *)notification {
+    if (notification.object == _splitView) {
+        [self updateSidebarItem];
+    }
+}
+
+- (void)splitView:(NSSplitView *)splitView splitViewIsAnimating:(BOOL)animating {
+    if (!animating) {
+        [self updateSidebarItem];
+    }
+}
+
 #pragma mark - SearchEditorViewControllerDelegate
 
 #if !INCOMPLETE
@@ -1531,11 +1550,15 @@ NSTextFieldDelegate>
 
 #pragma mark -
 
+- (BOOL)isSidebarCollapsed {
+    return [_splitView isSubviewCollapsed:[[_splitView subviews] firstObject]];
+}
+
 - (NSSize)minimumWindowSize {
     ResultsController *active = [self activeResultsController];
     NSSize minSize = active.preferredMinimumSize;
     
-    CGFloat sidebarWidth = [_splitView isSubviewCollapsed:[[_splitView subviews] firstObject]] ? 0.0 : _outlineView.frame.size.width;
+    CGFloat sidebarWidth = [self isSidebarCollapsed] ? 0.0 : _outlineView.frame.size.width;
     minSize.width += sidebarWidth;
     
     return minSize;
@@ -1559,6 +1582,17 @@ NSTextFieldDelegate>
     frameSize.height = MAX(min.height, frameSize.height);
     
     return frameSize;
+}
+
+- (IBAction)toggleSidebar:(id)sender {
+    BOOL collapsed = [self isSidebarCollapsed];
+    [_splitView setPosition:collapsed?240.0:0.0 ofDividerAtIndex:0 animated:YES];
+    [self updateSidebarItem];
+}
+
+- (void)updateSidebarItem {
+    BOOL collapsed = [self isSidebarCollapsed];
+    _sidebarItem.on = !collapsed;
 }
 
 @end
