@@ -20,7 +20,6 @@
 #import "Auth.h"
 #import "SearchFieldToolbarItem.h"
 #import "ButtonToolbarItem.h"
-#import "MDPSplitView.h"
 #import "NSPredicate+Extras.h"
 #import "NSImage+Icons.h"
 #import "ResultsViewModeItem.h"
@@ -65,7 +64,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 #define SPARKLINE_WIDTH 20.0
 
-@interface SearchSplit : MDPSplitView
+@interface SearchSplit : NSSplitView
 
 @end
 
@@ -1205,7 +1204,7 @@ NSTextFieldDelegate>
         }
     } else if (splitView == _searchSplit) {
         if (_predicateItem.on) {
-            if (dividerIndex == 0 && ![_searchSplit isAnimatingDividerAtIndex:0]) {
+            if (dividerIndex == 0) {
                 return [self heightForPredicateEditor];
             }
         }
@@ -1216,7 +1215,7 @@ NSTextFieldDelegate>
 - (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMaximumPosition ofSubviewAt:(NSInteger)dividerIndex {
     if (splitView == _searchSplit) {
         if (_predicateItem.on) {
-            if (dividerIndex == 0 && ![_searchSplit isAnimatingDividerAtIndex:0]) {
+            if (dividerIndex == 0) {
                 return [self heightForPredicateEditor];
             }
         }

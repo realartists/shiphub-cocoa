@@ -751,6 +751,11 @@ static CGFloat GetAttachmentWidth(void *ref) {
 
 - (void)setPosition:(CGFloat)position ofDividerAtIndex:(NSInteger)idx animated:(BOOL)animate
 {
+    if (!animate) {
+        [self setPosition:position ofDividerAtIndex:idx];
+        return;
+    }
+    
     NSTimer *existing = objc_getAssociatedObject(self, @"extras_animationTimer");
     if (existing) {
         [existing invalidate];

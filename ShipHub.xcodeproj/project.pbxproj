@@ -95,7 +95,6 @@
 		1A694B311CA342D500F73608 /* SearchResultsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B301CA342D500F73608 /* SearchResultsController.m */; };
 		1A694B351CA3431700F73608 /* IssueTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B331CA3431700F73608 /* IssueTableController.m */; };
 		1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A694B341CA3431700F73608 /* IssueTableController.xib */; };
-		1A694B391CA344ED00F73608 /* MDPSplitView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B381CA344ED00F73608 /* MDPSplitView.m */; };
 		1A694B3C1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */; };
 		1A694B3D1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */; };
 		1A694B421CA34B9000F73608 /* LabelButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B3F1CA34B9000F73608 /* LabelButton.m */; };
@@ -372,8 +371,6 @@
 		1A694B321CA3431700F73608 /* IssueTableController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = IssueTableController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		1A694B331CA3431700F73608 /* IssueTableController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = IssueTableController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		1A694B341CA3431700F73608 /* IssueTableController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = IssueTableController.xib; sourceTree = "<group>"; };
-		1A694B371CA344ED00F73608 /* MDPSplitView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MDPSplitView.h; sourceTree = "<group>"; };
-		1A694B381CA344ED00F73608 /* MDPSplitView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MDPSplitView.m; sourceTree = "<group>"; };
 		1A694B3A1CA3451D00F73608 /* NSPredicate+Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPredicate+Extras.h"; sourceTree = "<group>"; };
 		1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPredicate+Extras.m"; sourceTree = "<group>"; };
 		1A694B3E1CA34B9000F73608 /* LabelButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelButton.h; sourceTree = "<group>"; };
@@ -807,8 +804,6 @@
 				1A694B211CA341D500F73608 /* NetworkStateWindow.m */,
 				1A694B221CA341D500F73608 /* NetworkStatusTextField.h */,
 				1A694B231CA341D500F73608 /* NetworkStatusTextField.m */,
-				1A694B371CA344ED00F73608 /* MDPSplitView.h */,
-				1A694B381CA344ED00F73608 /* MDPSplitView.m */,
 				1A694B3E1CA34B9000F73608 /* LabelButton.h */,
 				1A694B3F1CA34B9000F73608 /* LabelButton.m */,
 				1A694B401CA34B9000F73608 /* DeemphasizedRowView.h */,
@@ -1128,7 +1123,6 @@
 				1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */,
 				1A694B251CA341D500F73608 /* SearchFieldToolbarItem.m in Sources */,
 				1A694AEE1CA09E8000F73608 /* Org.m in Sources */,
-				1A694B391CA344ED00F73608 /* MDPSplitView.m in Sources */,
 				1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */,
 				1AE09C0C1C97687E00C5AC35 /* LocalLabel.m in Sources */,
 				1A694B311CA342D500F73608 /* SearchResultsController.m in Sources */,
