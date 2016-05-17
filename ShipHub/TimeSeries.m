@@ -77,7 +77,7 @@ static BOOL isStatePredicate(NSPredicate *predicate, BOOL *isOpenValue) {
         NSComparisonPredicate *c0 = (id)predicate;
         
         NSPredicateOperatorType op = c0.predicateOperatorType;
-        if (op != NSEqualToPredicateOperatorType || op != NSNotEqualToPredicateOperatorType) {
+        if (op != NSEqualToPredicateOperatorType && op != NSNotEqualToPredicateOperatorType) {
             return NO;
         }
         
