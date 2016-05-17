@@ -100,9 +100,9 @@
                                     <action selector="newOverviewController:" target="Voe-Tx-rLC" id="kLs-wc-HT3"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Open…" keyEquivalent="o" id="IAo-SY-fd9">
+                            <menuItem title="Open" keyEquivalent="o" id="IAo-SY-fd9" userLabel="Open">
                                 <connections>
-                                    <action selector="openDocument:" target="V6k-To-yxO" id="vuC-1F-eAH"/>
+                                    <action selector="openDocument:" target="-1" id="vu3-Mh-30w"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="Open Recent" id="tXI-mr-wws">
