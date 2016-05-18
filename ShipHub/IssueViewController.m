@@ -231,6 +231,20 @@
     }
 }
 
+- (void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id<WebPolicyDecisionListener>)listener
+{
+    NSURL *URL = actionInformation[WebActionOriginalURLKey];
+    id issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
+    
+    if (issueIdentifier) {
+        [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier];
+    } else {
+        [[NSWorkspace sharedWorkspace] openURL:URL];
+    }
+    
+    [listener ignore];
+}
+
 #pragma mark - Javascript Bridge
 
 - (void)proxyAPI:(NSDictionary *)msg {
