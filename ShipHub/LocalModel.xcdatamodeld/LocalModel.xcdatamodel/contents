@@ -65,6 +65,7 @@
         <attribute name="dueOn" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="milestoneDescription" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="number" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
@@ -112,7 +113,7 @@
         <element name="LocalEvent" positionX="403" positionY="63" width="128" height="180"/>
         <element name="LocalIssue" positionX="198" positionY="-54" width="128" height="360"/>
         <element name="LocalLabel" positionX="-11" positionY="267" width="128" height="105"/>
-        <element name="LocalMilestone" positionX="-18" positionY="-115" width="128" height="195"/>
+        <element name="LocalMilestone" positionX="-18" positionY="-115" width="128" height="208"/>
         <element name="LocalOrg" positionX="-425" positionY="45" width="128" height="58"/>
         <element name="LocalRelationship" positionX="421" positionY="335" width="128" height="88"/>
         <element name="LocalRepo" positionX="-209" positionY="-108" width="128" height="208"/>

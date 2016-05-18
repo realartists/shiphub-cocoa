@@ -16,6 +16,7 @@
 @dynamic closedAt;
 @dynamic createdAt;
 @dynamic dueOn;
+@dynamic number;
 @dynamic identifier;
 @dynamic milestoneDescription;
 @dynamic title;

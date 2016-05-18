@@ -12,6 +12,7 @@
 
 @interface Milestone : MetadataItem
 
+@property (readonly) NSNumber *number;
 @property (readonly) NSString *title;
 @property (readonly) NSDate *closedAt;
 @property (readonly) NSDate *dueOn;

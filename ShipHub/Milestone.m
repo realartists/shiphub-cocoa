@@ -15,6 +15,7 @@
 - (instancetype)initWithLocalItem:(id)localItem {
     LocalMilestone *lm = localItem;
     if (self = [super initWithLocalItem:lm]) {
+        _number = lm.number;
         _title = lm.title;
         _closedAt = lm.closedAt;
         _dueOn = lm.dueOn;

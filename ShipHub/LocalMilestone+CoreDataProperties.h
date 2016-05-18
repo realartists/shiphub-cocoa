@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSDate *closedAt;
 @property (nullable, nonatomic, retain) NSDate *createdAt;
 @property (nullable, nonatomic, retain) NSDate *dueOn;
+@property (nullable, nonatomic, retain) NSNumber *number;
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSString *milestoneDescription;
 @property (nullable, nonatomic, retain) NSString *title;
