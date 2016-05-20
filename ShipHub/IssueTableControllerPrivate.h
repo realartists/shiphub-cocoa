@@ -50,5 +50,6 @@
 - (void)selectItems:(NSArray *)items;
 
 + (Class)tableClass; // returns [ProblemTableView class]. Subclassers may override.
++ (Class)scrollViewClass; // returns NSScrollView class. Subclassers may override.
 
 @end

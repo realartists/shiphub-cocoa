@@ -302,6 +302,28 @@
 
 @end
 
+@implementation BackgroundColorView
+
+- (void)setBackgroundColor:(NSColor *)backgroundColor {
+    _backgroundColor = backgroundColor;
+    if (self.wantsLayer) {
+        self.layer.backgroundColor = [backgroundColor CGColor];
+    } else {
+        [self setNeedsDisplay:YES];
+    }
+}
+
+- (BOOL)canDraw {
+    return !self.wantsLayer;
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+    [_backgroundColor?:[NSColor clearColor] set];
+    NSRectFill(self.bounds);
+}
+
+@end
+
 
 @implementation NSImage (Extras)
 
@@ -367,6 +389,15 @@
     static NSColor *color;
     dispatch_once(&onceToken, ^{
         color = [NSColor colorWithWhite:0.898 alpha:1.0];
+    });
+    return color;
+}
+
++ (NSColor *)extras_tableHeaderDividerColor {
+    static dispatch_once_t onceToken;
+    static NSColor *color;
+    dispatch_once(&onceToken, ^{
+        color = [NSColor colorWithHexString:@"CECECE"];
     });
     return color;
 }

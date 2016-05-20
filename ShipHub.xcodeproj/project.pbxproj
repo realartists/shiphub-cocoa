@@ -48,6 +48,8 @@
 		1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
 		1A2440CA1C84DEF800E070DA /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
 		1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
+		1A2EF5011CEE6C4100068316 /* PartitionResultsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2EF5001CEE6C4100068316 /* PartitionResultsController.m */; };
+		1A2EF5071CEE6F1800068316 /* AxisLockableScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2EF5061CEE6F1800068316 /* AxisLockableScrollView.m */; };
 		1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
 		1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
 		1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
@@ -298,6 +300,10 @@
 		1A2440C91C84DEF800E070DA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		1A2440CF1C85127C00E070DA /* WebKitExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitExtras.h; sourceTree = "<group>"; };
 		1A2440D01C85127C00E070DA /* WebKitExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebKitExtras.m; sourceTree = "<group>"; };
+		1A2EF4FF1CEE6C4100068316 /* PartitionResultsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PartitionResultsController.h; sourceTree = "<group>"; };
+		1A2EF5001CEE6C4100068316 /* PartitionResultsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PartitionResultsController.m; sourceTree = "<group>"; };
+		1A2EF5051CEE6F1800068316 /* AxisLockableScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AxisLockableScrollView.h; sourceTree = "<group>"; };
+		1A2EF5061CEE6F1800068316 /* AxisLockableScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AxisLockableScrollView.m; sourceTree = "<group>"; };
 		1A3618E11C8FBF96008C11CB /* DataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStore.h; sourceTree = "<group>"; };
 		1A3618E21C8FBF96008C11CB /* DataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataStore.m; sourceTree = "<group>"; };
 		1A3618E71C8FC25B008C11CB /* SyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncConnection.h; sourceTree = "<group>"; };
@@ -642,6 +648,8 @@
 				1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */,
 				1A0D87721CA9E25F0069782D /* JSON.h */,
 				1A0D87731CA9E25F0069782D /* JSON.m */,
+				1A2EF5051CEE6F1800068316 /* AxisLockableScrollView.h */,
+				1A2EF5061CEE6F1800068316 /* AxisLockableScrollView.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -783,6 +791,8 @@
 				1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */,
 				1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */,
 				1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */,
+				1A2EF4FF1CEE6C4100068316 /* PartitionResultsController.h */,
+				1A2EF5001CEE6C4100068316 /* PartitionResultsController.m */,
 			);
 			name = "Overview UI";
 			sourceTree = "<group>";
@@ -1142,8 +1152,10 @@
 				1A694AFB1CA0A96500F73608 /* Account.m in Sources */,
 				1AE09C081C97687E00C5AC35 /* LocalUser.m in Sources */,
 				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
+				1A2EF5071CEE6F1800068316 /* AxisLockableScrollView.m in Sources */,
 				1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */,
 				1AE09C021C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,
+				1A2EF5011CEE6C4100068316 /* PartitionResultsController.m in Sources */,
 				1AE09C121C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */,
 				1AE09BFE1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
 				1A694AF21CA09E9800F73608 /* Milestone.m in Sources */,

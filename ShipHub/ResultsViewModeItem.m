@@ -18,24 +18,27 @@
 @implementation ResultsViewModeItem
 
 - (void)configureView {
-    NSInteger segmentCount = 3;
+    NSInteger segmentCount = 4;
     CGFloat segmentWidth = 36;
     CGSize size = CGSizeMake(segmentWidth*segmentCount, 23);
     _segmented  = [[NSSegmentedControl alloc] initWithFrame:(CGRect){ .origin = CGPointZero, .size = size }];
     _segmented.segmentCount = segmentCount;
-    [_segmented setWidth:segmentWidth forSegment:0];
-    [_segmented setWidth:segmentWidth forSegment:1];
-    [_segmented setWidth:segmentWidth forSegment:2];
+    for (NSInteger i = 0; i < segmentCount; i++) {
+        [_segmented setWidth:segmentWidth forSegment:i];
+    }
     [_segmented.cell setTrackingMode:NSSegmentSwitchTrackingSelectOne];
     
-    [_segmented setImage:[NSImage searchResultsIcon] forSegment:0];
-    [_segmented setImage:[NSImage threePaneIcon] forSegment:1];
-    [_segmented setImage:[NSImage chartingIcon] forSegment:2];
-    [_segmented setSelectedSegment:0];
+    //[(NSSegmentedCell *)[_segmented cell] setImageScaling:NSImageScaleAxesIndependently forSegment:0];
+    [_segmented setImage:[NSImage partitionsIcon] forSegment:0];
+    [_segmented setImage:[NSImage searchResultsIcon] forSegment:1];
+    [_segmented setImage:[NSImage threePaneIcon] forSegment:2];
+    [_segmented setImage:[NSImage chartingIcon] forSegment:3];
+    [_segmented setSelectedSegment:2];
 
-    [[_segmented cell] setToolTip:NSLocalizedString(@"Issue List", nil) forSegment:0];
-    [[_segmented cell] setToolTip:NSLocalizedString(@"Issue Browser", nil) forSegment:1];
-    [[_segmented cell] setToolTip:NSLocalizedString(@"Progress Chart", nil) forSegment:2];
+    [[_segmented cell] setToolTip:NSLocalizedString(@"Issue Cards", nil) forSegment:0];
+    [[_segmented cell] setToolTip:NSLocalizedString(@"Issue List", nil) forSegment:1];
+    [[_segmented cell] setToolTip:NSLocalizedString(@"Issue Browser", nil) forSegment:2];
+    [[_segmented cell] setToolTip:NSLocalizedString(@"Progress Chart", nil) forSegment:3];
     
     CGSize overallSize = size;
     overallSize.width += 8.0;
@@ -51,7 +54,7 @@
 
 - (ResultsViewMode)mode {
     NSInteger mode = [_segmented selectedSegment];
-    if (mode < ResultsViewModeList) return ResultsViewModeList;
+    if (mode < ResultsViewModePartition) return ResultsViewModePartition;
     else if (mode > ResultsViewModeChart) return ResultsViewModeChart;
     else return (ResultsViewMode)mode;
 }

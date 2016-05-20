@@ -28,6 +28,7 @@
 #import "ChartController.h"
 #import "TimeSeries.h"
 #import "ThreePaneController.h"
+#import "PartitionResultsController.h"
 
 #import "IssueDocumentController.h"
 
@@ -74,6 +75,7 @@ SearchEditorViewControllerDelegate,
 #endif
 NSTextFieldDelegate>
 
+@property PartitionResultsController *partitionController;
 @property SearchResultsController *searchResults;
 @property ThreePaneController *threePaneController;
 @property ChartController *chartController;
@@ -113,6 +115,7 @@ NSTextFieldDelegate>
 - (void)dealloc {
     if ([self isWindowLoaded]) {
         [[self window] removeObserver:self forKeyPath:@"firstResponder"];
+        [_partitionController removeObserver:self forKeyPath:@"title"];
         [_searchResults removeObserver:self forKeyPath:@"title"];
         [_chartController removeObserver:self forKeyPath:@"title"];
         [_threePaneController removeObserver:self forKeyPath:@"title"];
@@ -158,6 +161,9 @@ NSTextFieldDelegate>
     
     _searchItem.searchField.placeholderString = NSLocalizedString(@"Filter", nil);
     [[self window] addObserver:self forKeyPath:@"firstResponder" options:0 context:NULL];
+    
+    _partitionController = [[PartitionResultsController alloc] init];
+    [_partitionController addObserver:self forKeyPath:@"title" options:0 context:NULL];
     
     _searchResults = [[SearchResultsController alloc] init];
     [_searchResults addObserver:self forKeyPath:@"title" options:0 context:NULL];
@@ -787,6 +793,7 @@ NSTextFieldDelegate>
 
 - (ResultsController *)activeResultsController {
     switch (_modeItem.mode) {
+        case ResultsViewModePartition: return _partitionController;
         case ResultsViewModeList: return _searchResults;
         case ResultsViewMode3Pane: return _threePaneController;
         case ResultsViewModeChart: return _chartController;

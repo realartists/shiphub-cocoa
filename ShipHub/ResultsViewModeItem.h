@@ -9,6 +9,7 @@
 #import "CustomToolbarItem.h"
 
 typedef NS_ENUM(NSInteger, ResultsViewMode) {
+    ResultsViewModePartition,
     ResultsViewModeList,
     ResultsViewMode3Pane,
     ResultsViewModeChart,

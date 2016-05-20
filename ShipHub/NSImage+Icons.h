@@ -14,6 +14,7 @@
 
 + (NSImage *)advancedSearchIcon;
 
++ (NSImage *)partitionsIcon;
 + (NSImage *)searchResultsIcon;
 + (NSImage *)threePaneIcon;
 + (NSImage *)chartingIcon;

@@ -266,14 +266,7 @@
 
 @end
 
-static NSColor *HeaderDividerColor() {
-    static dispatch_once_t onceToken;
-    static NSColor *color;
-    dispatch_once(&onceToken, ^{
-        color = [NSColor colorWithHexString:@"CECECE"];
-    });
-    return color;
-}
+
 
 @implementation CompactIssueTableHeaderView
 
@@ -305,7 +298,7 @@ static NSColor *HeaderDividerColor() {
     [[NSColor windowBackgroundColor] set];
     NSRectFill(self.bounds);
     
-    [HeaderDividerColor() set];
+    [[NSColor extras_tableHeaderDividerColor] set];
     CGRect r = CGRectMake(0, CGRectGetHeight(b) - 1.0, b.size.width, 1.0);
     NSRectFill(r);
 }
@@ -320,7 +313,7 @@ static NSColor *HeaderDividerColor() {
     [[NSColor windowBackgroundColor] set];
     NSRectFill(self.bounds);
     
-    [HeaderDividerColor() set];
+    [[NSColor extras_tableHeaderDividerColor] set];
     CGRect r = CGRectMake(0, 0, b.size.width, 1.0);
     NSRectFill(r);
 }

@@ -109,6 +109,12 @@
 
 @end
 
+@interface BackgroundColorView : NSView
+
+@property (nonatomic, strong) NSColor *backgroundColor;
+
+@end
+
 @interface NSImage (Extras)
 
 - (void)constrainToMaxEdge:(CGFloat)maxEdge;
@@ -122,6 +128,7 @@
 + (NSColor *)extras_controlBlue;
 + (NSColor *)extras_outlineGray;
 + (NSColor *)extras_tableSeparator;
++ (NSColor *)extras_tableHeaderDividerColor;
 
 + (NSColor *)ra_orange;
 + (NSColor *)ra_beige;

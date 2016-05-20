@@ -35,6 +35,10 @@
     return [ProblemTableView class];
 }
 
++ (Class)scrollViewClass {
+    return [NSScrollView class];
+}
+
 - (void)commonInit {
     _items = [NSMutableArray array];
     _itemLookup = [NSMutableDictionary dictionary];
@@ -63,7 +67,7 @@
 
 - (void)loadView {
     CGRect r = CGRectMake(0, 0, 600, 600);
-    NSScrollView *scroll = [[NSScrollView alloc] initWithFrame:r];
+    NSScrollView *scroll = [[[[self class] scrollViewClass] alloc] initWithFrame:r];
     scroll.hasVerticalScroller = YES;
     scroll.hasHorizontalScroller = YES;
     scroll.autohidesScrollers = YES;

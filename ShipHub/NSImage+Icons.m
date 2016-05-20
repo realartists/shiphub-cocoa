@@ -50,6 +50,41 @@
     return image;
 }
 
++ (NSImage *)partitionsIcon {
+    static dispatch_once_t onceToken;
+    static NSImage *image = nil;
+    dispatch_once(&onceToken, ^{
+        image = [[NSImage alloc] initWithSize:CGSizeMake(48.0, 20.0)];
+        [image lockFocusFlipped:YES];
+        
+        [[NSColor blackColor] setStroke];
+        
+        CGFloat xOff = 8.0;
+        CGFloat yBase = 5.0, yOff;
+        
+        CGFloat w = 5.0;
+        CGFloat h = 1.0;
+        CGFloat sx = 3.0;
+        CGFloat sy = 3.5;
+        
+        for (int i = 0; i < 3; i++) {
+            yOff = yBase;
+            for (int j = 0; j <= i; j++) {
+                CGRect r = CGRectMake(xOff, yOff, w, h);
+                NSBezierPath *p = [NSBezierPath bezierPathWithRect:r];
+                [p fill];
+                yOff += h + sy;
+            }
+            xOff += w + sx;
+        }
+        
+        [image unlockFocus];
+        [image setTemplate:YES];
+    });
+    
+    return image;
+}
+
 + (NSImage *)searchResultsIcon {
     return [NSImage imageNamed:NSImageNameListViewTemplate];
 }
