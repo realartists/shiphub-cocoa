@@ -58,6 +58,9 @@
 		1A36190B1C9383E7008C11CB /* TestSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619051C9383E7008C11CB /* TestSyncConnection.m */; };
 		1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619071C9383E7008C11CB /* TestDataStore.m */; };
 		1A36190D1C9383E7008C11CB /* TestMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619091C9383E7008C11CB /* TestMetadata.m */; };
+		1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
+		1A4A20A91CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A61CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m */; };
+		1A4A20AA1CF3BB06000C1D5E /* LocalSyncVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A81CF3BB06000C1D5E /* LocalSyncVersion.m */; };
 		1A5604E11CD7FFC100ACF0DF /* AttachmentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */; };
 		1A5604E21CD7FFC100ACF0DF /* AttachmentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */; };
 		1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
@@ -132,10 +135,6 @@
 		1AE09BF71C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BCB1C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m */; };
 		1AE09BF81C97687E00C5AC35 /* LocalRelationship.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BCD1C97687E00C5AC35 /* LocalRelationship.m */; };
 		1AE09BF91C97687E00C5AC35 /* LocalRelationship.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BCD1C97687E00C5AC35 /* LocalRelationship.m */; };
-		1AE09BFA1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BCF1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m */; };
-		1AE09BFB1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BCF1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m */; };
-		1AE09BFC1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD11C97687E00C5AC35 /* LocalSyncVersion.m */; };
-		1AE09BFD1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD11C97687E00C5AC35 /* LocalSyncVersion.m */; };
 		1AE09BFE1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD31C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m */; };
 		1AE09BFF1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD31C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m */; };
 		1AE09C001C97687E00C5AC35 /* LocalEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BD51C97687E00C5AC35 /* LocalEvent.m */; };
@@ -318,6 +317,12 @@
 		1A3619071C9383E7008C11CB /* TestDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDataStore.m; sourceTree = "<group>"; };
 		1A3619081C9383E7008C11CB /* TestMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMetadata.h; sourceTree = "<group>"; };
 		1A3619091C9383E7008C11CB /* TestMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestMetadata.m; sourceTree = "<group>"; };
+		1A4A209F1CEFBCBC000C1D5E /* WSSyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSSyncConnection.h; sourceTree = "<group>"; };
+		1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSSyncConnection.m; sourceTree = "<group>"; };
+		1A4A20A51CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalSyncVersion+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1A4A20A61CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalSyncVersion+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1A4A20A71CF3BB06000C1D5E /* LocalSyncVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalSyncVersion.h; sourceTree = "<group>"; };
+		1A4A20A81CF3BB06000C1D5E /* LocalSyncVersion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalSyncVersion.m; sourceTree = "<group>"; };
 		1A5604DF1CD7FFC100ACF0DF /* AttachmentManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AttachmentManager.h; sourceTree = "<group>"; };
 		1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AttachmentManager.m; sourceTree = "<group>"; };
 		1A563F781CC823CF00755AAC /* APIProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIProxy.h; sourceTree = "<group>"; };
@@ -420,10 +425,6 @@
 		1AE09BCB1C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalRelationship+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BCC1C97687E00C5AC35 /* LocalRelationship.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalRelationship.h; sourceTree = "<group>"; };
 		1AE09BCD1C97687E00C5AC35 /* LocalRelationship.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalRelationship.m; sourceTree = "<group>"; };
-		1AE09BCE1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalSyncVersion+CoreDataProperties.h"; sourceTree = "<group>"; };
-		1AE09BCF1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalSyncVersion+CoreDataProperties.m"; sourceTree = "<group>"; };
-		1AE09BD01C97687E00C5AC35 /* LocalSyncVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalSyncVersion.h; sourceTree = "<group>"; };
-		1AE09BD11C97687E00C5AC35 /* LocalSyncVersion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalSyncVersion.m; sourceTree = "<group>"; };
 		1AE09BD21C97687E00C5AC35 /* LocalEvent+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalEvent+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1AE09BD31C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalEvent+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BD41C97687E00C5AC35 /* LocalEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalEvent.h; sourceTree = "<group>"; };
@@ -689,6 +690,10 @@
 			isa = PBXGroup;
 			children = (
 				1A3618F31C90C7F6008C11CB /* LocalModel.xcdatamodeld */,
+				1A4A20A51CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.h */,
+				1A4A20A61CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m */,
+				1A4A20A71CF3BB06000C1D5E /* LocalSyncVersion.h */,
+				1A4A20A81CF3BB06000C1D5E /* LocalSyncVersion.m */,
 				1AE09BBE1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.h */,
 				1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */,
 				1AE09BC01C97687E00C5AC35 /* LocalMilestone.h */,
@@ -705,10 +710,6 @@
 				1AE09BCB1C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m */,
 				1AE09BCC1C97687E00C5AC35 /* LocalRelationship.h */,
 				1AE09BCD1C97687E00C5AC35 /* LocalRelationship.m */,
-				1AE09BCE1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.h */,
-				1AE09BCF1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m */,
-				1AE09BD01C97687E00C5AC35 /* LocalSyncVersion.h */,
-				1AE09BD11C97687E00C5AC35 /* LocalSyncVersion.m */,
 				1AE09BD21C97687E00C5AC35 /* LocalEvent+CoreDataProperties.h */,
 				1AE09BD31C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m */,
 				1AE09BD41C97687E00C5AC35 /* LocalEvent.h */,
@@ -827,6 +828,8 @@
 				1A3618E81C8FC25B008C11CB /* SyncConnection.m */,
 				1AD470DA1C99FC2C0050AE4B /* GHSyncConnection.h */,
 				1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */,
+				1A4A209F1CEFBCBC000C1D5E /* WSSyncConnection.h */,
+				1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */,
 				1A694ADD1CA09E0800F73608 /* MetadataStore.h */,
 				1A694AF81CA0A55A00F73608 /* MetadataStoreInternal.h */,
 				1A694ADE1CA09E0800F73608 /* MetadataStore.m */,
@@ -1100,7 +1103,6 @@
 				1AF3497B1CDAC1E900A5BEB0 /* ChartConfig.m in Sources */,
 				1A694AF61CA09EAD00F73608 /* Label.m in Sources */,
 				1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */,
-				1AE09BFC1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */,
 				1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
 				1A694B101CA3413700F73608 /* ResultsController.m in Sources */,
@@ -1141,6 +1143,7 @@
 				1A2217D81C7E981D006460E2 /* Keychain.m in Sources */,
 				1A694AFB1CA0A96500F73608 /* Account.m in Sources */,
 				1AE09C081C97687E00C5AC35 /* LocalUser.m in Sources */,
+				1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */,
 				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
 				1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */,
 				1AE09C021C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,
@@ -1164,8 +1167,9 @@
 				1A0D59D51CA4A8D1004F2578 /* IssueViewController.m in Sources */,
 				1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */,
 				1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */,
-				1AE09BFA1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m in Sources */,
+				1A4A20AA1CF3BB06000C1D5E /* LocalSyncVersion.m in Sources */,
 				1A2217D11C7E80CE006460E2 /* Logging.m in Sources */,
+				1A4A20A91CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m in Sources */,
 				1A0D59EB1CA4AA3A004F2578 /* IssueDocument.m in Sources */,
 				1AE09BF81C97687E00C5AC35 /* LocalRelationship.m in Sources */,
 			);
@@ -1215,7 +1219,6 @@
 				1A36190D1C9383E7008C11CB /* TestMetadata.m in Sources */,
 				1AE09BEF1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
 				1AE09C131C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */,
-				1AE09BFD1C97687E00C5AC35 /* LocalSyncVersion.m in Sources */,
 				1AE09C1A1C9779C000C5AC35 /* ServerConnection.m in Sources */,
 				1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */,
 				1AE09C191C9779BE00C5AC35 /* Error.m in Sources */,
@@ -1223,7 +1226,6 @@
 				1A36190A1C9383E7008C11CB /* TestServerConnection.m in Sources */,
 				1AE09C1B1C9779C200C5AC35 /* DataStore.m in Sources */,
 				1A3618FD1C9383CF008C11CB /* ShipHubTests.m in Sources */,
-				1AE09BFB1C97687E00C5AC35 /* LocalSyncVersion+CoreDataProperties.m in Sources */,
 				1A694AF31CA09E9800F73608 /* Milestone.m in Sources */,
 				1AE09C1E1C9779D300C5AC35 /* FoundationExtras.m in Sources */,
 				1AE09C0D1C97687E00C5AC35 /* LocalLabel.m in Sources */,

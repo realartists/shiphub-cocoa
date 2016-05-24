@@ -34,3 +34,15 @@
 }
 
 @end
+
+@implementation SyncEntry
+
++ (instancetype)entryWithDictionary:(NSDictionary *)dict {
+    SyncEntry *e = [[self class] new];
+    e.action = [dict[@"action"] isEqualToString:@"set"] ? SyncEntryActionSet : SyncEntryActionDelete;
+    e.entityName = dict[@"entity"];
+    e.data = dict[@"data"];
+    return e;
+}
+
+@end

@@ -14,6 +14,7 @@
 #import "ServerConnection.h"
 #import "SyncConnection.h"
 #import "GHSyncConnection.h"
+#import "WSSyncConnection.h"
 #import "MetadataStoreInternal.h"
 #import "NSPredicate+Extras.h"
 #import "JSON.h"
@@ -29,6 +30,7 @@
 #import "LocalEvent.h"
 #import "LocalComment.h"
 #import "LocalRelationship.h"
+#import "LocalSyncVersion.h"
 
 #import "Issue.h"
 #import "IssueComment.h"
@@ -159,7 +161,7 @@ static DataStore *sActiveStore = nil;
     if (DefaultsServerEnvironment() == ServerEnvironmentLocal) {
         return [GHSyncConnection class];
     } else {
-        return [SyncConnection class];
+        return [WSSyncConnection class];
     }
 }
 
@@ -407,32 +409,35 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)updateSyncConnectionWithVersions {
     [_moc performBlock:^{
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalSyncVersion"];
-        fetch.resultType = NSDictionaryResultType;
         NSError *err = nil;
         NSArray *results = [_moc executeFetchRequest:fetch error:&err];
         if (err) {
             ErrLog("%@", err);
         }
         
-        // Convert [ { "type" : "user", "version" : 1234 }, ... ] =>
-        // { "user" : 1234, ... }
-        NSMutableDictionary *all = [NSMutableDictionary dictionaryWithCapacity:results.count];
-        for (NSDictionary *pair in results) {
-            all[pair[@"type"]] = pair[@"version"];
+        NSAssert(results.count <= 1, nil);
+        
+        NSData *data = [[results firstObject] data];
+        NSDictionary *versions = nil;
+        
+        if (data) {
+            err = nil;
+            versions = [NSJSONSerialization JSONObjectWithData:data options:0 error:&err];
+            if (err) {
+                ErrLog(@"%@", err);
+            }
         }
         
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            [self.syncConnection syncWithVersions:all];
+            [self.syncConnection syncWithVersions:versions?:@{}];
         });
     }];
 }
 
 // Must be called on _moc.
 // Does not call save:
-- (void)setLatestSyncVersion:(int64_t)version syncType:(NSString *)syncType {
+- (void)updateSyncVersions:(NSDictionary *)versions {
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalSyncVersion"];
-    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"type = %@", syncType];
-    fetchRequest.fetchLimit = 1;
     
     NSError *err = nil;
     NSArray *results = [_moc executeFetchRequest:fetchRequest error:&err];
@@ -441,13 +446,9 @@ static NSString *const LastUpdated = @"LastUpdated";
         return;
     }
     
-    NSManagedObject *obj = [results firstObject];
-    if (!obj) {
-        obj = [NSEntityDescription insertNewObjectForEntityForName:@"LocalSyncVersion" inManagedObjectContext:_moc];
-        [obj setValue:syncType forKey:@"type"];
-    }
-    [obj setValue:@(version) forKey:@"version"];
-
+    LocalSyncVersion *obj = [results firstObject] ?: [NSEntityDescription insertNewObjectForEntityForName:@"LocalSyncVersion" inManagedObjectContext:_moc];
+    
+    obj.data = [NSJSONSerialization dataWithJSONObject:versions?:@{} options:0 error:NULL];
 }
 
 // Must be called on _moc.
@@ -480,42 +481,6 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
     
     return created;
-}
-
-- (void)syncConnection:(SyncConnection *)sync receivedRootIdentifiers:(NSDictionary *)rootIdentifiers version:(int64_t)version {
-    DebugLog(@"%@\nversion: %qd", rootIdentifiers, version);
-    [_moc performBlock:^{
-        NSError *error = nil;
-        
-        // delete users who no longer exist.
-        NSFetchRequest *deleteUsers = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
-        deleteUsers.predicate = [NSPredicate predicateWithFormat:@"!(identifier IN %@)", rootIdentifiers[@"users"]];
-        [_moc batchDeleteEntitiesWithRequest:deleteUsers error:&error];
-        
-        if (error) ErrLog(@"%@", error);
-        error = nil;
-        
-        [self createPlaceholderEntitiesWithName:@"LocalUser" withIdentifiers:rootIdentifiers[@"users"]];
-        
-        
-        // delete orgs that no longer exist.
-        NSFetchRequest *deleteOrgs = [NSFetchRequest fetchRequestWithEntityName:@"LocalOrg"];
-        deleteOrgs.predicate = [NSPredicate predicateWithFormat:@"!(identifier IN %@)", rootIdentifiers[@"orgs"]];
-        [_moc batchDeleteEntitiesWithRequest:deleteOrgs error:&error];
-        
-        if (error) ErrLog("%@", error);
-        error = nil;
-        
-        [self createPlaceholderEntitiesWithName:@"LocalOrg" withIdentifiers:rootIdentifiers[@"orgs"]];
-        
-        if (version != 0) {
-            [self setLatestSyncVersion:version syncType:@"root"];
-        }
-        
-        [_moc save:&error];
-        
-        if (error) ErrLog("%@", error);
-    }];
 }
 
 // Must be called on _moc.
@@ -668,11 +633,37 @@ static NSString *const LastUpdated = @"LastUpdated";
                 if (relObj) {
                     [obj setValue:relObj forKey:key];
                 } else {
-                    DebugLog(@"Creating %@ of id %@", rel.destinationEntity.name, relatedID);
-                    relObj = [NSEntityDescription insertNewObjectForEntityForName:rel.destinationEntity.name inManagedObjectContext:_moc];
-                    [relObj setValue:relatedID forKey:@"identifier"];
-                    if (populate) {
-                        [relObj mergeAttributesFromDictionary:populate];
+                    NSString *relName = rel.destinationEntity.name;
+                    if (rel.destinationEntity.abstract) {
+                        NSString *type = populate[@"type"];
+                        if (type) {
+                            relName = [NSString stringWithFormat:@"Local%@", [type PascalCase]];
+                            if (!_mom.entitiesByName[relName]) {
+                                for (NSEntityDescription *sub in rel.destinationEntity.subentities) {
+                                    NSString *jsonType = sub.userInfo[@"jsonType"];
+                                    if ([jsonType isEqualToString:@"type"]) {
+                                        relName = sub.name;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (!_mom.entitiesByName[relName]) {
+                                DebugLog(@"Cannot resolve concrete entity for abstract relationship %@ (%@)", rel, populate);
+                                relName = nil;
+                            }
+                        } else {
+                            DebugLog(@"Cannot resolve concrete entity for abstract relationship %@", rel);
+                            relName = nil;
+                        }
+                    }
+                    
+                    if (relName) {
+                        DebugLog(@"Creating %@ of id %@", rel.destinationEntity.name, relatedID);
+                        relObj = [NSEntityDescription insertNewObjectForEntityForName:relName inManagedObjectContext:_moc];
+                        [relObj setValue:relatedID forKey:@"identifier"];
+                        if (populate) {
+                            [relObj mergeAttributesFromDictionary:populate];
+                        }
                     }
                 }
             }
@@ -681,48 +672,58 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 // Must be called on _moc. Does not call save. Does not update sync version
-- (void)writeSyncObjects:(NSArray *)objs type:(NSString *)type {
-    NSError *error = nil;
+- (void)writeSyncObjects:(NSArray<SyncEntry *> *)objs {
     
-    NSMutableSet *toCreate = [NSMutableSet setWithArray:objs];
-    
-    NSString *entityName = [NSString stringWithFormat:@"Local%@", [type PascalCase]];
-    if (_mom.entitiesByName[entityName] == nil) {
-        DebugLog(@"Received unknown sync type: %@", type);
-        return;
-    }
-    
-    // Fetch all of the existing managed objects that we are going to update.
-    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:entityName];
-    fetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@.identifier", objs];
-    
-    NSArray *mObjs = [_moc executeFetchRequest:fetch error:&error];
-    
-    if (error) ErrLog("%@", error);
-    error = nil;
-    
-    NSDictionary *lookup = [NSDictionary lookupWithObjects:objs keyPath:@"identifier"];
-    for (NSManagedObject *mObj in mObjs) {
-        NSDictionary *objDict = lookup[[mObj valueForKey:@"identifier"]];
-        [mObj mergeAttributesFromDictionary:objDict];
-        [self updateRelationshipsOn:mObj fromSyncDict:objDict];
-        [toCreate removeObject:objDict];
-    }
-    
-    for (NSDictionary *objDict in toCreate) {
-        NSManagedObject *mObj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
-        [mObj mergeAttributesFromDictionary:objDict];
-        [self updateRelationshipsOn:mObj fromSyncDict:objDict];
+    for (SyncEntry *e in objs) {
+        NSError *error = nil;
+        
+        NSString *type = e.entityName;
+        NSString *entityName = [NSString stringWithFormat:@"Local%@", [type PascalCase]];
+        if (_mom.entitiesByName[entityName] == nil) {
+            DebugLog(@"Received unknown sync type: %@", type);
+            continue;
+        }
+        
+        id data = e.data;
+        
+        NSNumber *identifier = nil;
+        if ([data isKindOfClass:[NSNumber class]]) {
+            identifier = data;
+        } else {
+            identifier = data[@"identifier"];
+        }
+            
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:entityName];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
+        fetch.fetchLimit = 1;
+        
+        NSManagedObject *mObj = [[_moc executeFetchRequest:fetch error:&error] firstObject];
+        
+        if (error) ErrLog(@"%@", error);
+        error = nil;
+        
+        if (e.action == SyncEntryActionSet) {
+            if (!mObj) {
+                mObj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
+            }
+            
+            if ([data isKindOfClass:[NSDictionary class]]) {
+                [mObj mergeAttributesFromDictionary:data];
+                [self updateRelationshipsOn:mObj fromSyncDict:data];
+            }
+        } else /*e.action == SyncEntryActionDelete*/ {
+            if (mObj) {
+                [_moc deleteObject:mObj];
+            }
+        }
     }
 }
 
-- (void)syncConnection:(SyncConnection *)sync receivedSyncObjects:(NSArray *)objs type:(NSString *)type version:(int64_t)version {
-    DebugLog(@"%@: %@\nversion:%qd", type, objs, version);
-    
+- (void)syncConnection:(SyncConnection *)sync receivedEntries:(NSArray<SyncEntry *> *)entries versions:(NSDictionary *)versions progress:(double)progress
+{
     [_moc performBlock:^{
-        [self writeSyncObjects:objs type:type];
-        
-        [self setLatestSyncVersion:version syncType:type];
+        [self writeSyncObjects:entries];
+        [self updateSyncVersions:versions];
         
         NSError *error = nil;
         [_moc save:&error];
@@ -876,7 +877,13 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)storeSingleSyncObject:(id)obj type:(NSString *)type completion:(dispatch_block_t)completion
 {
     [_moc performBlock:^{
-        [self writeSyncObjects:@[obj] type:type];
+        SyncEntry *e = [SyncEntry new];
+        e.action = SyncEntryActionSet;
+        e.entityName = type;
+        e.data = obj;
+        
+        [self writeSyncObjects:@[e]];
+        
         NSError *err = nil;
         [_moc save:&err];
         if (err) ErrLog(@"%@", err);
@@ -1008,7 +1015,12 @@ static NSString *const LastUpdated = @"LastUpdated";
                     
                     d = [JSON parseObject:d withNameTransformer:[JSON githubToCocoaNameTransformer]];
                     
-                    [self writeSyncObjects:@[d] type:@"LocalComment"];
+                    SyncEntry *e = [SyncEntry new];
+                    e.action = SyncEntryActionSet;
+                    e.entityName = @"comment";
+                    e.data = d;
+                    
+                    [self writeSyncObjects:@[e]];
                     
                     NSFetchRequest *fetch2 = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
                     fetch2.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", d[@"identifier"]];

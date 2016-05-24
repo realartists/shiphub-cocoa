@@ -2,7 +2,7 @@
 //  LocalSyncVersion+CoreDataProperties.h
 //  ShipHub
 //
-//  Created by James Howard on 3/14/16.
+//  Created by James Howard on 5/23/16.
 //  Copyright © 2016 Real Artists, Inc. All rights reserved.
 //
 //  Choose "Create NSManagedObject Subclass…" from the Core Data editor menu
@@ -15,8 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalSyncVersion (CoreDataProperties)
 
-@property (nullable, nonatomic, retain) NSString *type;
-@property (nullable, nonatomic, retain) NSNumber *version;
+@property (nullable, nonatomic, retain) NSData *data;
 
 @end
 

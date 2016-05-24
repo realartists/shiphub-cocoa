@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class Auth;
+@class SyncEntry;
 
 @protocol SyncConnectionDelegate;
 
@@ -33,18 +34,21 @@
 - (void)syncConnectionDidConnect:(SyncConnection *)sync;
 - (void)syncConnectionDidDisconnect:(SyncConnection *)sync;
 
-- (void)syncConnection:(SyncConnection *)sync receivedRootIdentifiers:(NSDictionary *)rootIdentifiers version:(int64_t)version;
+- (void)syncConnection:(SyncConnection *)sync receivedEntries:(NSArray<SyncEntry *> *)entries versions:(NSDictionary *)versions progress:(double)progress;
 
-/* types are:
-    users
-    repos
-    milestones
-    labels
-    issues
-    events
-    comments
-    relationships
- */
-- (void)syncConnection:(SyncConnection *)sync receivedSyncObjects:(NSArray *)objs type:(NSString *)type version:(int64_t)version;
+@end
+
+typedef NS_ENUM(NSInteger, SyncEntryAction) {
+    SyncEntryActionSet,
+    SyncEntryActionDelete
+};
+
+@interface SyncEntry : NSObject
+
+@property SyncEntryAction action;
+@property NSString *entityName;
+@property id data;
+
++ (instancetype)entryWithDictionary:(NSDictionary *)dict;
 
 @end

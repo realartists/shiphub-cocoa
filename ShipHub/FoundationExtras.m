@@ -472,6 +472,12 @@ static inline uint8_t h2b(uint8_t v) {
     return lookup;
 }
 
+- (NSDictionary *)dictionaryByAddingEntriesFromDictionary:(NSDictionary *)newDict {
+    NSMutableDictionary *d = [self mutableCopy];
+    [d addEntriesFromDictionary:newDict];
+    return d;
+}
+
 @end
 
 @implementation NSArray (Extras)

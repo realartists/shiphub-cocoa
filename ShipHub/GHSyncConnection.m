@@ -35,7 +35,7 @@ typedef NS_ENUM(NSInteger, SyncState) {
 
 - (id)initWithAuth:(Auth *)auth {
     if (self = [super initWithAuth:auth]) {
-        _q = dispatch_queue_create("SyncConnection", NULL);
+        _q = dispatch_queue_create("GHSyncConnection", NULL);
         _heartbeat = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _q);
         
         __weak __typeof(self) weakSelf = self;
@@ -312,12 +312,6 @@ typedef NS_ENUM(NSInteger, SyncState) {
             NSDictionary *assigneesLookup = [NSDictionary lookupWithObjects:allAssignees keyPath:@"id"];
             NSArray *dedupedAssignees = [assigneesLookup allValues];
             
-            NSArray *userIDs = [assigneesLookup allKeys];
-            
-            NSArray *orgIDs = [dedupedOrgs arrayByMappingObjects:^id(NSDictionary *obj) {
-                return obj[@"id"];
-            }];
-            
             NSMutableArray *reposWithAssignees = [NSMutableArray new];
             NSInteger i = 0;
             for (NSDictionary *repo in repos) {
@@ -329,14 +323,8 @@ typedef NS_ENUM(NSInteger, SyncState) {
                 i++;
             }
             
-            
-            
-            // yield the root object to the delegate
-            [self.delegate syncConnection:self receivedRootIdentifiers:@{@"users": userIDs, @"orgs": orgIDs} version:1];
-            
             // yield the users to the delegate
-            [self yield:accountsWithRepos(dedupedAssignees, repos) type:@"user" version:1];
-            
+            [self yield:accountsWithRepos(dedupedAssignees, repos) type:@"user" version:@{}];
             
             // Need to wait for orgs and milestones before we can yield repos.
             dispatch_group_t waitForOrgsAndMilestones = dispatch_group_create();
@@ -357,7 +345,7 @@ typedef NS_ENUM(NSInteger, SyncState) {
             
             dispatch_group_notify(waitForOrgsAndMilestones, _q, ^{
                 // yield the repos
-                [self yield:reposWithInfo type:@"repo" version:1];
+                [self yield:reposWithInfo type:@"repo" version:@{}];
                 
                 [self findIssues:reposWithInfo];
             });
@@ -408,7 +396,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
             
             if (spideredOrgs.count == dedupedOrgs.count) {
                 // can yield orgs
-                [self yield:accountsWithRepos(spideredOrgs, repos) type:@"org" version:1];
+                [self yield:accountsWithRepos(spideredOrgs, repos) type:@"org" version:@{}];
                 completion();
             }
         }];
@@ -446,18 +434,6 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
 }
 
 - (void)findIssues:(NSArray *)repos {
-    // calculate the since date for our query
-    
-    int64_t issuesSince = [_syncVersions[@"issue"] longLongValue];
-    NSDate *since = [NSDate dateWithTimeIntervalSinceReferenceDate:(double)(issuesSince / 1000)];
-    NSString *sinceStr = [since JSONString];
-    
-    NSDictionary *params = @{ @"filter": @"all",
-                              @"since": sinceStr,
-                              @"state": @"all",
-                              @"sort": @"updated",
-                              @"direction": @"asc" };
-    
     // fetch all the issues per repo
     
     __block NSInteger remaining = repos.count;
@@ -467,6 +443,19 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
     // But this whole class is a gross hack that needs to die in a radioactive fire so ...
     
     for (NSDictionary *repo in repos) {
+        // calculate the since date for our query
+        
+        NSString *versionField = [NSString stringWithFormat:@"%@.issue", repo[@"id"]];
+        int64_t issuesSince = [_syncVersions[versionField] longLongValue];
+        NSDate *since = [NSDate dateWithTimeIntervalSinceReferenceDate:(double)(issuesSince) / 1000.0];
+        NSString *sinceStr = [since JSONString];
+        
+        NSDictionary *params = @{ @"filter": @"all",
+                                  @"since": sinceStr,
+                                  @"state": @"all",
+                                  @"sort": @"updated",
+                                  @"direction": @"asc" };
+        
         NSString *endpoint = [NSString stringWithFormat:@"repos/%@/%@/issues", repo[@"owner"][@"login"], repo[@"name"]];
         
         [self fetchPaged:[self get:endpoint params:params] completion:^(NSArray *data, NSError *err) {
@@ -498,12 +487,11 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                     }
                 }
                 
-                int64_t version = [_syncVersions[@"issue"] longLongValue];
+                NSDictionary *version = nil;
                 if (maxDate) {
-                    version = ([[NSDate dateWithJSONString:maxDate] timeIntervalSinceReferenceDate] * 1000);
-                    NSMutableDictionary *newVersions = [_syncVersions mutableCopy];
-                    newVersions[@"issue"] = @(version);
-                    _syncVersions = newVersions;
+                    version = @{ versionField: @([[NSDate dateWithJSONString:maxDate] timeIntervalSinceReferenceDate] * 1000)};
+                } else {
+                    version = @{};
                 }
                 
                 [self yield:issues type:@"issue" version:version];
@@ -515,9 +503,20 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
     }
 }
 
-- (void)yield:(id)json type:(NSString *)type version:(int64_t)version {
-    id syncObjs = [JSON parseObject:json withNameTransformer:[JSON githubToCocoaNameTransformer]];
-    [self.delegate syncConnection:self receivedSyncObjects:syncObjs type:type version:version];
+- (void)yield:(NSArray *)json type:(NSString *)type version:(NSDictionary *)version {
+    NSArray *syncObjs = [JSON parseObject:json withNameTransformer:[JSON githubToCocoaNameTransformer]];
+    
+    syncObjs = [syncObjs arrayByMappingObjects:^id(id obj) {
+        SyncEntry *e = [SyncEntry new];
+        e.action = SyncEntryActionSet;
+        e.entityName = type;
+        e.data = obj;
+        return e;
+    }];
+    
+    _syncVersions = [_syncVersions dictionaryByAddingEntriesFromDictionary:version] ?: version;
+    
+    [self.delegate syncConnection:self receivedEntries:syncObjs versions:_syncVersions progress:1.0];
 }
 
 - (void)updateIssue:(id)issueIdentifier {
@@ -547,7 +546,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                     d[@"issue"] = issueID;
                     return d;
                 }];
-                [self yield:cs type:@"comment" version:1];
+                [self yield:cs type:@"comment" version:@{}];
             }
         }];
         
@@ -558,7 +557,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                     d[@"issue"] = issueID;
                     return d;
                 }];
-                [self yield:es type:@"event" version:1];
+                [self yield:es type:@"event" version:@{}];
             }
         }];
         

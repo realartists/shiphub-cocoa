@@ -101,6 +101,8 @@
 
 + (NSDictionary *)lookupWithObjects:(NSArray *)objects keyPath:(NSString *)keyPath;
 
+- (NSDictionary *)dictionaryByAddingEntriesFromDictionary:(NSDictionary *)newDict;
+
 @end
 
 @interface NSData (Extras)
