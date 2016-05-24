@@ -291,7 +291,10 @@ function saveNewIssue() {
   if (!owner || !repo) {
     return;
   }
-
+  
+  window.ivars.issue.savePending = true;
+  applyIssueState(window.ivars);
+  
   var url = `https://api.github.com/repos/${owner}/${repo}/issues`;
   var request = api(url, {
     headers: { 
@@ -310,8 +313,10 @@ function saveNewIssue() {
   });
   request.then(function(body) {
     window.ivars.issue = body;
+    window.ivars.issue.savePending = false;
     applyIssueState(window.ivars);
   }).catch(function(err) {
+    window.ivars.issue.savePending = false;
     console.log(err);
   });
 }
@@ -837,12 +842,12 @@ var ActivityList = React.createClass({
       body: this.props.issue.body,
       user: this.props.issue.user,
       id: this.props.issue.id,
-      updated_at: this.props.issue.updated_at,
-      created_at: this.props.issue.created_at
+      updated_at: this.props.issue.updated_at || new Date().toISOString(),
+      created_at: this.props.issue.created_at || new Date().toISOString(),
     };
     
     // need to merge events and comments together into one array, ordered by date
-    var eventsAndComments = !!(firstComment.id) ? [firstComment] : [];
+    var eventsAndComments = (!!(firstComment.id) || this.props.issue.savePending) ? [firstComment] : [];
     
     eventsAndComments = eventsAndComments.concat(this.props.issue.allEvents || []);
     eventsAndComments = eventsAndComments.concat(this.props.issue.allComments || []);
@@ -915,7 +920,7 @@ var ActivityList = React.createClass({
             counter.e = counter.e + 1;
             var next = a[i+1];
             return h(Event, {
-              key:e.id, 
+              key:(e.id||""+i), 
               event:e, 
               first:(i==0 || a[i-1].event == undefined),
               last:(next!=undefined && next.event==undefined),
@@ -923,7 +928,7 @@ var ActivityList = React.createClass({
             });
           } else {
             counter.c = counter.c + 1;
-            return h(Comment, {key:e.id, comment:e, first:i==0, commentIdx:counter.c-1})
+            return h(Comment, {key:(e.id||""+i), comment:e, first:i==0, commentIdx:counter.c-1})
           }
         })
       )
