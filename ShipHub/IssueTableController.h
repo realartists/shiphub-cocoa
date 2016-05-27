@@ -45,6 +45,7 @@
 @property (nonatomic, readonly) NSArray *selectedProblemSnapshots;
 
 - (void)selectSomething;
+- (void)selectItemsByIdentifiers:(NSSet *)identifiers;
 
 @end
 

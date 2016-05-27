@@ -17,6 +17,7 @@ var LabelPicker = React.createClass({
     var el = ReactDOM.findDOMNode(completer.refs.typeInput);
     var val = el.value;
     
+    var result = [];
     if (val.length > 0) {
       completer.props.matcher(val, (results) => {
         if (results.length >= 1) {
@@ -25,7 +26,7 @@ var LabelPicker = React.createClass({
           for (var i = 0; i < this.props.labels.length; i++) {
             if (this.props.labels[i].name == result) {
               if (this.props.onAdd) {
-                this.props.onAdd(this.props.labels[i]);
+                result.push(this.props.onAdd(this.props.labels[i]));
               }
               break;
             }
@@ -36,6 +37,12 @@ var LabelPicker = React.createClass({
         
     $(el).typeahead('val', "");
     $(el).focus();
+    
+    if (result.length > 0) {
+      return result[0];
+    } else {
+      return Promise.resolve();
+    }
   },
   
   focus: function() {
@@ -47,6 +54,22 @@ var LabelPicker = React.createClass({
   hasFocus: function() {
     if (this.refs.completer) {
       return this.refs.completer.hasFocus();
+    } else {
+      return false;
+    }
+  },
+  
+  isEdited: function() {
+    if (this.refs.completer) {
+      return this.refs.completer.isEdited();
+    } else {
+      return false;
+    }
+  },
+  
+  containsCompleteValue: function() {
+    if (this.refs.completer) {
+      return this.refs.completer.containsCompleteValue();
     } else {
       return false;
     }

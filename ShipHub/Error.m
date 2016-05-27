@@ -18,7 +18,7 @@ NSString *ShipErrorUserInfoServerProblemKey = @"ServerProblem";
 
 NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
     switch (code) {
-        case ShipErrorCodeProblemDoesNotExist: return NSLocalizedString(@"The requested problem does not exist.", nil);
+        case ShipErrorCodeProblemDoesNotExist: return NSLocalizedString(@"The requested issue does not exist.", nil);
         case ShipErrorCodeUnexpectedServerResponse: return NSLocalizedString(@"The server returned an unexpected response.", nil);
         case ShipErrorCodeNeedsAuthToken: return NSLocalizedString(@"You must be logged in to perform this action.", nil);
         case ShipErrorCodeProblemSaveConflict: return NSLocalizedString(@"Save conflict.", nil);
@@ -28,6 +28,7 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
         case ShipErrorCodeInvalidQuery: return NSLocalizedString(@"Unable to run the provided query. Make sure you have the latest version of Ship installed.", nil);
         case ShipErrorCodeInvalidPassword: return NSLocalizedString(@"Invalid username or password", nil);
         case ShipErrorCodeInvalidUserAccount: return NSLocalizedString(@"Invalid or non-existent account", nil);
+        case ShipErrorCodeProblemSaveOtherError: return NSLocalizedString(@"Unable to save issue", nil);
         default: return NSLocalizedString(@"Unexpected Error", nil);
     }
 }

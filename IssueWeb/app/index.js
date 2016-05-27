@@ -179,11 +179,17 @@ function applyPatch(patch) {
       method: "PATCH",
       body: JSON.stringify(ghPatch)
     });
-    request.then(function(body) {
-      console.log(body);
-    }).catch(function(err) {
-      console.log(err);
+    return new Promise((resolve, reject) => {
+      request.then(function(body) {
+        console.log(body);
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(err);
+      });
     });
+  } else {
+    return Promise.resolve();
   }
 }
 
@@ -204,11 +210,17 @@ function applyCommentEdit(commentIdentifier, newBody) {
       method: "PATCH",
       body: JSON.stringify({body: newBody})
     });
-    request.then(function(body) {
-      console.log(body);
-    }).catch(function(err) {
-      console.log(err);
+    return new Promise((resolve, reject) => {
+      request.then(function(body) {
+        console.log(body);
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(err);
+      });
     });
+  } else {
+    return Promise.reject("Issue does not exist.");
   }
 }
 
@@ -229,11 +241,9 @@ function applyCommentDelete(commentIdentifier) {
       }, 
       method: "DELETE"
     });
-    request.then(function(resp) {
-      // success
-    }).catch(function(err) {
-      console.log(err);
-    });
+    return request;
+  } else {
+    return Promise.reject("Issue does not exist.");
   }
 }
 
@@ -255,17 +265,23 @@ function applyComment(commentBody) {
       method: "POST",
       body: JSON.stringify({body: commentBody})
     });
-    request.then(function(body) {
-      var id = body.id;
-      window.ivars.issue.allComments.forEach((m) => {
-        if (m.id === 'new') {
-          m.id = id;
-        }
+    return new Promise((resolve, reject) => {
+      request.then(function(body) {
+        var id = body.id;
+        window.ivars.issue.allComments.forEach((m) => {
+          if (m.id === 'new') {
+            m.id = id;
+          }
+        });
+        applyIssueState(window.ivars);
+        resolve();
+      }).catch(function(err) {
+        console.log(err);
+        reject(err);
       });
-      applyIssueState(window.ivars);
-    }).catch(function(err) {
-      console.log(err);
     });
+  } else {
+    return Promise.reject("Issue does not exist.");
   }
 }
 
@@ -311,30 +327,36 @@ function saveNewIssue() {
       labels: issue.labels.map((l) => l.name)
     })
   });
-  request.then(function(body) {
-    window.ivars.issue = body;
-    window.ivars.issue.savePending = false;
-    applyIssueState(window.ivars);
-  }).catch(function(err) {
-    window.ivars.issue.savePending = false;
-    console.log(err);
+  
+  return new Promise((resolve, reject) => {
+    request.then(function(body) {
+      window.ivars.issue = body;
+      window.ivars.issue.savePending = false;
+      applyIssueState(window.ivars);
+      resolve();
+    }).catch(function(err) {
+      window.ivars.issue.savePending = false;
+      console.log(err);
+      reject(err);
+    });
   });
+  
 }
 
 function patchIssue(patch) {
   window.ivars.issue = Object.assign({}, window.ivars.issue, patch);
   applyIssueState(window.ivars);
-  applyPatch(patch);
+  return applyPatch(patch);
 }
 
 function editComment(commentIdx, newBody) {
   if (commentIdx == 0) {
-    patchIssue({body: newBody});
+    return patchIssue({body: newBody});
   } else {
     commentIdx--;
     window.ivars.issue.allComments[commentIdx].body = newBody;
     applyIssueState(window.ivars);
-    applyCommentEdit(window.ivars.issue.allComments[commentIdx].id, newBody);
+    return applyCommentEdit(window.ivars.issue.allComments[commentIdx].id, newBody);
   }
 }
 
@@ -344,7 +366,7 @@ function deleteComment(commentIdx) {
   var c = window.ivars.issue.allComments[commentIdx];
   window.ivars.issue.allComments = window.ivars.issue.allComments.splice(commentIdx+1, 1);
   applyIssueState(window.ivars);
-  applyCommentDelete(c.id);
+  return applyCommentDelete(c.id);
 }
 
 function addComment(body) {
@@ -357,7 +379,7 @@ function addComment(body) {
     created_at: now
   });
   applyIssueState(window.ivars);
-  applyComment(body);
+  return applyComment(body);
 }
 
 var keypath = function(obj, path) {
@@ -837,6 +859,27 @@ var ActivityList = React.createClass({
     issue: React.PropTypes.object.isRequired
   },
   
+  allComments: function() {
+    var comments = [];
+    for (var k in this.refs) {
+      if (k.indexOf("comment.") == 0) {
+        var c = this.refs[k];
+        comments.push(c);
+      }
+    }
+    return comments;
+  },
+  
+  needsSave: function() {
+    var comments = this.allComments();
+    return comments.length > 0 && comments.reduce((a, x) => a || x.needsSave(), false);
+  },
+  
+  save: function() {
+    var c = this.allComments();
+    return Promise.all(c.filter((x) => x.needsSave()).map((x) => x.save()));
+  },
+  
   render: function() {        
     var firstComment = {
       body: this.props.issue.body,
@@ -928,7 +971,7 @@ var ActivityList = React.createClass({
             });
           } else {
             counter.c = counter.c + 1;
-            return h(Comment, {key:(e.id||""+i), comment:e, first:i==0, commentIdx:counter.c-1})
+            return h(Comment, {key:(e.id||""+i), ref:"comment." + i, comment:e, first:i==0, commentIdx:counter.c-1})
           }
         })
       )
@@ -1141,82 +1184,85 @@ var Comment = React.createClass({
   },
 
   getInitialState: function() {
-		return {
-		  editing: !(this.props.comment),
-			code: "",
-			previewing: false,
-			uploadCount: 0,
-		};
-	},
-	
-	componentWillReceiveProps: function(nextProps) {
-	  if (this.state.editing && nextProps.comment && this.props.comment && nextProps.comment.id != this.props.comment.id) {
-	    this.setState(Object.assign({}, this.state, {editing: false}));
-	  }
-	},
-	
-	updateCode: function(newCode) {
-	  this.setState(Object.assign({}, this.state, {code: newCode}));
-	},
-	
-	replaceInCode: function(original, replacement) {
+    return {
+      editing: !(this.props.comment),
+      code: "",
+      previewing: false,
+      uploadCount: 0,
+    };
+  },
+  
+  componentWillReceiveProps: function(nextProps) {
+    if (this.state.editing && nextProps.comment && this.props.comment && nextProps.comment.id != this.props.comment.id) {
+      this.setState(Object.assign({}, this.state, {editing: false}));
+    }
+  },
+  
+  updateCode: function(newCode) {
+    this.setState(Object.assign({}, this.state, {code: newCode}));
+    if (window.documentEditedHelper) {
+      window.documentEditedHelper.postMessage({});
+    }
+  },
+  
+  replaceInCode: function(original, replacement) {
     var c = this.state.code;
     c = c.replace(original, replacement);
     this.updateCode(c);
-	},
-	
-	beginEditing: function() {
-	  if (!this.state.editing) {
+  },
+  
+  beginEditing: function() {
+    if (!this.state.editing) {
       this.setState(Object.assign({}, this.state, {
         previewing: false,
         editing: true,
         code: this.props.comment.body || ""
       }));
     }
-	},
-	
-	cancelEditing: function() {
-	  if (this.state.editing) {
+  },
+  
+  cancelEditing: function() {
+    if (this.state.editing) {
       this.setState(Object.assign({}, this.state, {
         previewing: false,
         editing: false,
         code: ""
       }));
     }
-	},
-	
-	deleteComment: function() {
-	  deleteComment(this.props.commentIdx);
-	},
-	
-	togglePreview: function() {
-	  var previewing = !this.state.previewing;
-	  this.doFocus = !previewing;
-	  this.setState(Object.assign({}, this.state, {previewing:previewing}));
+  },
+  
+  deleteComment: function() {
+    deleteComment(this.props.commentIdx);
+  },
+  
+  togglePreview: function() {
+    var previewing = !this.state.previewing;
+    this.doFocus = !previewing;
+    this.setState(Object.assign({}, this.state, {previewing:previewing}));
     var el = ReactDOM.findDOMNode(this);
-	  setTimeout(() => { 
-	    el.scrollIntoView();
-	    if (!previewing) {
-	      this.focusCodemirror();
-	    }
-	  }, 0);
-	},
-	
-	focusCodemirror: function() {
-	  this.refs.codemirror.focus()
-	},
-	
-	onBlur: function() {
-	  var isNewIssue = !(getIvars().issue.number);
-	  if (isNewIssue) {
-	    editComment(0, this.state.code);
-	  }
-	},
-	
-	save: function() {
-	  var issue = getIvars().issue;
-	  var isNewIssue = !(issue.number);
-	  var isAddNew = !(this.props.comment);
+    setTimeout(() => { 
+      el.scrollIntoView();
+      if (!previewing) {
+        this.focusCodemirror();
+      }
+    }, 0);
+  },
+  
+  focusCodemirror: function() {
+    this.refs.codemirror.focus()
+  },
+  
+  onBlur: function() {
+    var isNewIssue = !(getIvars().issue.number);
+    if (isNewIssue) {
+      editComment(0, this.state.code);
+    }
+  },
+  
+  save: function() {
+    var issue = getIvars().issue;
+    var isNewIssue = !(issue.number);
+    var isAddNew = !(this.props.comment);
     var body = this.state.code;
     
     var resetState = () => {
@@ -1228,26 +1274,54 @@ var Comment = React.createClass({
       if (canSave) {
         resetState();
         editComment(0, body);
-        saveNewIssue();
+        return saveNewIssue();
       }
     } else {
       resetState();
       if (body.trim().length > 0) {
         if (this.props.comment) {
           if (this.props.comment.body != body) {
-            editComment(this.props.commentIdx, body);
+            return editComment(this.props.commentIdx, body);
           }
         } else {
-          addComment(body);
+          return addComment(body);
         }
       }
     }
-	},
-	
-	saveAndClose: function() {
+    
+    return Promise.resolve();
+  },
+  
+  saveAndClose: function() {
     patchIssue({state: "closed"});
-	  this.save();	  
-	},
+    this.save();    
+  },
+  
+  needsSave: function() {
+    var issue = getIvars().issue;
+    var isNewIssue = !(issue.number);
+    var isAddNew = !(this.props.comment);
+    var body = this.state.code;
+    
+    if (isNewIssue) {
+      var canSave = (issue.title || "").trim().length > 0 && !!(issue._bare_owner) && !!(issue._bare_repo);
+      return canSave;
+    } else {
+      if (this.props.comment && !this.state.editing) {
+        return false;
+      }
+      if (body.trim().length > 0) {
+        if (this.props.comment) {
+          if (this.props.comment.body != body) {
+            return true;
+          }
+        } else {
+          return true;
+        }
+      }
+      return false;
+    }
+  },
 
   renderCodemirror: function() {
     var isNewIssue = !(getIvars().issue.number);
@@ -1772,13 +1846,15 @@ var IssueTitle = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
   titleChanged: function(newTitle, goNext) {
+    var promise = null;
     if (this.state.edited) {
       this.setState({edited: false});
-      patchIssue({title: newTitle});
+      promise = patchIssue({title: newTitle});
     }
     if (goNext) {
       this.props.focusNext("title");
     }
+    return promise || Promise.resolve();
   },
 
   getInitialState: function() {
@@ -1802,7 +1878,7 @@ var IssueTitle = React.createClass({
   },
   
   titleSaveClicked: function(evt) {
-    this.titleChanged(this.state.editedValue, false);
+    return this.titleChanged(this.state.editedValue, false);
   },
   
   focus: function() {
@@ -1811,6 +1887,22 @@ var IssueTitle = React.createClass({
   
   hasFocus: function() {
     return this.refs.input.hasFocus();
+  },
+  
+  needsSave: function() {
+    if (this.refs.input) {
+      return this.refs.input.isEdited();
+    } else {
+      return false;
+    }
+  },
+  
+  save: function() {
+    if (this.needsSave()) {
+      return this.titleSaveClicked();
+    } else {
+      return Promise.resolve();
+    }
   },
   
   componentDidMount: function() {
@@ -1866,7 +1958,7 @@ var RepoField = React.createClass({
   
     if (newRepo.indexOf('/') == -1) {
       fail();
-      return;
+      return Promise.reject("Invalid repo");
     }
     
     var [owner, repo] = newRepo.split("/");
@@ -1875,25 +1967,40 @@ var RepoField = React.createClass({
     
     if (!repoInfo) {
       fail();
-      return;
+      return Promise.reject("Invalid repo");
     }
     
-    // fetch new metadata and merge it in
-    loadMetadata(newRepo).then((meta) => {
-      var state = getIvars();
-      state = Object.assign({}, state, meta);
-      state.issue = Object.assign({}, state.issue, { 
-        _bare_repo: repo, 
-        _bare_owner: owner,
-        milestone: null,
-        assignee: null,
-        labels: []
-      });
-      applyIssueState(state);
-    }).catch((err) => {
-      console.log("Could not load metadata for repo", newRepo, err);
-      fail();
-    });      
+    var state = getIvars();
+    state = Object.assign({}, state);
+    state.issue = Object.assign({}, state.issue, { 
+      _bare_repo: repo, 
+      _bare_owner: owner,
+      milestone: null,
+      assignee: null,
+      labels: []
+    });
+    applyIssueState(state);
+    
+    return new Promise((resolve, reject) => {
+      // fetch new metadata and merge it in
+      loadMetadata(newRepo).then((meta) => {
+        var state = getIvars();
+        state = Object.assign({}, state, meta);
+        state.issue = Object.assign({}, state.issue, { 
+          _bare_repo: repo, 
+          _bare_owner: owner,
+          milestone: null,
+          assignee: null,
+          labels: []
+        });
+        applyIssueState(state);
+        resolve();
+      }).catch((err) => {
+        console.log("Could not load metadata for repo", newRepo, err);
+        fail();
+        reject();
+      });      
+    });
   },
   
   onEnter: function() {
@@ -1901,14 +2008,17 @@ var RepoField = React.createClass({
     var el = ReactDOM.findDOMNode(completer.refs.typeInput);
     var val = el.value;
     
+    var promises = [];
     completer.props.matcher(val, (results) => {
       if (results.length >= 1) {
         var result = results[0];
-        this.onChange(result);
+        promises.push(this.onChange(result));
       }
     });
     
     this.props.focusNext("repo");
+    
+    return Promise.all(promises);
   },
   
   focus: function() {
@@ -1922,6 +2032,23 @@ var RepoField = React.createClass({
       return this.refs.input.hasFocus();
     } else {
       return false;
+    }
+  },
+  
+  needsSave: function() {
+    if (this.refs.input) {
+      var canEdit = this.props.issue.number == null;
+      return canEdit && this.refs.input.isEdited();
+    } else {
+      return false;
+    }
+  },
+  
+  save: function() {
+    if (this.needsSave()) {
+      return this.onEnter();
+    } else {
+      return Promise.resolve();
     }
   },
   
@@ -1971,7 +2098,9 @@ var MilestoneField = React.createClass({
         value = null;
       }
       
-      patchIssue({milestone: this.lookupMilestone(value)});
+      return patchIssue({milestone: this.lookupMilestone(value)});
+    } else {
+      return Promise.resolve();
     }
   },
   
@@ -1980,15 +2109,18 @@ var MilestoneField = React.createClass({
     var el = ReactDOM.findDOMNode(completer.refs.typeInput);
     var val = el.value;
     
+    var promises = [];
     completer.props.matcher(val, (results) => {
       if (results.length >= 1) {
         var result = results[0];
-        this.milestoneChanged(result);
+        promises.push(this.milestoneChanged(result));
       } else {
-        this.milestoneChanged(null);
+        promises.push(this.milestoneChanged(null));
       }
       this.props.focusNext("milestone");
     });
+    
+    return Promise.all(promises);
   },
   
   focus: function() {
@@ -2002,6 +2134,22 @@ var MilestoneField = React.createClass({
       return this.refs.completer.hasFocus();
     } else {
       return false;
+    }
+  },
+  
+  needsSave: function() {
+    if (this.refs.completer) {
+      return this.refs.completer.isEdited();
+    } else {
+      return false;
+    }
+  },
+  
+  save: function() {
+    if (this.needsSave()) {
+      return this.onEnter();
+    } else {
+      return Promise.resolve();
     }
   },
   
@@ -2042,6 +2190,14 @@ var StateField = React.createClass({
     patchIssue({state: evt.target.value});
   },
   
+  needsSave: function() {
+    return false;
+  },
+  
+  save: function() {
+    return Promise.resolve();
+  },
+  
   render: function() {
     var isNewIssue = !(this.props.issue.number);
     
@@ -2076,7 +2232,9 @@ var AssigneeInput = React.createClass({
       if (value.length == 0) {
         value = null;
       }
-      patchIssue({assignee: this.lookupAssignee(value)});
+      return patchIssue({assignee: this.lookupAssignee(value)});
+    } else {
+      return Promise.resolve();
     }
   },
   
@@ -2085,15 +2243,18 @@ var AssigneeInput = React.createClass({
     var el = ReactDOM.findDOMNode(completer.refs.typeInput);
     var val = el.value;
     
+    var promises = [];
     completer.props.matcher(val, (results) => {
       if (results.length >= 1) {
         var result = results[0];
-        this.assigneeChanged(result);
+        promises.push(this.assigneeChanged(result));
       } else {
-        this.assigneeChanged(null);
+        promises.push(this.assigneeChanged(null));
       }
       this.props.focusNext("assignee");
     });
+    
+    return Promise.all(promises);
   },
   
   focus: function() {
@@ -2107,6 +2268,22 @@ var AssigneeInput = React.createClass({
       return this.refs.completer.hasFocus();
     } else {
       return false;
+    }
+  },
+  
+  needsSave: function() {
+    if (this.refs.completer) {
+      return this.refs.completer.isEdited();
+    } else {
+      return false;
+    }
+  },
+  
+  save: function() {
+    if (this.needsSave()) {
+      return this.onEnter();
+    } else {
+      return Promise.resolve();
     }
   },
   
@@ -2178,11 +2355,27 @@ var AssigneeField = React.createClass({
       return false;
     }
   },
+  
+  needsSave: function() {
+    if (this.refs.assignee) {
+      return this.refs.assignee.needsSave();
+    } else {
+      return false;
+    }
+  },
+  
+  save: function() {
+    if (this.refs.assignee) {
+      return this.refs.assignee.save();
+    } else {
+      return Promise.resolve();
+    }
+  },
 
   render: function() {
     return h('div', {className: 'IssueInput AssigneeField'},
       h(HeaderLabel, {title:"Assignee"}),
-      h(AssigneeInput, {key:'assignee', issue: this.props.issue, focusNext:this.props.focusNext}),
+      h(AssigneeInput, {key:'assignee', ref:"assignee", issue: this.props.issue, focusNext:this.props.focusNext}),
       h(StateField, {issue: this.props.issue})
     );
   }
@@ -2195,7 +2388,7 @@ var AddLabel = React.createClass({
   
   addLabel: function(label) {
     var labels = [label, ...this.props.issue.labels];
-    patchIssue({labels: labels});
+    return patchIssue({labels: labels});
   },
   
   focus: function() {
@@ -2209,6 +2402,22 @@ var AddLabel = React.createClass({
       return this.refs.picker.hasFocus();
     } else {
       return false;
+    }
+  },
+  
+  needsSave: function() {
+    if (this.refs.picker) {
+      return this.refs.picker.containsCompleteValue();
+    } else {
+      return false;
+    }
+  },
+  
+  save: function() {
+    if (this.needsSave()) {
+      return this.refs.picker.addLabel();
+    } else {
+      return Promise.resolve();
     }
   },
     
@@ -2250,6 +2459,22 @@ var IssueLabels = React.createClass({
       return this.refs.add.hasFocus();
     } else {
       return false;
+    }
+  },
+  
+  needsSave: function() {
+    if (this.refs.add) {
+      return this.refs.add.needsSave();
+    } else {
+      return false;
+    }
+  },
+  
+  save: function() {
+    if (this.refs.add && this.refs.add.needsSave()) {
+      return this.refs.add.save();
+    } else {
+      return Promise.resolve();
     }
   },
   
@@ -2321,6 +2546,35 @@ var Header = React.createClass({
   
   componentDidUpdate: function() {
     this.dequeueFocus();
+  },
+  
+  needsSave: function() {
+//     console.log("header needsSave: ", 
+//       {"title": this.refs.title.needsSave()},
+//       {"repo": this.refs.repo.needsSave()},
+//       {"milestone": this.refs.milestone.needsSave()},
+//       {"assignee": this.refs.assignee.needsSave()},
+//       {"labels": this.refs.labels.needsSave()}
+//     );
+  
+    return (
+      this.refs.title.needsSave()
+      || this.refs.repo.needsSave()
+      || this.refs.milestone.needsSave()
+      || this.refs.assignee.needsSave()
+      || this.refs.labels.needsSave()
+    );
+  },
+  
+  save: function() {
+    var promises = [];
+    for (var k in this.refs) {
+      var r = this.refs[k];
+      if (r && r.needsSave && r.needsSave()) {
+        promises.push(r.save());
+      }      
+    }
+    return Promise.all(promises);
   },
   
   render: function() {
@@ -2471,9 +2725,9 @@ var App = React.createClass({
   render: function() {
     var issue = this.props.issue;
 
-    var header = h(Header, {issue: issue});
-    var activity = h(ActivityList, {key:issue["id"], issue:issue});
-    var addComment = h(Comment);
+    var header = h(Header, {ref:"header", issue: issue});
+    var activity = h(ActivityList, {key:issue["id"], ref:"activity", issue:issue});
+    var addComment = h(Comment, {ref:"addComment"});
     
     var issueElement = h('div', {},
       header,
@@ -2500,12 +2754,45 @@ var App = React.createClass({
     this.registerGlobalEventHandlers();  
   },
   
-  registerGlobalEventHandlers() {
+  needsSave: function() {
+    var l = [this.refs.header, this.refs.activity, this.refs.addComment];
+    var edited = l.reduce((a, x) => a || x.needsSave(), false)
+    var isNewIssue = !(getIvars().issue.number);
+    var isEmptyNewIssue = getIvars().issue.title == null || getIvars().issue.title == "";
+    return edited || (isNewIssue && !isEmptyNewIssue);
+  },
+  
+  save: function() {
+    var isNewIssue = !(this.props.issue.number);
+    if (isNewIssue) {
+      this.refs.header.save(); // commit any pending changes      
+      var title = getIvars().issue.title;
+      var repo = getIvars().issue._bare_repo;
+      
+      if (!title || title.trim().length == 0) {
+        var reason = "Cannot save issue. Title is required.";
+        alert(reason);
+        return Promise.reject(reason);
+      } else if (!repo || repo.trim().length == 0) {
+        var reason = "Cannot save issue. Repo is required."
+        alert(reason);
+        return Promise.reject(reason);
+      } else {
+        return saveNewIssue();
+      }
+    } else {
+      var l = [this.refs.header, this.refs.activity, this.refs.addComment];
+      var promises = l.filter((x) => x.needsSave()).map((x) => x.save());
+      return Promise.all(promises);
+    }
+  },
+  
+  registerGlobalEventHandlers: function() {
     var doc = window.document;
-    doc.onkeypress = function(evt) {
+    doc.onkeypress = (evt) => {
       if (evt.which == 115 && evt.metaKey) {
         console.log("global save");
-        saveNewIssue();
+        this.save();
         evt.preventDefault();
       }
     };
@@ -2544,7 +2831,7 @@ function applyIssueState(state) {
   
   setIvars(state);
   
-  ReactDOM.render(
+  window.topLevelComponent = ReactDOM.render(
     h(App, {issue: issue}),
     document.getElementById('react-app')
   )
@@ -2595,6 +2882,27 @@ window.configureNewIssue = configureNewIssue;
 window.renderIssue = function(issue) {
   applyIssueState({issue: issue});
 };
+
+window.needsSave = function() {
+  return window.topLevelComponent && window.topLevelComponent.needsSave();
+}
+
+window.save = function(token) {
+  if (window.topLevelComponent) {
+    var p = window.topLevelComponent.save();
+    if (window.documentSaveHandler) {
+      if (p) {
+        p.then(function(success) {
+          window.documentSaveHandler.postMessage({token:token, error:null});
+        }).catch(function(error) {
+          window.documentSaveHandler.postMessage({token:token, error:error});
+        });
+      } else {
+        window.documentSaveHandler.postMessage({token:token, error:null});
+      }
+    }
+  }
+}
 
 window.pasteCallback = pasteCallback;
 

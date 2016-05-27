@@ -405,6 +405,12 @@
 		1A9905171CE11A0700EAA474 /* LabelsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelsView.m; sourceTree = "<group>"; };
 		1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompactIssueCellViewController.h; sourceTree = "<group>"; };
 		1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompactIssueCellViewController.m; sourceTree = "<group>"; };
+		1AD095E31CF8DF9100A0277A /* completer.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = completer.js; sourceTree = "<group>"; };
+		1AD095E41CF8DF9100A0277A /* file-picker.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "file-picker.js"; sourceTree = "<group>"; };
+		1AD095E51CF8DF9100A0277A /* file-uploader.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "file-uploader.js"; sourceTree = "<group>"; };
+		1AD095E61CF8DF9100A0277A /* label-picker.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "label-picker.js"; sourceTree = "<group>"; };
+		1AD095E71CF8DF9100A0277A /* smart-input.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "smart-input.js"; sourceTree = "<group>"; };
+		1AD095E81CF8DF9100A0277A /* time-ago.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "time-ago.js"; sourceTree = "<group>"; };
 		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 		1AD470DA1C99FC2C0050AE4B /* GHSyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHSyncConnection.h; sourceTree = "<group>"; };
@@ -884,6 +890,12 @@
 		1AFE21F11CA5EC3F00B51CF6 /* app */ = {
 			isa = PBXGroup;
 			children = (
+				1AD095E31CF8DF9100A0277A /* completer.js */,
+				1AD095E41CF8DF9100A0277A /* file-picker.js */,
+				1AD095E51CF8DF9100A0277A /* file-uploader.js */,
+				1AD095E61CF8DF9100A0277A /* label-picker.js */,
+				1AD095E71CF8DF9100A0277A /* smart-input.js */,
+				1AD095E81CF8DF9100A0277A /* time-ago.js */,
 				1AFE21F21CA5EC3F00B51CF6 /* emojify.js */,
 				1AFE21F31CA5EC3F00B51CF6 /* github_linkify.js */,
 				1AFE21F41CA5EC3F00B51CF6 /* index.css */,

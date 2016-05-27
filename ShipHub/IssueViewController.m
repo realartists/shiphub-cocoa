@@ -12,6 +12,7 @@
 #import "AttachmentManager.h"
 #import "Auth.h"
 #import "DataStore.h"
+#import "Error.h"
 #import "Extras.h"
 #import "MetadataStore.h"
 #import "Issue.h"
@@ -22,8 +23,17 @@
 #import "WebKitExtras.h"
 
 #import <WebKit/WebKit.h>
+#import <JavaScriptCore/JavaScriptCore.h>
+
+typedef void (^SaveCompletion)(NSError *error);
+
+NSString *const IssueViewControllerNeedsSaveDidChangeNotification = @"IssueViewControllerNeedsSaveDidChange";
+NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave";
 
 @interface IssueViewController () <WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate> {
+    NSMutableDictionary *_saveCompletions;
+    NSTimer *_needsSaveTimer;
+    
     BOOL _didFinishLoading;
     NSMutableArray *_javaScriptToRun;
     NSInteger _pastedImageCount;
@@ -64,6 +74,8 @@
     NSString *indexPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"IssueWeb"];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:indexPath]];
     [_web.mainFrame loadRequest:request];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(webViewDidChange:) name:WebViewDidChangeNotification object:_web];
 }
 
 - (void)configureNewIssue {
@@ -185,6 +197,14 @@
         [weakSelf pasteHelper:msg];
     } name:@"inAppPasteHelper"];
     
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf scheduleNeedsSaveTimer];
+    } name:@"documentEditedHelper"];
+    
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf handleDocumentSaved:msg];
+    } name:@"documentSaveHandler"];
+    
     NSString *setupJS =
     @"window.inApp = true;\n"
     @"window.postAppMessage = function(msg) { window.inAppAPI.postMessage(msg); }\n";
@@ -245,6 +265,23 @@
     [listener ignore];
 }
 
+#pragma mark WebView Notifications
+
+- (void)needsSaveTimerFired:(NSNotification *)note {
+    _needsSaveTimer = nil;
+    [[NSNotificationCenter defaultCenter] postNotificationName:IssueViewControllerNeedsSaveDidChangeNotification object:self userInfo:@{ IssueViewControllerNeedsSaveKey : @([self needsSave]) }];
+}
+
+- (void)scheduleNeedsSaveTimer {
+    if (!_needsSaveTimer) {
+        _needsSaveTimer = [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(needsSaveTimerFired:) userInfo:nil repeats:NO];
+    }
+}
+
+- (void)webViewDidChange:(NSNotification *)note {
+    [self scheduleNeedsSaveTimer];
+}
+
 #pragma mark - Javascript Bridge
 
 - (void)proxyAPI:(NSDictionary *)msg {
@@ -263,6 +300,7 @@
     [proxy setUpdatedIssueHandler:^(Issue *updatedIssue) {
         _issue = updatedIssue;
         [self updateTitle];
+        [self scheduleNeedsSaveTimer];
     }];
     [proxy resume];
 }
@@ -476,6 +514,22 @@
     }
 }
 
+- (void)handleDocumentSaved:(NSDictionary *)msg {
+    NSNumber *token = msg[@"token"];
+    if (token) {
+        SaveCompletion completion = _saveCompletions[token];
+        if (completion) {
+            [_saveCompletions removeObjectForKey:token];
+        }
+        id err = msg[@"error"];
+        NSError *error = nil;
+        if (err && err != [NSNull null]) {
+            error = [NSError shipErrorWithCode:ShipErrorCodeProblemSaveOtherError localizedMessage:err];
+        }
+        completion(error);
+    }
+}
+
 #pragma mark -
 
 - (IBAction)reload:(id)sender {
@@ -497,7 +551,33 @@
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    if (menuItem.action == @selector(saveDocument:)) {
+        return [self needsSave];
+    }
     return _issue.fullIdentifier != nil;
+}
+
+- (BOOL)needsSave {
+    JSValue *val = [_web.mainFrame.javaScriptContext evaluateScript:@"window.needsSave()"];
+    return [val toBool];
+}
+
+- (IBAction)saveDocument:(id)sender {
+    [self saveWithCompletion:nil];
+}
+
+- (void)saveWithCompletion:(void (^)(NSError *err))completion {
+    static NSInteger token = 1;
+    ++token;
+    
+    if (completion) {
+        if (!_saveCompletions) {
+            _saveCompletions = [NSMutableDictionary new];
+        }
+        _saveCompletions[@(token)] = [completion copy];
+    }
+    
+    [_web.mainFrame.javaScriptContext evaluateScript:[NSString stringWithFormat:@"window.save(%td);", token]];
 }
 
 @end

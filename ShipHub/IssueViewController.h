@@ -18,4 +18,12 @@
 
 - (void)configureNewIssue;
 
+@property (nonatomic, readonly) BOOL needsSave;
+
+- (void)saveWithCompletion:(void (^)(NSError *err))completion;
+- (IBAction)saveDocument:(id)sender;
+
 @end
+
+extern NSString *const IssueViewControllerNeedsSaveDidChangeNotification;
+extern NSString *const IssueViewControllerNeedsSaveKey;

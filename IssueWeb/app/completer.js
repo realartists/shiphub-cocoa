@@ -171,6 +171,19 @@ var Completer = React.createClass({
       this.refs.typeInput.dispatchChangeIfNeeded(false);
     });
     return true;
+  },
+  
+  containsCompleteValue: function() {
+    var el = ReactDOM.findDOMNode(this.refs.typeInput);
+    var val = $(el).typeahead('val') || "";
+    
+    if (val === "") return false;
+    var allMatches = [];
+    var match = this.matcher(val, (matches) => {
+      allMatches.push(...matches);
+    });
+    
+    return allMatches.length == 1 && allMatches[0] === val;
   }
 });
 

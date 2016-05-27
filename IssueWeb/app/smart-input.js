@@ -46,9 +46,9 @@ var SmartInput = React.createClass({
   
   isEdited: function() {
     if (this.props.initialValue !== undefined) {
-      return this.props.initialValue != this.state.value;
+      return (this.props.initialValue || "") != (this.state.value || "");
     } else {
-      return this.props.value != this.state.value;
+      return (this.props.value || "") != (this.state.value || "");
     }
   },
   
@@ -71,9 +71,6 @@ var SmartInput = React.createClass({
     if (evt.which == 13) {
       this.dispatchChangeIfNeeded(true);
       evt.preventDefault();
-    } else if (evt.which == 115 && evt.metaKey) {
-      // cmd-s
-      this.dispatchChangeIfNeeded(false);
     }
   },
   
