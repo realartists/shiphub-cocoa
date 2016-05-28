@@ -236,7 +236,12 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         [self reload:nil];
         [listener ignore];
     } else if (navigationType == WebNavigationTypeOther) {
-        [listener use];
+        NSURL *URL = actionInformation[WebActionOriginalURLKey];
+        if (![URL isFileURL]) {
+            [listener ignore];
+        } else {
+            [listener use];
+        }
     } else {
         NSURL *URL = actionInformation[WebActionOriginalURLKey];
         id issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
