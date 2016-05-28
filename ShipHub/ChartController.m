@@ -33,6 +33,9 @@
 @implementation ChartController
 
 - (void)dealloc {
+    _web.UIDelegate = nil;
+    _web.frameLoadDelegate = nil;
+    _web.policyDelegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -216,6 +219,26 @@ static NSInteger dateToJSONTS(NSDate *d) {
     if (_javaScriptToRun) {
         [self evaluateJavaScript:_javaScriptToRun];
         _javaScriptToRun = nil;
+    }
+}
+
+- (void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request frame:(WebFrame *)frame decisionListener:(id<WebPolicyDecisionListener>)listener
+{
+    //DebugLog(@"%@", actionInformation);
+    
+    WebNavigationType navigationType = [actionInformation[WebActionNavigationTypeKey] integerValue];
+    
+    if (navigationType == WebNavigationTypeReload) {
+        [listener ignore];
+    } else if (navigationType == WebNavigationTypeOther) {
+        NSURL *URL = actionInformation[WebActionOriginalURLKey];
+        if (![URL isFileURL]) {
+            [listener ignore];
+        } else {
+            [listener use];
+        }
+    } else {
+        [listener ignore];
     }
 }
 
