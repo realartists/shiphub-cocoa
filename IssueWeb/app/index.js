@@ -440,6 +440,15 @@ markedRenderer.list = function(body, ordered) {
   }
 }
 
+markedRenderer.defaultLink = markedRenderer.link;
+markedRenderer.link = function(href, title, text) {
+  if (href.endsWith('.mov') || href.endsWith('.mp4')) {
+    return `<video src="${href}" title="${title}" controls></video>`;
+  } else {
+    return markedRenderer.defaultLink(href, title, text);
+  }
+};
+
 markedRenderer.text = function(text) {
   return emojify(githubLinkify(getIvars().issue._bare_owner, getIvars().issue._bare_repo, text));
 }
