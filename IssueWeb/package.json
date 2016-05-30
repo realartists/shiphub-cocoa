@@ -21,6 +21,7 @@
     "pnglib": "0.0.1",
     "react": "^0.14.7",
     "react-codemirror": "^0.2.5",
+    "codemirror": "^5.15.2",
     "react-dom": "^0.14.7",
     "react-textarea-autosize": "^3.3.1",
     "typeahead.js": "^0.11.1",
