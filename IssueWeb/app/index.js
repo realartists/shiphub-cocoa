@@ -442,7 +442,8 @@ markedRenderer.list = function(body, ordered) {
 
 markedRenderer.defaultLink = markedRenderer.link;
 markedRenderer.link = function(href, title, text) {
-  if (href.endsWith('.mov') || href.endsWith('.mp4')) {
+  var lowerHref = href.toLowerCase();
+  if (lowerHref.endsWith('.mov') || lowerHref.endsWith('.mp4')) {
     return `<video src="${href}" title="${title}" controls></video>`;
   } else {
     return markedRenderer.defaultLink(href, title, text);
