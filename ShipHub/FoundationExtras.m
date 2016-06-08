@@ -557,22 +557,11 @@ static inline uint8_t h2b(uint8_t v) {
 
 @implementation NSManagedObjectContext (Extras)
 
-- (dispatch_queue_t)Extras_trampolineQ {
-    @synchronized (self) {
-        dispatch_queue_t q = objc_getAssociatedObject(self, @"Extras_trampolineQ");
-        if (!q) {
-            q = dispatch_queue_create(NULL, NULL);
-            objc_setAssociatedObject(self, "Extras_trampolineQ", q, OBJC_ASSOCIATION_RETAIN);
-        }
-        return q;
-    }
-}
-
 - (void)performBlock:(dispatch_block_t)block completion:(dispatch_block_t)completion {
-    dispatch_async([self Extras_trampolineQ], ^{
-        [self performBlockAndWait:block];
+    [self performBlock:^{
+        block();
         if (completion) completion();
-    });
+    }];
 }
 
 - (void)purge {
