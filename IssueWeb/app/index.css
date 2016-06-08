@@ -52,6 +52,8 @@ div.HeaderSeparator {
   color: #797979;
   float: left;
   margin-right: 5px;
+  cursor: default;
+  -webkit-user-select: none;
   flex: none;
 }
 div.IssueIdentifier {
