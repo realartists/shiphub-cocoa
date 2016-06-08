@@ -488,6 +488,7 @@ div.IssueLabels .LabelContainer {
 
 .CodeMirrorContainer {
   margin: 8px;
+  min-height: 28px;
 }
 
 .CodeMirror {
