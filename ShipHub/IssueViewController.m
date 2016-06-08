@@ -525,13 +525,14 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         SaveCompletion completion = _saveCompletions[token];
         if (completion) {
             [_saveCompletions removeObjectForKey:token];
+            
+            id err = msg[@"error"];
+            NSError *error = nil;
+            if (err && err != [NSNull null]) {
+                error = [NSError shipErrorWithCode:ShipErrorCodeProblemSaveOtherError localizedMessage:err];
+            }
+            completion(error);
         }
-        id err = msg[@"error"];
-        NSError *error = nil;
-        if (err && err != [NSNull null]) {
-            error = [NSError shipErrorWithCode:ShipErrorCodeProblemSaveOtherError localizedMessage:err];
-        }
-        completion(error);
     }
 }
 
