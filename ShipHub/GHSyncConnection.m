@@ -153,7 +153,14 @@ typedef NS_ENUM(NSInteger, SyncState) {
                     completion(nil, err);
                     return;
                 }
-                [json addObject:v];
+
+                NSInteger statusCode = ((NSHTTPURLResponse *)r.response).statusCode;
+
+                if (statusCode == 200) {
+                    [json addObject:v];
+                } else {
+                    [json addObject:[NSNull null]];
+                }
             }
             
             completion(json, nil);
@@ -303,10 +310,23 @@ typedef NS_ENUM(NSInteger, SyncState) {
                 _state = SyncStateIdle;
                 return;
             }
-            
+
+            NSMutableArray *activeRepos = [repos mutableCopy];
+            NSMutableArray *assigneesForActiveRepos = [assignees mutableCopy];
+            for (NSInteger i = 0; i < assigneesForActiveRepos.count;) {
+                if ([assigneesForActiveRepos[i] isKindOfClass:[NSNull class]]) {
+                    // We didn't get a 200 response when fetching the assignees for this repo.
+                    // This probably means the repo is disabled for non-payment.
+                    [activeRepos removeObjectAtIndex:i];
+                    [assigneesForActiveRepos removeObjectAtIndex:i];
+                } else {
+                    i++;
+                }
+            }
+
             // need to deduplicate assigness
             NSMutableArray *allAssignees = [NSMutableArray new];
-            for (NSArray *assigneeGroup in assignees) {
+            for (id assigneeGroup in assigneesForActiveRepos) {
                 [allAssignees addObjectsFromArray:assigneeGroup];
             }
             NSDictionary *assigneesLookup = [NSDictionary lookupWithObjects:allAssignees keyPath:@"id"];
@@ -314,17 +334,18 @@ typedef NS_ENUM(NSInteger, SyncState) {
             
             NSMutableArray *reposWithAssignees = [NSMutableArray new];
             NSInteger i = 0;
-            for (NSDictionary *repo in repos) {
+            for (NSDictionary *repo in activeRepos) {
                 NSMutableDictionary *d = [repo mutableCopy];
-                d[@"assignees"] = [assignees[i] arrayByMappingObjects:^id(NSDictionary *obj) {
-                    return obj[@"id"];
-                }];
+                    d[@"assignees"] = [assigneesForActiveRepos[i] arrayByMappingObjects:^id(NSDictionary *obj) {
+                        return obj[@"id"];
+                    }];
+
                 [reposWithAssignees addObject:d];
                 i++;
             }
             
             // yield the users to the delegate
-            [self yield:accountsWithRepos(dedupedAssignees, repos) type:@"user" version:@{}];
+            [self yield:accountsWithRepos(dedupedAssignees, activeRepos) type:@"user" version:@{}];
             
             // Need to wait for orgs and milestones before we can yield repos.
             dispatch_group_t waitForOrgsAndMilestones = dispatch_group_create();
@@ -339,7 +360,7 @@ typedef NS_ENUM(NSInteger, SyncState) {
             
             // now find the org membership
             dispatch_group_enter(waitForOrgsAndMilestones);
-            [self orgMembership:dedupedOrgs repos:repos validMembers:assigneesLookup completion:^{
+            [self orgMembership:dedupedOrgs repos:activeRepos validMembers:assigneesLookup completion:^{
                 dispatch_group_leave(waitForOrgsAndMilestones);
             }];
             
