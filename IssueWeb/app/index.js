@@ -1238,6 +1238,9 @@ var Comment = React.createClass({
         editing: false,
         code: ""
       }));
+      if (window.documentEditedHelper) {
+        window.documentEditedHelper.postMessage({});
+      }
     }
   },
   
