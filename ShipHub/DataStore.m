@@ -527,6 +527,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     for (NSString *key in [relationships allKeys]) {
         NSRelationshipDescription *rel = relationships[key];
+        BOOL noPopulate = [rel.userInfo[@"noPopulate"] boolValue];
         
         if ([key isEqualToString:@"labels"]) {
             // labels are ... *sigh* ... special
@@ -588,7 +589,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             for (NSManagedObject *relObj in existing) {
                 NSString *identifier = [relObj valueForKey:@"identifier"];
                 NSDictionary *updates = relatedLookup[identifier];
-                if (updates) {
+                if (updates && !noPopulate) {
                     [relObj mergeAttributesFromDictionary:updates];
                 }
                 [toCreate removeObject:identifier];
@@ -632,6 +633,9 @@ static NSString *const LastUpdated = @"LastUpdated";
                 NSManagedObject *relObj = [[_moc executeFetchRequest:fetch error:&error] firstObject];
                 if (relObj) {
                     [obj setValue:relObj forKey:key];
+                    if (populate && !noPopulate) {
+                        [relObj mergeAttributesFromDictionary:populate];
+                    }
                 } else {
                     NSString *relName = rel.destinationEntity.name;
                     if (rel.destinationEntity.abstract) {
