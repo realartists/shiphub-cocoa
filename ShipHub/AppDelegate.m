@@ -18,6 +18,7 @@
 @interface AppDelegate () <AuthControllerDelegate> {
     BOOL _authConfigured;
     BOOL _notificationsRegistered;
+    Auth *_nextAuth;
 }
 
 @property (weak) IBOutlet NSWindow *window;
@@ -222,6 +223,18 @@
     _accountMenuSeparator.hidden = added == 0;
 }
 
+- (void)documentController:(NSDocumentController *)documentController
+didCloseAllForAccountChange:(BOOL)didCloseAll
+               contextInfo:(void *)contextInfo {
+    if (_nextAuth) {
+        [self authController:nil authenticated:_nextAuth];
+        _nextAuth = nil;
+    } else {
+        _auth = nil;
+        [self showAuthIfNeededAnimated:YES];
+    }
+}
+
 - (void)changeAccount:(id)sender {
     NSString *login = [sender representedObject];
     if ((login && [_auth.account.login isEqual:login])) {
@@ -234,27 +247,18 @@
     }
     
     dispatch_block_t changeBlock = ^{
-        // FIXME: Bring this back
-#if !INCOMPLETE
-        if (accountEmail) {
-            _nextAuth = [Auth authWithAccountEmail:accountEmail];
+        if (login) {
+            _nextAuth = [Auth authWithLogin:login];
         } else {
-            _nextAuth = [Auth authForPendingLogin];
+            _nextAuth = nil;
         }
         
         [_overviewControllers makeObjectsPerformSelector:@selector(close)];
-        [_adminController close];
         
-        ProblemDocumentController *docController = [ProblemDocumentController sharedDocumentController];
-        [docController closeAllDocumentsWithDelegate:self didCloseAllSelector:@selector(documentController:didCloseAllForAccountChange:contextInfo:) contextInfo:NULL];
-#else
-        if (login) {
-            [self authController:nil authenticated:[Auth authWithLogin:login]];
-        } else {
-            _auth = nil;
-            [self showAuthIfNeededAnimated:YES];
-        }
-#endif
+        IssueDocumentController *docController = [IssueDocumentController sharedDocumentController];
+        [docController closeAllDocumentsWithDelegate:self
+                                 didCloseAllSelector:@selector(documentController:didCloseAllForAccountChange:contextInfo:)
+                                         contextInfo:NULL];
     };
     
     if (_auth.authState == AuthStateValid) {
