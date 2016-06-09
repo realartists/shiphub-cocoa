@@ -198,6 +198,97 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     [alert beginSheetModalForWindow:self.view.window completionHandler:nil];
 }
 
+- (NSArray *)webView:(WebView *)sender contextMenuItemsForElement:(NSDictionary *)element defaultMenuItems:(NSArray *)defaultMenuItems {
+    DebugLog(@"%@", defaultMenuItems);
+    for (NSMenuItem *i in defaultMenuItems) {
+        switch (i.tag) {
+            case WebMenuItemTagOpenImageInNewWindow:
+                i.target = self;
+                i.action = @selector(openImageInNewWindow:);
+                break;
+            case WebMenuItemTagDownloadLinkToDisk:
+                i.target = self;
+                i.action = @selector(downloadLinkToDisk:);
+                break;
+            case WebMenuItemTagDownloadImageToDisk:
+                i.target = self;
+                i.action = @selector(downloadImageToDisk:);
+                break;
+            default: break;
+        }
+    }
+    return defaultMenuItems;
+}
+
+- (void)openImageInNewWindow:(id)sender {
+    NSMenuItem *item = sender;
+    NSDictionary *element = item.representedObject;
+    NSURL *URL = element[WebElementImageURLKey];
+    if (URL) {
+        [[NSWorkspace sharedWorkspace] openURL:URL];
+    }
+}
+
+- (void)downloadLinkToDisk:(id)sender {
+    NSMenuItem *item = sender;
+    NSDictionary *element = item.representedObject;
+    NSURL *URL = element[WebElementLinkURLKey];
+    if (URL) {
+        [self downloadURL:URL];
+    }
+}
+
+- (void)downloadImageToDisk:(id)sender {
+    NSMenuItem *item = sender;
+    NSDictionary *element = item.representedObject;
+    NSURL *URL = element[WebElementImageURLKey];
+    if (URL) {
+        [self downloadURL:URL];
+    }
+}
+
+- (void)downloadURL:(NSURL *)URL {
+    // Use a save panel to play nice with sandboxing
+    NSSavePanel *panel = [NSSavePanel new];
+    
+    NSString *UTI = [[URL pathExtension] UTIFromExtension];
+    if (UTI) {
+        panel.allowedFileTypes = @[UTI];
+    }
+    
+    panel.nameFieldStringValue = [[[URL path] lastPathComponent] stringByRemovingPercentEncoding];
+    NSString *downloadsDir = [NSSearchPathForDirectoriesInDomains(NSDownloadsDirectory, NSUserDomainMask, YES) firstObject];
+    panel.directoryURL = [NSURL fileURLWithPath:downloadsDir];
+    
+    [panel beginSheetModalForWindow:self.view.window completionHandler:^(NSInteger result) {
+        if (result == NSFileHandlingPanelOKButton) {
+            NSURL *destination = panel.URL;
+            [[[NSURLSession sharedSession] downloadTaskWithURL:URL completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+                NSError *err = error;
+                if (location) {
+                    // Move downloaded file into place
+                    [[NSFileManager defaultManager] replaceItemAtURL:destination withItemAtURL:location backupItemName:nil options:NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL:NULL error:&err];
+                    
+                    // Bounce destination directory in dock
+                    NSString *parentPath = [[destination path] stringByDeletingLastPathComponent];
+                    [[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"com.apple.DownloadFileFinished" object:parentPath];
+                    
+                    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[destination]];
+                }
+                if (err) {
+                    ErrLog(@"%@", err);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSAlert *alert = [NSAlert alertWithError:err];
+                        [alert beginSheetModalForWindow:self.view.window completionHandler:NULL];
+                    });
+                }
+            }] resume];
+        }
+    }];
+    
+    
+}
+
 #pragma mark - WebFrameLoadDelegate
 
 - (void)webView:(WebView *)webView didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
