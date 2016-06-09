@@ -9,7 +9,7 @@ import ReactDOM from 'react-dom'
 import hljs from 'highlight.js'
 import pnglib from 'pnglib'
 window.PNGlib = pnglib;
-import identicon from 'identicon.js'
+import Identicon from 'identicon.js'
 import md5 from 'md5'
 import 'whatwg-fetch'
 import Textarea from 'react-textarea-autosize'
