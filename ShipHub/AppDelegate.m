@@ -19,6 +19,8 @@
     BOOL _authConfigured;
     BOOL _notificationsRegistered;
     Auth *_nextAuth;
+    BOOL _didFinishLaunching;
+    NSMutableArray *_pendingURLs;
 }
 
 @property (weak) IBOutlet NSWindow *window;
@@ -70,6 +72,13 @@
     _notificationsRegistered = YES;
 }
 
+- (void)applicationWillFinishLaunching:(NSNotification *)notification {
+    [[NSAppleEventManager sharedAppleEventManager]
+     setEventHandler:self
+     andSelector:@selector(handleURLEvent:withReplyEvent:)
+     forEventClass:kInternetEventClass
+     andEventID:kAEGetURL];
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     _overviewControllers = [NSMutableArray array];
@@ -82,6 +91,12 @@
     [self configureDataStoreAndShowUI];
     
     [NSApp setServicesProvider:self];
+    
+    _didFinishLaunching = YES;
+    for (NSURL *URL in _pendingURLs) {
+        [self handleURL:URL];
+    }
+    [_pendingURLs removeAllObjects];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -94,6 +109,35 @@
         [self showOverviewController:nil];
     }
     return YES;
+}
+
+- (void)handleURLEvent:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent {
+    NSString* urlStr = [[event paramDescriptorForKeyword:keyDirectObject]
+                        stringValue];
+    NSURL *URL = [NSURL URLWithString:urlStr];
+    
+    if (!URL) return;
+    
+    if (!_didFinishLaunching) {
+        if (!_pendingURLs) {
+            _pendingURLs = [NSMutableArray new];
+        }
+        [_pendingURLs addObject:URL];
+    } else {
+        [self handleURL:URL];
+    }
+}
+
+- (void)handleURL:(NSURL *)URL
+{
+    if (URL && [[URL scheme] isEqualToString:@"shiphub"]) {
+        if ([[URL host] isEqualToString:@"issue"]) {
+            NSString *path = [URL path];
+            NSString *num = [URL fragment];
+            NSString *identifier = [[path substringFromIndex:1] stringByAppendingFormat:@"#%@", num];
+            [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:identifier];
+        }
+    }
 }
 
 - (BOOL)openById:(NSPasteboard *)pboard userData:(NSString *)userData error:(NSError **)error {
