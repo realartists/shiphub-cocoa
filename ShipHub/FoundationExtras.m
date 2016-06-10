@@ -1501,3 +1501,67 @@ CGRect IntegralRect(CGRect r) {
 }
 
 @end
+
+@interface URLSessionDownloadTaskProgress : NSProgress
+
+- (id)initWithTask:(NSURLSessionTask *)task;
+
+@end
+
+@implementation URLSessionDownloadTaskProgress {
+    NSURLSessionTask *_task;
+}
+
+- (id)initWithTask:(NSURLSessionTask *)task {
+    if (self = [super init]) {
+        _task = task;
+        [task addObserver:self forKeyPath:@"countOfBytesReceived" options:0 context:NULL];
+        [task addObserver:self forKeyPath:@"countOfBytesExpectedToReceive" options:0 context:NULL];
+        [task addObserver:self forKeyPath:@"taskDescription" options:0 context:NULL];
+        [self updateFromTask];
+    }
+    return self;
+}
+
+- (void)dealloc {
+    [_task removeObserver:self forKeyPath:@"countOfBytesReceived" context:NULL];
+    [_task removeObserver:self forKeyPath:@"countOfBytesExpectedToReceive" context:NULL];
+    [_task removeObserver:self forKeyPath:@"taskDescription" context:NULL];
+}
+
+- (void)addObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath options:(NSKeyValueObservingOptions)options context:(void *)context {
+    [super addObserver:observer forKeyPath:keyPath options:options context:context];
+}
+
+- (void)updateFromTask {
+    self.totalUnitCount = _task.countOfBytesExpectedToReceive;
+    self.completedUnitCount = _task.countOfBytesReceived;
+    self.localizedDescription = _task.taskDescription;
+}
+
+- (void)cancel {
+    [_task cancel];
+    [super cancel];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
+    [self updateFromTask];
+}
+
+@end
+
+@implementation NSURLSessionTask (ProgressExtras)
+
+- (NSProgress *)downloadProgress {
+    return [[URLSessionDownloadTaskProgress alloc] initWithTask:self];
+}
+
+@end
+
+@implementation NSError (Extras)
+
+- (BOOL)isCancelError {
+    return [self code] == NSURLErrorCancelled && [[self domain] isEqualToString:NSURLErrorDomain];
+}
+
+@end

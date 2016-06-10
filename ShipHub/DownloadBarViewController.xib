@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="DownloadBarViewController">
+            <connections>
+                <outlet property="cancelButton" destination="apH-7s-ekk" id="1aU-3w-R1q"/>
+                <outlet property="indicator" destination="g6c-ih-MDt" id="Cch-Eu-Xab"/>
+                <outlet property="label" destination="lIw-7c-JIe" id="J3u-0f-Zcb"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView wantsLayer="YES" id="Hz6-mo-xeY">
+            <rect key="frame" x="0.0" y="0.0" width="480" height="22"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" bezeled="NO" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="g6c-ih-MDt">
+                    <rect key="frame" x="8" y="3" width="16" height="16"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="16" id="Ldb-mq-HNt"/>
+                        <constraint firstAttribute="width" constant="16" id="N9g-JT-4K1"/>
+                    </constraints>
+                </progressIndicator>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="lIw-7c-JIe">
+                    <rect key="frame" x="30" y="3" width="417" height="17"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="17" id="dia-x6-oZM"/>
+                    </constraints>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Downloading output.log ..." id="OjD-Ej-PYS">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="apH-7s-ekk">
+                    <rect key="frame" x="453" y="4" width="22" height="14"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="14" id="JOa-lQ-Yoq"/>
+                        <constraint firstAttribute="width" constant="22" id="XBK-Sa-ZoF"/>
+                    </constraints>
+                    <buttonCell key="cell" type="inline" title=" " bezelStyle="inline" image="NSStopProgressFreestandingTemplate" imagePosition="overlaps" alignment="center" inset="2" id="3wV-bV-by3">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystemBold"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="cancel:" target="-2" id="VO1-eA-h6A"/>
+                    </connections>
+                </button>
+            </subviews>
+            <constraints>
+                <constraint firstItem="apH-7s-ekk" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="4" id="6KB-n8-J8M"/>
+                <constraint firstItem="lIw-7c-JIe" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="2" id="8Lx-ft-zMa"/>
+                <constraint firstItem="g6c-ih-MDt" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="3" id="8N5-xO-quu"/>
+                <constraint firstItem="g6c-ih-MDt" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="8" id="8y5-TV-ptq"/>
+                <constraint firstItem="lIw-7c-JIe" firstAttribute="leading" secondItem="g6c-ih-MDt" secondAttribute="trailing" constant="8" id="K7A-tJ-21p"/>
+                <constraint firstItem="apH-7s-ekk" firstAttribute="leading" secondItem="lIw-7c-JIe" secondAttribute="trailing" constant="8" id="OEK-Xt-Upz"/>
+                <constraint firstAttribute="trailing" secondItem="apH-7s-ekk" secondAttribute="trailing" constant="5" id="lds-u7-Pk3"/>
+            </constraints>
+        </customView>
+    </objects>
+    <resources>
+        <image name="NSStopProgressFreestandingTemplate" width="14" height="14"/>
+    </resources>
+</document>

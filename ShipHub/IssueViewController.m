@@ -12,9 +12,11 @@
 #import "AttachmentManager.h"
 #import "Auth.h"
 #import "DataStore.h"
+#import "DownloadBarViewController.h"
 #import "Error.h"
 #import "Extras.h"
 #import "MetadataStore.h"
+#import "MultiDownloadProgress.h"
 #import "Issue.h"
 #import "IssueDocumentController.h"
 #import "IssueIdentifier.h"
@@ -44,6 +46,10 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 // See https://bugs.webkit.org/show_bug.cgi?id=137759
 @property WebView *web;
 
+@property DownloadBarViewController *downloadBar;
+@property MultiDownloadProgress *downloadProgress;
+@property NSTimer *downloadDebounceTimer;
+
 @end
 
 @implementation IssueViewController
@@ -59,13 +65,38 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 - (void)loadView {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:DataStoreDidUpdateProblemsNotification object:nil];
     
-    _web = [[WebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) frameName:nil groupName:nil];
+    NSView *container = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
+    
+    _web = [[WebView alloc] initWithFrame:container.bounds frameName:nil groupName:nil];
     _web.drawsBackground = NO;
     _web.UIDelegate = self;
     _web.frameLoadDelegate = self;
     _web.policyDelegate = self;
     
-    self.view = _web;
+    [container addSubview:_web];
+    
+    self.view = container;
+}
+
+- (void)viewDidLayout {
+    [super viewDidLayout];
+    [self layoutSubviews];
+}
+
+- (void)layoutSubviews {
+    CGRect b = self.view.bounds;
+    if (_downloadProgress && !_downloadDebounceTimer) {
+        CGRect downloadFrame = CGRectMake(0, 0, CGRectGetWidth(b), _downloadBar.view.frame.size.height);
+        _downloadBar.view.frame = downloadFrame;
+        
+        CGRect webFrame = CGRectMake(0, CGRectGetMaxY(downloadFrame), CGRectGetWidth(b), CGRectGetHeight(b) - CGRectGetHeight(downloadFrame));
+        _web.frame = webFrame;
+    } else {
+        _web.frame = self.view.bounds;
+        if (_downloadBar.viewLoaded) {
+            _downloadBar.view.frame = CGRectMake(0, -_downloadBar.view.frame.size.height, CGRectGetWidth(b), _downloadBar.view.frame.size.height);
+        }
+    }
 }
 
 - (void)viewDidLoad {
@@ -243,14 +274,20 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         panel.allowedFileTypes = @[UTI];
     }
     
-    panel.nameFieldStringValue = [[[URL path] lastPathComponent] stringByRemovingPercentEncoding];
+    NSString *filename = [[[URL path] lastPathComponent] stringByRemovingPercentEncoding];
+    panel.nameFieldStringValue = filename;
     NSString *downloadsDir = [NSSearchPathForDirectoriesInDomains(NSDownloadsDirectory, NSUserDomainMask, YES) firstObject];
     panel.directoryURL = [NSURL fileURLWithPath:downloadsDir];
     
     [panel beginSheetModalForWindow:self.view.window completionHandler:^(NSInteger result) {
         if (result == NSFileHandlingPanelOKButton) {
             NSURL *destination = panel.URL;
-            [[[NSURLSession sharedSession] downloadTaskWithURL:URL completionHandler:^(NSURL * _Nullable location, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            
+            __block __strong NSProgress *downloadProgress = nil;
+            
+            CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
+            
+            void (^completionHandler)(NSURL *, NSURLResponse *, NSError *) = ^(NSURL *location, NSURLResponse *response, NSError *error) {
                 NSError *err = error;
                 if (location) {
                     // Move downloaded file into place
@@ -260,20 +297,84 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
                     NSString *parentPath = [[destination path] stringByDeletingLastPathComponent];
                     [[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"com.apple.DownloadFileFinished" object:parentPath];
                     
-                    [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[destination]];
+                    // Show the item in the finder if it didn't take too long to download or we're being watched
+                    RunOnMain(^{
+                        CFAbsoluteTime duration = CFAbsoluteTimeGetCurrent() - start;
+                        if (duration < 2.0 || [self.view.window isKeyWindow]) {
+                            [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[destination]];
+                        }
+                    });
                 }
-                if (err) {
+                if (err && ![err isCancelError]) {
                     ErrLog(@"%@", err);
-                    dispatch_async(dispatch_get_main_queue(), ^{
+                    RunOnMain(^{
                         NSAlert *alert = [NSAlert alertWithError:err];
                         [alert beginSheetModalForWindow:self.view.window completionHandler:NULL];
                     });
                 }
-            }] resume];
+                
+                [self removeDownloadProgress:downloadProgress];
+            };
+            
+            NSURLSessionDownloadTask *task = [[NSURLSession sharedSession] downloadTaskWithURL:URL completionHandler:completionHandler];
+            task.taskDescription = [NSString stringWithFormat:NSLocalizedString(@"Downloading %@ …", nil), filename];
+            downloadProgress = [task downloadProgress];
+            [self addDownloadProgress:downloadProgress];
+            [task resume];
         }
     }];
+}
+
+- (void)animateDownloadBar {
+    [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
+        [context setDuration:0.1];
+        [context setAllowsImplicitAnimation:YES];
+        [context setTimingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut]];
+        [self layoutSubviews];
+    } completionHandler:nil];
+}
+
+- (void)downloadDebounceTimerFired:(NSTimer *)timer {
+    _downloadDebounceTimer = nil;
+    if (_downloadProgress) {
+        [self animateDownloadBar];
+    }
+}
+
+- (void)addDownloadProgress:(NSProgress *)progress {
+    dispatch_assert_current_queue(dispatch_get_main_queue());
     
-    
+    if (!_downloadProgress) {
+        if (!_downloadBar) {
+            _downloadBar = [DownloadBarViewController new];
+            [self.view addSubview:_downloadBar.view];
+            [self layoutSubviews];
+        }
+        
+        _downloadProgress = [MultiDownloadProgress new];
+        [_downloadProgress addChild:progress];
+        _downloadBar.progress = _downloadProgress;
+        
+        if (!_downloadDebounceTimer) {
+            // Prevent download bar from appearing unless we're waiting for more than a beat
+            _downloadDebounceTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(downloadDebounceTimerFired:) userInfo:nil repeats:NO];
+        }
+    } else {
+        [_downloadProgress addChild:progress];
+    }
+}
+
+- (void)removeDownloadProgress:(NSProgress *)progress {
+    RunOnMain(^{
+        [_downloadProgress removeChild:progress];
+        if (_downloadProgress.childProgressArray.count == 0) {
+            [_downloadDebounceTimer invalidate];
+            _downloadDebounceTimer = nil;
+            
+            _downloadProgress = nil;
+            [self animateDownloadBar];
+        }
+    });
 }
 
 #pragma mark - WebFrameLoadDelegate
