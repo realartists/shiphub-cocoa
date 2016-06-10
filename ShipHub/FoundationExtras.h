@@ -309,3 +309,15 @@ void RunOnMain(dispatch_block_t);
 - (NSArray *)dataTasksWithRequests:(NSArray<NSURLRequest *> *)requests completion:(void (^)(NSArray<URLSessionResult *> *))completion;
 
 @end
+
+@interface NSURLSessionTask (ProgressExtras)
+
+- (NSProgress *)downloadProgress;
+
+@end
+
+@interface NSError (Extras)
+
+- (BOOL)isCancelError; // returns YES if this is a foundation level cancel error { NSURLErrorDomain, NSURLErrorCancelled }
+
+@end
