@@ -3,7 +3,9 @@
 set -o errexit
 set -o nounset
 
-if [[ $(which npm) == "" ]]; then
+NPM="/usr/local/bin/npm"
+
+if [[ ! -x $NPM ]]; then
   echo "node and npm are required; run \`brew install node\`"
   exit 1
 fi
@@ -12,7 +14,7 @@ cd "$PROJECT_DIR"/IssueWeb
 
 if [[ ! -d node_modules ]]; then
     echo "node_modules dir missing; running npm install."
-    npm install
+    $NPM install
 fi
 
 CHANGED_FILES_COUNT=$(git status --porcelain . | wc -l)
@@ -23,10 +25,10 @@ if [[ $CHANGED_FILES_COUNT -gt 0 || ! -d dist ]]; then
     trap "rm -rf \"$TEMP_PATH\"" EXIT
 
     if [[ $CONFIGURATION == "Debug" ]]; then
-        "$(npm bin)"/webpack --output-path "$TEMP_PATH"
+        "$($NPM bin)"/webpack --output-path "$TEMP_PATH"
     else
         # Production builds are way slower so only do them for Release.
-        "$(npm bin)"/webpack -p --output-path "$TEMP_PATH"
+        "$($NPM bin)"/webpack -p --output-path "$TEMP_PATH"
     fi
 
     # Only move into place if build was successful.
