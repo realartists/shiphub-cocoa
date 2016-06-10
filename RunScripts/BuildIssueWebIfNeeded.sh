@@ -3,9 +3,11 @@
 set -o errexit
 set -o nounset
 
-NPM="/usr/local/bin/npm"
+# Xcode server's environment does not include /usr/local/bin.  Adding it
+# here is easier than trying to change Xcode server's environment.
+PATH="$PATH:/usr/local/bin"
 
-if [[ ! -x $NPM ]]; then
+if [[ $(which npm) == "" ]]; then
   echo "node and npm are required; run \`brew install node\`"
   exit 1
 fi
@@ -14,7 +16,7 @@ cd "$PROJECT_DIR"/IssueWeb
 
 if [[ ! -d node_modules ]]; then
     echo "node_modules dir missing; running npm install."
-    $NPM install
+    npm install
 fi
 
 CHANGED_FILES_COUNT=$(git status --porcelain . | wc -l)
@@ -25,10 +27,10 @@ if [[ $CHANGED_FILES_COUNT -gt 0 || ! -d dist ]]; then
     trap "rm -rf \"$TEMP_PATH\"" EXIT
 
     if [[ $CONFIGURATION == "Debug" ]]; then
-        "$($NPM bin)"/webpack --output-path "$TEMP_PATH"
+        "$(npm bin)"/webpack --output-path "$TEMP_PATH"
     else
         # Production builds are way slower so only do them for Release.
-        "$($NPM bin)"/webpack -p --output-path "$TEMP_PATH"
+        "$(npm bin)"/webpack -p --output-path "$TEMP_PATH"
     fi
 
     # Only move into place if build was successful.
