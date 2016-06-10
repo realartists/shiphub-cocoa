@@ -1,5 +1,0 @@
-IssueWeb is built using npm.
-
-To keep builds fast as well as to avoid requiring npm to build ShipHub, the IssueWeb build products are checked into source control under the dist/ directory.
-
-To rebuild them, (after first installing npm, which you can do via Homebrew) use the IssueWeb scheme.

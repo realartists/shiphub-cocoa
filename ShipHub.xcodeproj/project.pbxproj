@@ -6,20 +6,6 @@
 	objectVersion = 46;
 	objects = {
 
-/* Begin PBXAggregateTarget section */
-		1AFE21391CA5E6B200B51CF6 /* IssueWeb */ = {
-			isa = PBXAggregateTarget;
-			buildConfigurationList = 1AFE213A1CA5E6B200B51CF6 /* Build configuration list for PBXAggregateTarget "IssueWeb" */;
-			buildPhases = (
-				1AFE213D1CA5E6C800B51CF6 /* ShellScript */,
-			);
-			dependencies = (
-			);
-			name = IssueWeb;
-			productName = IssueWeb;
-		};
-/* End PBXAggregateTarget section */
-
 /* Begin PBXBuildFile section */
 		1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59CD1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
@@ -925,6 +911,7 @@
 				1A22178A1C7E7B14006460E2 /* Sources */,
 				1A22178B1C7E7B14006460E2 /* Frameworks */,
 				1A22178C1C7E7B14006460E2 /* Resources */,
+				28F661E51D0A97E9001365BD /* BuildIssueWebIfNeeded */,
 				1A0D87791CAB03710069782D /* Copy Issue Web Content */,
 				1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */,
 				1A2217C41C7E7BC1006460E2 /* Copy Frameworks */,
@@ -971,9 +958,6 @@
 					1A3618F91C9383CF008C11CB = {
 						CreatedOnToolsVersion = 7.2.1;
 					};
-					1AFE21391CA5E6B200B51CF6 = {
-						CreatedOnToolsVersion = 7.2.1;
-					};
 				};
 			};
 			buildConfigurationList = 1A2217891C7E7B14006460E2 /* Build configuration list for PBXProject "ShipHub" */;
@@ -997,7 +981,6 @@
 			targets = (
 				1A22178D1C7E7B14006460E2 /* ShipHub */,
 				1A3618F91C9383CF008C11CB /* ShipHubTests */,
-				1AFE21391CA5E6B200B51CF6 /* IssueWeb */,
 			);
 		};
 /* End PBXProject section */
@@ -1076,18 +1059,19 @@
 			shellScript = "ISSUE_WEB_DST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/IssueWeb\"\nISSUE_WEB_SRC=\"${PROJECT_DIR}/IssueWeb/dist\"\n\necho ISSUE_WEB_SRC=$ISSUE_WEB_SRC\necho ISSUE_WEB_DST=$ISSUE_WEB_DST\n\nmkdir -p \"$ISSUE_WEB_DST\"\n\nrsync -avz -u --delete \"$ISSUE_WEB_SRC/\" \"$ISSUE_WEB_DST/\"\n";
 			showEnvVarsInLog = 0;
 		};
-		1AFE213D1CA5E6C800B51CF6 /* ShellScript */ = {
+		28F661E51D0A97E9001365BD /* BuildIssueWebIfNeeded */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = BuildIssueWebIfNeeded;
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd $PROJECT_DIR/IssueWeb\n\nnpm install\n#if [ $CONFIGURATION == \"Debug\" ] ; then\n#    npm run debug\n#else\n#    npm run production\n#fi\n\nnpm run production\n";
+			shellScript = "\"$PROJECT_DIR\"/RunScripts/BuildIssueWebIfNeeded.sh";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1408,20 +1392,6 @@
 			};
 			name = Release;
 		};
-		1AFE213B1CA5E6B200B51CF6 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		1AFE213C1CA5E6B200B51CF6 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1448,15 +1418,6 @@
 			buildConfigurations = (
 				1A3619001C9383CF008C11CB /* Debug */,
 				1A3619011C9383CF008C11CB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		1AFE213A1CA5E6B200B51CF6 /* Build configuration list for PBXAggregateTarget "IssueWeb" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1AFE213B1CA5E6B200B51CF6 /* Debug */,
-				1AFE213C1CA5E6B200B51CF6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
