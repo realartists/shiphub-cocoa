@@ -6,7 +6,8 @@
   "scripts": {
     "production": "webpack -p",
     "debug": "webpack -d",
-    "start": "webpack-dev-server --open"
+    "start": "webpack-dev-server --open",
+    "dev-server-inline": "webpack-dev-server --inline"
   },
   "author": "",
   "dependencies": {

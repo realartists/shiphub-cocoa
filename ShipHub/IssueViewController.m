@@ -30,6 +30,8 @@ typedef void (^SaveCompletion)(NSError *error);
 NSString *const IssueViewControllerNeedsSaveDidChangeNotification = @"IssueViewControllerNeedsSaveDidChange";
 NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave";
 
+static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
+
 @interface IssueViewController () <WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate> {
     NSMutableDictionary *_saveCompletions;
     NSTimer *_needsSaveTimer;
@@ -37,6 +39,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     BOOL _didFinishLoading;
     NSMutableArray *_javaScriptToRun;
     NSInteger _pastedImageCount;
+    BOOL _useWebpackDevServer;
 }
 
 // Why legacy WebView?
@@ -71,8 +74,18 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    NSString *indexPath = [[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"IssueWeb"];
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:indexPath]];
+#if DEBUG
+    _useWebpackDevServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseWebpackDevServer"];
+#endif
+    
+    NSURL *URL;
+    if (_useWebpackDevServer) {
+        URL = [NSURL URLWithString:WebpackDevServerURL];
+    } else {
+        URL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"IssueWeb"]];
+    }
+    
+    NSURLRequest *request = [NSURLRequest requestWithURL:URL];
     [_web.mainFrame loadRequest:request];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(webViewDidChange:) name:WebViewDidChangeNotification object:_web];
@@ -233,14 +246,31 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     WebNavigationType navigationType = [actionInformation[WebActionNavigationTypeKey] integerValue];
     
     if (navigationType == WebNavigationTypeReload) {
-        [self reload:nil];
-        [listener ignore];
+        if (_useWebpackDevServer) {
+            // The webpack-dev-server page will auto-refresh as the content updates,
+            // so reloading needs to be allowed.
+            
+            _didFinishLoading = NO;
+            
+            if (_issue) {
+                [self setIssue:_issue];
+                [self reload:nil];
+            } else {
+                [self configureNewIssue];
+            }
+            
+            [listener use];
+        } else {
+            [self reload:nil];
+            [listener ignore];
+        }
     } else if (navigationType == WebNavigationTypeOther) {
         NSURL *URL = actionInformation[WebActionOriginalURLKey];
-        if (![URL isFileURL]) {
-            [listener ignore];
-        } else {
+        if ([URL isFileURL] ||
+            (_useWebpackDevServer && [[URL absoluteString] rangeOfString:WebpackDevServerURL].location == 0)) {
             [listener use];
+        } else {
+            [listener ignore];
         }
     } else {
         NSURL *URL = actionInformation[WebActionOriginalURLKey];
