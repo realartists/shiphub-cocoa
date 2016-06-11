@@ -50,15 +50,27 @@
                         <action selector="cancel:" target="-2" id="VO1-eA-h6A"/>
                     </connections>
                 </button>
+                <box verticalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="cr4-9g-BO0">
+                    <rect key="frame" x="0.0" y="19" width="480" height="5"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="2d1-HY-cac"/>
+                    </constraints>
+                    <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                    <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <font key="titleFont" metaFont="system"/>
+                </box>
             </subviews>
             <constraints>
                 <constraint firstItem="apH-7s-ekk" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="4" id="6KB-n8-J8M"/>
                 <constraint firstItem="lIw-7c-JIe" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="2" id="8Lx-ft-zMa"/>
                 <constraint firstItem="g6c-ih-MDt" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="3" id="8N5-xO-quu"/>
                 <constraint firstItem="g6c-ih-MDt" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="8" id="8y5-TV-ptq"/>
+                <constraint firstItem="cr4-9g-BO0" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="HJj-Rv-hyU"/>
                 <constraint firstItem="lIw-7c-JIe" firstAttribute="leading" secondItem="g6c-ih-MDt" secondAttribute="trailing" constant="8" id="K7A-tJ-21p"/>
                 <constraint firstItem="apH-7s-ekk" firstAttribute="leading" secondItem="lIw-7c-JIe" secondAttribute="trailing" constant="8" id="OEK-Xt-Upz"/>
                 <constraint firstAttribute="trailing" secondItem="apH-7s-ekk" secondAttribute="trailing" constant="5" id="lds-u7-Pk3"/>
+                <constraint firstItem="cr4-9g-BO0" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="z81-wC-HpX"/>
+                <constraint firstAttribute="trailing" secondItem="cr4-9g-BO0" secondAttribute="trailing" id="zZe-U9-TQ7"/>
             </constraints>
         </customView>
     </objects>
