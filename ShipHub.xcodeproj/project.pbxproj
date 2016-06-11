@@ -213,6 +213,13 @@
 			remoteGlobalIDString = F668C87F153E91210044DBAC;
 			remoteInfo = SocketRocketOSX;
 		};
+		1AD956C51D0BCFF6002B1259 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217861C7E7B14006460E2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1AD956BE1D0BCFBA002B1259;
+			remoteInfo = IssueWeb;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -916,6 +923,23 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXLegacyTarget section */
+		1AD956BE1D0BCFBA002B1259 /* IssueWeb */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "";
+			buildConfigurationList = 1AD956C41D0BCFBA002B1259 /* Build configuration list for PBXLegacyTarget "IssueWeb" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = IssueWeb;
+			dependencies = (
+			);
+			name = IssueWeb;
+			passBuildSettingsInEnvironment = 1;
+			productName = IssueWeb;
+		};
+/* End PBXLegacyTarget section */
+
 /* Begin PBXNativeTarget section */
 		1A22178D1C7E7B14006460E2 /* ShipHub */ = {
 			isa = PBXNativeTarget;
@@ -924,7 +948,6 @@
 				1A22178A1C7E7B14006460E2 /* Sources */,
 				1A22178B1C7E7B14006460E2 /* Frameworks */,
 				1A22178C1C7E7B14006460E2 /* Resources */,
-				28F661E51D0A97E9001365BD /* BuildIssueWebIfNeeded */,
 				1A0D87791CAB03710069782D /* Copy Issue Web Content */,
 				1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */,
 				1A2217C41C7E7BC1006460E2 /* Copy Frameworks */,
@@ -932,6 +955,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */,
 				1A2217BF1C7E7BAF006460E2 /* PBXTargetDependency */,
 			);
 			name = ShipHub;
@@ -971,6 +995,9 @@
 					1A3618F91C9383CF008C11CB = {
 						CreatedOnToolsVersion = 7.2.1;
 					};
+					1AD956BE1D0BCFBA002B1259 = {
+						CreatedOnToolsVersion = 7.3.1;
+					};
 				};
 			};
 			buildConfigurationList = 1A2217891C7E7B14006460E2 /* Build configuration list for PBXProject "ShipHub" */;
@@ -994,6 +1021,7 @@
 			targets = (
 				1A22178D1C7E7B14006460E2 /* ShipHub */,
 				1A3618F91C9383CF008C11CB /* ShipHubTests */,
+				1AD956BE1D0BCFBA002B1259 /* IssueWeb */,
 			);
 		};
 /* End PBXProject section */
@@ -1072,20 +1100,6 @@
 			shellPath = /bin/sh;
 			shellScript = "ISSUE_WEB_DST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/IssueWeb\"\nISSUE_WEB_SRC=\"${PROJECT_DIR}/IssueWeb/dist\"\n\necho ISSUE_WEB_SRC=$ISSUE_WEB_SRC\necho ISSUE_WEB_DST=$ISSUE_WEB_DST\n\nmkdir -p \"$ISSUE_WEB_DST\"\n\nrsync -avz -u --delete \"$ISSUE_WEB_SRC/\" \"$ISSUE_WEB_DST/\"\n";
 			showEnvVarsInLog = 0;
-		};
-		28F661E51D0A97E9001365BD /* BuildIssueWebIfNeeded */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = BuildIssueWebIfNeeded;
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"$PROJECT_DIR\"/RunScripts/BuildIssueWebIfNeeded.sh";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1261,6 +1275,11 @@
 			name = SocketRocketOSX;
 			targetProxy = 1A2217BE1C7E7BAF006460E2 /* PBXContainerItemProxy */;
 		};
+		1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1AD956BE1D0BCFBA002B1259 /* IssueWeb */;
+			targetProxy = 1AD956C51D0BCFF6002B1259 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -1408,6 +1427,31 @@
 			};
 			name = Release;
 		};
+		1AD956BF1D0BCFBA002B1259 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		1AD956C01D0BCFBA002B1259 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1434,6 +1478,15 @@
 			buildConfigurations = (
 				1A3619001C9383CF008C11CB /* Debug */,
 				1A3619011C9383CF008C11CB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1AD956C41D0BCFBA002B1259 /* Build configuration list for PBXLegacyTarget "IssueWeb" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1AD956BF1D0BCFBA002B1259 /* Debug */,
+				1AD956C01D0BCFBA002B1259 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
