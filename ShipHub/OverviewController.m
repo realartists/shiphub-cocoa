@@ -101,6 +101,7 @@ NSTextFieldDelegate>
 @property OverviewNode *outboxNode;
 
 @property NSString *nextNodeToSelect;
+@property BOOL nodeSelectionProgrammaticallyInitiated;
 
 #if !INCOMPLETE
 @property ProblemProgressController *initialSyncController;
@@ -776,7 +777,9 @@ NSTextFieldDelegate>
             [indexes addIndex:idx];
         }
     }];
+    _nodeSelectionProgrammaticallyInitiated = YES;
     [_outlineView selectRowIndexes:indexes byExtendingSelection:NO];
+    _nodeSelectionProgrammaticallyInitiated = NO;
     if ([indexes count] > 0 && editingPredicate) {
         _predicateItem.on = YES;
         [self togglePredicateEditor:_predicateItem];
@@ -1070,7 +1073,9 @@ NSTextFieldDelegate>
 }
 
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification {
-    [_searchItem.searchField setStringValue:@""];
+    if (!_nodeSelectionProgrammaticallyInitiated) {
+        [_searchItem.searchField setStringValue:@""];
+    }
     OverviewNode *selectedItem = [_outlineView selectedItem];
     
     NSView *rightPane = [_splitView.subviews lastObject];
