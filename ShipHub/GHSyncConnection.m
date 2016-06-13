@@ -70,7 +70,11 @@ typedef NS_ENUM(NSInteger, SyncState) {
     return [self get:endpoint params:nil];
 }
 
-- (NSMutableURLRequest *)get:(NSString *)endpoint params:(NSDictionary *)params  {
+- (NSMutableURLRequest *)get:(NSString *)endpoint params:(NSDictionary *)params {
+    return [self get:endpoint params:params headers:nil];
+}
+
+- (NSMutableURLRequest *)get:(NSString *)endpoint params:(NSDictionary *)params headers:(NSDictionary *)headers {
     NSMutableURLRequest *req = nil;
     if ([endpoint hasPrefix:@"https://"]) {
         req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:endpoint]];
@@ -97,8 +101,13 @@ typedef NS_ENUM(NSInteger, SyncState) {
     }
     NSAssert(req.URL, @"Request must have a URL (2)");
     req.HTTPMethod = @"GET";
+
     [req setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     [req setValue:[NSString stringWithFormat:@"token %@", self.auth.ghToken] forHTTPHeaderField:@"Authorization"];
+
+    for (NSString *key in [headers allKeys]) {
+        [req setValue:headers[key] forHTTPHeaderField:key];
+    }
     
     return req;
 }
@@ -541,45 +550,38 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
 - (void)updateIssue:(id)issueIdentifier {
     
     NSString *issueEndpoint = [NSString stringWithFormat:@"repos/%@/%@/issues/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
-    NSString *eventsEndpoint = [issueEndpoint stringByAppendingPathComponent:@"events"];
-    NSString *commentsEndpoint = [issueEndpoint stringByAppendingPathComponent:@"comments"];
-    
-    NSURLRequest *eventsRequest = [self get:eventsEndpoint];
-    NSURLRequest *commentsRequest = [self get:commentsEndpoint];
+    NSString *timelineEndpoint = [issueEndpoint stringByAppendingPathComponent:@"timeline"];
+    NSURLRequest *timelineRequest = [self get:timelineEndpoint
+                                       params:nil
+                                      headers:@{@"Accept" : @"application/vnd.github.mockingbird-preview"}];
     
     [self jsonTask:[self get:issueEndpoint] completion:^(id json, NSHTTPURLResponse *response, NSError *err) {
-        
         if (err) {
             ErrLog(@"%@", err);
             return;
         }
         
-        NSString *issueID = [json objectForKey:@"id"];
+        NSNumber *issueID = [json objectForKey:@"id"];
         
         [self yield:@[json] type:@"issue" version:0];
         
-        [self fetchPaged:commentsRequest completion:^(NSArray *data, NSError *commentErr) {
-            if (!err) {
-                NSArray *cs = [data arrayByMappingObjects:^id(id obj) {
+        [self fetchPaged:timelineRequest completion:^(NSArray *data, NSError *timelineErr) {
+            if (!timelineErr) {
+                NSArray *eventsAndComments = [data arrayByMappingObjects:^id(id obj) {
                     NSMutableDictionary *d = [obj mutableCopy];
                     d[@"issue"] = issueID;
                     return d;
                 }];
-                [self yield:cs type:@"comment" version:@{}];
+                
+                NSArray *comments = [eventsAndComments filteredArrayUsingPredicate:
+                                         [NSPredicate predicateWithFormat:@"event == 'commented'"]];
+                [self yield:comments type:@"comment" version:@{}];
+                
+                NSArray *events = [eventsAndComments filteredArrayUsingPredicate:
+                                         [NSPredicate predicateWithFormat:@"event != 'commented' and event != 'cross-referenced'"]];
+                [self yield:events type:@"event" version:@{}];
             }
         }];
-        
-        [self fetchPaged:eventsRequest completion:^(NSArray *data, NSError *eventErr) {
-            if (!err) {
-                NSArray *es = [data arrayByMappingObjects:^id(id obj) {
-                    NSMutableDictionary *d = [obj mutableCopy];
-                    d[@"issue"] = issueID;
-                    return d;
-                }];
-                [self yield:es type:@"event" version:@{}];
-            }
-        }];
-        
     }];
 }
 
