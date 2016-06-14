@@ -537,9 +537,26 @@ var AvatarIMG = React.createClass({
   render: function() {    
     var s = this.pointSize();
     if (this.state.failed || this.state.loading) {
-      return h('img', Object.assign({}, this.props, {src:this.state.identicon, width:s, height:s}));
+      return h('img',
+               Object.assign({},
+                             this.props,
+                             {
+                               className: "avatar",
+                               src:this.state.identicon,
+                               width:s,
+                               height:s,
+                             }));
     } else {
-      return h('img', Object.assign({}, this.props, {src:this.avatarURL(), width:s, height:s, onerror:this.fail}));
+      return h('img',
+               Object.assign({},
+                             this.props,
+                             {
+                               className: "avatar",
+                               src:this.avatarURL(),
+                               width:s,
+                               height:s,
+                               onerror:this.fail,
+                             }));
     }
   },
   
