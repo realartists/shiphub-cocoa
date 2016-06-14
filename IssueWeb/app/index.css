@@ -299,7 +299,7 @@ div.eventContent {
   padding-left: 28px;
 }
 
-div.event img {
+div.event img.avatar {
   border-radius: 4px;
   width: 16px;
   height: 16px;
