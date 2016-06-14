@@ -670,7 +670,7 @@ var EventUser = React.createClass({
   render: function() {
     var user = this.props.user || ghost;
     return h("span", {className:"eventUser"},
-      h(AvatarIMG, {user:user, size:16, className:"eventAvatar"}),
+      h(AvatarIMG, {user:user, size:16}),
       user.login
     );
   }
