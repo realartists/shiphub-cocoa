@@ -356,7 +356,7 @@ span.eventTitle {
   font-weight: bold;
 }
 
-span.pullRequestState {
+span.issueState {
   border-radius: 2px;
   color: white;
   display: inline-block;
@@ -369,32 +369,32 @@ span.pullRequestState {
   -webkit-user-select: none;
 }
 
-span.pullRequestStateOpen {
+span.issueStateOpen {
   background-color: #6cc644;
 }
 
-span.pullRequestStateClosed {
+span.issueStateClosed {
   background-color: #bd2c00;
 }
 
-span.pullRequestStateMerged {
+span.issueStateMerged {
   background-color: #6e5494;
 }
 
-a.pullRequestTitle {
+a.issueTitle {
   font-size: 15px;
   color: #333;
 }
 
-a.pullRequestTitle:hover {
+a.issueTitle:hover {
   color: #4078C0;
 }
 
-a.pullRequestTitle:hover span.pullRequestNumber {
+a.issueTitle:hover span.issueNumber {
   color: #4078C0;
 }
 
-a.pullRequestTitle span.pullRequestNumber {
+a.issueTitle span.issueNumber {
   font-size: 16px;
   color: #555;
 }
