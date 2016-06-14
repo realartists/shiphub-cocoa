@@ -860,45 +860,39 @@ var ClassForEventDescription = function(event) {
 var CrossReferencedEventBody = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    if (this.props.event.source.issue_expanded.pull_request) {
-      var pullRequestExpanded = this.props.event.source.issue_expanded.pull_request_expanded;
-      var pullRequestStateClass;
-      var pullRequestStateLabel;
+    var issue = this.props.event.source.issue_expanded;
 
-      if (pullRequestExpanded.state === "open") {
-        pullRequestStateClass = "pullRequestStateOpen";
-        pullRequestStateLabel = "Open";
-      } else if (pullRequestExpanded.state === "closed" && pullRequestExpanded.merged) {
-        pullRequestStateClass = "pullRequestStateMerged";
-        pullRequestStateLabel = "Merged";
-      } else {
-        pullRequestStateClass = "pullRequestStateClosed";
-        pullRequestStateLabel = "Closed";
+    var issueStateLabel = (issue.state === "open") ? "Open" : "Closed";
+    var issueStateClass = (issue.state === "open") ? "issueStateOpen" : "issueStateClosed";
+
+    if (issue.pull_request) {
+      var pullRequestExpanded = issue.pull_request_expanded;
+
+      if (pullRequestExpanded.state === "closed" && pullRequestExpanded.merged) {
+        issueStateLabel = "Merged";
+        issueStateClass = "issueStateMerged";
       }
-
-      return h("div", {},
-               h("a",
-                 {
-                   className: "pullRequestTitle",
-                   href: this.props.event.source.issue_expanded.html_url,
-                   target: "_blank"
-                 },
-                 this.props.event.source.issue_expanded.title,
-                 " ",
-                 h("span",
-                   {className: "pullRequestNumber"},
-                   "#",
-                   this.props.event.source.issue_expanded.number)
-                ),
-                " ",
-                h("span",
-                  {className: "pullRequestState " + pullRequestStateClass},
-                  pullRequestStateLabel)
-              );
-    } else {
-      // TODO: Display issue title for cross-referenced issues.
-      return null;
     }
+
+    return h("div", {},
+             h("a",
+               {
+                 className: "issueTitle",
+                 href: this.props.event.source.issue_expanded.html_url,
+                 target: "_blank"
+               },
+               this.props.event.source.issue_expanded.title,
+               " ",
+               h("span",
+                 {className: "issueNumber"},
+                 "#",
+                 this.props.event.source.issue_expanded.number)
+              ),
+              " ",
+              h("span",
+                {className: "issueState " + issueStateClass},
+                issueStateLabel)
+            );
   }
 });
 
