@@ -638,3 +638,47 @@ div.IssueLabels .LabelContainer {
 .shaLink:hover {
   text-decoration: underline;
 }
+
+a.referencedCommitSubject {
+  color: #333;
+  font-family: menlo, consolas, monaco, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  line-height: 15px;
+  word-break: break-all;
+}
+
+button.referencedCommitExpander {
+  background-color: #ddd;
+  border: 0;
+  font-family: Helvetica;
+  font-size: 12px;
+  font-weight: bold;
+  height: 13px;
+  line-height: 6px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  padding-top: 0px;
+  vertical-align: middle;
+}
+
+button.referencedCommitExpander:hover {
+  background-color: #4078C0;
+  color: #fff;
+}
+
+pre.referencedCommitBody {
+  background-color: inherit;
+  display: inline-block;
+  font-family: menlo, consolas, monaco, sans-serif;
+  font-size: 11px;
+  line-height: 15px;
+  margin-bottom: 0px;
+  margin-left: 0px;
+  margin-right: 0px;
+  margin-top: 4px;
+  padding: 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}

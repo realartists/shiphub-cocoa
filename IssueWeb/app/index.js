@@ -925,9 +925,84 @@ var CrossReferencedEventBody = React.createClass({
   }
 });
 
+var ReferencedEventBody = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+
+  getInitialState: function() {
+    return {
+      showBody: false,
+    };
+  },
+
+  toggleBody: function(clickEvent) {
+    this.setState({showBody: !this.state.showBody});
+    clickEvent.preventDefault();
+  },
+
+  getSubjectAndBodyFromMessage: function(message) {
+    // GitHub never shows more than the first 69 characters
+    // of a commit message without truncation.
+    const maxSubjectLength = 69;
+    var subject;
+    var body;
+
+    var lines = message.split(/\n/);
+    var firstLine = lines[0];
+
+    if (firstLine.length > maxSubjectLength) {
+      subject = firstLine.substr(0, maxSubjectLength) + "\u2026";
+      body = "\u2026" + message.substr(maxSubjectLength).trim();
+    } else if (lines.length > 1) {
+      subject = firstLine;
+      body = lines.slice(1).join("\n").trim();
+    } else {
+      subject = message;
+      body = null;
+    }
+
+    return [subject, body];
+  },
+
+  render: function() {
+    var message = this.props.event.commit.commit.message.trim();
+    const [subject, body] = this.getSubjectAndBodyFromMessage(message);
+
+    var bodyContent = null;
+    if (this.state.showBody && body) {
+      bodyContent = h("pre", {className: "referencedCommitBody"}, body);
+    }
+
+    var expander = null;
+    if (body && body.length > 0) {
+      expander =
+        h("a",
+          {
+            href: "#",
+            onClick: this.toggleBody
+          },
+          h("button", {className: "referencedCommitExpander"}, "\u2026")
+        );
+    }
+
+    return h("div", {},
+             h("a",
+               {
+                 className: "referencedCommitSubject",
+                 href: this.props.event.commit.html_url,
+               },
+               subject
+              ),
+             expander,
+             h("br", {}),
+             bodyContent
+           );
+  },
+});
+
 var ClassForEventBody = function(event) {
   switch (event.event) {
     case "cross-referenced": return CrossReferencedEventBody;
+    case "referenced": return ReferencedEventBody;
     default: return null;
   }
 }
