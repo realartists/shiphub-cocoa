@@ -153,6 +153,7 @@ pre {
   font-size: 10pt;
   font-family: menlo, consolas, monaco, sans-serif;
   line-height: 130%;
+  overflow-x: auto;
 }
 pre > code {
   padding: 0;
