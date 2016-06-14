@@ -97,7 +97,7 @@ typedef NS_ENUM(NSInteger, SyncState) {
     }
     NSAssert(req.URL, @"Request must have a URL (2)");
     req.HTTPMethod = @"GET";
-    [req setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [req setValue:@"application/vnd.github.mockingbird-preview" forHTTPHeaderField:@"Accept"];
     [req setValue:[NSString stringWithFormat:@"token %@", self.auth.ghToken] forHTTPHeaderField:@"Authorization"];
     
     return req;
@@ -541,45 +541,93 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
 - (void)updateIssue:(id)issueIdentifier {
     
     NSString *issueEndpoint = [NSString stringWithFormat:@"repos/%@/%@/issues/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
-    NSString *eventsEndpoint = [issueEndpoint stringByAppendingPathComponent:@"events"];
-    NSString *commentsEndpoint = [issueEndpoint stringByAppendingPathComponent:@"comments"];
-    
-    NSURLRequest *eventsRequest = [self get:eventsEndpoint];
-    NSURLRequest *commentsRequest = [self get:commentsEndpoint];
+    NSString *timelineEndpoint = [issueEndpoint stringByAppendingPathComponent:@"timeline"];
+    NSURLRequest *timelineRequest = [self get:timelineEndpoint];
     
     [self jsonTask:[self get:issueEndpoint] completion:^(id json, NSHTTPURLResponse *response, NSError *err) {
-        
         if (err) {
             ErrLog(@"%@", err);
             return;
         }
         
-        NSString *issueID = [json objectForKey:@"id"];
+        NSNumber *issueID = [json objectForKey:@"id"];
         
         [self yield:@[json] type:@"issue" version:0];
         
-        [self fetchPaged:commentsRequest completion:^(NSArray *data, NSError *commentErr) {
-            if (!err) {
-                NSArray *cs = [data arrayByMappingObjects:^id(id obj) {
+        [self fetchPaged:timelineRequest completion:^(NSArray *data, NSError *timelineErr) {
+            if (!timelineErr) {
+                NSArray *eventsAndComments = [data arrayByMappingObjects:^id(id obj) {
                     NSMutableDictionary *d = [obj mutableCopy];
                     d[@"issue"] = issueID;
                     return d;
                 }];
-                [self yield:cs type:@"comment" version:@{}];
-            }
-        }];
-        
-        [self fetchPaged:eventsRequest completion:^(NSArray *data, NSError *eventErr) {
-            if (!err) {
-                NSArray *es = [data arrayByMappingObjects:^id(id obj) {
-                    NSMutableDictionary *d = [obj mutableCopy];
-                    d[@"issue"] = issueID;
-                    return d;
+                
+                NSArray *comments = [eventsAndComments filteredArrayUsingPredicate:
+                                         [NSPredicate predicateWithFormat:@"event == 'commented'"]];
+                [self yield:comments type:@"comment" version:@{}];
+                
+                NSArray *events = [eventsAndComments filteredArrayUsingPredicate:
+                                         [NSPredicate predicateWithFormat:@"event != 'commented'"]];
+
+                NSMutableArray *requests = [NSMutableArray array];
+                NSMutableArray *requestsToIndex = [NSMutableArray array];
+                for (NSInteger i = 0; i < events.count; i++) {
+                    NSDictionary *item = events[i];
+                    
+                    if ([item[@"event"] isEqualToString:@"cross-referenced"]) {
+                        NSString *sourceURL = item[@"source"][@"url"];
+                        NSAssert(sourceURL, @"should have source URL");
+                        NSURLRequest *request = [self get:sourceURL];
+                        [requests addObject:request];
+                        [requestsToIndex addObject:@(i)];
+                    }
+                }
+                
+                [self jsonTasks:requests completion:^(NSArray *results, NSError *resultsError){
+                    if (!resultsError) {
+                        NSMutableArray *prInfoRequests = [NSMutableArray array];
+                        NSMutableArray *prInfoRequestsToIndex = [NSMutableArray array];
+
+                        for (NSInteger i = 0; i < results.count; i++) {
+                            NSInteger eventIndex = [requestsToIndex[i] integerValue];
+                            NSDictionary *issue = results[i];
+                            events[eventIndex][@"source"] = [events[eventIndex][@"source"] mutableCopy];
+                            events[eventIndex][@"source"][@"issue_expanded"] = issue;
+
+                            // HACK: GitHub doesn't give an 'id' field for cross-referenced issues.  For now, we'll
+                            // fudge one using a combination of (current issue ID, referencing issue ID).
+                            //
+                            // We should consider switching our ID columns to be strings so we can do stuff like
+                            // "<referencedIssueID>_<referencingIssueID>".  That way, we'll have no chance of collision
+                            // w/ a GitHub ID.
+                            NSNumber *referencingIssueID = issue[@"id"];
+                            events[eventIndex][@"id"] = [NSNumber numberWithLongLong:
+                                                         ([issueID longLongValue] << 32) | [referencingIssueID longLongValue]];
+                            
+                            if (issue[@"pull_request"]) {
+                                NSURLRequest *prInfoRequest = [self get:issue[@"pull_request"][@"url"]];
+                                [prInfoRequests addObject:prInfoRequest];
+                                [prInfoRequestsToIndex addObject:@(eventIndex)];
+                            }
+                        }
+                        
+                        [self jsonTasks:prInfoRequests completion:^(NSArray *prInfoResults, NSError *prInfoResultsError){
+                            if (!prInfoResultsError) {
+                                for (NSInteger i = 0; i < prInfoResults.count; i++) {
+                                    NSInteger eventIndex = [prInfoRequestsToIndex[i] integerValue];
+                                    NSDictionary *pr = prInfoResults[i];
+                                    
+                                    events[eventIndex][@"source"][@"issue_expanded"] = [events[eventIndex][@"source"][@"issue_expanded"] mutableCopy];
+                                    events[eventIndex][@"source"][@"issue_expanded"][@"pull_request_expanded"] = pr;
+                                }
+                                
+                                [self yield:events type:@"event" version:@{}];
+                            }
+                        }];
+                    }
                 }];
-                [self yield:es type:@"event" version:@{}];
             }
         }];
-        
     }];
 }
 

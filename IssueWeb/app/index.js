@@ -616,6 +616,9 @@ var EventIcon = React.createClass({
       case "merged":
         icon = "git-square";
         break;
+      case "cross-referenced":
+        icon = "hand-o-right";
+        break;
       default:
         console.log("unknown event", this.props.event);
         icon = "exclamation-circle";
@@ -782,6 +785,28 @@ var ReferencedEventDescription = React.createClass({
   }
 });
 
+var CrossReferencedEventDescription = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+  render: function() {
+    var capture = this.props.event.source.url.match(/https:\/\/api.github.com\/repos\/([^\/]+)\/([^\/]+)\/issues\/(\d+)/);
+
+    var referencedRepoName = capture[1] + "/" + capture[2];
+    var referencedIssueURL = this.props.event.source.url.replace("api.github.com/repos/", "github.com/");
+
+    var repoName = getIvars().issue._bare_owner + "/" + getIvars().issue._bare_repo;
+
+    if (repoName === referencedRepoName) {
+      return h("span", {}, "referenced this issue");
+    } else {
+      // Only bother to show the repo name if the reference comes from another repo.
+      return h("span", {},
+               "referenced this issue in ",
+               h("b", {}, referencedRepoName)
+              );
+    }
+  }
+});
+
 var MergedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
@@ -815,7 +840,7 @@ var UnknownEventDescription = React.createClass({
   }
 });
 
-var ClassForEvent = function(event) {
+var ClassForEventDescription = function(event) {
   switch (event.event) {
     case "assigned": return AssignedEventDescription;
     case "unassigned": return UnassignedEventDescription;
@@ -827,7 +852,54 @@ var ClassForEvent = function(event) {
     case "referenced": return ReferencedEventDescription;
     case "merged": return MergedEventDescription;
     case "closed": return ClosedEventDescription;
+    case "cross-referenced": return CrossReferencedEventDescription;
     default: return UnknownEventDescription
+  }
+}
+
+var CrossReferencedEventBody = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+  render: function() {
+    var issue = this.props.event.source.issue_expanded;
+
+    var issueStateLabel = (issue.state === "open") ? "Open" : "Closed";
+    var issueStateClass = (issue.state === "open") ? "issueStateOpen" : "issueStateClosed";
+
+    if (issue.pull_request) {
+      var pullRequestExpanded = issue.pull_request_expanded;
+
+      if (pullRequestExpanded.state === "closed" && pullRequestExpanded.merged) {
+        issueStateLabel = "Merged";
+        issueStateClass = "issueStateMerged";
+      }
+    }
+
+    return h("div", {},
+             h("a",
+               {
+                 className: "issueTitle",
+                 href: this.props.event.source.issue_expanded.html_url,
+                 target: "_blank"
+               },
+               this.props.event.source.issue_expanded.title,
+               " ",
+               h("span",
+                 {className: "issueNumber"},
+                 "#",
+                 this.props.event.source.issue_expanded.number)
+              ),
+              " ",
+              h("span",
+                {className: "issueState " + issueStateClass},
+                issueStateLabel)
+            );
+  }
+});
+
+var ClassForEventBody = function(event) {
+  switch (event.event) {
+    case "cross-referenced": return CrossReferencedEventBody;
+    default: return null;
   }
 }
 
@@ -850,15 +922,26 @@ var Event = React.createClass({
     } else {
       className += " eventLast";
     }
-    var user = this.props.event.actor;
+
+    var user;
+    if (this.props.event.event === 'cross-referenced') {
+      user = this.props.event.source.actor;
+    } else {
+      user = this.props.event.actor;
+    }
+
+    var eventBodyClass = ClassForEventBody(this.props.event);
+
     return h('div', {className:className},
       h(EventIcon, {event: this.props.event.event }),
       h("div", {className: "eventContent"},
-        h(EventUser, {user: user}),
-        " ",
-        h(ClassForEvent(this.props.event), {event: this.props.event}),
-        " ",
-        h(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at})
+        h("div", {},
+          h(EventUser, {user: user}),
+          " ",
+          h(ClassForEventDescription(this.props.event), {event: this.props.event}),
+          " ",
+          h(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at})),
+        eventBodyClass ? h(eventBodyClass, {event: this.props.event}) : null
       )
     );
   }

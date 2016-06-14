@@ -357,6 +357,49 @@ span.eventTitle {
   font-weight: bold;
 }
 
+span.issueState {
+  border-radius: 2px;
+  color: white;
+  display: inline-block;
+  font-weight: bold;  
+  margin-left: 4px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  -webkit-user-select: none;
+}
+
+span.issueStateOpen {
+  background-color: #6cc644;
+}
+
+span.issueStateClosed {
+  background-color: #bd2c00;
+}
+
+span.issueStateMerged {
+  background-color: #6e5494;
+}
+
+a.issueTitle {
+  font-size: 15px;
+  color: #333;
+}
+
+a.issueTitle:hover {
+  color: #4078C0;
+}
+
+a.issueTitle:hover span.issueNumber {
+  color: #4078C0;
+}
+
+a.issueTitle span.issueNumber {
+  font-size: 16px;
+  color: #555;
+}
+
 .twitter-typeahead {
   width: 100%;
 }
