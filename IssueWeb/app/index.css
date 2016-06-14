@@ -625,3 +625,64 @@ div.IssueLabels .LabelContainer {
 .shaLink:hover {
   text-decoration: underline;
 }
+
+table.referencedCommit td {
+  vertical-align: top;
+}
+
+table.referencedCommit td.referencedCommitAvatar {
+  padding-bottom: 2px;
+  padding-left: 2px;
+  padding-right: 5px;
+  padding-top: 4px;
+  margin: 0;
+}
+
+table.referencedCommit td.referencedCommitAvatar img {
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+}
+
+
+table.referencedCommit span.octicon-git-commit {
+  color: #ccc;
+  padding-right: 3px;
+}
+
+a.referencedCommitTitle {
+  color: #333;
+  cursor: pointer;
+  font-family: menlo, consolas, monaco, sans-serif;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+a.referencedCommitTitle:hover {
+  color: #4078C0;
+}
+
+pre.referencedCommitDescription {
+  background-color: inherit;
+  font-family: menlo, consolas, monaco, sans-serif;
+  font-size: 11px;
+  line-height: 15px;
+  margin: 0;
+  padding: 0;
+  width: 468px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+a.referencedCommitToggle {
+  padding-left: 4px;
+  font-size: 18px;
+  position: relative;
+  bottom: -2px;
+  color: #ccc;
+}
+
+a.referencedCommitToggle:hover {
+  color: #4078C0;
+}
+
