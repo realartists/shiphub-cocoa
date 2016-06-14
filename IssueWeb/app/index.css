@@ -493,6 +493,7 @@ div.IssueLabels .LabelContainer {
 
 .CodeMirror {
   height: auto;
+  min-height: 28px;
   font-family: menlo, consolas, monaco, monospace;
   font-size: 9pt;
 }
