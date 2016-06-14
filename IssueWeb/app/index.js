@@ -914,9 +914,92 @@ var CrossReferencedEventBody = React.createClass({
   }
 });
 
+var ReferencedEventBody = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+
+  getInitialState: function() {
+    return {
+      showDescription: false,
+    };
+  },
+
+  toggleDescription: function(clickEvent) {
+    this.setState({showDescription: !this.state.showDescription});
+    clickEvent.preventDefault();
+  },
+
+  render: function() {
+    var message = this.props.event.commit.commit.message.trim();
+
+    const maxTitleLength = 69;
+    var title;
+    var description;
+
+    if (message.length > maxTitleLength) {
+      var lines = message.split(/\n/);
+      var firstLine = lines[0];
+
+      if (firstLine.length > maxTitleLength) {
+        title = firstLine.substr(0, maxTitleLength) + "\u2026";
+        description = "\u2026" + message.substr(maxTitleLength).trim();
+      } else {
+        title = firstLine;
+        description = lines.slice(1).join("\n").trim();
+      }
+    } else {
+      title = message;
+      description = null;
+    }
+
+    var descriptionEl =
+      h("pre",
+        {className: "referencedCommitDescription"},
+        description);
+
+    return h("table", {className: "referencedCommit"},
+             h("tbody", {},
+               h("tr", {},
+                 h("td", {},
+                   h("span", {className: "octicon octicon-git-commit"})),
+                   h("td", {className: "referencedCommitAvatar" },
+                     h(AvatarIMG,
+                       {
+                         user: this.props.event.commit.author,
+                         size: 16,
+                       })),
+                       h("td", {},
+                         h("a",
+                           {
+                             href: this.props.event.commit.html_url,
+                             className: "referencedCommitTitle",
+                           },
+                           title),
+                           h("a",
+                             {
+                               className: "referencedCommitToggle",
+                               href: "#",
+                               onClick: this.toggleDescription,
+                             },
+                             h("span",
+                               {
+                                 className: "fa fa-chevron-circle-" + (this.state.showDescription ? "up" : "down"),
+                               }))
+                        )
+                ),
+                h("tr", {},
+                  h("td", {}),
+                  h("td", {}),
+                  h("td", {}, this.state.showDescription ? descriptionEl : null)
+                 )
+              )
+            );
+  },
+});
+
 var ClassForEventBody = function(event) {
   switch (event.event) {
     case "cross-referenced": return CrossReferencedEventBody;
+    case "referenced": return ReferencedEventBody;
     default: return null;
   }
 }

@@ -566,13 +566,37 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                                          [NSPredicate predicateWithFormat:@"event == 'commented'"]];
                 [self yield:comments type:@"comment" version:@{}];
                 
-                NSArray *events = [eventsAndComments filteredArrayUsingPredicate:
-                                         [NSPredicate predicateWithFormat:@"event != 'commented'"]];
+                NSArray *crossReferencedEvents = [eventsAndComments filteredArrayUsingPredicate:
+                                                  [NSPredicate predicateWithFormat:@"event == %@", @"cross-referenced"]];
+                NSMutableArray *referencedEvents = [[eventsAndComments filteredArrayUsingPredicate:
+                                                     [NSPredicate predicateWithFormat:@"event == %@", @"referenced"]] mutableCopy];;
+                NSArray *allOtherEvents = [eventsAndComments filteredArrayUsingPredicate:
+                                             [NSPredicate predicateWithFormat:@"NOT event IN %@",
+                                              @[@"referenced",
+                                                @"cross-referenced",
+                                                @"commented",
+                                                ]]];
+                [self yield:allOtherEvents type:@"event" version:@{}];
+
+
+                NSArray *commitRequests = [referencedEvents arrayByMappingObjects:^(NSDictionary *event){
+                    NSAssert(event[@"commit_url"] != nil, @"should have commit URL for referenced event.");
+                    return [self get:event[@"commit_url"]];
+                }];
+                [self jsonTasks:commitRequests completion:^(NSArray *commitResults, NSError *commitError){
+                    if (!commitError) {
+                        for (NSInteger i = 0; i < commitRequests.count; i++) {
+                            referencedEvents[i] = [referencedEvents[i] mutableCopy];
+                            referencedEvents[i][@"commit"] = commitResults[i];
+                        }
+                        [self yield:referencedEvents type:@"event" version:@{}];
+                    }
+                }];
 
                 NSMutableArray *requests = [NSMutableArray array];
                 NSMutableArray *requestsToIndex = [NSMutableArray array];
-                for (NSInteger i = 0; i < events.count; i++) {
-                    NSDictionary *item = events[i];
+                for (NSInteger i = 0; i < crossReferencedEvents.count; i++) {
+                    NSDictionary *item = crossReferencedEvents[i];
                     
                     if ([item[@"event"] isEqualToString:@"cross-referenced"]) {
                         NSString *sourceURL = item[@"source"][@"url"];
@@ -591,8 +615,9 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                         for (NSInteger i = 0; i < results.count; i++) {
                             NSInteger eventIndex = [requestsToIndex[i] integerValue];
                             NSDictionary *issue = results[i];
-                            events[eventIndex][@"source"] = [events[eventIndex][@"source"] mutableCopy];
-                            events[eventIndex][@"source"][@"issue_expanded"] = issue;
+
+                            crossReferencedEvents[eventIndex][@"source"] = [crossReferencedEvents[eventIndex][@"source"] mutableCopy];
+                            crossReferencedEvents[eventIndex][@"source"][@"issue_expanded"] = issue;
 
                             // HACK: GitHub doesn't give an 'id' field for cross-referenced issues.  For now, we'll
                             // fudge one using a combination of (current issue ID, referencing issue ID).
@@ -601,7 +626,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                             // "<referencedIssueID>_<referencingIssueID>".  That way, we'll have no chance of collision
                             // w/ a GitHub ID.
                             NSNumber *referencingIssueID = issue[@"id"];
-                            events[eventIndex][@"id"] = [NSNumber numberWithLongLong:
+                            crossReferencedEvents[eventIndex][@"id"] = [NSNumber numberWithLongLong:
                                                          ([issueID longLongValue] << 32) | [referencingIssueID longLongValue]];
                             
                             if (issue[@"pull_request"]) {
@@ -617,11 +642,11 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                                     NSInteger eventIndex = [prInfoRequestsToIndex[i] integerValue];
                                     NSDictionary *pr = prInfoResults[i];
                                     
-                                    events[eventIndex][@"source"][@"issue_expanded"] = [events[eventIndex][@"source"][@"issue_expanded"] mutableCopy];
-                                    events[eventIndex][@"source"][@"issue_expanded"][@"pull_request_expanded"] = pr;
+                                    crossReferencedEvents[eventIndex][@"source"][@"issue_expanded"] = [crossReferencedEvents[eventIndex][@"source"][@"issue_expanded"] mutableCopy];
+                                    crossReferencedEvents[eventIndex][@"source"][@"issue_expanded"][@"pull_request_expanded"] = pr;
                                 }
                                 
-                                [self yield:events type:@"event" version:@{}];
+                                [self yield:crossReferencedEvents type:@"event" version:@{}];
                             }
                         }];
                     }
