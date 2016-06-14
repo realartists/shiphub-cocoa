@@ -69,20 +69,21 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:DataStoreDidUpdateProblemsNotification object:nil];
     
     NSView *container = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewDidChangeFrame:) name:NSViewFrameDidChangeNotification object:container];
     
     _web = [[WebView alloc] initWithFrame:container.bounds frameName:nil groupName:nil];
     _web.drawsBackground = NO;
     _web.UIDelegate = self;
     _web.frameLoadDelegate = self;
     _web.policyDelegate = self;
+    //_web.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     
     [container addSubview:_web];
     
     self.view = container;
 }
 
-- (void)viewDidLayout {
-    [super viewDidLayout];
+- (void)viewDidChangeFrame:(NSNotification *)note {
     [self layoutSubviews];
 }
 
