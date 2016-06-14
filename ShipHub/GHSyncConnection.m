@@ -596,6 +596,9 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                 
                 [self jsonTasks:requests completion:^(NSArray *results, NSError *resultsError){
                     if (!resultsError) {
+                        NSMutableArray *prInfoRequests = [NSMutableArray array];
+                        NSMutableArray *prInfoRequestsToIndex = [NSMutableArray array];
+
                         for (NSInteger i = 0; i < results.count; i++) {
                             NSInteger eventIndex = [requestsToIndex[i] integerValue];
                             NSDictionary *issue = results[i];
@@ -611,9 +614,27 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                             NSNumber *referencingIssueID = issue[@"id"];
                             events[eventIndex][@"id"] = [NSNumber numberWithLongLong:
                                                          ([issueID longLongValue] << 32) | [referencingIssueID longLongValue]];
+                            
+                            if (issue[@"pull_request"]) {
+                                NSURLRequest *prInfoRequest = [self get:issue[@"pull_request"][@"url"]];
+                                [prInfoRequests addObject:prInfoRequest];
+                                [prInfoRequestsToIndex addObject:@(eventIndex)];
+                            }
                         }
-
-                        [self yield:events type:@"event" version:@{}];
+                        
+                        [self jsonTasks:prInfoRequests completion:^(NSArray *prInfoResults, NSError *prInfoResultsError){
+                            if (!prInfoResultsError) {
+                                for (NSInteger i = 0; i < prInfoResults.count; i++) {
+                                    NSInteger eventIndex = [prInfoRequestsToIndex[i] integerValue];
+                                    NSDictionary *pr = prInfoResults[i];
+                                    
+                                    events[eventIndex][@"source"][@"issue_expanded"] = [events[eventIndex][@"source"][@"issue_expanded"] mutableCopy];
+                                    events[eventIndex][@"source"][@"issue_expanded"][@"pull_request_expanded"] = pr;
+                                }
+                                
+                                [self yield:events type:@"event" version:@{}];
+                            }
+                        }];
                     }
                 }];
             }
