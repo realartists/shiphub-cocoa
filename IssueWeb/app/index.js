@@ -785,6 +785,28 @@ var ReferencedEventDescription = React.createClass({
   }
 });
 
+var CrossReferencedEventDescription = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+  render: function() {
+    var capture = this.props.event.source.url.match(/https:\/\/api.github.com\/repos\/([^\/]+)\/([^\/]+)\/issues\/(\d+)/);
+
+    var referencedRepoName = capture[1] + "/" + capture[2];
+    var referencedIssueURL = this.props.event.source.url.replace("api.github.com/repos/", "github.com/");
+
+    var repoName = getIvars().issue._bare_owner + "/" + getIvars().issue._bare_repo;
+
+    if (repoName === referencedRepoName) {
+      return h("span", {}, "referenced this issue");
+    } else {
+      // Only bother to show the repo name if the reference comes from another repo.
+      return h("span", {},
+               "referenced this issue in ",
+               h("b", {}, referencedRepoName)
+              );
+    }
+  }
+});
+
 var MergedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
@@ -830,12 +852,59 @@ var ClassForEventDescription = function(event) {
     case "referenced": return ReferencedEventDescription;
     case "merged": return MergedEventDescription;
     case "closed": return ClosedEventDescription;
+    case "cross-referenced": return CrossReferencedEventDescription;
     default: return UnknownEventDescription
   }
 }
 
+var CrossReferencedEventBody = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+  render: function() {
+    if (this.props.event.source.issue_expanded.pull_request) {
+      var pullRequestExpanded = this.props.event.source.issue_expanded.pull_request_expanded;
+      var pullRequestStateClass;
+      var pullRequestStateLabel;
+
+      if (pullRequestExpanded.state === "open") {
+        pullRequestStateClass = "pullRequestStateOpen";
+        pullRequestStateLabel = "Open";
+      } else if (pullRequestExpanded.state === "closed" && pullRequestExpanded.merged) {
+        pullRequestStateClass = "pullRequestStateMerged";
+        pullRequestStateLabel = "Merged";
+      } else {
+        pullRequestStateClass = "pullRequestStateClosed";
+        pullRequestStateLabel = "Closed";
+      }
+
+      return h("div", {},
+               h("a",
+                 {
+                   className: "pullRequestTitle",
+                   href: this.props.event.source.issue_expanded.html_url,
+                   target: "_blank"
+                 },
+                 this.props.event.source.issue_expanded.title,
+                 " ",
+                 h("span",
+                   {className: "pullRequestNumber"},
+                   "#",
+                   this.props.event.source.issue_expanded.number)
+                ),
+                " ",
+                h("span",
+                  {className: "pullRequestState " + pullRequestStateClass},
+                  pullRequestStateLabel)
+              );
+    } else {
+      // TODO: Display issue title for cross-referenced issues.
+      return null;
+    }
+  }
+});
+
 var ClassForEventBody = function(event) {
   switch (event.event) {
+    case "cross-referenced": return CrossReferencedEventBody;
     default: return null;
   }
 }
