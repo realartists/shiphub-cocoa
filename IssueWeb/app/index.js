@@ -818,7 +818,7 @@ var UnknownEventDescription = React.createClass({
   }
 });
 
-var ClassForEvent = function(event) {
+var ClassForEventDescription = function(event) {
   switch (event.event) {
     case "assigned": return AssignedEventDescription;
     case "unassigned": return UnassignedEventDescription;
@@ -831,6 +831,12 @@ var ClassForEvent = function(event) {
     case "merged": return MergedEventDescription;
     case "closed": return ClosedEventDescription;
     default: return UnknownEventDescription
+  }
+}
+
+var ClassForEventBody = function(event) {
+  switch (event.event) {
+    default: return null;
   }
 }
 
@@ -861,14 +867,18 @@ var Event = React.createClass({
       user = this.props.event.actor;
     }
 
+    var eventBodyClass = ClassForEventBody(this.props.event);
+
     return h('div', {className:className},
       h(EventIcon, {event: this.props.event.event }),
       h("div", {className: "eventContent"},
-        h(EventUser, {user: user}),
-        " ",
-        h(ClassForEvent(this.props.event), {event: this.props.event}),
-        " ",
-        h(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at})
+        h("div", {},
+          h(EventUser, {user: user}),
+          " ",
+          h(ClassForEventDescription(this.props.event), {event: this.props.event}),
+          " ",
+          h(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at})),
+        eventBodyClass ? h(eventBodyClass, {event: this.props.event}) : null
       )
     );
   }
