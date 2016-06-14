@@ -616,6 +616,9 @@ var EventIcon = React.createClass({
       case "merged":
         icon = "git-square";
         break;
+      case "cross-referenced":
+        icon = "hand-o-right";
+        break;
       default:
         console.log("unknown event", this.props.event);
         icon = "exclamation-circle";
@@ -850,7 +853,14 @@ var Event = React.createClass({
     } else {
       className += " eventLast";
     }
-    var user = this.props.event.actor;
+
+    var user;
+    if (this.props.event.event === 'cross-referenced') {
+      user = this.props.event.source.actor;
+    } else {
+      user = this.props.event.actor;
+    }
+
     return h('div', {className:className},
       h(EventIcon, {event: this.props.event.event }),
       h("div", {className: "eventContent"},

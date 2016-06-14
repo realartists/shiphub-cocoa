@@ -578,8 +578,44 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                 [self yield:comments type:@"comment" version:@{}];
                 
                 NSArray *events = [eventsAndComments filteredArrayUsingPredicate:
-                                         [NSPredicate predicateWithFormat:@"event != 'commented' and event != 'cross-referenced'"]];
-                [self yield:events type:@"event" version:@{}];
+                                         [NSPredicate predicateWithFormat:@"event != 'commented'"]];
+
+                NSMutableArray *requests = [NSMutableArray array];
+                NSMutableArray *requestsToIndex = [NSMutableArray array];
+                for (NSInteger i = 0; i < events.count; i++) {
+                    NSDictionary *item = events[i];
+                    
+                    if ([item[@"event"] isEqualToString:@"cross-referenced"]) {
+                        NSString *sourceURL = item[@"source"][@"url"];
+                        NSAssert(sourceURL, @"should have source URL");
+                        NSURLRequest *request = [self get:sourceURL];
+                        [requests addObject:request];
+                        [requestsToIndex addObject:@(i)];
+                    }
+                }
+                
+                [self jsonTasks:requests completion:^(NSArray *results, NSError *resultsError){
+                    if (!resultsError) {
+                        for (NSInteger i = 0; i < results.count; i++) {
+                            NSInteger eventIndex = [requestsToIndex[i] integerValue];
+                            NSDictionary *issue = results[i];
+                            events[eventIndex][@"source"] = [events[eventIndex][@"source"] mutableCopy];
+                            events[eventIndex][@"source"][@"issue_expanded"] = issue;
+
+                            // HACK: GitHub doesn't give an 'id' field for cross-referenced issues.  For now, we'll
+                            // fudge one using a combination of (current issue ID, referencing issue ID).
+                            //
+                            // We should consider switching our ID columns to be strings so we can do stuff like
+                            // "<referencedIssueID>_<referencingIssueID>".  That way, we'll have no chance of collision
+                            // w/ a GitHub ID.
+                            NSNumber *referencingIssueID = issue[@"id"];
+                            events[eventIndex][@"id"] = [NSNumber numberWithLongLong:
+                                                         ([issueID longLongValue] << 32) | [referencingIssueID longLongValue]];
+                        }
+
+                        [self yield:events type:@"event" version:@{}];
+                    }
+                }];
             }
         }];
     }];

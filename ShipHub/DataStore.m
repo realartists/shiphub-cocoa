@@ -696,7 +696,8 @@ static NSString *const LastUpdated = @"LastUpdated";
         } else {
             identifier = data[@"identifier"];
         }
-            
+
+        NSAssert(identifier != nil, @"identifier cannot be nil.");
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:entityName];
         fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
         fetch.fetchLimit = 1;
