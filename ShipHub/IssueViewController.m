@@ -103,6 +103,20 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     }
 }
 
+- (NSURL *)indexURL {
+    static dispatch_once_t onceToken;
+    static NSURL *URL;
+    dispatch_once(&onceToken, ^{
+        BOOL useWebpack = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseWebpackDevServer"];
+        if (useWebpack) {
+            URL = [NSURL URLWithString:WebpackDevServerURL];
+        } else {
+            URL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"IssueWeb"]];
+        }
+    });
+    return URL;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -110,13 +124,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     _useWebpackDevServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseWebpackDevServer"];
 #endif
     
-    NSURL *URL;
-    if (_useWebpackDevServer) {
-        URL = [NSURL URLWithString:WebpackDevServerURL];
-    } else {
-        URL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:@"IssueWeb"]];
-    }
-    
+    NSURL *URL = [self indexURL];
     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
     [_web.mainFrame loadRequest:request];
     
@@ -459,8 +467,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
         }
     } else if (navigationType == WebNavigationTypeOther) {
         NSURL *URL = actionInformation[WebActionOriginalURLKey];
-        if ([URL isFileURL] ||
-            (_useWebpackDevServer && [[URL absoluteString] rangeOfString:WebpackDevServerURL].location == 0)) {
+        if ([URL isEqual:[self indexURL]]) {
             [listener use];
         } else {
             [listener ignore];
