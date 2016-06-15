@@ -131,6 +131,8 @@ table {
 }
 table, th, td {
   border: 1px solid #CCC;
+  margin-bottom: 1em;
+  margin-top: 1em;
   padding-bottom: 6px;
   padding-left: 13px;
   padding-right: 13px;
