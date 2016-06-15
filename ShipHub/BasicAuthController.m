@@ -293,17 +293,15 @@
                 decodeErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
             }
             
-            NSString *shipToken = nil;
             NSDictionary *userDict = nil;
-            NSDictionary *billingState = nil;
-            
             if (!decodeErr) {
-                shipToken = reply[@"session"];
-                userDict = reply[@"user"];
-                billingState = reply[@"billing"];
+                NSMutableDictionary *user = [reply mutableCopy];
+                user[@"ghIdentifier"] = user[@"id"];
+                user[@"identifier"] = user[@"id"];
+                userDict = user;
             }
             
-            if (!decodeErr && ([shipToken length] == 0 || !userDict))
+            if (!decodeErr && !userDict)
             {
                 decodeErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
             }
@@ -314,7 +312,7 @@
                 });
             } else {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self finishWithShipToken:shipToken ghToken:oauthToken user:userDict billing:billingState];
+                    [self finishWithShipToken:oauthToken ghToken:oauthToken user:userDict billing:@{}];
                 });
             }
         } else {

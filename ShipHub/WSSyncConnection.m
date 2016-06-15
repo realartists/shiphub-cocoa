@@ -63,9 +63,10 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
 
 - (id)initWithAuth:(Auth *)auth {
     if (self = [super initWithAuth:auth]) {
-        _syncURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"https://%@/sync", auth.account.shipHost]];
+        _syncURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"https://%@/api/sync", auth.account.shipHost]];
         _q = dispatch_queue_create("WSSyncConnection", NULL);
         
+        _heartbeat = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _q);
         __weak __typeof(self) weakSelf = self;
         dispatch_source_set_timer(_heartbeat, DISPATCH_TIME_NOW, 60.0 * NSEC_PER_SEC, 10.0 * NSEC_PER_SEC);
         dispatch_source_set_event_handler(_heartbeat, ^{
@@ -103,6 +104,13 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
             });
         }
     }
+}
+
+- (void)syncWithVersions:(NSDictionary *)versions {
+    dispatch_async(_q, ^{
+        _syncVersions = [versions copy];
+        [self heartbeat];
+    });
 }
 
 - (void)connect {
@@ -196,6 +204,8 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
 
 
 - (void)sendHello {
+    Trace();
+    
     dispatch_assert_current_queue(_q);
     
     NSDictionary *hello = @{ MessageFieldType : MessageHello,
