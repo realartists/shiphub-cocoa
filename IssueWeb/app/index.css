@@ -187,7 +187,7 @@ div.commentBody blockquote {
   color: #777;
   border-left: 4px solid #ddd
 }
-div.commentBody img {
+div.commentBody img, video {
   max-width: 100%;
 }
 div.commentHeader {
