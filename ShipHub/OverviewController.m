@@ -1218,7 +1218,16 @@ NSTextFieldDelegate>
 }
     
 - (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMaximumPosition ofSubviewAt:(NSInteger)dividerIndex {
-    if (splitView == _searchSplit) {
+    if (splitView == _splitView) {
+        if (dividerIndex == 0) {
+            ResultsController *active = [self activeResultsController];
+            NSSize minSize = active.preferredMinimumSize;
+            
+            CGFloat totalWidth = splitView.frame.size.width;
+            
+            return MIN(500.0, totalWidth - minSize.width);
+        }
+    } else if (splitView == _searchSplit) {
         if (_predicateItem.on) {
             if (dividerIndex == 0) {
                 return [self heightForPredicateEditor];
