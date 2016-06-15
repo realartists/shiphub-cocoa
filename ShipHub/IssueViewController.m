@@ -595,8 +595,14 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 
 - (void)pasteHelper:(NSDictionary *)msg {
     NSNumber *handle = msg[@"handle"];
+    NSString *pasteboardName = msg[@"pasteboard"];
     
-    NSPasteboard *pasteboard = [NSPasteboard generalPasteboard];
+    NSPasteboard *pasteboard = nil;
+    if ([pasteboardName isEqualToString:@"dragging"]) {
+        pasteboard = [NSPasteboard pasteboardWithName:NSDragPboard];
+    } else {
+        pasteboard = [NSPasteboard generalPasteboard];
+    }
     
     NSString *callback;
     

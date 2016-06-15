@@ -1565,3 +1565,12 @@ CGRect IntegralRect(CGRect r) {
 }
 
 @end
+
+@implementation NSHTTPURLResponse (Extras)
+
+- (BOOL)isSuccessStatusCode {
+    NSInteger status = self.statusCode;
+    return status >= 200 && status < 400;
+}
+
+@end

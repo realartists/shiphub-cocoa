@@ -14,7 +14,10 @@
 #import "DataStore.h"
 #import "Auth.h"
 
-const uint64_t MaxFileSize = 4 * 1024 * 1024;
+// small attachments we can base64 encode and upload all in one go.
+// larger ones, we will ask for a signed S3 URL and upload to that.
+const uint64_t MaxFileSize = 20 * 1024 * 1024;
+const uint64_t MaxBase64FileSize = 10 * 1024;
 static NSString *const UploadEndpoint = @"https://86qvuywske.execute-api.us-east-1.amazonaws.com/prod/shiphub-attachments";
 
 @implementation AttachmentManager
@@ -156,15 +159,22 @@ static NSString *const UploadEndpoint = @"https://86qvuywske.execute-api.us-east
         return;
     }
     
-    NSString *b64Str = [attachment.regularFileContents base64EncodedStringWithOptions:0];
-    
     NSString *token = [[[DataStore activeStore] auth] ghToken];
     
     NSMutableDictionary *body = [NSMutableDictionary new];
     body[@"token"] = token;
     body[@"filename"] = attachment.preferredFilename ?: @"attachment";
     body[@"fileMime"] = attachment.mimeType;
-    body[@"file"] = b64Str;
+    
+    BOOL presign;
+    if (fileSize <= MaxBase64FileSize) {
+        presign = NO;
+        NSString *b64Str = [attachment.regularFileContents base64EncodedStringWithOptions:0];
+        body[@"file"] = b64Str;
+    } else {
+        presign = YES;
+        body[@"presign"] = @YES;
+    }
     
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:UploadEndpoint]];
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
@@ -177,7 +187,7 @@ static NSString *const UploadEndpoint = @"https://86qvuywske.execute-api.us-east
         
         NSHTTPURLResponse *http = (id)response;
         
-        if (!error && (http.statusCode < 200 || http.statusCode >= 400 || data == nil)) {
+        if (!error && (![http isSuccessStatusCode] || data == nil)) {
             error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
         }
         
@@ -202,8 +212,59 @@ static NSString *const UploadEndpoint = @"https://86qvuywske.execute-api.us-east
             }
         }
         
-        completion(URL, error);
-        
+        if (!error && presign) {
+            NSString *presignURLStr = respDict[@"upload"];
+            NSURL *presignURL = nil;
+            
+            if (![presignURLStr isKindOfClass:[NSString class]]) {
+                error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+            }
+            
+            if (!error) {
+                presignURL = [NSURL URLWithString:presignURLStr];
+                
+                if (!presignURL) {
+                    error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+                }
+            }
+            
+            if (!error) {
+                // actually perform the S3 upload
+                DebugLog(@"Performing upload to S3 signed URL %@", presignURL);
+                NSMutableURLRequest *s3Req = [NSMutableURLRequest requestWithURL:presignURL];
+                NSDictionary *headers = @{ @"content-type" : attachment.mimeType,
+                                           @"Content-Length" : [NSString stringWithFormat:@"%llu", fileSize] };
+                s3Req.allHTTPHeaderFields = headers;
+                s3Req.HTTPMethod = @"PUT";
+                s3Req.HTTPBody = attachment.regularFileContents;
+                [[[NSURLSession sharedSession] dataTaskWithRequest:s3Req completionHandler:^(NSData * _Nullable s3Data, NSURLResponse * _Nullable s3Response, NSError * _Nullable s3Error) {
+                    
+                    NSHTTPURLResponse *s3Http = (id)s3Response;
+                    
+#if DEBUG
+                    if (data) {
+                        NSString *dataStr = [[NSString alloc] initWithData:s3Data encoding:NSUTF8StringEncoding];
+                        DebugLog(@"%@ %@", s3Http, dataStr);
+                    }
+#endif
+                    
+                    if ([s3Http isSuccessStatusCode] && !s3Error) {
+                        completion(URL, nil);
+                    } else {
+                        if (!s3Error) {
+                            s3Error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+                        }
+                        completion(nil, s3Error);
+                    }
+                    
+                }] resume];
+            } else {
+                completion(nil, error);
+            }
+            
+        } else {
+            completion(URL, error);
+        }
     }] resume];
 }
 

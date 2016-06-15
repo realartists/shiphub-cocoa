@@ -74,10 +74,10 @@ window.setAPIToken = function(token) {
 var pendingPasteHandlers = [];
 var pasteHandle = 0;
 
-function pasteHelper(pasteText, uploadsStarted, uploadFinished, uploadFailed) {
+function pasteHelper(pasteboard, pasteText, uploadsStarted, uploadFinished, uploadFailed) {
   var handle = ++pasteHandle;
   pendingPasteHandlers[handle] = { pasteText, uploadsStarted, uploadFinished, uploadFailed };
-  window.inAppPasteHelper.postMessage({handle});
+  window.inAppPasteHelper.postMessage({handle, pasteboard});
 }
 
 function pasteCallback(handle, type, data) {
@@ -1664,45 +1664,60 @@ var Comment = React.createClass({
         }
       });
       
-      // Configure file attachment handling
+      // Utility to actually handle the work of doing pastes/drops when running
+      // in app. This uses the native code side to handle reading the pasteboard
+      // and doing file uploads since it is so much more flexible than web based APIs
+      // for this stuff.
+      var doAppPaste = (pasteboardName, cm, e) => {
+        var pasteText = (text) => {
+          cm.replaceSelection(text);
+        };
+                  
+        var uploadsStarted = (count, placeholders) => {
+          this.updateUploadCount(count);
+        };
+        
+        var uploadFinished = (placeholder, link) => {
+          this.replaceInCode(placeholder, link);
+          this.updateUploadCount(-1);
+        };
+        
+        var uploadFailed = (placeholder, err) => {
+          this.replaceInCode(placeholder, "");
+          this.updateUploadCount(-1);
+          alert(err);
+        };
+        
+        pasteHelper(pasteboardName, pasteText, uploadsStarted, uploadFinished, uploadFailed);
+        
+        e.stopPropagation();
+        e.preventDefault();
+        
+        return true;
+      };
+      
+      // Configure drag n drop handling
       cm.on('drop', (cm, e) => {
-        var files = e.dataTransfer.files;
-        if (files.length > 0) {
-          this.attachFiles(files);
-          e.stopPropagation();
-          e.preventDefault();
-          return true;
+        if (window.inAppPasteHelper) {
+          return doAppPaste('dragging', cm, e);
         } else {
-          return false;
+          // handle the upload natively in the browser
+          var files = e.dataTransfer.files;
+          if (files.length > 0) {
+            this.attachFiles(files);
+            e.stopPropagation();
+            e.preventDefault();
+            return true;
+          } else {
+            return false;
+          }
         }
       });
       
+      // Configure general pasteboard handling
       cm.on('paste', (cm, e) => {
         if (window.inAppPasteHelper) {
-          var pasteText = (text) => {
-            cm.replaceSelection(text);
-          };
-                    
-          var uploadsStarted = (count, placeholders) => {
-            this.updateUploadCount(count);
-          };
-          
-          var uploadFinished = (placeholder, link) => {
-            this.replaceInCode(placeholder, link);
-            this.updateUploadCount(-1);
-          };
-          
-          var uploadFailed = (placeholder, err) => {
-            this.replaceInCode(placeholder, "");
-            this.updateUploadCount(-1);
-            alert(err);
-          };
-          
-          pasteHelper(pasteText, uploadsStarted, uploadFinished, uploadFailed);
-          
-          e.stopPropagation();
-          e.preventDefault();
-          return true;
+          return doAppPaste('general', cm, e);
         } else {
           return false; // use default 
         }
