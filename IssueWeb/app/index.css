@@ -123,13 +123,14 @@ div.activityList::before {
   content: "";
   background-color: #DDD;
 }
-hr {
+
+div.commentBody hr {
   border: 1px solid #CCC;
 }
-table {
+div.commentBody table {
   border-collapse: collapse;
 }
-table, th, td {
+div.commentBody table, th, td {
   border: 1px solid #CCC;
   margin-bottom: 1em;
   margin-top: 1em;
@@ -138,7 +139,7 @@ table, th, td {
   padding-right: 13px;
   padding-top: 6px;
 }
-code {
+div.commentBody code {
   background-color: #F7F7F7;
   border-radius: 2px;
   font-size: 10pt;
@@ -148,7 +149,7 @@ code {
   padding-left: 3px;
   padding-right: 3px;
 }
-pre { 
+div.commentBody pre { 
   padding: 13px;
   background-color: #F7F7F7;
   border-radius: 6px; 
@@ -157,7 +158,7 @@ pre {
   line-height: 130%;
   overflow-x: auto;
 }
-pre > code {
+div.commentBody pre > code {
   padding: 0;
   background-color: inherit;
   border-radius: 0;
