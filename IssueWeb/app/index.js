@@ -786,7 +786,7 @@ var ReferencedEventDescription = React.createClass({
     var [committish, commitURL] = expandCommit(this.props.event);
     return h("span", {},
       "referenced this issue in commit ",
-      h("a", {href:commitURL, target:"_blank"}, committish)
+      h("a", {className: "shaLink", href:commitURL, target:"_blank"}, committish)
     );
   }
 });
@@ -831,7 +831,13 @@ var ClosedEventDescription = React.createClass({
       var [committish, commitURL] = expandCommit(this.props.event);
       return h("span", {},
         "closed this issue with commit ",
-        h("a", {href:commitURL, target:"_blank"}, committish)
+        h("a",
+          {
+            className: "shaLink",
+            href:commitURL,
+            target:"_blank"
+          },
+          committish)
       );
     } else {
       return h("span", {}, "closed this issue");
