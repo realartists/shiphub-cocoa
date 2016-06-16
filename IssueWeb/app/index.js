@@ -443,7 +443,13 @@ markedRenderer.list = function(body, ordered) {
 markedRenderer.defaultLink = markedRenderer.link;
 markedRenderer.link = function(href, title, text) {
   var lowerHref = href.toLowerCase();
+  if (lowerHref.indexOf("?") != -1) {
+    lowerHref = lowerHref.substring(0, lowerHref.indexOf("?"));
+  }
   if (lowerHref.endsWith('.mov') || lowerHref.endsWith('.mp4')) {
+    if (href.indexOf("://www.dropbox.com") != -1 && href.endsWith("?dl=0")) {
+      href = href.replace("?dl=0", "?dl=1");
+    }
     return `<video src="${href}" title="${title}" controls></video>`;
   } else {
     return markedRenderer.defaultLink(href, title, text);
