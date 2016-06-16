@@ -579,24 +579,33 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                 
                 NSArray *crossReferencedEvents = [eventsAndComments filteredArrayUsingPredicate:
                                                   [NSPredicate predicateWithFormat:@"event == %@", @"cross-referenced"]];
-                NSMutableArray *referencedEvents = [[eventsAndComments filteredArrayUsingPredicate:
-                                                     [NSPredicate predicateWithFormat:@"event == %@", @"referenced"]] mutableCopy];
+                NSMutableArray *referencedAndCommitEvents = [[eventsAndComments filteredArrayUsingPredicate:
+                                                              [NSPredicate predicateWithFormat:@"event IN {'referenced', 'closed'}"]] mutableCopy];
                 NSArray *allOtherEvents = [eventsAndComments filteredArrayUsingPredicate:
-                                           [NSPredicate predicateWithFormat:@"NOT event IN {'referenced', 'cross-referenced', 'commented'}"]];
+                                           [NSPredicate predicateWithFormat:@"NOT event IN {'referenced', 'cross-referenced', 'commented', 'closed'}"]];
                 [self yield:allOtherEvents type:@"event" version:@{}];
 
 
-                NSArray *commitRequests = [referencedEvents arrayByMappingObjects:^(NSDictionary *event){
-                    NSAssert(event[@"commit_url"] != nil, @"should have commit URL for referenced event.");
-                    return [self get:event[@"commit_url"]];
-                }];
+                NSMutableArray *commitRequests = [NSMutableArray array];
+                NSMutableArray *commmitRequestsToIndex = [NSMutableArray array];
+                for (NSInteger i = 0; i < referencedAndCommitEvents.count; i++) {
+                    NSDictionary *item = referencedAndCommitEvents[i];
+                    if (item[@"commit_id"] && (item[@"commit_id"] != [NSNull null])) {
+                        NSString *commitURL = item[@"commit_url"];
+                        NSAssert(commitURL, @"should have commit URL");
+                        [commitRequests addObject:[self get:commitURL]];
+                        [commmitRequestsToIndex addObject:@(i)];
+                    }
+                }
+
                 [self jsonTasks:commitRequests completion:^(NSArray *commitResults, NSError *commitError){
                     if (!commitError) {
                         for (NSInteger i = 0; i < commitRequests.count; i++) {
-                            referencedEvents[i] = [referencedEvents[i] mutableCopy];
-                            referencedEvents[i][@"ship_commit_message"] = commitResults[i][@"commit"][@"message"];
+                            NSInteger eventIndex = [commmitRequestsToIndex[i] integerValue];
+                            referencedAndCommitEvents[eventIndex] = [referencedAndCommitEvents[eventIndex] mutableCopy];
+                            referencedAndCommitEvents[eventIndex][@"ship_commit_message"] = commitResults[i][@"commit"][@"message"];
                         }
-                        [self yield:referencedEvents type:@"event" version:@{}];
+                        [self yield:referencedAndCommitEvents type:@"event" version:@{}];
                     }
                 }];
 

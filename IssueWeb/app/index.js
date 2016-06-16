@@ -812,7 +812,7 @@ var ReferencedEventDescription = React.createClass({
 
 function getOwnerRepoTypeNumberFromURL(url) {
   var capture = url.match(
-    /https:\/\/api.github.com\/repos\/([^\/]+)\/([^\/]+)\/(issues|pulls)\/(\d+)/);
+    /https:\/\/api.github.com\/repos\/([^\/]+)\/([^\/]+)\/(issues|pulls|commits)\/([a-z0-9]+)/);
 
   if (capture) {
     return {
@@ -945,7 +945,7 @@ var CrossReferencedEventBody = React.createClass({
   }
 });
 
-var ReferencedEventBody = React.createClass({
+var CommitInfoEventBody = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
 
   getInitialState: function() {
@@ -987,15 +987,11 @@ var ReferencedEventBody = React.createClass({
     var message = this.props.event.ship_commit_message.trim();
     const [subject, body] = this.getSubjectAndBodyFromMessage(message);
 
-    const [owner, repo] = [
-      getIvars().issue._bare_owner,
-      getIvars().issue._bare_repo];
-
     var bodyContent = null;
     if (this.state.showBody && body) {
       const linkifiedBody = githubLinkify(
-        owner,
-        repo,
+        getIvars().issue._bare_owner,
+        getIvars().issue._bare_repo,
         linkify(escape(body), {escape: false}));
       bodyContent = h("pre",
                       {
@@ -1016,11 +1012,12 @@ var ReferencedEventBody = React.createClass({
         );
     }
 
+    const urlParts = getOwnerRepoTypeNumberFromURL(this.props.event.commit_url);
     return h("div", {},
              h("a",
                {
                  className: "referencedCommitSubject",
-                 href: `https://github.com/${owner}/${repo}/commit/${this.props.event.commit_id}`,
+                 href: `https://github.com/${urlParts.owner}/${urlParts.repo}/commit/${this.props.event.commit_id}`,
                },
                subject
               ),
@@ -1034,7 +1031,13 @@ var ReferencedEventBody = React.createClass({
 var ClassForEventBody = function(event) {
   switch (event.event) {
     case "cross-referenced": return CrossReferencedEventBody;
-    case "referenced": return ReferencedEventBody;
+    case "referenced": return CommitInfoEventBody;
+    case "closed":
+      if (typeof(event.commit_id) === "string") {
+        return CommitInfoEventBody;
+      } else {
+        return null;
+      }
     default: return null;
   }
 }
