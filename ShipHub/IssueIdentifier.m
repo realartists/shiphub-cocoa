@@ -76,6 +76,15 @@
     return [self substringWithRange:NSMakeRange(NSMaxRange(firstDelim), secondDelim.location - NSMaxRange(firstDelim))];
 }
 
+- (NSString *)issueRepoFullName {
+    NSString *owner = [self issueRepoOwner];
+    NSString *name = [self issueRepoName];
+    
+    if (!owner || !name) return nil;
+    
+    return [NSString stringWithFormat:@"%@/%@", owner, name];
+}
+
 - (NSNumber *)issueNumber {
     NSRange firstDelim = [self rangeOfString:@"#"];
     if (firstDelim.length == 0) return nil;

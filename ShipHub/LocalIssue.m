@@ -16,12 +16,6 @@
 @implementation LocalIssue
 
 - (void)willSave {
-    if (self.fullIdentifier == nil && self.repository && self.number) {
-        self.fullIdentifier = [NSString issueIdentifierWithOwner:self.repository.owner.login repo:self.repository.name number:self.number];
-    } else {
-        NSAssert(self.fullIdentifier != nil, @"Wha?");
-    }
-    
     NSNumber *closed = self.closed;
     NSNumber *newClosed = [[self state] isEqualToString:@"closed"] ? @YES : @NO;
     
@@ -30,6 +24,13 @@
     }
     
     [super willSave];
+}
+
+- (NSString *)fullIdentifier {
+    if (!self.repository.fullName || !self.number) {
+        return nil;
+    }
+    return [NSString stringWithFormat:@"%@#%lld", self.repository.fullName, self.number.longLongValue];
 }
 
 @end

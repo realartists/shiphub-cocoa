@@ -38,7 +38,6 @@
         <attribute name="closed" optional="YES" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
         <attribute name="closedAt" optional="YES" attributeType="Date" indexed="YES" syncable="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" indexed="YES" syncable="YES"/>
-        <attribute name="fullIdentifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <attribute name="locked" optional="YES" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
         <attribute name="number" optional="YES" attributeType="Integer 64" defaultValueString="0" indexed="YES" syncable="YES"/>

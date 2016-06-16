@@ -11,6 +11,10 @@
 
 #import "LocalIssue+CoreDataProperties.h"
 
+#import "LocalRepo.h"
+#import "LocalAccount.h"
+#import "IssueIdentifier.h"
+
 @implementation LocalIssue (CoreDataProperties)
 
 @dynamic body;
@@ -31,7 +35,6 @@
 @dynamic originator;
 @dynamic relationships;
 @dynamic repository;
-@dynamic fullIdentifier;
 @dynamic events;
 @dynamic comments;
 @dynamic upNext;

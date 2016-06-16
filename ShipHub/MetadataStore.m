@@ -71,14 +71,20 @@ static BOOL IsMetadataObject(id obj) {
         [moc performBlockAndWait:^{
             
             NSFetchRequest *reposFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
-            reposFetch.predicate = [NSPredicate predicateWithFormat:@"name != nil"];
+            reposFetch.predicate = [NSPredicate predicateWithFormat:@"name != nil && owner != nil"];
             NSArray *localRepos = [moc executeFetchRequest:reposFetch error:NULL];
+            
+            NSFetchRequest *usersFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
+            NSArray *localUsers = [moc executeFetchRequest:usersFetch error:NULL];
             
             NSMutableArray *repos = [NSMutableArray arrayWithCapacity:localRepos.count];
             
             NSMutableDictionary *accountsByID = [NSMutableDictionary new];
             NSMutableDictionary *orgsByID = [NSMutableDictionary new];
-            NSMutableDictionary *usersByID = [NSMutableDictionary new];
+            NSDictionary *usersByID = [NSDictionary lookupWithObjects:[localUsers arrayByMappingObjects:^id(id obj) {
+                return [[User alloc] initWithLocalItem:obj];
+            }] keyPath:@"identifier"];
+            [accountsByID addEntriesFromDictionary:usersByID];
             NSMutableDictionary *assigneesByRepoID = [NSMutableDictionary new];
             NSMutableDictionary *milestonesByRepoID = [NSMutableDictionary new];
             NSMutableDictionary *labelsByRepoID = [NSMutableDictionary new];
@@ -94,11 +100,6 @@ static BOOL IsMetadataObject(id obj) {
                 assigneesByRepoID[r.identifier] = assignees = [NSMutableArray new];
                 for (LocalUser *lu in r.assignees) {
                     User *u = usersByID[lu.identifier];
-                    if (!u) {
-                        u = [[User alloc] initWithLocalItem:lu];
-                        usersByID[lu.identifier] = u;
-                        accountsByID[lu.identifier] = u;
-                    }
                     [assignees addObject:u];
                 }
                 
@@ -126,8 +127,7 @@ static BOOL IsMetadataObject(id obj) {
                         owner = [[Org alloc] initWithLocalItem:localOwner];
                         orgsByID[localOwner.identifier] = owner;
                     } else {
-                        owner = [[User alloc] initWithLocalItem:localOwner];
-                        usersByID[localOwner.identifier] = owner;
+                        owner = usersByID[localOwner.identifier];
                     }
                     accountsByID[localOwner.identifier] = owner;
                 }

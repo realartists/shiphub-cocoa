@@ -265,7 +265,7 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
         }
         
         self.logEntriesRemaining = remaining;
-        
+                
         [self.delegate syncConnection:self receivedEntries:entries versions:_syncVersions progress:progress];
     } else {
         DebugLog(@"Unknown message: %@", type);

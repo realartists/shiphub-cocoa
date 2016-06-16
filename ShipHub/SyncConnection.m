@@ -45,4 +45,8 @@
     return e;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"{%s %@} : %@", _action == SyncEntryActionSet ? "set" : "del", _entityName, _data];
+}
+
 @end

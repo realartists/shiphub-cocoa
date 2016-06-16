@@ -34,7 +34,21 @@
 }
 
 - (id)JSONDescription {
-    return _extra;
+    BOOL needsActorLinkage = [_extra[@"actor"] isKindOfClass:[NSNumber class]];
+    BOOL needsAssigneeLinkage = [_extra[@"assignee"] isKindOfClass:[NSNumber class]];
+    
+    if (needsActorLinkage || needsAssigneeLinkage) {
+        NSMutableDictionary *e = [_extra mutableCopy];
+        if (needsActorLinkage) {
+            e[@"actor"] = _actor;
+        }
+        if (needsAssigneeLinkage) {
+            e[@"assignee"] = _assignee;
+        }
+        return e;
+    } else {
+        return _extra;
+    }
 }
 
 - (NSString *)description {

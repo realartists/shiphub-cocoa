@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalIssue : NSManagedObject
 
-// Insert code here to declare functionality of your managed object subclass
+@property (nonatomic, readonly, nullable) NSString *fullIdentifier;
 
 @end
 

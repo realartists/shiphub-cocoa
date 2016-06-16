@@ -745,6 +745,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             continue;
         }
         
+        DebugLog(@"%@", e);
+        
         id data = e.data;
         
         NSNumber *identifier = nil;
@@ -803,7 +805,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 
 - (NSString *)issueFullIdentifier:(LocalIssue *)li {
     NSParameterAssert(li);
-    return [NSString issueIdentifierWithOwner:li.repository.owner.login repo:li.repository.name number:li.number];
+    return [li fullIdentifier];
 }
 
 - (NSArray *)changedIssueIdentifiers:(NSNotification *)note {
@@ -811,12 +813,24 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     [note enumerateModifiedObjects:^(id obj, CoreDataModificationType modType, BOOL *stop) {
         if ([obj isKindOfClass:[LocalIssue class]]) {
-            [changed addObject:[self issueFullIdentifier:obj]];
+            NSString *identifier = [self issueFullIdentifier:obj];
+            if (identifier) {
+                [changed addObject:identifier];
+            }
         } else if ([obj isKindOfClass:[LocalEvent class]] || [obj isKindOfClass:[LocalComment class]]) {
-            [changed addObject:[self issueFullIdentifier:[obj issue]]];
+            LocalIssue *issue = [obj issue];
+            if (issue) {
+                NSString *identifier = [self issueFullIdentifier:issue];
+                if (identifier) {
+                    [changed addObject:[self issueFullIdentifier:[obj issue]]];
+                }
+            }
         } else if ([obj isKindOfClass:[LocalNotification class]]) {
             if ([obj issue] != nil) {
-                [changed addObject:[obj issueFullIdentifier]];
+                NSString *identifier = [self issueFullIdentifier:[obj issue]];
+                if (identifier) {
+                    [changed addObject:identifier];
+                }
             }
         }
     }];
@@ -898,6 +912,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             results = [entities arrayByMappingObjects:^id(LocalIssue *obj) {
                 return [[Issue alloc] initWithLocalIssue:obj metadataStore:ms options:options];
             }];
+            results = [results filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"fullIdentifier != nil"]];
         } @catch (id exc) {
             error = [NSError shipErrorWithCode:ShipErrorCodeInvalidQuery];
             ErrLog(@"%@", exc);
@@ -978,10 +993,17 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion {
+    NSString *repoFullName = [issueIdentifier issueRepoFullName];
+    NSNumber *issueNumber = [issueIdentifier issueNumber];
+    
+    NSParameterAssert(repoFullName);
+    NSParameterAssert(issueNumber);
+    
     [_moc performBlock:^{
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-        fetchRequest.relationshipKeyPathsForPrefetching = @[@"events", @"comments"];
-        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier = %@", issueIdentifier];
+        fetchRequest.relationshipKeyPathsForPrefetching = @[@"events", @"comments", @"labels"];
+        
+        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"repository.fullName = %@ AND number = %@", repoFullName, issueNumber];
         
         NSError *err = nil;
         NSArray *entities = [_moc executeFetchRequest:fetchRequest error:&err];

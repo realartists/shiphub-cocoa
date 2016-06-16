@@ -21,6 +21,7 @@
 
 - (NSString *)issueRepoOwner;
 - (NSString *)issueRepoName;
+- (NSString *)issueRepoFullName;
 - (NSNumber *)issueNumber;
 
 - (NSURL *)issueGitHubURL;
