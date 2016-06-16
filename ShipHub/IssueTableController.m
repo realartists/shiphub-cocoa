@@ -95,7 +95,8 @@
     NSMenu *menu = [[NSMenu alloc] init];
     menu.delegate = self;
     [menu addItemWithTitle:NSLocalizedString(@"Open", nil) action:@selector(openFromMenu:) keyEquivalent:@""];
-    [menu addItemWithTitle:NSLocalizedString(@"Copy #", nil) action:@selector(copyNumberFromMenu:) keyEquivalent:@""];
+    [menu addItemWithTitle:NSLocalizedString(@"Copy Issue #", nil) action:@selector(copyNumberFromMenu:) keyEquivalent:@""];
+    [menu addItemWithTitle:NSLocalizedString(@"Copy Issue # and Title", nil) action:@selector(copyNumberAndTitleFromMenu:) keyEquivalent:@""];
     [menu addItemWithTitle:NSLocalizedString(@"Copy GitHub URL", nil) action:@selector(copyGitHubURLFromMenu:) keyEquivalent:@""];
     [menu addItemWithTitle:NSLocalizedString(@"Mark As Read", nil) action:@selector(markAsReadFromMenu:) keyEquivalent:@""];
     _table.menu = menu;
@@ -300,6 +301,11 @@ static NSString *const IssuePopupIdentifier = @"info.issuePopupIndex";
 - (IBAction)copyNumberFromMenu:(id)sender {
     NSArray *selected = [self selectedItemsForMenu];
     [self copyNumbers:selected];
+}
+
+- (IBAction)copyNumberAndTitleFromMenu:(id)sender {
+    NSArray *selected = [self selectedItemsForMenu];
+    [self copyNumbersAndTitles:selected];
 }
 
 - (IBAction)copyGitHubURLFromMenu:(id)sender {
