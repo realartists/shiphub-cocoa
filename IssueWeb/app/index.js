@@ -6,10 +6,12 @@ import './index.css'
 
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
+import escape from 'html-escape'
 import hljs from 'highlight.js'
 import pnglib from 'pnglib'
 window.PNGlib = pnglib;
 import identicon from 'identicon.js'
+import linkify from 'html-linkify'
 import md5 from 'md5'
 import 'whatwg-fetch'
 import Textarea from 'react-textarea-autosize'
@@ -969,7 +971,15 @@ var ReferencedEventBody = React.createClass({
 
     var bodyContent = null;
     if (this.state.showBody && body) {
-      bodyContent = h("pre", {className: "referencedCommitBody"}, body);
+      const linkifiedBody = githubLinkify(
+        getIvars().issue._bare_owner,
+        getIvars().issue._bare_repo,
+        linkify(escape(body), {escape: false}));
+      bodyContent = h("pre",
+                      {
+                        className: "referencedCommitBody",
+                        dangerouslySetInnerHTML: {__html: linkifiedBody},
+                      });
     }
 
     var expander = null;

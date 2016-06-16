@@ -1844,6 +1844,23 @@
       "from": "html-comment-regex@>=1.1.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/html-comment-regex/-/html-comment-regex-1.1.0.tgz"
     },
+    "html-escape": {
+      "version": "2.0.0",
+      "from": "html-escape@latest",
+      "resolved": "https://registry.npmjs.org/html-escape/-/html-escape-2.0.0.tgz"
+    },
+    "html-linkify": {
+      "version": "1.2.2",
+      "from": "html-linkify@>=1.2.2 <2.0.0",
+      "resolved": "https://registry.npmjs.org/html-linkify/-/html-linkify-1.2.2.tgz",
+      "dependencies": {
+        "html-escape": {
+          "version": "1.0.0",
+          "from": "html-escape@1.0.0",
+          "resolved": "https://registry.npmjs.org/html-escape/-/html-escape-1.0.0.tgz"
+        }
+      }
+    },
     "html-minifier": {
       "version": "1.5.0",
       "from": "html-minifier@>=1.1.1 <2.0.0",
