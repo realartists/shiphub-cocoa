@@ -594,7 +594,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                     if (!commitError) {
                         for (NSInteger i = 0; i < commitRequests.count; i++) {
                             referencedEvents[i] = [referencedEvents[i] mutableCopy];
-                            referencedEvents[i][@"commit"] = commitResults[i];
+                            referencedEvents[i][@"ship_commit_message"] = commitResults[i][@"commit"][@"message"];
                         }
                         [self yield:referencedEvents type:@"event" version:@{}];
                     }
@@ -622,9 +622,11 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                         for (NSInteger i = 0; i < results.count; i++) {
                             NSInteger eventIndex = [requestsToIndex[i] integerValue];
                             NSDictionary *issue = results[i];
+                            NSMutableDictionary *event = crossReferencedEvents[eventIndex];
 
-                            crossReferencedEvents[eventIndex][@"source"] = [crossReferencedEvents[eventIndex][@"source"] mutableCopy];
-                            crossReferencedEvents[eventIndex][@"source"][@"issue_expanded"] = issue;
+                            event[@"ship_issue_state"] = issue[@"state"];
+                            event[@"ship_issue_title"] = issue[@"title"];
+                            event[@"ship_is_pull_request"] = @(issue[@"pull_request"] != nil);
 
                             // HACK: GitHub doesn't give an 'id' field for cross-referenced issues.  For now, we'll
                             // fudge one using a combination of (current issue ID, referencing issue ID).
@@ -633,8 +635,8 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                             // "<referencedIssueID>_<referencingIssueID>".  That way, we'll have no chance of collision
                             // w/ a GitHub ID.
                             NSNumber *referencingIssueID = issue[@"id"];
-                            crossReferencedEvents[eventIndex][@"id"] = [NSNumber numberWithLongLong:
-                                                         ([issueID longLongValue] << 32) | [referencingIssueID longLongValue]];
+                            event[@"id"] = [NSNumber numberWithLongLong:
+                                            ([issueID longLongValue] << 32) | [referencingIssueID longLongValue]];
                             
                             if (issue[@"pull_request"]) {
                                 NSURLRequest *prInfoRequest = [self get:issue[@"pull_request"][@"url"]];
@@ -648,9 +650,9 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                                 for (NSInteger i = 0; i < prInfoResults.count; i++) {
                                     NSInteger eventIndex = [prInfoRequestsToIndex[i] integerValue];
                                     NSDictionary *pr = prInfoResults[i];
-                                    
-                                    crossReferencedEvents[eventIndex][@"source"][@"issue_expanded"] = [crossReferencedEvents[eventIndex][@"source"][@"issue_expanded"] mutableCopy];
-                                    crossReferencedEvents[eventIndex][@"source"][@"issue_expanded"][@"pull_request_expanded"] = pr;
+                                    NSMutableDictionary *event = crossReferencedEvents[eventIndex];
+
+                                    event[@"ship_pull_request_merged"] = pr[@"merged"];
                                 }
                                 
                                 [self yield:crossReferencedEvents type:@"event" version:@{}];
