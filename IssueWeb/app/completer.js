@@ -203,13 +203,6 @@ var Completer = React.createClass({
   }
 });
 
-Completer.PrefixMatcher = function(options) {
-  return function(text, cb) {
-    var r = new RegExp("^" + text, 'i');
-    cb(options.filter((o) => (r.test(o))));
-  }
-}
-
 Completer.SubstrMatcher = function(options) {
   return function(text, cb) {
     var r = new RegExp(text, 'i');
