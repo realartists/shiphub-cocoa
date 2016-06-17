@@ -99,7 +99,7 @@ var LabelPicker = React.createClass({
       if (l != null) {
         inner = `<div class='LabelSuggestionColor' style='background-color: #${l.color}'></div><span class='tt-label-suggestion-text'>${htmlEncode(value)}</span>`
       } else {
-        inner `<span class='tt-label-suggestion-text'>${htmlEncode(value)}</span>`;
+        inner = `<span class='tt-label-suggestion-text'>${htmlEncode(value)}</span>`;
       }
       
       return `<div class='tt-suggestion tt-label-suggestion'>${inner}</div>`
