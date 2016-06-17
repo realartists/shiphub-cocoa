@@ -810,14 +810,29 @@ var ReferencedEventDescription = React.createClass({
   }
 });
 
+function getOwnerRepoTypeNumberFromURL(url) {
+  var capture = url.match(
+    /https:\/\/api.github.com\/repos\/([^\/]+)\/([^\/]+)\/(issues|pulls|commits)\/([a-z0-9]+)/);
+
+  if (capture) {
+    return {
+      owner: capture[1],
+      repo: capture[2],
+      type: capture[3],
+      number: capture[4],
+    };
+  } else {
+    throw "Cannot match URL: " + url;
+  }
+}
+
 var CrossReferencedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    var capture = this.props.event.source.url.match(/https:\/\/api.github.com\/repos\/([^\/]+)\/([^\/]+)\/issues\/(\d+)/);
+    var urlParts = getOwnerRepoTypeNumberFromURL(
+      this.props.event.source.url);
 
-    var referencedRepoName = capture[1] + "/" + capture[2];
-    var referencedIssueURL = this.props.event.source.url.replace("api.github.com/repos/", "github.com/");
-
+    var referencedRepoName = `${urlParts.owner}/${urlParts.repo}`;
     var repoName = getIvars().issue._bare_owner + "/" + getIvars().issue._bare_repo;
 
     if (repoName === referencedRepoName) {
@@ -891,33 +906,36 @@ var ClassForEventDescription = function(event) {
 var CrossReferencedEventBody = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    var issue = this.props.event.source.issue_expanded;
+    var issueStateLabel = (this.props.event.ship_issue_state === "open") ? "Open" : "Closed";
+    var issueStateClass = (this.props.event.ship_issue_state === "open") ? "issueStateOpen" : "issueStateClosed";
 
-    var issueStateLabel = (issue.state === "open") ? "Open" : "Closed";
-    var issueStateClass = (issue.state === "open") ? "issueStateOpen" : "issueStateClosed";
-
-    if (issue.pull_request) {
-      var pullRequestExpanded = issue.pull_request_expanded;
-
-      if (pullRequestExpanded.state === "closed" && pullRequestExpanded.merged) {
+    if (this.props.event.ship_is_pull_request) {
+      if (this.props.event.ship_issue_state === "closed" &&
+          this.props.event.ship_pull_request_merged) {
         issueStateLabel = "Merged";
         issueStateClass = "issueStateMerged";
       }
     }
 
+    var urlParts = getOwnerRepoTypeNumberFromURL(this.props.event.source.url);
+    var destURL =
+      `https://github.com/${urlParts.owner}/${urlParts.repo}/` +
+      (this.props.event.ship_is_pull_request ? "pull" : "issues") +
+      `/${urlParts.number}`;
+
     return h("div", {},
              h("a",
                {
                  className: "issueTitle",
-                 href: this.props.event.source.issue_expanded.html_url,
+                 href: destURL,
                  target: "_blank"
                },
-               this.props.event.source.issue_expanded.title,
+               this.props.event.ship_issue_title,
                " ",
                h("span",
                  {className: "issueNumber"},
                  "#",
-                 this.props.event.source.issue_expanded.number)
+                 urlParts.number)
               ),
               " ",
               h("span",
@@ -927,7 +945,7 @@ var CrossReferencedEventBody = React.createClass({
   }
 });
 
-var ReferencedEventBody = React.createClass({
+var CommitInfoEventBody = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
 
   getInitialState: function() {
@@ -966,7 +984,7 @@ var ReferencedEventBody = React.createClass({
   },
 
   render: function() {
-    var message = this.props.event.commit.commit.message.trim();
+    var message = this.props.event.ship_commit_message.trim();
     const [subject, body] = this.getSubjectAndBodyFromMessage(message);
 
     var bodyContent = null;
@@ -994,11 +1012,12 @@ var ReferencedEventBody = React.createClass({
         );
     }
 
+    const urlParts = getOwnerRepoTypeNumberFromURL(this.props.event.commit_url);
     return h("div", {},
              h("a",
                {
                  className: "referencedCommitSubject",
-                 href: this.props.event.commit.html_url,
+                 href: `https://github.com/${urlParts.owner}/${urlParts.repo}/commit/${this.props.event.commit_id}`,
                },
                subject
               ),
@@ -1012,7 +1031,13 @@ var ReferencedEventBody = React.createClass({
 var ClassForEventBody = function(event) {
   switch (event.event) {
     case "cross-referenced": return CrossReferencedEventBody;
-    case "referenced": return ReferencedEventBody;
+    case "referenced": return CommitInfoEventBody;
+    case "closed":
+      if (typeof(event.commit_id) === "string") {
+        return CommitInfoEventBody;
+      } else {
+        return null;
+      }
     default: return null;
   }
 }
