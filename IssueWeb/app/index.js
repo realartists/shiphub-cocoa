@@ -803,9 +803,21 @@ var ReferencedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
     var [committish, commitURL] = expandCommit(this.props.event);
+
+    var authoredBy = null;
+    if (this.props.event.ship_commit_author.login !=
+        this.props.event.actor.login) {
+      authoredBy = h("span", {},
+                     "(authored by ",
+                     h(EventUser, {user: this.props.event.ship_commit_author}),
+                     ")"
+                    );
+    }
+
     return h("span", {},
       "referenced this issue in commit ",
-      h("a", {className: "shaLink", href:commitURL, target:"_blank"}, committish)
+      h("a", {className: "shaLink", href:commitURL, target:"_blank"}, committish),
+      authoredBy
     );
   }
 });
@@ -863,6 +875,17 @@ var ClosedEventDescription = React.createClass({
   render: function() {
     if (typeof(this.props.event.commit_id) === "string") {
       var [committish, commitURL] = expandCommit(this.props.event);
+
+      var authoredBy = null;
+      if (this.props.event.ship_commit_author.login !=
+          this.props.event.actor.login) {
+        authoredBy = h("span", {},
+                       "(authored by ",
+                       h(EventUser, {user: this.props.event.ship_commit_author}),
+                       ")"
+                      );
+      }
+
       return h("span", {},
         "closed this issue with commit ",
         h("a",
@@ -871,7 +894,8 @@ var ClosedEventDescription = React.createClass({
             href:commitURL,
             target:"_blank"
           },
-          committish)
+          committish),
+        authoredBy
       );
     } else {
       return h("span", {}, "closed this issue");

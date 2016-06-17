@@ -604,6 +604,12 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                             NSInteger eventIndex = [commmitRequestsToIndex[i] integerValue];
                             referencedAndCommitEvents[eventIndex] = [referencedAndCommitEvents[eventIndex] mutableCopy];
                             referencedAndCommitEvents[eventIndex][@"ship_commit_message"] = commitResults[i][@"commit"][@"message"];
+                            referencedAndCommitEvents[eventIndex][@"ship_commit_author"] =
+                            @{
+                              @"login" : commitResults[i][@"author"][@"login"],
+                              @"avatar_url" : commitResults[i][@"author"][@"avatar_url"],
+                              @"id" : commitResults[i][@"author"][@"id"],
+                              };
                         }
                         [self yield:referencedAndCommitEvents type:@"event" version:@{}];
                     }
