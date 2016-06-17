@@ -17,7 +17,7 @@ var LabelPicker = React.createClass({
     var el = ReactDOM.findDOMNode(completer.refs.typeInput);
     var val = el.value;
     
-    var result = [];
+    var promises = [];
     if (val.length > 0) {
       completer.props.matcher(val, (results) => {
         if (results.length >= 1) {
@@ -26,7 +26,7 @@ var LabelPicker = React.createClass({
           for (var i = 0; i < this.props.labels.length; i++) {
             if (this.props.labels[i].name == result) {
               if (this.props.onAdd) {
-                result.push(this.props.onAdd(this.props.labels[i]));
+                promises.push(this.props.onAdd(this.props.labels[i]));
               }
               break;
             }
@@ -38,11 +38,21 @@ var LabelPicker = React.createClass({
     $(el).typeahead('val', "");
     $(el).focus();
     
-    if (result.length > 0) {
-      return result[0];
-    } else {
-      return Promise.resolve();
+    return Promise.all(promises);
+  },
+  
+  onChange: function() {
+    if (!this.handlingMouseDown && !this.hasFocus() && this.isEdited()) {
+      this.refs.completer.clear();
     }
+  },
+  
+  onPlusMouseDown: function() {
+    this.handlingMouseDown = true;
+  },
+  
+  onPlusMouseUp: function() {
+    this.handlingMouseDown = false;
   },
   
   focus: function() {
@@ -101,12 +111,15 @@ var LabelPicker = React.createClass({
         ref: 'completer',
         placeholder: "Add Label",
         onEnter: this.addLabel,
+        onChange: this.onChange,
         matcher: matcher,
         suggestionFormatter: formatter
       }),
       h('div', {style: { display: 'inline-block' } },
         h('i', {className: 'fa fa-plus-circle AddLabel Clickable',
-          onClick: this.addLabel
+          onClick: this.addLabel,
+          onMouseDown: this.onPlusMouseDown,
+          onMouseUp: this.onPlusMouseUp
         })
       )
     );

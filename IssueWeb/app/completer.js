@@ -173,6 +173,14 @@ var Completer = React.createClass({
     }
   },
   
+  clear: function() {
+    if (this.refs.typeInput) {
+      var el = ReactDOM.findDOMNode(this.refs.typeInput);
+      $(el).typeahead('val', "");
+      this.refs.typeInput.setState({value: ""});
+    }
+  },
+  
   onBlur: function() {
     if (this.remounting) return;  
     this.completeOrFail(() => {
