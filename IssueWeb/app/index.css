@@ -504,7 +504,7 @@ div.IssueLabels .LabelContainer {
   display: inline-block;
 }
 
-.LabelPicker i {
+.LabelPicker i.AddLabel {
   position: relative;
   top: -2px;
   margin: 0px;
