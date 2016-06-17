@@ -2319,7 +2319,7 @@ var MilestoneField = React.createClass({
   milestoneChanged: function(value) {
     var initial = keypath(this.props.issue, "milestone.title") || "";
     if (value != initial) {
-      if (value.length == 0) { 
+      if (value == null || value.length == 0) { 
         value = null;
       }
       
@@ -2330,17 +2330,15 @@ var MilestoneField = React.createClass({
   },
   
   onEnter: function() {
-    var completer = this.refs.completer;
-    var el = ReactDOM.findDOMNode(completer.refs.typeInput);
-    var val = el.value;
-    
+    var completer = this.refs.completer;    
     var promises = [];
-    completer.props.matcher(val, (results) => {
-      if (results.length >= 1) {
-        var result = results[0];
-        promises.push(this.milestoneChanged(result));
-      } else {
+    
+    completer.completeOrFail(() => {
+      var val = completer.value();
+      if (val == null || val == "") {
         promises.push(this.milestoneChanged(null));
+      } else {
+        promises.push(this.milestoneChanged(val));
       }
       this.props.focusNext("milestone");
     });
@@ -2454,7 +2452,7 @@ var AssigneeInput = React.createClass({
   assigneeChanged: function(value) {
     var initial = keypath(this.props.issue, "assignee.login") || "";
     if (value != initial) {
-      if (value.length == 0) {
+      if (value == null || value.length == 0) {
         value = null;
       }
       return patchIssue({assignee: this.lookupAssignee(value)});
@@ -2465,16 +2463,14 @@ var AssigneeInput = React.createClass({
   
   onEnter: function() {
     var completer = this.refs.completer;
-    var el = ReactDOM.findDOMNode(completer.refs.typeInput);
-    var val = el.value;
     
     var promises = [];
-    completer.props.matcher(val, (results) => {
-      if (results.length >= 1) {
-        var result = results[0];
-        promises.push(this.assigneeChanged(result));
-      } else {
+    completer.completeOrFail(() => {
+      var val = completer.value();
+      if (val == null || val == "") {
         promises.push(this.assigneeChanged(null));
+      } else {
+        promises.push(this.assigneeChanged(val));
       }
       this.props.focusNext("assignee");
     });
@@ -2738,7 +2734,7 @@ var Header = React.createClass({
   focusField: function(field) {
     if (this.refs[field]) {
       var x = this.refs[field];
-      setTimeout(() => { x.focus() }, 1);
+      x.focus();
     } else {
       this.queuedFocus = field;
     }

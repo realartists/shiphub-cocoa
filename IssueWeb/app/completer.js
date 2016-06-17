@@ -165,6 +165,14 @@ var Completer = React.createClass({
     });
   },
   
+  value: function() {
+    if (this.refs.typeInput) {
+      return this.refs.typeInput.state.value;
+    } else {
+      return this.props.value;
+    }
+  },
+  
   onBlur: function() {
     if (this.remounting) return;  
     this.completeOrFail(() => {
