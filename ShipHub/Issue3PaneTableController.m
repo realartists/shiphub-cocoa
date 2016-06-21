@@ -12,6 +12,7 @@
 #import "Extras.h"
 #import "Issue.h"
 #import "IssueTableControllerPrivate.h"
+#import "FilterButton.h"
 
 #import <objc/runtime.h>
 
@@ -21,7 +22,7 @@
 
 @interface CompactIssueTableHeaderView : NSTableHeaderView
 
-@property NSPopUpButton *sortButton;
+@property FilterButton *sortButton;
 
 @end
 
@@ -57,8 +58,6 @@
     
     NSString *strAsc = NSLocalizedString(@"A to Z", nil);
     NSString *strDesc = NSLocalizedString(@"Z to A", nil);
-    
-    [sortMenu addItemWithTitle:@" " action:nil keyEquivalent:@""]; // NSPopUpButton eats the first menu item.
     
     m = [sortMenu addItemWithTitle:NSLocalizedString(@"Date Created", nil) action:@selector(changeSort:) keyEquivalent:@""];
     m.representedObject =
@@ -170,10 +169,6 @@
         _header.sortButton.title = [NSString stringWithFormat:NSLocalizedString(@"Sort by %@", nil), selectedItem.title];
         [_header.sortButton sizeToFit];
         
-        CGRect f = _header.sortButton.frame;
-        f.size.width -= 12.0; // for some reason NSPopUpButton wants to put the chevron too far right. Stop that shit.
-        _header.sortButton.frame = f;
-        
         NSString *compare = info[@"compare"] ?: @"compare:";
         
         NSSortDescriptor *actual = [NSSortDescriptor sortDescriptorWithKey:[NSString stringWithFormat:@"info.issue.%@", sortDesc.key] ascending:sortDesc.ascending selector:NSSelectorFromString(compare)];
@@ -279,17 +274,7 @@ static NSColor *HeaderDividerColor() {
 
 - (id)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
-        NSPopUpButton *button = [[NSPopUpButton alloc] initWithFrame:CGRectMake(5.0, 1.0, 100.0, 16.0) pullsDown:YES];
-        NSPopUpButtonCell *cell = button.cell;
-        cell.arrowPosition = NSPopUpArrowAtBottom;
-        button.autoenablesItems = YES;
-        button.controlSize = NSSmallControlSize;
-        button.state = NSOnState;
-        button.preferredEdge = NSRectEdgeMinY;
-        [button setButtonType:NSPushOnPushOffButton];
-        button.font = [NSFont systemFontOfSize:10.0];
-        button.bezelStyle = NSRecessedBezelStyle;
-        button.showsBorderOnlyWhileMouseInside = YES;
+        FilterButton *button = [[FilterButton alloc] initWithFrame:CGRectMake(5.0, 1.0, 100.0, 16.0) pullsDown:YES];
         
         [button sizeToFit];
         _sortButton = button;

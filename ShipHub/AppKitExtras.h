@@ -181,3 +181,9 @@
 - (void)setPosition:(CGFloat)position ofDividerAtIndex:(NSInteger)idx animated:(BOOL)animate;
 
 @end
+
+@interface NSMenu (AppKitExtras)
+
+- (void)walkMenuItems:(void (^)(NSMenuItem *m, BOOL *stop))visitor;
+
+@end

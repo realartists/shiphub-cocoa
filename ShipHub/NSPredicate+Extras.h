@@ -34,6 +34,17 @@ typedef NSPredicate *(^PredicateRewriter)(NSPredicate *original);
 // as a subquery expression are not visited).
 - (NSPredicate *)predicateByRewriting:(PredicateRewriter)rewriter;
 
+// Return all nested predicates matching predicate
+- (NSArray *)predicatesMatchingPredicate:(NSPredicate *)predicate;
+
+// A predicate that matches other predicates which are comparison predicates with
+// keyPath being on one side of the predicate
++ (NSPredicate *)predicateMatchingComparisonPredicateWithKeyPath:(NSString *)keyPath;
+
+// Walk from root and if self is found anywhere in root, return the NSCompoundPredicate
+// that contains self (if it exists).
+- (NSCompoundPredicate *)parentPredicateInTree:(NSPredicate *)root;
+
 @end
 
 @interface NSExpression (Walking)

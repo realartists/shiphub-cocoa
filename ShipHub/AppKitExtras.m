@@ -791,3 +791,24 @@ static CGFloat GetAttachmentWidth(void *ref) {
 }
 
 @end
+
+@implementation NSMenu (AppKitExtras)
+
+- (BOOL)walkMenuItemsHelper:(void (^)(NSMenuItem *m, BOOL *stop))visitor {
+    BOOL stop = NO;
+    for (NSMenuItem *item in self.itemArray) {
+        visitor(item, &stop);
+        if (!stop && item.hasSubmenu) {
+            stop = [item.submenu walkMenuItemsHelper:visitor];
+        }
+        if (stop) break;
+    }
+    return stop;
+}
+
+- (void)walkMenuItems:(void (^)(NSMenuItem *m, BOOL *stop))visitor {
+    [self walkMenuItemsHelper:visitor];
+    
+}
+
+@end
