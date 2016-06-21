@@ -28,6 +28,7 @@
 #import "ChartController.h"
 #import "TimeSeries.h"
 #import "ThreePaneController.h"
+#import "FilterBarViewController.h"
 
 #import "IssueDocumentController.h"
 
@@ -68,7 +69,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 @end
 
-@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate,
+@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate,
 #if !INCOMPLETE
 SearchEditorViewControllerDelegate,
 #endif
@@ -86,6 +87,8 @@ NSTextFieldDelegate>
 @property (strong) IBOutlet ButtonToolbarItem *createNewItem;
 @property (strong) IBOutlet ButtonToolbarItem *sidebarItem;
 @property (strong) IBOutlet ResultsViewModeItem *modeItem;
+
+@property (strong) FilterBarViewController *filterBar;
 
 #if !INCOMPLETE
 @property (strong) SearchEditorViewController *predicateEditor;
@@ -144,6 +147,10 @@ NSTextFieldDelegate>
     if (isElCapOrNewer) {
         _splitView.wantsLayer = YES;
     }
+    
+    _filterBar = [FilterBarViewController new];
+    _filterBar.delegate = self;
+    [self.window addTitlebarAccessoryViewController:_filterBar];
     
     NSImage *sidebarImage = [NSImage sidebarIcon];
     _sidebarItem.buttonImage = sidebarImage;
@@ -828,6 +835,8 @@ NSTextFieldDelegate>
     NSPredicate *predicate = nil;
     predicate = [selectedItem predicate];
     
+    NSPredicate *filterPredicate = _filterBar.predicate;
+    
     NSString *title = [[_searchItem.searchField stringValue] trim];
     NSInteger number = [title isDigits] ? [title integerValue] : 0;
     NSPredicate *searchPredicate = [title length] > 0 ? [NSPredicate predicateWithFormat:@"title CONTAINS[cd] %@", title] : nil;
@@ -838,6 +847,10 @@ NSTextFieldDelegate>
         predicate = [predicate and:searchPredicate];
     } else if (searchPredicate) {
         predicate = searchPredicate;
+    }
+    
+    if (filterPredicate) {
+        predicate = [predicate and:filterPredicate];
     }
     
     _modeItem.chartEnabled = (selectedItem == nil || [selectedItem allowChart]);
@@ -1075,6 +1088,7 @@ NSTextFieldDelegate>
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification {
     if (!_nodeSelectionProgrammaticallyInitiated) {
         [_searchItem.searchField setStringValue:@""];
+        [_filterBar clearFilters];
     }
     OverviewNode *selectedItem = [_outlineView selectedItem];
     
@@ -1099,6 +1113,7 @@ NSTextFieldDelegate>
         _searchItem.enabled = YES;
         _predicateItem.enabled = YES;
         _modeItem.enabled = YES;
+        _filterBar.basePredicate = selectedItem.predicate;
         [self updatePredicate];
     }
 
@@ -1334,6 +1349,12 @@ NSTextFieldDelegate>
     }
 }
 #endif
+
+#pragma mark - FilterBarViewControllerDelegate
+
+- (void)filterBar:(FilterBarViewController *)vc didUpdatePredicate:(NSPredicate *)newPredicate {
+    [self updatePredicate];
+}
 
 #pragma mark - Query Actions
 

@@ -88,6 +88,62 @@
     }
 }
 
+- (void)predicatesMatchingPredicate:(NSPredicate *)predicate accum:(NSMutableArray *)accum
+{
+    if ([predicate evaluateWithObject:self]) {
+        [accum addObject:self];
+    }
+    if ([self isKindOfClass:[NSCompoundPredicate class]]) {
+        NSCompoundPredicate *c0 = (id)self;
+        
+        for (NSPredicate *subpredicate in [c0 subpredicates]) {
+            [subpredicate predicatesMatchingPredicate:predicate accum:accum];
+        }
+    }
+}
+
+- (NSArray *)predicatesMatchingPredicate:(NSPredicate *)predicate {
+    NSMutableArray *accum = [NSMutableArray new];
+    [self predicatesMatchingPredicate:predicate accum:accum];
+    return accum;
+}
+
++ (NSPredicate *)predicateMatchingComparisonPredicateWithKeyPath:(NSString *)keyPath {
+    return [NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        if ([evaluatedObject isKindOfClass:[NSComparisonPredicate class]]) {
+            NSComparisonPredicate *c0 = evaluatedObject;
+            NSExpression *lhs = c0.leftExpression;
+            NSExpression *rhs = c0.rightExpression;
+            
+            return (lhs.expressionType == NSKeyPathExpressionType && [[lhs keyPath] isEqualToString:keyPath]) || (rhs.expressionType == NSKeyPathExpressionType && [[rhs keyPath] isEqualToString:keyPath]);
+        }
+        return NO;
+    }];
+}
+
+// Walk from root and if self is found anywhere in root, return the NSCompoundPredicate
+// that contains self (if it exists).
+- (NSCompoundPredicate *)parentPredicateInTree:(NSPredicate *)root {
+    NSMutableArray *stack = [NSMutableArray new];
+    [stack addObject:root];
+    
+    while ([stack count] > 0) {
+        NSPredicate *p = [stack lastObject];
+        [stack removeLastObject];
+        
+        if ([p isKindOfClass:[NSCompoundPredicate class]]) {
+            NSCompoundPredicate *c0 = (id)p;
+            if ([c0.subpredicates containsObject:self]) {
+                return c0;
+            }
+            [stack addObjectsFromArray:c0.subpredicates];
+        }
+    }
+    
+    return nil;
+}
+
+
 @end
 
 @implementation NSExpression (Walking)

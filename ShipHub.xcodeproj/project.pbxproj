@@ -108,6 +108,8 @@
 		1AD956B31D0B5654002B1259 /* DownloadBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD956B11D0B5654002B1259 /* DownloadBarViewController.m */; };
 		1AD956B41D0B5654002B1259 /* DownloadBarViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AD956B21D0B5654002B1259 /* DownloadBarViewController.xib */; };
 		1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD956B61D0B75AD002B1259 /* MultiDownloadProgress.m */; };
+		1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */; };
+		1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC81D188E6800E9FAFC /* FilterButton.m */; };
 		1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */; };
 		1AE09BEB1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */; };
 		1AE09BEC1C97687E00C5AC35 /* LocalMilestone.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC11C97687E00C5AC35 /* LocalMilestone.m */; };
@@ -416,6 +418,10 @@
 		1AD956B21D0B5654002B1259 /* DownloadBarViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DownloadBarViewController.xib; sourceTree = "<group>"; };
 		1AD956B51D0B75AD002B1259 /* MultiDownloadProgress.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiDownloadProgress.h; sourceTree = "<group>"; };
 		1AD956B61D0B75AD002B1259 /* MultiDownloadProgress.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MultiDownloadProgress.m; sourceTree = "<group>"; };
+		1AD9ECC11D14990100E9FAFC /* FilterBarViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterBarViewController.h; sourceTree = "<group>"; };
+		1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterBarViewController.m; sourceTree = "<group>"; };
+		1AD9ECC71D188E6800E9FAFC /* FilterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterButton.h; sourceTree = "<group>"; };
+		1AD9ECC81D188E6800E9FAFC /* FilterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterButton.m; sourceTree = "<group>"; };
 		1AE09BBE1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalMilestone+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalMilestone+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BC01C97687E00C5AC35 /* LocalMilestone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalMilestone.h; sourceTree = "<group>"; };
@@ -655,6 +661,8 @@
 				1A0D87731CA9E25F0069782D /* JSON.m */,
 				1AD956B51D0B75AD002B1259 /* MultiDownloadProgress.h */,
 				1AD956B61D0B75AD002B1259 /* MultiDownloadProgress.m */,
+				1AD9ECC71D188E6800E9FAFC /* FilterButton.h */,
+				1AD9ECC81D188E6800E9FAFC /* FilterButton.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -796,6 +804,8 @@
 				1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */,
 				1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */,
 				1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */,
+				1AD9ECC11D14990100E9FAFC /* FilterBarViewController.h */,
+				1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */,
 			);
 			name = "Overview UI";
 			sourceTree = "<group>";
@@ -1135,6 +1145,7 @@
 				1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
 				1A694B351CA3431700F73608 /* IssueTableController.m in Sources */,
 				1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */,
+				1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
 				1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */,
 				1A694B2B1CA341D500F73608 /* NetworkStatusTextField.m in Sources */,
@@ -1142,6 +1153,7 @@
 				1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */,
 				1A2305DD1C7F84D80034C871 /* Error.m in Sources */,
 				1A694B4B1CA367E300F73608 /* Issue.m in Sources */,
+				1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */,
 				1AE09C101C97687E00C5AC35 /* LocalOrg.m in Sources */,
 				1AE09BEE1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
 				1A3618EF1C8FC3DB008C11CB /* Reachability.m in Sources */,
