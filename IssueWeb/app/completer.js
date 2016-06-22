@@ -74,7 +74,11 @@ var Completer = React.createClass({
     $(el).typeahead('destroy');
     
     var typeaheadDataOpts = {
-      limit: 20,
+      // Never limit the drop down - we don't want to risk that the "New
+      // Label..." option at the end of the dropdown is stripped.  If we find
+      // we do want a limit, we'll have to prune the list of options we send
+      // to typeahead.js.
+      limit: Number.MAX_VALUE,
       source: matcher
     };
     

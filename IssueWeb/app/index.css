@@ -522,9 +522,24 @@ div.IssueLabels .LabelContainer {
   border: 0.5px solid black;
 }
 
+.LabelPicker i.NewLabelSuggestionIcon {
+  color: #333;
+  display: inline-block;
+  margin-left: 5px;
+  margin-right: 4px;
+}
+
 .tt-label-suggestion-text {
   position: relative;
   top: -1px;
+}
+
+.tt-label-suggestion-text .no-highlight > .tt-highlight {
+  font-weight: normal;
+}
+
+.tt-label-suggestion-text .no-highlight > .highlight {
+  font-weight: bold;
 }
 
 .addCommentLabel {

@@ -6,8 +6,9 @@ import Completer from './completer.js'
 
 var LabelPicker = React.createClass({
   propTypes: {
-    onAdd: React.PropTypes.func, /* function onAdd(label) { ... } */
-    labels: React.PropTypes.array
+    onAddExistingLabel: React.PropTypes.func, /* function onAdd(label) { ... } */
+    labels: React.PropTypes.array,
+    allLabelNames: React.PropTypes.array,
   },
   
   addLabel: function() {
@@ -17,28 +18,32 @@ var LabelPicker = React.createClass({
     var el = ReactDOM.findDOMNode(completer.refs.typeInput);
     var val = el.value;
     
-    var promises = [];
-    if (val.length > 0) {
-      completer.props.matcher(val, (results) => {
-        if (results.length >= 1) {
-          var result = results[0];
-        
-          for (var i = 0; i < this.props.labels.length; i++) {
-            if (this.props.labels[i].name == result) {
-              if (this.props.onAdd) {
-                promises.push(this.props.onAdd(this.props.labels[i]));
-              }
-              break;
-            }
-          }
-        }
-      });
+    if (val === "") {
+      // Ignore the empty strings.  I think these come right after you select
+      // a label.
+      return;
     }
-        
+
+    const newLabelWithInputRegex = /^New Label: (.*?)$/;
+    const existingLabelMatch = this.props.labels.find(
+      (label) => (label.name === val));
+
+    var promise;
+    if (val === "New Label...") {
+      promise = this.props.onNewLabel(null);
+    } else if (newLabelWithInputRegex.test(val)) {
+      var newLabel = val.match(newLabelWithInputRegex)[1];
+      promise = this.props.onNewLabel(newLabel);
+    } else if (existingLabelMatch) {
+      promise = this.props.onAddExistingLabel(existingLabelMatch)
+    } else {
+      throw new Error("Unexpected label value: " + val);
+    }
+
     $(el).typeahead('val', "");
     $(el).focus();
-    
-    return Promise.all(promises);
+
+    return promise;
   },
   
   onChange: function() {
@@ -86,10 +91,27 @@ var LabelPicker = React.createClass({
   },
   
   render: function() {
-    var matcher = Completer.SubstrMatcher(
-      this.props.labels.map((l) => l.name)
-    );
-    
+    const matcher = function(text, cb) {
+      const labelNames = this.props.labels
+        .map((l) => l.name)
+        .sort((a, b) => (a.toLowerCase().localeCompare(b.toLowerCase())));
+
+      var r = new RegExp(text, 'i');
+      var results = labelNames.filter((o) => (r.test(o)));
+
+      if (text.trim().length > 0 && labelNames.indexOf(text) == -1) {
+        // To appear when a string is entered that does not match
+        // existing label names.
+        results.push("New Label: " + text.trim());
+      } else if (text.trim().length == 0) {
+        // To appear only when the label drop down is first expanded.
+        // Will disappear if someone starts typing a string.
+        results.push("New Label...");
+      }
+
+      cb(results);
+    }.bind(this);
+
     var labelLookup = {};
     this.props.labels.forEach((l) => { labelLookup[l.name] = l })
     
@@ -99,7 +121,22 @@ var LabelPicker = React.createClass({
       if (l != null) {
         inner = `<div class='LabelSuggestionColor' style='background-color: #${l.color}'></div><span class='tt-label-suggestion-text'>${htmlEncode(value)}</span>`
       } else {
-        inner = `<span class='tt-label-suggestion-text'>${htmlEncode(value)}</span>`;
+        var match = value.match(/^New Label: (.*?)$/);
+        var renderedValue;
+        if (match) {
+          renderedValue = `
+            <span class="no-highlight">
+              New Label: <span class="highlight">${match[1]}</span>
+            </span>`;
+        } else {
+          renderedValue = `<span class="no-highlight">New Label...</span>`;
+        }
+
+        inner = `
+          <i class="NewLabelSuggestionIcon fa fa-plus" aria-hidden="true"></i>
+          <span class='tt-label-suggestion-text'>
+            ${renderedValue}
+          </span>`;
       }
       
       return `<div class='tt-suggestion tt-label-suggestion'>${inner}</div>`

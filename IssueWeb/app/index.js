@@ -2656,11 +2656,33 @@ var AddLabel = React.createClass({
     issue: React.PropTypes.object,
   },
   
-  addLabel: function(label) {
+  addExistingLabel: function(label) {
     var labels = [label, ...this.props.issue.labels];
     return patchIssue({labels: labels});
   },
-  
+
+  newLabel: function(prefillName) {
+    var _this = this;
+    return new Promise(function(resolve, reject) {
+      window.newLabel(prefillName ? prefillName : "",
+                      getIvars().labels,
+                      _this.props.issue._bare_owner,
+                      _this.props.issue._bare_repo,
+                      function(succeeded, label) {
+                        if (succeeded) {
+                          getIvars().labels.push({
+                            name: label.name,
+                            color: label.color,
+                          });
+                          _this.forceUpdate();
+
+                          return _this.addExistingLabel(label).then(resolve, reject);
+                        }
+                        resolve();
+                      });
+    });
+  },
+
   focus: function() {
     if (this.refs.picker) {
       this.refs.picker.focus();
@@ -2697,16 +2719,13 @@ var AddLabel = React.createClass({
     
     var chosenLabelsLookup = chosenLabels.reduce((o, l) => { o[l.name] = l; return o; }, {});  
     var filteredLabels = allLabels.filter((l) => !(l.name in chosenLabelsLookup));
-    
-    if (filteredLabels.length == 0) {
-      return h('div', {className:'AddLabelEmpty'});
-    } else {
-      return h(LabelPicker, {
-        ref: "picker",
-        labels: filteredLabels,
-        onAdd: this.addLabel
-      });
-    }
+
+    return h(LabelPicker, {
+      ref: "picker",
+      labels: filteredLabels,
+      onAddExistingLabel: this.addExistingLabel,
+      onNewLabel: this.newLabel,
+    });
   }
 });
 

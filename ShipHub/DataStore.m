@@ -675,6 +675,50 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
 }
 
+- (void)addLabel:(NSDictionary *)label
+       repoOwner:(NSString *)repoOwner
+        repoName:(NSString *)repoName
+      completion:(void (^)(NSDictionary *label, NSError *error))completion {
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/labels", repoOwner, repoName];
+    [self.serverConnection perform:@"POST" on:endpoint body:label completion:^(id jsonResponse, NSError *error) {
+        if (jsonResponse) {
+            [_moc performBlock:^{
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"fullName = %@",
+                                   [NSString stringWithFormat:@"%@/%@", repoOwner, repoName]];
+                fetch.fetchLimit = 1;
+
+                NSError *fetchError;
+                NSArray *results = [_moc executeFetchRequest:fetch error:&fetchError];
+                NSAssert(results != nil, @"Failed to fetch repo: %@", error);
+                LocalRepo *localRepo = (LocalRepo *)[results firstObject];
+
+                LocalLabel *localLabel = [NSEntityDescription insertNewObjectForEntityForName:@"LocalLabel"
+                                                                       inManagedObjectContext:_moc];
+                localLabel.name = label[@"name"];
+                localLabel.color = label[@"color"];
+                localLabel.repo = localRepo;
+
+                NSError *saveError;
+                if ([_moc save:&saveError]) {
+                    RunOnMain(^{
+                        completion(jsonResponse, nil);
+                    });
+                } else {
+                    ErrLog(@"Failed to save: %@", saveError);
+                    RunOnMain(^{
+                        completion(nil, saveError);
+                    });
+                }
+            }];
+        } else {
+            RunOnMain(^{
+                completion(nil, error);
+            });
+        }
+    }];
+}
+
 // Must be called on _moc. Does not call save. Does not update sync version
 - (void)writeSyncObjects:(NSArray<SyncEntry *> *)objs {
     

@@ -20,6 +20,7 @@
 #import "Issue.h"
 #import "IssueDocumentController.h"
 #import "IssueIdentifier.h"
+#import "NewLabelController.h"
 #import "JSON.h"
 #import "User.h"
 #import "WebKitExtras.h"
@@ -401,6 +402,26 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 
 #pragma mark - WebFrameLoadDelegate
 
+- (void)handleNewLabelWithName:(NSString *)name
+                     allLabels:(NSArray *)allLabels
+                         owner:(NSString *)owner
+                          repo:(NSString *)repo
+            completionCallback:(JSValue *)completionCallback {
+    NewLabelController *newLabelController = [[NewLabelController alloc] initWithPrefilledName:(name ?: @"")
+                                                                                     allLabels:allLabels
+                                                                                         owner:owner
+                                                                                          repo:repo];
+
+    [self.view.window beginSheet:newLabelController.window completionHandler:^(NSModalResponse response){
+        if (response == NSModalResponseOK) {
+            NSAssert(newLabelController.createdLabel != nil, @"succeeded but created label was nil");
+            [completionCallback callWithArguments:@[@YES, newLabelController.createdLabel]];
+        } else {
+            [completionCallback callWithArguments:@[@NO]];
+        }
+    }];
+}
+
 - (void)webView:(WebView *)webView didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
     __weak __typeof(self) weakSelf = self;
     [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
@@ -418,7 +439,11 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
         [weakSelf handleDocumentSaved:msg];
     } name:@"documentSaveHandler"];
-    
+
+    [[windowObject JSValue] setValue:^(NSString *name, NSArray *allLabels, NSString *owner, NSString *repo, JSValue *completionCallback){
+        [weakSelf handleNewLabelWithName:name allLabels:allLabels owner:owner repo:repo completionCallback:(JSValue *)completionCallback];
+    } forProperty:@"newLabel"];
+
     NSString *setupJS =
     @"window.inApp = true;\n"
     @"window.postAppMessage = function(msg) { window.inAppAPI.postMessage(msg); }\n";

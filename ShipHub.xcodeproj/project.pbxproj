@@ -177,6 +177,9 @@
 		1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
 		1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
 		1AFE22071CA6069600B51CF6 /* IssueEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22011CA6053B00B51CF6 /* IssueEvent.m */; };
+		28BF03B51D1873CA00F22638 /* NewLabelController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28BF03B41D1873CA00F22638 /* NewLabelController.m */; };
+		28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28BF03B71D187EFA00F22638 /* NewLabelController.xib */; };
+		28BF04131D2224BA00F22638 /* FontAwesome.otf in Copy Fonts */ = {isa = PBXBuildFile; fileRef = 28BF03C21D1C582E00F22638 /* FontAwesome.otf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -248,6 +251,17 @@
 				1AF3498B1CDAC4AC00A5BEB0 /* nv.d3.min.js in Copy Chart Web Content */,
 			);
 			name = "Copy Chart Web Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		28BF04101D22236400F22638 /* Copy Fonts */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Fonts;
+			dstSubfolderSpec = 7;
+			files = (
+				28BF04131D2224BA00F22638 /* FontAwesome.otf in Copy Fonts */,
+			);
+			name = "Copy Fonts";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -492,6 +506,10 @@
 		1AFE22011CA6053B00B51CF6 /* IssueEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueEvent.m; sourceTree = "<group>"; };
 		1AFE22031CA6069300B51CF6 /* IssueComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueComment.h; sourceTree = "<group>"; };
 		1AFE22041CA6069300B51CF6 /* IssueComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueComment.m; sourceTree = "<group>"; };
+		28BF03B41D1873CA00F22638 /* NewLabelController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewLabelController.m; sourceTree = "<group>"; };
+		28BF03B61D1873DF00F22638 /* NewLabelController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewLabelController.h; sourceTree = "<group>"; };
+		28BF03B71D187EFA00F22638 /* NewLabelController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewLabelController.xib; sourceTree = "<group>"; };
+		28BF03C21D1C582E00F22638 /* FontAwesome.otf */ = {isa = PBXFileReference; lastKnownFileType = file; name = FontAwesome.otf; path = ext/FontAwesome.otf; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -529,6 +547,9 @@
 				1AD956B01D0B5654002B1259 /* DownloadBarViewController.h */,
 				1AD956B11D0B5654002B1259 /* DownloadBarViewController.m */,
 				1AD956B21D0B5654002B1259 /* DownloadBarViewController.xib */,
+				28BF03B61D1873DF00F22638 /* NewLabelController.h */,
+				28BF03B41D1873CA00F22638 /* NewLabelController.m */,
+				28BF03B71D187EFA00F22638 /* NewLabelController.xib */,
 			);
 			name = "Issue UI";
 			sourceTree = "<group>";
@@ -584,6 +605,7 @@
 		1A2217A21C7E7B78006460E2 /* ext */ = {
 			isa = PBXGroup;
 			children = (
+				28BF03C21D1C582E00F22638 /* FontAwesome.otf */,
 				1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */,
 			);
 			name = ext;
@@ -958,6 +980,7 @@
 				1A22178A1C7E7B14006460E2 /* Sources */,
 				1A22178B1C7E7B14006460E2 /* Frameworks */,
 				1A22178C1C7E7B14006460E2 /* Resources */,
+				28BF04101D22236400F22638 /* Copy Fonts */,
 				1A0D87791CAB03710069782D /* Copy Issue Web Content */,
 				1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */,
 				1A2217C41C7E7BC1006460E2 /* Copy Frameworks */,
@@ -1081,6 +1104,7 @@
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
+				28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */,
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
 			);
@@ -1146,6 +1170,7 @@
 				1A694B351CA3431700F73608 /* IssueTableController.m in Sources */,
 				1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */,
 				1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */,
+				28BF03B51D1873CA00F22638 /* NewLabelController.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
 				1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */,
 				1A694B2B1CA341D500F73608 /* NetworkStatusTextField.m in Sources */,

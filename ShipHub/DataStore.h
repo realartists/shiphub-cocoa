@@ -49,6 +49,11 @@
 
 - (void)timeSeriesMatchingPredicate:(NSPredicate *)predicate startDate:(NSDate *)startDate endDate:(NSDate *)endDate completion:(void (^)(TimeSeries *series, NSError *error))completion;
 
+- (void)addLabel:(NSDictionary *)label
+       repoOwner:(NSString *)repoOwner
+        repoName:(NSString *)repoName
+      completion:(void (^)(NSDictionary *label, NSError *error))completion;
+
 @end
 
 @interface DataStore (APIProxyMutations)
