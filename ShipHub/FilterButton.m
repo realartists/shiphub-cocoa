@@ -8,7 +8,7 @@
 
 #import "FilterButton.h"
 
-@interface FilterButton () {
+@interface FilterButton () <NSMenuDelegate> {
     NSMenu *_myMenu;
     BOOL _menuShowing;
 }
@@ -101,11 +101,26 @@
 }
 
 - (void)setMenu:(NSMenu *)menu {
-    _myMenu = menu;
+    if (_myMenu != menu) {
+        _myMenu.delegate = nil;
+        _myMenu = menu;
+        _myMenu.delegate = self;
+        if (_menuShowing) {
+            [self showMenu];
+        }
+    }
 }
 
 - (NSMenu *)menu {
     return _myMenu;
+}
+
+- (void)menuWillOpen:(NSMenu *)menu {
+    _menuShowing = YES;
+}
+
+- (void)menuDidClose:(NSMenu *)menu {
+    _menuShowing = NO;
 }
 
 - (NSString *)description {
