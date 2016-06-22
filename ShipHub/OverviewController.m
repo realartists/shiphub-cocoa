@@ -1185,6 +1185,7 @@ NSTextFieldDelegate>
     if (_modeItem.mode == ResultsViewModeChart) {
         [self showList:nil];
     }
+    [_filterBar clearFilters];
     _searchItem.searchField.stringValue = @"";
     [[self window] makeFirstResponder:_searchItem.searchField];
 }
