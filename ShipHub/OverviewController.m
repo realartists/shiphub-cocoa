@@ -203,6 +203,8 @@ NSTextFieldDelegate>
     
     [_splitView setPosition:240.0 ofDividerAtIndex:0];
     
+    _outlineView.enclosingScrollView.automaticallyAdjustsContentInsets = NO;
+    _outlineView.enclosingScrollView.contentInsets = NSEdgeInsetsMake(12.0, 0.0, 0.0, 0.0);
     _outlineView.floatsGroupRows = NO;
     
     self.window.frameAutosaveName = @"Overview";
@@ -327,9 +329,15 @@ NSTextFieldDelegate>
     [inbox addChild:inboxWatching];
 #endif
     
+    _allProblemsNode = [OverviewNode new];
+    _allProblemsNode.title = NSLocalizedString(@"All Issues", nil);
+    _allProblemsNode.predicate = [NSPredicate predicateWithValue:YES];
+    _allProblemsNode.icon = [NSImage overviewIconNamed:@"928-inbox-files-selected"];
+    [roots addObject:_allProblemsNode];
+    
     OverviewNode *milestonesRoot = [OverviewNode new];
 //    milestonesRoot.representedObject = _milestoneMap;
-    milestonesRoot.title = NSLocalizedString(@"Active Milestones", nil);
+    milestonesRoot.title = NSLocalizedString(@"Milestones", nil);
     [roots addObject:milestonesRoot];
     
     MetadataStore *metadata = [[DataStore activeStore] metadataStore];
@@ -340,109 +348,46 @@ NSTextFieldDelegate>
         node.representedObject = milestone;
         node.title = milestone;
         node.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@", milestone];
-//        node.toolTip = [milestone localizedDateRange];
         node.icon = milestoneIcon;
         [milestonesRoot addChild:node];
-        
-        OverviewNode *openAll = [OverviewNode new];
-        openAll.representedObject = milestone;
-        openAll.title = NSLocalizedString(@"Open : All", nil);
-        openAll.path = [NSString stringWithFormat:@"%@ : %@", milestone, openAll.title];
-        openAll.showCount = YES;
-        openAll.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@ AND closed = NO", milestone];
-        openAll.icon = milestoneIcon;
-        [node addChild:openAll];
-        
-        OverviewNode *openMe = [OverviewNode new];
-        openMe.representedObject = milestone;
-        openMe.title = NSLocalizedString(@"Open : Mine", nil);
-        openMe.path = [NSString stringWithFormat:@"%@ : %@", milestone, openMe.title];
-        openMe.showCount = YES;
-        openMe.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@ AND closed = NO AND assignee.identifier = %@", milestone, [User me].identifier];
-        openMe.icon = milestoneIcon;
-        [node addChild:openMe];
-        
-        OverviewNode *closed = [OverviewNode new];
-        closed.representedObject = milestone;
-        closed.title = NSLocalizedString(@"Closed", nil);
-        closed.path = [NSString stringWithFormat:@"%@ : %@", milestone, closed.title];
-        closed.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@ AND closed = YES", milestone];
-        closed.icon = milestoneIcon;
-        [node addChild:closed];
     }
     
-#if 0
     OverviewNode *backlog = [OverviewNode new];
     backlog.title = NSLocalizedString(@"Backlog", nil);
-    [roots addObject:backlog];
+    backlog.predicate = [NSPredicate predicateWithFormat:@"milestone = nil AND closed = NO"];
+    backlog.showCount = YES;
+    backlog.icon = [NSImage overviewIconNamed:@"832-stack-1"];
+    [milestonesRoot addChild:backlog];
     
-    OverviewNode *backlogAll = [OverviewNode new];
-    backlogAll.title = NSLocalizedString(@"All Backlog", nil);
-    backlogAll.path = NSLocalizedString(@"Backlog : All", nil);
-    backlogAll.showCount = YES;
-    backlogAll.predicate = [NSPredicate predicateWithFormat:@"milestone.identifier = nil AND closed = NO"];
-    backlogAll.icon = [NSImage overviewIconNamed:@"832-stack-1"];
-    [backlog addChild:backlogAll];
+    OverviewNode *reposNode = [OverviewNode new];
+    reposNode.title = NSLocalizedString(@"Repos", nil);
+    [roots addObject:reposNode];
     
-    OverviewNode *backlogMine = [OverviewNode new];
-    backlogMine.title = NSLocalizedString(@"My Backlog", nil);
-    backlogMine.path = NSLocalizedString(@"Backlog : Mine", nil);
-    backlogMine.showCount = YES;
-    backlogMine.predicate = [NSPredicate predicateWithFormat:@"milestone.identifier = nil AND closed = NO AND assignee.identifier = %@", [[User me] identifier]];
-    backlogMine.icon = [NSImage overviewIconNamed:@"832-stack-1-selected"];
-    [backlog addChild:backlogMine];
-#endif
-    
-    // List repos
     BOOL multipleOwners = [[metadata repoOwners] count] > 1;
     
     for (Account *repoOwner in [metadata repoOwners]) {
         
+        OverviewNode *parent = reposNode;
+        if (multipleOwners) {
+            OverviewNode *ownerNode = [OverviewNode new];
+            ownerNode.title = repoOwner.login;
+            ownerNode.predicate = [NSPredicate predicateWithFormat:@"repository.owner.login = %@", repoOwner.login];
+            ownerNode.icon = [repoOwner isKindOfClass:[Org class]] ? [NSImage overviewIconNamed:@"974-users-selected"] : [NSImage overviewIconNamed:@"973-user-selected"];
+            [reposNode addChild:ownerNode];
+            
+            parent = ownerNode;
+        }
+        
         for (Repo *repo in [metadata reposForOwner:repoOwner]) {
             OverviewNode *repoNode = [OverviewNode new];
-            repoNode.title = multipleOwners ? repo.fullName : repo.name;
-            [roots addObject:repoNode];
-            
-            NSPredicate *repoPredicate = [NSPredicate predicateWithFormat:@"repository.fullName = %@", repo.fullName];
-            
-            OverviewNode *repoOpen = [OverviewNode new];
-            repoOpen.title = NSLocalizedString(@"Open : All", nil);
-            repoOpen.path = [NSString stringWithFormat:@"%@ : %@", repoNode.title, repoOpen.title];
-            repoOpen.predicate = [repoPredicate and:[NSPredicate predicateWithFormat:@"closed = NO"]];
-            repoOpen.icon = [NSImage overviewIconNamed:@"961-book-32"];
-            repoOpen.showCount = YES;
-            [repoNode addChild:repoOpen];
-            
-            OverviewNode *repoOpenMine = [OverviewNode new];
-            repoOpenMine.title = NSLocalizedString(@"Open : Mine", nil);
-            repoOpenMine.path = [NSString stringWithFormat:@"%@ : %@", repoNode.title, repoOpenMine.title];
-            repoOpenMine.predicate = [repoOpen.predicate and:[NSPredicate predicateWithFormat:@"assignee.identifier = %@", [[User me] identifier]]];
-            repoOpenMine.icon = [NSImage overviewIconNamed:@"961-book-32"];
-            repoOpenMine.showCount = YES;
-            [repoNode addChild:repoOpenMine];
-            
-            for (Milestone *milestone in [metadata activeMilestonesForRepo:repo]) {
-                OverviewNode *rmNode = [OverviewNode new];
-                rmNode.title = milestone.title;
-                rmNode.path = [NSString stringWithFormat:@"%@ : %@", repoNode.title, rmNode.title];
-                rmNode.showCount = YES;
-                rmNode.predicate = [repoOpen.predicate and:[NSPredicate predicateWithFormat:@"milestone.identifier = %@", milestone.identifier]];
-                rmNode.icon = milestoneIcon;
-                [repoNode addChild:rmNode];
-                
-                OverviewNode *rmMineNode = [OverviewNode new];
-                rmMineNode.showCount = YES;
-                rmMineNode.title = [NSString stringWithFormat:NSLocalizedString(@"%@ : Mine", nil), milestone.title];
-                rmMineNode.path = [NSString stringWithFormat:@"%@ : %@", repoNode.title, rmMineNode.title];
-                rmMineNode.predicate = [repoOpenMine.predicate and:[NSPredicate predicateWithFormat:@"milestone.identifier = %@", milestone.identifier]];
-                rmMineNode.icon = milestoneIcon;
-                [rmNode addChild:rmMineNode];
-                
-                
-            }
-            
+            repoNode.title = repo.name;
+            repoNode.icon = [NSImage overviewIconNamed:@"961-book-32"];
+            repoNode.predicate = [NSPredicate predicateWithFormat:@"repository.identifier = %@", repo.identifier];
+            [parent addChild:repoNode];
         }
     }
+    
+#if 0
     
     NSImage *queryIcon = [NSImage overviewIconNamed:@"666-gear2"];
     OverviewNode *queriesRoot = [OverviewNode new];
@@ -626,6 +571,8 @@ NSTextFieldDelegate>
         node.icon = milestoneIcon;
         [inactiveRoot addChild:node];
     }
+#endif
+    
 #endif
     
     _outlineRoots = roots;
@@ -1668,6 +1615,9 @@ NSTextFieldDelegate>
     if ([item isKindOfClass:[OverviewKnob class]]) {
         frame.origin.x -= 15.0;
         frame.size.width += 15.0;
+    } else if (column == 0 && row == 0) {
+        frame.origin.x -= 9.0;
+        frame.size.width += 9.0;
     } else if ([item isKindOfClass:[OverviewNode class]] && [item icon] != nil) {
         frame.origin.x -= 6.0;
         frame.size.width += 6.0;
