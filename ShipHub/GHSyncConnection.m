@@ -246,7 +246,7 @@ typedef NS_ENUM(NSInteger, SyncState) {
                     NSInteger lastIdx = [[lastPageURLStr substringWithRange:[lastPageMatch rangeAtIndex:1]] integerValue];
                     
                     for (NSInteger i = secondIdx; i <= lastIdx; i++) {
-                        NSString *pageURLStr = [nextPageURLStr stringByReplacingCharactersInRange:[secondPageMatch rangeAtIndex:1] withString:[NSString stringWithFormat:@"page=%td", i]];
+                        NSString *pageURLStr = [nextPageURLStr stringByReplacingCharactersInRange:[secondPageMatch rangeAtIndex:1] withString:[NSString stringWithFormat:@"%td", i]];
                         [pageRequests addObject:[self get:pageURLStr]];
                     }
                 }
