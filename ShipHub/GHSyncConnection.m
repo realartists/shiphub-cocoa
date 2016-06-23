@@ -143,9 +143,13 @@ typedef NS_ENUM(NSInteger, SyncState) {
         dispatch_async(_q, ^{
             NSError *anyError = nil;
             for (URLSessionResult *r in results) {
+                NSInteger statusCode = ((NSHTTPURLResponse *)r.response).statusCode;
                 anyError = r.error;
                 if (![self.auth checkResponse:r.response]) {
                     anyError = [NSError shipErrorWithCode:ShipErrorCodeNeedsAuthToken];
+                }
+                if (!anyError && statusCode != 200) {
+                    anyError = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
                 }
                 if (anyError) break;
             }
@@ -163,13 +167,7 @@ typedef NS_ENUM(NSInteger, SyncState) {
                     return;
                 }
 
-                NSInteger statusCode = ((NSHTTPURLResponse *)r.response).statusCode;
-
-                if (statusCode == 200) {
-                    [json addObject:v];
-                } else {
-                    [json addObject:[NSNull null]];
-                }
+                [json addObject:v];
             }
             
             completion(json, nil);
