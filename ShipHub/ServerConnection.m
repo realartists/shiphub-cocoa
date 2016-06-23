@@ -61,6 +61,10 @@
 
 - (void)perform:(NSString *)method on:(NSString *)endpoint body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
 {
+    if (DefaultsServerEnvironment() != ServerEnvironmentLocal) {
+        endpoint = [@"/github" stringByAppendingString:endpoint];
+    }
+    
     NSMutableURLRequest *request = [self requestWithHost:_auth.account.shipHost endpoint:endpoint authenticated:YES];
     request.HTTPMethod = method;
     
