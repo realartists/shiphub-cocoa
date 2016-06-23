@@ -54,9 +54,16 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 @end
 
+@interface OverviewProgressIndicator : NSView
+
+@property (nonatomic, assign) double doubleValue;
+
+@end
+
 @interface OverviewCellView : NSTableCellView
 
 @property IBOutlet NSButton *countButton;
+@property IBOutlet OverviewProgressIndicator *progressIndicator;
 @property IBOutlet Sparkline *sparkline;
 
 @property IBOutlet NSLayoutConstraint *sparklineWidth;
@@ -149,6 +156,7 @@ NSTextFieldDelegate>
     }
     
     _filterBar = [FilterBarViewController new];
+    [_filterBar resetFilters:[NSPredicate predicateWithFormat:@"closed = NO"]];
     _filterBar.delegate = self;
     [self.window addTitlebarAccessoryViewController:_filterBar];
     
@@ -203,8 +211,8 @@ NSTextFieldDelegate>
     
     [_splitView setPosition:240.0 ofDividerAtIndex:0];
     
-    _outlineView.enclosingScrollView.automaticallyAdjustsContentInsets = NO;
-    _outlineView.enclosingScrollView.contentInsets = NSEdgeInsetsMake(12.0, 0.0, 0.0, 0.0);
+//    _outlineView.enclosingScrollView.automaticallyAdjustsContentInsets = NO;
+//    _outlineView.enclosingScrollView.contentInsets = NSEdgeInsetsMake(12.0, 0.0, 0.0, 0.0);
     _outlineView.floatsGroupRows = NO;
     
     self.window.frameAutosaveName = @"Overview";
@@ -299,8 +307,14 @@ NSTextFieldDelegate>
     if (_outlineRoots) {
         oldCounts = [NSMutableDictionary dictionary];
         [self walkNodes:^(OverviewNode *node) {
-            if (node.count != NSNotFound) {
-                oldCounts[node.identifier] = @(node.count);
+            if (node.showCount) {
+                if (node.count != NSNotFound) {
+                    oldCounts[node.identifier] = @(node.count);
+                }
+            } else if (node.showProgress) {
+                if (node.progress >= 0.0) {
+                    oldCounts[node.identifier] = @(node.progress);
+                }
             }
         }];
     }
@@ -329,11 +343,17 @@ NSTextFieldDelegate>
     [inbox addChild:inboxWatching];
 #endif
     
+    OverviewNode *topNode = [OverviewNode new];
+    topNode.title = NSLocalizedString(@"Overview", nil);
+    [roots addObject:topNode];
+    
     _allProblemsNode = [OverviewNode new];
+    _allProblemsNode.showCount = YES;
+    _allProblemsNode.countOpenOnly = YES;
     _allProblemsNode.title = NSLocalizedString(@"All Issues", nil);
     _allProblemsNode.predicate = [NSPredicate predicateWithValue:YES];
     _allProblemsNode.icon = [NSImage overviewIconNamed:@"928-inbox-files-selected"];
-    [roots addObject:_allProblemsNode];
+    [topNode addChild:_allProblemsNode];
     
     OverviewNode *milestonesRoot = [OverviewNode new];
 //    milestonesRoot.representedObject = _milestoneMap;
@@ -347,6 +367,7 @@ NSTextFieldDelegate>
         OverviewNode *node = [OverviewNode new];
         node.representedObject = milestone;
         node.title = milestone;
+        node.showProgress = YES;
         node.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@", milestone];
         node.icon = milestoneIcon;
         [milestonesRoot addChild:node];
@@ -382,6 +403,8 @@ NSTextFieldDelegate>
             OverviewNode *repoNode = [OverviewNode new];
             repoNode.title = repo.name;
             repoNode.icon = [NSImage overviewIconNamed:@"961-book-32"];
+            repoNode.showCount = YES;
+            repoNode.countOpenOnly = YES;
             repoNode.predicate = [NSPredicate predicateWithFormat:@"repository.identifier = %@", repo.identifier];
             [parent addChild:repoNode];
         }
@@ -582,6 +605,8 @@ NSTextFieldDelegate>
             NSNumber *count = oldCounts[node.identifier];
             if (count && node.showCount) {
                 node.count = count.unsignedIntegerValue;
+            } else if (count && node.showProgress) {
+                node.progress = count.doubleValue;
             }
         }];
     }
@@ -597,65 +622,97 @@ NSTextFieldDelegate>
 }
 
 - (void)updateCount:(OverviewNode *)node {
-    void (^updateCount)(NSUInteger) = ^(NSUInteger count) {
-        if (node.count != count) {
-            node.count = count;
-            NSInteger row = [_outlineView rowForItem:node];
-            if (row >= 0) {
-                OverviewCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
-                if (view) {
-                    NSButton *countButton = view.countButton;
-                    if (count != NSNotFound) {
-                        countButton.title = [NSString localizedStringWithFormat:@"%tu", count];
-                        countButton.hidden = NO;
-                    } else {
-                        countButton.title = @"";
-                        countButton.hidden = YES;
-                    }
-                }
-            }
-        }
-    };
-    
-    if (node.predicate && node.showCount) {
-        [[DataStore activeStore] countIssuesMatchingPredicate:node.predicate completion:^(NSUInteger count, NSError *error) {
-            updateCount(count);
-        }];
-#if 0
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"sparklines"]
-            && [[DataStore activeStore] predicateCanBeUsedForTimeSeries:node.predicate])
-        {
-            NSDate *end = [NSDate date];
-            NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
-            NSDate *start = [calendar dateByAddingUnit:NSCalendarUnitDay value:-5 toDate:end options:0];
-
-            [[DataStore activeStore] timeSeriesMatchingPredicate:node.predicate startDate:start endDate:end completion:^(TimeSeries *series) {
-                [series generateIntervalsWithCalendarUnit:NSCalendarUnitDay];
-                NSArray *values = [series.intervals arrayByMappingObjects:^id(id obj) {
-                    return @([[obj latestRecords] count]);
-                }];
-                node.sparkValues = values;
+    if (node.predicate && node.showProgress) {
+        void (^updateProgress)(double) = ^(double progress) {
+            if (node.progress != progress) {
+                node.progress = progress;
                 NSInteger row = [_outlineView rowForItem:node];
                 if (row >= 0) {
                     OverviewCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
                     if (view) {
-                        Sparkline *spark = view.sparkline;
-                        spark.values = values;
-                        view.sparklineWidth.constant = SPARKLINE_WIDTH;
+                        OverviewProgressIndicator *progressIndicator = view.progressIndicator;
+                        if (progress < 0.0) {
+                            progressIndicator.hidden = YES;
+                        } else {
+                            progressIndicator.hidden = NO;
+                            progressIndicator.doubleValue = progress;
+                        }
                     }
                 }
-            }];
-        }
-#endif
-    } else if (node == _outboxNode) {
-#if !INCOMPLETE
-        [[DataStore activeStore] outboxWithCompletion:^(NSArray *outbox) {
-            NSUInteger count = outbox.count;
-            updateCount(count > 0 ? count : NSNotFound);
+            }
+        };
+        
+        [[DataStore activeStore] issueProgressMatchingPredicate:node.predicate completion:^(double progress, NSError *error) {
+            updateProgress(progress);
         }];
-#endif
+        
     } else {
-        node.count = NSNotFound;
+    
+        void (^updateCount)(NSUInteger) = ^(NSUInteger count) {
+            if (node.count != count) {
+                node.count = count;
+                NSInteger row = [_outlineView rowForItem:node];
+                if (row >= 0) {
+                    OverviewCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
+                    if (view) {
+                        NSButton *countButton = view.countButton;
+                        if (count != NSNotFound) {
+                            countButton.title = [NSString localizedStringWithFormat:@"%tu", count];
+                            countButton.hidden = NO;
+                        } else {
+                            countButton.title = @"";
+                            countButton.hidden = YES;
+                        }
+                    }
+                }
+            }
+        };
+        
+        if (node.predicate && node.showCount) {
+            NSPredicate *predicate = node.predicate;
+            if (node.countOpenOnly) {
+                predicate = [predicate and:[NSPredicate predicateWithFormat:@"closed = NO"]];
+            }
+            
+            [[DataStore activeStore] countIssuesMatchingPredicate:predicate completion:^(NSUInteger count, NSError *error) {
+                updateCount(count);
+            }];
+    #if 0
+            if ([[NSUserDefaults standardUserDefaults] boolForKey:@"sparklines"]
+                && [[DataStore activeStore] predicateCanBeUsedForTimeSeries:node.predicate])
+            {
+                NSDate *end = [NSDate date];
+                NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+                NSDate *start = [calendar dateByAddingUnit:NSCalendarUnitDay value:-5 toDate:end options:0];
+
+                [[DataStore activeStore] timeSeriesMatchingPredicate:node.predicate startDate:start endDate:end completion:^(TimeSeries *series) {
+                    [series generateIntervalsWithCalendarUnit:NSCalendarUnitDay];
+                    NSArray *values = [series.intervals arrayByMappingObjects:^id(id obj) {
+                        return @([[obj latestRecords] count]);
+                    }];
+                    node.sparkValues = values;
+                    NSInteger row = [_outlineView rowForItem:node];
+                    if (row >= 0) {
+                        OverviewCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
+                        if (view) {
+                            Sparkline *spark = view.sparkline;
+                            spark.values = values;
+                            view.sparklineWidth.constant = SPARKLINE_WIDTH;
+                        }
+                    }
+                }];
+            }
+    #endif
+        } else if (node == _outboxNode) {
+    #if !INCOMPLETE
+            [[DataStore activeStore] outboxWithCompletion:^(NSArray *outbox) {
+                NSUInteger count = outbox.count;
+                updateCount(count > 0 ? count : NSNotFound);
+            }];
+    #endif
+        } else {
+            node.count = NSNotFound;
+        }
     }
 }
 
@@ -969,8 +1026,17 @@ NSTextFieldDelegate>
         OverviewNode *node = item;
         OverviewCellView *cell = [outlineView makeViewWithIdentifier:@"Label" owner:self];
         NSButton *countButton = cell.countButton;
+        OverviewProgressIndicator *progress = cell.progressIndicator;
+        
+        progress.hidden = YES;
+        countButton.hidden = YES;
+        cell.sparklineWidth.constant = 0.0;
+        
         Sparkline *sparkline = cell.sparkline;
-        if (node.count == NSNotFound) {
+        if (node.showProgress) {
+            progress.hidden = node.progress < 0.0;
+            progress.doubleValue = MIN(MAX(node.progress, 0.0), 1.0);
+        } else if (node.count == NSNotFound) {
             countButton.hidden = YES;
             countButton.title = @"";
             cell.sparklineWidth.constant = 0.0;
@@ -1035,7 +1101,7 @@ NSTextFieldDelegate>
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification {
     if (!_nodeSelectionProgrammaticallyInitiated) {
         [_searchItem.searchField setStringValue:@""];
-        [_filterBar clearFilters];
+        [_filterBar resetFilters:[NSPredicate predicateWithFormat:@"closed = NO"]];
     }
     OverviewNode *selectedItem = [_outlineView selectedItem];
     
@@ -1615,9 +1681,6 @@ NSTextFieldDelegate>
     if ([item isKindOfClass:[OverviewKnob class]]) {
         frame.origin.x -= 15.0;
         frame.size.width += 15.0;
-    } else if (column == 0 && row == 0) {
-        frame.origin.x -= 9.0;
-        frame.size.width += 9.0;
     } else if ([item isKindOfClass:[OverviewNode class]] && [item icon] != nil) {
         frame.origin.x -= 6.0;
         frame.size.width += 6.0;
@@ -1672,6 +1735,45 @@ NSTextFieldDelegate>
 
 - (void)resetCursorRects {
     
+}
+
+@end
+
+@implementation OverviewProgressIndicator
+
+- (void)setDoubleValue:(double)doubleValue {
+    _doubleValue = doubleValue;
+    self.toolTip = [NSString localizedStringWithFormat:NSLocalizedString(@"%.0f%% Complete", nil), _doubleValue * 100.0];;
+    [self setNeedsDisplay:YES];
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+    NSColor *fillColor = [NSColor colorWithWhite:0.467 alpha:1.0];
+    NSColor *bgColor = [[NSColor blackColor] colorWithAlphaComponent:0.1];
+    
+    CGRect b = self.bounds;
+    
+    CGFloat radius = (b.size.height - 2.0) / 2.0;
+    NSBezierPath *outline = [NSBezierPath bezierPathWithRoundedRect:CGRectMake(1.0, 1.0, b.size.width - 2.0, b.size.height - 2.0) xRadius:radius yRadius:radius];
+    
+    [bgColor set];
+    [outline fill];
+    
+    [fillColor set];
+    outline.lineWidth = 1.0;
+    
+    [outline stroke];
+    
+    CGRect clipRect;
+    clipRect.size.width = (b.size.width - 2.0) * _doubleValue;
+    clipRect.origin.x = 1.0;
+    clipRect.origin.y = 0.0;
+    clipRect.size.height = b.size.height;
+    
+    NSBezierPath *clip = [NSBezierPath bezierPathWithRect:clipRect];
+    [clip addClip];
+    
+    [outline fill];
 }
 
 @end

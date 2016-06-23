@@ -15,6 +15,7 @@
 - (id)init {
     if (self = [super init]) {
         _count = NSNotFound;
+        _progress = -1.0;
         _allowChart = YES;
     }
     return self;

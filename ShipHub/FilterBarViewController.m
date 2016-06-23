@@ -282,6 +282,10 @@
         assignees = [s allObjects];
     }
     
+    assignees = [[assignees arrayByMappingObjects:^id(id obj) {
+        return [obj login];
+    }] sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
+    
     NSMenu *menu = [NSMenu new];
     
     NSMenuItem *m;
@@ -296,9 +300,9 @@
         m.target = self;
     }
     
-    for (User *u in assignees) {
-        m = [menu addItemWithTitle:u.login action:action keyEquivalent:@""];
-        m.representedObject = u.login;
+    for (NSString *login in assignees) {
+        m = [menu addItemWithTitle:login action:action keyEquivalent:@""];
+        m.representedObject = login;
         m.target = self;
     }
     
@@ -891,6 +895,12 @@
 
 - (void)clearFilters {
     self.predicate = nil;
+    [self updateFilterButtonsFromPredicate];
+    [self.delegate filterBar:self didUpdatePredicate:nil];
+}
+
+- (void)resetFilters:(NSPredicate *)defaultFilters {
+    self.predicate = defaultFilters;
     [self updateFilterButtonsFromPredicate];
     [self.delegate filterBar:self didUpdatePredicate:nil];
 }

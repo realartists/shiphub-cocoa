@@ -92,9 +92,18 @@
                                                                                 <font key="font" metaFont="smallSystemBold"/>
                                                                             </buttonCell>
                                                                         </button>
+                                                                        <customView translatesAutoresizingMaskIntoConstraints="NO" id="3M8-mm-2y3" customClass="OverviewProgressIndicator">
+                                                                            <rect key="frame" x="220" y="4" width="25" height="12"/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="width" constant="25" id="9NR-d4-VYF"/>
+                                                                                <constraint firstAttribute="height" constant="12" id="emo-M5-Keu"/>
+                                                                            </constraints>
+                                                                        </customView>
                                                                     </subviews>
                                                                     <constraints>
+                                                                        <constraint firstAttribute="trailing" secondItem="3M8-mm-2y3" secondAttribute="trailing" constant="3" id="38d-VY-JrQ"/>
                                                                         <constraint firstItem="Ilo-vp-Qzg" firstAttribute="leading" secondItem="IZs-52-waT" secondAttribute="trailing" id="9xh-ag-WaL"/>
+                                                                        <constraint firstItem="3M8-mm-2y3" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="4" id="C9M-Kt-F9T"/>
                                                                         <constraint firstItem="Ilo-vp-Qzg" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="1" id="Cbu-yQ-sFF"/>
                                                                         <constraint firstItem="UvG-Oc-UzF" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="2" id="Hfq-ci-UAg"/>
                                                                         <constraint firstAttribute="bottom" secondItem="IZs-52-waT" secondAttribute="bottom" constant="4" id="L1n-JB-no3"/>
@@ -108,6 +117,7 @@
                                                                     <connections>
                                                                         <outlet property="countButton" destination="UvG-Oc-UzF" id="G74-hI-Y6P"/>
                                                                         <outlet property="imageView" destination="IZs-52-waT" id="2TI-nP-GSO"/>
+                                                                        <outlet property="progressIndicator" destination="3M8-mm-2y3" id="Oq3-7X-qTD"/>
                                                                         <outlet property="sparkline" destination="Bkn-0Y-A7B" id="Bx0-rx-wWg"/>
                                                                         <outlet property="sparklineWidth" destination="ypV-CX-3Ef" id="5cw-Ln-Y9n"/>
                                                                         <outlet property="textField" destination="Ilo-vp-Qzg" id="2Sa-GK-80D"/>
