@@ -866,8 +866,8 @@ static NSString *const LastUpdated = @"LastUpdated";
                 ErrLog(@"%@", err);
                 progress = -1.0;
             } else {
-                fetchRequest.predicate = [pred and:[NSPredicate predicateWithFormat:@"closed = NO"]];
-                NSUInteger open = [_moc countForFetchRequest:fetchRequest error:&err];
+                fetchRequest.predicate = [pred and:[NSPredicate predicateWithFormat:@"closed = YES"]];
+                NSUInteger closed = [_moc countForFetchRequest:fetchRequest error:&err];
                 
                 if (err) {
                     ErrLog(@"%@", err);
@@ -877,7 +877,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                 if (total == 0) {
                     progress = -1.0;
                 } else {
-                    progress = (double)open / (double)total;
+                    progress = (double)closed / (double)total;
                 }
             }
         } @catch (id exc) {
