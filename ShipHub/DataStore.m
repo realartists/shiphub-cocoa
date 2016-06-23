@@ -992,18 +992,22 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
-- (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion {
+- (NSFetchRequest *)fetchRequestForIssueIdentifier:(NSString *)issueIdentifier {
     NSString *repoFullName = [issueIdentifier issueRepoFullName];
     NSNumber *issueNumber = [issueIdentifier issueNumber];
     
-    NSParameterAssert(repoFullName);
-    NSParameterAssert(issueNumber);
+    NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"repository.fullName = %@ AND number = %@", repoFullName, issueNumber];
+    
+    return fetchRequest;
+}
+
+- (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion {
+    NSParameterAssert(issueIdentifier);
     
     [_moc performBlock:^{
-        NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+        NSFetchRequest *fetchRequest = [self fetchRequestForIssueIdentifier:issueIdentifier];
         fetchRequest.relationshipKeyPathsForPrefetching = @[@"events", @"comments", @"labels"];
-        
-        fetchRequest.predicate = [NSPredicate predicateWithFormat:@"repository.fullName = %@ AND number = %@", repoFullName, issueNumber];
         
         NSError *err = nil;
         NSArray *entities = [_moc executeFetchRequest:fetchRequest error:&err];
@@ -1155,9 +1159,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         if (!error) {
             
             [_moc performBlock:^{
-                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-                fetch.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier = %@", issueIdentifier];
-                fetch.fetchLimit = 1;
+                NSFetchRequest *fetch = [self fetchRequestForIssueIdentifier:issueIdentifier];
                 
                 NSError *err = nil;
                 LocalIssue *issue = [[_moc executeFetchRequest:fetch error:&err] firstObject];
