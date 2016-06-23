@@ -237,7 +237,7 @@ typedef NS_ENUM(NSInteger, SyncState) {
             if (matchNext && matchLast) {
                 NSString *nextPageURLStr = [next substringWithRange:[matchNext rangeAtIndex:1]];
                 NSString *lastPageURLStr = [last substringWithRange:[matchLast rangeAtIndex:1]];
-                NSRegularExpression *pageExp = [NSRegularExpression regularExpressionWithPattern:@"page=(\\d+)" options:0 error:NULL];
+                NSRegularExpression *pageExp = [NSRegularExpression regularExpressionWithPattern:@"page=(\\d+)$" options:0 error:NULL];
                 NSTextCheckingResult *secondPageMatch = [[pageExp matchesInString:nextPageURLStr options:0 range:NSMakeRange(0, nextPageURLStr.length)] firstObject];
                 NSTextCheckingResult *lastPageMatch = [[pageExp matchesInString:lastPageURLStr options:0 range:NSMakeRange(0, lastPageURLStr.length)] firstObject];
                 
@@ -494,6 +494,10 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
             
             if (data) {
                 NSArray *issuesOnly = [data filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"pull_request = nil OR pull_request = NO"]];
+                
+                if ([repo[@"name"] isEqualToString:@"shiphub-cocoa"]) {
+                    DebugLog(@"%@", data);
+                }
                 
                 issues = [issuesOnly arrayByMappingObjects:^id(id obj) {
                     NSMutableDictionary *issue = [obj mutableCopy];
