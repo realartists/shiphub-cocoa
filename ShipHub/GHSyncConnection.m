@@ -248,7 +248,11 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
         }];
         
         [_pager fetchPaged:[_pager get:milestonesEndpoint] completion:^(NSArray *data, NSError *err) {
-            rwi[@"milestones"] = data;
+            rwi[@"milestones"] = [data arrayByMappingObjects:^id(id obj) {
+                NSMutableDictionary *mile = [obj mutableCopy];
+                mile[@"repository"] = repo[@"id"];
+                return mile;
+            }];
             done();
         }];
     }

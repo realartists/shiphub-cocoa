@@ -39,7 +39,7 @@
 
 - (void)commonInit {
     _items = [NSMutableArray array];
-    _defaultColumns = [NSSet setWithArray:@[@"number", @"title", @"assignee.login", @"repo.fullName"]];
+    _defaultColumns = [NSSet setWithArray:@[@"number", @"title", @"assignee.login", @"repository.fullName"]];
 }
 
 - (id)init {

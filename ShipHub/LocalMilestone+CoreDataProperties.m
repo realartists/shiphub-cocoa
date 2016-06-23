@@ -22,6 +22,6 @@
 @dynamic title;
 @dynamic updatedAt;
 @dynamic issues;
-@dynamic repo;
+@dynamic repository;
 
 @end

@@ -294,6 +294,7 @@ static inline uint8_t h2b(uint8_t v) {
     if (!str) return nil;
     
     // Handles just dates of the form yyyy-MM-dd'T'HH:mm:ss.SSSSSSSZ
+    // Or dates of the form yyyy-MM-dd'T'HH:mm:ss.SSSSSSS+00:00
     int y, M, d, H, m, s, S;
     y = M = d = H = m = s = S = 0;
     
@@ -321,7 +322,7 @@ static inline uint8_t h2b(uint8_t v) {
             S *= 10;
         }
     }
-    if (![scanner scanString:@"Z" intoString:NULL]) return nil;
+    if (!([scanner scanString:@"Z" intoString:NULL] || [scanner scanString:@"+00:00" intoString:NULL])) return nil;
     if (![scanner isAtEnd]) return nil;
     
     struct tm t;

@@ -681,6 +681,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                         if (populate) {
                             [relObj mergeAttributesFromDictionary:populate];
                         }
+                        [obj setValue:relObj forKey:key];
                     }
                 }
             }
@@ -745,8 +746,6 @@ static NSString *const LastUpdated = @"LastUpdated";
             continue;
         }
         
-        DebugLog(@"%@", e);
-        
         id data = e.data;
         
         NSNumber *identifier = nil;
@@ -803,34 +802,19 @@ static NSString *const LastUpdated = @"LastUpdated";
     
 }
 
-- (NSString *)issueFullIdentifier:(LocalIssue *)li {
-    NSParameterAssert(li);
-    return [li fullIdentifier];
-}
-
 - (NSArray *)changedIssueIdentifiers:(NSNotification *)note {
     NSMutableSet *changed = [NSMutableSet new];
     
     [note enumerateModifiedObjects:^(id obj, CoreDataModificationType modType, BOOL *stop) {
         if ([obj isKindOfClass:[LocalIssue class]]) {
-            NSString *identifier = [self issueFullIdentifier:obj];
+            NSString *identifier = [obj fullIdentifier];
             if (identifier) {
                 [changed addObject:identifier];
             }
-        } else if ([obj isKindOfClass:[LocalEvent class]] || [obj isKindOfClass:[LocalComment class]]) {
-            LocalIssue *issue = [obj issue];
-            if (issue) {
-                NSString *identifier = [self issueFullIdentifier:issue];
-                if (identifier) {
-                    [changed addObject:[self issueFullIdentifier:[obj issue]]];
-                }
-            }
-        } else if ([obj isKindOfClass:[LocalNotification class]]) {
-            if ([obj issue] != nil) {
-                NSString *identifier = [self issueFullIdentifier:[obj issue]];
-                if (identifier) {
-                    [changed addObject:identifier];
-                }
+        } else if ([obj isKindOfClass:[LocalEvent class]] || [obj isKindOfClass:[LocalComment class]] || [obj isKindOfClass:[LocalNotification class]]) {
+            NSString *identifier = [[obj issue] fullIdentifier];
+            if (identifier) {
+                [changed addObject:identifier];
             }
         }
     }];
@@ -890,6 +874,10 @@ static NSString *const LastUpdated = @"LastUpdated";
     return [self issuesMatchingPredicate:predicate sortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"number" ascending:YES]] options:nil completion:completion];
 }
 
+- (NSPredicate *)issuesPredicate:(NSPredicate *)basePredicate {
+    return [[basePredicate predicateByFoldingExpressions] and:[NSPredicate predicateWithFormat:@"repository.fullName != nil"]];
+}
+
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
     return [self issuesMatchingPredicate:predicate sortDescriptors:sortDescriptors options:nil completion:completion];
 }
@@ -900,7 +888,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     [_moc performBlock:^{
         @try {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-            fetchRequest.predicate = [predicate predicateByFoldingExpressions];
+            fetchRequest.predicate = [self issuesPredicate:predicate];
             fetchRequest.sortDescriptors = sortDescriptors;
             
             NSError *err = nil;
@@ -912,7 +900,6 @@ static NSString *const LastUpdated = @"LastUpdated";
             results = [entities arrayByMappingObjects:^id(LocalIssue *obj) {
                 return [[Issue alloc] initWithLocalIssue:obj metadataStore:ms options:options];
             }];
-            results = [results filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"fullIdentifier != nil"]];
         } @catch (id exc) {
             error = [NSError shipErrorWithCode:ShipErrorCodeInvalidQuery];
             ErrLog(@"%@", exc);
@@ -931,7 +918,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     [_moc performBlock:^{
         @try {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-            fetchRequest.predicate = [predicate predicateByFoldingExpressions];
+            fetchRequest.predicate = [self issuesPredicate:predicate];
             NSError *err = nil;
             result = [_moc countForFetchRequest:fetchRequest error:&err];
             
@@ -957,7 +944,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         @try {
             NSError *err = nil;
             
-            NSPredicate *pred = [predicate predicateByFoldingExpressions];
+            NSPredicate *pred = [self issuesPredicate:predicate];
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
             fetchRequest.predicate = pred;
             

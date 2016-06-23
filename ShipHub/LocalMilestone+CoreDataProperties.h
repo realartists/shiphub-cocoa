@@ -12,6 +12,7 @@
 #import "LocalMilestone.h"
 
 @class LocalIssue;
+@class LocalRepo;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -26,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *title;
 @property (nullable, nonatomic, retain) NSDate *updatedAt;
 @property (nullable, nonatomic, retain) NSSet<LocalIssue *> *issues;
-@property (nullable, nonatomic, retain) NSManagedObject *repo;
+@property (nullable, nonatomic, retain) LocalRepo *repository;
 
 @end
 
