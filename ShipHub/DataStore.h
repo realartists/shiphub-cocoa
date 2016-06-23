@@ -39,6 +39,10 @@
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion;
 - (void)countIssuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSUInteger count, NSError *error))completion;
 
+// Compute the progress towards closing all issues in predicate. That is, return open issues / all issues matching predicate.
+// progress = -1 if the predicate is empty.
+- (void)issueProgressMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(double progress, NSError *error))completion;
+
 - (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion;
 
 - (void)checkForIssueUpdates:(id)issueIdentifier;

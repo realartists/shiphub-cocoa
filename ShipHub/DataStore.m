@@ -849,6 +849,48 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
+- (void)issueProgressMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(double progress, NSError *error))completion {
+    __block double progress = 0;
+    __block NSError *error = nil;
+    [_moc performBlock:^{
+        @try {
+            NSError *err = nil;
+            
+            NSPredicate *pred = [predicate predicateByFoldingExpressions];
+            NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+            fetchRequest.predicate = pred;
+            
+            NSUInteger total = [_moc countForFetchRequest:fetchRequest error:&err];
+            
+            if (err) {
+                ErrLog(@"%@", err);
+                progress = -1.0;
+            } else {
+                fetchRequest.predicate = [pred and:[NSPredicate predicateWithFormat:@"closed = NO"]];
+                NSUInteger open = [_moc countForFetchRequest:fetchRequest error:&err];
+                
+                if (err) {
+                    ErrLog(@"%@", err);
+                    progress = -1.0;
+                }
+                
+                if (total == 0) {
+                    progress = -1.0;
+                } else {
+                    progress = (double)open / (double)total;
+                }
+            }
+        } @catch (id exc) {
+            error = [NSError shipErrorWithCode:ShipErrorCodeInvalidQuery];
+            ErrLog(@"%@", exc);
+        }
+    } completion:^{
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(progress, error);
+        });
+    }];
+}
+
 - (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion {
     [_moc performBlock:^{
         NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];

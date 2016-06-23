@@ -43,7 +43,11 @@ typedef NSPredicate *(^OverviewPredicateBuilder)();
 @property NSUInteger count;
 @property NSArray *sparkValues;
 @property BOOL showCount;
+@property BOOL countOpenOnly;
 @property BOOL allowChart;
+
+@property BOOL showProgress;
+@property double progress;
 
 @property (nonatomic, strong) NSString *path;
 

@@ -102,10 +102,14 @@
 
 - (void)setMenu:(NSMenu *)menu {
     if (_myMenu != menu) {
+        BOOL menuShowing = _menuShowing;
         _myMenu.delegate = nil;
+        if (menuShowing) {
+            [_myMenu cancelTrackingWithoutAnimation];
+        }
         _myMenu = menu;
         _myMenu.delegate = self;
-        if (_menuShowing) {
+        if (menuShowing) {
             [self showMenu];
         }
     }

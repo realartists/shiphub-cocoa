@@ -22,6 +22,7 @@
 @property (readonly) NSPredicate *predicate;
 
 - (void)clearFilters;
+- (void)resetFilters:(NSPredicate *)defaultFilters;
 
 @property (weak) id<FilterBarViewControllerDelegate> delegate;
 
