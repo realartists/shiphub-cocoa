@@ -72,6 +72,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewDidChangeFrame:) name:NSViewFrameDidChangeNotification object:container];
     
     _web = [[WebView alloc] initWithFrame:container.bounds frameName:nil groupName:nil];
+    _web.continuousSpellCheckingEnabled = YES;
     _web.drawsBackground = NO;
     _web.UIDelegate = self;
     _web.frameLoadDelegate = self;
