@@ -1461,6 +1461,10 @@ CGRect IntegralRect(CGRect r) {
     return nil;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<%@: %p> { %@ }", NSStringFromClass([self class]), self, self.response];
+}
+
 @end
 
 @implementation NSURLSession (ParallelExtras)

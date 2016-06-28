@@ -138,43 +138,48 @@ typedef NS_ENUM(NSInteger, SyncState) {
     return task;
 }
 
-- (NSArray<NSURLSessionDataTask *> *)jsonTasks:(NSArray<NSURLRequest *>*)requests completion:(void (^)(NSArray *json, NSError *err))completion {
+- (NSArray<NSURLSessionDataTask *> *)tasks:(NSArray<NSURLRequest *>*)requests completion:(void (^)(NSArray<URLSessionResult *>* results))completion {
     NSArray<NSURLSessionDataTask *> *tasks = [[NSURLSession sharedSession] dataTasksWithRequests:requests completion:^(NSArray<URLSessionResult *> *results) {
         dispatch_async(_q, ^{
-            NSError *anyError = nil;
-            for (URLSessionResult *r in results) {
-                NSInteger statusCode = ((NSHTTPURLResponse *)r.response).statusCode;
-                anyError = r.error;
-                if (![self.auth checkResponse:r.response]) {
-                    anyError = [NSError shipErrorWithCode:ShipErrorCodeNeedsAuthToken];
-                }
-                if (!anyError && statusCode != 200) {
-                    anyError = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
-                }
-                if (anyError) break;
-            }
-            if (anyError) {
-                completion(nil, anyError);
-                return;
-            }
-            
-            NSMutableArray *json = [NSMutableArray arrayWithCapacity:results.count];
-            for (URLSessionResult *r in results) {
-                NSError *err = nil;
-                id v = [NSJSONSerialization JSONObjectWithData:r.data options:0 error:&err];
-                if (err) {
-                    completion(nil, err);
-                    return;
-                }
-
-                [json addObject:v];
-            }
-            
-            completion(json, nil);
+            completion(results);
         });
     }];
     // tasks are automatically resumed
     return tasks;
+}
+
+- (NSArray<NSURLSessionDataTask *> *)jsonTasks:(NSArray<NSURLRequest *>*)requests completion:(void (^)(NSArray *json, NSError *err))completion {
+    return [self tasks:requests completion:^(NSArray<URLSessionResult *> *results) {
+        NSError *anyError = nil;
+        for (URLSessionResult *r in results) {
+            NSInteger statusCode = ((NSHTTPURLResponse *)r.response).statusCode;
+            anyError = r.error;
+            if (![self.auth checkResponse:r.response]) {
+                anyError = [NSError shipErrorWithCode:ShipErrorCodeNeedsAuthToken];
+            }
+            if (!anyError && statusCode != 200) {
+                anyError = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+            }
+            if (anyError) break;
+        }
+        if (anyError) {
+            completion(nil, anyError);
+            return;
+        }
+
+        NSMutableArray *json = [NSMutableArray arrayWithCapacity:results.count];
+        for (URLSessionResult *r in results) {
+            id v = [r json];
+            if (r.error) {
+                completion(nil, r.error);
+                return;
+            }
+            
+            [json addObject:v];
+        }
+        
+        completion(json, nil);
+    }];
 }
 
 #if 0
@@ -314,10 +319,16 @@ typedef NS_ENUM(NSInteger, SyncState) {
         NSArray *dedupedOrgs = [[NSDictionary lookupWithObjects:orgs keyPath:@"id"] allValues];
         
         
-        [self jsonTasks:assigneeRequests completion:^(NSArray *assignees, NSError *assigneeErr) {
-            if (assigneeErr) {
-                _state = SyncStateIdle;
-                return;
+        [self tasks:assigneeRequests completion:^(NSArray<URLSessionResult *> *results) {
+            NSMutableArray *assignees = [NSMutableArray new];
+            for (URLSessionResult *result in results) {
+                id json = [result json];
+                if (!result.error && ((NSHTTPURLResponse *)result.response).statusCode == 200) {
+                    [assignees addObject:json];
+                } else {
+                    // XXX: Ignore any repos in which we cannot fetch assignees.
+                    DebugLog(@"Ignoring failed assignees response: %@", result);
+                }
             }
 
             NSMutableArray *activeRepos = [repos mutableCopy];
