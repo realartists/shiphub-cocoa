@@ -161,9 +161,6 @@ typedef NS_ENUM(NSInteger, SyncState) {
             NSMutableArray *errors = [NSMutableArray array];
 
             for (URLSessionResult *r in results) {
-                if ([[((NSHTTPURLResponse *)r.response).URL absoluteString] isEqualToString:@"https://api.github.com/repos/realartists/web/assignees?per_page=100"]) {
-                    NSLog(@"-- FRED");
-                }
                 NSInteger statusCode = ((NSHTTPURLResponse *)r.response).statusCode;
                 NSError *error = nil;
                 id jsonObject = nil;
