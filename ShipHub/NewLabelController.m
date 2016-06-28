@@ -150,7 +150,7 @@ static NSArray *GitHubColors() {
     _tag.font = CFBridgingRetain([NSFont fontWithName:@"FontAwesome" size:0.0]);
     _tag.fontSize = 60.0;
     _tag.alignmentMode = kCAAlignmentLeft;
-    _tag.position = CGPointMake(55, 255);
+    _tag.position = CGPointMake(60, 254);
     _tag.transform = CATransform3DMakeScale(0.8, 0.8, 1.0);
     _tag.shadowOpacity = 0.75;
     _tag.shadowRadius = 0.0;
