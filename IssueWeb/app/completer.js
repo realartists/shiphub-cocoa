@@ -72,7 +72,8 @@ var Completer = React.createClass({
     this.remounting = true;
     
     $(el).typeahead('destroy');
-    
+    $(el).off();
+
     var typeaheadDataOpts = {
       // Never limit the drop down - we don't want to risk that the "New
       // Label..." option at the end of the dropdown is stripped.  If we find
