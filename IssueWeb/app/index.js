@@ -2724,12 +2724,17 @@ var AddLabel = React.createClass({
     var chosenLabelsLookup = chosenLabels.reduce((o, l) => { o[l.name] = l; return o; }, {});  
     var filteredLabels = allLabels.filter((l) => !(l.name in chosenLabelsLookup));
 
-    return h(LabelPicker, {
-      ref: "picker",
-      labels: filteredLabels,
-      onAddExistingLabel: this.addExistingLabel,
-      onNewLabel: this.newLabel,
-    });
+    if (this.props.issue._bare_owner == null ||
+        this.props.issue._bare_repo == null) {
+      return h("div", {className: "AddLabelEmpty"});
+    } else {
+      return h(LabelPicker, {
+        ref: "picker",
+        labels: filteredLabels,
+        onAddExistingLabel: this.addExistingLabel,
+        onNewLabel: this.newLabel,
+      });
+    }
   }
 });
 
