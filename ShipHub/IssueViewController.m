@@ -42,6 +42,9 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     NSMutableArray *_javaScriptToRun;
     NSInteger _pastedImageCount;
     BOOL _useWebpackDevServer;
+    
+    NSInteger _spellcheckDocumentTag;
+    NSDictionary *_spellcheckContextTarget;
 }
 
 // Why legacy WebView?
@@ -240,8 +243,39 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 }
 
 - (NSArray *)webView:(WebView *)sender contextMenuItemsForElement:(NSDictionary *)element defaultMenuItems:(NSArray *)defaultMenuItems {
-    DebugLog(@"%@", defaultMenuItems);
-    for (NSMenuItem *i in defaultMenuItems) {
+    NSArray *menuItems = defaultMenuItems;
+    
+    if (_spellcheckContextTarget) {
+        NSDictionary *target = _spellcheckContextTarget;
+        _spellcheckContextTarget = nil;
+        
+        NSSpellChecker *checker = [NSSpellChecker sharedSpellChecker];
+        NSString *contents = target[@"text"];
+        NSArray *guesses = [checker guessesForWordRange:NSMakeRange(0, contents.length) inString:contents language:nil inSpellDocumentWithTag:_spellcheckDocumentTag];
+        
+        NSMutableArray *items = [NSMutableArray new];
+        if ([guesses count] == 0) {
+            NSMenuItem *noGuesses = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"No Guesses Found", nil) action:@selector(fixSpelling:) keyEquivalent:@""];
+            noGuesses.enabled = NO;
+            [items addObject:noGuesses];
+        } else {
+            
+            for (NSString *guess in guesses) {
+                NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:guess action:@selector(fixSpelling:) keyEquivalent:@""];
+                item.target = self;
+                item.representedObject = target;
+                [items addObject:item];
+            }
+        }
+        
+        [items addObject:[NSMenuItem separatorItem]];
+        
+        [items addObjectsFromArray:defaultMenuItems];
+        
+        menuItems = items;
+    }
+    
+    for (NSMenuItem *i in menuItems) {
         switch (i.tag) {
             case WebMenuItemTagOpenImageInNewWindow:
                 i.target = self;
@@ -258,7 +292,13 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
             default: break;
         }
     }
-    return defaultMenuItems;
+    
+    return menuItems;
+}
+
+- (void)fixSpelling:(id)sender {
+    NSString *callback = [NSString stringWithFormat:@"window.spellcheckFixer(%@, %@);", [JSON stringifyObject:[sender representedObject]], [JSON stringifyObject:[sender title]]];
+    [self evaluateJavaScript:callback];
 }
 
 - (void)openImageInNewWindow:(id)sender {
@@ -419,6 +459,10 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
         [weakSelf handleDocumentSaved:msg];
     } name:@"documentSaveHandler"];
+    
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf spellcheck:msg];
+    } name:@"spellcheck"];
     
     NSString *setupJS =
     @"window.inApp = true;\n"
@@ -584,7 +628,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
             pendingUploads--;
             
             if (pendingUploads == 0) {
-                js = [NSString stringWithFormat:@"pasteCallback(%@, 'complete')", handle];
+                js = [NSString stringWithFormat:@"pasteCallback(%@, 'completed')", handle];
                 [self evaluateJavaScript:js];
             }
         }];
@@ -691,7 +735,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
                     pendingUploads--;
                     
                     if (pendingUploads == 0) {
-                        js = [NSString stringWithFormat:@"pasteCallback(%@, 'complete')", handle];
+                        js = [NSString stringWithFormat:@"pasteCallback(%@, 'completed')", handle];
                         [self evaluateJavaScript:js];
                     }
                 }];
@@ -773,6 +817,59 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     }
 }
 
+- (void)spellcheck:(NSDictionary *)msg {
+    NSSpellChecker *checker = [NSSpellChecker sharedSpellChecker];
+    if (_spellcheckDocumentTag == 0) {
+        _spellcheckDocumentTag = [NSSpellChecker uniqueSpellDocumentTag];
+    }
+    
+    if (msg[@"contextMenu"]) {
+        _spellcheckContextTarget = msg[@"target"];
+        return;
+    }
+    
+    NSString *text = msg[@"text"];
+    NSNumber *handle = msg[@"handle"];
+    [checker requestCheckingOfString:text range:NSMakeRange(0, text.length) types:NSTextCheckingTypeSpelling options:nil inSpellDocumentWithTag:_spellcheckDocumentTag completionHandler:^(NSInteger sequenceNumber, NSArray<NSTextCheckingResult *> * _Nonnull results, NSOrthography * _Nonnull orthography, NSInteger wordCount) {
+        
+        // convert NSTextCheckingResults to {start:{line, ch}, end:{line, ch}} objects
+        
+        NSMutableArray *cmRanges = [NSMutableArray new];
+        
+        __block NSUInteger processed = 0;
+        __block NSUInteger line = 0;
+        
+        [text enumerateSubstringsInRange:NSMakeRange(0, text.length) options:NSStringEnumerationByLines usingBlock:^(NSString * _Nullable substring, NSRange substringRange, NSRange enclosingRange, BOOL * _Nonnull stop) {
+            
+            
+            BOOL passed = NO;
+            for (NSUInteger i = processed; i < results.count && !passed; i++) {
+                NSTextCheckingResult *result = results[i];
+                NSRange r = result.range;
+                if (NSRangeContainsRange(substringRange, r)) {
+                    NSDictionary *cmRange = @{ @"start": @{ @"line" : @(line), @"ch" : @(r.location - substringRange.location) },
+                                               @"end": @{ @"line": @(line), @"ch" : @(NSMaxRange(r) - substringRange.location) } };
+                    [cmRanges addObject:cmRange];
+                    processed++;
+                } else if (NSMaxRange(substringRange) < NSMaxRange(r)) {
+                    passed = YES;
+                    break;
+                }
+            }
+            
+            line++;
+            *stop = processed == results.count;
+            
+        }];
+        
+        RunOnMain(^{
+            NSString *callback = [NSString stringWithFormat:@"window.spellcheckResults({handle:%@, results:%@});", handle, [JSON stringifyObject:cmRanges]];
+            [self evaluateJavaScript:callback];
+        });
+        
+    }];
+}
+
 #pragma mark -
 
 - (IBAction)reload:(id)sender {
@@ -796,6 +893,8 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     if (menuItem.action == @selector(saveDocument:)) {
         return [self needsSave];
+    } else if (menuItem.action == @selector(fixSpelling:)) {
+        return menuItem.representedObject != nil;
     }
     return _issue.fullIdentifier != nil;
 }

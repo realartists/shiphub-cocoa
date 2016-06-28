@@ -29,6 +29,7 @@ import 'codemirror/mode/go/go'
 import 'codemirror/addon/display/placeholder.js'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/hint/show-hint.js'
+import './spellcheck.js'
 
 import $ from 'jquery'
 window.$ = $;
@@ -97,7 +98,7 @@ function pasteCallback(handle, type, data) {
     case 'uploadFailed':
       handlers.uploadFailed(data.placeholder, data.err);
       break;
-    case 'complete':
+    case 'completed':
       delete handlers[handle];
       break;
     default:
@@ -1904,6 +1905,9 @@ var Comment = React.createClass({
           ch = 0;
         }
       }
+      
+      // Configure spellchecking
+      cm.setOption("systemSpellcheck", true);
       
       function searchBackward(cm, startPos, needle) {
         var line = startPos.line;

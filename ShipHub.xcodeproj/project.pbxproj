@@ -403,6 +403,7 @@
 		1A9905171CE11A0700EAA474 /* LabelsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelsView.m; sourceTree = "<group>"; };
 		1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompactIssueCellViewController.h; sourceTree = "<group>"; };
 		1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompactIssueCellViewController.m; sourceTree = "<group>"; };
+		1A9DA7EE1D223DB500A23EC9 /* spellcheck.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = spellcheck.js; sourceTree = "<group>"; };
 		1AD095E31CF8DF9100A0277A /* completer.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = completer.js; sourceTree = "<group>"; };
 		1AD095E41CF8DF9100A0277A /* file-picker.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "file-picker.js"; sourceTree = "<group>"; };
 		1AD095E51CF8DF9100A0277A /* file-uploader.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "file-uploader.js"; sourceTree = "<group>"; };
@@ -486,7 +487,7 @@
 		1AFE21F91CA5EC3F00B51CF6 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		1AFE21FA1CA5EC3F00B51CF6 /* index_bundle.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index_bundle.js; sourceTree = "<group>"; };
 		1AFE21FB1CA5EC3F00B51CF6 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
-		1AFE21FC1CA5EC3F00B51CF6 /* README */ = {isa = PBXFileReference; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		1AFE21FC1CA5EC3F00B51CF6 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1AFE21FD1CA5EC3F00B51CF6 /* webpack.config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = webpack.config.js; sourceTree = "<group>"; };
 		1AFE22001CA6053B00B51CF6 /* IssueEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueEvent.h; sourceTree = "<group>"; };
 		1AFE22011CA6053B00B51CF6 /* IssueEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueEvent.m; sourceTree = "<group>"; };
@@ -897,7 +898,7 @@
 				1AFE21F11CA5EC3F00B51CF6 /* app */,
 				1AFE21F81CA5EC3F00B51CF6 /* dist */,
 				1AFE21FB1CA5EC3F00B51CF6 /* package.json */,
-				1AFE21FC1CA5EC3F00B51CF6 /* README */,
+				1AFE21FC1CA5EC3F00B51CF6 /* README.md */,
 				1AFE21FD1CA5EC3F00B51CF6 /* webpack.config.js */,
 			);
 			path = IssueWeb;
@@ -906,6 +907,7 @@
 		1AFE21F11CA5EC3F00B51CF6 /* app */ = {
 			isa = PBXGroup;
 			children = (
+				1A9DA7EE1D223DB500A23EC9 /* spellcheck.js */,
 				1AD095E31CF8DF9100A0277A /* completer.js */,
 				1AD095E41CF8DF9100A0277A /* file-picker.js */,
 				1AD095E51CF8DF9100A0277A /* file-uploader.js */,

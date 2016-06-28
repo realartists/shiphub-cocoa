@@ -682,3 +682,24 @@ pre.referencedCommitBody {
   white-space: pre-wrap;
   word-break: break-all;
 }
+
+.misspelling {
+/* Would like to use text-decoration, but webkit doesn't support dotted underlines :(
+ 
+   So instead, use a pseudo element with a dotted border.
+*/
+
+/*   -webkit-text-decoration: underline dotted red; */
+  display: inline-block;
+  position: relative;
+}
+
+.misspelling::after {
+  border-bottom:2px dotted red;
+  content:'';
+  left:0;
+  right:0;
+  bottom: 3px;
+  position:absolute;
+  z-index: -1;
+}
