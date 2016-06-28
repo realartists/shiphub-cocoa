@@ -30,18 +30,20 @@ var LabelPicker = React.createClass({
 
     var promise;
     if (val === "New Label...") {
+      $(el).blur();
       promise = this.props.onNewLabel(null);
     } else if (newLabelWithInputRegex.test(val)) {
+      $(el).blur();
       var newLabel = val.match(newLabelWithInputRegex)[1];
       promise = this.props.onNewLabel(newLabel);
     } else if (existingLabelMatch) {
       promise = this.props.onAddExistingLabel(existingLabelMatch)
+      $(el).focus();
     } else {
       throw new Error("Unexpected label value: " + val);
     }
 
     $(el).typeahead('val', "");
-    $(el).focus();
 
     return promise;
   },
