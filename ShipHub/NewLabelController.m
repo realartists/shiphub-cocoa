@@ -147,7 +147,7 @@ static NSArray *GitHubColors() {
     _tag.anchorPoint = CGPointMake(0.17, 0.73);
     _tag.frame = CGRectMake(0, 0, 128 / 2.0, 112 / 2.0);
     _tag.string = @"\uf02b";
-    _tag.font = CFBridgingRetain([NSFont fontWithName:@"FontAwesome" size:0.0]);
+    _tag.font = (__bridge CFTypeRef)([NSFont fontWithName:@"FontAwesome" size:0.0]);
     _tag.fontSize = 60.0;
     _tag.alignmentMode = kCAAlignmentLeft;
     _tag.position = CGPointMake(55, 255);
