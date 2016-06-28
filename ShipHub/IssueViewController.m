@@ -866,9 +866,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
         
         [text enumerateSubstringsInRange:NSMakeRange(0, text.length) options:NSStringEnumerationByLines usingBlock:^(NSString * _Nullable substring, NSRange substringRange, NSRange enclosingRange, BOOL * _Nonnull stop) {
             
-            
-            BOOL passed = NO;
-            for (NSUInteger i = processed; i < results.count && !passed; i++) {
+            for (NSUInteger i = processed; i < results.count; i++) {
                 NSTextCheckingResult *result = results[i];
                 NSRange r = result.range;
                 if (NSRangeContainsRange(substringRange, r)) {
@@ -877,7 +875,6 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
                     [cmRanges addObject:cmRange];
                     processed++;
                 } else if (NSMaxRange(substringRange) < NSMaxRange(r)) {
-                    passed = YES;
                     break;
                 }
             }
