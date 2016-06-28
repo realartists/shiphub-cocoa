@@ -489,6 +489,10 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
         [weakSelf spellcheck:msg];
     } name:@"spellcheck"];
     
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf spellcheck:msg];
+    } name:@"spellcheck"];
+    
     NSString *setupJS =
     @"window.inApp = true;\n"
     @"window.postAppMessage = function(msg) { window.inAppAPI.postMessage(msg); }\n";
