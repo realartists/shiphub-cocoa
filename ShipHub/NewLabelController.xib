@@ -37,8 +37,8 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2uY-L1-Woq">
-                        <rect key="frame" x="62" y="226" width="189" height="17"/>
-                        <textFieldCell key="cell" lineBreakMode="truncatingHead" sendsActionOnEndEditing="YES" alignment="center" title="realartists/shiphub-cocoa" id="gTV-jB-65H">
+                        <rect key="frame" x="102" y="224" width="174" height="17"/>
+                        <textFieldCell key="cell" lineBreakMode="truncatingHead" sendsActionOnEndEditing="YES" alignment="left" title="realartists/shiphub-cocoa" id="gTV-jB-65H">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" red="0.16551456151832455" green="0.16551456151832455" blue="0.16551456151832455" alpha="0.84999999999999998" colorSpace="calibratedRGB"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -104,8 +104,8 @@ Gw
                         <rect key="frame" x="249" y="22" width="16" height="16"/>
                     </progressIndicator>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0ER-aQ-OOt">
-                        <rect key="frame" x="103" y="248" width="106" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Add New Label" id="iEn-P8-d9y">
+                        <rect key="frame" x="102" y="245" width="107" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Add New Label" id="iEn-P8-d9y">
                             <font key="font" metaFont="systemBold"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
