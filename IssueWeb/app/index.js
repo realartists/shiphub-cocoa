@@ -2673,6 +2673,7 @@ var AddLabel = React.createClass({
                       _this.props.issue._bare_owner,
                       _this.props.issue._bare_repo,
                       function(succeeded, label) {
+                        _this.focus();
                         if (succeeded) {
                           getIvars().labels.push({
                             name: label.name,
