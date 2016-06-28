@@ -138,39 +138,51 @@ typedef NS_ENUM(NSInteger, SyncState) {
     return task;
 }
 
-- (NSArray<NSURLSessionDataTask *> *)jsonTasks:(NSArray<NSURLRequest *>*)requests completion:(void (^)(NSArray *json, NSError *err))completion {
-    NSArray<NSURLSessionDataTask *> *tasks = [[NSURLSession sharedSession] dataTasksWithRequests:requests completion:^(NSArray<URLSessionResult *> *results) {
-        dispatch_async(_q, ^{
-            NSError *anyError = nil;
-            for (URLSessionResult *r in results) {
-                NSInteger statusCode = ((NSHTTPURLResponse *)r.response).statusCode;
-                anyError = r.error;
-                if (![self.auth checkResponse:r.response]) {
-                    anyError = [NSError shipErrorWithCode:ShipErrorCodeNeedsAuthToken];
-                }
-                if (!anyError && statusCode != 200) {
-                    anyError = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
-                }
-                if (anyError) break;
-            }
-            if (anyError) {
-                completion(nil, anyError);
+- (NSArray<NSURLSessionDataTask *> *)jsonTasks:(NSArray<NSURLRequest *>*)requests
+                                    completion:(void (^)(NSArray *json, NSError *anyError))completion {
+    return [self jsonTasks:requests completionWithAllErrors:^(NSArray *json, NSArray *errors){
+        // Consider the whole block failed if any fails.
+        for (id error in errors) {
+            if (error != [NSNull null]) {
+                completion(nil, error);
                 return;
             }
-            
-            NSMutableArray *json = [NSMutableArray arrayWithCapacity:results.count];
+        }
+
+        completion(json, nil);
+    }];
+}
+
+- (NSArray<NSURLSessionDataTask *> *)jsonTasks:(NSArray<NSURLRequest *>*)requests
+                       completionWithAllErrors:(void (^)(NSArray *json, NSArray *errors))completion {
+    NSArray<NSURLSessionDataTask *> *tasks = [[NSURLSession sharedSession] dataTasksWithRequests:requests completion:^(NSArray<URLSessionResult *> *results) {
+        dispatch_async(_q, ^{
+            NSMutableArray *jsonObjects = [NSMutableArray array];
+            NSMutableArray *errors = [NSMutableArray array];
+
             for (URLSessionResult *r in results) {
-                NSError *err = nil;
-                id v = [NSJSONSerialization JSONObjectWithData:r.data options:0 error:&err];
-                if (err) {
-                    completion(nil, err);
-                    return;
+                if ([[((NSHTTPURLResponse *)r.response).URL absoluteString] isEqualToString:@"https://api.github.com/repos/realartists/web/assignees?per_page=100"]) {
+                    NSLog(@"-- FRED");
+                }
+                NSInteger statusCode = ((NSHTTPURLResponse *)r.response).statusCode;
+                NSError *error = nil;
+                id jsonObject = nil;
+
+                if (![self.auth checkResponse:r.response]) {
+                    error = [NSError shipErrorWithCode:ShipErrorCodeNeedsAuthToken];
+                } else if (r.error) {
+                    error = r.error;
+                } else if (statusCode != 200) {
+                    error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
                 }
 
-                [json addObject:v];
+                jsonObject = [NSJSONSerialization JSONObjectWithData:r.data options:0 error:&error];
+
+                [jsonObjects addObject:jsonObject ?: [NSNull null]];
+                [errors addObject:error ?: [NSNull null]];
             }
-            
-            completion(json, nil);
+
+            completion(jsonObjects, errors);
         });
     }];
     // tasks are automatically resumed
@@ -314,22 +326,16 @@ typedef NS_ENUM(NSInteger, SyncState) {
         NSArray *dedupedOrgs = [[NSDictionary lookupWithObjects:orgs keyPath:@"id"] allValues];
         
         
-        [self jsonTasks:assigneeRequests completion:^(NSArray *assignees, NSError *assigneeErr) {
-            if (assigneeErr) {
-                _state = SyncStateIdle;
-                return;
-            }
+        [self jsonTasks:assigneeRequests completionWithAllErrors:^(NSArray *assignees, NSArray *assigneeErrors) {
+            NSMutableArray *activeRepos = [NSMutableArray arrayWithCapacity:assignees.count];
+            NSMutableArray *assigneesForActiveRepos = [NSMutableArray arrayWithCapacity:assignees.count];
 
-            NSMutableArray *activeRepos = [repos mutableCopy];
-            NSMutableArray *assigneesForActiveRepos = [assignees mutableCopy];
-            for (NSInteger i = 0; i < assigneesForActiveRepos.count;) {
-                if ([assigneesForActiveRepos[i] isKindOfClass:[NSNull class]]) {
-                    // We didn't get a 200 response when fetching the assignees for this repo.
-                    // This probably means the repo is disabled for non-payment.
-                    [activeRepos removeObjectAtIndex:i];
-                    [assigneesForActiveRepos removeObjectAtIndex:i];
-                } else {
-                    i++;
+            // Filter out repos that gave us an error response when fetching assignees.
+            // These are probably repos for deactivated GitHub orgs.
+            for (NSInteger i = 0; i < assignees.count; i++) {
+                if (assigneeErrors[i] == [NSNull null]) {
+                    [activeRepos addObject:repos[i]];
+                    [assigneesForActiveRepos addObject:assignees[i]];
                 }
             }
 
