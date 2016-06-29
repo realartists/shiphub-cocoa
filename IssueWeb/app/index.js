@@ -480,7 +480,7 @@ var markdownOpts = {
   tables: true,
   breaks: true,
   pedantic: false,
-  sanitize: true,
+  sanitize: false,
   smartLists: true,
   smartypants: false,
   highlight: function (code, lang) {

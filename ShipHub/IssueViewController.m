@@ -17,6 +17,7 @@
 #import "Extras.h"
 #import "MetadataStore.h"
 #import "MultiDownloadProgress.h"
+#import "NSFileWrapper+ImageExtras.h"
 #import "Issue.h"
 #import "IssueDocumentController.h"
 #import "IssueIdentifier.h"
@@ -622,7 +623,15 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 - (NSString *)linkWithWrapper:(NSFileWrapper *)wrapper URL:(NSURL *)linkURL {
     NSString *filename = wrapper.preferredFilename ?: @"attachment";
     if ([wrapper isImageType]) {
-        return [NSString stringWithFormat:@"![%@](%@)", filename, linkURL];
+        NSImage *image = [wrapper image];
+        if ([image isHiDPI]) {
+            // for hidpi images we want to write an <img> tag instead of using markdown syntax, as this will prevent it from drawing too large.
+            filename = [filename stringByReplacingOccurrencesOfString:@"'" withString:@"`"];
+            CGSize size = image.size;
+            return [NSString stringWithFormat:@"<img src='%@' title='%@' width=%.0f height=%.0f>", linkURL, filename, size.width, size.height];
+        } else {
+            return [NSString stringWithFormat:@"![%@](%@)", filename, linkURL];
+        }
     } else {
         return [NSString stringWithFormat:@"[%@](%@)", filename, linkURL];
     }

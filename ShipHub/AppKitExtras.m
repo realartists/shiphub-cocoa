@@ -340,6 +340,18 @@
     return image;
 }
 
+- (BOOL)isHiDPI {
+    CGSize size = [self size];
+    NSInteger w = size.width;
+    NSInteger h = size.height;
+    for (NSImageRep *rep in self.representations) {
+        if (rep.pixelsWide > w || rep.pixelsHigh > h) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 @end
 
 @implementation NSColor (Extras)

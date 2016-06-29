@@ -115,6 +115,8 @@
 - (NSImage *)imageConstrainedToMaxEdge:(CGFloat)maxEdge;
 - (NSImage *)renderWithColor:(NSColor *)color;
 
+- (BOOL)isHiDPI;
+
 @end
 
 @interface NSColor (Extras)
