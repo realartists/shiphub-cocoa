@@ -1752,20 +1752,26 @@ NSTextFieldDelegate>
     NSColor *bgColor = [[NSColor blackColor] colorWithAlphaComponent:0.1];
     
     CGRect b = self.bounds;
-    
-    CGFloat radius = (b.size.height - 2.0) / 2.0;
-    NSBezierPath *outline = [NSBezierPath bezierPathWithRoundedRect:CGRectMake(1.0, 1.0, b.size.width - 2.0, b.size.height - 2.0) xRadius:radius yRadius:radius];
+
+    CGRect bgRect = CGRectMake(1.0, 1.0, b.size.width - 2.0, b.size.height - 2.0);
+    CGFloat bgRadius = bgRect.size.height / 2.0;
+    NSBezierPath *bgPath = [NSBezierPath bezierPathWithRoundedRect:bgRect xRadius:bgRadius yRadius:bgRadius];
     
     [bgColor set];
-    [outline fill];
-    
+    [bgPath fill];
+
+    // Inset 0.5 so the stroke doesn't get split between between pixels.
+    CGRect fillRect = CGRectInset(bgRect, 0.5, 0.5);
+    CGFloat fillRadius = fillRect.size.height / 2.0;
+    NSBezierPath *fillPath = [NSBezierPath bezierPathWithRoundedRect:fillRect xRadius:fillRadius yRadius:fillRadius];
+
     [fillColor set];
-    outline.lineWidth = 1.0;
-    
-    [outline stroke];
-    
+    fillPath.lineWidth = 1.0;
+
+    [fillPath stroke];
+
     CGRect clipRect;
-    clipRect.size.width = (b.size.width - 2.0) * _doubleValue;
+    clipRect.size.width = round((b.size.width - 2.0) * _doubleValue);
     clipRect.origin.x = 1.0;
     clipRect.origin.y = 0.0;
     clipRect.size.height = b.size.height;
@@ -1773,7 +1779,7 @@ NSTextFieldDelegate>
     NSBezierPath *clip = [NSBezierPath bezierPathWithRect:clipRect];
     [clip addClip];
     
-    [outline fill];
+    [fillPath fill];
 }
 
 @end
