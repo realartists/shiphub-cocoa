@@ -7,8 +7,7 @@ import Completer from './completer.js'
 var LabelPicker = React.createClass({
   propTypes: {
     onAddExistingLabel: React.PropTypes.func, /* function onAdd(label) { ... } */
-    labels: React.PropTypes.array,
-    allLabelNames: React.PropTypes.array,
+    availableLabels: React.PropTypes.array,
   },
   
   addLabel: function() {
@@ -24,7 +23,7 @@ var LabelPicker = React.createClass({
       return;
     }
 
-    const existingLabelMatch = this.props.labels.find(
+    const existingLabelMatch = this.props.availableLabels.find(
       (label) => (label.name === val));
 
     var promise;
@@ -90,14 +89,14 @@ var LabelPicker = React.createClass({
   
   render: function() {
     const matcher = function(text, cb) {
-      const labelNames = this.props.labels
+      const availableLabelNames = this.props.availableLabels
         .map((l) => l.name)
         .sort((a, b) => (a.toLowerCase().localeCompare(b.toLowerCase())));
 
       var r = new RegExp(text, 'i');
-      var results = labelNames.filter((o) => (r.test(o)));
+      var results = availableLabelNames.filter((o) => (r.test(o)));
 
-      if (text.trim().length > 0 && labelNames.indexOf(text) == -1) {
+      if (text.trim().length > 0 && availableLabelNames.indexOf(text) == -1) {
         // To appear when a string is entered that does not match
         // existing label names.  This will be reformatted to show
         // as "New Label: <input>"
@@ -112,7 +111,7 @@ var LabelPicker = React.createClass({
     }.bind(this);
 
     var labelLookup = {};
-    this.props.labels.forEach((l) => { labelLookup[l.name] = l })
+    this.props.availableLabels.forEach((l) => { labelLookup[l.name] = l })
     
     var formatter = (value) => {
       var inner = "";
