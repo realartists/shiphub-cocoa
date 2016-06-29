@@ -24,23 +24,19 @@ var LabelPicker = React.createClass({
       return;
     }
 
-    const newLabelWithInputRegex = /^New Label: (.*?)$/;
     const existingLabelMatch = this.props.labels.find(
       (label) => (label.name === val));
 
     var promise;
-    if (val === "New Label...") {
-      $(el).blur();
-      promise = this.props.onNewLabel(null);
-    } else if (newLabelWithInputRegex.test(val)) {
-      $(el).blur();
-      var newLabel = val.match(newLabelWithInputRegex)[1];
-      promise = this.props.onNewLabel(newLabel);
-    } else if (existingLabelMatch) {
+    if (existingLabelMatch) {
       promise = this.props.onAddExistingLabel(existingLabelMatch)
       $(el).focus();
+    } else if (val === "New Label...") {
+      $(el).blur();
+      promise = this.props.onNewLabel(null);
     } else {
-      throw new Error("Unexpected label value: " + val);
+      $(el).blur();
+      promise = this.props.onNewLabel(val);
     }
 
     $(el).typeahead('val', "");
@@ -103,8 +99,9 @@ var LabelPicker = React.createClass({
 
       if (text.trim().length > 0 && labelNames.indexOf(text) == -1) {
         // To appear when a string is entered that does not match
-        // existing label names.
-        results.push("New Label: " + text.trim());
+        // existing label names.  This will be reformatted to show
+        // as "New Label: <input>"
+        results.push(text.trim());
       } else if (text.trim().length == 0) {
         // To appear only when the label drop down is first expanded.
         // Will disappear if someone starts typing a string.
@@ -123,15 +120,14 @@ var LabelPicker = React.createClass({
       if (l != null) {
         inner = `<div class='LabelSuggestionColor' style='background-color: #${l.color}'></div><span class='tt-label-suggestion-text'>${htmlEncode(value)}</span>`
       } else {
-        var match = value.match(/^New Label: (.*?)$/);
         var renderedValue;
-        if (match) {
+        if (value === "New Label...") {
+          renderedValue = `<span class="no-highlight">New Label...</span>`;
+        } else {
           renderedValue = `
             <span class="no-highlight">
-              New Label: <span class="highlight">${match[1]}</span>
+              New Label: <span class="highlight">${value}</span>
             </span>`;
-        } else {
-          renderedValue = `<span class="no-highlight">New Label...</span>`;
         }
 
         inner = `
