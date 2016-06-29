@@ -2731,6 +2731,7 @@ var AddLabel = React.createClass({
     } else {
       return h(LabelPicker, {
         ref: "picker",
+        chosenLabels: chosenLabels,
         availableLabels: availableLabels,
         onAddExistingLabel: this.addExistingLabel,
         onNewLabel: this.newLabel,

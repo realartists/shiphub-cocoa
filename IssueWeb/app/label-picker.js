@@ -8,6 +8,7 @@ var LabelPicker = React.createClass({
   propTypes: {
     onAddExistingLabel: React.PropTypes.func, /* function onAdd(label) { ... } */
     availableLabels: React.PropTypes.array,
+    chosenLabels: React.PropTypes.array,
   },
   
   addLabel: function() {
@@ -95,8 +96,12 @@ var LabelPicker = React.createClass({
 
       var r = new RegExp(text, 'i');
       var results = availableLabelNames.filter((o) => (r.test(o)));
+      const textMatchesChosenLabel = this.props.chosenLabels.find(
+        (o) => (o.name === text)) != null;
 
-      if (text.trim().length > 0 && availableLabelNames.indexOf(text) == -1) {
+      if (text.trim().length > 0 &&
+          availableLabelNames.indexOf(text) == -1 &&
+          !textMatchesChosenLabel) {
         // To appear when a string is entered that does not match
         // existing label names.  This will be reformatted to show
         // as "New Label: <input>"
