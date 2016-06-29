@@ -2723,7 +2723,7 @@ var AddLabel = React.createClass({
     var chosenLabels = keypath(this.props.issue, "labels") || [];
     
     var chosenLabelsLookup = chosenLabels.reduce((o, l) => { o[l.name] = l; return o; }, {});  
-    var filteredLabels = allLabels.filter((l) => !(l.name in chosenLabelsLookup));
+    var availableLabels = allLabels.filter((l) => !(l.name in chosenLabelsLookup));
 
     if (this.props.issue._bare_owner == null ||
         this.props.issue._bare_repo == null) {
@@ -2731,7 +2731,7 @@ var AddLabel = React.createClass({
     } else {
       return h(LabelPicker, {
         ref: "picker",
-        labels: filteredLabels,
+        availableLabels: availableLabels,
         onAddExistingLabel: this.addExistingLabel,
         onNewLabel: this.newLabel,
       });
