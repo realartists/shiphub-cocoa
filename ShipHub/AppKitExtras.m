@@ -586,6 +586,10 @@
     [[[NSAttributedString alloc] initWithString:self attributes:attrs] drawWithTruncationInRect:rect];
 }
 
+- (CGSize)multilineSizeThatFitsInSize:(CGSize)size attributes:(NSDictionary *)attrs {
+    return [[[NSAttributedString alloc] initWithString:self attributes:attrs] multilineSizeThatFitsInSize:size];
+}
+
 @end
 
 @implementation NSAttributedString (AppKitExtras)
@@ -755,6 +759,44 @@ static CGFloat GetAttachmentWidth(void *ref) {
     }
     
     CGContextRestoreGState(ctx);
+}
+
+- (CGSize)multilineSizeThatFitsInSize:(CGSize)size {
+    NSAttributedString *str = self;
+    
+    CGRect rect = CGRectMake(0, 0, size.width, size.height);
+    CGPathRef path = CGPathCreateWithRect(rect, NULL);
+    CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString((__bridge CFAttributedStringRef)str);
+    CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, str.length), path, NULL);
+    CFRelease(path);
+    
+    CFArrayRef lines = CTFrameGetLines(frame);
+    NSUInteger lineCount = CFArrayGetCount(lines);
+    
+    if (lineCount == 0) {
+        CFRelease(frame);
+        CFRelease(framesetter);
+        return CGSizeZero;
+    }
+    
+    // now draw up to maxLine
+    CGRect r = CGRectZero;
+    for (NSUInteger i = 0; i < lineCount; i++) {
+        CTLineRef line = CFArrayGetValueAtIndex(lines, i);
+        CGPoint origin = CGPointZero;
+        CTFrameGetLineOrigins(frame, CFRangeMake(i, 1), &origin);
+        origin.y = size.height - origin.y;
+        origin.x += rect.origin.x;
+        origin.y += rect.origin.y;
+        CGRect b = CTLineGetBoundsWithOptions(line, 0);
+        b.origin = origin;
+        r = CGRectUnion(r, b);
+    }
+    
+    CFRelease(frame);
+    CFRelease(framesetter);
+    
+    return r.size;
 }
 
 @end

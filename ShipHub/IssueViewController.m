@@ -921,11 +921,17 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     [[_issue fullIdentifier] copyIssueGitHubURLToPasteboard:[NSPasteboard generalPasteboard]];
 }
 
+- (IBAction)toggleUpNext:(id)sender {
+    [[DataStore activeStore] addToUpNext:@[_issue.fullIdentifier] atHead:NO completion:nil];
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     if (menuItem.action == @selector(saveDocument:)) {
         return [self needsSave];
     } else if (menuItem.action == @selector(fixSpelling:)) {
         return menuItem.representedObject != nil;
+    } else if (menuItem.action == @selector(toggleUpNext:)) {
+        menuItem.title = NSLocalizedString(@"Add to Up Next", nil);
     }
     return _issue.fullIdentifier != nil;
 }

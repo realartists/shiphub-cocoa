@@ -37,6 +37,7 @@
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion;
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion;
+- (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors options:(NSDictionary *)options completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion;
 - (void)countIssuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSUInteger count, NSError *error))completion;
 
 // Compute the progress towards closing all issues in predicate. That is, return open issues / all issues matching predicate.
@@ -53,6 +54,10 @@
        repoOwner:(NSString *)repoOwner
         repoName:(NSString *)repoName
       completion:(void (^)(NSDictionary *label, NSError *error))completion;
+
+- (void)addToUpNext:(NSArray<NSString *> *)issueIdentifiers atHead:(BOOL)atHead completion:(void (^)(NSError *error))completion;
+- (void)insertIntoUpNext:(NSArray<NSString *> *)issueIdentifiers aboveIssueIdentifier:(NSString *)aboveIssueIdentifier completion:(void (^)(NSError *error))completion;
+- (void)removeFromUpNext:(NSArray<NSString *> *)issueIdentifiers completion:(void (^)(NSError *error))completion;
 
 @end
 
@@ -87,6 +92,8 @@ extern NSString *const DataStoreOutboxResolvedProblemIdentifiersKey; // => NSDic
 extern NSString *const DataStoreMigrationProgressKey; // => NSProgress
 
 extern NSString *const DataStoreDidUpdateMyQueriesNotification; // Sent when myQueries changes
+
+extern NSString *const DataStoreDidUpdateMyUpNextNotification;
 
 extern NSString *const DataStoreWillPurgeNotification;
 extern NSString *const DataStoreDidPurgeNotification;

@@ -34,5 +34,6 @@
 @dynamic fullIdentifier;
 @dynamic events;
 @dynamic comments;
+@dynamic upNext;
 
 @end

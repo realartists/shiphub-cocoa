@@ -65,7 +65,7 @@
     _chartEnabled = chartEnabled;
     if (!_chartEnabled) {
         if ([self mode] == ResultsViewModeChart) {
-            [self setMode:ResultsViewModeList];
+            [self setMode:ResultsViewMode3Pane];
             [_segmented sendAction:_segmented.action to:_segmented.target];
         }
     }

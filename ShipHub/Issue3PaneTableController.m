@@ -35,6 +35,7 @@
 @property NSMutableDictionary *activeRows;
 @property NSMutableArray *reuseQueue;
 @property CompactIssueTableHeaderView *header;
+@property CompactIssueTableCornerView *corner;
 
 @end
 
@@ -48,7 +49,7 @@
     [super viewDidLoad];
     
     CompactIssueTableHeaderView *header = _header = [[CompactIssueTableHeaderView alloc] initWithFrame:CGRectMake(0, 0, 300.0, 19.0)];
-    CompactIssueTableCornerView *corner = [[CompactIssueTableCornerView alloc] initWithFrame:CGRectMake(0, 0, 20.0, 19.0)];
+    CompactIssueTableCornerView *corner = _corner = [[CompactIssueTableCornerView alloc] initWithFrame:CGRectMake(0, 0, 20.0, 19.0)];
     
     NSMenu *sortMenu = [[NSMenu alloc] init];
     NSMenuItem *m;
@@ -171,7 +172,7 @@
         
         NSString *compare = info[@"compare"] ?: @"compare:";
         
-        NSSortDescriptor *actual = [NSSortDescriptor sortDescriptorWithKey:[NSString stringWithFormat:@"info.issue.%@", sortDesc.key] ascending:sortDesc.ascending selector:NSSelectorFromString(compare)];
+        NSSortDescriptor *actual = [NSSortDescriptor sortDescriptorWithKey:[NSString stringWithFormat:@"%@", sortDesc.key] ascending:sortDesc.ascending selector:NSSelectorFromString(compare)];
         [self.table setSortDescriptors:@[actual]];
     }
 }
@@ -190,14 +191,31 @@
     
     NSSortDescriptor *sort = [[self.table sortDescriptors] firstObject];
     if (sort) {
-        sort = [NSSortDescriptor sortDescriptorWithKey:[sort.key substringFromIndex:[@"info.issue." length]] ascending:asc];
+        sort = [NSSortDescriptor sortDescriptorWithKey:sort.key ascending:asc];
         [self updateSort:sort];
     }
 }
 
 - (void)commonInit {
     [super commonInit];
-    self.defaultColumns = [NSSet setWithArray:@[@"issue.number"]];
+    self.defaultColumns = [NSSet setWithArray:@[@"number"]];
+}
+
+- (void)setUpNextMode:(BOOL)mode {
+    if (mode != self.upNextMode) {
+        [super setUpNextMode:mode];
+        if (mode) {
+            self.table.headerView = nil;
+            self.table.cornerView = nil;
+        } else {
+            self.table.headerView = _header;
+            self.table.cornerView = _corner;
+        }
+    }
+}
+
+- (BOOL)usesAlternatingRowBackgroundColors {
+    return NO;
 }
 
 - (CompactIssueCellViewController *)viewControllerForRow:(NSInteger)row {
@@ -233,7 +251,7 @@
 
 - (void)tableView:(NSTableView *)tableView didAddRowView:(NSTableRowView *)rowView forRow:(NSInteger)row {
     CompactIssueCellViewController *vc = [self viewControllerForRow:row];
-    vc.issue = [self.items[row] issue];
+    vc.issue = self.items[row];
 }
 
 - (void)tableView:(NSTableView *)tableView didRemoveRowView:(NSTableRowView *)rowView forRow:(NSInteger)row {

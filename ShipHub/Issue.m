@@ -15,6 +15,7 @@
 #import "LocalUser.h"
 #import "LocalMilestone.h"
 #import "LocalLabel.h"
+#import "LocalUpNext.h"
 
 #import "Repo.h"
 #import "User.h"
@@ -28,10 +29,10 @@
 @implementation Issue
 
 - (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms {
-    return [self initWithLocalIssue:li metadataStore:ms includeEventsAndComments:NO];
+    return [self initWithLocalIssue:li metadataStore:ms options:nil];
 }
 
-- (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms includeEventsAndComments:(BOOL)includeECs
+- (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms options:(NSDictionary *)options
 {
     if (self = [super init]) {
         _number = li.number;
@@ -53,6 +54,7 @@
         _milestone = [ms milestoneWithIdentifier:li.milestone.identifier];
         _repository = [ms repoWithIdentifier:li.repository.identifier];
         
+        BOOL includeECs = [options[IssueOptionIncludeEventsAndComments] boolValue];
         if (includeECs) {
             NSSortDescriptor *createSort = [NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES];
             
@@ -70,6 +72,12 @@
         } else {
             _commentsCount = [li.comments count];
         }
+        
+        BOOL includePriority = [options[IssueOptionIncludeUpNextPriority] boolValue];
+        if (includePriority) {
+            LocalUpNext *upNext = [[li.upNext filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"user.identifier = %@", [[User me] identifier]]] anyObject];
+            _upNextPriority = upNext.priority;
+        }
     }
     return self;
 }
@@ -83,3 +91,6 @@
 }
 
 @end
+
+NSString const* IssueOptionIncludeEventsAndComments = @"IssueOptionIncludeEventsAndComments";
+NSString const* IssueOptionIncludeUpNextPriority = @"IssueOptionIncludeUpNextPriority";

@@ -11,6 +11,7 @@
 #import "IssueTableController.h"
 #import "DataStore.h"
 #import "Issue.h"
+#import "EmptyUpNextViewController.h"
 
 @interface IssueTableController (Internal)
 @property (nonatomic, assign) BOOL loading;
@@ -23,6 +24,7 @@
 @property IssueTableController *table;
 @property (nonatomic, assign) BOOL searching;
 @property NSTimer *titleTimer;
+@property EmptyUpNextViewController *emptyVC;
 
 @end
 
@@ -34,7 +36,8 @@
 
 - (void)loadView {
     _table = [[IssueTableController alloc] init];
-    _table.autosaveName = @"SearchResults";
+    _table.delegate = self;
+    [self updateTablePrefs];
     NSView *tableView = _table.view;
     self.view = [[NSView alloc] initWithFrame:tableView.frame];
     [self.view setContentView:tableView];
@@ -67,15 +70,18 @@
     NSInteger generation = _searchGeneration;
     self.searching = YES;
     
-    [[DataStore activeStore] issuesMatchingPredicate:self.predicate completion:^(NSArray<Issue *> *issues, NSError *error) {
+    NSArray *sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"number" ascending:YES]];
+    NSDictionary *options = nil;
+    
+    if (self.upNextMode) {
+        options = @{ IssueOptionIncludeUpNextPriority : @YES };
+    }
+    
+    [[DataStore activeStore] issuesMatchingPredicate:self.predicate sortDescriptors:sortDescriptors options:options completion:^(NSArray<Issue *> *issues, NSError *error) {
         if (generation != _searchGeneration) return;
         
         if (issues) {
-            _table.tableItems = [issues arrayByMappingObjects:^id(id obj) {
-                SearchTableItem *item = [SearchTableItem new];
-                item.issue = obj;
-                return item;
-            }];
+            _table.tableItems = issues;
             [self didUpdateItems];
         } else {
             [self presentError:error modalForWindow:self.view.window delegate:nil didPresentSelector:nil contextInfo:NULL];
@@ -126,16 +132,61 @@
     return [_table selectedProblemSnapshots];
 }
 
-@end
-
-@implementation SearchTableItem
-
-- (id)issueFullIdentifier {
-    return self.issue.fullIdentifier;
+- (void)setUpNextMode:(BOOL)upNextMode {
+    [super setUpNextMode:upNextMode];
+    [self updateTablePrefs];
 }
 
-- (id<NSCopying>)identifier {
-    return [self issueFullIdentifier];
+- (void)updateTablePrefs {
+    _table.autosaveName = [self autosaveName];
+    if (self.upNextMode) {
+        _table.upNextMode = YES;
+        if (!_emptyVC) {
+            _emptyVC = [EmptyUpNextViewController new];
+        }
+        _table.emptyPlaceholderViewController = _emptyVC;
+    } else {
+        _table.upNextMode = NO;
+        _table.emptyPlaceholderViewController = nil;
+    }
+}
+
+- (NSString *)autosaveName {
+    return self.upNextMode ? @"UpNext" : @"SearchResults";
+}
+
+- (BOOL)issueTableController:(IssueTableController *)controller shouldAcceptDrop:(NSArray *)issueIdentifiers {
+    return self.upNextMode;
+}
+
+- (void)issueTableController:(IssueTableController *)controller didAcceptDrop:(NSArray *)issueIdentifiers aboveItemAtIndex:(NSInteger)idx {
+    DataStore *store = [DataStore activeStore];
+    Issue *context = nil;
+    if (idx < _table.tableItems.count) {
+        context = _table.tableItems[idx];
+    }
+    [store insertIntoUpNext:issueIdentifiers aboveIssueIdentifier:context.fullIdentifier completion:nil];
+}
+
+- (void)issueTableController:(IssueTableController *)controller didReorderItems:(NSArray<Issue *> *)items aboveItemAtIndex:(NSInteger)idx {
+    NSArray *issueIdentifiers = [items arrayByMappingObjects:^id(id obj) {
+        return [obj fullIdentifier];
+    }];
+    
+    [self issueTableController:controller didAcceptDrop:issueIdentifiers aboveItemAtIndex:idx];
+}
+
+- (BOOL)issueTableController:(IssueTableController *)controller deleteItems:(NSArray<Issue *> *)items {
+    if (!self.upNextMode) {
+        return NO;
+    }
+    
+    DataStore *store = [DataStore activeStore];
+    [store removeFromUpNext:[items arrayByMappingObjects:^id(id obj) {
+        return [obj fullIdentifier];
+    }] completion:nil];
+    
+    return YES;
 }
 
 @end
