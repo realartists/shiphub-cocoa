@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 typedef NSPredicate *(^OverviewPredicateBuilder)();
+typedef void (^OverviewNodeDropHandler)(NSArray<NSString *> *issueIdentifiers);
 @class OverviewKnob;
 
 @interface OverviewNode : NSObject
@@ -54,6 +55,8 @@ typedef NSPredicate *(^OverviewPredicateBuilder)();
 @property (nonatomic, strong) NSString *toolTip;
 
 @property (strong) NSImage *icon;
+
+@property (copy) OverviewNodeDropHandler dropHandler;
 
 @end
 

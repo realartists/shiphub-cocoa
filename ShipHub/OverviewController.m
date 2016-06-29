@@ -29,6 +29,7 @@
 #import "TimeSeries.h"
 #import "ThreePaneController.h"
 #import "FilterBarViewController.h"
+#import "IssueIdentifier.h"
 
 #import "IssueDocumentController.h"
 
@@ -107,6 +108,7 @@ NSTextFieldDelegate>
 @property NSArray *outlineRoots;
 
 @property OverviewNode *allProblemsNode;
+@property OverviewNode *upNextNode;
 @property OverviewNode *attachmentsNode;
 @property OverviewNode *outboxNode;
 
@@ -214,6 +216,7 @@ NSTextFieldDelegate>
 //    _outlineView.enclosingScrollView.automaticallyAdjustsContentInsets = NO;
 //    _outlineView.enclosingScrollView.contentInsets = NSEdgeInsetsMake(12.0, 0.0, 0.0, 0.0);
     _outlineView.floatsGroupRows = NO;
+    [_outlineView registerForDraggedTypes:@[(__bridge NSString *)kUTTypeURL, (__bridge NSString *)kUTTypeRTF, (__bridge NSString *)kUTTypePlainText]];
     
     self.window.frameAutosaveName = @"Overview";
     _splitView.autosaveName = @"OverviewSplit";
@@ -232,6 +235,7 @@ NSTextFieldDelegate>
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(initialSyncStarted:) name:DataStoreWillBeginInitialMetadataSync object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(initialSyncEnded:) name:DataStoreDidEndInitialMetadataSync object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(outboxChanged:) name:DataStoreDidUpdateOutboxNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(upNextChanged:) name:DataStoreDidUpdateMyUpNextNotification object:nil];
 }
 
 - (IBAction)showWindow:(id)sender {
@@ -293,10 +297,8 @@ NSTextFieldDelegate>
     NSString *savedIdentifier = nil;
     if (_nextNodeToSelect) {
         savedIdentifier = _nextNodeToSelect;
-#if !INCOMPLETE
     } else if ([[_outlineView selectedItem] identifier]) {
         savedIdentifier = [[_outlineView selectedItem] identifier];
-#endif
     } else {
         NSString *lastViewedIdentifier = [[NSUserDefaults standardUserDefaults] objectForKey:LastSelectedNodeDefaultsKey];
         savedIdentifier = lastViewedIdentifier ?: @"MyOpenProblems";
@@ -354,6 +356,17 @@ NSTextFieldDelegate>
     _allProblemsNode.predicate = [NSPredicate predicateWithValue:YES];
     _allProblemsNode.icon = [NSImage overviewIconNamed:@"928-inbox-files-selected"];
     [topNode addChild:_allProblemsNode];
+    
+    _upNextNode = [OverviewNode new];
+    _upNextNode.showCount = YES;
+    _upNextNode.allowChart = NO;
+    _upNextNode.title = NSLocalizedString(@"Up Next", nil);
+    _upNextNode.predicate = [NSPredicate predicateWithFormat:@"closed = NO AND ANY upNext.user.identifier = %@", [[User me] identifier]];
+    _upNextNode.icon = [NSImage overviewIconNamed:@"1175-numbered-list"];
+    _upNextNode.dropHandler = ^(NSArray *identifiers) {
+        [[DataStore activeStore] addToUpNext:identifiers atHead:NO completion:nil];
+    };
+    [topNode addChild:_upNextNode];
     
     OverviewNode *milestonesRoot = [OverviewNode new];
 //    milestonesRoot.representedObject = _milestoneMap;
@@ -744,6 +757,13 @@ NSTextFieldDelegate>
     [self updateCount:_outboxNode];
 }
 
+- (void)upNextChanged:(NSNotification *)note {
+    [self updateCount:_upNextNode];
+    if (_upNextNode == [_outlineView selectedItem]) {
+        [[self activeResultsController] refresh:nil];
+    }
+}
+
 - (void)expandDefault {
     [self walkNodes:^(OverviewNode *node) {
         if (node.children.count > 0) {
@@ -859,6 +879,7 @@ NSTextFieldDelegate>
     
     _modeItem.chartEnabled = (selectedItem == nil || [selectedItem allowChart]);
     
+    [[self activeResultsController] setUpNextMode:selectedItem == _upNextNode];
     [[self activeResultsController] setPredicate:predicate];
     [self updateCount:selectedItem];
 #endif
@@ -1169,6 +1190,38 @@ NSTextFieldDelegate>
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:[NSString stringWithFormat:@"%@.collapsed", node.identifier]];
     }
 }
+
+- (NSDragOperation)outlineView:(NSOutlineView *)outlineView validateDrop:(id <NSDraggingInfo>)info proposedItem:(nullable id)item proposedChildIndex:(NSInteger)index
+{
+    NSPasteboard *pb = [info draggingPasteboard];
+    if (![NSString canReadIssueIdentifiersFromPasteboard:pb]) {
+        return NSDragOperationNone;
+    }
+    
+    OverviewNode *node = item;
+    if (node.dropHandler) {
+        return NSDragOperationCopy;
+    } else {
+        return NSDragOperationNone;
+    }
+}
+
+- (BOOL)outlineView:(NSOutlineView *)outlineView acceptDrop:(id <NSDraggingInfo>)info item:(nullable id)item childIndex:(NSInteger)index
+{
+    NSPasteboard *pb = [info draggingPasteboard];
+    NSArray *identifiers = [NSString readIssueIdentifiersFromPasteboard:pb];
+    
+    OverviewNode *node = item;
+    
+    if (node.dropHandler && identifiers.count > 0) {
+        node.dropHandler(identifiers);
+        return YES;
+    }
+    
+    return NO;
+}
+
+#pragma mark -
 
 - (IBAction)newDocument:(id)sender {
     [[IssueDocumentController sharedDocumentController] newDocument:sender];

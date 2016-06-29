@@ -169,12 +169,14 @@
 @interface NSString (AppKitExtras)
 
 - (void)drawWithTruncationInRect:(NSRect)rect attributes:(NSDictionary *)attrs;
+- (CGSize)multilineSizeThatFitsInSize:(CGSize)size attributes:(NSDictionary *)attrs;
 
 @end
 
 @interface NSAttributedString (AppKitExtras)
 
 - (void)drawWithTruncationInRect:(NSRect)rect;
+- (CGSize)multilineSizeThatFitsInSize:(CGSize)size;
 
 @end
 

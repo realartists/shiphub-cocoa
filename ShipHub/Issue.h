@@ -45,10 +45,14 @@
 @property (readonly) NSArray<IssueEvent *> *events;
 @property (readonly) NSArray<IssueComment *> *comments;
 
+// Up Next priority is conditionally populated.
+@property (readonly) NSNumber *upNextPriority;
+
 - (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms;
 
-- (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms includeEventsAndComments:(BOOL)includeECs;
+- (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms options:(NSDictionary *)options;
 
 @end
 
-
+extern NSString const* IssueOptionIncludeEventsAndComments;
+extern NSString const* IssueOptionIncludeUpNextPriority;

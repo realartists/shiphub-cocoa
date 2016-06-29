@@ -142,6 +142,12 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="aJh-i4-bef"/>
+                            <menuItem title="Add to Up Next" keyEquivalent="U" id="CKJ-TZ-68k">
+                                <connections>
+                                    <action selector="toggleUpNext:" target="-1" id="CGP-Xw-bea"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="utT-WK-Mk4"/>
                             <menuItem title="Page Setup…" keyEquivalent="P" id="qIS-W8-SiK">
                                 <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
                                 <connections>

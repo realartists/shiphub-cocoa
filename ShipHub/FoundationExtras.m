@@ -543,6 +543,29 @@ static inline uint8_t h2b(uint8_t v) {
 
 @end
 
+@implementation NSMutableArray (Extras)
+
+- (void)moveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(NSInteger)idx {
+    if ([indexes count] == 0) return;
+    
+    __block NSInteger dstIdx = idx;
+    [indexes enumerateIndexesUsingBlock:^(NSUInteger j, BOOL * _Nonnull stop) {
+        if (j < idx) dstIdx--;
+    }];
+    
+    if (dstIdx < 0) dstIdx = 0;
+    
+    NSArray *items = [self objectsAtIndexes:indexes];
+    
+    [self removeObjectsAtIndexes:indexes];
+    
+    NSIndexSet *insertionPoints = [NSIndexSet indexSetWithIndexesInRange:NSMakeRange(dstIdx, [indexes count])];
+    
+    [self insertObjects:items atIndexes:insertionPoints];
+}
+
+@end
+
 @implementation NSPredicate (Extras)
 
 - (NSPredicate *)and:(NSPredicate *)predicate {

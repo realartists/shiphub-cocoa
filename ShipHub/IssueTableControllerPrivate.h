@@ -1,5 +1,5 @@
 //
-//  ProblemTableController.h
+//  IssueTableControllerPrivate.h
 //  ShipHub
 //
 //  Created by James Howard on 5/5/16.
@@ -7,17 +7,6 @@
 //
 
 #import "IssueTableController.h"
-
-@interface ProblemTableItem : NSObject
-
-@property (strong) id<IssueTableItem> info;
-@property (strong) Issue *issue;
-
-- (id<NSCopying>)identifier;
-
-+ (instancetype)itemWithInfo:(id<IssueTableItem>)info;
-
-@end
 
 @protocol ProblemTableViewDelegate <NSTableViewDelegate>
 @optional
@@ -43,12 +32,13 @@
 
 - (void)_makeColumns;
 
-- (NSArray<ProblemTableItem *> *)selectedItemsForMenu;
+- (NSArray<Issue *> *)selectedItemsForMenu;
 - (void)_sortItems;
 
-- (NSArray<ProblemTableItem *> *)selectedItems;
+- (NSArray<Issue *> *)selectedItems;
 - (void)selectItems:(NSArray *)items;
 
 + (Class)tableClass; // returns [ProblemTableView class]. Subclassers may override.
+- (BOOL)usesAlternatingRowBackgroundColors;
 
 @end

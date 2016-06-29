@@ -31,6 +31,7 @@
 #import "LocalComment.h"
 #import "LocalRelationship.h"
 #import "LocalSyncVersion.h"
+#import "LocalUpNext.h"
 
 #import "Issue.h"
 #import "IssueComment.h"
@@ -59,6 +60,8 @@ NSString *const DataStoreDidPurgeNotification = @"DataStoreDidPurgeNotification"
 NSString *const DataStoreWillPurgeNotification = @"DataStoreWillPurgeNotification";
 
 NSString *const DataStoreDidUpdateMyQueriesNotification = @"DataStoreDidUpdateQueriesNotification";
+
+NSString *const DataStoreDidUpdateMyUpNextNotification = @"DataStoreDidUpdateMyUpNextNotification";
 
 NSString *const DataStoreCannotOpenDatabaseNotification = @"DataStoreCannotOpenDatabaseNotification";
 
@@ -835,10 +838,14 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
-    return [self issuesMatchingPredicate:predicate sortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"number" ascending:YES]] completion:completion];
+    return [self issuesMatchingPredicate:predicate sortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"number" ascending:YES]] options:nil completion:completion];
 }
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
+    return [self issuesMatchingPredicate:predicate sortDescriptors:sortDescriptors options:nil completion:completion];
+}
+
+- (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors options:(NSDictionary *)options completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
     __block NSArray *results = nil;
     __block NSError *error = nil;
     [_moc performBlock:^{
@@ -854,7 +861,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             }
             MetadataStore *ms = self.metadataStore;
             results = [entities arrayByMappingObjects:^id(LocalIssue *obj) {
-                return [[Issue alloc] initWithLocalIssue:obj metadataStore:ms];
+                return [[Issue alloc] initWithLocalIssue:obj metadataStore:ms options:options];
             }];
         } @catch (id exc) {
             error = [NSError shipErrorWithCode:ShipErrorCodeInvalidQuery];
@@ -949,7 +956,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         LocalIssue *i = [entities firstObject];
         
         if (i) {
-            Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore includeEventsAndComments:YES];
+            Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore options:@{IssueOptionIncludeEventsAndComments:@YES}];
             dispatch_async(dispatch_get_main_queue(), ^{
                 completion(issue, nil);
             });
@@ -1228,6 +1235,240 @@ static NSString *const LastUpdated = @"LastUpdated";
                 completion(nil, error);
             });
         }
+    }];
+}
+
+#pragma mark - Up Next
+
+- (void)addToUpNext:(NSArray<NSString *> *)issueIdentifiers atHead:(BOOL)atHead completion:(void (^)(NSError *error))completion {
+    NSParameterAssert(issueIdentifiers);
+    NSAssert([issueIdentifiers count] > 0, @"Must pass in at least one issue identifier");
+    
+    [_moc performBlock:^{
+        NSError *err = nil;
+        
+        NSFetchRequest *meRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
+        meRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[User me] identifier]];
+        meRequest.fetchLimit = 1;
+        
+        LocalUser *me = [[_moc executeFetchRequest:meRequest error:&err] firstObject];
+        if (err) ErrLog(@"%@", err);
+        err = nil;
+        
+        if (!me) {
+            ErrLog(@"Cannot find me");
+            return;
+        }
+        
+        NSPredicate *mePredicate = [NSPredicate predicateWithFormat:@"user = %@", me];
+        NSFetchRequest *existingRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalUpNext"];
+        existingRequest.predicate = [mePredicate and:[NSPredicate predicateWithFormat:@"issue.fullIdentifier IN %@", issueIdentifiers]];
+        
+        NSDictionary *existing = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:existingRequest error:&err] keyPath:@"issue.fullIdentifier"];
+        if (err) ErrLog(@"%@", err);
+        err = nil;
+        
+        NSFetchRequest *minMaxRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalUpNext"];
+        if (atHead) {
+            minMaxRequest.predicate = [mePredicate and:[NSPredicate predicateWithFormat:@"priority = min(priority)"]];
+        } else {
+            minMaxRequest.predicate = [mePredicate and:[NSPredicate predicateWithFormat:@"priority = max(priority)"]];
+        }
+        minMaxRequest.resultType = NSDictionaryResultType;
+        minMaxRequest.propertiesToFetch = @[@"priority"];
+        minMaxRequest.fetchLimit = 1;
+        
+        NSNumber *minMax = [[[_moc executeFetchRequest:minMaxRequest error:&err] firstObject] objectForKey:@"priority"];
+        if (err) ErrLog(@"%@", err);
+        err = nil;
+        
+        double increment = 1.0;
+        double start = [minMax doubleValue];
+        double offset = increment * (1.0 + (double)issueIdentifiers.count);
+        if (atHead) offset = -offset;
+        start = start + offset;
+        
+        NSMutableSet *neededIssueIdentifiers = [NSMutableSet setWithArray:issueIdentifiers];
+        [neededIssueIdentifiers minusSet:[NSSet setWithArray:existing.allKeys]];
+        
+        NSFetchRequest *issuesFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+        issuesFetch.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier IN %@", neededIssueIdentifiers];
+        NSDictionary *missingIssues = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:issuesFetch error:&err] keyPath:@"fullIdentifier"];
+        
+        double priority = start;
+        for (NSString *issueIdentifier in issueIdentifiers) {
+            LocalUpNext *mObj = existing[issueIdentifier];
+            if (!mObj) {
+                LocalIssue *issue = missingIssues[issueIdentifier];
+                if (issue) {
+                    mObj = [NSEntityDescription insertNewObjectForEntityForName:@"LocalUpNext" inManagedObjectContext:_moc];
+                    mObj.user = me;
+                    mObj.issue = issue;
+                }
+            }
+            mObj.priority = @(priority);
+            priority += increment;
+        }
+        
+        [_moc save:&err];
+        if (err) ErrLog(@"%@", err);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completion) completion(err);
+            [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMyUpNextNotification object:self];
+        });
+    }];
+}
+
+- (void)removeFromUpNext:(NSArray<NSString *> *)issueIdentifiers completion:(void (^)(NSError *error))completion {
+    NSParameterAssert(issueIdentifiers);
+    NSAssert(issueIdentifiers.count > 0, @"Must pass in at least 1 issueIdentifier");
+    
+    [_moc performBlock:^{
+        NSError *err = nil;
+        User *me = [User me];
+        
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUpNext"];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"user.identifier = %@ AND issue.fullIdentifier IN %@", me.identifier, issueIdentifiers];
+        
+        [_moc batchDeleteEntitiesWithRequest:fetch error:&err];
+        if (err) ErrLog(@"%@", err);
+        err = nil;
+        
+        [_moc save:&err];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completion) completion(err);
+            [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMyUpNextNotification object:self];
+        });
+    }];
+}
+
+- (void)insertIntoUpNext:(NSArray<NSString *> *)issueIdentifiers aboveIssueIdentifier:(NSString *)aboveIssueIdentifier completion:(void (^)(NSError *error))completion
+{
+    if (!aboveIssueIdentifier) {
+        [self addToUpNext:issueIdentifiers atHead:NO completion:completion];
+        return;
+    }
+    
+    [_moc performBlock:^{
+        
+        NSError *err = nil;
+        
+        NSFetchRequest *meRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
+        meRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[User me] identifier]];
+        meRequest.fetchLimit = 1;
+        
+        LocalUser *me = [[_moc executeFetchRequest:meRequest error:&err] firstObject];
+        if (err) ErrLog(@"%@", err);
+        err = nil;
+        
+        if (!me) {
+            ErrLog(@"Cannot find me");
+            return;
+        }
+        
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUpNext"];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"user = %@", me];
+        fetch.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"priority" ascending:YES]];
+        
+        NSArray *upNext = [_moc executeFetchRequest:fetch error:&err];
+        if (err) ErrLog(@"%@", err);
+        err = nil;
+        
+        NSDictionary *lookup = [NSDictionary lookupWithObjects:upNext keyPath:@"issue.fullIdentifier"];
+        NSSet *movingIdentifiers = [NSSet setWithArray:issueIdentifiers];
+        NSMutableSet *neededIssueIdentifiers = [movingIdentifiers mutableCopy];
+        [neededIssueIdentifiers minusSet:[NSSet setWithArray:[lookup allKeys]]];
+        
+        NSFetchRequest *issuesFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+        issuesFetch.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier IN %@", neededIssueIdentifiers];
+        NSDictionary *missingIssues = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:issuesFetch error:&err] keyPath:@"fullIdentifier"];
+        
+        LocalUpNext *context = lookup[aboveIssueIdentifier];
+        
+        NSInteger i = context != nil ? [upNext indexOfObjectIdenticalTo:context] : NSNotFound;
+        
+        double increment = 1.0;
+        double start = context.priority.doubleValue;
+        double offset = increment * (1.0 + (double)issueIdentifiers.count);
+        
+        BOOL reorderAll = NO;
+        
+        if (i == 0) {
+            // go more negative
+            offset = -offset;
+            start += offset;
+            
+        } else if (i == NSNotFound || i == upNext.count) {
+            // go more positive
+            start += offset;
+            
+        } else {
+            // need to insert the new items in the space in between
+            LocalUpNext *before = upNext[i-1];
+            LocalUpNext *after = context;
+            increment = (after.priority.doubleValue - before.priority.doubleValue) / (1.0 + issueIdentifiers.count);
+            start = before.priority.doubleValue + increment;
+            
+            if (increment < 0.00001) {
+                reorderAll = YES;
+            }
+        }
+        
+        
+        if (reorderAll) {
+            NSMutableArray *newOrdering = [NSMutableArray new];
+            for (LocalUpNext *up in upNext) {
+                if ([movingIdentifiers containsObject:up.issue.fullIdentifier]) continue;
+                if (up == context) {
+                    for (NSString *ii in issueIdentifiers) {
+                        LocalUpNext *next = lookup[ii];
+                        if (!next) {
+                            LocalIssue *issue = missingIssues[ii];
+                            if (issue) {
+                                next = [NSEntityDescription insertNewObjectForEntityForName:@"LocalUpNext" inManagedObjectContext:_moc];
+                                next.issue = issue;
+                                next.user = me;
+                            }
+                        }
+                        if (next) {
+                            [newOrdering addObject:next];
+                        }
+                    }
+                }
+                [newOrdering addObject:up];
+            }
+            
+            NSInteger j = 0;
+            for (LocalUpNext *up in newOrdering) {
+                up.priority = @((double)j);
+                j++;
+            }
+        } else {
+            double priority = start;
+            for (NSString *ii in issueIdentifiers) {
+                LocalUpNext *next = lookup[ii];
+                if (!next) {
+                    LocalIssue *issue = missingIssues[ii];
+                    if (issue) {
+                        next = [NSEntityDescription insertNewObjectForEntityForName:@"LocalUpNext" inManagedObjectContext:_moc];
+                        next.issue = issue;
+                        next.user = me;
+                    }
+                }
+                next.priority = @(priority);
+                priority += increment;
+            }
+        }
+        
+        [_moc save:&err];
+        if (err) ErrLog(@"%@", err);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completion) completion(err);
+            [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMyUpNextNotification object:self];
+        });
     }];
 }
 

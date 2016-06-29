@@ -16,4 +16,6 @@
 
 @property (getter=isInProgress) BOOL inProgress;
 
+@property (nonatomic, assign) BOOL upNextMode; // if YES, the controller operates in Up Next mode, which allows for item reordering and removal.
+
 @end

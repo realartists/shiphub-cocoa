@@ -97,4 +97,8 @@
     }
 }
 
+- (NSString *)autosaveName {
+    return nil;
+}
+
 @end

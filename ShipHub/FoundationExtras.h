@@ -127,6 +127,12 @@
 
 @end
 
+@interface NSMutableArray (Extras)
+
+- (void)moveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(NSInteger)idx;
+
+@end
+
 @interface NSPredicate (Extras)
 
 - (NSPredicate *)and:(NSPredicate *)predicate;

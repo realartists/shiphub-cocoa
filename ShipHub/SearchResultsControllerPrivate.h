@@ -9,16 +9,13 @@
 #import "SearchResultsController.h"
 #import "IssueTableController.h"
 
-@interface SearchResultsController (Private)
+@interface SearchResultsController (Private) <IssueTableControllerDelegate>
 
 @property IssueTableController *table;
 
 - (void)didUpdateItems;
 
-@end
-
-@interface SearchTableItem : NSObject <IssueTableItem>
-
-@property (nonatomic, strong) Issue *issue;
+- (void)updateTablePrefs;
+- (NSString *)autosaveName;
 
 @end

@@ -10,35 +10,17 @@
 
 @class Issue;
 
-@protocol IssueTableItem <NSObject>
-@required
-@property (nonatomic, readonly) id<NSCopying> identifier; // used for maintaining selection state
-@property (nonatomic, readonly) id issueFullIdentifier;
-
-@optional
-@property (nonatomic, readonly) NSInteger issuePopupIndex;
-@property (nonatomic, readonly) Issue *issue;
-
-@end
-
 @protocol IssueTableControllerDelegate;
 
 @interface IssueTableController : NSViewController
 
-@property (nonatomic, strong) NSArray /* id<ProblemTableItem> */ *tableItems;
+@property (nonatomic, copy) NSArray<Issue *> *tableItems; // returns items in current sort order.
+
 - (void)setTableItems:(NSArray *)items clearSelection:(BOOL)clearSelection; // if clearSelection is NO, controller will attempt to maintain selection via item identifiers.
 @property (weak) IBOutlet id<IssueTableControllerDelegate> delegate;
 
-@property (nonatomic, copy) NSString *popupColumnTitle;
-@property (nonatomic, copy) NSArray /* NSString */ *popupItems; // if set, rows will have a popup menu at column 0 with these items in it.
-
-@property (nonatomic, copy) NSSet /* NSString */ *defaultColumns; // Set of problem keyPaths corresponding to columns that are shown by default. Key paths on IssueTableItem are info.issueFullIdentifier and issuePopupIndex. Key paths on the Issue itself are title, assignee, etc
+@property (nonatomic, copy) NSSet /* NSString */ *defaultColumns; // Set of problem keyPaths corresponding to columns that are shown by default.
 + (NSArray *)columnSpecs;
-
-- (void)reloadProblems; // invalidate Problem cache and reload from disk/network
-- (void)reloadProblemsAndClearSelection:(BOOL)invalidateSelection;
-
-@property (nonatomic, readonly) BOOL loading;
 
 @property (nonatomic, copy) NSString *autosaveName;
 
@@ -47,15 +29,21 @@
 - (void)selectSomething;
 - (void)selectItemsByIdentifiers:(NSSet *)identifiers;
 
+@property (nonatomic, assign) BOOL upNextMode;
+@property (nonatomic, strong) NSViewController *emptyPlaceholderViewController;
+
 @end
 
 @protocol IssueTableControllerDelegate <NSObject>
 @optional
-- (BOOL)issueTableController:(IssueTableController *)controller shouldAcceptDrag:(NSNumber *)problemIdentifier;
-- (BOOL)issueTableController:(IssueTableController *)controller didAcceptDrag:(NSNumber *)problemIdentifier;
 
-- (void)issueTableController:(IssueTableController *)controller item:(id<IssueTableItem>)item popupSelectedItemAtIndex:(NSInteger)index;
-- (BOOL)issueTableController:(IssueTableController *)controller deleteItem:(id<IssueTableItem>)item;
+- (BOOL)issueTableController:(IssueTableController *)controller shouldAcceptDrop:(NSArray *)issueIdentifiers;
+// Used for dropping items from outside of the current controller
+- (void)issueTableController:(IssueTableController *)controller didAcceptDrop:(NSArray *)issueIdentifiers aboveItemAtIndex:(NSInteger)idx;
+// Used for re-ordering items within the current controller. self.tableItems will already be updated to reflect the new ordering.
+- (void)issueTableController:(IssueTableController *)controller didReorderItems:(NSArray<Issue *> *)items aboveItemAtIndex:(NSInteger)idx;
+
+- (BOOL)issueTableController:(IssueTableController *)controller deleteItems:(NSArray<Issue *> *)items;
 
 - (void)issueTableController:(IssueTableController *)controller didChangeSelection:(NSArray<Issue *> *)selectedIssues;
 

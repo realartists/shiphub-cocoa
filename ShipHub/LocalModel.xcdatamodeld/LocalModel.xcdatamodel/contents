@@ -59,6 +59,7 @@
         </relationship>
         <relationship name="relationships" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalRelationship" inverseName="parent" inverseEntity="LocalRelationship" syncable="YES"/>
         <relationship name="repository" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="issues" inverseEntity="LocalRepo" syncable="YES"/>
+        <relationship name="upNext" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalUpNext" inverseName="issue" inverseEntity="LocalUpNext" syncable="YES"/>
     </entity>
     <entity name="LocalLabel" representedClassName="LocalLabel" syncable="YES">
         <attribute name="color" optional="YES" attributeType="String" syncable="YES"/>
@@ -106,6 +107,11 @@
     <entity name="LocalSyncVersion" representedClassName="LocalSyncVersion" syncable="YES">
         <attribute name="data" optional="YES" attributeType="Binary" syncable="YES"/>
     </entity>
+    <entity name="LocalUpNext" representedClassName="LocalUpNext" syncable="YES">
+        <attribute name="priority" optional="YES" attributeType="Double" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="upNext" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="upNext" inverseEntity="LocalUser" syncable="YES"/>
+    </entity>
     <entity name="LocalUser" representedClassName="LocalUser" parentEntity="LocalAccount" syncable="YES">
         <relationship name="actedEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalEvent" inverseName="actor" inverseEntity="LocalEvent" syncable="YES"/>
         <relationship name="assignable" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="assignees" inverseEntity="LocalRepo" syncable="YES"/>
@@ -115,18 +121,20 @@
         <relationship name="comments" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalComment" inverseName="user" inverseEntity="LocalComment" syncable="YES"/>
         <relationship name="orgs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalOrg" inverseName="users" inverseEntity="LocalOrg" syncable="YES"/>
         <relationship name="originatedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="originator" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="upNext" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalUpNext" inverseName="user" inverseEntity="LocalUpNext" syncable="YES"/>
     </entity>
     <elements>
         <element name="LocalAccount" positionX="-497" positionY="-108" width="128" height="118"/>
         <element name="LocalComment" positionX="412" positionY="-90" width="128" height="135"/>
         <element name="LocalEvent" positionX="403" positionY="63" width="128" height="180"/>
-        <element name="LocalIssue" positionX="198" positionY="-54" width="128" height="360"/>
+        <element name="LocalIssue" positionX="198" positionY="-54" width="128" height="375"/>
         <element name="LocalLabel" positionX="-11" positionY="267" width="128" height="105"/>
         <element name="LocalMilestone" positionX="-18" positionY="-115" width="128" height="208"/>
         <element name="LocalOrg" positionX="-425" positionY="45" width="128" height="58"/>
         <element name="LocalRelationship" positionX="421" positionY="335" width="128" height="88"/>
         <element name="LocalRepo" positionX="-209" positionY="-108" width="128" height="208"/>
         <element name="LocalSyncVersion" positionX="-378" positionY="27" width="128" height="60"/>
-        <element name="LocalUser" positionX="-576" positionY="63" width="128" height="163"/>
+        <element name="LocalUser" positionX="-576" positionY="63" width="128" height="180"/>
+        <element name="LocalUpNext" positionX="-378" positionY="27" width="128" height="90"/>
     </elements>
 </model>
