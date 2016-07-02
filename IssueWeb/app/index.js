@@ -29,6 +29,7 @@ import 'codemirror/mode/go/go'
 import 'codemirror/addon/display/placeholder.js'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/hint/show-hint.js'
+import 'codemirror/addon/search/searchcursor.js'
 import './spellcheck.js'
 
 import $ from 'jquery'
@@ -45,6 +46,7 @@ import LabelPicker from './label-picker.js'
 import uploadAttachment from './file-uploader.js'
 import FilePicker from './file-picker.js'
 import TimeAgo from './time-ago'
+import { shiftTab, searchForward, searchBackward, toggleFormat } from './cm-util.js'
 
 var debugToken = "8de44b7cf7050c827165d3f509abb1bd187a62e4";
 
@@ -1463,9 +1465,17 @@ var Comment = React.createClass({
   },
   
   replaceInCode: function(original, replacement) {
-    var c = this.state.code;
-    c = c.replace(original, replacement);
-    this.updateCode(c);
+    var cmr = this.refs.codemirror, cm = cmr ? cmr.getCodeMirror() : null;
+    if (cm) {
+      var cursor = cm.getSearchCursor(original);
+      while (cursor.findNext()) {
+        cursor.replace(replacement);
+      }
+    } else {
+      var c = this.state.code;
+      c = c.replace(original, replacement);
+      this.updateCode(c);
+    }
   },
   
   beginEditing: function() {
@@ -1887,132 +1897,10 @@ var Comment = React.createClass({
         }
       });
       
-      // Configure some formatting controls
-      function searchForward(cm, startPos, needle) {
-        var line = startPos.line;
-        var ch = startPos.ch;
-        
-        var lc = cm.lineCount();
-        while (line < lc) {
-          var lt = cm.getLine(line);
-          var ls = lt.slice(ch);
-          var p = ls.indexOf(needle);
-          if (p != -1) {
-            p += ch;
-            return {from:{line:line, ch:p}, to:{line:line, ch:p+needle.length}};
-          }
-          line++;
-          ch = 0;
-        }
-      }
-      
       // Configure spellchecking
       cm.setOption("systemSpellcheck", true);
       
-      function searchBackward(cm, startPos, needle) {
-        var line = startPos.line;
-        var ch = startPos.ch;
-        
-        while (line >= 0) {
-          var lt = cm.getLine(line);
-          var ls = ch == -1 ? lt : lt.slice(0, ch);
-          var p = ls.lastIndexOf(needle);
-          if (p != -1) {
-            return {from:{line:line, ch:p}, to:{line:line, ch:p+needle.length}};
-          }
-          line--;
-          ch = -1;
-        }
-      }
-      
-      var toggleFormat = function(operator, tokenType) {
-        return function(cm) {
-          var from = cm.getCursor("from");
-          var to = cm.getCursor("to");
-          
-          var fromMode = cm.getModeAt(from).name;
-          var toMode = cm.getModeAt(to).name;
-          
-          if (fromMode != 'markdown' || toMode != 'markdown') {
-            return;
-          }
-          
-          // special case: if the current word is just the 2**operator, then
-          // delete the current word
-          var wordRange = cm.findWordAt(from);
-          var word = cm.getRange(wordRange.anchor, wordRange.head);
-          var doubleOp = operator+operator;
-          if (word == doubleOp) {
-            cm.replaceRange("", wordRange.anchor, wordRange.head);
-            return;
-          }
-          
-          // Use the editor's syntax parsing to determine the format on the selection
-          var fromType = cm.getTokenTypeAt(from);
-          var toType = cm.getTokenTypeAt(to);
-          
-          if (fromType && toType && fromType.indexOf(tokenType) != -1 && toType.indexOf(tokenType) != -1) {
-            // it would seem that we're already apply the formatting, and so should undo it
-
-            // walk forward from to and see if we can find operator and delete it.
-            if (to.ch >= operator.length) to.ch-=operator.length; // step in a bit in case we have the operator selected
-            var end = searchForward(cm, to, operator);
-            if (end) {
-              cm.replaceRange("", end.from, end.to, "+input");
-            }
-            
-            from.ch+=operator.length; // step out a bit in case we have the operator selected
-            var start = searchBackward(cm, from, operator);
-            if (start) {
-              cm.replaceRange("", start.from, start.to, "+input");
-            }
-            
-            if (start && end) {
-              if (end.from.line == start.from.line) {
-                end.from.ch -= operator.length;
-              }
-            
-              cm.setSelection(start.from, end.from, "+input");
-            }
-            
-          } else {
-            // need to add formatting to the selection
-            
-            var selection = cm.getSelection();
-            // use Object.assign as "from" and "to" can return identical objects and we don't want that.
-            var from = Object.assign({}, cm.getCursor("from"));
-            var to = Object.assign({}, cm.getCursor("to"));
-            cm.replaceSelection(operator + selection + operator, "+input");
-            from.ch += operator.length;
-            if (to.line == from.line) to.ch += operator.length;
-            cm.setSelection(from, to, "+input");
-          }
-        };
-      }
-      
-      var shiftTab = function(cm) {
-        var from = cm.getCursor("from");
-        var to = cm.getCursor("to");
-        
-        if (from.line == 0 && from.ch == 0 && to.line == 0 && to.ch == 0) {
-          // find the previous input and select it
-          var inputs = document.getElementsByTagName('input');
-          
-          var x = null;
-          for (var i = inputs.length-1; i >= 0; i--) {
-            if (inputs.item(i).type == 'text') {
-              x = inputs.item(i);
-              break;
-            }
-          }
-          
-          if (x) x.focus();
-          
-        } else {
-          cm.execCommand('indentLess');
-        }
-      };
-            
+      // Configure some formatting controls
       cm.setOption('extraKeys', {
         'Cmd-B': toggleFormat('**', 'strong'),
         'Cmd-I': toggleFormat('_', 'em'),
