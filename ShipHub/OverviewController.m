@@ -832,31 +832,14 @@ NSTextFieldDelegate>
 #pragma mark -
 
 - (void)updatePredicate {
-#if !INCOMPLETE
-    id selectedItem = [_outlineView selectedItem];
-    NSPredicate *predicate = nil;
+#if 0
     if (_predicateItem.on) {
         predicate = [_predicateEditor predicate];
     } else if (selectedItem) {
         predicate = [selectedItem predicate];
     }
-    NSString *title = [[_searchItem.searchField stringValue] trim];
-    NSInteger number = [title isDigits] ? [title integerValue] : 0;
-    NSPredicate *searchPredicate = [title length] > 0 ? [NSPredicate predicateWithFormat:@"title CONTAINS[cd] %@", title] : nil;
-    if (number != 0) {
-        searchPredicate = [searchPredicate or:[NSPredicate predicateWithFormat:@"identifier = %ld", (long)number]];
-    }
-    if (predicate && searchPredicate) {
-        predicate = [predicate and:searchPredicate];
-    } else if (searchPredicate) {
-        predicate = searchPredicate;
-    }
+#endif
     
-    _modeItem.chartEnabled = (selectedItem == nil || [selectedItem allowChart]) && [[DataStore activeStore] predicateCanBeUsedForTimeSeries:predicate];
-    
-    [[self activeResultsController] setPredicate:predicate];
-    [self updateCount:selectedItem];
-#else
     id selectedItem = [_outlineView selectedItem];
     NSPredicate *predicate = nil;
     predicate = [selectedItem predicate];
@@ -867,7 +850,7 @@ NSTextFieldDelegate>
     NSInteger number = [title isDigits] ? [title integerValue] : 0;
     NSPredicate *searchPredicate = [title length] > 0 ? [NSPredicate predicateWithFormat:@"title CONTAINS[cd] %@", title] : nil;
     if (number != 0) {
-        searchPredicate = [searchPredicate or:[NSPredicate predicateWithFormat:@"identifier = %ld", (long)number]];
+        searchPredicate = [searchPredicate or:[NSPredicate predicateWithFormat:@"number = %ld", (long)number]];
     }
     if (predicate && searchPredicate) {
         predicate = [predicate and:searchPredicate];
@@ -884,7 +867,6 @@ NSTextFieldDelegate>
     [[self activeResultsController] setUpNextMode:selectedItem == _upNextNode];
     [[self activeResultsController] setPredicate:predicate];
     [self updateCount:selectedItem];
-#endif
 }
 
 - (IBAction)refresh:(id)sender {
