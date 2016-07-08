@@ -22,6 +22,7 @@
 @property IssueViewController *issueController;
 
 @property Issue *displayedIssue;
+@property NSPredicate *displayedPredicate;
 
 @end
 
@@ -59,7 +60,7 @@
     [super viewDidLoad];
 }
 
-- (void)issueTableController:(IssueTableController *)controller didChangeSelection:(NSArray<Issue *> *)selectedIssues {
+- (void)updateIssueViewController:(NSArray<Issue *> *)selectedIssues {
     Issue *i = [selectedIssues firstObject];
     
     if ([[_displayedIssue fullIdentifier] isEqualToString:[i fullIdentifier]]) {
@@ -67,6 +68,7 @@
     }
     
     self.displayedIssue = i;
+    self.displayedPredicate = self.predicate;
     
     DebugLog(@"%@", i.fullIdentifier);
     
@@ -79,6 +81,12 @@
         }];
     } else {
         _issueController.issue = nil;
+    }
+}
+
+- (void)issueTableController:(IssueTableController *)controller didChangeSelection:(NSArray<Issue *> *)selectedIssues userInitiated:(BOOL)userInitiated {
+    if (userInitiated || !self.displayedIssue || ![self.displayedPredicate isEqual:self.predicate]) {
+        [self updateIssueViewController:selectedIssues];
     }
 }
 

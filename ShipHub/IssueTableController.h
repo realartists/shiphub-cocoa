@@ -45,6 +45,6 @@
 
 - (BOOL)issueTableController:(IssueTableController *)controller deleteItems:(NSArray<Issue *> *)items;
 
-- (void)issueTableController:(IssueTableController *)controller didChangeSelection:(NSArray<Issue *> *)selectedIssues;
+- (void)issueTableController:(IssueTableController *)controller didChangeSelection:(NSArray<Issue *> *)selectedIssues userInitiated:(BOOL)userInitiated;
 
 @end

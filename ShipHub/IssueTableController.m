@@ -638,8 +638,8 @@
     NSIndexSet *selected = [_table selectedRowIndexes];
     if ([selected count] == 0 && _items.count != 0) {
         [_table selectRowIndexes:[NSIndexSet indexSetWithIndex:0] byExtendingSelection:NO];
-        if ([self.delegate respondsToSelector:@selector(issueTableController:didChangeSelection:)]) {
-            [self.delegate issueTableController:self didChangeSelection:[self selectedProblemSnapshots]];
+        if ([self.delegate respondsToSelector:@selector(issueTableController:didChangeSelection:userInitiated:)]) {
+            [self.delegate issueTableController:self didChangeSelection:[self selectedProblemSnapshots] userInitiated:NO];
         }
     }
 }
@@ -655,8 +655,8 @@
         return [identifiers containsObject:[obj identifier]];
     }];
     [_table selectRowIndexes:selected byExtendingSelection:NO];
-    if ([self.delegate respondsToSelector:@selector(issueTableController:didChangeSelection:)]) {
-        [self.delegate issueTableController:self didChangeSelection:[self selectedProblemSnapshots]];
+    if ([self.delegate respondsToSelector:@selector(issueTableController:didChangeSelection:userInitiated:)]) {
+        [self.delegate issueTableController:self didChangeSelection:[self selectedProblemSnapshots] userInitiated:NO];
     }
 }
 
@@ -675,11 +675,14 @@
         return [set containsObject:obj];
     }];
     [_table selectRowIndexes:selected byExtendingSelection:NO];
+    if ([self.delegate respondsToSelector:@selector(issueTableController:didChangeSelection:userInitiated:)]) {
+        [self.delegate issueTableController:self didChangeSelection:[self selectedProblemSnapshots] userInitiated:NO];
+    }
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
-    if ([self.delegate respondsToSelector:@selector(issueTableController:didChangeSelection:)]) {
-        [self.delegate issueTableController:self didChangeSelection:[self selectedProblemSnapshots]];
+    if ([self.delegate respondsToSelector:@selector(issueTableController:didChangeSelection:userInitiated:)]) {
+        [self.delegate issueTableController:self didChangeSelection:[self selectedProblemSnapshots] userInitiated:YES];
     }
 }
 
