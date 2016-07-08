@@ -15,7 +15,7 @@
 #import "LocalUser.h"
 #import "LocalMilestone.h"
 #import "LocalLabel.h"
-#import "LocalUpNext.h"
+#import "LocalPriority.h"
 
 #import "Repo.h"
 #import "User.h"
@@ -75,7 +75,7 @@
         
         BOOL includePriority = [options[IssueOptionIncludeUpNextPriority] boolValue];
         if (includePriority) {
-            LocalUpNext *upNext = [[li.upNext filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"user.identifier = %@", [[User me] identifier]]] anyObject];
+            LocalPriority *upNext = [[li.upNext filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"user.identifier = %@", [[User me] identifier]]] anyObject];
             _upNextPriority = upNext.priority;
         }
     }

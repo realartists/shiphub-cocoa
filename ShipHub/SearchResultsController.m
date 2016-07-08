@@ -12,6 +12,7 @@
 #import "DataStore.h"
 #import "Issue.h"
 #import "EmptyUpNextViewController.h"
+#import "UpNextHelper.h"
 
 @interface IssueTableController (Internal)
 @property (nonatomic, assign) BOOL loading;
@@ -160,12 +161,11 @@
 }
 
 - (void)issueTableController:(IssueTableController *)controller didAcceptDrop:(NSArray *)issueIdentifiers aboveItemAtIndex:(NSInteger)idx {
-    DataStore *store = [DataStore activeStore];
     Issue *context = nil;
     if (idx < _table.tableItems.count) {
         context = _table.tableItems[idx];
     }
-    [store insertIntoUpNext:issueIdentifiers aboveIssueIdentifier:context.fullIdentifier completion:nil];
+    [[UpNextHelper sharedHelper] insertIntoUpNext:issueIdentifiers aboveIssueIdentifier:context.fullIdentifier window:controller.view.window completion:nil];
 }
 
 - (void)issueTableController:(IssueTableController *)controller didReorderItems:(NSArray<Issue *> *)items aboveItemAtIndex:(NSInteger)idx {
@@ -181,10 +181,9 @@
         return NO;
     }
     
-    DataStore *store = [DataStore activeStore];
-    [store removeFromUpNext:[items arrayByMappingObjects:^id(id obj) {
+    [[UpNextHelper sharedHelper] removeFromUpNext:[items arrayByMappingObjects:^id(id obj) {
         return [obj fullIdentifier];
-    }] completion:nil];
+    }] window:controller.view.window completion:nil];
     
     return YES;
 }
