@@ -280,6 +280,10 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     
     for (NSMenuItem *i in menuItems) {
         switch (i.tag) {
+            case WebMenuItemTagOpenLinkInNewWindow:
+                i.target = self;
+                i.action = @selector(openLinkInNewWindow:);
+                break;
             case WebMenuItemTagOpenImageInNewWindow:
                 i.target = self;
                 i.action = @selector(openImageInNewWindow:);
@@ -302,6 +306,20 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 - (void)fixSpelling:(id)sender {
     NSString *callback = [NSString stringWithFormat:@"window.spellcheckFixer(%@, %@);", [JSON stringifyObject:[sender representedObject]], [JSON stringifyObject:[sender title]]];
     [self evaluateJavaScript:callback];
+}
+
+- (void)openLinkInNewWindow:(id)sender {
+    NSMenuItem *item = sender;
+    NSDictionary *element = item.representedObject;
+    NSURL *URL = element[WebElementLinkURLKey];
+    if (URL) {
+        id issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
+        if (issueIdentifier) {
+            [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier];
+        } else {
+            [[NSWorkspace sharedWorkspace] openURL:URL];
+        }
+    }
 }
 
 - (void)openImageInNewWindow:(id)sender {
