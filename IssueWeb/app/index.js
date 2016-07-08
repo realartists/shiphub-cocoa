@@ -808,7 +808,8 @@ var ReferencedEventDescription = React.createClass({
     var [committish, commitURL] = expandCommit(this.props.event);
 
     var authoredBy = null;
-    if (this.props.event.ship_commit_author.login !=
+    if (this.props.event.ship_commit_author &&
+        this.props.event.ship_commit_author.login !=
         this.props.event.actor.login) {
       authoredBy = h("span", {},
                      "(authored by ",
