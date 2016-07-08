@@ -595,14 +595,38 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     //DebugLog(@"%@", msg);
     
     APIProxy *proxy = [APIProxy proxyWithRequest:msg existingIssue:_issue completion:^(NSString *jsonResult, NSError *err) {
-        NSString *callback;
+        dispatch_assert_current_queue(dispatch_get_main_queue());
+        
         if (err) {
-            callback = [NSString stringWithFormat:@"apiCallback(%@, null, %@)", msg[@"handle"], [JSON stringifyObject:[err localizedDescription]]];
+            BOOL isMutation = ![msg[@"opts"][@"method"] isEqualToString:@"GET"];
+            
+            if (isMutation) {
+                NSAlert *alert = [NSAlert new];
+                alert.alertStyle = NSCriticalAlertStyle;
+                alert.messageText = NSLocalizedString(@"Unable to save issue", nil);
+                alert.informativeText = [err localizedDescription] ?: @"";
+                [alert addButtonWithTitle:NSLocalizedString(@"Retry", nil)];
+                [alert addButtonWithTitle:NSLocalizedString(@"Discard Changes", nil)];
+                
+                [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+                    if (returnCode == NSAlertFirstButtonReturn) {
+                        [self proxyAPI:msg];
+                    } else {
+                        NSString *callback;
+                        callback = [NSString stringWithFormat:@"apiCallback(%@, null, %@)", msg[@"handle"], [JSON stringifyObject:[err localizedDescription]]];
+                        [self evaluateJavaScript:callback];
+                        [self revert:nil];
+                    }
+                }];
+            } else {
+                NSString *callback;
+                callback = [NSString stringWithFormat:@"apiCallback(%@, null, %@)", msg[@"handle"], [JSON stringifyObject:[err localizedDescription]]];
+                [self evaluateJavaScript:callback];
+            }
         } else {
-            callback = [NSString stringWithFormat:@"apiCallback(%@, %@, null)", msg[@"handle"], jsonResult];
+            NSString *callback = [NSString stringWithFormat:@"apiCallback(%@, %@, null)", msg[@"handle"], jsonResult];
+            [self evaluateJavaScript:callback];
         }
-        //DebugLog(@"%@", callback);
-        [self evaluateJavaScript:callback];
     }];
     [proxy setUpdatedIssueHandler:^(Issue *updatedIssue) {
         _issue = updatedIssue;
@@ -907,6 +931,14 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 - (IBAction)reload:(id)sender {
     if (_issue) {
         [[DataStore activeStore] checkForIssueUpdates:_issue.fullIdentifier];
+    }
+}
+
+- (IBAction)revert:(id)sender {
+    if (_issue) {
+        self.issue = _issue;
+    } else {
+        [self configureNewIssue];
     }
 }
 

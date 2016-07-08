@@ -168,12 +168,14 @@
 
 - (void)yieldUpdatedIssue:(Issue *)issue {
     DebugLog(@"%@", issue);
-    RunOnMain(^{
-        APIProxyUpdatedIssue u = self.updatedIssueHandler;
-        if (u) {
-            u(issue);
-        }
-    });
+    if (issue) {
+        RunOnMain(^{
+            APIProxyUpdatedIssue u = self.updatedIssueHandler;
+            if (u) {
+                u(issue);
+            }
+        });
+    }
 }
 
 - (void)yield:(id)resp err:(NSError *)err {
