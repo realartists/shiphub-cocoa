@@ -9,6 +9,7 @@
 #import "UpNextHelper.h"
 
 #import "DataStore.h"
+#import "Extras.h"
 
 @implementation UpNextHelper
 
@@ -71,7 +72,7 @@
     BOOL disableWarning = [[Defaults defaults] boolForKey:@"DisableWarnUpNextClosedState"];
     if (!disableWarning) {
         DataStore *store = [DataStore activeStore];
-        [store countIssuesMatchingPredicate:[NSPredicate predicateWithFormat:@"fullIdentifier IN %@ AND closed = YES", additions] completion:^(NSUInteger count, NSError *error) {
+        [store countIssuesMatchingPredicate:[[store predicateForIssueIdentifiers:additions] and:[NSPredicate predicateWithFormat:@"closed = YES"]] completion:^(NSUInteger count, NSError *error) {
             if (count > 0) {
                 NSAlert *alert = [NSAlert new];
                 alert.messageText = NSLocalizedString(@"Closed issues are not shown in Up Next.", nil);

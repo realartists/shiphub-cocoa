@@ -68,6 +68,7 @@
         return;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(authChanged:) name:AuthStateChangedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(databaseIncompatible:) name:DataStoreCannotOpenDatabaseNotification object:nil];
     
     _notificationsRegistered = YES;
 }
@@ -372,6 +373,15 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
 - (IBAction)searchAllProblems:(id)sender {
     [self showOverviewController:nil];
     [[self activeOverviewController] searchAllProblems:nil];
+}
+
+- (void)databaseIncompatible:(NSNotification *)note {
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = NSLocalizedString(@"Client out of date", nil);
+    alert.informativeText = NSLocalizedString(@"The version of Ship last used to access your database is newer than the version you are currently running. Please download and run the latest version of the app.", nil);
+    [alert runModal];
+    
+    exit(0);
 }
 
 @end

@@ -81,8 +81,9 @@ NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification = @"DataStoreN
 /*
  Change History:
  1: First Version
+ 2: Server Integration
  */
-static const NSInteger CurrentLocalModelVersion = 1;
+static const NSInteger CurrentLocalModelVersion = 2;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSManagedObjectModel *_mom;
@@ -267,6 +268,11 @@ static NSString *const LastUpdated = @"LastUpdated";
         ErrLog(@"Database has version %td, which is newer than client version %td.", previousStoreVersion, CurrentLocalModelVersion);
         [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreCannotOpenDatabaseNotification object:nil /*nil because we're about to fail to init*/ userInfo:nil];
         return NO;
+    }
+    
+    if (previousStoreVersion < 2) {
+        DebugLog(@"Updating to ServerIntegration database. Forcing database re-creation.", nil);
+        forceRecreate = YES;
     }
     
     if (forceRecreate) {
@@ -979,6 +985,34 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
+- (NSPredicate *)predicateForIssueIdentifiers:(NSArray<NSString *> *)issueIdentifiers
+{
+    return [self predicateForIssueIdentifiers:issueIdentifiers prefix:nil];
+}
+
+// Returns a predicate that is the equivalent of fullIdentifier IN {...}
+// But because fullIdentifier is a computed property, we can't actually query on that, so need to make a slightly reworded query.
+- (NSPredicate *)predicateForIssueIdentifiers:(NSArray<NSString *> *)issueIdentifiers prefix:(NSString *)prefix
+{
+    NSPredicate *p = [NSPredicate predicateWithValue:NO];
+    
+    NSString *fullNameKeyPath = @"repository.fullName";
+    NSString *numberKeyPath = @"number";
+    
+    if ([prefix length]) {
+        fullNameKeyPath = [NSString stringWithFormat:@"%@.repository.fullName", prefix];
+        numberKeyPath = [NSString stringWithFormat:@"%@.number", prefix];
+    }
+    
+    for (NSString *issueIdentifier in issueIdentifiers) {
+        NSString *repoFullName = [issueIdentifier issueRepoFullName];
+        NSNumber *issueNumber = [issueIdentifier issueNumber];
+        
+        p = [p or:[NSPredicate predicateWithFormat:@"%K = %@ AND %K = %@", fullNameKeyPath, repoFullName, numberKeyPath, issueNumber]];
+    }
+    return p;
+}
+
 - (NSFetchRequest *)fetchRequestForIssueIdentifier:(NSString *)issueIdentifier {
     NSString *repoFullName = [issueIdentifier issueRepoFullName];
     NSNumber *issueNumber = [issueIdentifier issueNumber];
@@ -1319,7 +1353,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         
         NSPredicate *mePredicate = [NSPredicate predicateWithFormat:@"user = %@", me];
         NSFetchRequest *existingRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalPriority"];
-        existingRequest.predicate = [mePredicate and:[NSPredicate predicateWithFormat:@"issue.fullIdentifier IN %@", issueIdentifiers]];
+        existingRequest.predicate = [mePredicate and:[self predicateForIssueIdentifiers:issueIdentifiers prefix:@"issue"]];
         
         NSDictionary *existing = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:existingRequest error:&err] keyPath:@"issue.fullIdentifier"];
         if (err) {
@@ -1355,7 +1389,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         [neededIssueIdentifiers minusSet:[NSSet setWithArray:existing.allKeys]];
         
         NSFetchRequest *issuesFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-        issuesFetch.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier IN %@", neededIssueIdentifiers];
+        issuesFetch.predicate = [self predicateForIssueIdentifiers:[neededIssueIdentifiers allObjects]];
         NSDictionary *missingIssues = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:issuesFetch error:&err] keyPath:@"fullIdentifier"];
         
         double priority = start;
@@ -1403,7 +1437,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         User *me = [User me];
         
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPriority"];
-        fetch.predicate = [NSPredicate predicateWithFormat:@"user.identifier = %@ AND issue.fullIdentifier IN %@", me.identifier, issueIdentifiers];
+        fetch.predicate = [[NSPredicate predicateWithFormat:@"user.identifier = %@", me.identifier] and:[self predicateForIssueIdentifiers:issueIdentifiers prefix:@"issue"]];
         
         [_moc batchDeleteEntitiesWithRequest:fetch error:&err];
         if (err) {
@@ -1473,7 +1507,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         [neededIssueIdentifiers minusSet:[NSSet setWithArray:[lookup allKeys]]];
         
         NSFetchRequest *issuesFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-        issuesFetch.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier IN %@", neededIssueIdentifiers];
+        issuesFetch.predicate = [self predicateForIssueIdentifiers:[neededIssueIdentifiers allObjects]];
         NSDictionary *missingIssues = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:issuesFetch error:&err] keyPath:@"fullIdentifier"];
         
         LocalPriority *context = lookup[aboveIssueIdentifier];
