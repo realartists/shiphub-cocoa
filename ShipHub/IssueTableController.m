@@ -14,6 +14,7 @@
 #import "Extras.h"
 #import "Issue.h"
 #import "IssueIdentifier.h"
+#import "UpNextHelper.h"
 
 @interface IssueTableController () <ProblemTableViewDelegate, NSTableViewDataSource, NSMenuDelegate>
 
@@ -322,9 +323,9 @@
     }];
     if ([identifiers count]) {
         if (_upNextMode) {
-            [[DataStore activeStore] removeFromUpNext:identifiers completion:nil];
+            [[UpNextHelper sharedHelper] removeFromUpNext:identifiers window:self.view.window completion:nil];
         } else {
-            [[DataStore activeStore] addToUpNext:identifiers atHead:NO completion:nil];
+            [[UpNextHelper sharedHelper] addToUpNext:identifiers atHead:NO window:self.view.window completion:nil];
         }
     }
 }
@@ -826,9 +827,12 @@
                 return [identifierSet containsObject:[obj fullIdentifier]];
             }];
             NSArray *moved = [_items objectsAtIndexes:movedIdxs];
+            Issue *context = row >= 0 && row < _items.count ? _items[row] : nil;
             [_items moveItemsAtIndexes:movedIdxs toIndex:row];
+            NSInteger dstLoc = context ? [_items indexOfObjectIdenticalTo:context] : _items.count;
             [self.table reloadData];
-            [_delegate issueTableController:self didReorderItems:moved aboveItemAtIndex:row + movedIdxs.count];
+            [_delegate issueTableController:self didReorderItems:moved aboveItemAtIndex:dstLoc];
+            [self selectItems:moved];
             return YES;
         }
     } else {

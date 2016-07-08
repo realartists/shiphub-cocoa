@@ -1,5 +1,5 @@
 //
-//  LocalUpNext.h
+//  LocalPriority.h
 //  ShipHub
 //
 //  Created by James Howard on 6/28/16.
@@ -13,7 +13,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LocalUpNext : NSManagedObject
+@interface LocalPriority : NSManagedObject
 
 // Insert code here to declare functionality of your managed object subclass
 
@@ -21,4 +21,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 NS_ASSUME_NONNULL_END
 
-#import "LocalUpNext+CoreDataProperties.h"
+#import "LocalPriority+CoreDataProperties.h"

@@ -29,6 +29,7 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
         case ShipErrorCodeInvalidPassword: return NSLocalizedString(@"Invalid username or password", nil);
         case ShipErrorCodeInvalidUserAccount: return NSLocalizedString(@"Invalid or non-existent account", nil);
         case ShipErrorCodeProblemSaveOtherError: return NSLocalizedString(@"Unable to save issue", nil);
+        case ShipErrorCodeInternalInconsistencyError: return NSLocalizedString(@"Internal inconsistency error. Consider removing the contents of ~/Library/RealArtists and restarting the application.", nil);
         default: return NSLocalizedString(@"Unexpected Error", nil);
     }
 }

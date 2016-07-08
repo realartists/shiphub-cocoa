@@ -30,6 +30,7 @@
 #import "ThreePaneController.h"
 #import "FilterBarViewController.h"
 #import "IssueIdentifier.h"
+#import "UpNextHelper.h"
 
 #import "IssueDocumentController.h"
 
@@ -363,8 +364,9 @@ NSTextFieldDelegate>
     _upNextNode.title = NSLocalizedString(@"Up Next", nil);
     _upNextNode.predicate = [NSPredicate predicateWithFormat:@"closed = NO AND ANY upNext.user.identifier = %@", [[User me] identifier]];
     _upNextNode.icon = [NSImage overviewIconNamed:@"1175-numbered-list"];
+    __weak __typeof(self) weakSelf = self;
     _upNextNode.dropHandler = ^(NSArray *identifiers) {
-        [[DataStore activeStore] addToUpNext:identifiers atHead:NO completion:nil];
+        [[UpNextHelper sharedHelper] addToUpNext:identifiers atHead:NO window:weakSelf.window completion:nil];
     };
     [topNode addChild:_upNextNode];
     

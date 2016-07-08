@@ -31,7 +31,7 @@
 #import "LocalComment.h"
 #import "LocalRelationship.h"
 #import "LocalSyncVersion.h"
-#import "LocalUpNext.h"
+#import "LocalPriority.h"
 
 #import "Issue.h"
 #import "IssueComment.h"
@@ -1245,30 +1245,44 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSAssert([issueIdentifiers count] > 0, @"Must pass in at least one issue identifier");
     
     [_moc performBlock:^{
-        NSError *err = nil;
+        __block NSError *err = nil;
+        
+        dispatch_block_t complete = ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (completion) completion(err);
+            });
+        };
         
         NSFetchRequest *meRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
         meRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[User me] identifier]];
         meRequest.fetchLimit = 1;
         
         LocalUser *me = [[_moc executeFetchRequest:meRequest error:&err] firstObject];
-        if (err) ErrLog(@"%@", err);
-        err = nil;
+        if (err) {
+            ErrLog(@"%@", err);
+            complete();
+            return;
+        }
         
         if (!me) {
+            err = [NSError shipErrorWithCode:ShipErrorCodeInternalInconsistencyError];
             ErrLog(@"Cannot find me");
+            complete();
             return;
         }
         
         NSPredicate *mePredicate = [NSPredicate predicateWithFormat:@"user = %@", me];
-        NSFetchRequest *existingRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalUpNext"];
+        NSFetchRequest *existingRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalPriority"];
         existingRequest.predicate = [mePredicate and:[NSPredicate predicateWithFormat:@"issue.fullIdentifier IN %@", issueIdentifiers]];
         
         NSDictionary *existing = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:existingRequest error:&err] keyPath:@"issue.fullIdentifier"];
-        if (err) ErrLog(@"%@", err);
-        err = nil;
+        if (err) {
+            ErrLog(@"%@", err);
+            complete();
+            return;
+        }
         
-        NSFetchRequest *minMaxRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalUpNext"];
+        NSFetchRequest *minMaxRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalPriority"];
         if (atHead) {
             minMaxRequest.predicate = [mePredicate and:[NSPredicate predicateWithFormat:@"priority = min(priority)"]];
         } else {
@@ -1279,8 +1293,11 @@ static NSString *const LastUpdated = @"LastUpdated";
         minMaxRequest.fetchLimit = 1;
         
         NSNumber *minMax = [[[_moc executeFetchRequest:minMaxRequest error:&err] firstObject] objectForKey:@"priority"];
-        if (err) ErrLog(@"%@", err);
-        err = nil;
+        if (err) {
+            ErrLog(@"%@", err);
+            complete();
+            return;
+        }
         
         double increment = 1.0;
         double start = [minMax doubleValue];
@@ -1297,11 +1314,11 @@ static NSString *const LastUpdated = @"LastUpdated";
         
         double priority = start;
         for (NSString *issueIdentifier in issueIdentifiers) {
-            LocalUpNext *mObj = existing[issueIdentifier];
+            LocalPriority *mObj = existing[issueIdentifier];
             if (!mObj) {
                 LocalIssue *issue = missingIssues[issueIdentifier];
                 if (issue) {
-                    mObj = [NSEntityDescription insertNewObjectForEntityForName:@"LocalUpNext" inManagedObjectContext:_moc];
+                    mObj = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPriority" inManagedObjectContext:_moc];
                     mObj.user = me;
                     mObj.issue = issue;
                 }
@@ -1311,10 +1328,14 @@ static NSString *const LastUpdated = @"LastUpdated";
         }
         
         [_moc save:&err];
-        if (err) ErrLog(@"%@", err);
+        if (err) {
+            ErrLog(@"%@", err);
+            complete();
+            return;
+        }
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (completion) completion(err);
+            if (completion) completion(nil);
             [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMyUpNextNotification object:self];
         });
     }];
@@ -1325,15 +1346,25 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSAssert(issueIdentifiers.count > 0, @"Must pass in at least 1 issueIdentifier");
     
     [_moc performBlock:^{
-        NSError *err = nil;
+        __block NSError *err = nil;
+        
+        dispatch_block_t complete = ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (completion) completion(err);
+            });
+        };
+        
         User *me = [User me];
         
-        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUpNext"];
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPriority"];
         fetch.predicate = [NSPredicate predicateWithFormat:@"user.identifier = %@ AND issue.fullIdentifier IN %@", me.identifier, issueIdentifiers];
         
         [_moc batchDeleteEntitiesWithRequest:fetch error:&err];
-        if (err) ErrLog(@"%@", err);
-        err = nil;
+        if (err) {
+            ErrLog(@"%@", err);
+            complete();
+            return;
+        }
         
         [_moc save:&err];
         
@@ -1353,28 +1384,42 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     [_moc performBlock:^{
         
-        NSError *err = nil;
+        __block NSError *err = nil;
+        
+        dispatch_block_t complete = ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (completion) completion(err);
+            });
+        };
         
         NSFetchRequest *meRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
         meRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[User me] identifier]];
         meRequest.fetchLimit = 1;
         
         LocalUser *me = [[_moc executeFetchRequest:meRequest error:&err] firstObject];
-        if (err) ErrLog(@"%@", err);
-        err = nil;
-        
-        if (!me) {
-            ErrLog(@"Cannot find me");
+        if (err) {
+            ErrLog(@"%@", err);
+            complete();
             return;
         }
         
-        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUpNext"];
+        if (!me) {
+            err = [NSError shipErrorWithCode:ShipErrorCodeInternalInconsistencyError];
+            ErrLog(@"Cannot find me");
+            complete();
+            return;
+        }
+        
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPriority"];
         fetch.predicate = [NSPredicate predicateWithFormat:@"user = %@", me];
         fetch.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"priority" ascending:YES]];
         
         NSArray *upNext = [_moc executeFetchRequest:fetch error:&err];
-        if (err) ErrLog(@"%@", err);
-        err = nil;
+        if (err) {
+            ErrLog(@"%@", err);
+            complete();
+            return;
+        }
         
         NSDictionary *lookup = [NSDictionary lookupWithObjects:upNext keyPath:@"issue.fullIdentifier"];
         NSSet *movingIdentifiers = [NSSet setWithArray:issueIdentifiers];
@@ -1385,7 +1430,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         issuesFetch.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier IN %@", neededIssueIdentifiers];
         NSDictionary *missingIssues = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:issuesFetch error:&err] keyPath:@"fullIdentifier"];
         
-        LocalUpNext *context = lookup[aboveIssueIdentifier];
+        LocalPriority *context = lookup[aboveIssueIdentifier];
         
         NSInteger i = context != nil ? [upNext indexOfObjectIdenticalTo:context] : NSNotFound;
         
@@ -1406,8 +1451,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             
         } else {
             // need to insert the new items in the space in between
-            LocalUpNext *before = upNext[i-1];
-            LocalUpNext *after = context;
+            LocalPriority *before = upNext[i-1];
+            LocalPriority *after = context;
             increment = (after.priority.doubleValue - before.priority.doubleValue) / (1.0 + issueIdentifiers.count);
             start = before.priority.doubleValue + increment;
             
@@ -1419,15 +1464,15 @@ static NSString *const LastUpdated = @"LastUpdated";
         
         if (reorderAll) {
             NSMutableArray *newOrdering = [NSMutableArray new];
-            for (LocalUpNext *up in upNext) {
+            for (LocalPriority *up in upNext) {
                 if ([movingIdentifiers containsObject:up.issue.fullIdentifier]) continue;
                 if (up == context) {
                     for (NSString *ii in issueIdentifiers) {
-                        LocalUpNext *next = lookup[ii];
+                        LocalPriority *next = lookup[ii];
                         if (!next) {
                             LocalIssue *issue = missingIssues[ii];
                             if (issue) {
-                                next = [NSEntityDescription insertNewObjectForEntityForName:@"LocalUpNext" inManagedObjectContext:_moc];
+                                next = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPriority" inManagedObjectContext:_moc];
                                 next.issue = issue;
                                 next.user = me;
                             }
@@ -1441,18 +1486,18 @@ static NSString *const LastUpdated = @"LastUpdated";
             }
             
             NSInteger j = 0;
-            for (LocalUpNext *up in newOrdering) {
+            for (LocalPriority *up in newOrdering) {
                 up.priority = @((double)j);
                 j++;
             }
         } else {
             double priority = start;
             for (NSString *ii in issueIdentifiers) {
-                LocalUpNext *next = lookup[ii];
+                LocalPriority *next = lookup[ii];
                 if (!next) {
                     LocalIssue *issue = missingIssues[ii];
                     if (issue) {
-                        next = [NSEntityDescription insertNewObjectForEntityForName:@"LocalUpNext" inManagedObjectContext:_moc];
+                        next = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPriority" inManagedObjectContext:_moc];
                         next.issue = issue;
                         next.user = me;
                     }
@@ -1463,10 +1508,14 @@ static NSString *const LastUpdated = @"LastUpdated";
         }
         
         [_moc save:&err];
-        if (err) ErrLog(@"%@", err);
+        if (err) {
+            ErrLog(@"%@", err);
+            complete();
+            return;
+        }
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (completion) completion(err);
+            if (completion) completion(nil);
             [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMyUpNextNotification object:self];
         });
     }];

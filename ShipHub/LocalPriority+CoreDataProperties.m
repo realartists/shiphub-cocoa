@@ -1,5 +1,5 @@
 //
-//  LocalUpNext+CoreDataProperties.m
+//  LocalPriority+CoreDataProperties.m
 //  ShipHub
 //
 //  Created by James Howard on 6/28/16.
@@ -9,9 +9,9 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "LocalUpNext+CoreDataProperties.h"
+#import "LocalPriority+CoreDataProperties.h"
 
-@implementation LocalUpNext (CoreDataProperties)
+@implementation LocalPriority (CoreDataProperties)
 
 @dynamic priority;
 @dynamic user;

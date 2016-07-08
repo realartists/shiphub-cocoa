@@ -17,7 +17,7 @@
 @class LocalRepo;
 @class LocalEvent;
 @class LocalComment;
-@class LocalUpNext;
+@class LocalPriority;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -44,7 +44,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) LocalRepo *repository;
 @property (nullable, nonatomic, retain) NSSet<LocalEvent *> *events;
 @property (nullable, nonatomic, retain) NSSet<LocalComment *> *comments;
-@property (nullable, nonatomic, retain) NSSet<LocalUpNext *> *upNext;
+@property (nullable, nonatomic, retain) NSSet<LocalPriority *> *upNext;
 
 @end
 
@@ -75,10 +75,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addComments:(NSSet<LocalComment *> *)values;
 - (void)removeComments:(NSSet<LocalComment *> *)values;
 
-- (void)addUpNextObject:(LocalUpNext *)value;
-- (void)removeUpNextObject:(LocalUpNext *)value;
-- (void)addUpNext:(NSSet<LocalUpNext *> *)values;
-- (void)removeUpNext:(NSSet<LocalUpNext *> *)values;
+- (void)addUpNextObject:(LocalPriority *)value;
+- (void)removeUpNextObject:(LocalPriority *)value;
+- (void)addUpNext:(NSSet<LocalPriority *> *)values;
+- (void)removeUpNext:(NSSet<LocalPriority *> *)values;
 
 @end
 

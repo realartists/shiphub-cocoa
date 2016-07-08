@@ -23,6 +23,7 @@
 #import "IssueIdentifier.h"
 #import "NewLabelController.h"
 #import "JSON.h"
+#import "UpNextHelper.h"
 #import "User.h"
 #import "WebKitExtras.h"
 
@@ -922,7 +923,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 }
 
 - (IBAction)toggleUpNext:(id)sender {
-    [[DataStore activeStore] addToUpNext:@[_issue.fullIdentifier] atHead:NO completion:nil];
+    [[UpNextHelper sharedHelper] addToUpNext:@[_issue.fullIdentifier] atHead:NO window:self.view.window completion:nil];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {

@@ -1,5 +1,5 @@
 //
-//  LocalUpNext+CoreDataProperties.h
+//  LocalPriority+CoreDataProperties.h
 //  ShipHub
 //
 //  Created by James Howard on 6/28/16.
@@ -9,11 +9,11 @@
 //  to delete and recreate this implementation file for your updated model.
 //
 
-#import "LocalUpNext.h"
+#import "LocalPriority.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LocalUpNext (CoreDataProperties)
+@interface LocalPriority (CoreDataProperties)
 
 @property (nullable, nonatomic, retain) NSNumber *priority;
 @property (nullable, nonatomic, retain) LocalUser *user;
