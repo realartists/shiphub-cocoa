@@ -1334,6 +1334,7 @@ var CommentControls = React.createClass({
     editing: React.PropTypes.bool,
     hasContents: React.PropTypes.bool,
     previewing: React.PropTypes.bool,
+    needsSave : React.PropTypes.func,
     togglePreview: React.PropTypes.func,
     attachFiles: React.PropTypes.func,
     beginEditing: React.PropTypes.func,
@@ -1343,7 +1344,8 @@ var CommentControls = React.createClass({
   
   getInitialState: function() {
     return {
-      confirmingDelete: false
+      confirmingDelete: false,
+      confirmingCancelEditing: false
     }
   },
   
@@ -1361,20 +1363,50 @@ var CommentControls = React.createClass({
       this.props.deleteComment();
     }
   },
+
+  confirmCancelEditing: function() {
+    if (this.props.needsSave()) {
+      console.log("needs save");
+      this.setState({confirmingCancelEditing: true});
+    } else {
+      console.log("does not need save");
+      this.performCancelEditing();
+    }
+  },
+
+  performCancelEditing: function() {
+    this.setState({confirmingCancelEditing: false});
+    if (this.props.cancelEditing) {
+      this.props.cancelEditing();
+    }
+  },
+
+  abortCancelEditing: function() {
+    this.setState({confirmingCancelEditing: false});
+  },
     
   render: function() {
     var buttons = [];
     if (this.props.editing) {
-      if (this.props.previewing) {
-        buttons.push(h('i', {key:"eye-slash", className:'fa fa-eye-slash', title:"Toggle Preview", onClick:this.props.togglePreview}));
+      if (this.state.confirmingCancelEditing) {
+          buttons.push(h('span', {key:'confirm', className:'confirmCommentDelete'}, 
+            " ",
+            h('span', {key:'discard', className:'confirmDeleteControl Clickable', onClick:this.performCancelEditing}, 'Discard Changes'),
+            " | ",
+            h('span', {key:'cancel', className:'confirmDeleteControl Clickable', onClick:this.abortCancelEditing}, 'Save Changes')
+          ));
       } else {
-        buttons.push(h('i', {key:"paperclip", className:'fa fa-paperclip fa-flip-horizontal', title:"Attach Files", onClick:this.props.attachFiles}));
-        if (this.props.hasContents) {
-          buttons.push(h('i', {key:"eye", className:'fa fa-eye', title:"Toggle Preview", onClick:this.props.togglePreview}));
+        if (this.props.previewing) {
+          buttons.push(h('i', {key:"eye-slash", className:'fa fa-eye-slash', title:"Toggle Preview", onClick:this.props.togglePreview}));
+        } else {
+          buttons.push(h('i', {key:"paperclip", className:'fa fa-paperclip fa-flip-horizontal', title:"Attach Files", onClick:this.props.attachFiles}));
+          if (this.props.hasContents) {
+            buttons.push(h('i', {key:"eye", className:'fa fa-eye', title:"Toggle Preview", onClick:this.props.togglePreview}));
+          }
         }
+        buttons.push(h('i', {key:"edit", className:'fa fa-pencil-square', onClick:this.confirmCancelEditing}));
       }
-      buttons.push(h('i', {key:"edit", className:'fa fa-pencil-square', onClick:this.props.cancelEditing}));
-    } else {  
+    } else {
       if (this.state.confirmingDelete) {
         buttons.push(h('span', {key:'confirm', className:'confirmCommentDelete'}, 
           "Really delete this comment? ",
@@ -1638,6 +1670,7 @@ var Comment = React.createClass({
         editing:this.state.editing,
         hasContents:this.state.code.trim().length>0,
         previewing:this.state.previewing,
+        needsSave:this.needsSave,
         togglePreview:this.togglePreview,
         attachFiles:this.selectFiles,
         beginEditing:this.beginEditing,
