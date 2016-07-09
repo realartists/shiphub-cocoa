@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15F34" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
         <capability name="box content view" minToolsVersion="7.0"/>
@@ -8,7 +8,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="NewLabelController">
             <connections>
                 <outlet property="colorButtonsView" destination="vl7-I4-3EN" id="jcD-3i-1aT"/>
-                <outlet property="customColorButton" destination="tv4-nm-97b" id="uzd-qh-kDk"/>
+                <outlet property="customColorButton" destination="ItV-12-xaE" id="uIe-dv-8N6"/>
                 <outlet property="nameAlreadyInUse" destination="BeI-3Q-Tk8" id="4dy-Gt-zdo"/>
                 <outlet property="nameField" destination="H87-GR-nRn" id="k2N-zv-Dzo"/>
                 <outlet property="okButton" destination="cr9-Vq-3C8" id="3UX-tg-Qpu"/>
@@ -22,14 +22,14 @@
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="312" height="276"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="777"/>
+            <rect key="contentRect" x="196" y="240" width="312" height="263"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" wantsLayer="YES" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="312" height="276"/>
+                <rect key="frame" x="0.0" y="0.0" width="312" height="263"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="H87-GR-nRn">
-                        <rect key="frame" x="36" y="179" width="240" height="24"/>
+                        <rect key="frame" x="36" y="166" width="240" height="24"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" focusRingType="none" placeholderString="Label Name" id="765-Uj-bii">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -37,7 +37,7 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2uY-L1-Woq">
-                        <rect key="frame" x="102" y="224" width="174" height="17"/>
+                        <rect key="frame" x="102" y="211" width="174" height="17"/>
                         <textFieldCell key="cell" lineBreakMode="truncatingHead" sendsActionOnEndEditing="YES" alignment="left" title="realartists/shiphub-cocoa" id="gTV-jB-65H">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" red="0.16551456151832455" green="0.16551456151832455" blue="0.16551456151832455" alpha="0.84999999999999998" colorSpace="calibratedRGB"/>
@@ -58,7 +58,7 @@ DQ
                         </connections>
                     </button>
                     <customView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vl7-I4-3EN">
-                        <rect key="frame" x="0.0" y="72" width="312" height="86"/>
+                        <rect key="frame" x="0.0" y="59" width="312" height="86"/>
                     </customView>
                     <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Axj-59-Djg">
                         <rect key="frame" x="134" y="13" width="82" height="32"/>
@@ -74,7 +74,7 @@ Gw
                         </connections>
                     </button>
                     <box fixedFrame="YES" boxType="custom" borderType="none" translatesAutoresizingMaskIntoConstraints="NO" id="gkw-jh-xNE">
-                        <rect key="frame" x="38" y="178" width="236" height="2"/>
+                        <rect key="frame" x="38" y="165" width="236" height="2"/>
                         <view key="contentView" ambiguous="YES" id="ScM-BQ-sGd">
                             <rect key="frame" x="0.0" y="0.0" width="236" height="2"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -83,40 +83,40 @@ Gw
                         <color key="fillColor" white="0.67882543103448278" alpha="1" colorSpace="calibratedWhite"/>
                     </box>
                     <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="BeI-3Q-Tk8">
-                        <rect key="frame" x="161" y="159" width="122" height="17"/>
+                        <rect key="frame" x="161" y="146" width="122" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Name already in use." id="GMq-21-XvJ">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" red="0.92152478448275865" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="tv4-nm-97b">
-                        <rect key="frame" x="200" y="58" width="92" height="14"/>
-                        <buttonCell key="cell" type="inline" title="Custom color..." bezelStyle="inline" imagePosition="overlaps" alignment="right" inset="2" id="exg-Q8-tcX">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="customColorClicked:" target="-2" id="plr-3F-f9k"/>
-                        </connections>
-                    </button>
                     <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="gVd-Nf-Dfr">
                         <rect key="frame" x="249" y="22" width="16" height="16"/>
                     </progressIndicator>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0ER-aQ-OOt">
-                        <rect key="frame" x="102" y="245" width="107" height="17"/>
+                        <rect key="frame" x="102" y="232" width="107" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Add New Label" id="iEn-P8-d9y">
                             <font key="font" metaFont="systemBold"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ItV-12-xaE">
+                        <rect key="frame" x="10" y="13" width="114" height="32"/>
+                        <buttonCell key="cell" type="push" title="More Colors" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="wqF-to-ZEe">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="customColorClicked:" target="-2" id="Knt-ah-lfj"/>
+                        </connections>
+                    </button>
                 </subviews>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="rGq-cO-57n"/>
             </connections>
-            <point key="canvasLocation" x="260" y="374"/>
+            <point key="canvasLocation" x="260" y="367.5"/>
         </window>
     </objects>
 </document>

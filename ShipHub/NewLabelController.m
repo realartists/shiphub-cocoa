@@ -133,14 +133,9 @@ static NSArray *GitHubColors() {
 
     self.nameField.stringValue = _prefilledName;
 
-    NSMutableAttributedString *str = [_customColorButton.attributedTitle mutableCopy];
-    [str addAttribute:NSForegroundColorAttributeName
-                value:[NSColor extras_controlBlue]
-                range:NSMakeRange(0, str.length)];
-    _customColorButton.attributedTitle = str;
-
     _repoOwnerAndName.stringValue = [NSString stringWithFormat:@"%@/%@", _owner, _repo];
 
+    CGRect b = self.window.contentView.bounds;
     _tag = [CATextLayer layer];
     _tag.contentsScale = self.window.screen.backingScaleFactor;
     // Anchor right around the hole in the tag.
@@ -150,7 +145,8 @@ static NSArray *GitHubColors() {
     _tag.font = (__bridge CFTypeRef)([NSFont fontWithName:@"FontAwesome" size:0.0]);
     _tag.fontSize = 60.0;
     _tag.alignmentMode = kCAAlignmentLeft;
-    _tag.position = CGPointMake(60, 254);
+    // position tag 60 points from left, and 7 points from top of the window
+    _tag.position = CGPointMake(60, CGRectGetHeight(b) - (_tag.frame.size.height * (1.0 - _tag.anchorPoint.y)) - 7.0);
     _tag.transform = CATransform3DMakeScale(0.8, 0.8, 1.0);
     _tag.shadowOpacity = 0.75;
     _tag.shadowRadius = 0.0;
