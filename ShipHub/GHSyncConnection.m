@@ -13,6 +13,7 @@
 #import "Extras.h"
 #import "IssueIdentifier.h"
 #import "JSON.h"
+#import "RequestPager.h"
 
 #define POLL_INTERVAL 120.0
 
@@ -27,6 +28,8 @@ typedef NS_ENUM(NSInteger, SyncState) {
 
     NSDictionary *_syncVersions;
     SyncState _state;
+    
+    RequestPager *_pager;
 }
 
 @end
@@ -36,6 +39,8 @@ typedef NS_ENUM(NSInteger, SyncState) {
 - (id)initWithAuth:(Auth *)auth {
     if (self = [super initWithAuth:auth]) {
         _q = dispatch_queue_create("GHSyncConnection", NULL);
+        _pager = [[RequestPager alloc] initWithAuth:auth queue:_q];
+        
         _heartbeat = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _q);
         
         __weak __typeof(self) weakSelf = self;
@@ -66,221 +71,6 @@ typedef NS_ENUM(NSInteger, SyncState) {
     }
 }
 
-- (NSMutableURLRequest *)get:(NSString *)endpoint {
-    return [self get:endpoint params:nil];
-}
-
-- (NSMutableURLRequest *)get:(NSString *)endpoint params:(NSDictionary *)params {
-    return [self get:endpoint params:params headers:nil];
-}
-
-- (NSMutableURLRequest *)get:(NSString *)endpoint params:(NSDictionary *)params headers:(NSDictionary *)headers {
-    NSMutableURLRequest *req = nil;
-    if ([endpoint hasPrefix:@"https://"]) {
-        req = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:endpoint]];
-    } else {
-        if (![endpoint hasPrefix:@"/"]) {
-            endpoint = [@"/" stringByAppendingString:endpoint];
-        }
-        NSURLComponents *c = [NSURLComponents new];
-        c.scheme = @"https";
-        c.host = self.auth.account.ghHost;
-        c.path = endpoint;
-        
-        NSMutableArray *qps = [NSMutableArray new];
-        for (NSString *k in [params allKeys]) {
-            id v = params[k];
-            [qps addObject:[NSURLQueryItem queryItemWithName:k value:[v description]]];
-        }
-        [qps addObject:[NSURLQueryItem queryItemWithName:@"per_page" value:@"100"]];
-        c.queryItems = qps;
-        
-        
-        req = [NSMutableURLRequest requestWithURL:[c URL]];
-        NSAssert(req.URL, @"Request must have a URL (1)");
-    }
-    NSAssert(req.URL, @"Request must have a URL (2)");
-    req.HTTPMethod = @"GET";
-
-    [req setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-    [req setValue:[NSString stringWithFormat:@"token %@", self.auth.ghToken] forHTTPHeaderField:@"Authorization"];
-
-    for (NSString *key in [headers allKeys]) {
-        [req setValue:headers[key] forHTTPHeaderField:key];
-    }
-    
-    return req;
-}
-
-- (NSURLSessionDataTask *)jsonTask:(NSURLRequest *)request completion:(void (^)(id json, NSHTTPURLResponse *response, NSError *err))completion {
-    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        dispatch_async(_q, ^{
-            NSHTTPURLResponse *http = (NSHTTPURLResponse *)response;
-            if (![self.auth checkResponse:response]) {
-                completion(nil, http, [NSError shipErrorWithCode:ShipErrorCodeNeedsAuthToken]);
-                return;
-            } else if (error) {
-                completion(nil, http, error);
-                return;
-            }
-            
-            NSError *err = nil;
-            id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&err];
-            if (err) {
-                completion(nil, http, err);
-                return;
-            }
-            
-            completion(json, http, nil);
-        });
-    }];
-    [task resume];
-    return task;
-}
-
-- (NSArray<NSURLSessionDataTask *> *)tasks:(NSArray<NSURLRequest *>*)requests completion:(void (^)(NSArray<URLSessionResult *>* results))completion {
-    NSArray<NSURLSessionDataTask *> *tasks = [[NSURLSession sharedSession] dataTasksWithRequests:requests completion:^(NSArray<URLSessionResult *> *results) {
-        dispatch_async(_q, ^{
-            completion(results);
-        });
-    }];
-    // tasks are automatically resumed
-    return tasks;
-}
-
-- (NSArray<NSURLSessionDataTask *> *)jsonTasks:(NSArray<NSURLRequest *>*)requests completion:(void (^)(NSArray *json, NSError *err))completion {
-    return [self tasks:requests completion:^(NSArray<URLSessionResult *> *results) {
-        NSError *anyError = nil;
-        for (URLSessionResult *r in results) {
-            NSInteger statusCode = ((NSHTTPURLResponse *)r.response).statusCode;
-            anyError = r.error;
-            if (![self.auth checkResponse:r.response]) {
-                anyError = [NSError shipErrorWithCode:ShipErrorCodeNeedsAuthToken];
-            }
-            if (!anyError && statusCode != 200) {
-                anyError = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
-            }
-            if (anyError) break;
-        }
-        if (anyError) {
-            completion(nil, anyError);
-            return;
-        }
-
-        NSMutableArray *json = [NSMutableArray arrayWithCapacity:results.count];
-        for (URLSessionResult *r in results) {
-            id v = [r json];
-            if (r.error) {
-                completion(nil, r.error);
-                return;
-            }
-            
-            [json addObject:v];
-        }
-        
-        completion(json, nil);
-    }];
-}
-
-#if 0
- function pagedFetch(url) /* => Promise */ {
-     var opts = { headers: { Authorization: "token " + debugToken }, method: "GET" };
-     var initial = fetch(url, opts);
-     return initial.then(function(resp) {
-         var pages = []
-         var link = resp.headers.get("Link");
-         if (link) {
-             var [next, last] = link.split(", ");
-             var matchNext = next.match(/\<(.*?)\>; rel="next"/);
-             var matchLast = last.match(/\<(.*?)\>; rel="last"/);
-             console.log(matchNext);
-             console.log(matchLast);
-             if (matchNext && matchLast) {
-                 var second = parseInt(matchNext[1].match(/page=(\d+)/)[1]);
-                 var last = parseInt(matchLast[1].match(/page=(\d+)/)[1]);
-                 console.log("second: " + second + " last: " + last);
-                 for (var i = second; i <= last; i++) {
-                     var pageURL = matchNext[1].replace(/page=\d+/, "page=" + i);
-                     console.log("Adding pageURL: " + pageURL);
-                     pages.push(fetch(pageURL, opts).then(function(resp) { return resp.json(); }));
-                 }
-             }
-         }
-         return Promise.all([resp.json()].concat(pages));
-     }).then(function(pages) {
-         return pages.reduce(function(a, b) { return a.concat(b); });
-     });
- }
-#endif
-
-- (void)fetchPaged:(NSURLRequest *)rootRequest completion:(void (^)(NSArray *data, NSError *err))completion {
-    NSParameterAssert(rootRequest);
-    NSParameterAssert(completion);
-    // Must first fetch the rootRequest and then can fetch each page
-    DebugLog(@"%@", rootRequest);
-    [self jsonTask:rootRequest completion:^(id first, NSHTTPURLResponse *response, NSError *err) {
-        if (err) {
-            completion(nil, err);
-            return;
-        }
-        
-        NSMutableArray *pageRequests = [NSMutableArray array];
-        
-        NSString *link = [response allHeaderFields][@"Link"];
-        
-        if (link) {
-            NSString *next, *last;
-            NSArray *comps = [link componentsSeparatedByString:@", "];
-            next = [comps firstObject];
-            last = [comps lastObject];
-            
-            NSTextCheckingResult *matchNext = [[[NSRegularExpression regularExpressionWithPattern:@"\\<(.*?)\\>; rel=\"next\"" options:0 error:NULL] matchesInString:next options:0 range:NSMakeRange(0, next.length)] firstObject];
-            NSTextCheckingResult *matchLast = [[[NSRegularExpression regularExpressionWithPattern:@"\\<(.*?)\\>; rel=\"last\"" options:0 error:NULL] matchesInString:last options:0 range:NSMakeRange(0, last.length)] firstObject];
-            
-            if (matchNext && matchLast) {
-                NSString *nextPageURLStr = [next substringWithRange:[matchNext rangeAtIndex:1]];
-                NSString *lastPageURLStr = [last substringWithRange:[matchLast rangeAtIndex:1]];
-                NSRegularExpression *pageExp = [NSRegularExpression regularExpressionWithPattern:@"page=(\\d+)$" options:0 error:NULL];
-                NSTextCheckingResult *secondPageMatch = [[pageExp matchesInString:nextPageURLStr options:0 range:NSMakeRange(0, nextPageURLStr.length)] firstObject];
-                NSTextCheckingResult *lastPageMatch = [[pageExp matchesInString:lastPageURLStr options:0 range:NSMakeRange(0, lastPageURLStr.length)] firstObject];
-                
-                if (secondPageMatch && lastPageMatch) {
-                    NSInteger secondIdx = [[nextPageURLStr substringWithRange:[secondPageMatch rangeAtIndex:1]] integerValue];
-                    NSInteger lastIdx = [[lastPageURLStr substringWithRange:[lastPageMatch rangeAtIndex:1]] integerValue];
-                    
-                    for (NSInteger i = secondIdx; i <= lastIdx; i++) {
-                        NSString *pageURLStr = [nextPageURLStr stringByReplacingCharactersInRange:[secondPageMatch rangeAtIndex:1] withString:[NSString stringWithFormat:@"%td", i]];
-                        [pageRequests addObject:[self get:pageURLStr
-                                                   params:nil
-                                                  headers:[rootRequest allHTTPHeaderFields]]];
-                    }
-                }
-            }
-        }
-        
-        if (pageRequests.count) {
-            [self jsonTasks:pageRequests completion:^(NSArray *rest, NSError *restErr) {
-                if (err) {
-                    ErrLog(@"%@", err);
-                    completion(nil, restErr);
-                } else {
-                    NSMutableArray *all = [first mutableCopy];
-                    for (NSArray *page in rest) {
-                        [all addObjectsFromArray:page];
-                    }
-                    DebugLog(@"%@ finished with %td pages: %tu items", rootRequest, 1+rest.count, all.count);
-                    completion(all, nil);
-                }
-            }];
-        } else {
-            DebugLog(@"%@ finished with 1 page: %tu items", rootRequest, ((NSArray *)first).count);
-            completion(first, nil);
-        }
-        
-    }];
-}
-
-
 - (void)startSync {
     Trace();
     dispatch_assert_current_queue(_q);
@@ -293,7 +83,7 @@ typedef NS_ENUM(NSInteger, SyncState) {
     
     _state = SyncStateRoot;
     
-    [self fetchPaged:[self get:@"/user/repos"] completion:^(NSArray *repos, NSError *err) {
+    [_pager fetchPaged:[_pager get:@"/user/repos"] completion:^(NSArray *repos, NSError *err) {
         if (err || repos.count == 0) {
             ErrLog(@"%@", err);
             _state = SyncStateIdle;
@@ -306,7 +96,7 @@ typedef NS_ENUM(NSInteger, SyncState) {
         NSMutableArray *assigneeRequests = [NSMutableArray new];
         for (NSDictionary *repo in repos) {
             NSString *assigneesEndpoint = [NSString stringWithFormat:@"/repos/%@/%@/assignees", repo[@"owner"][@"login"], repo[@"name"]];
-            [assigneeRequests addObject:[self get:assigneesEndpoint]];
+            [assigneeRequests addObject:[_pager get:assigneesEndpoint]];
         }
         
         // additionally the orgs who own our repos are our set of orgs
@@ -318,7 +108,7 @@ typedef NS_ENUM(NSInteger, SyncState) {
         }
         NSArray *dedupedOrgs = [[NSDictionary lookupWithObjects:orgs keyPath:@"id"] allValues];
         
-        [self tasks:assigneeRequests completion:^(NSArray<URLSessionResult *> *results) {
+        [_pager tasks:assigneeRequests completion:^(NSArray<URLSessionResult *> *results) {
             NSMutableArray *assigneesForActiveRepos = [NSMutableArray new];
             NSMutableArray *activeRepos = [NSMutableArray new];
             NSUInteger i = 0;
@@ -410,7 +200,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
         NSMutableDictionary *orgWithUsers = [org mutableCopy];
         NSString *memberEndpoint = [NSString stringWithFormat:@"orgs/%@/members", org[@"login"]];
         
-        [self fetchPaged:[self get:memberEndpoint] completion:^(NSArray *data, NSError *err) {
+        [_pager fetchPaged:[_pager get:memberEndpoint] completion:^(NSArray *data, NSError *err) {
             if (failed) {
                 return;
             }
@@ -452,12 +242,12 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
         NSString *baseEndpoint = [NSString stringWithFormat:@"repos/%@/%@", repo[@"owner"][@"login"], repo[@"name"]];
         NSString *labelsEndpoint = [baseEndpoint stringByAppendingPathComponent:@"labels"];
         NSString *milestonesEndpoint = [baseEndpoint stringByAppendingPathComponent:@"milestones"];
-        [self fetchPaged:[self get:labelsEndpoint] completion:^(NSArray *data, NSError *err) {
+        [_pager fetchPaged:[_pager get:labelsEndpoint] completion:^(NSArray *data, NSError *err) {
             rwi[@"labels"] = data;
             done();
         }];
         
-        [self fetchPaged:[self get:milestonesEndpoint] completion:^(NSArray *data, NSError *err) {
+        [_pager fetchPaged:[_pager get:milestonesEndpoint] completion:^(NSArray *data, NSError *err) {
             rwi[@"milestones"] = data;
             done();
         }];
@@ -490,7 +280,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
         
         NSString *endpoint = [NSString stringWithFormat:@"repos/%@/%@/issues", repo[@"owner"][@"login"], repo[@"name"]];
         
-        [self fetchPaged:[self get:endpoint params:params] completion:^(NSArray *data, NSError *err) {
+        [_pager fetchPaged:[_pager get:endpoint params:params] completion:^(NSArray *data, NSError *err) {
             NSArray *issues = nil;
             
             if (data) {
@@ -556,11 +346,11 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
     
     NSString *issueEndpoint = [NSString stringWithFormat:@"repos/%@/%@/issues/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
     NSString *timelineEndpoint = [issueEndpoint stringByAppendingPathComponent:@"timeline"];
-    NSURLRequest *timelineRequest = [self get:timelineEndpoint
+    NSURLRequest *timelineRequest = [_pager get:timelineEndpoint
                                        params:nil
                                       headers:@{@"Accept" : @"application/vnd.github.mockingbird-preview"}];
     
-    [self jsonTask:[self get:issueEndpoint] completion:^(id json, NSHTTPURLResponse *response, NSError *err) {
+    [_pager jsonTask:[_pager get:issueEndpoint] completion:^(id json, NSHTTPURLResponse *response, NSError *err) {
         if (err) {
             ErrLog(@"%@", err);
             return;
@@ -570,7 +360,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
         
         [self yield:@[json] type:@"issue" version:0];
         
-        [self fetchPaged:timelineRequest completion:^(NSArray *data, NSError *timelineErr) {
+        [_pager fetchPaged:timelineRequest completion:^(NSArray *data, NSError *timelineErr) {
             if (!timelineErr) {
                 NSArray *eventsAndComments = [data arrayByMappingObjects:^id(id obj) {
                     NSMutableDictionary *d = [obj mutableCopy];
@@ -598,12 +388,12 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                     if (item[@"commit_id"] && (item[@"commit_id"] != [NSNull null])) {
                         NSString *commitURL = item[@"commit_url"];
                         NSAssert(commitURL, @"should have commit URL");
-                        [commitRequests addObject:[self get:commitURL]];
+                        [commitRequests addObject:[_pager get:commitURL]];
                         [commmitRequestsToIndex addObject:@(i)];
                     }
                 }
 
-                [self jsonTasks:commitRequests completion:^(NSArray *commitResults, NSError *commitError){
+                [_pager jsonTasks:commitRequests completion:^(NSArray *commitResults, NSError *commitError){
                     if (!commitError) {
                         for (NSInteger i = 0; i < commitRequests.count; i++) {
                             NSInteger eventIndex = [commmitRequestsToIndex[i] integerValue];
@@ -633,13 +423,13 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                     if ([item[@"event"] isEqualToString:@"cross-referenced"]) {
                         NSString *sourceURL = item[@"source"][@"url"];
                         NSAssert(sourceURL, @"should have source URL");
-                        NSURLRequest *request = [self get:sourceURL];
+                        NSURLRequest *request = [_pager get:sourceURL];
                         [requests addObject:request];
                         [requestsToIndex addObject:@(i)];
                     }
                 }
                 
-                [self jsonTasks:requests completion:^(NSArray *results, NSError *resultsError){
+                [_pager jsonTasks:requests completion:^(NSArray *results, NSError *resultsError){
                     if (!resultsError) {
                         NSMutableArray *prInfoRequests = [NSMutableArray array];
                         NSMutableArray *prInfoRequestsToIndex = [NSMutableArray array];
@@ -664,13 +454,13 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                                             ([issueID longLongValue] << 32) | [referencingIssueID longLongValue]];
                             
                             if (issue[@"pull_request"]) {
-                                NSURLRequest *prInfoRequest = [self get:issue[@"pull_request"][@"url"]];
+                                NSURLRequest *prInfoRequest = [_pager get:issue[@"pull_request"][@"url"]];
                                 [prInfoRequests addObject:prInfoRequest];
                                 [prInfoRequestsToIndex addObject:@(eventIndex)];
                             }
                         }
                         
-                        [self jsonTasks:prInfoRequests completion:^(NSArray *prInfoResults, NSError *prInfoResultsError){
+                        [_pager jsonTasks:prInfoRequests completion:^(NSArray *prInfoResults, NSError *prInfoResultsError){
                             if (!prInfoResultsError) {
                                 for (NSInteger i = 0; i < prInfoResults.count; i++) {
                                     NSInteger eventIndex = [prInfoRequestsToIndex[i] integerValue];

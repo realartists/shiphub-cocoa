@@ -112,6 +112,11 @@
        @"asc": NSLocalizedString(@"Fewer Labels", nil),
        @"desc": NSLocalizedString(@"More Labels", nil) };
     
+    m = [sortMenu addItemWithTitle:NSLocalizedString(@"Unread", nil) action:@selector(changeSort:) keyEquivalent:@""];
+    m.representedObject =
+    @{ @"key": @"unread",
+       @"dir" : @"desc" };
+    
     [sortMenu addItem:[NSMenuItem separatorItem]];
     
     m = [sortMenu addItemWithTitle:NSLocalizedString(@"Ascending", nil) action:@selector(changeSortDir:) keyEquivalent:@""];
@@ -158,11 +163,16 @@
             } else {
                 item.state = NSOffState;
             }
-        } else if ([r isKindOfClass:[NSNumber class]]) {
-            BOOL asc = [r boolValue];
+        } else {
+            BOOL hide = info[@"asc"] == nil;
+            item.hidden = hide;
             
-            item.state = asc == sortDesc.ascending;
-            item.title = info[asc?@"asc":@"desc"];
+            if (!hide && [r isKindOfClass:[NSNumber class]]) {
+                BOOL asc = [r boolValue];
+                
+                item.state = asc == sortDesc.ascending;
+                item.title = info[asc?@"asc":@"desc"];
+            }
         }
     }
     
@@ -173,7 +183,8 @@
         NSString *compare = info[@"compare"] ?: @"compare:";
         
         NSSortDescriptor *actual = [NSSortDescriptor sortDescriptorWithKey:[NSString stringWithFormat:@"%@", sortDesc.key] ascending:sortDesc.ascending selector:NSSelectorFromString(compare)];
-        [self.table setSortDescriptors:@[actual]];
+        NSSortDescriptor *secondary = [NSSortDescriptor sortDescriptorWithKey:@"updatedAt" ascending:NO];
+        [self.table setSortDescriptors:@[actual, secondary]];
     }
 }
 

@@ -47,6 +47,7 @@
 - (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion;
 
 - (void)checkForIssueUpdates:(id)issueIdentifier;
+- (void)markIssueAsRead:(id)issueIdentifier;
 
 - (void)timeSeriesMatchingPredicate:(NSPredicate *)predicate startDate:(NSDate *)startDate endDate:(NSDate *)endDate completion:(void (^)(TimeSeries *series, NSError *error))completion;
 

@@ -49,6 +49,7 @@
 @interface NSDateFormatter (Extras)
 
 + (NSDateFormatter *)ISO8601Formatter;
++ (NSDateFormatter *)ISO8601FormatterNoFractionalSeconds;
 + (NSDateFormatter *)shortDateAndTimeFormatter;
 + (NSDateFormatter *)longDateAndTimeFormatter;
 + (NSDateFormatter *)shortDateFormatter;
@@ -157,6 +158,7 @@
 
 - (NSDictionary *)allAttributeValues;
 - (void)mergeAttributesFromDictionary:(NSDictionary *)d;
+- (void)mergeAttributesFromDictionary:(NSDictionary *)d onlyIfChanged:(BOOL)onlyIfChanged;
 
 @end
 

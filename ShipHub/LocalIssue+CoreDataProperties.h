@@ -18,6 +18,7 @@
 @class LocalEvent;
 @class LocalComment;
 @class LocalPriority;
+@class LocalNotification;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -45,6 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSSet<LocalEvent *> *events;
 @property (nullable, nonatomic, retain) NSSet<LocalComment *> *comments;
 @property (nullable, nonatomic, retain) NSSet<LocalPriority *> *upNext;
+@property (nullable, nonatomic, retain) LocalNotification *notification;
 
 @end
 

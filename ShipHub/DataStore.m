@@ -19,6 +19,7 @@
 #import "NSPredicate+Extras.h"
 #import "JSON.h"
 #import "TimeSeries.h"
+#import "GHNotificationManager.h"
 
 #import "LocalAccount.h"
 #import "LocalUser.h"
@@ -32,6 +33,7 @@
 #import "LocalRelationship.h"
 #import "LocalSyncVersion.h"
 #import "LocalPriority.h"
+#import "LocalNotification.h"
 
 #import "Issue.h"
 #import "IssueComment.h"
@@ -109,6 +111,7 @@ static const NSInteger CurrentLocalModelVersion = 1;
 @property (strong) Auth *auth;
 @property (strong) ServerConnection *serverConnection;
 @property (strong) SyncConnection *syncConnection;
+@property (strong) GHNotificationManager *ghNotificationManager;
 
 @property (readwrite, strong) NSDate *lastUpdated;
 
@@ -198,6 +201,8 @@ static DataStore *sActiveStore = nil;
         
         [self loadMetadata];
         [self updateSyncConnectionWithVersions];
+        
+        _ghNotificationManager = [[GHNotificationManager alloc] initWithManagedObjectContext:_moc auth:_auth];
     }
     return self;
 }
@@ -804,6 +809,10 @@ static NSString *const LastUpdated = @"LastUpdated";
             [changed addObject:[self issueFullIdentifier:obj]];
         } else if ([obj isKindOfClass:[LocalEvent class]] || [obj isKindOfClass:[LocalComment class]]) {
             [changed addObject:[self issueFullIdentifier:[obj issue]]];
+        } else if ([obj isKindOfClass:[LocalNotification class]]) {
+            if ([obj issue] != nil) {
+                [changed addObject:[obj issueFullIdentifier]];
+            }
         }
     }];
     
@@ -1518,6 +1527,30 @@ static NSString *const LastUpdated = @"LastUpdated";
             if (completion) completion(nil);
             [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMyUpNextNotification object:self];
         });
+    }];
+}
+
+# pragma mark - GitHub notifications handling
+
+- (void)markIssueAsRead:(id)issueIdentifier {
+    [_moc performBlock:^{
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalNotification"];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"issue.fullIdentifier = %@", issueIdentifier];
+        
+        LocalNotification *note = [[_moc executeFetchRequest:fetch error:NULL] firstObject];
+        if (note.unread) {
+            NSString *endpoint = [NSString stringWithFormat:@"/notifications/threads/%@", note.identifier];
+            [_serverConnection perform:@"PATCH" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
+                if (!error) {
+                    [_moc performBlock:^{
+                        note.unread = NO;
+                        [_moc save:NULL];
+                    }];
+                } else {
+                    ErrLog(@"%@", error);
+                }
+            }];
+        }
     }];
 }
 

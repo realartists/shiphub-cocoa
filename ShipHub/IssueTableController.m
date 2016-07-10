@@ -115,8 +115,7 @@
     static NSArray *specs;
     if (!specs) {
         specs = @[
-#if !INCOMPLETE
-                  @{ @"identifier" : @"issue.read",
+                  @{ @"identifier" : @"unread",
                      @"title" : NSLocalizedString(@"•", nil),
                      @"menuTitle" : NSLocalizedString(@"Unread", nil),
                      @"formatter" : [BooleanDotFormatter new],
@@ -126,7 +125,6 @@
                      @"centered" : @YES,
                      @"cellClass" : @"ReadIndicatorCell",
                      @"titleFont" : [NSFont boldSystemFontOfSize:12.0] },
-#endif
                   
                   @{ @"identifier" : @"number",
                      @"title" : NSLocalizedString(@"#", nil),
@@ -301,14 +299,12 @@
 }
 
 - (void)markAsReadFromMenu:(id)sender {
-    // FIXME: Hook up
-#if !INCOMPLETE
     NSArray *selected = [self selectedItemsForMenu];
-    NSArray *identifiers = [selected arrayByMappingObjects:^id(id obj) {
-        return [[obj problem] identifier];
-    }];
-    [[DataStore activeStore] markAsRead:identifiers];
-#endif
+    for (Issue *i in selected) {
+        if (i.unread) {
+            [[DataStore activeStore] markIssueAsRead:i.fullIdentifier];
+        }
+    }
 }
 
 - (IBAction)toggleUpNext:(id)sender {
@@ -939,9 +935,9 @@
 
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
-    BOOL read = [[self objectValue] boolValue];
+    BOOL unread = [[self objectValue] boolValue];
     
-    if (!read) {
+    if (unread) {
         BOOL highlighted = [self isHighlighted];
         
         CGRect rect = CGRectMake(0, 0, 8.0, 8.0);

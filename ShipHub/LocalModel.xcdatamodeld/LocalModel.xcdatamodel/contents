@@ -52,6 +52,7 @@
         <relationship name="events" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalEvent" inverseName="issue" inverseEntity="LocalEvent" syncable="YES"/>
         <relationship name="labels" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalLabel" inverseName="issue" inverseEntity="LocalLabel" syncable="YES"/>
         <relationship name="milestone" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalMilestone" inverseName="issues" inverseEntity="LocalMilestone" syncable="YES"/>
+        <relationship name="notification" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalNotification" inverseName="issue" inverseEntity="LocalNotification" syncable="YES"/>
         <relationship name="originator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="originatedIssues" inverseEntity="LocalUser" syncable="YES">
             <userInfo>
                 <entry key="jsonKey" value="user"/>
@@ -79,6 +80,16 @@
         <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
         <relationship name="issues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="milestone" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="repo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="milestones" inverseEntity="LocalRepo" syncable="YES"/>
+    </entity>
+    <entity name="LocalNotification" representedClassName="LocalNotification" syncable="YES">
+        <attribute name="commentIdentifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="issueFullIdentifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
+        <attribute name="lastReadAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="reason" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="unread" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="notification" inverseEntity="LocalIssue" syncable="YES"/>
     </entity>
     <entity name="LocalOrg" representedClassName="LocalOrg" parentEntity="LocalAccount" syncable="YES">
         <relationship name="users" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="orgs" inverseEntity="LocalUser" syncable="YES"/>
@@ -124,17 +135,18 @@
         <relationship name="upNext" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalPriority" inverseName="user" inverseEntity="LocalPriority" syncable="YES"/>
     </entity>
     <elements>
-        <element name="LocalAccount" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LocalComment" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LocalEvent" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LocalIssue" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LocalLabel" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LocalMilestone" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LocalOrg" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LocalPriority" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LocalRelationship" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LocalRepo" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LocalSyncVersion" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="LocalUser" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="LocalAccount" positionX="0" positionY="0" width="128" height="120"/>
+        <element name="LocalComment" positionX="0" positionY="0" width="128" height="135"/>
+        <element name="LocalEvent" positionX="0" positionY="0" width="128" height="180"/>
+        <element name="LocalIssue" positionX="0" positionY="0" width="128" height="390"/>
+        <element name="LocalLabel" positionX="0" positionY="0" width="128" height="105"/>
+        <element name="LocalMilestone" positionX="0" positionY="0" width="128" height="210"/>
+        <element name="LocalNotification" positionX="9" positionY="153" width="128" height="165"/>
+        <element name="LocalOrg" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="LocalPriority" positionX="0" positionY="0" width="128" height="90"/>
+        <element name="LocalRelationship" positionX="0" positionY="0" width="128" height="90"/>
+        <element name="LocalRepo" positionX="0" positionY="0" width="128" height="210"/>
+        <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="LocalUser" positionX="0" positionY="0" width="128" height="180"/>
     </elements>
 </model>

@@ -53,6 +53,7 @@
             IssueDocument *doc = [self openUntitledDocumentAndDisplay:YES error:NULL];
             doc.issueViewController.issue = issue;
             [[DataStore activeStore] checkForIssueUpdates:issueIdentifier];
+            [[DataStore activeStore] markIssueAsRead:issueIdentifier];
             if (completion) {
                 completion(doc);
             }

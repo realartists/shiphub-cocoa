@@ -49,6 +49,16 @@
 		1A4A20AA1CF3BB06000C1D5E /* LocalSyncVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A81CF3BB06000C1D5E /* LocalSyncVersion.m */; };
 		1A5108461D2CC52A00905D4D /* EmptyUpNextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5108441D2CC52A00905D4D /* EmptyUpNextViewController.m */; };
 		1A5108511D2F70C900905D4D /* UpNextHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5108501D2F70C900905D4D /* UpNextHelper.m */; };
+		1A51085D1D317AB300905D4D /* LocalNotification+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A51085A1D317AB300905D4D /* LocalNotification+CoreDataProperties.m */; };
+		1A51085E1D317AB300905D4D /* LocalNotification+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A51085A1D317AB300905D4D /* LocalNotification+CoreDataProperties.m */; };
+		1A51085F1D317AB400905D4D /* LocalNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A51085C1D317AB300905D4D /* LocalNotification.m */; };
+		1A5108601D317AB400905D4D /* LocalNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A51085C1D317AB300905D4D /* LocalNotification.m */; };
+		1A5108661D319E2B00905D4D /* NotificationsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5108651D319E2B00905D4D /* NotificationsManager.m */; };
+		1A5108671D319E2B00905D4D /* NotificationsManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5108651D319E2B00905D4D /* NotificationsManager.m */; };
+		1A51086A1D319ED000905D4D /* RequestPager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5108691D319ED000905D4D /* RequestPager.m */; };
+		1A51086B1D319ED000905D4D /* RequestPager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5108691D319ED000905D4D /* RequestPager.m */; };
+		1A51086E1D31A11A00905D4D /* GHNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A51086D1D31A11A00905D4D /* GHNotificationManager.m */; };
+		1A51086F1D31A11A00905D4D /* GHNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A51086D1D31A11A00905D4D /* GHNotificationManager.m */; };
 		1A5604E11CD7FFC100ACF0DF /* AttachmentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */; };
 		1A5604E21CD7FFC100ACF0DF /* AttachmentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */; };
 		1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
@@ -344,6 +354,16 @@
 		1A5108441D2CC52A00905D4D /* EmptyUpNextViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmptyUpNextViewController.m; sourceTree = "<group>"; };
 		1A51084F1D2F70C900905D4D /* UpNextHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpNextHelper.h; sourceTree = "<group>"; };
 		1A5108501D2F70C900905D4D /* UpNextHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UpNextHelper.m; sourceTree = "<group>"; };
+		1A5108591D317AB300905D4D /* LocalNotification+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalNotification+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1A51085A1D317AB300905D4D /* LocalNotification+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalNotification+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1A51085B1D317AB300905D4D /* LocalNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalNotification.h; sourceTree = "<group>"; };
+		1A51085C1D317AB300905D4D /* LocalNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalNotification.m; sourceTree = "<group>"; };
+		1A5108641D319E2B00905D4D /* NotificationsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotificationsManager.h; sourceTree = "<group>"; };
+		1A5108651D319E2B00905D4D /* NotificationsManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NotificationsManager.m; sourceTree = "<group>"; };
+		1A5108681D319ED000905D4D /* RequestPager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RequestPager.h; sourceTree = "<group>"; };
+		1A5108691D319ED000905D4D /* RequestPager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RequestPager.m; sourceTree = "<group>"; };
+		1A51086C1D31A11A00905D4D /* GHNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHNotificationManager.h; sourceTree = "<group>"; };
+		1A51086D1D31A11A00905D4D /* GHNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHNotificationManager.m; sourceTree = "<group>"; };
 		1A5604DF1CD7FFC100ACF0DF /* AttachmentManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AttachmentManager.h; sourceTree = "<group>"; };
 		1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AttachmentManager.m; sourceTree = "<group>"; };
 		1A563F781CC823CF00755AAC /* APIProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIProxy.h; sourceTree = "<group>"; };
@@ -750,6 +770,10 @@
 			isa = PBXGroup;
 			children = (
 				1A3618F31C90C7F6008C11CB /* LocalModel.xcdatamodeld */,
+				1A5108591D317AB300905D4D /* LocalNotification+CoreDataProperties.h */,
+				1A51085A1D317AB300905D4D /* LocalNotification+CoreDataProperties.m */,
+				1A51085B1D317AB300905D4D /* LocalNotification.h */,
+				1A51085C1D317AB300905D4D /* LocalNotification.m */,
 				1A4A20A51CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.h */,
 				1A4A20A61CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m */,
 				1A4A20A71CF3BB06000C1D5E /* LocalSyncVersion.h */,
@@ -905,6 +929,12 @@
 				1A694ADE1CA09E0800F73608 /* MetadataStore.m */,
 				1A5604DF1CD7FFC100ACF0DF /* AttachmentManager.h */,
 				1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */,
+				1A5108641D319E2B00905D4D /* NotificationsManager.h */,
+				1A5108651D319E2B00905D4D /* NotificationsManager.m */,
+				1A5108681D319ED000905D4D /* RequestPager.h */,
+				1A5108691D319ED000905D4D /* RequestPager.m */,
+				1A51086C1D31A11A00905D4D /* GHNotificationManager.h */,
+				1A51086D1D31A11A00905D4D /* GHNotificationManager.m */,
 			);
 			name = DataStore;
 			sourceTree = "<group>";
@@ -1179,10 +1209,12 @@
 				1AE09BF61C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
 				1A3618F51C90C7F6008C11CB /* LocalModel.xcdatamodeld in Sources */,
 				1A694B2A1CA341D500F73608 /* NetworkStateWindow.m in Sources */,
+				1A5108661D319E2B00905D4D /* NotificationsManager.m in Sources */,
 				1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */,
 				1A694B441CA34B9000F73608 /* DeemphasizedRowView.m in Sources */,
 				1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */,
 				1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */,
+				1A51085D1D317AB300905D4D /* LocalNotification+CoreDataProperties.m in Sources */,
 				1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */,
 				1A694B001CA0ABEB00F73608 /* MetadataItem.m in Sources */,
 				1A0D87741CA9E25F0069782D /* JSON.m in Sources */,
@@ -1202,6 +1234,7 @@
 				28BF03B51D1873CA00F22638 /* NewLabelController.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
 				1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */,
+				1A51086A1D319ED000905D4D /* RequestPager.m in Sources */,
 				1A694B2B1CA341D500F73608 /* NetworkStatusTextField.m in Sources */,
 				1A694B2E1CA342B000F73608 /* Sparkline.m in Sources */,
 				1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */,
@@ -1214,8 +1247,10 @@
 				1A694B0C1CA3413700F73608 /* OverviewController.m in Sources */,
 				1A694AE61CA09E5800F73608 /* User.m in Sources */,
 				1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */,
+				1A51086E1D31A11A00905D4D /* GHNotificationManager.m in Sources */,
 				1A694B251CA341D500F73608 /* SearchFieldToolbarItem.m in Sources */,
 				1A694AEE1CA09E8000F73608 /* Org.m in Sources */,
+				1A51085F1D317AB400905D4D /* LocalNotification.m in Sources */,
 				1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */,
 				1AE09C0C1C97687E00C5AC35 /* LocalLabel.m in Sources */,
 				1A694B311CA342D500F73608 /* SearchResultsController.m in Sources */,
@@ -1291,6 +1326,7 @@
 				1AE09C181C9779BB00C5AC35 /* Defaults.m in Sources */,
 				1A0D59D61CA4A8D1004F2578 /* IssueViewController.m in Sources */,
 				1AE09BF71C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
+				1A51086B1D319ED000905D4D /* RequestPager.m in Sources */,
 				1A694AF71CA09EAD00F73608 /* Label.m in Sources */,
 				1AE09C0F1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */,
 				1AE09BEB1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
@@ -1300,6 +1336,7 @@
 				1AE09C1D1C9779CA00C5AC35 /* LocalModel.xcdatamodeld in Sources */,
 				1A694AEB1CA09E6A00F73608 /* Repo.m in Sources */,
 				1AE09C051C97687E00C5AC35 /* LocalAccount.m in Sources */,
+				1A51085E1D317AB300905D4D /* LocalNotification+CoreDataProperties.m in Sources */,
 				1AE09C111C97687E00C5AC35 /* LocalOrg.m in Sources */,
 				1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */,
 				1AE09C211C9779DE00C5AC35 /* Logging.m in Sources */,
@@ -1307,6 +1344,7 @@
 				1AF349511CDA95F000A5BEB0 /* TimeSeries.m in Sources */,
 				1A0D59D11CA48B8A004F2578 /* AppKitExtras.m in Sources */,
 				1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */,
+				1A51086F1D31A11A00905D4D /* GHNotificationManager.m in Sources */,
 				1A694B011CA0ABEB00F73608 /* MetadataItem.m in Sources */,
 				1A694B431CA34B9000F73608 /* LabelButton.m in Sources */,
 				1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */,
@@ -1314,6 +1352,7 @@
 				1A36190D1C9383E7008C11CB /* TestMetadata.m in Sources */,
 				1AE09BEF1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
 				1AE09C131C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */,
+				1A5108601D317AB400905D4D /* LocalNotification.m in Sources */,
 				1AE09C1A1C9779C000C5AC35 /* ServerConnection.m in Sources */,
 				1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */,
 				1AE09C191C9779BE00C5AC35 /* Error.m in Sources */,
@@ -1326,6 +1365,7 @@
 				1AE09C0D1C97687E00C5AC35 /* LocalLabel.m in Sources */,
 				1AE09BF31C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
 				1A694B451CA34B9000F73608 /* DeemphasizedRowView.m in Sources */,
+				1A5108671D319E2B00905D4D /* NotificationsManager.m in Sources */,
 				1AE09BF51C97687E00C5AC35 /* LocalIssue.m in Sources */,
 				1AE09C071C97687E00C5AC35 /* LocalUser+CoreDataProperties.m in Sources */,
 				1AE09C0B1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,

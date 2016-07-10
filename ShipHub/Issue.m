@@ -16,6 +16,7 @@
 #import "LocalMilestone.h"
 #import "LocalLabel.h"
 #import "LocalPriority.h"
+#import "LocalNotification.h"
 
 #import "Repo.h"
 #import "User.h"
@@ -53,6 +54,8 @@
         }] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
         _milestone = [ms milestoneWithIdentifier:li.milestone.identifier];
         _repository = [ms repoWithIdentifier:li.repository.identifier];
+        
+        _unread = [li.notification.unread boolValue];
         
         BOOL includeECs = [options[IssueOptionIncludeEventsAndComments] boolValue];
         if (includeECs) {

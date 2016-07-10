@@ -23,6 +23,7 @@
 
 @property Issue *displayedIssue;
 @property NSPredicate *displayedPredicate;
+@property NSTimer *readTimer;
 
 @end
 
@@ -60,6 +61,12 @@
     [super viewDidLoad];
 }
 
+- (void)markAsRead:(NSTimer *)timer {
+    if (self.displayedIssue == timer.userInfo) {
+        [[DataStore activeStore] markIssueAsRead:self.displayedIssue.fullIdentifier];
+    }
+}
+
 - (void)updateIssueViewController:(NSArray<Issue *> *)selectedIssues {
     Issue *i = [selectedIssues firstObject];
     
@@ -70,6 +77,11 @@
     self.displayedIssue = i;
     self.displayedPredicate = self.predicate;
     
+    if (_readTimer) {
+        [_readTimer invalidate];
+        _readTimer = nil;
+    }
+    
     DebugLog(@"%@", i.fullIdentifier);
     
     if (i) {
@@ -79,6 +91,8 @@
                 _issueController.issue = issue;
             }
         }];
+        
+        _readTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 weakTarget:self selector:@selector(markAsRead:) userInfo:i repeats:NO];
     } else {
         _issueController.issue = nil;
     }

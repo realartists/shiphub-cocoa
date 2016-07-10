@@ -35,5 +35,6 @@
 @dynamic events;
 @dynamic comments;
 @dynamic upNext;
+@dynamic notification;
 
 @end

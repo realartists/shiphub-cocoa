@@ -646,7 +646,7 @@ static inline uint8_t h2b(uint8_t v) {
     return all;
 }
 
-- (void)mergeAttributesFromDictionary:(NSDictionary *)d {
+- (void)mergeAttributesFromDictionary:(NSDictionary *)d onlyIfChanged:(BOOL)onlyIfChanged {
     NSDictionary *attributes = self.entity.attributesByName;
     for (NSString *key in [attributes allKeys]) {
         NSAttributeDescription *desc = attributes[key];
@@ -663,8 +663,18 @@ static inline uint8_t h2b(uint8_t v) {
         }
         if (val == nil) val = desc.defaultValue;
         if (val == [NSNull null]) val = nil;
+        if (onlyIfChanged) {
+            id oldVal = [self valueForKey:key];
+            if (oldVal == val || [oldVal isEqual:val]) {
+                continue;
+            }
+        }
         [self setValue:val forKey:key];
     }
+}
+
+- (void)mergeAttributesFromDictionary:(NSDictionary *)d {
+    [self mergeAttributesFromDictionary:d onlyIfChanged:NO];
 }
 
 @end
