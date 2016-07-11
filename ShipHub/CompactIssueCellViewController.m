@@ -151,7 +151,7 @@ static const CGFloat marginBottom = 8.0;
     CGSize numSize = [numStr sizeWithAttributes:numAttrs];
     
     CGRect numRect = CGRectMake(CGRectGetMaxX(b) - numSize.width - marginRight,
-                                CGRectGetMaxY(b) - numSize.height - marginTop - 3.0,
+                                CGRectGetMaxY(b) - numSize.height - marginTop - 2.0,
                                 numSize.width,
                                 numSize.height);
     
@@ -164,7 +164,7 @@ static const CGFloat marginBottom = 8.0;
     NSString *dateStr = [[NSDateFormatter shortRelativeDateFormatter] stringFromDate:_issue.createdAt];
     CGSize dateSize = [dateStr sizeWithAttributes:dateAttrs];
     CGRect dateRect = CGRectMake(CGRectGetMaxX(b) - dateSize.width - marginRight,
-                                 CGRectGetMinY(numRect) - 1.0 - dateSize.height,
+                                 CGRectGetMinY(numRect) - 2.0 - dateSize.height,
                                  dateSize.width,
                                  dateSize.height);
     [dateStr drawInRect:dateRect withAttributes:dateAttrs];
