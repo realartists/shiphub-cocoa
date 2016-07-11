@@ -25,6 +25,7 @@ static NSString *const MessageFieldType = @"msg";
 
 // Outgoing MessageTypes:
 static NSString *const MessageHello = @"hello";
+static NSString *const MessageViewing = @"viewing";
 
 // Incoming MessageTypes:
 static NSString *const MessageSync = @"sync";
@@ -38,6 +39,9 @@ static NSString *const MessageFieldClient = @"client";
 // Sync Message fields
 static NSString *const MessageFieldLogs = @"logs";
 static NSString *const MessageFieldRemaining = @"remaining";
+
+// Viewing Message fields
+static NSString *const MessageFieldViewingIssue = @"issue";
 
 typedef NS_ENUM(uint8_t, MessageHeader) {
     MessageHeaderPlainText = 0,
@@ -328,6 +332,14 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
         if (!_socket) {
             [self connect];
         }
+    });
+}
+
+- (void)updateIssue:(id)issueIdentifier {
+    NSDictionary *msg = @{ MessageFieldType : MessageViewing,
+                           MessageFieldViewingIssue : issueIdentifier };
+    dispatch_async(_q, ^{
+        [self sendMessage:msg];
     });
 }
 
