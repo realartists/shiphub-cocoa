@@ -61,6 +61,8 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
 @property SRWebSocket *socket;
 @property NSInteger logEntryTotalRemaining;
 
+@property NSString *lastViewedIssueIdentifier;
+
 @end
 
 @implementation WSSyncConnection
@@ -281,6 +283,13 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
     _socketOpen = YES;
     [self sendHello];
     
+    if (_lastViewedIssueIdentifier) {
+        NSDictionary *msg = @{ MessageFieldType : MessageViewing,
+                               MessageFieldViewingIssue : _lastViewedIssueIdentifier };
+        _lastViewedIssueIdentifier = nil;
+        [self sendMessage:msg];
+    }
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.delegate syncConnectionDidConnect:self];
     });
@@ -339,7 +348,11 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
     NSDictionary *msg = @{ MessageFieldType : MessageViewing,
                            MessageFieldViewingIssue : issueIdentifier };
     dispatch_async(_q, ^{
-        [self sendMessage:msg];
+        if (_socket) {
+            [self sendMessage:msg];
+        } else {
+            _lastViewedIssueIdentifier = issueIdentifier;
+        }
     });
 }
 
