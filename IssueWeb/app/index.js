@@ -188,6 +188,9 @@ function applyPatch(patch) {
       request.then(function(body) {
         console.log(body);
         resolve();
+        if (window.documentEditedHelper) {
+          window.documentEditedHelper.postMessage({});
+        }
       }).catch(function(err) {
         console.log(err);
         reject(err);
@@ -2336,7 +2339,7 @@ var MilestoneField = React.createClass({
   
   needsSave: function() {
     if (this.refs.completer) {
-      return this.refs.completer.isEdited();
+      return (this.refs.completer.value() || "") != (keypath(this.props.issue, "milestone.title") || "");
     } else {
       return false;
     }
@@ -2468,7 +2471,7 @@ var AssigneeInput = React.createClass({
   
   needsSave: function() {
     if (this.refs.completer) {
-      return this.refs.completer.isEdited();
+      return (this.refs.completer.value() || "") != (keypath(this.props.issue, "assignee.login") || "");
     } else {
       return false;
     }
