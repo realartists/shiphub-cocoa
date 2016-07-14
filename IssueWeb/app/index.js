@@ -687,18 +687,15 @@ var EventUser = React.createClass({
 var AssignedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    // XXX: GitHub bug always sets the actor to the assignee.
-    return h("span", {}, "was assigned");
-    
-    /*
-    if (this.props.event.assignee.id == this.props.event.actor.id) {
+    var actor = this.props.event.assigner || this.props.event.actor;
+    if (this.props.event.assignee.id == actor.id) {
       return h("span", {}, "self assigned this");
     } else {
       return h("span", {},
         h("span", {}, "assigned this to "),
         h(EventUser, {user:this.props.event.assignee})
       );
-    }*/
+    }
   }
 });
 
