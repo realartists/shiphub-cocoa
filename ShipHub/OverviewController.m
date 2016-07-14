@@ -370,6 +370,14 @@ NSTextFieldDelegate>
     };
     [topNode addChild:_upNextNode];
     
+    OverviewNode *notificationsNode = [OverviewNode new];
+    notificationsNode.showCount = YES;
+    notificationsNode.allowChart = NO;
+    notificationsNode.icon = [NSImage overviewIconNamed:@"756-bell-selected"];
+    notificationsNode.title = NSLocalizedString(@"Notifications", nil);
+    notificationsNode.predicate = [NSPredicate predicateWithFormat:@"closed = NO AND notification.unread = YES"];
+    [topNode addChild:notificationsNode];
+    
     OverviewNode *milestonesRoot = [OverviewNode new];
 //    milestonesRoot.representedObject = _milestoneMap;
     milestonesRoot.title = NSLocalizedString(@"Milestones", nil);
