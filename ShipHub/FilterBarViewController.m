@@ -197,6 +197,7 @@
     // Search for a comparison predicate with the lhs being a count of SUBQUERY on labels.name
     
     __block NSArray *labels = nil;
+    __block BOOL unlabeled = NO;
     NSString *type = nil;
     
     NSArray *predicates = [predicate predicatesMatchingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
@@ -218,6 +219,12 @@
                     labels = [rhs expressionValueWithObject:nil context:NULL];
                     
                     return YES;
+                } else if (subq.expressionType == NSKeyPathExpressionType
+                           && [subq.keyPath isEqualToString:@"labels"])
+                {
+                    unlabeled = YES;
+                    labels = @[];
+                    return YES;
                 }
             }
         }
@@ -232,20 +239,25 @@
         return nil;
     }
     
-    // figure out NONE, ANY, ALL based on the operator and rhs of pred
-    
-    if (pred.predicateOperatorType == NSEqualToPredicateOperatorType) {
-        // either NONE or ALL
-        NSExpression *rhs = pred.rightExpression;
-        if (rhs.expressionType == NSConstantValueExpressionType) {
-            NSAssert([[rhs expressionValueWithObject:nil context:nil] isEqual:@0], nil);
-            type = @"NONE";
-        } else {
-            NSAssert(rhs.expressionType == NSFunctionExpressionType, nil);
-            type = @"ALL";
-        }
+    if (unlabeled) {
+        type = @"NONE";
     } else {
-        type = @"ANY";
+    
+        // figure out NONE, ANY, ALL based on the operator and rhs of pred
+        
+        if (pred.predicateOperatorType == NSEqualToPredicateOperatorType) {
+            // either NONE or ALL
+            NSExpression *rhs = pred.rightExpression;
+            if (rhs.expressionType == NSConstantValueExpressionType) {
+                NSAssert([[rhs expressionValueWithObject:nil context:nil] isEqual:@0], nil);
+                type = @"NONE";
+            } else {
+                NSAssert(rhs.expressionType == NSFunctionExpressionType, nil);
+                type = @"ALL";
+            }
+        } else {
+            type = @"ANY";
+        }
     }
     
     if (outType) *outType = type;
@@ -492,11 +504,22 @@
 
 #pragma mark - Menu Updaters
 
+static BOOL representedObjectEquals(id repr, id val) {
+    if (repr == nil && val == nil) return YES;
+    if (repr == nil && val != nil) return NO;
+    if (repr != nil && val == nil) return NO;
+    if ([repr isKindOfClass:[NSNumber class]] || [repr isKindOfClass:[NSString class]] || [repr isKindOfClass:[NSNull class]]) {
+        return [repr isEqual:val];
+    } else {
+        return [[repr identifier] isEqual:[val identifier]];
+    }
+}
+
 - (void)updateAssigneeMenuStateFromPredicate {
     id login = [self assigneeLoginInPredicate:_predicate];
     
     for (NSMenuItem *m in _assignee.menu.itemArray) {
-        m.state = m.representedObject == login ? NSOnState : NSOffState;
+        m.state = representedObjectEquals(m.representedObject, login) ? NSOnState : NSOffState;
     }
     
     BOOL filtered = YES;
@@ -517,7 +540,7 @@
     id login = [self authorLoginInPredicate:_predicate];
     
     for (NSMenuItem *m in _author.menu.itemArray) {
-        m.state = m.representedObject == login ? NSOnState : NSOffState;
+        m.state = representedObjectEquals(m.representedObject, login) ? NSOnState : NSOffState;
     }
     
     BOOL filtered = YES;
@@ -539,7 +562,7 @@
     
     [_repo.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
         if (m.target == self) {
-            m.state = m.representedObject == repo ? NSOnState : NSOffState;
+            m.state = representedObjectEquals(m.representedObject, repo) ? NSOnState : NSOffState;
         }
     }];
     
@@ -558,7 +581,7 @@
     id closed = [self closedInPredicate:_predicate];
     
     [_state.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
-        m.state = m.representedObject == closed ? NSOnState: NSOffState;
+        m.state = [m.representedObject isEqual: closed] ? NSOnState: NSOffState;
     }];
     
     if (closed == nil) {
@@ -628,7 +651,7 @@
     id milestone = [self milestoneTitleInPredicate:_predicate];
     
     [_milestone.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
-        m.state = m.action == @selector(pickMilestone:) && m.representedObject == milestone ? NSOnState : NSOffState;
+        m.state = m.action == @selector(pickMilestone:) && representedObjectEquals(m.representedObject, milestone) ? NSOnState : NSOffState;
     }];
     
     if (!milestone) {
@@ -828,6 +851,7 @@
     if (!_label.hidden) {
         __block BOOL noFilter = NO;
         __block NSString *type = nil;
+        __block BOOL unlabeled = NO;
         NSMutableArray *labels = [NSMutableArray new];
         
         [_label.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
@@ -836,6 +860,8 @@
                     noFilter = YES;
                 } else if (m.representedObject != [NSNull null]) {
                     [labels addObject:m.representedObject];
+                } else {
+                    unlabeled = YES;
                 }
             } else if (m.action == @selector(pickLabelOperator:) && m.state == NSOnState) {
                 type = m.representedObject;
@@ -845,10 +871,9 @@
         if (!noFilter) {
             NSPredicate *lp = nil;
             
-            
-            
-            
-            if ([type isEqualToString:@"NONE"] || [labels count] == 0) {
+            if (unlabeled) {
+                lp = [NSPredicate predicateWithFormat:@"count(labels) == 0"];
+            } else if ([type isEqualToString:@"NONE"] || [labels count] == 0) {
                 // AKA (which CoreData cannot execute): NONE labels.name IN %@
                 lp = [NSPredicate predicateWithFormat:@"count(SUBQUERY(labels.name, $name, $name IN %@)) == 0", labels];
                 
