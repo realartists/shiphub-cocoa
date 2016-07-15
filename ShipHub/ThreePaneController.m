@@ -25,6 +25,8 @@
 @property NSPredicate *displayedPredicate;
 @property NSTimer *readTimer;
 
+@property Issue *issueToRemoveOnSelectionChange;
+
 @end
 
 @implementation ThreePaneController
@@ -74,6 +76,13 @@
         return;
     }
     
+    if (_issueToRemoveOnSelectionChange && ![[i fullIdentifier] isEqualToString:_issueToRemoveOnSelectionChange.fullIdentifier]) {
+        Issue *r = _issueToRemoveOnSelectionChange;
+        _issueToRemoveOnSelectionChange = nil;
+        [self.table removeSingleItem:r];
+        [self updateTitle];
+    }
+    
     self.displayedIssue = i;
     self.displayedPredicate = self.predicate;
     
@@ -111,6 +120,39 @@
         s.width += [NSScroller scrollerWidthForControlSize:NSRegularControlSize scrollerStyle:NSScrollerStyleLegacy];
     }
     return s;
+}
+
+- (NSArray *)willUpdateItems:(NSArray *)items {
+    if (self.displayedIssue && [self.displayedPredicate isEqual:self.predicate]) {
+        Issue *i = self.displayedIssue;
+        
+        // Look and see if displayedIssue (i) is omitted from items.
+        // If it is, we want to add it back in, but also update its display.
+        // We'll remove it from view in the future when it is deselected.
+        
+        for (Issue *j in items) {
+            if ([j.fullIdentifier isEqualToString:i.fullIdentifier]) {
+                // Item existed. Clear state and bail out. Nothing special to do.
+                _issueToRemoveOnSelectionChange = nil;
+                return items;
+            }
+        }
+        
+        // If still here, we want to reload the item, and update the table with it.
+        _issueToRemoveOnSelectionChange = i;
+        
+        [[DataStore activeStore] issuesMatchingPredicate:[NSPredicate predicateWithFormat:@"fullIdentifier = %@", i.fullIdentifier] completion:^(NSArray<Issue *> *issues, NSError *error) {
+            
+            if (_issueToRemoveOnSelectionChange == i) {
+                Issue *j = [issues firstObject];
+                _issueToRemoveOnSelectionChange = j;
+                [self.table updateSingleItem:j];
+            }
+        }];
+        
+        return [items arrayByAddingObject:i];
+    }
+    return items;
 }
 
 - (void)didUpdateItems {

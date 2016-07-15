@@ -1554,4 +1554,39 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
+- (void)markAllIssuesAsReadWithCompletion:(void (^)(NSError *error))completion {
+    void (^complete)(NSError *) = ^(NSError *err) {
+        if (completion) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completion(err);
+            });
+        }
+    };
+    
+    [_moc performBlock:^{
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalNotification"];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"unread = YES"];
+        NSArray *notes = [_moc executeFetchRequest:fetch error:NULL];
+        
+        if ([notes count]) {
+            [_serverConnection perform:@"PUT" on:@"/notifications" body:nil completion:^(id jsonResponse, NSError *error) {
+                if (!error) {
+                    [_moc performBlock:^{
+                        for (LocalNotification *note in notes) {
+                            note.unread = NO;
+                        }
+                        [_moc save:NULL];
+                        
+                        complete(nil);
+                    }];
+                } else {
+                    complete(error);
+                }
+            }];
+        } else {
+            complete(nil);
+        }
+    }];
+}
+
 @end

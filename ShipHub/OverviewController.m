@@ -159,7 +159,6 @@ NSTextFieldDelegate>
     }
     
     _filterBar = [FilterBarViewController new];
-    [_filterBar resetFilters:[NSPredicate predicateWithFormat:@"closed = NO"]];
     _filterBar.delegate = self;
     [self.window addTitlebarAccessoryViewController:_filterBar];
     
@@ -229,6 +228,9 @@ NSTextFieldDelegate>
     }
 
     [self buildOutline];
+    if ([[_outlineView selectedItem] filterBarDefaultsToOpenState]) {
+        [_filterBar resetFilters:[NSPredicate predicateWithFormat:@"closed = NO"]];
+    }
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(metadataChanged:) name:DataStoreDidUpdateMetadataNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataStoreChanged:) name:DataStoreActiveDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(queriesChanged:) name:DataStoreDidUpdateMyQueriesNotification object:nil];
@@ -373,9 +375,13 @@ NSTextFieldDelegate>
     OverviewNode *notificationsNode = [OverviewNode new];
     notificationsNode.showCount = YES;
     notificationsNode.allowChart = NO;
+    notificationsNode.filterBarDefaultsToOpenState = NO;
     notificationsNode.icon = [NSImage overviewIconNamed:@"756-bell-selected"];
     notificationsNode.title = NSLocalizedString(@"Notifications", nil);
-    notificationsNode.predicate = [NSPredicate predicateWithFormat:@"closed = NO AND notification.unread = YES"];
+    notificationsNode.predicate = [NSPredicate predicateWithFormat:@"notification.unread = YES"];
+    NSMenu *notificationsMenu = [NSMenu new];
+    [notificationsMenu addItemWithTitle:@"Mark All Notifications as Read" action:@selector(markAllNotificationsAsRead:) keyEquivalent:@""];
+    notificationsNode.menu = notificationsMenu;
     [topNode addChild:notificationsNode];
     
     OverviewNode *milestonesRoot = [OverviewNode new];
@@ -1112,11 +1118,15 @@ NSTextFieldDelegate>
 }
 
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification {
+    OverviewNode *selectedItem = [_outlineView selectedItem];
     if (!_nodeSelectionProgrammaticallyInitiated) {
         [_searchItem.searchField setStringValue:@""];
-        [_filterBar resetFilters:[NSPredicate predicateWithFormat:@"closed = NO"]];
+        if (selectedItem.filterBarDefaultsToOpenState) {
+            [_filterBar resetFilters:[NSPredicate predicateWithFormat:@"closed = NO"]];
+        } else {
+            [_filterBar resetFilters:nil];
+        }
     }
-    OverviewNode *selectedItem = [_outlineView selectedItem];
     
     NSView *rightPane = [_splitView.subviews lastObject];
     if ([selectedItem viewController]) {
@@ -1254,6 +1264,18 @@ NSTextFieldDelegate>
     }
     [_searchItem.searchField selectText:sender];
     [[self window] makeFirstResponder:_searchItem.searchField];
+}
+
+- (IBAction)markAllNotificationsAsRead:(id)sender {
+    [[DataStore activeStore] markAllIssuesAsReadWithCompletion:^(NSError *error) {
+        if (error) {
+            NSAlert *alert = [NSAlert new];
+            alert.messageText = NSLocalizedString(@"Unable to mark notifications as read", nil);
+            alert.informativeText = [error localizedDescription];
+            [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+            [alert beginSheetModalForWindow:[self window] completionHandler:nil];
+        }
+    }];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {

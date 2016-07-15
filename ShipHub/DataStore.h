@@ -48,6 +48,7 @@
 
 - (void)checkForIssueUpdates:(id)issueIdentifier;
 - (void)markIssueAsRead:(id)issueIdentifier;
+- (void)markAllIssuesAsReadWithCompletion:(void (^)(NSError *error))completion;
 
 - (void)timeSeriesMatchingPredicate:(NSPredicate *)predicate startDate:(NSDate *)startDate endDate:(NSDate *)endDate completion:(void (^)(TimeSeries *series, NSError *error))completion;
 

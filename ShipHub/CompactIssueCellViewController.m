@@ -16,7 +16,7 @@
 #import "Repo.h"
 #import "User.h"
 
-@interface CompactIssueRowView : NSTableRowView
+@interface CompactIssueRowView ()
 
 @property (nonatomic, strong) Issue *issue;
 
@@ -55,6 +55,14 @@
     _issue = issue;
     CompactIssueRowView *row = (id)self.view;
     row.issue = _issue;
+}
+
+- (void)prepareForReuse {
+    CompactIssueRowView *row = (id)self.view;
+    row.issue = nil;
+    row.emphasized = NO;
+    row.selected = NO;
+    row.nextRowSelected = NO;
 }
 
 @end

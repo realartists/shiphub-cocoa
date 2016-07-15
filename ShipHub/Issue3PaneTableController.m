@@ -32,7 +32,6 @@
 
 @interface Issue3PaneTableController ()
 
-@property NSMutableDictionary *activeRows;
 @property NSMutableArray *reuseQueue;
 @property CompactIssueTableHeaderView *header;
 @property CompactIssueTableCornerView *corner;
@@ -229,27 +228,6 @@
     return NO;
 }
 
-- (CompactIssueCellViewController *)viewControllerForRow:(NSInteger)row {
-    if (!_activeRows) {
-        _activeRows = [NSMutableDictionary new];
-        _reuseQueue = [NSMutableArray new];
-    }
-    
-    CompactIssueCellViewController *vc = _activeRows[@(row)];
-    if (!vc) {
-        vc = [_reuseQueue lastObject];
-        if (!vc) {
-            vc = [CompactIssueCellViewController new];
-        } else {
-            [_reuseQueue removeLastObject];
-        }
-        
-        _activeRows[@(row)] = vc;
-    }
-    
-    return vc;
-}
-
 - (nullable NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(nullable NSTableColumn *)tableColumn row:(NSInteger)row
 {
     return nil;
@@ -257,21 +235,24 @@
 
 - (nullable NSTableRowView *)tableView:(NSTableView *)tableView rowViewForRow:(NSInteger)row
 {
-    return (id)[self viewControllerForRow:row].view;
-}
-
-- (void)tableView:(NSTableView *)tableView didAddRowView:(NSTableRowView *)rowView forRow:(NSInteger)row {
-    CompactIssueCellViewController *vc = [self viewControllerForRow:row];
+    CompactIssueCellViewController *vc = nil;
+    if ([_reuseQueue count] > 0) {
+        vc = [_reuseQueue lastObject];
+        [_reuseQueue removeLastObject];
+    } else {
+        vc = [CompactIssueCellViewController new];
+    }
     vc.issue = self.items[row];
+    return (NSTableRowView *)vc.view;
 }
 
 - (void)tableView:(NSTableView *)tableView didRemoveRowView:(NSTableRowView *)rowView forRow:(NSInteger)row {
-    CompactIssueCellViewController *vc = _activeRows[@(row)];
+    CompactIssueCellViewController *vc = [(id)rowView controller];
     if (vc) {
-        if (_reuseQueue.count < 10) {
-            [_reuseQueue addObject:vc];
+        [vc prepareForReuse];
+        if ([_reuseQueue count] < 10) {
+            if (!_reuseQueue) _reuseQueue = [NSMutableArray new];
         }
-        [_activeRows removeObjectForKey:@(row)];
     }
 }
 

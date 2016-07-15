@@ -46,6 +46,7 @@ typedef void (^OverviewNodeDropHandler)(NSArray<NSString *> *issueIdentifiers);
 @property BOOL showCount;
 @property BOOL countOpenOnly;
 @property BOOL allowChart;
+@property BOOL filterBarDefaultsToOpenState;
 
 @property BOOL showProgress;
 @property double progress;

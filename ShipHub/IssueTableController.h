@@ -16,6 +16,9 @@
 
 @property (nonatomic, copy) NSArray<Issue *> *tableItems; // returns items in current sort order.
 
+- (void)updateSingleItem:(Issue *)updatedItem; // update display of a single issue
+- (void)removeSingleItem:(Issue *)removeItem;
+
 - (void)setTableItems:(NSArray *)items clearSelection:(BOOL)clearSelection; // if clearSelection is NO, controller will attempt to maintain selection via item identifiers.
 @property (weak) IBOutlet id<IssueTableControllerDelegate> delegate;
 

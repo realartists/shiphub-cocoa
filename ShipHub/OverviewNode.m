@@ -17,6 +17,7 @@
         _count = NSNotFound;
         _progress = -1.0;
         _allowChart = YES;
+        _filterBarDefaultsToOpenState = YES;
     }
     return self;
 }

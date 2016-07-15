@@ -16,4 +16,12 @@
 
 + (CGFloat)cellHeight;
 
+- (void)prepareForReuse;
+
+@end
+
+@interface CompactIssueRowView : NSTableRowView
+
+@property (weak, readonly) CompactIssueCellViewController *controller;
+
 @end

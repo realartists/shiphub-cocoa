@@ -17,5 +17,10 @@
 
 - (void)updateTablePrefs;
 - (NSString *)autosaveName;
+- (void)dataSourceUpdated:(NSNotification *)note;
+
+- (void)refreshWithPredicate:(NSPredicate *)predicate;
+
+- (void)updateTitle;
 
 @end

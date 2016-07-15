@@ -26,6 +26,9 @@
 @property BOOL loading;
 @property NSInteger loadGeneration;
 
+@property BOOL animationInProgress;
+@property NSInvocation *afterTableAnimation;
+
 @end
 
 @implementation IssueTableController
@@ -413,6 +416,42 @@
     [self _updateItems:tableItems clearSelection:clearSelection];
 }
 
+- (void)updateSingleItem:(Issue *)updatedItem {
+    NSInteger idx = [_items indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger j, BOOL * _Nonnull stop) {
+        return [[obj fullIdentifier] isEqualToString:[updatedItem fullIdentifier]];
+    }];
+    
+    if (idx != NSNotFound) {
+        DebugLog(@"Updating item at idx %td to %@", idx, updatedItem);
+        NSSet *previouslySelectedIdentifiers = [self selectedItemIdentifiers];
+        [_items replaceObjectAtIndex:idx withObject:updatedItem];
+        [_table reloadData];
+        [self selectItemsByIdentifiers:previouslySelectedIdentifiers];
+    }
+}
+
+- (void)removeSingleItem:(Issue *)removeItem {
+    NSInteger idx = [_items indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger j, BOOL * _Nonnull stop) {
+        return [[obj fullIdentifier] isEqualToString:[removeItem fullIdentifier]];
+    }];
+    
+    if (idx != NSNotFound) {
+        [_table beginUpdates];
+        [_table removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:idx] withAnimation:NSTableViewAnimationEffectFade];
+        [_items removeObjectAtIndex:idx];
+        [_table endUpdates];
+        _animationInProgress = YES;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            _animationInProgress = NO;
+            if (_afterTableAnimation) {
+                NSInvocation *iv = _afterTableAnimation;
+                _afterTableAnimation = nil;
+                [iv invoke];
+            }
+        });
+    }
+}
+
 - (void)_sortItems {
     NSArray *sortDescriptors = _table.sortDescriptors;
     if (_upNextMode) {
@@ -436,6 +475,21 @@
 }
 
 - (void)_updateItems:(NSArray *)items clearSelection:(BOOL)clearSelection {
+    if (_animationInProgress) {
+        NSInvocation *iv = _afterTableAnimation = [NSInvocation invocationWithMethodSignature:[self methodSignatureForSelector:_cmd]];
+        iv.target = self;
+        iv.selector = _cmd;
+        id arg2 = items;
+        BOOL arg3 = clearSelection;
+        [iv setArgument:&arg2 atIndex:2];
+        [iv setArgument:&arg3 atIndex:3];
+        [iv retainArguments];
+        
+        return;
+    } else {
+        _afterTableAnimation = nil;
+    }
+    
     NSSet *previouslySelectedIdentifiers = clearSelection ? nil : [self selectedItemIdentifiers];
     _items = [items mutableCopy];
     

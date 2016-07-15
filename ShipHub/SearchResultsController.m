@@ -59,15 +59,18 @@
 }
 
 - (IBAction)refresh:(id)sender {
+    [self refreshWithPredicate:self.predicate];
+}
+
+- (void)refreshWithPredicate:(NSPredicate *)predicate {
     _searchGeneration++;
     
-    if (!self.predicate) {
+    if (!predicate) {
         self.searching = NO;
         _table.tableItems = nil;
         return;
     }
     
-    // FIXME: Hook up
     NSInteger generation = _searchGeneration;
     self.searching = YES;
     
@@ -78,10 +81,11 @@
         options = @{ IssueOptionIncludeUpNextPriority : @YES };
     }
     
-    [[DataStore activeStore] issuesMatchingPredicate:self.predicate sortDescriptors:sortDescriptors options:options completion:^(NSArray<Issue *> *issues, NSError *error) {
+    [[DataStore activeStore] issuesMatchingPredicate:predicate sortDescriptors:sortDescriptors options:options completion:^(NSArray<Issue *> *issues, NSError *error) {
         if (generation != _searchGeneration) return;
         
         if (issues) {
+            issues = [self willUpdateItems:issues];
             _table.tableItems = issues;
             [self didUpdateItems];
         } else {
@@ -89,6 +93,10 @@
         }
         self.searching = NO;
     }];
+}
+
+- (NSArray *)willUpdateItems:(NSArray *)proposedItems {
+    return proposedItems;
 }
 
 - (void)didUpdateItems {
@@ -113,7 +121,11 @@
     _searching = searching;
     self.inProgress = searching;
     
-    if (searching) {
+    [self updateTitle];
+}
+
+- (void)updateTitle {
+    if (_searching) {
         if (!self.titleTimer) {
             self.titleTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(titleTimerFired:) userInfo:nil repeats:NO];
         }
