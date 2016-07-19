@@ -167,13 +167,7 @@
         [self flashField:_password];
         return;
     }
-    
-    Auth *existing = [Auth authWithLogin:_username.stringValue];
-    if (existing) {
-        [self finishWithAuth:existing];
-        return;
-    }
-    
+
     _username.enabled = NO;
     _password.enabled = NO;
     _goButton.hidden = YES;
