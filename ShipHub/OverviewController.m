@@ -304,7 +304,7 @@ NSTextFieldDelegate>
         savedIdentifier = [[_outlineView selectedItem] identifier];
     } else {
         NSString *lastViewedIdentifier = [[NSUserDefaults standardUserDefaults] objectForKey:LastSelectedNodeDefaultsKey];
-        savedIdentifier = lastViewedIdentifier ?: @"MyOpenProblems";
+        savedIdentifier = lastViewedIdentifier ?: @"AllProblems";
     }
     _nextNodeToSelect = nil;
     
@@ -355,6 +355,7 @@ NSTextFieldDelegate>
     _allProblemsNode = [OverviewNode new];
     _allProblemsNode.showCount = YES;
     _allProblemsNode.countOpenOnly = YES;
+    _allProblemsNode.identifier = @"AllProblems";
     _allProblemsNode.title = NSLocalizedString(@"All Issues", nil);
     _allProblemsNode.predicate = [NSPredicate predicateWithValue:YES];
     _allProblemsNode.icon = [NSImage overviewIconNamed:@"928-inbox-files-selected"];
