@@ -177,11 +177,6 @@
     [_overviewControllers makeObjectsPerformSelector:@selector(close)];
 }
 
-
-- (void)showAuthIfNeeded {
-    [self showAuthIfNeededAnimated:YES];
-}
-
 - (void)showAuthIfNeededAnimated:(BOOL)animated {
     if (_auth.authState != AuthStateValid) {
         [_authController showWindow:self];
