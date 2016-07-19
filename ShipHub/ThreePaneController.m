@@ -123,7 +123,7 @@
 }
 
 - (NSArray *)willUpdateItems:(NSArray *)items {
-    if (self.displayedIssue && [self.displayedPredicate isEqual:self.predicate]) {
+    if (!self.upNextMode && self.displayedIssue && [self.displayedPredicate isEqual:self.predicate]) {
         Issue *i = self.displayedIssue;
         
         // Look and see if displayedIssue (i) is omitted from items.
