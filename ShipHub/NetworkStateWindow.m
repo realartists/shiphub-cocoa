@@ -66,7 +66,7 @@
 }
 
 - (void)setupNetworkState {
-    if (ServerEnvironmentLocal == DefaultsServerEnvironment())
+    if (ServerEnvironmentIsLocal())
         return;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateNetworkState:) name:ReachabilityDidChangeNotification object:nil];

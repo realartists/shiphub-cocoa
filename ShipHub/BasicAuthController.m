@@ -125,27 +125,15 @@
 
 
 - (NSString *)clientID {
-    //return @"eac522c6b68c504b2aac";
-    switch (DefaultsServerEnvironment()) {
-        case ServerEnvironmentDevelopment:
-        case ServerEnvironmentJW:
-        case ServerEnvironmentLocal:
-            return @"da1cde7cfd134d837ae6";
-        default:
-            return @"55456285644976e93634";
-    }
+    // See https://github.com/organizations/realartists/settings/applications/315507
+    // Will go away entirely as we move to using personal tokens.
+    return @"da1cde7cfd134d837ae6";
 }
 
 - (NSString *)clientSecret {
-    //return @"cc3439df3a004194d920a6eabf303d7e8243281a";
-    switch (DefaultsServerEnvironment()) {
-        case ServerEnvironmentDevelopment:
-        case ServerEnvironmentJW:
-        case ServerEnvironmentLocal:
-            return @"3aeb9af555d7d2285120b133304c34e5a8058078";
-        default:
-            return @"044a8c057d8a00f023f4c19932d0fcbb77deaa57";
-    }
+    // See https://github.com/organizations/realartists/settings/applications/315507
+    // Will go away entirely as we move to using personal tokens.
+    return @"3aeb9af555d7d2285120b133304c34e5a8058078";
 }
 
 - (NSString *)ghHost {
@@ -153,7 +141,7 @@
 }
 
 - (NSString *)shipHost {
-    return [ServerConnection defaultShipHubHost];
+    return [[Defaults defaults] stringForKey:DefaultsServerKey];
 }
 
 - (IBAction)go:(id)sender {
@@ -252,7 +240,7 @@
 - (void)sayHello:(NSString *)oauthToken {
     // callable from any queue, so we're not necessarily on the main queue here.
     
-    if (DefaultsServerEnvironment() == ServerEnvironmentLocal) {
+    if (ServerEnvironmentIsLocal()) {
         [self sayHelloLocal:oauthToken];
         return;
     }

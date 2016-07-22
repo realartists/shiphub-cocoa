@@ -57,7 +57,7 @@
 - (void)update:(NSNotification *)note {
     BOOL online, reachabilityInited;
     
-    if (DefaultsServerEnvironment() != ServerEnvironmentLocal) {
+    if (!ServerEnvironmentIsLocal()) {
         online = [[Reachability sharedInstance] isReachable];
         reachabilityInited = [[Reachability sharedInstance] receivedFirstUpdate];
     } else {

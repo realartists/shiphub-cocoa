@@ -19,22 +19,6 @@
 
 @implementation ServerConnection
 
-+ (NSString *)defaultShipHubHost {
-    switch (DefaultsServerEnvironment()) {
-        case ServerEnvironmentLocal:
-            return @"api.github.com";
-        case ServerEnvironmentDevelopment:
-            return @"hub-nick.realartists.com";
-        case ServerEnvironmentJW:
-            return @"hub-jw.realartists.com";
-        case ServerEnvironmentStaging:
-            return @"hub-staging.realartists.com";
-        case ServerEnvironmentProduction:
-        default:
-            return @"hub.realartists.com";
-    }
-}
-
 - (id)initWithAuth:(Auth *)auth {
     if (self = [super init]) {
         self.auth = auth;

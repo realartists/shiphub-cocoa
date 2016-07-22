@@ -23,6 +23,8 @@ extern NSString *const DefaultsDisableAutoWatchKey;
 // Debugging defaults
 extern NSString *const DefaultsSimulateConflictsKey;
 
+extern NSString *const DefaultsServerKey;
+
 @interface NSUserDefaults (Conveniences)
 
 - (NSInteger)integerForKey:(NSString *)defaultName fallback:(NSInteger)defaultValue;
@@ -30,15 +32,5 @@ extern NSString *const DefaultsSimulateConflictsKey;
 
 @end
 
-typedef NS_ENUM(NSInteger, ServerEnvironment) {
-    ServerEnvironmentProduction,
-    ServerEnvironmentStaging,
-    ServerEnvironmentDevelopment,
-    ServerEnvironmentJW,
-    ServerEnvironmentLocal,
-};
+BOOL ServerEnvironmentIsLocal();
 
-extern NSString *ServerEnvironmentToString(ServerEnvironment);
-extern ServerEnvironment ServerEnvironmentFromString(NSString *environment);
-
-extern ServerEnvironment DefaultsServerEnvironment(); // Returns the configured server environment

@@ -11,6 +11,7 @@
 #import "Auth.h"
 #import "AuthController.h"
 #import "DataStore.h"
+#import "Defaults.h"
 #import "IssueIdentifier.h"
 #import "IssueDocumentController.h"
 #import "OverviewController.h"
@@ -30,6 +31,7 @@
 
 @property IBOutlet NSMenu *accountMenu;
 @property IBOutlet NSMenuItem *accountMenuSeparator;
+@property IBOutlet NSMenu *serverMenu;
 
 @property (strong) IBOutlet NSMutableArray *overviewControllers;
 
@@ -87,6 +89,7 @@
     [self configureAuth];
     [self registerForDataStoreNotifications];
     [self rebuildAccountMenu];
+    [self buildServerMenu];
     [self showAuthIfNeededAnimated:NO];
     [self configureDataStoreAndShowUI];
     
@@ -222,6 +225,72 @@
         [_auth logout];
         [self authChanged:nil];
     }
+}
+
+- (void)buildServerMenu {
+    [_serverMenu removeAllItems];
+
+    NSString *currentServer = [[Defaults defaults] stringForKey:DefaultsServerKey];
+
+    NSMutableSet *serverSet = [NSMutableSet setWithArray:@[
+                                                           @"api.github.com",
+                                                           @"hub.realartists.com",
+                                                           @"hub-staging.realartists.com",
+                                                           @"hub-nick.realartists.com",
+                                                           @"hub-jw.realartists.com",
+                                                           ]];
+    if (currentServer) {
+        [serverSet addObject:currentServer];
+    }
+
+    for (NSString *server in [[serverSet allObjects] sortedArrayUsingSelector:@selector(compare:)]) {
+        NSString *title = server;
+
+        if ([server isEqualToString:@"api.github.com"]) {
+            title = [title stringByAppendingString:@" (local)"];
+        }
+
+        NSMenuItem *item = [_serverMenu insertItemWithTitle:title
+                                                     action:@selector(changeServer:)
+                                              keyEquivalent:@"0"
+                                                    atIndex:_serverMenu.numberOfItems];
+        item.representedObject = server;
+        item.state = ([server isEqualToString:currentServer]) ? NSOnState : NSOffState;
+    }
+
+    [_serverMenu insertItemWithTitle:NSLocalizedString(@"Other\u2026", nil)
+                              action:@selector(setOtherServer:)
+                       keyEquivalent:@""
+                             atIndex:_serverMenu.numberOfItems];
+}
+
+- (void)setOtherServer:(id)sender {
+    NSTextField *input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 290, 24)];
+
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = NSLocalizedString(@"Hostname", nil);
+    [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+    [alert setAccessoryView:input];
+
+    if ([alert runModal] == NSAlertFirstButtonReturn) {
+        NSString *hostname = [[input stringValue] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+
+        if (hostname.length > 0) {
+            NSUserDefaults *defaults = [Defaults defaults];
+            [defaults setObject:hostname forKey:DefaultsServerKey];
+            [defaults synchronize];
+
+            [self buildServerMenu];
+        }
+    }
+}
+
+- (void)changeServer:(NSMenuItem *)sender {
+    NSUserDefaults *defaults = [Defaults defaults];
+    [defaults setObject:sender.representedObject forKey:DefaultsServerKey];
+    [defaults synchronize];
+    [self buildServerMenu];
 }
 
 - (void)rebuildAccountMenu {
