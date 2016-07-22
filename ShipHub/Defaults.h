@@ -42,4 +42,3 @@ extern NSString *ServerEnvironmentToString(ServerEnvironment);
 extern ServerEnvironment ServerEnvironmentFromString(NSString *environment);
 
 extern ServerEnvironment DefaultsServerEnvironment(); // Returns the configured server environment
-extern void OverrideDefaultsServerEnvironment(ServerEnvironment);

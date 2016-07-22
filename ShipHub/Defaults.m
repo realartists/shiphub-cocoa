@@ -25,10 +25,6 @@
     return [NSUserDefaults standardUserDefaults];
 }
 
-+ (BOOL)environmentUsesServer {
-    return DefaultsServerEnvironment() != ServerEnvironmentLocal;
-}
-
 @end
 
 NSString *const DefaultsLocalStoragePathKey = @"LocalStorage";
@@ -82,13 +78,6 @@ ServerEnvironment ServerEnvironmentFromString(NSString *environment) {
 }
 
 static NSInteger s_environment = -1;
-
-extern void OverrideDefaultsServerEnvironment(ServerEnvironment se) {
-    @synchronized ([Defaults defaults]) {
-        s_environment = se;
-        NSLog(@"Overriding server environment to %@", ServerEnvironmentToString(s_environment));
-    }
-}
 
 ServerEnvironment DefaultsServerEnvironment() {
     @synchronized ([Defaults defaults]) {
