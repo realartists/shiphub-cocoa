@@ -70,7 +70,7 @@
 
 - (void)mouseEntered:(NSEvent *)theEvent {
     [super mouseEntered:theEvent];
-    if (_filterEnabled) self.alphaValue = 0.7;
+    if (_filterEnabled && self.enabled) self.alphaValue = 0.7;
 }
 
 - (void)mouseExited:(NSEvent *)theEvent {
@@ -87,9 +87,11 @@
 }
 
 - (void)showMenu {
-    self.menu.minimumWidth = self.bounds.size.width;
-    self.menu.font = self.font;
-    [self.menu popUpMenuPositioningItem:nil atLocation:CGPointMake(0, self.bounds.size.height + 3.0) inView:self];
+    if (self.enabled) {
+        self.menu.minimumWidth = self.bounds.size.width;
+        self.menu.font = self.font;
+        [self.menu popUpMenuPositioningItem:nil atLocation:CGPointMake(0, self.bounds.size.height + 3.0) inView:self];
+    }
 }
 
 - (void)performClick:(id)sender {

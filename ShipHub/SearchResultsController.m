@@ -9,6 +9,7 @@
 #import "SearchResultsControllerPrivate.h"
 #import "Extras.h"
 #import "IssueTableController.h"
+#import "IssueTableControllerPrivate.h"
 #import "DataStore.h"
 #import "Issue.h"
 #import "EmptyUpNextViewController.h"
@@ -48,6 +49,16 @@
     [super viewDidLoad];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataSourceUpdated:) name:DataStoreDidUpdateProblemsNotification object:nil];
+}
+
+- (BOOL)isBordered {
+    [self view];
+    return self.table.table.enclosingScrollView.borderType != NSNoBorder;
+}
+
+- (void)setBordered:(BOOL)bordered {
+    [self view];
+    self.table.table.enclosingScrollView.borderType = NSLineBorder;
 }
 
 - (void)dataSourceUpdated:(NSNotification *)note {

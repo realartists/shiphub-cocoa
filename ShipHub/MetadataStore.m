@@ -25,6 +25,7 @@
 @property (strong) NSDictionary *accountsByID;
 
 @property (strong) NSDictionary *assigneesByRepoID;
+@property (strong) NSArray *allAssignees;
 
 @property (strong) NSArray *repoOwners;
 @property (strong) NSDictionary *reposByOwnerID;
@@ -206,6 +207,8 @@ static BOOL IsMetadataObject(id obj) {
             }
             
             _orgIDToMembers = orgIDToMembers;
+            
+            _allAssignees = [[_usersByID allValues] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"login" ascending:YES selector:@selector(localizedStandardCompare:)]]];
         }];
     }
     

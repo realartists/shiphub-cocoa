@@ -30,6 +30,8 @@
 
 @property CGFloat lastViewWidth;
 
+@property (weak) NSWindow *window;
+
 @end
 
 #define LINE_HEIGHT 22.0
@@ -928,6 +930,39 @@ static BOOL representedObjectEquals(id repr, id val) {
     self.predicate = defaultFilters;
     [self updateFilterButtonsFromPredicate];
     [self.delegate filterBar:self didUpdatePredicate:nil];
+}
+
+- (void)removeFromWindow {
+    NSInteger idx = NSNotFound;
+    NSInteger i = 0;
+    for (NSTitlebarAccessoryViewController *acc in self.window.titlebarAccessoryViewControllers) {
+        if (acc == self) {
+            idx = i;
+            break;
+        }
+        i++;
+    }
+    if (idx != NSNotFound) {
+        [self.window removeTitlebarAccessoryViewControllerAtIndex:idx];
+        self.window = nil;
+    }
+}
+
+- (void)addToWindow:(NSWindow *)window {
+    if (window != self.window) {
+        if (self.window) {
+            [self removeFromWindow];
+        }
+        self.window = window;
+        [window addTitlebarAccessoryViewController:self];
+    }
+}
+
+- (void)setEnabled:(BOOL)enabled {
+    _enabled = enabled;
+    for (FilterButton *b in _filters) {
+        b.enabled = enabled;
+    }
 }
 
 #pragma mark - self.basePredicate => button visibility

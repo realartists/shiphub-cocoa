@@ -7,6 +7,28 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A012E7C1D3EAC0E006CE5DF /* SearchEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E741D3EAC0E006CE5DF /* SearchEditor.m */; };
+		1A012E7D1D3EAC0E006CE5DF /* SearchEditorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E761D3EAC0E006CE5DF /* SearchEditorViewController.m */; };
+		1A012E7E1D3EAC0E006CE5DF /* SearchEditorViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A012E771D3EAC0E006CE5DF /* SearchEditorViewController.xib */; };
+		1A012E7F1D3EAC0E006CE5DF /* SearchEditor.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1A012E781D3EAC0E006CE5DF /* SearchEditor.strings */; };
+		1A012E801D3EAC0E006CE5DF /* SaveSearchController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E7A1D3EAC0E006CE5DF /* SaveSearchController.m */; };
+		1A012E811D3EAC0E006CE5DF /* SaveSearchController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A012E7B1D3EAC0E006CE5DF /* SaveSearchController.xib */; };
+		1A012E8F1D3EAC47006CE5DF /* TimeLimitRowTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E841D3EAC47006CE5DF /* TimeLimitRowTemplate.m */; };
+		1A012E901D3EAC47006CE5DF /* FreeformMetadataRowTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E861D3EAC47006CE5DF /* FreeformMetadataRowTemplate.m */; };
+		1A012E911D3EAC47006CE5DF /* UserRowTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E881D3EAC47006CE5DF /* UserRowTemplate.m */; };
+		1A012E921D3EAC47006CE5DF /* MilestoneRowTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E8A1D3EAC47006CE5DF /* MilestoneRowTemplate.m */; };
+		1A012E931D3EAC47006CE5DF /* PopUpMetadataRowTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E8C1D3EAC47006CE5DF /* PopUpMetadataRowTemplate.m */; };
+		1A012E941D3EAC47006CE5DF /* StateRowTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E8E1D3EAC47006CE5DF /* StateRowTemplate.m */; };
+		1A012E971D3EAC8E006CE5DF /* CompletingTextField.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E961D3EAC8E006CE5DF /* CompletingTextField.m */; };
+		1A012E9A1D3EACB5006CE5DF /* ChevronButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E991D3EACB5006CE5DF /* ChevronButton.m */; };
+		1A012E9E1D3EE111006CE5DF /* SearchSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E9C1D3EE111006CE5DF /* SearchSheet.m */; };
+		1A012E9F1D3EE111006CE5DF /* SearchSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A012E9D1D3EE111006CE5DF /* SearchSheet.xib */; };
+		1A012EA81D443CFC006CE5DF /* CustomQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EA71D443CFC006CE5DF /* CustomQuery.m */; };
+		1A012EB01D443EBD006CE5DF /* LocalQuery+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EAD1D443EBD006CE5DF /* LocalQuery+CoreDataProperties.m */; };
+		1A012EB11D443EBD006CE5DF /* LocalQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EAF1D443EBD006CE5DF /* LocalQuery.m */; };
+		1A012EB81D448FF2006CE5DF /* RepoRowTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EB71D448FF2006CE5DF /* RepoRowTemplate.m */; };
+		1A012EC11D452F17006CE5DF /* LabelRowTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EC01D452F17006CE5DF /* LabelRowTemplate.m */; };
+		1A012EC41D454097006CE5DF /* NoneLabelTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EC31D454097006CE5DF /* NoneLabelTemplate.m */; };
 		1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59CD1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59D11CA48B8A004F2578 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
@@ -282,6 +304,46 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1A012E731D3EAC0E006CE5DF /* SearchEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchEditor.h; sourceTree = "<group>"; };
+		1A012E741D3EAC0E006CE5DF /* SearchEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchEditor.m; sourceTree = "<group>"; };
+		1A012E751D3EAC0E006CE5DF /* SearchEditorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchEditorViewController.h; sourceTree = "<group>"; };
+		1A012E761D3EAC0E006CE5DF /* SearchEditorViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchEditorViewController.m; sourceTree = "<group>"; };
+		1A012E771D3EAC0E006CE5DF /* SearchEditorViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SearchEditorViewController.xib; sourceTree = "<group>"; };
+		1A012E781D3EAC0E006CE5DF /* SearchEditor.strings */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; path = SearchEditor.strings; sourceTree = "<group>"; };
+		1A012E791D3EAC0E006CE5DF /* SaveSearchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaveSearchController.h; sourceTree = "<group>"; };
+		1A012E7A1D3EAC0E006CE5DF /* SaveSearchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SaveSearchController.m; sourceTree = "<group>"; };
+		1A012E7B1D3EAC0E006CE5DF /* SaveSearchController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SaveSearchController.xib; sourceTree = "<group>"; };
+		1A012E831D3EAC47006CE5DF /* TimeLimitRowTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeLimitRowTemplate.h; sourceTree = "<group>"; };
+		1A012E841D3EAC47006CE5DF /* TimeLimitRowTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeLimitRowTemplate.m; sourceTree = "<group>"; };
+		1A012E851D3EAC47006CE5DF /* FreeformMetadataRowTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FreeformMetadataRowTemplate.h; sourceTree = "<group>"; };
+		1A012E861D3EAC47006CE5DF /* FreeformMetadataRowTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FreeformMetadataRowTemplate.m; sourceTree = "<group>"; };
+		1A012E871D3EAC47006CE5DF /* UserRowTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserRowTemplate.h; sourceTree = "<group>"; };
+		1A012E881D3EAC47006CE5DF /* UserRowTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserRowTemplate.m; sourceTree = "<group>"; };
+		1A012E891D3EAC47006CE5DF /* MilestoneRowTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MilestoneRowTemplate.h; sourceTree = "<group>"; };
+		1A012E8A1D3EAC47006CE5DF /* MilestoneRowTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MilestoneRowTemplate.m; sourceTree = "<group>"; };
+		1A012E8B1D3EAC47006CE5DF /* PopUpMetadataRowTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PopUpMetadataRowTemplate.h; sourceTree = "<group>"; };
+		1A012E8C1D3EAC47006CE5DF /* PopUpMetadataRowTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PopUpMetadataRowTemplate.m; sourceTree = "<group>"; };
+		1A012E8D1D3EAC47006CE5DF /* StateRowTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StateRowTemplate.h; sourceTree = "<group>"; };
+		1A012E8E1D3EAC47006CE5DF /* StateRowTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StateRowTemplate.m; sourceTree = "<group>"; };
+		1A012E951D3EAC8E006CE5DF /* CompletingTextField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompletingTextField.h; sourceTree = "<group>"; };
+		1A012E961D3EAC8E006CE5DF /* CompletingTextField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompletingTextField.m; sourceTree = "<group>"; };
+		1A012E981D3EACB5006CE5DF /* ChevronButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChevronButton.h; sourceTree = "<group>"; };
+		1A012E991D3EACB5006CE5DF /* ChevronButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChevronButton.m; sourceTree = "<group>"; };
+		1A012E9B1D3EE111006CE5DF /* SearchSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchSheet.h; sourceTree = "<group>"; };
+		1A012E9C1D3EE111006CE5DF /* SearchSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchSheet.m; sourceTree = "<group>"; };
+		1A012E9D1D3EE111006CE5DF /* SearchSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SearchSheet.xib; sourceTree = "<group>"; };
+		1A012EA61D443CFC006CE5DF /* CustomQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomQuery.h; sourceTree = "<group>"; };
+		1A012EA71D443CFC006CE5DF /* CustomQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomQuery.m; sourceTree = "<group>"; };
+		1A012EAC1D443EBD006CE5DF /* LocalQuery+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalQuery+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1A012EAD1D443EBD006CE5DF /* LocalQuery+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalQuery+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1A012EAE1D443EBD006CE5DF /* LocalQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalQuery.h; sourceTree = "<group>"; };
+		1A012EAF1D443EBD006CE5DF /* LocalQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalQuery.m; sourceTree = "<group>"; };
+		1A012EB61D448FF2006CE5DF /* RepoRowTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RepoRowTemplate.h; sourceTree = "<group>"; };
+		1A012EB71D448FF2006CE5DF /* RepoRowTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RepoRowTemplate.m; sourceTree = "<group>"; };
+		1A012EBF1D452F17006CE5DF /* LabelRowTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelRowTemplate.h; sourceTree = "<group>"; };
+		1A012EC01D452F17006CE5DF /* LabelRowTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelRowTemplate.m; sourceTree = "<group>"; };
+		1A012EC21D454097006CE5DF /* NoneLabelTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoneLabelTemplate.h; sourceTree = "<group>"; };
+		1A012EC31D454097006CE5DF /* NoneLabelTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoneLabelTemplate.m; sourceTree = "<group>"; };
 		1A0D59CA1CA46926004F2578 /* IssueIdentifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueIdentifier.h; sourceTree = "<group>"; };
 		1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueIdentifier.m; sourceTree = "<group>"; };
 		1A0D59D31CA4A8D1004F2578 /* IssueViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueViewController.h; sourceTree = "<group>"; };
@@ -569,6 +631,51 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1A012E6F1D3EABDB006CE5DF /* Search UI */ = {
+			isa = PBXGroup;
+			children = (
+				1A012E9B1D3EE111006CE5DF /* SearchSheet.h */,
+				1A012E9C1D3EE111006CE5DF /* SearchSheet.m */,
+				1A012E9D1D3EE111006CE5DF /* SearchSheet.xib */,
+				1A012E731D3EAC0E006CE5DF /* SearchEditor.h */,
+				1A012E741D3EAC0E006CE5DF /* SearchEditor.m */,
+				1A012E751D3EAC0E006CE5DF /* SearchEditorViewController.h */,
+				1A012E761D3EAC0E006CE5DF /* SearchEditorViewController.m */,
+				1A012E771D3EAC0E006CE5DF /* SearchEditorViewController.xib */,
+				1A012E781D3EAC0E006CE5DF /* SearchEditor.strings */,
+				1A012E791D3EAC0E006CE5DF /* SaveSearchController.h */,
+				1A012E7A1D3EAC0E006CE5DF /* SaveSearchController.m */,
+				1A012E7B1D3EAC0E006CE5DF /* SaveSearchController.xib */,
+				1A012E821D3EAC3B006CE5DF /* Predicate Editor Row Templates */,
+			);
+			name = "Search UI";
+			sourceTree = "<group>";
+		};
+		1A012E821D3EAC3B006CE5DF /* Predicate Editor Row Templates */ = {
+			isa = PBXGroup;
+			children = (
+				1A012E831D3EAC47006CE5DF /* TimeLimitRowTemplate.h */,
+				1A012E841D3EAC47006CE5DF /* TimeLimitRowTemplate.m */,
+				1A012E851D3EAC47006CE5DF /* FreeformMetadataRowTemplate.h */,
+				1A012E861D3EAC47006CE5DF /* FreeformMetadataRowTemplate.m */,
+				1A012E871D3EAC47006CE5DF /* UserRowTemplate.h */,
+				1A012E881D3EAC47006CE5DF /* UserRowTemplate.m */,
+				1A012E891D3EAC47006CE5DF /* MilestoneRowTemplate.h */,
+				1A012E8A1D3EAC47006CE5DF /* MilestoneRowTemplate.m */,
+				1A012E8B1D3EAC47006CE5DF /* PopUpMetadataRowTemplate.h */,
+				1A012E8C1D3EAC47006CE5DF /* PopUpMetadataRowTemplate.m */,
+				1A012E8D1D3EAC47006CE5DF /* StateRowTemplate.h */,
+				1A012E8E1D3EAC47006CE5DF /* StateRowTemplate.m */,
+				1A012EB61D448FF2006CE5DF /* RepoRowTemplate.h */,
+				1A012EB71D448FF2006CE5DF /* RepoRowTemplate.m */,
+				1A012EBF1D452F17006CE5DF /* LabelRowTemplate.h */,
+				1A012EC01D452F17006CE5DF /* LabelRowTemplate.m */,
+				1A012EC21D454097006CE5DF /* NoneLabelTemplate.h */,
+				1A012EC31D454097006CE5DF /* NoneLabelTemplate.m */,
+			);
+			name = "Predicate Editor Row Templates";
+			sourceTree = "<group>";
+		};
 		1A0D59D21CA4A8B4004F2578 /* Issue UI */ = {
 			isa = PBXGroup;
 			children = (
@@ -617,6 +724,7 @@
 				1A3618F11C90C7C2008C11CB /* Model */,
 				1A2217CC1C7E7C49006460E2 /* Auth */,
 				1A694B121CA3414800F73608 /* Overview UI */,
+				1A012E6F1D3EABDB006CE5DF /* Search UI */,
 				1A0D59D21CA4A8B4004F2578 /* Issue UI */,
 				1AF3494A1CDA95D100A5BEB0 /* Charting */,
 				1A694B131CA3419900F73608 /* Shared UI */,
@@ -762,6 +870,8 @@
 				1AFE22011CA6053B00B51CF6 /* IssueEvent.m */,
 				1AFE22031CA6069300B51CF6 /* IssueComment.h */,
 				1AFE22041CA6069300B51CF6 /* IssueComment.m */,
+				1A012EA61D443CFC006CE5DF /* CustomQuery.h */,
+				1A012EA71D443CFC006CE5DF /* CustomQuery.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -823,6 +933,10 @@
 				1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */,
 				1AC6196F1D232E9A00FE1E76 /* LocalPriority.h */,
 				1AC619701D232E9A00FE1E76 /* LocalPriority.m */,
+				1A012EAC1D443EBD006CE5DF /* LocalQuery+CoreDataProperties.h */,
+				1A012EAD1D443EBD006CE5DF /* LocalQuery+CoreDataProperties.m */,
+				1A012EAE1D443EBD006CE5DF /* LocalQuery.h */,
+				1A012EAF1D443EBD006CE5DF /* LocalQuery.m */,
 			);
 			name = CoreData;
 			sourceTree = "<group>";
@@ -883,6 +997,10 @@
 		1A694B131CA3419900F73608 /* Shared UI */ = {
 			isa = PBXGroup;
 			children = (
+				1A012E951D3EAC8E006CE5DF /* CompletingTextField.h */,
+				1A012E961D3EAC8E006CE5DF /* CompletingTextField.m */,
+				1A012E981D3EACB5006CE5DF /* ChevronButton.h */,
+				1A012E991D3EACB5006CE5DF /* ChevronButton.m */,
 				1A694B141CA341D500F73608 /* CustomToolbarItem.h */,
 				1A694B151CA341D500F73608 /* CustomToolbarItem.m */,
 				1A694B161CA341D500F73608 /* SearchFieldToolbarItem.h */,
@@ -1154,8 +1272,10 @@
 			files = (
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
+				1A012E7E1D3EAC0E006CE5DF /* SearchEditorViewController.xib in Resources */,
 				1AD956B41D0B5654002B1259 /* DownloadBarViewController.xib in Resources */,
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
+				1A012E7F1D3EAC0E006CE5DF /* SearchEditor.strings in Resources */,
 				1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */,
 				1AF349791CDAC1E900A5BEB0 /* ChartConfigController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
@@ -1164,6 +1284,8 @@
 				28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */,
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
+				1A012E811D3EAC0E006CE5DF /* SaveSearchController.xib in Resources */,
+				1A012E9F1D3EE111006CE5DF /* SearchSheet.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1216,7 +1338,9 @@
 				1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */,
 				1A51085D1D317AB300905D4D /* LocalNotification+CoreDataProperties.m in Sources */,
 				1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */,
+				1A012E9A1D3EACB5006CE5DF /* ChevronButton.m in Sources */,
 				1A694B001CA0ABEB00F73608 /* MetadataItem.m in Sources */,
+				1A012EC41D454097006CE5DF /* NoneLabelTemplate.m in Sources */,
 				1A0D87741CA9E25F0069782D /* JSON.m in Sources */,
 				1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */,
 				1AF3497B1CDAC1E900A5BEB0 /* ChartConfig.m in Sources */,
@@ -1224,6 +1348,7 @@
 				1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */,
 				1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
+				1A012EA81D443CFC006CE5DF /* CustomQuery.m in Sources */,
 				1A694B101CA3413700F73608 /* ResultsController.m in Sources */,
 				1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
@@ -1236,14 +1361,18 @@
 				1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */,
 				1A51086A1D319ED000905D4D /* RequestPager.m in Sources */,
 				1A694B2B1CA341D500F73608 /* NetworkStatusTextField.m in Sources */,
+				1A012E8F1D3EAC47006CE5DF /* TimeLimitRowTemplate.m in Sources */,
 				1A694B2E1CA342B000F73608 /* Sparkline.m in Sources */,
+				1A012E801D3EAC0E006CE5DF /* SaveSearchController.m in Sources */,
 				1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */,
+				1A012EB11D443EBD006CE5DF /* LocalQuery.m in Sources */,
 				1A2305DD1C7F84D80034C871 /* Error.m in Sources */,
 				1A694B4B1CA367E300F73608 /* Issue.m in Sources */,
 				1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */,
 				1AE09C101C97687E00C5AC35 /* LocalOrg.m in Sources */,
 				1AE09BEE1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
 				1A3618EF1C8FC3DB008C11CB /* Reachability.m in Sources */,
+				1A012E901D3EAC47006CE5DF /* FreeformMetadataRowTemplate.m in Sources */,
 				1A694B0C1CA3413700F73608 /* OverviewController.m in Sources */,
 				1A694AE61CA09E5800F73608 /* User.m in Sources */,
 				1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */,
@@ -1253,6 +1382,7 @@
 				1A51085F1D317AB400905D4D /* LocalNotification.m in Sources */,
 				1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */,
 				1AE09C0C1C97687E00C5AC35 /* LocalLabel.m in Sources */,
+				1A012E7C1D3EAC0E006CE5DF /* SearchEditor.m in Sources */,
 				1A694B311CA342D500F73608 /* SearchResultsController.m in Sources */,
 				1A694AEA1CA09E6A00F73608 /* Repo.m in Sources */,
 				1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
@@ -1271,35 +1401,45 @@
 				1A694AFB1CA0A96500F73608 /* Account.m in Sources */,
 				1AE09C081C97687E00C5AC35 /* LocalUser.m in Sources */,
 				1AD956B31D0B5654002B1259 /* DownloadBarViewController.m in Sources */,
+				1A012E9E1D3EE111006CE5DF /* SearchSheet.m in Sources */,
 				1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */,
 				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
 				1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */,
 				1AE09C021C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,
 				1AE09C121C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */,
+				1A012E7D1D3EAC0E006CE5DF /* SearchEditorViewController.m in Sources */,
 				1AE09BFE1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
 				1A694AF21CA09E9800F73608 /* Milestone.m in Sources */,
 				1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */,
 				1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */,
 				1A694B3C1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */,
 				1A5604E11CD7FFC100ACF0DF /* AttachmentManager.m in Sources */,
+				1A012E971D3EAC8E006CE5DF /* CompletingTextField.m in Sources */,
 				1AE09C141C97687E00C5AC35 /* LocalComment.m in Sources */,
+				1A012E931D3EAC47006CE5DF /* PopUpMetadataRowTemplate.m in Sources */,
 				1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */,
 				1AE09C0E1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */,
 				1AC619721D232E9A00FE1E76 /* LocalPriority.m in Sources */,
+				1A012EB81D448FF2006CE5DF /* RepoRowTemplate.m in Sources */,
 				1AF349501CDA95F000A5BEB0 /* TimeSeries.m in Sources */,
 				1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */,
 				1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */,
 				1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */,
 				1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */,
+				1A012E941D3EAC47006CE5DF /* StateRowTemplate.m in Sources */,
+				1A012EC11D452F17006CE5DF /* LabelRowTemplate.m in Sources */,
 				1A694B0E1CA3413700F73608 /* OverviewNode.m in Sources */,
 				1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */,
+				1A012EB01D443EBD006CE5DF /* LocalQuery+CoreDataProperties.m in Sources */,
 				1AF349771CDAC1E900A5BEB0 /* ChartConfigController.m in Sources */,
 				1A0D59D51CA4A8D1004F2578 /* IssueViewController.m in Sources */,
 				1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */,
+				1A012E911D3EAC47006CE5DF /* UserRowTemplate.m in Sources */,
 				1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */,
 				1A4A20AA1CF3BB06000C1D5E /* LocalSyncVersion.m in Sources */,
 				1A2217D11C7E80CE006460E2 /* Logging.m in Sources */,
 				1A4A20A91CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m in Sources */,
+				1A012E921D3EAC47006CE5DF /* MilestoneRowTemplate.m in Sources */,
 				1A0D59EB1CA4AA3A004F2578 /* IssueDocument.m in Sources */,
 				1AE09BF81C97687E00C5AC35 /* LocalRelationship.m in Sources */,
 			);

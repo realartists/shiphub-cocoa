@@ -178,6 +178,8 @@
 - (void)drawWithTruncationInRect:(NSRect)rect;
 - (CGSize)multilineSizeThatFitsInSize:(CGSize)size;
 
++ (NSAttributedString *)attributedStringWithImage:(NSImage *)image;
+
 @end
 
 @interface NSSplitView (AppKitExtras)
@@ -189,5 +191,21 @@
 @interface NSMenu (AppKitExtras)
 
 - (void)walkMenuItems:(void (^)(NSMenuItem *m, BOOL *stop))visitor;
+
+@end
+
+@interface FlippedView : NSView
+
+@end
+
+@interface NSWindow (AppKitExtras)
+
+@property (nonatomic, readonly) CGFloat titleToolbarHeight;
+
+@end
+
+@interface NSAnimationContext (AppKitExtras)
+
++ (void)performWithoutAnimation:(dispatch_block_t)block;
 
 @end

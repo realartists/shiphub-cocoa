@@ -21,15 +21,15 @@
     } else {
         NSAssert(self.fullIdentifier != nil, @"Wha?");
     }
-    [super willSave];
-}
-
-- (void)didChangeValueForKey:(NSString *)key {
-    [super didChangeValueForKey:key];
-    if ([key isEqualToString:@"state"]) {
-        NSString *state = [self valueForKey:key];
-        [self setClosed:@([state isEqualToString:@"closed"])];
+    
+    NSNumber *closed = self.closed;
+    NSNumber *newClosed = [[self state] isEqualToString:@"closed"] ? @YES : @NO;
+    
+    if (![closed isEqual:newClosed]) {
+        self.closed = newClosed;
     }
+    
+    [super willSave];
 }
 
 @end

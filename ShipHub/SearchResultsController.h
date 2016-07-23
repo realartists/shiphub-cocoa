@@ -17,4 +17,6 @@
 
 - (NSArray <id<ProblemSnapshot>> *)selectedProblemSnapshots;
 
+@property (nonatomic, assign, getter=isBordered) BOOL bordered;
+
 @end

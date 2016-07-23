@@ -250,7 +250,7 @@
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="76C9428C-FE24-43BE-AD45-CE3641A1F618" label="Advanced Search" paletteLabel="Advanced Search" tag="-1" id="vrH-7W-hiG" customClass="ButtonToolbarItem">
                         <connections>
-                            <action selector="togglePredicateEditor:" target="-2" id="gHY-CL-Ygx"/>
+                            <action selector="showPredicateEditor:" target="-2" id="MYi-22-jKp"/>
                         </connections>
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="A14B43BA-7F70-4C60-9BE1-6A00F7CEF239" label="View Mode" paletteLabel="View Mode" tag="-1" id="Won-wM-vi6" customClass="ResultsViewModeItem">

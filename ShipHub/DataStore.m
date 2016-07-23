@@ -34,11 +34,13 @@
 #import "LocalSyncVersion.h"
 #import "LocalPriority.h"
 #import "LocalNotification.h"
+#import "LocalQuery.h"
 
 #import "Issue.h"
 #import "IssueComment.h"
 #import "IssueIdentifier.h"
 #import "Repo.h"
+#import "CustomQuery.h"
 
 #import "Error.h"
 
@@ -116,6 +118,8 @@ static const NSInteger CurrentLocalModelVersion = 1;
 @property (readwrite, strong) NSDate *lastUpdated;
 
 @property (readwrite, strong) MetadataStore *metadataStore;
+
+@property (readwrite, strong) NSArray *myQueries;
 
 @end
 
@@ -200,6 +204,7 @@ static DataStore *sActiveStore = nil;
         self.syncConnection.delegate = self;
         
         [self loadMetadata];
+        [self loadQueries];
         [self updateSyncConnectionWithVersions];
         
         _ghNotificationManager = [[GHNotificationManager alloc] initWithManagedObjectContext:_moc auth:_auth];
@@ -524,7 +529,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         }
     }
     
-    [owner setValue:[NSSet setWithArray:relatedLabels] forKey:@"labels"];
+    [owner setValue:[NSSet setWithArray:relatedLabels] forKey:@"labels" onlyIfChanged:YES];
 }
 
 // Must be called on _moc.
@@ -614,7 +619,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                 [relatedObjs addObject:relObj];
             }
             
-            [obj setValue:[NSSet setWithArray:relatedObjs] forKey:key];
+            [obj setValue:[NSSet setWithArray:relatedObjs] forKey:key onlyIfChanged:YES];
             
         } else /* rel.toOne */ {
             id related = syncDict[syncDictKey];
@@ -627,7 +632,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                 populate = related;
                 relatedID = populate[@"identifier"];
             } else if (related == [NSNull null]) {
-                [obj setValue:nil forKey:key];
+                [obj setValue:nil forKey:key onlyIfChanged:YES];
                 relatedID = nil;
             }
             
@@ -640,7 +645,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                 
                 NSManagedObject *relObj = [[_moc executeFetchRequest:fetch error:&error] firstObject];
                 if (relObj) {
-                    [obj setValue:relObj forKey:key];
+                    [obj setValue:relObj forKey:key onlyIfChanged:YES];
                     if (populate && !noPopulate) {
                         [relObj mergeAttributesFromDictionary:populate];
                     }
@@ -819,6 +824,25 @@ static NSString *const LastUpdated = @"LastUpdated";
     return changed.count > 0 ? [changed allObjects] : nil;
 }
 
+- (void)checkForCustomQueryChanges:(NSNotification *)note {
+    __block bool changed = NO;
+    [note enumerateModifiedObjects:^(id obj, CoreDataModificationType modType, BOOL *stop) {
+        if ([obj isKindOfClass:[LocalQuery class]]) {
+            changed = YES;
+            *stop = YES;
+        }
+    }];
+    
+    if (changed) {
+        [_moc performBlock:^{
+            self.myQueries = [self _fetchQueries];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMyQueriesNotification object:nil];
+            });
+        }];
+    }
+}
+
 - (void)mocDidChange:(NSNotification *)note {
     //DebugLog(@"%@", note);
     
@@ -834,6 +858,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             });
         });
     }
+    
+    [self checkForCustomQueryChanges:note];
     
     // calculate which issues are affected by this change
     NSArray *changedIssueIdentifiers = [self changedIssueIdentifiers:note];
@@ -1588,5 +1614,107 @@ static NSString *const LastUpdated = @"LastUpdated";
         }
     }];
 }
+
+#pragma mark - Queries
+
+// used only by init. blocks.
+- (void)loadQueries {
+    [_moc performBlockAndWait:^{
+        self.myQueries = [self _fetchQueries];
+    }];
+}
+
+// must be called on _moc queue.
+- (NSArray *)_fetchQueries {
+    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQuery"];
+    NSArray *queries = [_moc executeFetchRequest:fetch error:NULL];
+    
+    return [queries arrayByMappingObjects:^id(id obj) {
+        return [[CustomQuery alloc] initWithLocalItem:obj];
+    }];
+}
+
+- (void)saveQuery:(CustomQuery *)query completion:(void (^)(NSArray *myQueries))completion {
+    NSParameterAssert(query);
+    NSParameterAssert(query.identifier);
+    
+    [_moc performBlock:^{
+        NSFetchRequest *meFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
+        meFetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[User me] identifier]];
+        
+        LocalUser *me = [[_moc executeFetchRequest:meFetch error:NULL] firstObject];
+        if (!me) {
+            ErrLog(@"Missing me");
+            return;
+        }
+        
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQuery"];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"author = %@ AND (identifier = %@ OR title =[cd] %@)", me, query.identifier, query.title];
+        
+        NSArray *queries = [_moc executeFetchRequest:fetch error:NULL];
+        
+        if ([queries count]) {
+            for (LocalQuery *q in queries) {
+                if ([[q title] compare:query.title options:NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch] == NSOrderedSame
+                    || [[q identifier] isEqualToString:[query identifier]])
+                {
+                    [q mergeAttributesFromDictionary:[query dictionaryRepresentation]];
+                    q.author = me;
+                }
+            }
+        } else {
+            LocalQuery *q = [NSEntityDescription insertNewObjectForEntityForName:@"LocalQuery" inManagedObjectContext:_moc];
+            [q mergeAttributesFromDictionary:[query dictionaryRepresentation]];
+            q.author = me;
+        }
+        
+        NSArray *myQueries = [self _fetchQueries];
+        
+        NSError *error = nil;
+        [_moc save:&error];
+        
+        if (error) {
+            ErrLog(@"%@", error);
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.myQueries = myQueries;
+            if (completion) {
+                completion(myQueries);
+            }
+        });
+    }];
+}
+
+- (void)deleteQuery:(CustomQuery *)query completion:(void (^)(NSArray *myQueries))completion {
+    NSParameterAssert(query);
+    NSParameterAssert(query.identifier);
+    
+    [_moc performBlock:^{
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQuery"];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", query.identifier];
+        
+        for (LocalQuery *q in [_moc executeFetchRequest:fetch error:NULL]) {
+            [_moc deleteObject:q];
+        }
+        
+        NSArray *myQueries = [self _fetchQueries];
+        
+        NSError *error = nil;
+        [_moc save:&error];
+        
+        if (error) {
+            ErrLog(@"%@", error);
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            self.myQueries = myQueries;
+            if (completion) {
+                completion(myQueries);
+            }
+        });
+    }];
+}
+
 
 @end

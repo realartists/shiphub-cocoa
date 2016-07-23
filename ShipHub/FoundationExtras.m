@@ -566,6 +566,14 @@ static inline uint8_t h2b(uint8_t v) {
 
 @end
 
+@implementation NSSet (Extras)
+
+- (NSSet *)setByMappingObjects:(id (^)(id obj))transformer {
+    return [NSSet setWithArray:[[self allObjects] arrayByMappingObjects:transformer]];
+}
+
+@end
+
 @implementation NSPredicate (Extras)
 
 - (NSPredicate *)and:(NSPredicate *)predicate {
@@ -674,7 +682,44 @@ static inline uint8_t h2b(uint8_t v) {
 }
 
 - (void)mergeAttributesFromDictionary:(NSDictionary *)d {
-    [self mergeAttributesFromDictionary:d onlyIfChanged:NO];
+    [self mergeAttributesFromDictionary:d onlyIfChanged:YES];
+}
+
+static BOOL equal(id a, id b) {
+    if (!a && !b) return YES;
+    if (a && !b) return NO;
+    if (!a && b) return NO;
+    if (a == b) return YES;
+    
+    if ([a isKindOfClass:[NSSet class]]) {
+        if ([a count] == 0 && [b count] == 0) {
+            return YES;
+        } else if ([a count] != [b count]) {
+            return NO;
+        } else if ([[a anyObject] isKindOfClass:[NSManagedObject class]]) {
+            NSSet *aID = [a setByMappingObjects:^id(id obj) { return [obj objectID]; }];
+            NSSet *bID = [b setByMappingObjects:^id(id obj) { return [obj objectID]; }];
+            return [aID isEqual:bID];
+        } else {
+            return [a isEqual:b];
+        }
+    } else if ([a isKindOfClass:[NSManagedObject class]]) {
+        return [[a objectID] isEqual:[b objectID]];
+    } else {
+        return [a isEqual:b];
+    }
+}
+
+- (void)setValue:(id)value forKey:(NSString *)key onlyIfChanged:(BOOL)onlyIfChanged {
+    if (!onlyIfChanged) {
+        [self setValue:value forKey:key];
+        return;
+    }
+    
+    id existing = [self valueForKey:key];
+    if (!equal(value, existing)) {
+        [self setValue:value forKey:key];
+    }
 }
 
 @end

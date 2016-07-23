@@ -26,6 +26,12 @@
 
 @property (weak) id<FilterBarViewControllerDelegate> delegate;
 
+- (void)removeFromWindow;
+- (void)addToWindow:(NSWindow *)window;
+@property (nonatomic, weak, readonly) NSWindow *window;
+
+@property (nonatomic, assign, getter=isEnabled) BOOL enabled;
+
 @end
 
 @protocol FilterBarViewControllerDelegate <NSObject>

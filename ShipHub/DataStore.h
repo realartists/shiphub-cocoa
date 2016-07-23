@@ -14,6 +14,7 @@
 @class IssueComment;
 @class Repo;
 @class TimeSeries;
+@class CustomQuery;
 
 @interface DataStore : NSObject
 
@@ -74,6 +75,15 @@
 - (void)postComment:(NSString *)body inIssue:(NSString *)issueIdentifier completion:(void (^)(IssueComment *comment, NSError *error))completion;
 
 - (void)editComment:(NSNumber *)commentIdentifier body:(NSString *)newCommentBody inIssue:(NSString *)issueIdentifier completion:(void (^)(IssueComment *comment, NSError *error))completion;
+
+@end
+
+@interface DataStore (CustomQuery)
+
+@property (readonly) NSArray<CustomQuery *> *myQueries;
+
+- (void)saveQuery:(CustomQuery *)query completion:(void (^)(NSArray *myQueries))completion;
+- (void)deleteQuery:(CustomQuery *)query completion:(void (^)(NSArray *myQueries))completion;
 
 @end
 

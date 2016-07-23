@@ -18,6 +18,7 @@
 
 - (NSArray<Repo *> *)activeRepos;
 - (NSArray<User *> *)assigneesForRepo:(Repo *)repo;
+- (NSArray<User *> *)allAssignees;
 
 - (User *)userWithIdentifier:(NSNumber *)identifier;
 - (Org *)orgWithIdentifier:(NSNumber *)identifier;

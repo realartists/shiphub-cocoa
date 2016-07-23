@@ -31,14 +31,15 @@
 #import "FilterBarViewController.h"
 #import "IssueIdentifier.h"
 #import "UpNextHelper.h"
-
 #import "IssueDocumentController.h"
+#import "SearchSheet.h"
+#import "CustomQuery.h"
 
 //#import "OutboxViewController.h"
 //#import "AttachmentProgressViewController.h"
-//#import "SearchEditorViewController.h"
-//#import "CustomQuery.h"
-//#import "SaveSearchController.h"
+
+
+
 //#import "ProblemProgressController.h"
 
 #import <QuartzCore/QuartzCore.h>
@@ -74,15 +75,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 #define SPARKLINE_WIDTH 20.0
 
-@interface SearchSplit : NSSplitView
-
-@end
-
-@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate,
-#if !INCOMPLETE
-SearchEditorViewControllerDelegate,
-#endif
-NSTextFieldDelegate>
+@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate, NSTextFieldDelegate>
 
 @property SearchResultsController *searchResults;
 @property ThreePaneController *threePaneController;
@@ -98,11 +91,6 @@ NSTextFieldDelegate>
 @property (strong) IBOutlet ResultsViewModeItem *modeItem;
 
 @property (strong) FilterBarViewController *filterBar;
-
-#if !INCOMPLETE
-@property (strong) SearchEditorViewController *predicateEditor;
-#endif
-@property (strong) SearchSplit *searchSplit; // horizontal split between predicateEditor and searchResults
 
 @property (strong) IBOutlet NSPopUpButton *addButton;
 
@@ -134,7 +122,6 @@ NSTextFieldDelegate>
     _outlineView.delegate = nil;
     _outlineView.dataSource = nil;
     _splitView.delegate = nil;
-    _searchSplit.delegate = nil;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -160,7 +147,7 @@ NSTextFieldDelegate>
     
     _filterBar = [FilterBarViewController new];
     _filterBar.delegate = self;
-    [self.window addTitlebarAccessoryViewController:_filterBar];
+    [_filterBar addToWindow:self.window];
     
     NSImage *sidebarImage = [NSImage sidebarIcon];
     _sidebarItem.buttonImage = sidebarImage;
@@ -171,8 +158,7 @@ NSTextFieldDelegate>
     _createNewItem.toolTip = NSLocalizedString(@"New Problem ⌘N", nil);
     
     _predicateItem.buttonImage = [NSImage advancedSearchIcon];
-    _predicateItem.toolTip = NSLocalizedString(@"Refine Search ⌥⌘F", nil);
-    _predicateItem.trackingMode = NSSegmentSwitchTrackingSelectAny;
+    _predicateItem.toolTip = NSLocalizedString(@"New Smart Query ⌥⌘F", nil);
     
     _searchItem.searchField.placeholderString = NSLocalizedString(@"Filter", nil);
     [[self window] addObserver:self forKeyPath:@"firstResponder" options:0 context:NULL];
@@ -189,32 +175,12 @@ NSTextFieldDelegate>
     _chartController = [[ChartController alloc] init];
     [_chartController addObserver:self forKeyPath:@"title" options:0 context:NULL];
     
-    NSView *rightPane = [_splitView.subviews lastObject];
-    
-    _searchSplit = [[SearchSplit alloc] initWithFrame:rightPane.bounds];
-    _searchSplit.vertical = NO;
-    _searchSplit.delegate = self;
-    _searchSplit.dividerStyle = NSSplitViewDividerStyleThin;
-    [_searchSplit addSubview:[NSView new]];
-    [_searchSplit addSubview:[NSView new]];
-    
-#if !INCOMPLETE
-    _predicateEditor = [SearchEditorViewController new];
-    _predicateEditor.delegate = self;
-#endif
-    
-    [_searchSplit setPosition:0.0 ofDividerAtIndex:0];
-    
     ResultsViewMode initialMode = [[Defaults defaults] integerForKey:LastSelectedModeDefaultsKey fallback:ResultsViewMode3Pane];
     _modeItem.mode = initialMode;
     [self changeResultsMode:nil];
     
-    [rightPane setContentView:_searchSplit];
-    
     [_splitView setPosition:240.0 ofDividerAtIndex:0];
     
-//    _outlineView.enclosingScrollView.automaticallyAdjustsContentInsets = NO;
-//    _outlineView.enclosingScrollView.contentInsets = NSEdgeInsetsMake(12.0, 0.0, 0.0, 0.0);
     _outlineView.floatsGroupRows = NO;
     [_outlineView registerForDraggedTypes:@[(__bridge NSString *)kUTTypeURL, (__bridge NSString *)kUTTypeRTF, (__bridge NSString *)kUTTypePlainText]];
     
@@ -268,33 +234,17 @@ NSTextFieldDelegate>
 #endif
 }
 
-#if !INCOMPLETE
 - (NSMenu *)menuForCustomQuery:(CustomQuery *)query {
     NSMenu *menu = [NSMenu new];
     menu.extras_representedObject = query;
-    [menu addItemWithTitle:NSLocalizedString(@"Rename Query", nil) action:@selector(renameQuery:) keyEquivalent:@""];
+    if ([query.authorIdentifier isEqual:[[User me] identifier]]) {
+        [menu addItemWithTitle:NSLocalizedString(@"Edit Query", nil) action:@selector(editQuery:) keyEquivalent:@""];
+        [menu addItemWithTitle:NSLocalizedString(@"Rename Query", nil) action:@selector(renameQuery:) keyEquivalent:@""];
+    }
     [menu addItemWithTitle:NSLocalizedString(@"Remove Query", nil) action:@selector(removeQuery:) keyEquivalent:@""];
     [menu addItemWithTitle:NSLocalizedString(@"Copy Link", nil) action:@selector(copyQueryLink:) keyEquivalent:@""];
     return menu;
 }
-
-- (NSMenu *)menuForBookmarkedQuery:(CustomQuery *)query {
-    NSMenu *menu = [NSMenu new];
-    menu.extras_representedObject = query;
-    [menu addItemWithTitle:NSLocalizedString(@"Remove Query", nil) action:@selector(removeBookmarkedQuery:) keyEquivalent:@""];
-    [menu addItemWithTitle:NSLocalizedString(@"Copy Link", nil) action:@selector(copyQueryLink:) keyEquivalent:@""];
-    return menu;
-}
-
-- (NSMenu *)menuForRecentQuery:(CustomQuery *)query {
-    NSMenu *menu = [NSMenu new];
-    menu.extras_representedObject = query;
-    [menu addItemWithTitle:NSLocalizedString(@"Bookmark Query", nil) action:@selector(bookmarkQuery:) keyEquivalent:@""];
-    [menu addItemWithTitle:NSLocalizedString(@"Remove Query", nil) action:@selector(removeRecentQuery:) keyEquivalent:@""];
-    [menu addItemWithTitle:NSLocalizedString(@"Copy Link", nil) action:@selector(copyQueryLink:) keyEquivalent:@""];
-    return menu;
-}
-#endif
 
 - (void)buildOutline {
     NSString *savedIdentifier = nil;
@@ -325,28 +275,6 @@ NSTextFieldDelegate>
     }
     
     NSMutableArray *roots = [NSMutableArray array];
-    
-#if 0
-    OverviewNode *inbox = [OverviewNode new];
-    inbox.title = NSLocalizedString(@"Unread", nil);
-    [roots addObject:inbox];
-    
-    OverviewNode *inboxToMe = [OverviewNode new];
-    inboxToMe.title = NSLocalizedString(@"Assigned To Me", nil);
-    inboxToMe.predicate = [NSPredicate predicateWithFormat:@"assignee.identifier = %@ AND (state = nil OR state.resolved = NO) AND read = NO", [[User me] identifier]];
-    inboxToMe.showCount = YES;
-    inboxToMe.allowChart = NO;
-    inboxToMe.icon = [NSImage overviewIconNamed:@"928-inbox-files-selected"];
-    [inbox addChild:inboxToMe];
-    
-    OverviewNode *inboxWatching = [OverviewNode new];
-    inboxWatching.title = NSLocalizedString(@"I'm Watching", nil);
-    inboxWatching.predicate = [NSPredicate predicateWithFormat:@"watching = YES AND read = NO AND (state = nil OR state.resolved = NO)"];
-    inboxWatching.showCount = YES;
-    inboxWatching.allowChart = NO;
-    inboxWatching.icon = [NSImage overviewIconNamed:@"878-binoculars-selected"];
-    [inbox addChild:inboxWatching];
-#endif
     
     OverviewNode *topNode = [OverviewNode new];
     topNode.title = NSLocalizedString(@"Overview", nil);
@@ -410,6 +338,28 @@ NSTextFieldDelegate>
     backlog.icon = [NSImage overviewIconNamed:@"832-stack-1"];
     [milestonesRoot addChild:backlog];
     
+    NSArray *queries = [[DataStore activeStore] myQueries];
+    if ([queries count] > 0) {
+        NSImage *queryIcon = [NSImage overviewIconNamed:@"666-gear2"];
+        NSArray *myQueries = [queries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(localizedStandardCompare:)]]];
+        OverviewNode *myQueriesRoot = [OverviewNode new];
+        myQueriesRoot.title = NSLocalizedString(@"Smart Queries", nil);
+        [roots addObject:myQueriesRoot];
+        
+        for (CustomQuery *query in myQueries) {
+            OverviewNode *queryNode = [OverviewNode new];
+            queryNode.title = query.titleWithAuthor;
+            queryNode.representedObject = query;
+            queryNode.predicate = query.predicate;
+            queryNode.identifier = query.identifier;
+            queryNode.menu = [self menuForCustomQuery:query];
+            queryNode.titleEditable = YES;
+            queryNode.showCount = YES;
+            queryNode.icon = queryIcon;
+            [myQueriesRoot addChild:queryNode];
+        }
+    }
+    
     OverviewNode *reposNode = [OverviewNode new];
     reposNode.title = NSLocalizedString(@"Repos", nil);
     [roots addObject:reposNode];
@@ -441,152 +391,6 @@ NSTextFieldDelegate>
     }
     
 #if 0
-    
-    NSImage *queryIcon = [NSImage overviewIconNamed:@"666-gear2"];
-    OverviewNode *queriesRoot = [OverviewNode new];
-    queriesRoot.title = NSLocalizedString(@"Queries", nil);
-    [roots addObject:queriesRoot];
-    
-    OverviewNode *recentlyCreated = [OverviewNode new];
-    recentlyCreated.title = NSLocalizedString(@"Recently Created", nil);
-    DateKnob *recentlyCreatedDateKnob = [DateKnob knobWithDefaultsIdentifier:@"recentlyCreated"];
-    [recentlyCreated addKnob:recentlyCreatedDateKnob];
-    recentlyCreated.predicateBuilder = ^{
-        NSTimeInterval interval = -(recentlyCreatedDateKnob.daysAgo * 24 * 60 * 60);
-        NSDate *then = [[NSDate date] dateByAddingTimeInterval:interval];
-        return [NSPredicate predicateWithFormat:@"createdAt > %@", then];
-    };
-    recentlyCreated.target = self;
-    recentlyCreated.action = @selector(nodeUpdatedPredicate:);
-    recentlyCreated.icon = queryIcon;
-    [queriesRoot addChild:recentlyCreated];
-    
-    OverviewNode *recentlyCreatedByMe = [OverviewNode new];
-    recentlyCreatedByMe.title = NSLocalizedString(@"Recently Created By Me", nil);
-    DateKnob *recentlyCreatedByMeDateKnob = [DateKnob knobWithDefaultsIdentifier:@"recentlyCreatedByMe"];
-    [recentlyCreatedByMe addKnob:recentlyCreatedByMeDateKnob];
-    recentlyCreatedByMe.predicateBuilder = ^{
-        NSTimeInterval interval = -(recentlyCreatedByMeDateKnob.daysAgo * 24 * 60 * 60);
-        NSDate *then = [[NSDate date] dateByAddingTimeInterval:interval];
-        return [NSPredicate predicateWithFormat:@"createdAt > %@ AND originator.identifier = %@", then, [[User me] identifier]];
-    };
-    recentlyCreatedByMe.target = self;
-    recentlyCreatedByMe.action = @selector(nodeUpdatedPredicate:);
-    recentlyCreatedByMe.icon = queryIcon;
-    [queriesRoot addChild:recentlyCreatedByMe];
-    
-    OverviewNode *recentlyModified = [OverviewNode new];
-    recentlyModified.title = NSLocalizedString(@"Recently Modified", nil);
-    DateKnob *recentlyModifiedDateKnob = [DateKnob knobWithDefaultsIdentifier:@"recentlyModified"];
-    [recentlyModified addKnob:recentlyModifiedDateKnob];
-    recentlyModified.predicateBuilder = ^{
-        NSTimeInterval interval = -(recentlyModifiedDateKnob.daysAgo * 24 * 60 * 60);
-        NSDate *then = [[NSDate date] dateByAddingTimeInterval:interval];
-        return [NSPredicate predicateWithFormat:@"updatedAt > %@", then];
-    };
-    recentlyModified.target = self;
-    recentlyModified.action = @selector(nodeUpdatedPredicate:);
-    recentlyModified.icon = queryIcon;
-    [queriesRoot addChild:recentlyModified];
-
-#if 0
-    OverviewNode *recentlyModifiedByMe = [OverviewNode new];
-    recentlyModifiedByMe.title = NSLocalizedString(@"Recently Modified By Me", nil);
-    DateKnob *recentlyModifiedByMeDateKnob = [DateKnob knobWithDefaultsIdentifier:@"recentlyModifiedByMe"];
-    [recentlyModifiedByMe addKnob:recentlyModifiedByMeDateKnob];
-    recentlyModifiedByMe.predicateBuilder = ^{
-        NSTimeInterval interval = -(recentlyModifiedByMeDateKnob.daysAgo * 24 * 60 * 60);
-        NSDate *then = [[NSDate date] dateByAddingTimeInterval:interval];
-        return [NSPredicate predicateWithFormat:@"SUBQUERY(history, $h, $h.modificationDate > %@ AND $h.modifier.identifier = %@).@count > 0", then, [[User me] identifier]];
-    };
-    recentlyModifiedByMe.target = self;
-    recentlyModifiedByMe.action = @selector(nodeUpdatedPredicate:);
-    recentlyModifiedByMe.icon = queryIcon;
-    [queriesRoot addChild:recentlyModifiedByMe];
-#endif
-    
-    OverviewNode *openToMe = [OverviewNode new];
-    openToMe.title = NSLocalizedString(@"My Open Problems", nil);
-    openToMe.identifier = @"MyOpenProblems";
-    openToMe.predicate = [NSPredicate predicateWithFormat:@"assignee.identifier = %@ AND closed = NO", [[User me] identifier]];
-    openToMe.icon = queryIcon;
-    [queriesRoot addChild:openToMe];
-    
-    OverviewNode *allProblems = _allProblemsNode = [OverviewNode new];
-    allProblems.title = NSLocalizedString(@"All Problems", nil);
-    allProblems.predicate = [NSPredicate predicateWithFormat:@"YES = YES"];
-    allProblems.icon = queryIcon;
-    [queriesRoot addChild:allProblems];
-    
-    OverviewNode *allOpenProblems = [OverviewNode new];
-    allOpenProblems.title = NSLocalizedString(@"All Open Problems", nil);
-    allOpenProblems.predicate = [NSPredicate predicateWithFormat:@"closed = NO"];
-    allOpenProblems.icon = queryIcon;
-    [queriesRoot addChild:allOpenProblems];
-    
-#if !INCOMPLETE
-    NSArray *queries = [[DataStore activeStore] myQueries];
-    NSString *myIdentifier = [[User me] identifier];
-    NSArray *myQueries = [queries filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"authorIdentifier = %@", myIdentifier]];
-    NSArray *bookmarkedQueries = [queries filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"authorIdentifier != %@ AND watchDate == nil", myIdentifier]];
-    NSArray *recentQueries = [queries filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"authorIdentifier != %@ && watchDate != nil", myIdentifier]];
-    if ([myQueries count] > 0) {
-        myQueries = [myQueries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES comparator:[NSString comparatorWithOptions:NSNumericSearch|NSCaseInsensitiveSearch]]]];
-        OverviewNode *myQueriesRoot = [OverviewNode new];
-        myQueriesRoot.title = NSLocalizedString(@"My Queries", nil);
-        [roots addObject:myQueriesRoot];
-        
-        for (CustomQuery *query in myQueries) {
-            OverviewNode *queryNode = [OverviewNode new];
-            queryNode.title = query.title;
-            queryNode.representedObject = query;
-            queryNode.predicate = query.predicate;
-            queryNode.identifier = query.identifier;
-            queryNode.menu = [self menuForCustomQuery:query];
-            queryNode.titleEditable = YES;
-            queryNode.showCount = YES;
-            queryNode.icon = queryIcon;
-            [myQueriesRoot addChild:queryNode];
-        }
-    }
-    if ([bookmarkedQueries count] > 0) {
-        bookmarkedQueries = [bookmarkedQueries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES comparator:[NSString comparatorWithOptions:NSNumericSearch|NSCaseInsensitiveSearch]]]];
-        OverviewNode *bookmarksRoot = [OverviewNode new];
-        bookmarksRoot.title = NSLocalizedString(@"Bookmarked Queries", nil);
-        [roots addObject:bookmarksRoot];
-        
-        for (CustomQuery *query in bookmarkedQueries) {
-            OverviewNode *queryNode = [OverviewNode new];
-            queryNode.title = query.titleWithAuthor;
-            queryNode.representedObject = query;
-            queryNode.predicate = query.predicate;
-            queryNode.identifier = query.identifier;
-            queryNode.menu = [self menuForBookmarkedQuery:query];
-            queryNode.showCount = YES;
-            queryNode.icon = queryIcon;
-            [bookmarksRoot addChild:queryNode];
-        }
-    }
-    if ([recentQueries count] > 0) {
-        recentQueries = [recentQueries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES comparator:[NSString comparatorWithOptions:NSNumericSearch|NSCaseInsensitiveSearch]]]];
-        OverviewNode *recentsRoot = [OverviewNode new];
-        recentsRoot.title = NSLocalizedString(@"Recent Queries", nil);
-        [roots addObject:recentsRoot];
-        
-        for (CustomQuery *query in recentQueries) {
-            OverviewNode *queryNode = [OverviewNode new];
-            queryNode.title = query.titleWithAuthor;
-            queryNode.representedObject = query;
-            queryNode.predicate = query.predicate;
-            queryNode.identifier = query.identifier;
-            queryNode.menu = [self menuForRecentQuery:query];
-            queryNode.showCount = YES;
-            queryNode.icon = queryIcon;
-            [recentsRoot addChild:queryNode];
-        }
-    }
-#endif
-    
     OverviewNode *statusRoot = [OverviewNode new];
     statusRoot.title = NSLocalizedString(@"System Status", nil);
     [roots addObject:statusRoot];
@@ -808,7 +612,6 @@ NSTextFieldDelegate>
 }
 
 - (void)selectItemsMatchingPredicate:(NSPredicate *)predicate {
-    BOOL editingPredicate = _predicateItem.on;
     NSMutableIndexSet *indexes = [NSMutableIndexSet new];
     [self walkNodes:^(OverviewNode *node) {
         if ([indexes count] == 0 && [predicate evaluateWithObject:node]) {
@@ -828,10 +631,6 @@ NSTextFieldDelegate>
     _nodeSelectionProgrammaticallyInitiated = YES;
     [_outlineView selectRowIndexes:indexes byExtendingSelection:NO];
     _nodeSelectionProgrammaticallyInitiated = NO;
-    if ([indexes count] > 0 && editingPredicate) {
-        _predicateItem.on = YES;
-        [self togglePredicateEditor:_predicateItem];
-    }
 }
 
 #pragma mark -
@@ -847,16 +646,9 @@ NSTextFieldDelegate>
 #pragma mark -
 
 - (void)updatePredicate {
-#if 0
-    if (_predicateItem.on) {
-        predicate = [_predicateEditor predicate];
-    } else if (selectedItem) {
-        predicate = [selectedItem predicate];
-    }
-#endif
-    
-    id selectedItem = [_outlineView selectedItem];
     NSPredicate *predicate = nil;
+    id selectedItem = [_outlineView selectedItem];
+    
     predicate = [selectedItem predicate];
     
     NSPredicate *filterPredicate = _filterBar.predicate;
@@ -897,11 +689,7 @@ NSTextFieldDelegate>
     NSString *resultsTitle = [[self activeResultsController] title];
     
     if (!selectedItem) {
-        if (_predicateItem.on && [resultsTitle length] > 0) {
-            self.window.title = [NSString localizedStringWithFormat:NSLocalizedString(@"Overview : %@", nil), resultsTitle];
-        } else {
-            self.window.title = NSLocalizedString(@"Overview", nil);
-        }
+        self.window.title = NSLocalizedString(@"Overview", nil);
     } else {
         if (!selectedItem.viewController && [resultsTitle length] > 0) {
             self.window.title = [NSString localizedStringWithFormat:NSLocalizedString(@"Overview : %@ : %@", nil), selectedItem.path, resultsTitle];
@@ -913,53 +701,21 @@ NSTextFieldDelegate>
 
 #pragma mark -
 
-- (IBAction)togglePredicateEditor:(id)sender {
-#if !INCOMPLETE
-    if (_predicateItem.on) {
-        OverviewNode *node = [_outlineView selectedItem];
-        if ([node isKindOfClass:[OverviewNode class]] && [[node representedObject] isKindOfClass:[CustomQuery class]]) {
-            [_predicateEditor setPredicate:[node predicate]];
-        } else {
-            [_predicateEditor reset];
-            [_outlineView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
+- (IBAction)showPredicateEditor:(id)sender {
+    SearchSheet *sheet = [SearchSheet new];
+    [sheet beginSheetModalForWindow:self.window completionHandler:^(CustomQuery *query) {
+        if (query) {
+            self.nextNodeToSelect = query.identifier;
+            [self selectItemsMatchingPredicate:[NSPredicate predicateWithFormat:@"identifier = %@", query.identifier]];
         }
-    }
-    [self updateSearchSplit];
-    [self updatePredicate];
-#endif
-}
-
-- (CGFloat)heightForPredicateEditor {
-#if !INCOMPLETE
-    if (_predicateItem.on) {
-        CGFloat height = [_predicateEditor fullHeight];
-        height = MIN(height, round(_searchSplit.bounds.size.height * 0.6));
-        return height;
-    } else {
-        return 0.0;
-    }
-#else
-    return 0.0;
-#endif
-}
-
-- (void)updateSearchSplit {
-#if !INCOMPLETE
-    if (_predicateItem.on) {
-        [_searchSplit setPosition:[self heightForPredicateEditor] ofDividerAtIndex:0];
-        [[[_searchSplit subviews] firstObject] setContentView:_predicateEditor.view];
-    } else {
-        [[[_searchSplit subviews] firstObject] setSubviews:@[]];
-        [_searchSplit setPosition:0.0 ofDividerAtIndex:0];
-    }
-#endif
+    }];
 }
 
 #pragma mark -
 
 - (IBAction)changeResultsMode:(id)sender {
     [[Defaults defaults] setInteger:_modeItem.mode forKey:LastSelectedModeDefaultsKey];
-    [[_searchSplit subviews][1] setContentView:[[self activeResultsController] view]];
+    [[_splitView subviews][1] setContentView:[[self activeResultsController] view]];
     [self updatePredicate];
     [self updateTitle];
     [self adjustWindowToMinimumSize];
@@ -1075,9 +831,7 @@ NSTextFieldDelegate>
         cell.menu = node.menu;
         cell.textField.editable = node.titleEditable;
         cell.textField.target = self;
-#if !INCOMPLETE
         cell.textField.action = @selector(commitRename:);
-#endif
         cell.textField.delegate = self;
         cell.textField.extras_representedObject = node;
         cell.toolTip = node.toolTip;
@@ -1139,14 +893,6 @@ NSTextFieldDelegate>
         _predicateItem.enabled = NO;
         _modeItem.enabled = NO;
     } else {
-        if (!_searchSplit.superview) {
-            [rightPane setContentView:_searchSplit];
-            [self updateSearchSplit];
-        }
-        if (selectedItem && _predicateItem.on) {
-            _predicateItem.on = NO;
-            [self updateSearchSplit];
-        }
         _searchItem.enabled = YES;
         _predicateItem.enabled = YES;
         _modeItem.enabled = YES;
@@ -1304,12 +1050,6 @@ NSTextFieldDelegate>
         } else {
             return 500.0;
         }
-    } else if (splitView == _searchSplit) {
-        if (_predicateItem.on) {
-            if (dividerIndex == 0) {
-                return [self heightForPredicateEditor];
-            }
-        }
     }
     return proposedMinimumPosition;
 }
@@ -1323,12 +1063,6 @@ NSTextFieldDelegate>
             CGFloat totalWidth = splitView.frame.size.width;
             
             return MIN(500.0, totalWidth - minSize.width);
-        }
-    } else if (splitView == _searchSplit) {
-        if (_predicateItem.on) {
-            if (dividerIndex == 0) {
-                return [self heightForPredicateEditor];
-            }
         }
     }
     return proposedMaximumPosition;
@@ -1358,80 +1092,6 @@ NSTextFieldDelegate>
     }
 }
 
-#pragma mark - SearchEditorViewControllerDelegate
-
-#if !INCOMPLETE
-- (void)searchEditorViewControllerDidChangeFullHeight:(SearchEditorViewController *)vc
-{
-    if (_predicateItem.on) {
-        [_searchSplit setPosition:[self heightForPredicateEditor] ofDividerAtIndex:0 animated:NO];
-    }
-
-}
-
-- (void)searchEditorViewControllerDidChangePredicate:(SearchEditorViewController *)vc {
-    if (_predicateItem.on) {
-        [self updatePredicate];
-        OverviewNode *node = [_outlineView selectedItem];
-        CustomQuery *query = [node representedObject];
-        if ([query isKindOfClass:[CustomQuery class]]) {
-            if (query.watching && ![query.authorIdentifier isEqualToString:[[User me] identifier]]) {
-                // If you edit the predicate and it's a shared one, deselect it.
-                [_outlineView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
-            }
-        }
-    }
-}
-
-- (void)searchEditorViewControllerSaveAsPredicate:(SearchEditorViewController *)vc {
-    OverviewNode *node = [_outlineView selectedItem];
-    NSString *titleSuggestion = nil;
-    if (node && [[node representedObject] isKindOfClass:[CustomQuery class]]) {
-        CustomQuery *existingQuery = [node representedObject];
-        titleSuggestion = existingQuery.title;
-    }
-    
-    SaveSearchController *save = [SaveSearchController new];
-    save.title = titleSuggestion;
-    [save beginSheetModalForWindow:self.window completionHandler:^(NSInteger result) {
-        if (result == NSModalResponseOK) {
-            NSString *title = save.title;
-            BOOL exists = [[[DataStore activeStore] myQueries] containsObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"title = %@ AND authorIdentifier = %@", title, [[User me] identifier]]];
-            if (exists) {
-                NSAlert *alert = [[NSAlert alloc] init];
-                alert.messageText = NSLocalizedString(@"A query with that title already exists.", nil);
-                alert.informativeText = NSLocalizedString(@"Are you sure you want to replace it?", nil);
-                [alert addButtonWithTitle:NSLocalizedString(@"Replace", nil)];
-                [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
-                if ([alert runModal] != NSAlertFirstButtonReturn) {
-                    return;
-                }
-            }
-            
-            CustomQuery *query = [CustomQuery new];
-            query.title = title;
-            query.predicate = [_predicateEditor predicate];
-            
-            _nextNodeToSelect = query.identifier;
-            [[DataStore activeStore] saveQuery:query completion:^(NSArray *myQueries) { }];
-        }
-    }];
-}
-
-- (void)searchEditorViewControllerSavePredicate:(SearchEditorViewController *)vc {
-    OverviewNode *node = [_outlineView selectedItem];
-    if (node && [[node representedObject] isKindOfClass:[CustomQuery class]]) {
-        CustomQuery *existingQuery = [node representedObject];
-        if (![existingQuery.authorIdentifier isEqualToString:[[User me] identifier]]) {
-            return;
-        }
-        
-        existingQuery.predicate = [_predicateEditor predicate];
-        [[DataStore activeStore] saveQuery:existingQuery completion:^(NSArray *myQueries) { }];
-    }
-}
-#endif
-
 #pragma mark - FilterBarViewControllerDelegate
 
 - (void)filterBar:(FilterBarViewController *)vc didUpdatePredicate:(NSPredicate *)newPredicate {
@@ -1440,7 +1100,22 @@ NSTextFieldDelegate>
 
 #pragma mark - Query Actions
 
-#if !INCOMPLETE
+- (IBAction)editQuery:(id)sender {
+    CustomQuery *query = [[sender menu] extras_representedObject];
+    if (!query) {
+        query = [[_outlineView selectedItem] representedObject];
+    }
+    
+    if (![query isKindOfClass:[CustomQuery class]]) {
+        return;
+    }
+    
+    SearchSheet *sheet = [SearchSheet new];
+    sheet.query = query;
+    
+    [sheet beginSheetModalForWindow:self.window completionHandler:nil];
+}
+
 - (IBAction)renameQuery:(id)sender {
     CustomQuery *query = [[sender menu] extras_representedObject];
     if (!query) return;
@@ -1462,7 +1137,7 @@ NSTextFieldDelegate>
     
     [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
         if (returnCode == NSAlertFirstButtonReturn) {
-            [[DataStore activeStore] hideQuery:query completion:^(NSArray *myQueries) { }];
+            [[DataStore activeStore] deleteQuery:query completion:^(NSArray *myQueries) { }];
         }
     }];
 }
@@ -1491,22 +1166,18 @@ NSTextFieldDelegate>
         [[DataStore activeStore] saveQuery:query completion:^(NSArray *myQueries) { }];
     }
 }
-#endif
 
 - (void)textDidBeginEditing:(NSNotification *)notification {
 
 }
 
 - (void)textDidEndEditing:(NSNotification *)notification {
-#if !INCOMPLETE
     id sender = [notification object];
     OverviewNode *node = [sender representedObject];
     CustomQuery *query = [node representedObject];
     [sender setStringValue:query.title];
-#endif
 }
 
-#if !INCOMPLETE
 - (void)openQuery:(CustomQuery *)query {
     // First, see if we already have a node for this.
     __block BOOL found = NO;
@@ -1520,60 +1191,15 @@ NSTextFieldDelegate>
         }
     }];
     
+#if !INCOMPLETE
     if (!found) {
         self.nextNodeToSelect = query.identifier;
         [[DataStore activeStore] watchQuery:query completion:^(NSArray *myQueries) { }];
     }
-}
-
-- (void)bookmarkQuery:(id)sender {
-    CustomQuery *query = [[sender menu] extras_representedObject];
-    
-    if (!query) return;
-    
-
-    self.nextNodeToSelect = query.identifier;
-    [[DataStore activeStore] bookmarkQuery:query completion:^(NSArray *myQueries) { }];
-}
-
-- (void)removeRecentQuery:(id)sender {
-    CustomQuery *query = [[sender menu] extras_representedObject];
-    
-    if (!query) return;
-
-    NSAlert *alert = [[NSAlert alloc] init];
-    alert.messageText = [NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to remove the recent query “%@”?", nil), query.title];
-    alert.informativeText = NSLocalizedString(@"This will remove the query from your recents list. It will not affect the query's owner. This action cannot be undone.", nil);
-    [alert addButtonWithTitle:NSLocalizedString(@"Remove", nil)];
-    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
-    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-        if (returnCode == NSAlertFirstButtonReturn) {
-            [[DataStore activeStore] unwatchQuery:query completion:^(NSArray *myQueries) { }];
-        }
-    }];
-}
-
-- (void)removeBookmarkedQuery:(id)sender {
-    CustomQuery *query = [[sender menu] extras_representedObject];
-    
-    if (!query) return;
-    
-    NSAlert *alert = [[NSAlert alloc] init];
-    alert.messageText = [NSString stringWithFormat:NSLocalizedString(@"Are you sure you want to remove the bookmarked query “%@”?", nil), query.title];
-    alert.informativeText = NSLocalizedString(@"This will remove the query from your bookmarks. It will not affect the query's owner. This action cannot be undone.", nil);
-    [alert addButtonWithTitle:NSLocalizedString(@"Remove", nil)];
-    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
-    
-    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
-        if (returnCode == NSAlertFirstButtonReturn) {
-            [[DataStore activeStore] unwatchQuery:query completion:^(NSArray *myQueries) { }];
-        }
-    }];
-}
 #endif
+}
 
 - (IBAction)copyURL:(id)sender {
-#if !INCOMPLETE
     id selectedItem = [_outlineView selectedItem];
     if ([[selectedItem representedObject] isKindOfClass:[CustomQuery class]]) {
         CustomQuery *query = [selectedItem representedObject];
@@ -1584,7 +1210,6 @@ NSTextFieldDelegate>
         [pb clearContents];
         [pb writeURL:URL string:title];
     }
-#endif
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
@@ -1593,13 +1218,15 @@ NSTextFieldDelegate>
     } else if (menuItem.action == @selector(showChartOptions:)) {
         return _modeItem.mode == ResultsViewModeChart;
     } else if (menuItem.action == @selector(copyURL:)) {
-#if !INCOMPLETE
         id selectedItem = [_outlineView selectedItem];
         if ([[selectedItem representedObject] isKindOfClass:[CustomQuery class]]) {
             return YES;
         }
-#endif
         return NO;
+    } else if (menuItem.action == @selector(editQuery:)) {
+        id selectedItem = [_outlineView selectedItem];
+        id repr = [selectedItem representedObject];
+        return [repr isKindOfClass:[CustomQuery class]] && [repr isMine];
     } else if (menuItem.action == @selector(copy:)) {
         return [[self activeResultsController] respondsToSelector:@selector(copy:)]
         && (![[self activeResultsController] respondsToSelector:@selector(validateMenuItem:)] || [[self activeResultsController] validateMenuItem:menuItem]);
@@ -1637,15 +1264,7 @@ NSTextFieldDelegate>
 #pragma mark -
 
 - (IBAction)buildNewQuery:(id)sender {
-#if !INCOMPLETE
-    [_outlineView selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];
-    
-    _predicateItem.on = YES;
-    [_predicateEditor reset];
-    
-    [self updateSearchSplit];
-    [self updatePredicate];
-#endif
+    [self showPredicateEditor:sender];
 }
 
 - (IBAction)addNewMilestone:(id)sender {
@@ -1698,6 +1317,21 @@ NSTextFieldDelegate>
     frameSize.height = MAX(min.height, frameSize.height);
     
     return frameSize;
+}
+
+- (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect {
+    if (_filterBar.window) {
+        rect.origin.y += _filterBar.view.bounds.size.height;
+    }
+    return rect;
+}
+
+- (void)windowWillBeginSheet:(NSNotification *)notification {
+    _filterBar.enabled = NO;
+}
+
+- (void)windowDidEndSheet:(NSNotification *)notification {
+    _filterBar.enabled = YES;
 }
 
 - (IBAction)toggleSidebar:(id)sender {
@@ -1791,18 +1425,6 @@ NSTextFieldDelegate>
         return NO;
     }
     return [super validateProposedFirstResponder:responder forEvent:event];
-}
-
-@end
-
-@implementation SearchSplit
-
-- (CGFloat)dividerThickness {
-    return 0.0;
-}
-
-- (void)resetCursorRects {
-    
 }
 
 @end

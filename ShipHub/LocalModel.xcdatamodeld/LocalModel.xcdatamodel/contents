@@ -102,6 +102,12 @@
         <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="upNext" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="upNext" inverseEntity="LocalUser" syncable="YES"/>
     </entity>
+    <entity name="LocalQuery" representedClassName="LocalQuery" syncable="YES">
+        <attribute name="identifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
+        <attribute name="predicate" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="queries" inverseEntity="LocalUser" syncable="YES"/>
+    </entity>
     <entity name="LocalRelationship" representedClassName="LocalRelationship" syncable="YES">
         <attribute name="type" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
         <relationship name="child" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="childRelationships" inverseEntity="LocalIssue" syncable="YES"/>
@@ -132,6 +138,7 @@
         <relationship name="comments" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalComment" inverseName="user" inverseEntity="LocalComment" syncable="YES"/>
         <relationship name="orgs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalOrg" inverseName="users" inverseEntity="LocalOrg" syncable="YES"/>
         <relationship name="originatedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="originator" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="queries" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalQuery" inverseName="author" inverseEntity="LocalQuery" syncable="YES"/>
         <relationship name="upNext" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalPriority" inverseName="user" inverseEntity="LocalPriority" syncable="YES"/>
     </entity>
     <elements>
@@ -147,6 +154,7 @@
         <element name="LocalRelationship" positionX="0" positionY="0" width="128" height="90"/>
         <element name="LocalRepo" positionX="0" positionY="0" width="128" height="210"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
-        <element name="LocalUser" positionX="0" positionY="0" width="128" height="180"/>
+        <element name="LocalUser" positionX="0" positionY="0" width="128" height="195"/>
+        <element name="LocalQuery" positionX="9" positionY="153" width="128" height="105"/>
     </elements>
 </model>

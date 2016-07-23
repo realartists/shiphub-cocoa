@@ -148,6 +148,19 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="utT-WK-Mk4"/>
+                            <menuItem title="New Smart Query …" keyEquivalent="f" id="YEg-DK-cw6">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="showPredicateEditor:" target="-1" id="kjA-8S-3yx"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Edit Smart Query …" id="MBT-SX-Krn">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="editQuery:" target="-1" id="bPH-cu-fX3"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="IcG-lO-oNj"/>
                             <menuItem title="Page Setup…" keyEquivalent="P" id="qIS-W8-SiK">
                                 <modifierMask key="keyEquivalentModifierMask" shift="YES" command="YES"/>
                                 <connections>

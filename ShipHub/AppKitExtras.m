@@ -799,6 +799,18 @@ static CGFloat GetAttachmentWidth(void *ref) {
     return r.size;
 }
 
++ (NSAttributedString *)attributedStringWithImage:(NSImage *)image {
+    NSParameterAssert(image);
+    
+    NSTextAttachment *att = [[NSTextAttachment alloc] init];
+    CGRect bounds = CGRectZero;
+    bounds.size = image.size;
+    att.bounds = bounds;
+    att.image = image;
+    
+    return [NSAttributedString attributedStringWithAttachment:att];
+}
+
 @end
 
 @implementation NSSplitView (AppKitExtras)
@@ -863,6 +875,39 @@ static CGFloat GetAttachmentWidth(void *ref) {
 - (void)walkMenuItems:(void (^)(NSMenuItem *m, BOOL *stop))visitor {
     [self walkMenuItemsHelper:visitor];
     
+}
+
+@end
+
+@implementation FlippedView
+
+- (BOOL)isFlipped { return YES; }
+- (void)resizeSubviewsWithOldSize:(NSSize)oldSize { }
+- (void)resizeWithOldSuperviewSize:(NSSize)oldSize { }
+
+@end
+
+@implementation NSWindow (AppKitExtras)
+
+- (CGFloat)titleToolbarHeight {
+    NSRect frameW = NSMakeRect(0,0,255,255) ;
+    NSRect frameC = [self contentRectForFrameRect:frameW] ;
+    CGFloat titleToolBarHeight = frameW.size.height - frameC.size.height ;
+    return titleToolBarHeight;
+}
+
+@end
+
+@implementation NSAnimationContext (AppKitExtras)
+
++ (void)performWithoutAnimation:(dispatch_block_t)block {
+    if ([[NSAnimationContext currentContext] allowsImplicitAnimation]) {
+        [[NSAnimationContext currentContext] setAllowsImplicitAnimation:NO];
+        block();
+        [[NSAnimationContext currentContext] setAllowsImplicitAnimation:YES];
+    } else {
+        block();
+    }
 }
 
 @end

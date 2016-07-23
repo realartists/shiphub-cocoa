@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
+        <capability name="box content view" minToolsVersion="7.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="SearchEditorViewController">
+            <connections>
+                <outlet property="editor" destination="osY-Yf-ng6" id="86b-ux-Ugy"/>
+                <outlet property="topView" destination="NIN-3M-TyD" id="SzT-Y0-LvR"/>
+                <outlet property="view" destination="oxB-ul-Vg1" id="Uf5-j8-D8D"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="oxB-ul-Vg1">
+            <rect key="frame" x="0.0" y="0.0" width="547" height="247"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <userGuides>
+                <userLayoutGuide location="226" affinity="minY"/>
+            </userGuides>
+            <subviews>
+                <box autoresizesSubviews="NO" title="Box" boxType="custom" borderType="none" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="xKo-52-eOL">
+                    <rect key="frame" x="0.0" y="217" width="547" height="30"/>
+                    <view key="contentView" id="NIN-3M-TyD">
+                        <rect key="frame" x="0.0" y="0.0" width="547" height="30"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HMo-UN-PJx">
+                                <rect key="frame" x="-1" y="7" width="155" height="17"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="17" id="LpO-8t-AYJ"/>
+                                    <constraint firstAttribute="width" constant="151" id="WbC-Ok-2NW"/>
+                                </constraints>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Find Issues Where:" id="3fR-xt-Veq">
+                                    <font key="font" metaFont="systemBold"/>
+                                    <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                        </subviews>
+                    </view>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="30" id="CY8-xo-gzN"/>
+                        <constraint firstItem="HMo-UN-PJx" firstAttribute="top" secondItem="xKo-52-eOL" secondAttribute="top" constant="6" id="ng1-Lr-aqk"/>
+                        <constraint firstItem="HMo-UN-PJx" firstAttribute="leading" secondItem="xKo-52-eOL" secondAttribute="leading" constant="1" id="wgV-P5-Ews"/>
+                    </constraints>
+                    <color key="borderColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                    <color key="fillColor" white="0.91000002619999998" alpha="0.0" colorSpace="calibratedWhite"/>
+                </box>
+                <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="w0o-uu-wna">
+                    <rect key="frame" x="0.0" y="0.0" width="547" height="218"/>
+                    <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="3G9-XT-qto">
+                        <rect key="frame" x="0.0" y="0.0" width="547" height="218"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <predicateEditor verticalHuggingPriority="750" nestingMode="compound" rowHeight="25" id="osY-Yf-ng6" customClass="SearchEditor">
+                                <rect key="frame" x="0.0" y="0.0" width="547" height="218"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                                <rowTemplates>
+                                    <predicateEditorRowTemplate rowType="compound" id="Gf7-H9-M8X">
+                                        <popUpMenus>
+                                            <menu id="IOA-IY-u3a">
+                                                <items>
+                                                    <menuItem title="Any" state="on" id="d8g-7X-310">
+                                                        <integer key="representedObject" value="2"/>
+                                                    </menuItem>
+                                                    <menuItem title="All" id="5e7-Iw-Zuu">
+                                                        <integer key="representedObject" value="1"/>
+                                                    </menuItem>
+                                                    <menuItem title="None" id="36u-nV-Tgu">
+                                                        <integer key="representedObject" value="0"/>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
+                                            <menu id="K6i-I8-Rby">
+                                                <items>
+                                                    <menuItem title="of the following are true" state="on" id="cbH-pA-3ay"/>
+                                                </items>
+                                            </menu>
+                                        </popUpMenus>
+                                    </predicateEditorRowTemplate>
+                                    <predicateEditorRowTemplate rowType="simple" id="3aP-aH-kgV">
+                                        <array key="leftExpressionObject">
+                                            <expression type="keyPath">
+                                                <string key="keyPath">name</string>
+                                            </expression>
+                                            <expression type="keyPath">
+                                                <string key="keyPath">address</string>
+                                            </expression>
+                                            <expression type="keyPath">
+                                                <string key="keyPath">sign</string>
+                                            </expression>
+                                        </array>
+                                        <integer key="rightExpressionObject" value="700"/>
+                                        <comparisonPredicateOptions key="options" caseInsensitive="YES" diacriticInsensitive="YES"/>
+                                        <popUpMenus>
+                                            <menu id="bQn-lx-LoS">
+                                                <items>
+                                                    <menuItem title="name" state="on" id="H53-aQ-1gh">
+                                                        <expression key="representedObject" type="keyPath">
+                                                            <string key="keyPath">name</string>
+                                                        </expression>
+                                                    </menuItem>
+                                                    <menuItem title="address" id="T2X-Gm-Rid">
+                                                        <expression key="representedObject" type="keyPath">
+                                                            <string key="keyPath">address</string>
+                                                        </expression>
+                                                    </menuItem>
+                                                    <menuItem title="sign" id="ugN-5t-6c3">
+                                                        <expression key="representedObject" type="keyPath">
+                                                            <string key="keyPath">sign</string>
+                                                        </expression>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
+                                            <menu id="OvE-uC-Bbs">
+                                                <items>
+                                                    <menuItem title="contains" state="on" id="6ui-oe-5Ha">
+                                                        <integer key="representedObject" value="99"/>
+                                                    </menuItem>
+                                                    <menuItem title="begins with" id="9mK-NH-mLa">
+                                                        <integer key="representedObject" value="8"/>
+                                                    </menuItem>
+                                                    <menuItem title="ends with" id="QUM-hH-VJT">
+                                                        <integer key="representedObject" value="9"/>
+                                                    </menuItem>
+                                                    <menuItem title="is" id="nmZ-vG-PYU">
+                                                        <integer key="representedObject" value="4"/>
+                                                    </menuItem>
+                                                    <menuItem title="is not" id="3Ty-WS-g9E">
+                                                        <integer key="representedObject" value="5"/>
+                                                    </menuItem>
+                                                    <menuItem title="matches" id="a66-cC-zDf">
+                                                        <integer key="representedObject" value="6"/>
+                                                    </menuItem>
+                                                    <menuItem title="is like" id="kQr-0C-cbf">
+                                                        <integer key="representedObject" value="7"/>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
+                                        </popUpMenus>
+                                    </predicateEditorRowTemplate>
+                                </rowTemplates>
+                            </predicateEditor>
+                        </subviews>
+                        <color key="backgroundColor" white="0.91000002619999998" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </clipView>
+                    <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="tBp-2R-eyD">
+                        <rect key="frame" x="-100" y="-100" width="360" height="15"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                    <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="Q5a-eS-IjB">
+                        <rect key="frame" x="336" y="1" width="15" height="84"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </scroller>
+                </scrollView>
+            </subviews>
+            <constraints>
+                <constraint firstItem="w0o-uu-wna" firstAttribute="leading" secondItem="xKo-52-eOL" secondAttribute="leading" id="3Mj-kK-NYs"/>
+                <constraint firstItem="xKo-52-eOL" firstAttribute="top" secondItem="oxB-ul-Vg1" secondAttribute="top" id="I2l-AT-z07"/>
+                <constraint firstItem="xKo-52-eOL" firstAttribute="leading" secondItem="oxB-ul-Vg1" secondAttribute="leading" id="XMb-nM-464"/>
+                <constraint firstAttribute="bottom" secondItem="w0o-uu-wna" secondAttribute="bottom" id="aNj-zi-ekq"/>
+                <constraint firstAttribute="trailing" secondItem="xKo-52-eOL" secondAttribute="trailing" id="goE-Qx-7Pd"/>
+                <constraint firstItem="w0o-uu-wna" firstAttribute="top" secondItem="oxB-ul-Vg1" secondAttribute="top" constant="29" id="m2p-fH-L5c"/>
+                <constraint firstItem="w0o-uu-wna" firstAttribute="trailing" secondItem="xKo-52-eOL" secondAttribute="trailing" id="rEW-m7-n0b"/>
+            </constraints>
+            <point key="canvasLocation" x="599.5" y="407.5"/>
+        </customView>
+    </objects>
+</document>

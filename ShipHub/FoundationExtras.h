@@ -134,6 +134,12 @@
 
 @end
 
+@interface NSSet (Extras)
+
+- (NSSet *)setByMappingObjects:(id (^)(id obj))transformer;
+
+@end
+
 @interface NSPredicate (Extras)
 
 - (NSPredicate *)and:(NSPredicate *)predicate;
@@ -159,6 +165,8 @@
 - (NSDictionary *)allAttributeValues;
 - (void)mergeAttributesFromDictionary:(NSDictionary *)d;
 - (void)mergeAttributesFromDictionary:(NSDictionary *)d onlyIfChanged:(BOOL)onlyIfChanged;
+
+- (void)setValue:(id)value forKey:(NSString *)key onlyIfChanged:(BOOL)onlyIfChanged;
 
 @end
 
