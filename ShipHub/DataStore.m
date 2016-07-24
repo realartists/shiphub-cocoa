@@ -168,7 +168,7 @@ static DataStore *sActiveStore = nil;
 }
 
 + (Class)syncConnectionClass {
-    if (DefaultsServerEnvironment() == ServerEnvironmentLocal) {
+    if (ServerEnvironmentIsLocal()) {
         return [GHSyncConnection class];
     } else {
         return [WSSyncConnection class];
@@ -223,7 +223,7 @@ static DataStore *sActiveStore = nil;
 - (NSString *)_dbPath {
     NSAssert(_auth.account.shipIdentifier, @"Must have a user identifier to open the database");
     
-    NSString *dbname = [NSString stringWithFormat:@"%@.db", ServerEnvironmentToString(DefaultsServerEnvironment())];
+    NSString *dbname = [NSString stringWithFormat:@"%@.db", [[Defaults defaults] stringForKey:DefaultsServerKey]];
     
     NSString *basePath = [[[Defaults defaults] stringForKey:DefaultsLocalStoragePathKey] stringByExpandingTildeInPath];
     NSString *path = [basePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@", _auth.account.shipIdentifier, dbname]];

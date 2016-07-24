@@ -45,7 +45,9 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     static dispatch_once_t onceToken;
     static Keychain *keychain;
     dispatch_once(&onceToken, ^{
-        NSString *service = [NSString stringWithFormat:@"%@.%@", KeychainService, ServerEnvironmentToString(DefaultsServerEnvironment())];
+        NSString *service = [NSString stringWithFormat:@"%@.%@",
+                             KeychainService,
+                             [[Defaults defaults] stringForKey:DefaultsServerKey]];
         keychain = [[Keychain alloc] initWithService:service accessGroup:KeychainAccessGroup];
     });
     return keychain;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
     </dependencies>
@@ -15,6 +15,7 @@
             <connections>
                 <outlet property="accountMenu" destination="Qjt-qC-mZs" id="DKC-Vv-5H3"/>
                 <outlet property="accountMenuSeparator" destination="03E-Ds-Lul" id="JHp-CW-b2o"/>
+                <outlet property="serverMenu" destination="Exh-bE-77P" id="LcM-cT-JZD"/>
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
@@ -52,6 +53,10 @@
                                         </menuItem>
                                     </items>
                                 </menu>
+                            </menuItem>
+                            <menuItem title="Server" id="nQk-cg-bPy">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Server" id="Exh-bE-77P"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
                             <menuItem title="Services" id="NMo-om-nkz">
@@ -737,5 +742,6 @@
                 </menuItem>
             </items>
         </menu>
+        <menuItem isSeparatorItem="YES" id="7ZL-As-nDe"/>
     </objects>
 </document>
