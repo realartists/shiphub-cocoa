@@ -41,10 +41,11 @@
 
 @implementation GHNotificationManager
 
-- (id)initWithManagedObjectContext:(NSManagedObjectContext *)ctx auth:(Auth *)auth {
+- (id)initWithManagedObjectContext:(NSManagedObjectContext *)ctx auth:(Auth *)auth store:(DataStore *)store {
     if (self = [super init]) {
         self.moc = ctx;
         self.auth = auth;
+        self.store = store;
         
         _q = dispatch_queue_create("GHNotificationManager", NULL);
         
@@ -150,8 +151,10 @@
             [noteIdentifiers addObject:record[@"identifier"]];
         }
     
+        NSPredicate *identifiersPredicate = [_store predicateForIssueIdentifiers:[issueIdentifiers allObjects]];
+        
         NSFetchRequest *issuesFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-        issuesFetch.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier IN %@", issueIdentifiers];
+        issuesFetch.predicate = identifiersPredicate;
         
         NSArray *issues = [_moc executeFetchRequest:issuesFetch error:&err];
         if (err) ErrLog(@"%@", err);
@@ -246,7 +249,7 @@
         noteFetch.predicate = [NSPredicate predicateWithFormat:@"issueFullIdentifier IN %@", linkThese];
         
         NSFetchRequest *issuesFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-        issuesFetch.predicate = [NSPredicate predicateWithFormat:@"fullIdentifier IN %@", linkThese];
+        issuesFetch.predicate = [_store predicateForIssueIdentifiers:[linkThese allObjects]];
         
         NSArray *notes = [_moc executeFetchRequest:noteFetch error:&err];
         

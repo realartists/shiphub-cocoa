@@ -141,8 +141,8 @@
         // If still here, we want to reload the item, and update the table with it.
         _issueToRemoveOnSelectionChange = i;
         
-        [[DataStore activeStore] issuesMatchingPredicate:[NSPredicate predicateWithFormat:@"fullIdentifier = %@", i.fullIdentifier] completion:^(NSArray<Issue *> *issues, NSError *error) {
-            
+        DataStore *store = [DataStore activeStore];
+        [store issuesMatchingPredicate:[store predicateForIssueIdentifiers:@[i.fullIdentifier]] completion:^(NSArray<Issue *> *issues, NSError *error) {
             if (_issueToRemoveOnSelectionChange == i) {
                 Issue *j = [issues firstObject];
                 _issueToRemoveOnSelectionChange = j;

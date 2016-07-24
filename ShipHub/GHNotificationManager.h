@@ -9,11 +9,14 @@
 #import <Foundation/Foundation.h>
 
 @class Auth;
+@class DataStore;
 
 // Private utility class for the exclusive use of DataStore, for managing GitHub notifications.
 // Handles polling for notifications as well as storing them.
 @interface GHNotificationManager : NSObject
 
-- (id)initWithManagedObjectContext:(NSManagedObjectContext *)ctx auth:(Auth *)auth;
+- (id)initWithManagedObjectContext:(NSManagedObjectContext *)ctx auth:(Auth *)auth store:(DataStore *)store;
+
+@property (weak) DataStore *store;
 
 @end

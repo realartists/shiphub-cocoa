@@ -208,7 +208,7 @@ static DataStore *sActiveStore = nil;
         [self loadQueries];
         [self updateSyncConnectionWithVersions];
         
-        _ghNotificationManager = [[GHNotificationManager alloc] initWithManagedObjectContext:_moc auth:_auth];
+        _ghNotificationManager = [[GHNotificationManager alloc] initWithManagedObjectContext:_moc auth:_auth store:self];
     }
     return self;
 }
@@ -1606,7 +1606,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)markIssueAsRead:(id)issueIdentifier {
     [_moc performBlock:^{
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalNotification"];
-        fetch.predicate = [NSPredicate predicateWithFormat:@"issue.fullIdentifier = %@", issueIdentifier];
+        fetch.predicate = [self predicateForIssueIdentifiers:@[issueIdentifier] prefix:@"issue"];
         
         LocalNotification *note = [[_moc executeFetchRequest:fetch error:NULL] firstObject];
         if (note.unread) {
