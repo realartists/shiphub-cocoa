@@ -150,9 +150,14 @@ static const CGFloat marginBottom = 8.0;
     CGContextSaveGState(ctx);
     
     // Draw the # at the upper right
-    NSDictionary *numAttrs =
+    NSDictionary *sharedAttrs =
     @{ NSFontAttributeName : [NSFont systemFontOfSize:11.0 weight:NSFontWeightSemibold],
        NSForegroundColorAttributeName : emph ? [NSColor whiteColor] : [NSColor darkGrayColor] };
+    
+    NSDictionary *numAttrs = sharedAttrs;
+    if (_issue.closed) {
+        numAttrs = [numAttrs dictionaryByAddingEntriesFromDictionary:@{ NSStrikethroughStyleAttributeName : @YES }];
+    }
     
     NSString *numStr = [NSString stringWithFormat:@"#%@", _issue.number];
     
@@ -168,7 +173,7 @@ static const CGFloat marginBottom = 8.0;
     // Draw the date just under the number
     NSDictionary *dateAttrs =
     @{ NSFontAttributeName : [NSFont systemFontOfSize:11.0 weight:NSFontWeightRegular],
-       NSForegroundColorAttributeName : numAttrs[NSForegroundColorAttributeName] };
+       NSForegroundColorAttributeName : sharedAttrs[NSForegroundColorAttributeName] };
     NSString *dateStr = [[NSDateFormatter shortRelativeDateFormatter] stringFromDate:_issue.createdAt];
     CGSize dateSize = [dateStr sizeWithAttributes:dateAttrs];
     CGRect dateRect = CGRectMake(CGRectGetMaxX(b) - dateSize.width - marginRight,
@@ -232,7 +237,7 @@ static const CGFloat marginBottom = 8.0;
     CFRelease(framesetter);
     
     // Draw the repository
-    NSDictionary *repoAttrs = numAttrs;
+    NSDictionary *repoAttrs = sharedAttrs;
     NSString *repoStr = _issue.repository.fullName;
     CGSize repoSize = [repoStr sizeWithAttributes:repoAttrs];
     CGRect repoRect;
