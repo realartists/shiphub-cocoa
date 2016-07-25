@@ -72,6 +72,8 @@
 - (void)updateIssueViewController:(NSArray<Issue *> *)selectedIssues {
     Issue *i = [selectedIssues firstObject];
     
+    self.displayedPredicate = self.predicate;
+    
     if ([[_displayedIssue fullIdentifier] isEqualToString:[i fullIdentifier]]) {
         return;
     }
@@ -84,7 +86,6 @@
     }
     
     self.displayedIssue = i;
-    self.displayedPredicate = self.predicate;
     
     if (_readTimer) {
         [_readTimer invalidate];
