@@ -257,7 +257,7 @@
         return;
     }
     
-    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/authentication/hello",
+    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/authentication/login",
                   [self shipHost]]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
     
@@ -313,6 +313,7 @@
             if (!error) {
                 error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
             }
+            ErrLog(@"%@", error);
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self presentError:error];
             });
