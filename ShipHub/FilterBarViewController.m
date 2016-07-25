@@ -978,6 +978,7 @@ static BOOL representedObjectEquals(id repr, id val) {
     _milestone.hidden = [self milestoneTitleInPredicate:basePredicate] != nil;
     
     [self needsButtonLayout];
+    [self updatePredicateFromFilterButtons];
 }
 
 #pragma mark - Layout
