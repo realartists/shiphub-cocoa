@@ -43,6 +43,12 @@
     NSExpression *titleExpr = [NSExpression expressionForKeyPath:@"title"];
     NSPredicateEditorRowTemplate *titleTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[titleExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSDirectPredicateModifier operators:@[@(NSContainsPredicateOperatorType), @(NSBeginsWithPredicateOperatorType), @(NSMatchesPredicateOperatorType)] options:NSDiacriticInsensitivePredicateOption|NSCaseInsensitivePredicateOption];
     
+    NSExpression *bodyExpr = [NSExpression expressionForKeyPath:@"body"];
+    NSPredicateEditorRowTemplate *bodyTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[bodyExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSDirectPredicateModifier operators:@[@(NSContainsPredicateOperatorType), @(NSMatchesPredicateOperatorType)] options:NSDiacriticInsensitivePredicateOption|NSCaseInsensitivePredicateOption];
+    
+    NSExpression *commentsExpr = [NSExpression expressionForKeyPath:@"comments.body"];
+    NSPredicateEditorRowTemplate *commentsTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[commentsExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSAnyPredicateModifier operators:@[@(NSContainsPredicateOperatorType), @(NSMatchesPredicateOperatorType)] options:NSDiacriticInsensitivePredicateOption|NSCaseInsensitivePredicateOption];
+    
     NSExpression *creationExpr = [NSExpression expressionForKeyPath:@"createdAt"];
     NSExpression *modificationExpr = [NSExpression expressionForKeyPath:@"updatedAt"];
     NSExpression *resolveDateExpr = [NSExpression expressionForKeyPath:@"closedAt"];
@@ -71,7 +77,7 @@
     
     NSPredicateEditorRowTemplate *mentionTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[[NSExpression expressionForKeyPath:@"notification.reason"]] rightExpressions:@[[NSExpression expressionForConstantValue:@"mentioned"]] modifier:NSDirectPredicateModifier operators:@[@(NSEqualToPredicateOperatorType)] options:0];
     
-    [self setRowTemplates:@[compounds, userTemplate, dateTemplate, repoTemplate, hasLabelTemplate, hasNotLabelTemplate, labeledTemplate, milestoneTemplate, stateTemplate, titleTemplate, readTemplate, mentionTemplate]];
+    [self setRowTemplates:@[compounds, userTemplate, dateTemplate, repoTemplate, hasLabelTemplate, hasNotLabelTemplate, labeledTemplate, milestoneTemplate, stateTemplate, titleTemplate, bodyTemplate, commentsTemplate, readTemplate, mentionTemplate]];
 
     @try {
         [self setFormattingStringsFilename:@"SearchEditor"];
