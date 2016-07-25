@@ -132,6 +132,6 @@ typedef NS_ENUM (NSInteger, DataStoreProblemUpdateSource) {
 @interface DataStore (Testing)
 
 + (Class)serverConnectionClass;
-+ (Class)syncConnectionClass;
++ (Class)syncConnectionClassWithAuth:(Auth *)auth;
 
 @end

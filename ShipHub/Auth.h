@@ -12,6 +12,13 @@
 
 @class ServerConnection;
 
+@interface AuthAccountPair : NSObject
+
+@property (copy) NSString *login;
+@property (copy) NSString *shipHost;
+
+@end
+
 @interface AuthAccount : NSObject <JSONItem>
 
 @property (copy) NSString *login;
@@ -24,6 +31,8 @@
 
 @property (strong) NSDictionary *extra;
 
+- (AuthAccountPair *)pair;
+
 @end
 
 typedef NS_ENUM(NSInteger, AuthState) {
@@ -33,11 +42,11 @@ typedef NS_ENUM(NSInteger, AuthState) {
 
 @interface Auth : NSObject
 
-+ (NSArray<NSString *> *)allLogins;
-+ (NSString *)lastUsedLogin;
++ (NSArray<AuthAccountPair *> *)allLogins;
++ (AuthAccountPair *)lastUsedLogin;
 
 // Load an existing account by name from the keychain
-+ (Auth *)authWithLogin:(NSString *)login;
++ (Auth *)authWithAccountPair:(AuthAccountPair *)pair;
 
 // Add a new account and token to the keychain
 + (Auth *)authWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken;

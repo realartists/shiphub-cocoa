@@ -107,8 +107,10 @@ static BOOL IsMetadataObject(id obj) {
                 milestonesByRepoID[r.identifier] = milestones = [NSMutableArray new];
                 
                 for (LocalMilestone *lm in r.milestones) {
-                    Milestone *m = [[Milestone alloc] initWithLocalItem:lm];
-                    [milestones addObject:m];
+                    if (lm.title) {
+                        Milestone *m = [[Milestone alloc] initWithLocalItem:lm];
+                        [milestones addObject:m];
+                    }
                 }
                 
                 NSMutableArray *labels;

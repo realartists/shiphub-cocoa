@@ -13,12 +13,27 @@
 
 NSString *const KeychainErrorDomain = @"Keychain";
 
+static NSString *MakeService(NSString *servicePrefix, NSString *server) {
+    return [NSString stringWithFormat:@"%@.%@", servicePrefix, server];
+}
+
+static NSString *ParseServer(NSString *service, NSString *servicePrefix) {
+    NSRange range = [service rangeOfString:servicePrefix];
+    if (range.location == NSNotFound) {
+        return nil;
+    }
+    NSRange serverRange;
+    serverRange.location = range.location + range.length + 1;
+    serverRange.length = service.length - serverRange.location;
+    return [service substringWithRange:serverRange];
+}
+
 @interface KeychainItem ()
 
 - (BOOL)store:(NSError *__autoreleasing *)error;
 - (BOOL)load:(NSError *__autoreleasing *)error;
 
-@property (copy) NSString *service;
+@property (copy) NSString *servicePrefix;
 @property (copy) NSString *accessGroup;
 
 @end
@@ -40,7 +55,8 @@ NSString *const KeychainErrorDomain = @"Keychain";
     
     return
     [_account isEqual:obj.account] &&
-    [_service isEqual:obj.service] &&
+    [_server isEqual:obj.server] &&
+    [_servicePrefix isEqual:obj.servicePrefix] &&
     ((_accessGroup == nil && obj.accessGroup == nil) || [_accessGroup isEqual:obj.accessGroup]) &&
     [_password isEqual:obj.password] &&
     ((_applicationData == nil && obj.applicationData == nil) || ([_applicationData isEqual:obj.applicationData]));
@@ -48,7 +64,8 @@ NSString *const KeychainErrorDomain = @"Keychain";
 
 - (BOOL)store:(NSError *__autoreleasing *)error {
     NSParameterAssert(_account);
-    NSParameterAssert(_service);
+    NSParameterAssert(_server);
+    NSParameterAssert(_servicePrefix);
     NSParameterAssert(_password);
     
     NSData *secret = [_password dataUsingEncoding:NSUTF8StringEncoding];
@@ -59,14 +76,14 @@ NSString *const KeychainErrorDomain = @"Keychain";
     [@{
       (__bridge id)kSecClass                : (__bridge id)kSecClassGenericPassword,
       (__bridge id)kSecAttrAccount          : _account,
-      (__bridge id)kSecAttrService          : _service,
+      (__bridge id)kSecAttrService          : MakeService(_servicePrefix, _server),
       (__bridge id)kSecReturnAttributes     : @YES
       } mutableCopy];
     
     NSMutableDictionary *payload =
     [@{
       (__bridge id)kSecAttrAccount          : _account,
-      (__bridge id)kSecAttrService          : _service,
+      (__bridge id)kSecAttrService          : MakeService(_servicePrefix, _server),
       (__bridge id)kSecValueData            : secret,
       } mutableCopy];
     
@@ -141,13 +158,14 @@ NSString *const KeychainErrorDomain = @"Keychain";
 
 - (BOOL)load:(NSError *__autoreleasing *)error {
     NSParameterAssert(_account);
-    NSParameterAssert(_service);
+    NSParameterAssert(_server);
+    NSParameterAssert(_servicePrefix);
     
     NSMutableDictionary *query =
     [@{
       (__bridge id)kSecClass                : (__bridge id)kSecClassGenericPassword,
       (__bridge id)kSecAttrAccount          : _account,
-      (__bridge id)kSecAttrService          : _service,
+      (__bridge id)kSecAttrService          : MakeService(_servicePrefix, _server),
       (__bridge id)kSecReturnData           : @YES,
       (__bridge id)kSecReturnAttributes     : @YES
       } mutableCopy];
@@ -202,10 +220,10 @@ NSString *const KeychainErrorDomain = @"Keychain";
 
 @implementation Keychain
 
-- (instancetype)initWithService:(NSString *)service accessGroup:(NSString *)accessGroup {
+- (instancetype)initWithServicePrefix:(NSString *)service accessGroup:(NSString *)accessGroup {
     NSParameterAssert(service);
     if (self = [super init]) {
-        _service = [service copy];
+        _servicePrefix = [service copy];
         _accessGroup = [accessGroup copy];
     }
     return self;
@@ -216,7 +234,7 @@ NSString *const KeychainErrorDomain = @"Keychain";
     return nil;
 }
 
-- (NSArray *)allAccountsReturningError:(NSError *__autoreleasing *)error {
+- (NSArray<KeychainItem *> *)allAccountsReturningError:(NSError *__autoreleasing *)error {
     NSMutableDictionary *query =
     [@{
       (__bridge id)kSecClass                : (__bridge id)kSecClassGenericPassword,
@@ -238,7 +256,7 @@ NSString *const KeychainErrorDomain = @"Keychain";
         if (array) {
             // For some reason, specifying the service will end up with no results being returned.
             // So just filter it here.
-            NSArray *filtered = [(__bridge NSArray *)array filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K == %@", (__bridge id)kSecAttrService, _service]];
+            NSArray *filtered = [(__bridge NSArray *)array filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K beginswith %@", (__bridge id)kSecAttrService, _servicePrefix]];
             
             // Sort them so newest items are first
             NSArray *sorted = [filtered sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
@@ -259,8 +277,13 @@ NSString *const KeychainErrorDomain = @"Keychain";
             NSMutableArray *results = [NSMutableArray arrayWithCapacity:[sorted count]];
             for (NSDictionary *attrs in sorted) {
                 NSString *account = attrs[(__bridge id)kSecAttrAccount];
-                if (account) {
-                    [results addObject:account];
+                NSString *server = ParseServer(attrs[(__bridge id)kSecAttrService], _servicePrefix);
+                if (account && server) {
+                    KeychainItem *item = [KeychainItem new];
+                    item.servicePrefix = _servicePrefix;
+                    item.server = server;
+                    item.account = account;
+                    [results addObject:item];
                 }
             }
             CFRelease(array);
@@ -278,45 +301,16 @@ NSString *const KeychainErrorDomain = @"Keychain";
     }
 }
 
-- (BOOL)removeAllItemsReturningError:(NSError *__autoreleasing *)error {
-    NSMutableDictionary *query =
-    [@{
-      (__bridge id)kSecClass                : (__bridge id)kSecClassGenericPassword,
-      (__bridge id)kSecAttrService          : _service,
-      (__bridge id)kSecReturnData           : @NO
-      } mutableCopy];
-    
-    if (_accessGroup) {
-        query[(__bridge id)kSecAttrAccessGroup] = _accessGroup;
-    }
-    
-    OSStatus status = SecItemDelete((__bridge CFDictionaryRef)query);
-    
-    if (status == errSecSuccess || status == errSecItemNotFound)
-    {
-        // Deleted or didn't exist
-        return YES;
-    }
-    else
-    {
-        // A real error
-        if (error)
-        {
-            *error = [NSError errorWithDomain:KeychainErrorDomain code:status userInfo:nil];
-        }
-        return NO;
-    }
-}
-
-- (BOOL)removeItemForAccount:(NSString *)account error:(NSError *__autoreleasing *)error
+- (BOOL)removeItemForAccount:(NSString *)account server:(NSString *)server error:(NSError *__autoreleasing *)error
 {
     NSParameterAssert(account);
+    NSParameterAssert(server);
     
     NSMutableDictionary *query =
     [@{
       (__bridge id)kSecClass                : (__bridge id)kSecClassGenericPassword,
       (__bridge id)kSecAttrAccount          : account,
-      (__bridge id)kSecAttrService          : _service,
+      (__bridge id)kSecAttrService          : MakeService(_servicePrefix, server),
       (__bridge id)kSecReturnData           : @NO
       } mutableCopy];
     
@@ -344,17 +338,19 @@ NSString *const KeychainErrorDomain = @"Keychain";
 
 - (BOOL)storeItem:(KeychainItem *)item error:(NSError *__autoreleasing *)error {
     NSParameterAssert(item);
-    item.service = _service;
+    item.servicePrefix = _servicePrefix;
     item.accessGroup = _accessGroup;
     return [item store:error];
 }
 
-- (KeychainItem *)itemForAccount:(NSString *)account error:(NSError *__autoreleasing *)error {
+- (KeychainItem *)itemForAccount:(NSString *)account server:(NSString *)server error:(NSError *__autoreleasing *)error {
     NSParameterAssert(account);
+    NSParameterAssert(server);
     
     KeychainItem *item = [KeychainItem new];
     item.account = account;
-    item.service = _service;
+    item.server = server;
+    item.servicePrefix = _servicePrefix;
     item.accessGroup = _accessGroup;
     
     if ([item load:error]) {

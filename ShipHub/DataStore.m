@@ -138,7 +138,13 @@ static DataStore *sActiveStore = nil;
 
 - (void)activate {
     sActiveStore = self;
-    [[Defaults defaults] setObject:_auth.account.login forKey:DefaultsLastUsedAccountKey];
+    
+    if (_auth.account) {
+        NSArray *parts = @[ _auth.account.login, _auth.account.shipHost ];
+        [[Defaults defaults] setObject:parts forKey:DefaultsLastUsedAccountKey];
+    } else {
+        [[Defaults defaults] removeObjectForKey:DefaultsLastUsedAccountKey];
+    }
     [[Defaults defaults] synchronize];
     
     [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreActiveDidChangeNotification object:self];
@@ -168,8 +174,8 @@ static DataStore *sActiveStore = nil;
     return [ServerConnection class];
 }
 
-+ (Class)syncConnectionClass {
-    if (DefaultsServerEnvironment() == ServerEnvironmentLocal) {
++ (Class)syncConnectionClassWithAuth:(Auth *)auth {
+    if ([auth.account.shipHost isEqualToString:auth.account.ghHost]) {
         return [GHSyncConnection class];
     } else {
         return [WSSyncConnection class];
@@ -201,7 +207,7 @@ static DataStore *sActiveStore = nil;
         }
         
         self.serverConnection = [[[[self class] serverConnectionClass] alloc] initWithAuth:_auth];
-        self.syncConnection = [[[[self class] syncConnectionClass] alloc] initWithAuth:_auth];
+        self.syncConnection = [[[[self class] syncConnectionClassWithAuth:_auth] alloc] initWithAuth:_auth];
         self.syncConnection.delegate = self;
         
         [self loadMetadata];
@@ -224,10 +230,10 @@ static DataStore *sActiveStore = nil;
 - (NSString *)_dbPath {
     NSAssert(_auth.account.shipIdentifier, @"Must have a user identifier to open the database");
     
-    NSString *dbname = [NSString stringWithFormat:@"%@.db", ServerEnvironmentToString(DefaultsServerEnvironment())];
+    NSString *dbname = @"shiphub.db";
     
     NSString *basePath = [[[Defaults defaults] stringForKey:DefaultsLocalStoragePathKey] stringByExpandingTildeInPath];
-    NSString *path = [basePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@", _auth.account.shipIdentifier, dbname]];
+    NSString *path = [basePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@/%@", _auth.account.shipHost, _auth.account.shipIdentifier, dbname]];
     
     [[NSFileManager defaultManager] createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:NULL];
     return path;

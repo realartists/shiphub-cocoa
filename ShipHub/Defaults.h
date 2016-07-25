@@ -22,6 +22,8 @@ extern NSString *const DefaultsDisableAutoWatchKey;
 
 // Debugging defaults
 extern NSString *const DefaultsSimulateConflictsKey;
+extern NSString *const DefaultsShipHostKey;
+extern NSString *const DefaultsGHHostKey;
 
 @interface NSUserDefaults (Conveniences)
 
@@ -30,16 +32,7 @@ extern NSString *const DefaultsSimulateConflictsKey;
 
 @end
 
-typedef NS_ENUM(NSInteger, ServerEnvironment) {
-    ServerEnvironmentProduction,
-    ServerEnvironmentStaging,
-    ServerEnvironmentDevelopment,
-    ServerEnvironmentJW,
-    ServerEnvironmentLocal,
-};
+extern NSString *DefaultShipHost();
+extern NSString *DefaultGHHost();
 
-extern NSString *ServerEnvironmentToString(ServerEnvironment);
-extern ServerEnvironment ServerEnvironmentFromString(NSString *environment);
-
-extern ServerEnvironment DefaultsServerEnvironment(); // Returns the configured server environment
-extern void OverrideDefaultsServerEnvironment(ServerEnvironment);
+extern BOOL DefaultsHasCustomShipHost();

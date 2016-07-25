@@ -25,15 +25,13 @@
     return [NSUserDefaults standardUserDefaults];
 }
 
-+ (BOOL)environmentUsesServer {
-    return DefaultsServerEnvironment() != ServerEnvironmentLocal;
-}
-
 @end
 
 NSString *const DefaultsLocalStoragePathKey = @"LocalStorage";
-NSString *const DefaultsLastUsedAccountKey = @"LastLogin";
+NSString *const DefaultsLastUsedAccountKey = @"LastLoginPair";
 NSString *const DefaultsDisableAutoWatchKey = @"DisableAutoWatch";
+NSString *const DefaultsShipHostKey = @"ShipHost";
+NSString *const DefaultsGHHostKey = @"GHHost";
 
 NSString *const DefaultsSimulateConflictsKey = @"SimulateConflicts";
 
@@ -58,47 +56,14 @@ NSString *const DefaultsSimulateConflictsKey = @"SimulateConflicts";
 
 @end
 
-NSString *ServerEnvironmentToString(ServerEnvironment e) {
-    switch (e) {
-        case ServerEnvironmentLocal: return @"Local";
-        case ServerEnvironmentDevelopment: return @"Development";
-        case ServerEnvironmentJW: return @"JW";
-        case ServerEnvironmentStaging: return @"Staging";
-        case ServerEnvironmentProduction: return @"Production";
-    }
-}
-ServerEnvironment ServerEnvironmentFromString(NSString *environment) {
-    if ([environment isEqualToString:@"Local"]) {
-        return ServerEnvironmentLocal;
-    } else if ([environment isEqualToString:@"Development"]) {
-        return ServerEnvironmentDevelopment;
-    } else if ([environment isEqualToString:@"JW"]) {
-        return ServerEnvironmentJW;
-    } else if ([environment isEqualToString:@"Staging"]) {
-        return ServerEnvironmentStaging;
-    } else {
-        return ServerEnvironmentProduction;
-    }
+NSString *DefaultShipHost() {
+    return [[Defaults defaults] stringForKey:DefaultsShipHostKey fallback:@"hub.realartists.com"];
 }
 
-static NSInteger s_environment = -1;
-
-extern void OverrideDefaultsServerEnvironment(ServerEnvironment se) {
-    @synchronized ([Defaults defaults]) {
-        s_environment = se;
-        NSLog(@"Overriding server environment to %@", ServerEnvironmentToString(s_environment));
-    }
+NSString *DefaultGHHost() {
+    return [[Defaults defaults] stringForKey:DefaultsGHHostKey fallback:@"api.github.com"];
 }
 
-ServerEnvironment DefaultsServerEnvironment() {
-    @synchronized ([Defaults defaults]) {
-        if (s_environment == -1) {
-            // Establish environment from Info.plist
-            NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
-            NSString *env = info[@"ServerEnvironment"];
-            s_environment = ServerEnvironmentFromString(env);
-            NSLog(@"Using server environment %@", ServerEnvironmentToString(s_environment));
-        }
-        return s_environment;
-    }
+BOOL DefaultsHasCustomShipHost() {
+    return [[Defaults defaults] stringForKey:DefaultsShipHostKey] != nil;
 }

@@ -66,9 +66,6 @@
 }
 
 - (void)setupNetworkState {
-    if (ServerEnvironmentLocal == DefaultsServerEnvironment())
-        return;
-    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateNetworkState:) name:ReachabilityDidChangeNotification object:nil];
     
     NSImage *image = [NSImage imageNamed:@"OfflineTemplate"];

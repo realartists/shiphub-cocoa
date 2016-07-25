@@ -46,17 +46,17 @@
         return;
     }
     
-    NSString *lastUsedAccount = [Auth lastUsedLogin];
+    AuthAccountPair *lastUsedAccount = [Auth lastUsedLogin];
     NSArray *allAccounts = [Auth allLogins];
     if (![allAccounts containsObject:lastUsedAccount]) {
         lastUsedAccount = nil;
     }
     if (lastUsedAccount) {
-        _auth = [Auth authWithLogin:lastUsedAccount];
+        _auth = [Auth authWithAccountPair:lastUsedAccount];
     }
     if (!_auth) {
         if ([allAccounts count] > 0) {
-            _auth = [Auth authWithLogin:[allAccounts firstObject]];
+            _auth = [Auth authWithAccountPair:[allAccounts firstObject]];
         }
     }
     
@@ -232,11 +232,14 @@
     
     NSInteger added = 0;
     
-    for (NSString *login in [[Auth allLogins] reverseObjectEnumerator]) {
-        BOOL isMe = [_auth.account.login isEqual:login];
-        NSString *title = login;
+    for (AuthAccountPair *login in [[Auth allLogins] reverseObjectEnumerator]) {
+        BOOL isMe = [[_auth.account pair] isEqual:login];
+        NSString *title = login.login;
+        if (![login.shipHost isEqualToString:DefaultShipHost()]) {
+            title = [NSString stringWithFormat:@"%@ [%@]", login.login, login.shipHost];
+        }
         if (isMe) {
-            title = [NSString stringWithFormat:NSLocalizedString(@"Logged in as %@", nil), login];
+            title = [NSString stringWithFormat:NSLocalizedString(@"Logged in as %@", nil), title];
         }
         NSMenuItem *item = [_accountMenu insertItemWithTitle:title action:isMe?nil:@selector(changeAccount:) keyEquivalent:@"" atIndex:0];
         item.target = isMe?nil:self;
@@ -275,9 +278,9 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     }
 }
 
-- (void)changeAccount:(id)sender {
-    NSString *login = [sender representedObject];
-    if ((login && [_auth.account.login isEqual:login])) {
+- (IBAction)changeAccount:(id)sender {
+    AuthAccountPair *login = [sender representedObject];
+    if (login && [login isEqual:[_auth.account pair]]) {
         return;
     }
     
@@ -288,7 +291,7 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     
     dispatch_block_t changeBlock = ^{
         if (login) {
-            _nextAuth = [Auth authWithLogin:login];
+            _nextAuth = [Auth authWithAccountPair:login];
         } else {
             _nextAuth = nil;
         }
@@ -304,7 +307,11 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     if (_auth.authState == AuthStateValid) {
         NSAlert *alert = [[NSAlert alloc] init];
         if (login) {
-            alert.messageText = [NSString stringWithFormat:NSLocalizedString(@"Logout and change account to %@?", nil), login];
+            NSString *loginName = login.login;
+            if (![login.shipHost isEqualToString:DefaultShipHost()]) {
+                loginName = [NSString stringWithFormat:@"%@ [%@]", loginName, login.shipHost];
+            }
+            alert.messageText = [NSString stringWithFormat:NSLocalizedString(@"Logout and change account to %@?", nil), loginName];
         } else {
             alert.messageText = NSLocalizedString(@"Logout and sign in to another account?", nil);
         }

@@ -54,7 +54,7 @@
     return [TestServerConnection class];
 }
 
-+ (Class)syncConnectionClass {
++ (Class)syncConnectionClassWithAuth:(Auth *)auth {
     return [TestSyncConnection class];
 }
 

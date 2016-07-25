@@ -65,11 +65,45 @@
 
 - (void)syncWithVersions:(NSDictionary *)versions {
     if (!_sentData) {
-        [self.delegate syncConnection:self receivedRootIdentifiers:[TestMetadata roots] version:1];
-        [self.delegate syncConnection:self receivedSyncObjects:[TestMetadata users] type:@"user" version:1];
-        [self.delegate syncConnection:self receivedSyncObjects:[TestMetadata orgs] type:@"org" version:1];
-        [self.delegate syncConnection:self receivedSyncObjects:[TestMetadata repos] type:@"repo" version:1];
-        [self.delegate syncConnection:self receivedSyncObjects:[TestMetadata milestones] type:@"milestone" version:1];
+        NSArray *users = [[TestMetadata users] arrayByMappingObjects:^id(id obj) {
+            SyncEntry *e = [SyncEntry new];
+            e.action = SyncEntryActionSet;
+            e.entityName = @"user";
+            e.data = obj;
+            return e;
+        }];
+        
+        NSArray *orgs = [[TestMetadata orgs] arrayByMappingObjects:^id(id obj) {
+            SyncEntry *e = [SyncEntry new];
+            e.action = SyncEntryActionSet;
+            e.entityName = @"org";
+            e.data = obj;
+            return e;
+        }];
+        
+        NSArray *repos = [[TestMetadata repos] arrayByMappingObjects:^id(id obj) {
+            SyncEntry *e = [SyncEntry new];
+            e.action = SyncEntryActionSet;
+            e.entityName = @"repo";
+            e.data = obj;
+            return e;
+        }];
+        
+        NSArray *milestones = [[TestMetadata users] arrayByMappingObjects:^id(id obj) {
+            SyncEntry *e = [SyncEntry new];
+            e.action = SyncEntryActionSet;
+            e.entityName = @"milestone";
+            e.data = obj;
+            return e;
+        }];
+        
+        [self.delegate syncConnection:self receivedEntries:users versions:@{} progress:0.0];
+        
+        [self.delegate syncConnection:self receivedEntries:orgs versions:@{} progress:0.0];
+        
+        [self.delegate syncConnection:self receivedEntries:repos versions:@{} progress:0.0];
+        
+        [self.delegate syncConnection:self receivedEntries:milestones versions:@{} progress:0.0];
     }
 }
 

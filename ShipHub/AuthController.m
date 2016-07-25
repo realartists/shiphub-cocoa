@@ -55,6 +55,8 @@
 - (IBAction)showWindow:(id)sender {
     [self window];
     [self start];
+    
+    [super showWindow:sender];
 }
 
 - (void)start {
@@ -80,7 +82,11 @@
 
 - (nullable NSText *)fieldEditor:(BOOL)createFlag forObject:(nullable id)anObject {
     NSTextView *view = (NSTextView *)[super fieldEditor:createFlag forObject:anObject];
-    view.insertionPointColor = [NSColor whiteColor];
+    if (view && [anObject respondsToSelector:@selector(drawsBackground)] && [anObject drawsBackground]) {
+        view.insertionPointColor = [NSColor blackColor];
+    } else {
+        view.insertionPointColor = [NSColor whiteColor];
+    }
     return view;
 }
 

@@ -29,11 +29,17 @@
 		1A012EB81D448FF2006CE5DF /* RepoRowTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EB71D448FF2006CE5DF /* RepoRowTemplate.m */; };
 		1A012EC11D452F17006CE5DF /* LabelRowTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EC01D452F17006CE5DF /* LabelRowTemplate.m */; };
 		1A012EC41D454097006CE5DF /* NoneLabelTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EC31D454097006CE5DF /* NoneLabelTemplate.m */; };
+		1A012ECD1D46DD4B006CE5DF /* ServerChooser.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012ECB1D46DD4B006CE5DF /* ServerChooser.m */; };
+		1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A012ECC1D46DD4B006CE5DF /* ServerChooser.xib */; };
+		1A012ED21D46EC3A006CE5DF /* CustomQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EA71D443CFC006CE5DF /* CustomQuery.m */; };
+		1A012ED31D46EC43006CE5DF /* LocalQuery.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EAF1D443EBD006CE5DF /* LocalQuery.m */; };
+		1A012ED41D46EC45006CE5DF /* LocalQuery+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EAD1D443EBD006CE5DF /* LocalQuery+CoreDataProperties.m */; };
+		1A012ED51D46EC55006CE5DF /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
+		1A012ED61D46EC91006CE5DF /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2217B91C7E7B92006460E2 /* SocketRocket.framework */; };
 		1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59CD1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59D11CA48B8A004F2578 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
 		1A0D59D51CA4A8D1004F2578 /* IssueViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59D41CA4A8D1004F2578 /* IssueViewController.m */; };
-		1A0D59D61CA4A8D1004F2578 /* IssueViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59D41CA4A8D1004F2578 /* IssueViewController.m */; };
 		1A0D59EB1CA4AA3A004F2578 /* IssueDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59E91CA4AA3A004F2578 /* IssueDocument.m */; };
 		1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A0D59EA1CA4AA3A004F2578 /* IssueDocument.xib */; };
 		1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */; };
@@ -220,6 +226,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		1A012ED71D46EC96006CE5DF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = F668C87F153E91210044DBAC;
+			remoteInfo = SocketRocketOSX;
+		};
 		1A2217B61C7E7B92006460E2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
@@ -344,6 +357,9 @@
 		1A012EC01D452F17006CE5DF /* LabelRowTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelRowTemplate.m; sourceTree = "<group>"; };
 		1A012EC21D454097006CE5DF /* NoneLabelTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NoneLabelTemplate.h; sourceTree = "<group>"; };
 		1A012EC31D454097006CE5DF /* NoneLabelTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NoneLabelTemplate.m; sourceTree = "<group>"; };
+		1A012ECA1D46DD4B006CE5DF /* ServerChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerChooser.h; sourceTree = "<group>"; };
+		1A012ECB1D46DD4B006CE5DF /* ServerChooser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerChooser.m; sourceTree = "<group>"; };
+		1A012ECC1D46DD4B006CE5DF /* ServerChooser.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ServerChooser.xib; sourceTree = "<group>"; };
 		1A0D59CA1CA46926004F2578 /* IssueIdentifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueIdentifier.h; sourceTree = "<group>"; };
 		1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueIdentifier.m; sourceTree = "<group>"; };
 		1A0D59D31CA4A8D1004F2578 /* IssueViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueViewController.h; sourceTree = "<group>"; };
@@ -624,6 +640,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A012ED61D46EC91006CE5DF /* SocketRocket.framework in Frameworks */,
 				1AE09C241C977A3400C5AC35 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -782,6 +799,9 @@
 				1A7A414E1C8E52D70043DAF0 /* BasicAuthController.h */,
 				1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */,
 				1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */,
+				1A012ECA1D46DD4B006CE5DF /* ServerChooser.h */,
+				1A012ECB1D46DD4B006CE5DF /* ServerChooser.m */,
+				1A012ECC1D46DD4B006CE5DF /* ServerChooser.xib */,
 			);
 			name = Auth;
 			sourceTree = "<group>";
@@ -1182,6 +1202,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				1A012ED81D46EC96006CE5DF /* PBXTargetDependency */,
 			);
 			name = ShipHubTests;
 			productName = ShipHubTests;
@@ -1272,6 +1293,7 @@
 			files = (
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
+				1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */,
 				1A012E7E1D3EAC0E006CE5DF /* SearchEditorViewController.xib in Resources */,
 				1AD956B41D0B5654002B1259 /* DownloadBarViewController.xib in Resources */,
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
@@ -1409,6 +1431,7 @@
 				1AE09C121C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */,
 				1A012E7D1D3EAC0E006CE5DF /* SearchEditorViewController.m in Sources */,
 				1AE09BFE1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
+				1A012ECD1D46DD4B006CE5DF /* ServerChooser.m in Sources */,
 				1A694AF21CA09E9800F73608 /* Milestone.m in Sources */,
 				1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */,
 				1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */,
@@ -1456,7 +1479,9 @@
 				1AE09C161C9779B000C5AC35 /* Auth.m in Sources */,
 				1A0D87751CA9E25F0069782D /* JSON.m in Sources */,
 				1A5604E21CD7FFC100ACF0DF /* AttachmentManager.m in Sources */,
+				1A012ED51D46EC55006CE5DF /* WSSyncConnection.m in Sources */,
 				1AE09C171C9779B300C5AC35 /* Keychain.m in Sources */,
+				1A012ED41D46EC45006CE5DF /* LocalQuery+CoreDataProperties.m in Sources */,
 				1A563F7B1CC823CF00755AAC /* APIProxy.m in Sources */,
 				1A694AE01CA09E0800F73608 /* MetadataStore.m in Sources */,
 				1A694B4C1CA367E300F73608 /* Issue.m in Sources */,
@@ -1464,7 +1489,6 @@
 				1AE09C031C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,
 				1A694AE71CA09E5800F73608 /* User.m in Sources */,
 				1AE09C181C9779BB00C5AC35 /* Defaults.m in Sources */,
-				1A0D59D61CA4A8D1004F2578 /* IssueViewController.m in Sources */,
 				1AE09BF71C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
 				1A51086B1D319ED000905D4D /* RequestPager.m in Sources */,
 				1A694AF71CA09EAD00F73608 /* Label.m in Sources */,
@@ -1475,6 +1499,7 @@
 				1AE09C231C9779E400C5AC35 /* Reachability.m in Sources */,
 				1AE09C1D1C9779CA00C5AC35 /* LocalModel.xcdatamodeld in Sources */,
 				1A694AEB1CA09E6A00F73608 /* Repo.m in Sources */,
+				1A012ED31D46EC43006CE5DF /* LocalQuery.m in Sources */,
 				1AE09C051C97687E00C5AC35 /* LocalAccount.m in Sources */,
 				1A51085E1D317AB300905D4D /* LocalNotification+CoreDataProperties.m in Sources */,
 				1AE09C111C97687E00C5AC35 /* LocalOrg.m in Sources */,
@@ -1507,6 +1532,7 @@
 				1A694B451CA34B9000F73608 /* DeemphasizedRowView.m in Sources */,
 				1A5108671D319E2B00905D4D /* NotificationsManager.m in Sources */,
 				1AE09BF51C97687E00C5AC35 /* LocalIssue.m in Sources */,
+				1A012ED21D46EC3A006CE5DF /* CustomQuery.m in Sources */,
 				1AE09C071C97687E00C5AC35 /* LocalUser+CoreDataProperties.m in Sources */,
 				1AE09C0B1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
 				1AE09C011C97687E00C5AC35 /* LocalEvent.m in Sources */,
@@ -1519,6 +1545,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		1A012ED81D46EC96006CE5DF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SocketRocketOSX;
+			targetProxy = 1A012ED71D46EC96006CE5DF /* PBXContainerItemProxy */;
+		};
 		1A2217BF1C7E7BAF006460E2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			name = SocketRocketOSX;

@@ -57,14 +57,6 @@
 - (void)update:(NSNotification *)note {
     BOOL online, reachabilityInited;
     
-    if (DefaultsServerEnvironment() != ServerEnvironmentLocal) {
-        online = [[Reachability sharedInstance] isReachable];
-        reachabilityInited = [[Reachability sharedInstance] receivedFirstUpdate];
-    } else {
-        online = YES;
-        reachabilityInited = YES;
-    }
-    
     // FIXME: Hook this stuff back up
     BOOL offline = !online && reachabilityInited;
     NSDate *lastUpdated = nil; //[[DataStore activeStore] lastUpdated];

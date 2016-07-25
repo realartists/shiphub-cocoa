@@ -45,43 +45,54 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     static dispatch_once_t onceToken;
     static Keychain *keychain;
     dispatch_once(&onceToken, ^{
-        NSString *service = [NSString stringWithFormat:@"%@.%@", KeychainService, ServerEnvironmentToString(DefaultsServerEnvironment())];
-        keychain = [[Keychain alloc] initWithService:service accessGroup:KeychainAccessGroup];
+        keychain = [[Keychain alloc] initWithServicePrefix:KeychainService accessGroup:KeychainAccessGroup];
     });
     return keychain;
 }
 
-+ (NSArray /*NSString*/ *)allLogins {
++ (NSArray<AuthAccountPair *> *)allLogins {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSMutableOrderedSet *cache = [self accountsCache];
         [cache removeAllObjects];
         NSError *err = nil;
-        NSArray *keys = [[self keychain] allAccountsReturningError:&err];
+        NSArray<KeychainItem *> *items = [[self keychain] allAccountsReturningError:&err];
         if (err) {
             ErrLog(@"%@", err);
         }
-        [cache addObjectsFromArray:keys];
+        [cache addObjectsFromArray:[items arrayByMappingObjects:^id(KeychainItem *obj) {
+            AuthAccountPair *pair = [AuthAccountPair new];
+            pair.login = obj.account;
+            pair.shipHost = obj.server;
+            return pair;
+        }]];
     });
     return [[self accountsCache] array];
 }
 
-+ (NSString *)lastUsedLogin {
-    return [[Defaults defaults] stringForKey:DefaultsLastUsedAccountKey];
++ (AuthAccountPair *)lastUsedLogin {
+    NSArray *parts = [[Defaults defaults] objectForKey:DefaultsLastUsedAccountKey];
+    if ([parts count] == 2) {
+        AuthAccountPair *pair = [AuthAccountPair new];
+        pair.login = parts[0];
+        pair.shipHost = parts[1];
+        return pair;
+    }
+    return nil;
 }
 
-+ (Auth *)authWithLogin:(NSString *)accountName {
-    return [[self alloc] initWithLogin:accountName];
++ (Auth *)authWithAccountPair:(AuthAccountPair *)pair {
+    return [[self alloc] initWithAccountPair:pair];
 }
 
-- (instancetype)initWithLogin:(NSString *)login {
+- (instancetype)initWithAccountPair:(AuthAccountPair *)pair {
     if (self = [super init]) {
         self.account = [[AuthAccount alloc] init];
         Keychain *keychain = [[self class] keychain];
         KeychainItem *keychainItem = nil;
-        if (login) {
+        if (pair.login && pair.shipHost) {
             NSError *err = nil;
-            keychainItem = [keychain itemForAccount:login error:&err];
+            keychainItem = [keychain itemForAccount:pair.login server:pair.shipHost error:&err];
             if (err && !([[err domain] isEqualToString:@"Keychain"] && [err code] == -25300 /* ignore missing item error */)) {
                 ErrLog(@"%@", err);
             }
@@ -108,7 +119,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
                 }
             } else {
                 NSError *err = nil;
-                [keychain removeItemForAccount:login error:&err];
+                [keychain removeItemForAccount:pair.login server:pair.shipHost error:&err];
                 if (err) {
                     ErrLog("%@", err);
                 }
@@ -131,6 +142,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     if (self = [super init]) {
         KeychainItem *keychainItem = [KeychainItem new];
         keychainItem.account = account.login;
+        keychainItem.server = account.shipHost;
         keychainItem.password = [NSString stringWithFormat:@"%@&%@", shipToken, ghToken];
         NSError *error = nil;
         keychainItem.applicationData = [NSJSONSerialization dataWithJSONObject:[account dictionaryRepresentation] options:0 error:&error];
@@ -150,6 +162,8 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
         self.token = shipToken;
         self.ghToken = ghToken;
         [self changeAuthState:AuthStateValid];
+        
+        [[[self class] accountsCache] addObject:[account pair]];
     }
     return self;
 }
@@ -203,11 +217,17 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
 
 - (void)logout {
     Keychain *keychain = [[self class] keychain];
+    AuthAccountPair *pair = [AuthAccountPair new];
+    pair.login = self.account.login;
+    pair.shipHost = self.account.shipHost;
+    
     NSError *err = nil;
-    [keychain removeItemForAccount:self.account.login error:&err];
+    [keychain removeItemForAccount:self.account.login server:self.account.shipHost error:&err];
     if (err) {
         ErrLog("%@", err);
     }
+    
+    [[[self class] accountsCache] removeObject:pair];
     [self changeAuthState:AuthStateInvalid];
 }
 
@@ -237,6 +257,29 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     d[@"ghHost"] = self.ghHost;
     d[@"shipHost"] = self.shipHost;
     return d;
+}
+
+- (AuthAccountPair *)pair {
+    AuthAccountPair *pair = [AuthAccountPair new];
+    pair.login = self.login;
+    pair.shipHost = self.shipHost;
+    return pair;
+}
+
+@end
+
+@implementation AuthAccountPair
+
+- (NSUInteger)hash {
+    return [[NSString stringWithFormat:@"%@%@", _login, _shipHost] hash];
+}
+
+- (BOOL)isEqual:(id)object {
+    if ([object isKindOfClass:[AuthAccountPair class]]) {
+        AuthAccountPair *other = object;
+        return [_login isEqual:other->_login] && [_shipHost isEqual:other->_shipHost];
+    }
+    return NO;
 }
 
 @end

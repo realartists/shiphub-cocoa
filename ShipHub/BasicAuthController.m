@@ -14,6 +14,7 @@
 #import "Extras.h"
 #import "NavigationController.h"
 #import "ServerConnection.h"
+#import "ServerChooser.h"
 
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
@@ -28,7 +29,9 @@
 
 @end
 
-@interface BasicAuthController () <NSTextFieldDelegate>
+@interface BasicAuthController () <NSTextFieldDelegate, ServerChooserDelegate, NSPopoverDelegate>
+
+@property IBOutlet NSTextField *signInLabel;
 
 @property IBOutlet NSTextField *username;
 @property IBOutlet NSTextField *password;
@@ -40,6 +43,13 @@
 @property IBOutlet NSButton *goButton;
 
 @property IBOutlet NSButton *infoButton;
+
+@property IBOutlet NSButton *serverButton;
+
+@property NSPopover *popover;
+
+@property NSString *shipHost;
+@property NSString *ghHost;
 
 @end
 
@@ -68,6 +78,9 @@
         [shipString addAttribute:NSParagraphStyleAttributeName value:para range:NSMakeRange(0, shipString.length)];
         
         self.navigationItem.attributedTitle = shipString;
+        
+        _shipHost = DefaultShipHost();
+        _ghHost = DefaultGHHost();
     }
     return self;
 }
@@ -125,35 +138,11 @@
 
 
 - (NSString *)clientID {
-    //return @"eac522c6b68c504b2aac";
-    switch (DefaultsServerEnvironment()) {
-        case ServerEnvironmentDevelopment:
-        case ServerEnvironmentJW:
-        case ServerEnvironmentLocal:
-            return @"da1cde7cfd134d837ae6";
-        default:
-            return @"55456285644976e93634";
-    }
+    return @"da1cde7cfd134d837ae6";
 }
 
 - (NSString *)clientSecret {
-    //return @"cc3439df3a004194d920a6eabf303d7e8243281a";
-    switch (DefaultsServerEnvironment()) {
-        case ServerEnvironmentDevelopment:
-        case ServerEnvironmentJW:
-        case ServerEnvironmentLocal:
-            return @"3aeb9af555d7d2285120b133304c34e5a8058078";
-        default:
-            return @"044a8c057d8a00f023f4c19932d0fcbb77deaa57";
-    }
-}
-
-- (NSString *)ghHost {
-    return @"api.github.com";
-}
-
-- (NSString *)shipHost {
-    return [ServerConnection defaultShipHubHost];
+    return @"3aeb9af555d7d2285120b133304c34e5a8058078";
 }
 
 - (IBAction)go:(id)sender {
@@ -171,6 +160,7 @@
     _username.enabled = NO;
     _password.enabled = NO;
     _goButton.hidden = YES;
+    _serverButton.hidden = YES;
     _progress.hidden = NO;
     [_progress startAnimation:nil];
     
@@ -252,7 +242,7 @@
 - (void)sayHello:(NSString *)oauthToken {
     // callable from any queue, so we're not necessarily on the main queue here.
     
-    if (DefaultsServerEnvironment() == ServerEnvironmentLocal) {
+    if ([_shipHost isEqualToString:_ghHost]) {
         [self sayHelloLocal:oauthToken];
         return;
     }
@@ -415,6 +405,7 @@
 - (void)resetUI {
     _username.enabled = YES;
     _password.enabled = YES;
+    _serverButton.hidden = NO;
     _goButton.hidden = NO;
     [_progress stopAnimation:nil];
     _progress.hidden = YES;
@@ -424,6 +415,34 @@
     [self resetUI];
     [self.view.window makeFirstResponder:_oneTimeCode];
     [self flashField:_oneTimeCode];
+}
+
+- (IBAction)showServerChooser:(id)sender {
+    ServerChooser *chooser = [ServerChooser new];
+    chooser.delegate = self;
+    chooser.ghHostValue = _ghHost;
+    chooser.shipHostValue = _shipHost;
+    
+    _popover = [[NSPopover alloc] init];
+    _popover.delegate = self;
+    _popover.behavior = NSPopoverBehaviorTransient;
+    _popover.contentViewController = chooser;
+    _popover.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
+    
+    [_popover showRelativeToRect:_serverButton.bounds ofView:_serverButton preferredEdge:NSMaxYEdge];
+}
+
+- (void)serverChooser:(ServerChooser *)chooser didChooseShipHost:(NSString *)shipHost ghHost:(NSString *)ghHost {
+    _shipHost = shipHost;
+    _ghHost = ghHost;
+    
+    [_popover performClose:nil];
+    _popover = nil;
+}
+
+- (void)serverChooserDidCancel:(ServerChooser *)chooser {
+    [_popover performClose:nil];
+    _popover = nil;
 }
 
 @end
