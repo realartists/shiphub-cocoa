@@ -19,6 +19,8 @@
     NSMutableArray *_toRestore;
 }
 
+@property IBOutlet NSMenu *recentItemsMenu;
+
 @end
 
 @implementation IssueDocumentController
@@ -54,6 +56,7 @@
             doc.issueViewController.issue = issue;
             [[DataStore activeStore] checkForIssueUpdates:issueIdentifier];
             [[DataStore activeStore] markIssueAsRead:issueIdentifier];
+            [self noteNewRecentDocument:doc];
             if (completion) {
                 completion(doc);
             }
@@ -78,6 +81,7 @@
     if (![[DataStore activeStore] isValid])
         return;
     
+    [self updateRecents];
     for (id issueIdentifier in _toRestore) {
         [self openIssueWithIdentifier:issueIdentifier canOpenExternally:NO completion:nil];
     }
@@ -103,5 +107,80 @@
     completionHandler(nil, nil);
 }
 
+- (void)noteNewRecentDocument:(IssueDocument *)document {
+    id identifier = document.issueViewController.issue.fullIdentifier;
+    if (!identifier) return;
+    
+    NSString *title = document.issueViewController.issue.title ?: @"";
+    
+    NSMutableArray *recents = [[[NSUserDefaults standardUserDefaults] arrayForKey:@"RecentDocuments"] mutableCopy];
+    if (!recents) {
+        recents = [NSMutableArray array];
+    }
+    
+    NSUInteger i = 0, itemIdx = NSNotFound;
+    for (NSDictionary *entry in recents) {
+        if ([entry[@"identifier"] isEqual:identifier]) {
+            itemIdx = i;
+            break;
+        }
+        i++;
+    }
+    
+    if (itemIdx != NSNotFound) {
+        [recents removeObjectAtIndex:itemIdx];
+    }
+    
+    [recents addObject:@{@"identifier":identifier, @"title":title}]; // recents is reverse sorted
+    
+    NSUInteger maxDocs = [self myMaximumRecentDocumentCount];
+    if (recents.count > maxDocs) {
+        [recents removeObjectsInRange:NSMakeRange(0, recents.count - maxDocs)];
+    }
+    
+    [[NSUserDefaults standardUserDefaults] setObject:recents forKey:@"RecentDocuments"];
+    
+    [self updateRecents];
+}
+
+- (NSUInteger)myMaximumRecentDocumentCount {
+    return [super maximumRecentDocumentCount];
+}
+
+- (NSUInteger)maximumRecentDocumentCount {
+    return 0; // I managed recents myself, I don't want Cocoa to do it for me.
+}
+
+- (IBAction)openRecent:(id)sender {
+    id identifier = [sender representedObject];
+    [self openIssueWithIdentifier:identifier];
+}
+
+- (void)updateRecents {
+    NSArray *recents = [[NSUserDefaults standardUserDefaults] objectForKey:@"RecentDocuments"];
+    
+    // Remove old items
+    NSMenuItem *item = nil;
+    while ((item = [_recentItemsMenu itemAtIndex:0]).action == @selector(openRecent:)) {
+        [_recentItemsMenu removeItemAtIndex:0];
+    }
+    
+    if (recents.count > 0) {
+        [_recentItemsMenu insertItem:[NSMenuItem separatorItem] atIndex:0];
+    }
+    
+    for (NSDictionary *recent in recents) {
+        NSString *title = [NSString localizedStringWithFormat:NSLocalizedString(@"#%@ %@", @"Open Recent menu item title format string"), recent[@"identifier"], recent[@"title"]];
+        item = [[NSMenuItem alloc] initWithTitle:title action:@selector(openRecent:) keyEquivalent:@""];
+        item.representedObject = recent[@"identifier"];
+        [_recentItemsMenu insertItem:item atIndex:0];
+    }
+    
+}
+
+- (IBAction)clearRecentDocuments:(id)sender {
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"RecentDocuments"];
+    [self updateRecents];
+}
 
 @end

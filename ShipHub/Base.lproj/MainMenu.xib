@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
     </dependencies>
@@ -18,7 +18,11 @@
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
-        <customObject id="V6k-To-yxO" customClass="IssueDocumentController"/>
+        <customObject id="V6k-To-yxO" customClass="IssueDocumentController">
+            <connections>
+                <outlet property="recentItemsMenu" destination="gvQ-aG-HWQ" id="sGJ-2F-fsc"/>
+            </connections>
+        </customObject>
         <menu title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
             <items>
                 <menuItem title="ShipHub" id="1Xt-HY-uBw">
@@ -105,14 +109,14 @@
                                     <action selector="openDocument:" target="-1" id="vu3-Mh-30w"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Open Recent" id="tXI-mr-wws">
+                            <menuItem title="Open Recent" id="T4O-t9-dIC">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Open Recent" systemMenu="recentDocuments" id="oas-Oc-fiZ">
+                                <menu key="submenu" title="Open Recent" id="gvQ-aG-HWQ">
                                     <items>
-                                        <menuItem title="Clear Menu" id="vNY-rz-j42">
+                                        <menuItem title="Clear Menu" id="ZWR-VB-xdH">
                                             <modifierMask key="keyEquivalentModifierMask"/>
                                             <connections>
-                                                <action selector="clearRecentDocuments:" target="-1" id="Daa-9d-B3U"/>
+                                                <action selector="clearRecentDocuments:" target="V6k-To-yxO" id="53T-cq-oDd"/>
                                             </connections>
                                         </menuItem>
                                     </items>

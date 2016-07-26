@@ -45,6 +45,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     NSMutableArray *_javaScriptToRun;
     NSInteger _pastedImageCount;
     BOOL _useWebpackDevServer;
+    BOOL _reverting;
     
     NSInteger _spellcheckDocumentTag;
     NSDictionary *_spellcheckContextTarget;
@@ -537,7 +538,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     WebNavigationType navigationType = [actionInformation[WebActionNavigationTypeKey] integerValue];
     
     if (navigationType == WebNavigationTypeReload) {
-        if (_useWebpackDevServer) {
+        if (_useWebpackDevServer || _reverting) {
             // The webpack-dev-server page will auto-refresh as the content updates,
             // so reloading needs to be allowed.
             
@@ -953,11 +954,15 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 }
 
 - (IBAction)revert:(id)sender {
-    if (_issue) {
-        self.issue = _issue;
-    } else {
-        [self configureNewIssue];
-    }
+    _reverting = YES;
+    [_web.mainFrame reload];
+    if (_columnBrowser) [self setColumnBrowser:YES];
+    _reverting = NO;
+    [[NSNotificationCenter defaultCenter] postNotificationName:IssueViewControllerNeedsSaveDidChangeNotification object:self userInfo:@{IssueViewControllerNeedsSaveKey:@NO}];
+}
+
+- (IBAction)revertDocumentToSaved:(id)sender {
+    [self revert:sender];
 }
 
 - (IBAction)copyIssueNumber:(id)sender {
