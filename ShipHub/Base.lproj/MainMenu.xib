@@ -693,6 +693,30 @@
                                     <action selector="runToolbarCustomizationPalette:" target="-1" id="pQI-g3-MTW"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="u7i-Md-Kgl"/>
+                            <menuItem title="List View" keyEquivalent="1" id="BSZ-BN-jeF">
+                                <connections>
+                                    <action selector="showList:" target="-1" id="bAX-gI-IU3"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Browser View" keyEquivalent="2" id="0co-we-6lP">
+                                <connections>
+                                    <action selector="showBrowser:" target="-1" id="LqO-az-Ei0"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Chart View" keyEquivalent="3" id="rPl-ui-zZO">
+                                <connections>
+                                    <action selector="showChart:" target="-1" id="ros-Nz-71j"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="TsD-4S-rAL"/>
+                            <menuItem title="Chart Options…" keyEquivalent="," id="geb-mS-sWM">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="showChartOptions:" target="-1" id="OEc-Yo-9Yp"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="ocu-wI-aZt"/>
                         </items>
                     </menu>
                 </menuItem>
