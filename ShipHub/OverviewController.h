@@ -10,14 +10,17 @@
 
 #if !INCOMPLETE
 @class CustomQuery;
-@protocol ProblemSnapshot;
 #endif
+
+@class Issue;
 
 @interface OverviewController : NSWindowController
 
 - (IBAction)searchAllProblems:(id)sender;
 
 + (OverviewController *)defaultOverviewController; // Returns either the first open overview controller or opens a new one if there are none.
+
+- (NSArray<Issue *> *)selectedIssues;
 
 #if !INCOMPLETE
 - (IBAction)showDownloads:(id)sender;

@@ -152,7 +152,7 @@
     }
 }
 
-- (NSArray <id<ProblemSnapshot>> *)selectedProblemSnapshots {
+- (NSArray<Issue *> *)selectedProblemSnapshots {
     return [_table selectedProblemSnapshots];
 }
 

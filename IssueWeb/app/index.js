@@ -1495,6 +1495,10 @@ var Comment = React.createClass({
     }
   },
   
+  setInitialContents: function(contents) {
+    this.setState(Object.assign({}, this.state, {code: contents}));
+  },
+  
   updateCode: function(newCode) {
     this.setState(Object.assign({}, this.state, {code: newCode}));
     if (window.documentEditedHelper) {
@@ -3019,6 +3023,14 @@ var App = React.createClass({
   
   componentDidMount: function() {
     this.registerGlobalEventHandlers();
+    
+    // If we're doing New Clone in the app, we have an issue body already.
+    // Set it, but don't dirty the save state
+    var isNewIssue = !(getIvars().issue.number);
+    var addComment = this.refs.addComment;
+    if (isNewIssue && this.props.issue && this.props.issue.body && this.props.issue.body.length > 0) {
+      addComment.setInitialContents(this.props.issue.body);
+    }
   },
   
   componentDidUpdate: function() {

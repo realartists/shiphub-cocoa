@@ -98,6 +98,12 @@
                                     <action selector="newDocument:" target="V6k-To-yxO" id="ypv-Vb-ADy"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Clone Issue" keyEquivalent="c" id="Qka-Ye-cPD">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                <connections>
+                                    <action selector="cloneIssue:" target="V6k-To-yxO" id="6s1-Vk-P4e"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="New Overview Window" keyEquivalent="n" id="4rE-a3-IqH">
                                 <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                 <connections>

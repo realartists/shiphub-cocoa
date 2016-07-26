@@ -1276,9 +1276,11 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 #pragma mark -
 
-- (NSArray <id<ProblemSnapshot>> *)selectedProblemSnapshots {
+- (NSArray<Issue *> *)selectedIssues {
     if (_modeItem.mode == ResultsViewModeList) {
         return [_searchResults selectedProblemSnapshots];
+    } else if (_modeItem.mode == ResultsViewMode3Pane) {
+        return [_threePaneController selectedProblemSnapshots];
     }
     return nil;
 }

@@ -9,13 +9,13 @@
 #import <Cocoa/Cocoa.h>
 #import "ResultsController.h"
 
-@protocol ProblemSnapshot;
+@class Issue;
 
 @interface SearchResultsController : ResultsController
 
 @property BOOL autoupdates; // if YES, will listen for DataStore changes and automatically refresh its contents. Default is NO.
 
-- (NSArray <id<ProblemSnapshot>> *)selectedProblemSnapshots;
+- (NSArray<Issue *> *)selectedProblemSnapshots;
 
 @property (nonatomic, assign, getter=isBordered) BOOL bordered;
 

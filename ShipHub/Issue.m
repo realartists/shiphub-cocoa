@@ -93,6 +93,18 @@
     return _closed ? @"closed" : @"open";
 }
 
+- (Issue *)clone {
+    Issue *i = [Issue new];
+    i->_body = [self.body copy];
+    i->_title = [self.title copy];
+    i->_assignee = self.assignee;
+    i->_labels = [self.labels copy];
+    i->_milestone = self.milestone;
+    i->_repository = self.repository;
+    
+    return i;
+}
+
 @end
 
 NSString const* IssueOptionIncludeEventsAndComments = @"IssueOptionIncludeEventsAndComments";

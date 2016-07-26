@@ -14,6 +14,8 @@
 #import "IssueDocument.h"
 #import "IssueIdentifier.h"
 #import "IssueViewController.h"
+#import "AppDelegate.h"
+#import "OverviewController.h"
 
 @interface IssueDocumentController () {
     NSMutableArray *_toRestore;
@@ -181,6 +183,29 @@
 - (IBAction)clearRecentDocuments:(id)sender {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"RecentDocuments"];
     [self updateRecents];
+}
+
+- (Issue *)keyOrSelectedProblem {
+    IssueDocument *doc = [self currentDocument];
+    if (doc) {
+        return doc.issueViewController.issue;
+    } else {
+        OverviewController *activeOverview = [[AppDelegate sharedDelegate] activeOverviewController];
+        NSArray *snaps = [activeOverview selectedIssues];
+        if ([snaps count] != 1) {
+            return nil;
+        } else {
+            return snaps[0];
+        }
+    }
+}
+
+- (IBAction)cloneIssue:(id)sender {
+    Issue *src = [self keyOrSelectedProblem];
+    
+    Issue *clone = [src clone];
+    IssueDocument *newDoc = [self openUntitledDocumentAndDisplay:YES error:NULL];
+    newDoc.issueViewController.issue = clone;
 }
 
 @end

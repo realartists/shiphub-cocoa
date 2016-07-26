@@ -53,6 +53,8 @@
 
 - (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms options:(NSDictionary *)options;
 
+- (Issue *)clone;
+
 @end
 
 extern NSString const* IssueOptionIncludeEventsAndComments;
