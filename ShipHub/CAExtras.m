@@ -28,7 +28,7 @@
     if (completion) {
         AnimationCompleter *completer = [AnimationCompleter new];
         completer.completion = completion;
-        anim.delegate = completer; // retains completer
+        anim.delegate = (id)completer; // retains completer
     }
     [self addAnimation:anim forKey:key];
 }

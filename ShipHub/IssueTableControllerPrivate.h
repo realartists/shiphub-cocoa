@@ -16,7 +16,7 @@
 
 @interface ProblemTableView : NSTableView
 
-@property id<ProblemTableViewDelegate> delegate;
+@property (weak) id<ProblemTableViewDelegate> delegate;
 
 @end
 
