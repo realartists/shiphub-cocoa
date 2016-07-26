@@ -45,7 +45,6 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     NSMutableArray *_javaScriptToRun;
     NSInteger _pastedImageCount;
     BOOL _useWebpackDevServer;
-    BOOL _reverting;
     
     NSInteger _spellcheckDocumentTag;
     NSDictionary *_spellcheckContextTarget;
@@ -510,6 +509,10 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
         [weakSelf spellcheck:msg];
     } name:@"spellcheck"];
     
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf javascriptLoadComplete];
+    } name:@"loadComplete"];
+    
     NSString *setupJS =
     @"window.inApp = true;\n"
     @"window.postAppMessage = function(msg) { window.inAppAPI.postMessage(msg); }\n";
@@ -520,7 +523,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     [windowObject evaluateWebScript:setupJS];
 }
 
-- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
+- (void)javascriptLoadComplete {
     _didFinishLoading = YES;
     NSArray *toRun = _javaScriptToRun;
     _javaScriptToRun = nil;
@@ -538,7 +541,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     WebNavigationType navigationType = [actionInformation[WebActionNavigationTypeKey] integerValue];
     
     if (navigationType == WebNavigationTypeReload) {
-        if (_useWebpackDevServer || _reverting) {
+        if (_useWebpackDevServer) {
             // The webpack-dev-server page will auto-refresh as the content updates,
             // so reloading needs to be allowed.
             
@@ -954,15 +957,11 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 }
 
 - (IBAction)revert:(id)sender {
-    _reverting = YES;
-    [_web.mainFrame reload];
-    if (_columnBrowser) [self setColumnBrowser:YES];
-    _reverting = NO;
-    [[NSNotificationCenter defaultCenter] postNotificationName:IssueViewControllerNeedsSaveDidChangeNotification object:self userInfo:@{IssueViewControllerNeedsSaveKey:@NO}];
-}
-
-- (IBAction)revertDocumentToSaved:(id)sender {
-    [self revert:sender];
+    if (_issue) {
+        self.issue = _issue;
+    } else {
+        [self configureNewIssue];
+    }
 }
 
 - (IBAction)copyIssueNumber:(id)sender {
@@ -1013,6 +1012,76 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     }
     
     [_web.mainFrame.javaScriptContext evaluateScript:[NSString stringWithFormat:@"window.save(%td);", token]];
+}
+
+#pragma mark - Formatting Controls
+
+- (void)applyFormat:(NSString *)format {
+    [self evaluateJavaScript:[NSString stringWithFormat:@"applyMarkdownFormat(%@)", [JSON stringifyObject:format withNameTransformer:nil]]];
+}
+
+- (IBAction)mdBold:(id)sender {
+    [self applyFormat:@"bold"];
+}
+
+- (IBAction)mdItalic:(id)sender {
+    [self applyFormat:@"italic"];
+}
+
+- (IBAction)mdStrike:(id)sender {
+    [self applyFormat:@"strike"];
+}
+
+- (IBAction)mdIncreaseHeading:(id)sender {
+    [self applyFormat:@"headingMore"];
+}
+
+- (IBAction)mdDecreaseHeading:(id)sender {
+    [self applyFormat:@"headingLess"];
+}
+
+- (IBAction)mdUnorderedList:(id)sender {
+    [self applyFormat:@"insertUL"];
+}
+
+- (IBAction)mdOrderedList:(id)sender {
+    [self applyFormat:@"insertOL"];
+}
+
+- (IBAction)mdTaskList:(id)sender {
+    [self applyFormat:@"insertTaskList"];
+}
+
+- (IBAction)mdCodeBlock:(id)sender {
+    [self applyFormat:@"code"];
+}
+
+- (IBAction)mdCodeFence:(id)sender {
+    [self applyFormat:@"codefence"];
+}
+
+- (IBAction)mdHyperlink:(id)sender {
+    [self applyFormat:@"hyperlink"];
+}
+
+- (IBAction)mdAttachFile:(id)sender {
+    [self applyFormat:@"attach"];
+}
+
+- (IBAction)mdIncreaseQuote:(id)sender {
+    [self applyFormat:@"quoteMore"];
+}
+
+- (IBAction)mdDecreaseQuote:(id)sender {
+    [self applyFormat:@"quoteLess"];
+}
+
+- (IBAction)mdIndent:(id)sender {
+    [self applyFormat:@"indentMore"];
+}
+
+- (IBAction)mdOutdent:(id)sender {
+    [self applyFormat:@"indentLess"];
 }
 
 @end

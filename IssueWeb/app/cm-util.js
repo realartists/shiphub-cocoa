@@ -126,3 +126,45 @@ export function toggleFormat(operator, tokenType) {
     }
   };
 }
+
+export function increasePrefix(operator) {
+  return function(cm) {
+    var from = cm.getCursor("from");
+    var to = cm.getCursor("to");
+    
+    for (var line = from.line; line <= to.line; line++) {
+      var text = cm.getLine(line);
+      var insertion = operator;
+      if (text.indexOf(operator) != 0) {
+        insertion = operator + " ";
+      }
+      cm.replaceRange(insertion, {line:line, ch:0}, {line:line, ch:0}, "+input");
+    }
+  };
+}
+
+export function decreasePrefix(operator) {
+  return function(cm) {
+    var from = cm.getCursor("from");
+    var to = cm.getCursor("to");
+    
+    var withSpace = operator + " ";
+    for (var line = from.line; line <= to.line; line++) {
+      var text = cm.getLine(line);
+      if (text.indexOf(withSpace) == 0) {
+        cm.replaceRange("", {line:line, ch:0}, {line:line, ch:withSpace.length}, "+input");
+      } else if (text.indexOf(operator) == 0) {
+        cm.replaceRange("", {line:line, ch:0}, {line:line, ch:operator.length}, "+input");
+      }
+    }
+  };
+}
+
+export function insertTemplate(template) {
+  return function(cm) {
+    var from = cm.getCursor("from");
+    var to = cm.getCursor("to");
+    
+    cm.replaceRange(template, from, to, "+input");
+  };
+}

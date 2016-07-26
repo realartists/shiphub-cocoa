@@ -46,7 +46,7 @@ import LabelPicker from './label-picker.js'
 import uploadAttachment from './file-uploader.js'
 import FilePicker from './file-picker.js'
 import TimeAgo from './time-ago'
-import { shiftTab, searchForward, searchBackward, toggleFormat } from './cm-util.js'
+import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from './cm-util.js'
 
 var debugToken = "8de44b7cf7050c827165d3f509abb1bd187a62e4";
 
@@ -1136,6 +1136,12 @@ var ActivityList = React.createClass({
     return comments.length > 0 && comments.reduce((a, x) => a || x.needsSave(), false);
   },
   
+  activeComment: function() {
+    var cs = this.allComments().filter((c) => c.hasFocus());
+    if (cs.length > 0) return cs[0];
+    return null;
+  },
+  
   save: function() {
     var c = this.allComments();
     return Promise.all(c.filter((x) => x.needsSave()).map((x) => x.save()));
@@ -1550,6 +1556,14 @@ var Comment = React.createClass({
     }, 0);
   },
   
+  hasFocus: function() {
+    if (this.refs.codemirror) {
+      var cm = this.refs.codemirror.getCodeMirror();
+      return cm && cm.hasFocus(); 
+    }
+    return false;
+  },
+  
   focusCodemirror: function() {
     this.refs.codemirror.focus()
   },
@@ -1933,16 +1947,52 @@ var Comment = React.createClass({
       // Configure spellchecking
       cm.setOption("systemSpellcheck", true);
       
+      cm.extraCommands = {
+        bold: toggleFormat('**', 'strong'),
+        italic: toggleFormat('_', 'em'),
+        strike: toggleFormat('~~', 'strikethrough'),
+        headingMore: increasePrefix('#'),
+        headingLess: decreasePrefix('#'),
+        insertUL: insertTemplate('* Item'),
+        insertOL: insertTemplate('1. First'),
+        insertTaskList: insertTemplate('- [x] Complete\n- [ ] Incomplete'),
+        hyperlink: insertTemplate('[title](url)'),
+        attach: (cm) => { this.selectFiles(); },
+        quoteMore: increasePrefix('>'),
+        quoteLess: decreasePrefix('>'),
+        code: toggleFormat('`', 'comment'),
+        codefence: insertTemplate(
+          '```swift\n' +
+          'func sayHello(name: String) {\n' +
+          '  print("Hello, \(name)!")\n' +
+          '}\n' +
+          '```'
+        )
+      };
+      
       // Configure some formatting controls
       cm.setOption('extraKeys', {
-        'Cmd-B': toggleFormat('**', 'strong'),
-        'Cmd-I': toggleFormat('_', 'em'),
+        'Cmd-B': cm.extraCommands.bold,
+        'Cmd-I': cm.extraCommands.italic,
         'Cmd-S': () => { this.save(); },
         'Shift-Tab': shiftTab,
         'Tab': 'indentMore'
       });
       
       cm.on('blur', () => { this.onBlur(); });
+    }
+  },
+  
+  applyMarkdownFormat: function(format) {
+    if (!(this.refs.codemirror)) {
+      return;
+    }
+    
+    var cm = this.refs.codemirror.getCodeMirror();
+    if (format in cm.extraCommands) {
+      cm.extraCommands[format](cm);
+    } else {
+      cm.execCommand(format);
     }
   },
   
@@ -3018,6 +3068,28 @@ var App = React.createClass({
       }
     };
   },
+  
+  activeComment: function() {
+    var activity = this.refs.activity;
+    var addComment = this.refs.addComment;
+    
+    if (activity && addComment) {
+      var c = activity.activeComment();
+      if (!c) {
+        c = addComment;
+      }
+      return c;
+    }
+    
+    return null;
+  },
+  
+  applyMarkdownFormat: function(format) {
+    var c = this.activeComment();
+    if (c) { 
+      c.applyMarkdownFormat(format);
+    }
+  }
 });
 
 function applyIssueState(state) {
@@ -3163,4 +3235,12 @@ function setInColumnBrowser(inBrowser) {
 
 window.setInColumnBrowser = setInColumnBrowser;
 
+function applyMarkdownFormat(format) {
+  if (window.topLevelComponent) {
+    window.topLevelComponent.applyMarkdownFormat(format);
+  } 
+}
 
+window.applyMarkdownFormat = applyMarkdownFormat;
+
+window.loadComplete.postMessage({});

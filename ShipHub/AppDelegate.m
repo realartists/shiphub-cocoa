@@ -391,4 +391,8 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     exit(0);
 }
 
+- (IBAction)showMarkdownFormattingGuide:(id)sender {
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://guides.github.com/features/mastering-markdown/"]];
+}
+
 @end
