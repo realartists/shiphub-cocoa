@@ -55,7 +55,8 @@
 }
 
 - (void)update:(NSNotification *)note {
-    BOOL online, reachabilityInited;
+    BOOL online = [[Reachability sharedInstance] isReachable];
+    BOOL reachabilityInited = [[Reachability sharedInstance] receivedFirstUpdate];
     
     // FIXME: Hook this stuff back up
     BOOL offline = !online && reachabilityInited;
