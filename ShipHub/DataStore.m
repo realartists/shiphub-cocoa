@@ -1087,10 +1087,14 @@ static NSString *const LastUpdated = @"LastUpdated";
     // PATCH /repos/:owner/:repo/issues/:number
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/issues/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
     
+    DebugLog(@"Patching %@: %@", issueIdentifier, patch);
+    
     [self.serverConnection perform:@"PATCH" on:endpoint body:patch completion:^(id jsonResponse, NSError *error) {
         
         if (!error) {
             id myJSON = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
+            
+            DebugLog(@"Patch of %@ succeeded: %@", issueIdentifier, myJSON);
             
             [self storeSingleSyncObject:myJSON type:@"issue" completion:^{
                 

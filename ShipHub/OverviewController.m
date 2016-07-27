@@ -34,6 +34,7 @@
 #import "IssueDocumentController.h"
 #import "SearchSheet.h"
 #import "CustomQuery.h"
+#import "BulkModifyHelper.h"
 
 //#import "OutboxViewController.h"
 //#import "AttachmentProgressViewController.h"
@@ -328,6 +329,9 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         node.showProgress = YES;
         node.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@", milestone];
         node.icon = milestoneIcon;
+        node.dropHandler = ^(NSArray *identifiers) {
+            [[BulkModifyHelper sharedHelper] moveIssues:identifiers toMilestone:milestone window:weakSelf.window completion:nil];
+        };
         [milestonesRoot addChild:node];
     }
     

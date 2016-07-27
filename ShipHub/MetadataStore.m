@@ -252,6 +252,10 @@ static BOOL IsMetadataObject(id obj) {
     return _milestonesByRepoID[repo.identifier];
 }
 
+- (Milestone *)milestoneWithTitle:(NSString *)title inRepo:(Repo *)repo {
+    return [[_milestonesByRepoID[repo.identifier] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"title = %@", title] limit:1] firstObject];
+}
+
 - (NSArray<Repo *> *)reposForOwner:(Account *)owner {
     return _reposByOwnerID[owner.identifier];
 }

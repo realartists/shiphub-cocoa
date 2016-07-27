@@ -138,6 +138,18 @@
 		1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */; };
 		1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */; };
 		1A7A415B1C8F603E0043DAF0 /* CAExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A415A1C8F603E0043DAF0 /* CAExtras.m */; };
+		1A7FD7611D48296000B585E2 /* BulkModifyHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD7601D48296000B585E2 /* BulkModifyHelper.m */; };
+		1A7FD7701D492E9E00B585E2 /* BulkModifyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD76F1D492E9E00B585E2 /* BulkModifyController.m */; };
+		1A7FD7741D492FE000B585E2 /* MilestoneModifyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD7721D492FE000B585E2 /* MilestoneModifyController.m */; };
+		1A7FD7751D492FE000B585E2 /* MilestoneModifyController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7FD7731D492FE000B585E2 /* MilestoneModifyController.xib */; };
+		1A7FD7791D493B0400B585E2 /* ProgressSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD7771D493B0400B585E2 /* ProgressSheet.m */; };
+		1A7FD77A1D493B0400B585E2 /* ProgressSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7FD7781D493B0400B585E2 /* ProgressSheet.xib */; };
+		1A7FD77E1D494A5C00B585E2 /* LabelModifyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD77C1D494A5C00B585E2 /* LabelModifyController.m */; };
+		1A7FD77F1D494A5C00B585E2 /* LabelModifyController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7FD77D1D494A5C00B585E2 /* LabelModifyController.xib */; };
+		1A7FD7831D497C1700B585E2 /* AssigneeModifyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD7811D497C1700B585E2 /* AssigneeModifyController.m */; };
+		1A7FD7841D497C1700B585E2 /* AssigneeModifyController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7FD7821D497C1700B585E2 /* AssigneeModifyController.xib */; };
+		1A7FD7881D49856600B585E2 /* StateModifyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD7861D49856600B585E2 /* StateModifyController.m */; };
+		1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7FD7871D49856600B585E2 /* StateModifyController.xib */; };
 		1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */; };
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsView.m */; };
@@ -514,6 +526,25 @@
 		1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BasicAuthController.xib; sourceTree = "<group>"; };
 		1A7A415A1C8F603E0043DAF0 /* CAExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CAExtras.m; sourceTree = "<group>"; };
 		1A7A415F1C8F604E0043DAF0 /* CAExtras.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CAExtras.h; sourceTree = "<group>"; };
+		1A7FD75F1D48296000B585E2 /* BulkModifyHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BulkModifyHelper.h; sourceTree = "<group>"; };
+		1A7FD7601D48296000B585E2 /* BulkModifyHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BulkModifyHelper.m; sourceTree = "<group>"; };
+		1A7FD76E1D492E9E00B585E2 /* BulkModifyController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BulkModifyController.h; sourceTree = "<group>"; };
+		1A7FD76F1D492E9E00B585E2 /* BulkModifyController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BulkModifyController.m; sourceTree = "<group>"; };
+		1A7FD7711D492FE000B585E2 /* MilestoneModifyController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MilestoneModifyController.h; sourceTree = "<group>"; };
+		1A7FD7721D492FE000B585E2 /* MilestoneModifyController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MilestoneModifyController.m; sourceTree = "<group>"; };
+		1A7FD7731D492FE000B585E2 /* MilestoneModifyController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MilestoneModifyController.xib; sourceTree = "<group>"; };
+		1A7FD7761D493B0400B585E2 /* ProgressSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProgressSheet.h; sourceTree = "<group>"; };
+		1A7FD7771D493B0400B585E2 /* ProgressSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProgressSheet.m; sourceTree = "<group>"; };
+		1A7FD7781D493B0400B585E2 /* ProgressSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProgressSheet.xib; sourceTree = "<group>"; };
+		1A7FD77B1D494A5C00B585E2 /* LabelModifyController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelModifyController.h; sourceTree = "<group>"; };
+		1A7FD77C1D494A5C00B585E2 /* LabelModifyController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelModifyController.m; sourceTree = "<group>"; };
+		1A7FD77D1D494A5C00B585E2 /* LabelModifyController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LabelModifyController.xib; sourceTree = "<group>"; };
+		1A7FD7801D497C1700B585E2 /* AssigneeModifyController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssigneeModifyController.h; sourceTree = "<group>"; };
+		1A7FD7811D497C1700B585E2 /* AssigneeModifyController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssigneeModifyController.m; sourceTree = "<group>"; };
+		1A7FD7821D497C1700B585E2 /* AssigneeModifyController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AssigneeModifyController.xib; sourceTree = "<group>"; };
+		1A7FD7851D49856600B585E2 /* StateModifyController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StateModifyController.h; sourceTree = "<group>"; };
+		1A7FD7861D49856600B585E2 /* StateModifyController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StateModifyController.m; sourceTree = "<group>"; };
+		1A7FD7871D49856600B585E2 /* StateModifyController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = StateModifyController.xib; sourceTree = "<group>"; };
 		1A9905061CDBC93A00EAA474 /* Issue3PaneTableController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Issue3PaneTableController.h; sourceTree = "<group>"; };
 		1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Issue3PaneTableController.m; sourceTree = "<group>"; };
 		1A99050C1CDBC98900EAA474 /* IssueTableControllerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueTableControllerPrivate.h; sourceTree = "<group>"; };
@@ -744,6 +775,7 @@
 				1A012E6F1D3EABDB006CE5DF /* Search UI */,
 				1A0D59D21CA4A8B4004F2578 /* Issue UI */,
 				1AF3494A1CDA95D100A5BEB0 /* Charting */,
+				1A7FD76A1D492E5800B585E2 /* Bulk Modify */,
 				1A694B131CA3419900F73608 /* Shared UI */,
 				1A2217CE1C7E80C0006460E2 /* Extras */,
 				1A2217941C7E7B14006460E2 /* Supporting Files */,
@@ -1043,10 +1075,36 @@
 				1A694B471CA34BCD00F73608 /* ImagePopUpButton.m */,
 				1A9905161CE11A0700EAA474 /* LabelsView.h */,
 				1A9905171CE11A0700EAA474 /* LabelsView.m */,
-				1A51084F1D2F70C900905D4D /* UpNextHelper.h */,
-				1A5108501D2F70C900905D4D /* UpNextHelper.m */,
+				1A7FD7761D493B0400B585E2 /* ProgressSheet.h */,
+				1A7FD7771D493B0400B585E2 /* ProgressSheet.m */,
+				1A7FD7781D493B0400B585E2 /* ProgressSheet.xib */,
 			);
 			name = "Shared UI";
+			sourceTree = "<group>";
+		};
+		1A7FD76A1D492E5800B585E2 /* Bulk Modify */ = {
+			isa = PBXGroup;
+			children = (
+				1A51084F1D2F70C900905D4D /* UpNextHelper.h */,
+				1A5108501D2F70C900905D4D /* UpNextHelper.m */,
+				1A7FD75F1D48296000B585E2 /* BulkModifyHelper.h */,
+				1A7FD7601D48296000B585E2 /* BulkModifyHelper.m */,
+				1A7FD76E1D492E9E00B585E2 /* BulkModifyController.h */,
+				1A7FD76F1D492E9E00B585E2 /* BulkModifyController.m */,
+				1A7FD7711D492FE000B585E2 /* MilestoneModifyController.h */,
+				1A7FD7721D492FE000B585E2 /* MilestoneModifyController.m */,
+				1A7FD7731D492FE000B585E2 /* MilestoneModifyController.xib */,
+				1A7FD77B1D494A5C00B585E2 /* LabelModifyController.h */,
+				1A7FD77C1D494A5C00B585E2 /* LabelModifyController.m */,
+				1A7FD77D1D494A5C00B585E2 /* LabelModifyController.xib */,
+				1A7FD7801D497C1700B585E2 /* AssigneeModifyController.h */,
+				1A7FD7811D497C1700B585E2 /* AssigneeModifyController.m */,
+				1A7FD7821D497C1700B585E2 /* AssigneeModifyController.xib */,
+				1A7FD7851D49856600B585E2 /* StateModifyController.h */,
+				1A7FD7861D49856600B585E2 /* StateModifyController.m */,
+				1A7FD7871D49856600B585E2 /* StateModifyController.xib */,
+			);
+			name = "Bulk Modify";
 			sourceTree = "<group>";
 		};
 		1AD470D61C99FB7C0050AE4B /* DataStore */ = {
@@ -1291,6 +1349,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A7FD77A1D493B0400B585E2 /* ProgressSheet.xib in Resources */,
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
 				1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */,
@@ -1301,12 +1360,16 @@
 				1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */,
 				1AF349791CDAC1E900A5BEB0 /* ChartConfigController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
+				1A7FD7841D497C1700B585E2 /* AssigneeModifyController.xib in Resources */,
+				1A7FD7751D492FE000B585E2 /* MilestoneModifyController.xib in Resources */,
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
+				1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */,
 				28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */,
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
 				1A012E811D3EAC0E006CE5DF /* SaveSearchController.xib in Resources */,
+				1A7FD77F1D494A5C00B585E2 /* LabelModifyController.xib in Resources */,
 				1A012E9F1D3EE111006CE5DF /* SearchSheet.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1352,6 +1415,7 @@
 				1A2217961C7E7B14006460E2 /* main.m in Sources */,
 				1AE09BF61C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
 				1A3618F51C90C7F6008C11CB /* LocalModel.xcdatamodeld in Sources */,
+				1A7FD7741D492FE000B585E2 /* MilestoneModifyController.m in Sources */,
 				1A694B2A1CA341D500F73608 /* NetworkStateWindow.m in Sources */,
 				1A5108661D319E2B00905D4D /* NotificationsManager.m in Sources */,
 				1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */,
@@ -1388,6 +1452,7 @@
 				1A012E801D3EAC0E006CE5DF /* SaveSearchController.m in Sources */,
 				1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */,
 				1A012EB11D443EBD006CE5DF /* LocalQuery.m in Sources */,
+				1A7FD7611D48296000B585E2 /* BulkModifyHelper.m in Sources */,
 				1A2305DD1C7F84D80034C871 /* Error.m in Sources */,
 				1A694B4B1CA367E300F73608 /* Issue.m in Sources */,
 				1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */,
@@ -1417,6 +1482,7 @@
 				1A694B241CA341D500F73608 /* CustomToolbarItem.m in Sources */,
 				1A694B281CA341D500F73608 /* SearchField.m in Sources */,
 				1A694B291CA341D500F73608 /* NSImage+Icons.m in Sources */,
+				1A7FD7881D49856600B585E2 /* StateModifyController.m in Sources */,
 				1A694B111CA3413700F73608 /* ResultsViewModeItem.m in Sources */,
 				1A2217D81C7E981D006460E2 /* Keychain.m in Sources */,
 				1AB503E91D2471EF0097875C /* NSFileWrapper+ImageExtras.m in Sources */,
@@ -1425,6 +1491,7 @@
 				1AD956B31D0B5654002B1259 /* DownloadBarViewController.m in Sources */,
 				1A012E9E1D3EE111006CE5DF /* SearchSheet.m in Sources */,
 				1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */,
+				1A7FD7791D493B0400B585E2 /* ProgressSheet.m in Sources */,
 				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
 				1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */,
 				1AE09C021C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,
@@ -1452,6 +1519,7 @@
 				1A012E941D3EAC47006CE5DF /* StateRowTemplate.m in Sources */,
 				1A012EC11D452F17006CE5DF /* LabelRowTemplate.m in Sources */,
 				1A694B0E1CA3413700F73608 /* OverviewNode.m in Sources */,
+				1A7FD7831D497C1700B585E2 /* AssigneeModifyController.m in Sources */,
 				1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */,
 				1A012EB01D443EBD006CE5DF /* LocalQuery+CoreDataProperties.m in Sources */,
 				1AF349771CDAC1E900A5BEB0 /* ChartConfigController.m in Sources */,
@@ -1465,6 +1533,8 @@
 				1A012E921D3EAC47006CE5DF /* MilestoneRowTemplate.m in Sources */,
 				1A0D59EB1CA4AA3A004F2578 /* IssueDocument.m in Sources */,
 				1AE09BF81C97687E00C5AC35 /* LocalRelationship.m in Sources */,
+				1A7FD77E1D494A5C00B585E2 /* LabelModifyController.m in Sources */,
+				1A7FD7701D492E9E00B585E2 /* BulkModifyController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

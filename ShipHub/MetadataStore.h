@@ -33,6 +33,7 @@
 - (NSArray<Label *> *)labelsForRepo:(Repo *)repo;
 
 - (NSArray<Milestone *> *)activeMilestonesForRepo:(Repo *)repo;
+- (Milestone *)milestoneWithTitle:(NSString *)title inRepo:(Repo *)repo;
 
 - (NSArray<Account *> *)repoOwners;
 

@@ -198,6 +198,10 @@
 
 @end
 
+@interface NoInterferenceView : NSView
+
+@end
+
 @interface NSWindow (AppKitExtras)
 
 @property (nonatomic, readonly) CGFloat titleToolbarHeight;

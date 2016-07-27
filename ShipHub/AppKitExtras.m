@@ -887,6 +887,13 @@ static CGFloat GetAttachmentWidth(void *ref) {
 
 @end
 
+@implementation NoInterferenceView
+
+- (void)resizeSubviewsWithOldSize:(NSSize)oldSize { }
+- (void)resizeWithOldSuperviewSize:(NSSize)oldSize { }
+
+@end
+
 @implementation NSWindow (AppKitExtras)
 
 - (CGFloat)titleToolbarHeight {

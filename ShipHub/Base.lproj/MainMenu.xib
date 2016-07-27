@@ -242,6 +242,38 @@
                                     <action selector="selectAll:" target="-1" id="VNm-Mi-diN"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="KxG-TD-RfV"/>
+                            <menuItem title="Bulk Modify Issues" id="4c4-os-uzH">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Bulk Modify Issues" id="XeJ-B3-217">
+                                    <items>
+                                        <menuItem title="Milestone" id="mz5-Vw-qRP">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="bulkModifyMilestone:" target="-1" id="yfa-iN-1pF"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Labels" id="VCX-ja-vTR">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="bulkModifyLabels:" target="-1" id="Fd1-Tm-QR1"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Assignee" id="qqn-PD-45P">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="bulkModifyAssignee:" target="-1" id="qaO-oc-m8g"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="State" id="y2Z-KY-GEk">
+                                            <modifierMask key="keyEquivalentModifierMask"/>
+                                            <connections>
+                                                <action selector="bulkModifyState:" target="-1" id="p7Z-g9-MT6"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="uyl-h8-XO2"/>
                             <menuItem title="Find" id="4EN-yA-p0u">
                                 <modifierMask key="keyEquivalentModifierMask"/>

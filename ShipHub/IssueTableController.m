@@ -15,6 +15,7 @@
 #import "Issue.h"
 #import "IssueIdentifier.h"
 #import "UpNextHelper.h"
+#import "BulkModifyHelper.h"
 
 @interface IssueTableController () <ProblemTableViewDelegate, NSTableViewDataSource, NSMenuDelegate>
 
@@ -101,6 +102,15 @@
     [menu addItemWithTitle:NSLocalizedString(@"Mark As Read", nil) action:@selector(markAsReadFromMenu:) keyEquivalent:@""];
     [menu addItem:[NSMenuItem separatorItem]];
     [menu addItemWithTitle:NSLocalizedString(@"Up Next", nil) action:@selector(toggleUpNext:) keyEquivalent:@""];
+    
+    NSMenuItem *bulkMenuItem = [menu addItemWithTitle:@"Bulk Modify" action:nil keyEquivalent:@""];
+    NSMenu *bulkMenu = [[NSMenu alloc] init];
+    bulkMenuItem.submenu = bulkMenu;
+    [bulkMenu addItemWithTitle:NSLocalizedString(@"Milestone", nil) action:@selector(bulkModifyMilestone:) keyEquivalent:@""];
+    [bulkMenu addItemWithTitle:NSLocalizedString(@"Labels", nil) action:@selector(bulkModifyLabels:) keyEquivalent:@""];
+    [bulkMenu addItemWithTitle:NSLocalizedString(@"Assignee", nil) action:@selector(bulkModifyAssignee:) keyEquivalent:@""];
+    [bulkMenu addItemWithTitle:NSLocalizedString(@"State", nil) action:@selector(bulkModifyState:) keyEquivalent:@""];
+    
     _table.menu = menu;
 }
 
@@ -336,6 +346,58 @@
     }];
     if ([identifiers count]) {
         [[DataStore activeStore] removeFromUpNext:identifiers completion:nil];
+    }
+}
+
+- (IBAction)bulkModifyMilestone:(id)sender {
+    NSArray *selected;
+    if ([[sender menu] supermenu] == _table.menu) {
+        selected = [self selectedItemsForMenu];
+    } else {
+        selected = [self selectedItems];
+    }
+    
+    if ([selected count] > 0) {
+        [[BulkModifyHelper sharedHelper] editMilestone:selected window:self.view.window];
+    }
+}
+
+- (IBAction)bulkModifyLabels:(id)sender {
+    NSArray *selected;
+    if ([[sender menu] supermenu] == _table.menu) {
+        selected = [self selectedItemsForMenu];
+    } else {
+        selected = [self selectedItems];
+    }
+    
+    if ([selected count] > 0) {
+        [[BulkModifyHelper sharedHelper] editLabels:selected window:self.view.window];
+    }
+}
+
+- (IBAction)bulkModifyAssignee:(id)sender {
+    NSArray *selected;
+    if ([[sender menu] supermenu] == _table.menu) {
+        selected = [self selectedItemsForMenu];
+    } else {
+        selected = [self selectedItems];
+    }
+    
+    if ([selected count] > 0) {
+        [[BulkModifyHelper sharedHelper] editAssignees:selected window:self.view.window];
+    }
+}
+
+- (IBAction)bulkModifyState:(id)sender {
+    NSArray *selected;
+    if ([[sender menu] supermenu] == _table.menu) {
+        selected = [self selectedItemsForMenu];
+    } else {
+        selected = [self selectedItems];
+    }
+    
+    if ([selected count] > 0) {
+        [[BulkModifyHelper sharedHelper] editState:selected window:self.view.window];
     }
 }
 
@@ -616,6 +678,13 @@
     if (item.action == @selector(toggleUpNext:)) {
         item.title = _upNextMode ? NSLocalizedString(@"Remove from Up Next", nil) : NSLocalizedString(@"Add to Up Next", nil);
         return [[self selectedItems] count] > 0;
+    }
+    if (item.action == @selector(bulkModifyState:)
+        || item.action == @selector(bulkModifyLabels:)
+        || item.action == @selector(bulkModifyAssignee:)
+        || item.action == @selector(bulkModifyMilestone:))
+    {
+        return [[self selectedItems] count] > 0 || [[self selectedItemsForMenu] count] > 0;
     }
     return YES;
 }
