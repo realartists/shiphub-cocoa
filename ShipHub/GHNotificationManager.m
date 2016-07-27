@@ -93,6 +93,10 @@
         if (!err) {
             NSMutableArray *records = [NSMutableArray new];
             for (NSDictionary *note in data) {
+                if (![note isKindOfClass:[NSDictionary class]]) {
+                    DebugLog(@"Unexpected notification entry: %@", note);
+                    continue;
+                }
                 NSDictionary *subject = note[@"subject"];
                 
                 if (![subject[@"type"] isEqualToString:@"Issue"]) {

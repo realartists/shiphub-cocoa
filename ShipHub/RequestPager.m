@@ -186,6 +186,10 @@ function pagedFetch(url) /* => Promise */ {
     // Must first fetch the rootRequest and then can fetch each page
     DebugLog(@"%@", rootRequest);
     [self jsonTask:rootRequest completion:^(id first, NSHTTPURLResponse *response, NSError *err) {
+        if (!err && ![first isKindOfClass:[NSArray class]]) {
+            err = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+        }
+        
         if (err) {
             completion(nil, nil, err);
             return;
@@ -228,16 +232,20 @@ function pagedFetch(url) /* => Promise */ {
         
         if (pageRequests.count) {
             [self jsonTasks:pageRequests completion:^(NSArray *rest, NSError *restErr) {
-                if (err) {
-                    ErrLog(@"%@", err);
+                if (restErr) {
+                    ErrLog(@"%@", restErr);
                     completion(nil, headers, restErr);
                 } else {
                     NSMutableArray *all = [first mutableCopy];
                     for (NSArray *page in rest) {
+                        if (![page isKindOfClass:[NSArray class]]) {
+                            restErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+                            break;
+                        }
                         [all addObjectsFromArray:page];
                     }
                     DebugLog(@"%@ finished with %td pages: %tu items", rootRequest, 1+rest.count, all.count);
-                    completion(all, headers, nil);
+                    completion(all, headers, restErr);
                 }
             }];
         } else {
