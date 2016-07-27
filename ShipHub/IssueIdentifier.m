@@ -203,6 +203,7 @@
 
 + (NSArray<NSString *> *)readIssueIdentifiersFromPasteboard:(NSPasteboard *)pboard {
     NSString *plainText = [pboard stringForType:NSPasteboardTypeString];
+    if (!plainText) return nil;
     NSRegularExpression *re1 = [NSString issueIdentifierRE];
     NSRegularExpression *re2 = [NSString gitHubURLRE];
     NSMutableArray *identifiers = [NSMutableArray new];
