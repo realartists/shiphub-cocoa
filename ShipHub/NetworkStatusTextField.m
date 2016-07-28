@@ -55,6 +55,7 @@
 }
 
 - (void)update:(NSNotification *)note {
+#if !INCOMPLETE
     BOOL online = [[Reachability sharedInstance] isReachable];
     BOOL reachabilityInited = [[Reachability sharedInstance] receivedFirstUpdate];
     
@@ -65,7 +66,6 @@
     double progress = 0.0; // [[DataStore activeStore] problemSyncProgress];
     
     DebugLog(@"lastUpdated: %@ progress: %.0f%%", lastUpdated, progress * 100.0);
-    
     
     if (offline) {
         if (since) {
@@ -84,6 +84,9 @@
     } else {
         self.stringValue = @"";
     }
+#else
+    self.stringValue = @"";
+#endif
 }
 
 @end
