@@ -238,6 +238,7 @@ void RunOnMain(dispatch_block_t);
 @interface NSOutputStream (Extras)
 
 - (BOOL)writeData:(NSData *)data;
+- (BOOL)write:(const uint8_t *)bytes length:(NSInteger)length;
 
 @end
 

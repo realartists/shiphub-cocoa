@@ -250,6 +250,10 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
     NSData *bodyData = [data subdataWithRange:NSMakeRange(1, data.length-1)];
     if (header == MessageHeaderDeflate) {
         bodyData = [bodyData inflate];
+        if (!bodyData) {
+            ErrLog(@"Unable to inflate message");
+            return;
+        }
     }
     
     NSError *err = nil;

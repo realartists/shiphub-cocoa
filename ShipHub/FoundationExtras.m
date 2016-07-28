@@ -906,7 +906,7 @@ CGRect IntegralRect(CGRect r) {
             }
             
             have = CHUNK - strm.avail_out;
-            if ([output write:outb maxLength:have] != have) {
+            if (![output write:outb length:have]) {
                 (void)inflateEnd(&strm);
                 return nil;
             }
@@ -1081,6 +1081,10 @@ CGRect IntegralRect(CGRect r) {
 - (BOOL)writeData:(NSData *)data {
     const uint8_t *bytes = [data bytes];
     NSUInteger length = [data length];
+    return [self write:bytes length:length];
+}
+
+- (BOOL)write:(const uint8_t *)bytes length:(NSInteger)length {
     NSUInteger written = 0;
     
     while (written < length) {
