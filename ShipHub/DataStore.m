@@ -82,6 +82,7 @@ NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification = @"DataStoreN
  Change History:
  1: First Version
  2: Server Integration
+ 3: realartists/shiphub-cocoa#109 Handle PRs in the database
  */
 static const NSInteger CurrentLocalModelVersion = 2;
 
@@ -276,8 +277,8 @@ static NSString *const LastUpdated = @"LastUpdated";
         return NO;
     }
     
-    if (previousStoreVersion < 2) {
-        DebugLog(@"Updating to ServerIntegration database. Forcing database re-creation.", nil);
+    if (previousStoreVersion < 3) {
+        DebugLog(@"Updating to version %td database from %td. Forcing database re-creation.", CurrentLocalModelVersion, previousStoreVersion);
         forceRecreate = YES;
     }
     
@@ -887,7 +888,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (NSPredicate *)issuesPredicate:(NSPredicate *)basePredicate {
-    return [[basePredicate predicateByFoldingExpressions] and:[NSPredicate predicateWithFormat:@"repository.fullName != nil"]];
+    return [[basePredicate predicateByFoldingExpressions] and:[NSPredicate predicateWithFormat:@"repository.fullName != nil AND pullRequest = NO"]];
 }
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15E65" minimumToolsVersion="Xcode 7.0">
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="10174" systemVersion="15G31" minimumToolsVersion="Xcode 7.0">
     <entity name="LocalAccount" representedClassName="LocalAccount" isAbstract="YES" syncable="YES">
         <attribute name="avatarURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" indexed="YES" syncable="YES"/>
@@ -41,6 +41,7 @@
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" indexed="YES" syncable="YES"/>
         <attribute name="locked" optional="YES" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
         <attribute name="number" optional="YES" attributeType="Integer 64" defaultValueString="0" indexed="YES" syncable="YES"/>
+        <attribute name="pullRequest" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
         <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" indexed="YES" syncable="YES"/>
@@ -137,15 +138,15 @@
         <element name="LocalAccount" positionX="0" positionY="0" width="128" height="120"/>
         <element name="LocalComment" positionX="0" positionY="0" width="128" height="135"/>
         <element name="LocalEvent" positionX="0" positionY="0" width="128" height="180"/>
-        <element name="LocalIssue" positionX="0" positionY="0" width="128" height="390"/>
+        <element name="LocalIssue" positionX="0" positionY="0" width="128" height="360"/>
         <element name="LocalLabel" positionX="0" positionY="0" width="128" height="105"/>
         <element name="LocalMilestone" positionX="0" positionY="0" width="128" height="210"/>
         <element name="LocalNotification" positionX="9" positionY="153" width="128" height="165"/>
         <element name="LocalOrg" positionX="0" positionY="0" width="128" height="60"/>
         <element name="LocalPriority" positionX="0" positionY="0" width="128" height="90"/>
+        <element name="LocalQuery" positionX="9" positionY="153" width="128" height="105"/>
         <element name="LocalRepo" positionX="0" positionY="0" width="128" height="210"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
         <element name="LocalUser" positionX="0" positionY="0" width="128" height="195"/>
-        <element name="LocalQuery" positionX="9" positionY="153" width="128" height="105"/>
     </elements>
 </model>

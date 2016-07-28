@@ -288,13 +288,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
             NSArray *issues = nil;
             
             if (data) {
-                NSArray *issuesOnly = [data filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"pull_request = nil OR pull_request = NO"]];
-                
-                if ([repo[@"name"] isEqualToString:@"shiphub-cocoa"]) {
-                    DebugLog(@"%@", data);
-                }
-                
-                issues = [issuesOnly arrayByMappingObjects:^id(id obj) {
+                issues = [data arrayByMappingObjects:^id(id obj) {
                     NSMutableDictionary *issue = [obj mutableCopy];
                     issue[@"repository"] = repo[@"id"];
                     return issue;
@@ -381,7 +375,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                 NSMutableArray *referencedAndCommitEvents = [[eventsAndComments filteredArrayUsingPredicate:
                                                               [NSPredicate predicateWithFormat:@"event IN {'referenced', 'closed'}"]] mutableCopy];
                 NSArray *allOtherEvents = [eventsAndComments filteredArrayUsingPredicate:
-                                           [NSPredicate predicateWithFormat:@"NOT event IN {'referenced', 'cross-referenced', 'commented', 'closed'}"]];
+                                           [NSPredicate predicateWithFormat:@"NOT event IN {'referenced', 'cross-referenced', 'commented', 'closed'} AND identifier != nil"]];
                 [self yield:allOtherEvents type:@"event" version:@{}];
 
 

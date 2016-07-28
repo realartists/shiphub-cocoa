@@ -26,6 +26,15 @@
     [super willSave];
 }
 
+- (void)setValue:(id)value forKey:(NSString *)key {
+    if ([key isEqualToString:@"pullRequest"]) {
+        if ([value isKindOfClass:[NSDictionary class]]) {
+            value = @YES;
+        }
+    }
+    [super setValue:value forKey:key];
+}
+
 - (NSString *)fullIdentifier {
     if (!self.repository.fullName || !self.number) {
         return nil;

@@ -20,6 +20,7 @@
 @dynamic body;
 @dynamic closed;
 @dynamic state;
+@dynamic pullRequest;
 @dynamic createdAt;
 @dynamic identifier;
 @dynamic locked;
