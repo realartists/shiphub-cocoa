@@ -94,12 +94,16 @@
     [self layoutButtons];
 }
 
-- (void)metadataChanged:(NSNotification *)note {
+- (void)rebuildMenus {
     [self buildAssigneeMenu];
     [self buildAuthorMenu];
     [self buildRepoMenu];
     [self buildLabelMenu];
     [self buildMilestoneMenu];
+}
+
+- (void)metadataChanged:(NSNotification *)note {
+    [self rebuildMenus];
 }
 
 - (MetadataStore *)metadata {
@@ -284,6 +288,9 @@
 - (void)buildUserMenu:(FilterButton *)button action:(SEL)action notSet:(NSString *)notSet {
     MetadataStore *meta = [self metadata];
     Repo *repo = [self repoInPredicate:_basePredicate];
+    if (!repo) {
+        repo = [self repoInPredicate:_predicate];
+    }
     NSArray *assignees = nil;
     if (repo) {
         assignees = [meta assigneesForRepo:repo];
@@ -393,6 +400,9 @@
 - (void)buildLabelMenu {
     MetadataStore *meta = [self metadata];
     Repo *repo = [self repoInPredicate:_basePredicate];
+    if (!repo) {
+        repo = [self repoInPredicate:_predicate];
+    }
     
     NSMutableDictionary *labelColors = [NSMutableDictionary new];
     
@@ -697,8 +707,19 @@ static BOOL representedObjectEquals(id repr, id val) {
         }
     }];
     
+    [_label.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
+        if (m.target == self) {
+            m.state = m.representedObject == nil ? NSOnState : NSOffState;
+        }
+    }];
+    
     [self updatePredicateFromFilterButtons];
     [self updateRepoMenuStateFromPredicate];
+    
+    [self buildLabelMenu];
+    [self buildMilestoneMenu];
+    [self buildAssigneeMenu];
+    [self buildAuthorMenu];
 }
 
 - (void)pickState:(id)sender {
@@ -977,8 +998,9 @@ static BOOL representedObjectEquals(id repr, id val) {
     _label.hidden = [self hasLabelsInPredicate:basePredicate];
     _milestone.hidden = [self milestoneTitleInPredicate:basePredicate] != nil;
     
-    [self needsButtonLayout];
+    [self rebuildMenus];
     [self updatePredicateFromFilterButtons];
+    [self updateFilterButtonsFromPredicate];
 }
 
 #pragma mark - Layout
