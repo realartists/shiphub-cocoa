@@ -797,9 +797,14 @@ var RenameEventDescription = React.createClass({
 });
 
 function expandCommit(event) {
-  var committish = event.commit_id.slice(0, 10);
-  var commitURL = event.commit_url.replace("api.github.com/repos/", "github.com/").replace("/commits/", "/commit/");
-  return [committish, commitURL];
+  try {
+    var committish = event.commit_id.slice(0, 10);
+    var commitURL = event.commit_url.replace("api.github.com/repos/", "github.com/").replace("/commits/", "/commit/");
+    return [committish, commitURL];
+  } catch (exc) {
+    console.log("Unable to expand commit", exc, event);
+    return ["", ""];
+  }
 }
 
 var ReferencedEventDescription = React.createClass({
@@ -827,6 +832,7 @@ var ReferencedEventDescription = React.createClass({
 });
 
 function getOwnerRepoTypeNumberFromURL(url) {
+  if (!url) url = "";
   var capture = url.match(
     /https:\/\/api.github.com\/repos\/([^\/]+)\/([^\/]+)\/(issues|pulls|commits)\/([a-z0-9]+)/);
 
@@ -838,7 +844,7 @@ function getOwnerRepoTypeNumberFromURL(url) {
       number: capture[4],
     };
   } else {
-    throw "Cannot match URL: " + url;
+    return { owner: "", repo: "", type: "", number: "" };
   }
 }
 
@@ -1013,7 +1019,8 @@ var CommitInfoEventBody = React.createClass({
   },
 
   render: function() {
-    var message = this.props.event.ship_commit_message.trim();
+    var commitMessage = this.props.event.ship_commit_message || "";
+    var message = commitMessage.trim();
     const [subject, body] = this.getSubjectAndBodyFromMessage(message);
 
     var bodyContent = null;
