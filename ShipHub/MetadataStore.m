@@ -99,8 +99,10 @@ static BOOL IsMetadataObject(id obj) {
                 NSMutableArray *assignees;
                 assigneesByRepoID[r.identifier] = assignees = [NSMutableArray new];
                 for (LocalUser *lu in r.assignees) {
-                    User *u = usersByID[lu.identifier];
-                    [assignees addObject:u];
+                    if (lu.login) {
+                        User *u = usersByID[lu.identifier];
+                        [assignees addObject:u];
+                    }
                 }
                 
                 NSMutableArray *milestones;
