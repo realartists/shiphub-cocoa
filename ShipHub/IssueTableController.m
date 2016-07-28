@@ -16,6 +16,7 @@
 #import "IssueIdentifier.h"
 #import "UpNextHelper.h"
 #import "BulkModifyHelper.h"
+#import "LabelsView.h"
 
 @interface IssueTableController () <ProblemTableViewDelegate, NSTableViewDataSource, NSMenuDelegate>
 
@@ -203,6 +204,13 @@
                      @"formatter" : [NSDateFormatter shortDateAndTimeFormatter],
                      @"title" : NSLocalizedString(@"Created", nil),
                      @"width" : @130 },
+                  
+                  @{ @"identifier" : @"labels",
+                     @"title" : NSLocalizedString(@"Labels", nil),
+                     @"cellClass" : @"LabelsCell",
+                     @"sortDescriptor" : [NSSortDescriptor sortDescriptorWithKey:@"labels.@count" ascending:YES],
+                     @"minWidth" : @100,
+                     @"maxWidth" : @10000 }
                   ];
     }
     return specs;
@@ -419,7 +427,13 @@
     for (NSDictionary *columnSpec in columnSpecs) {
         NSString *columnIdentifier = columnSpec[@"identifier"];
         NSTableColumn *column = [[NSTableColumn alloc] initWithIdentifier:columnIdentifier];
-        column.sortDescriptorPrototype = _upNextMode ? nil : [NSSortDescriptor sortDescriptorWithKey:columnIdentifier ascending:YES];
+        if (_upNextMode) {
+            column.sortDescriptorPrototype = nil;
+        } else if (columnSpec[@"sortDescriptor"]) {
+            column.sortDescriptorPrototype = columnSpec[@"sortDescriptor"];
+        } else {
+            column.sortDescriptorPrototype = [NSSortDescriptor sortDescriptorWithKey:columnIdentifier ascending:YES];
+        }
         column.title = columnSpec[@"title"];
         column.width = [columnSpec[@"width"] doubleValue];
         column.minWidth = columnSpec[@"minWidth"] ? [columnSpec[@"minWidth"] doubleValue] : column.width;
@@ -744,6 +758,10 @@
 - (id)tableView:(NSTableView *)tableView objectValueForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
     Issue *item = _items[row];
+    if ([tableColumn.identifier isEqualToString:@"labels"]) {
+        return item.labels; // don't ever return a @"--" for labels.
+    }
+    
     id result = [item valueForKeyPath:tableColumn.identifier] ?: @"--";
     return result;
 }
@@ -1084,3 +1102,24 @@
 }
 
 @end
+
+@interface LabelsCell : NSTextFieldCell
+
+@end
+
+@implementation LabelsCell
+
+- (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
+    NSArray *labels = [self objectValue];
+    
+    [LabelsView drawLabels:labels inRect:cellFrame highlighted:[self isHighlighted] backgroundColor:[self backgroundColor]];
+}
+
+- (NSRect)expansionFrameWithFrame:(NSRect)cellFrame inView:(NSView *)view {
+    CGSize size = [LabelsView sizeLabels:[self objectValue]];
+    cellFrame.size = size;
+    return cellFrame;
+}
+
+@end
+

@@ -16,4 +16,11 @@
 
 @property (nonatomic, getter=isHighlighted) BOOL highlighted;
 
++ (void)drawLabels:(NSArray<Label *> *)labels
+            inRect:(CGRect)b
+       highlighted:(BOOL)highlighted
+   backgroundColor:(NSColor *)backgroundColor;
+
++ (CGSize)sizeLabels:(NSArray<Label *> *)labels;
+
 @end

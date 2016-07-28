@@ -42,12 +42,40 @@
     return str;
 }
 
-+ (void)drawLabels:(NSArray<Label *> *)labels inRect:(CGRect)b highlighted:(BOOL)highlighted {
+static const CGFloat corner = 3.0;
+static const CGFloat hMarg = 4.0;
+static const CGFloat vMarg = 1.0;
+static const CGFloat fontSize = 11.0;
+static const CGFloat spacing = 6.0;
+static const CGFloat height = 16.0;
+
++ (CGSize)sizeLabels:(NSArray<Label *> *)labels {
+    NSDictionary *strAttrs = @{ NSFontAttributeName: [NSFont boldSystemFontOfSize:fontSize] };
+    
+    CGFloat width = 0.0;
+    NSUInteger i = 0;
+    for (Label *l in labels) {
+        if (i != 0) {
+            width += spacing;
+        }
+        width += hMarg * 2.0;
+        width += [l.name sizeWithAttributes:strAttrs].width;
+        i++;
+    }
+
+    return CGSizeMake(width, height);
+}
+
++ (void)drawLabels:(NSArray<Label *> *)labels
+            inRect:(CGRect)b
+       highlighted:(BOOL)highlighted
+   backgroundColor:(NSColor *)backgroundColor
+{
     CGContextRef ctx = [[NSGraphicsContext currentContext] CGContext];
     CGContextSaveGState(ctx);
     
-    [[NSColor clearColor] set];
-    NSRectFill(b);
+    CGContextTranslateCTM(ctx, b.origin.x, b.origin.y);
+    b.origin = CGPointZero;
     
     if (labels.count == 0) {
         CGContextRestoreGState(ctx);
@@ -55,13 +83,6 @@
     }
     
     [[NSColor blackColor] set];
-    
-    const CGFloat corner = 3.0;
-    const CGFloat hMarg = 4.0;
-    const CGFloat vMarg = 1.0;
-    const CGFloat fontSize = 13.0;
-    const CGFloat spacing = 6.0;
-    const CGFloat height = 20.0;
     
     NSDictionary *strAttrs = @{ NSFontAttributeName: [NSFont boldSystemFontOfSize:fontSize] };
     
@@ -92,19 +113,19 @@
             [[NSColor whiteColor] setStroke];
         }
         
-        
+        NSColor *background = backgroundColor;
         
         for (Label *l in labels.reverseObjectEnumerator) {
             
             // draw background knockout
-            [[NSColor clearColor] setFill];
+            [background setFill];
             CGContextSetBlendMode(ctx, kCGBlendModeCopy);
             CGContextAddEllipseInRect(ctx, CGRectMake(xOff, yOff, radius * 2.0, radius * 2.0));
             CGContextDrawPath(ctx, kCGPathFill);
             
             CGContextSetBlendMode(ctx, kCGBlendModeNormal);
             if (!highlighted) {
-                [[[l color] colorByAdjustingBrightness:0.8] setStroke];
+                [[[l color] colorByAdjustingBrightness:0.85] setStroke];
             } else {
                 [[NSColor whiteColor] setStroke];
             }
@@ -147,7 +168,7 @@
 
 - (void)drawRect:(NSRect)dirtyRect {
     CGRect b = self.bounds;
-    [[self class] drawLabels:_labels inRect:b highlighted:_highlighted];
+    [[self class] drawLabels:_labels inRect:b highlighted:_highlighted backgroundColor:[NSColor clearColor]];
 }
 
 @end
