@@ -481,7 +481,11 @@ static __strong NSData *CRLFCRLF;
         
     NSMutableData *keyBytes = [[NSMutableData alloc] initWithLength:16];
     int secRet = SecRandomCopyBytes(kSecRandomDefault, keyBytes.length, keyBytes.mutableBytes);
+#if DEBUG
     assert(secRet == 0);
+#else
+    (void)secRet;
+#endif
     
     if ([keyBytes respondsToSelector:@selector(base64EncodedStringWithOptions:)]) {
         _secKey = [keyBytes base64EncodedStringWithOptions:0];
@@ -1338,7 +1342,11 @@ static const size_t SRFrameHeaderOverhead = 32;
     } else {
         uint8_t *mask_key = frame_buffer + frame_buffer_size;
         int secRet = SecRandomCopyBytes(kSecRandomDefault, sizeof(uint32_t), (uint8_t *)mask_key);
+#if DEBUG
         assert(secRet == 0);
+#else
+        (void)secRet;
+#endif
         frame_buffer_size += sizeof(uint32_t);
         
         // TODO: could probably optimize this with SIMD
