@@ -84,7 +84,7 @@ NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification = @"DataStoreN
  2: Server Integration
  3: realartists/shiphub-cocoa#109 Handle PRs in the database
  */
-static const NSInteger CurrentLocalModelVersion = 2;
+static const NSInteger CurrentLocalModelVersion = 3;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSManagedObjectModel *_mom;
@@ -1772,5 +1772,63 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
+#pragma mark - The Purge
+
+- (BOOL)syncConnection:(SyncConnection *)connection didReceivePurgeIdentifier:(NSString *)purgeIdentifier {
+    if (!purgeIdentifier) {
+        return NO; // purge not happening
+    }
+    
+    NSPersistentStore *store = [_persistentCoordinator.persistentStores firstObject];
+    NSDictionary *currentMetadata = [_persistentCoordinator metadataForPersistentStore:store];
+    NSAssert(currentMetadata, @"Expect to have some current metadata");
+    
+    NSString *currentPurge = currentMetadata[PurgeVersion];
+    if (!currentPurge) {
+        DebugLog(@"Updating NULL purge identifier to %@", purgeIdentifier);
+        [_moc performBlock:^{
+            NSMutableDictionary *newMetadata = [currentMetadata mutableCopy];
+            newMetadata[PurgeVersion] = purgeIdentifier;
+            [_persistentCoordinator setMetadata:newMetadata forPersistentStore:store];
+            [_moc save:NULL];
+        }];
+    } else if (![currentPurge isEqualToString:purgeIdentifier]) {
+        DebugLog(@"Purge identifier changed from %@ to %@. Must purge database :(", currentPurge, purgeIdentifier);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreWillPurgeNotification object:self];
+        });
+        dispatch_async(_needsMetadataQueue, ^{
+            [_needsMetadataItems removeAllObjects];
+        });
+        [_moc performBlock:^{
+            NSMutableDictionary *newMetadata = [currentMetadata mutableCopy];
+            newMetadata[PurgeVersion] = purgeIdentifier;
+            [_persistentCoordinator setMetadata:newMetadata forPersistentStore:store];
+            [_moc purge]; // purge will call save: to persist the new metadata
+        } completion:^{
+            
+            [self loadMetadata];
+            [self loadQueries];
+            [self updateSyncConnectionWithVersions];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidPurgeNotification object:self];
+            });
+        }];
+        
+        return YES; // purge is happening
+    }
+    
+    return NO; // did not purge
+}
+
+#pragma mark - SyncConnection software update
+
+- (void)syncConnectionRequiresSoftwareUpdate:(SyncConnection *)sync {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreNeedsMandatorySoftwareUpdateNotification object:self];
+    });
+}
 
 @end

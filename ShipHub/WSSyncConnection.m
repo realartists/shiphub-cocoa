@@ -29,6 +29,7 @@ static NSString *const MessageViewing = @"viewing";
 
 // Incoming MessageTypes:
 static NSString *const MessageSync = @"sync";
+static NSString *const MessagePurge = @"purge";
 
 // Shared Message fields
 static NSString *const MessageFieldVersions = @"versions";
@@ -42,6 +43,14 @@ static NSString *const MessageFieldRemaining = @"remaining";
 
 // Viewing Message fields
 static NSString *const MessageFieldViewingIssue = @"issue";
+
+// Hello (Reply) Message fields
+static NSString *const MessageFieldPurgeIdentifier = @"purgeIdentifier";
+static NSString *const MessageFieldUpgrade = @"upgrade";
+static NSString *const MessageFieldNewVersion = @"newVersion";
+static NSString *const MessageFieldReleaseNotes = @"releaseNotes";
+static NSString *const MessageFieldURL = @"url";
+static NSString *const MessageFieldRequired = @"required";
 
 typedef NS_ENUM(uint8_t, MessageHeader) {
     MessageHeaderPlainText = 0,
@@ -254,7 +263,20 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
     
     NSString *type = msg[MessageFieldType];
     
-    if ([type isEqualToString:MessageSync]) {
+    if ([type isEqualToString:MessageHello]) {
+        NSString *purgeIdentifier = msg[MessageFieldPurgeIdentifier];
+        NSDictionary *upgrade = msg[MessageFieldUpgrade];
+        
+        BOOL mustUpgrade = [upgrade[@"required"] boolValue];
+        if (mustUpgrade) {
+            [self.delegate syncConnectionRequiresSoftwareUpdate:self];
+            [self disconnect];
+        }
+        
+        if ([self.delegate syncConnection:self didReceivePurgeIdentifier:purgeIdentifier]) {
+            [self reset];
+        }
+    } else if ([type isEqualToString:MessageSync]) {
         _syncVersions = msg[MessageFieldVersions];
         
         NSArray *entries = [msg[MessageFieldLogs] arrayByMappingObjects:^id(id obj) {

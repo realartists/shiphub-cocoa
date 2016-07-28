@@ -36,6 +36,10 @@
 
 - (void)syncConnection:(SyncConnection *)sync receivedEntries:(NSArray<SyncEntry *> *)entries versions:(NSDictionary *)versions progress:(double)progress;
 
+- (BOOL)syncConnection:(SyncConnection *)connection didReceivePurgeIdentifier:(NSString *)purgeIdentifier;
+
+- (void)syncConnectionRequiresSoftwareUpdate:(SyncConnection *)sync;
+
 @end
 
 typedef NS_ENUM(NSInteger, SyncEntryAction) {

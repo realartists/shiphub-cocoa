@@ -14,6 +14,7 @@
 #import "IssueIdentifier.h"
 #import "IssueDocumentController.h"
 #import "OverviewController.h"
+#import "Reachability.h"
 
 @interface AppDelegate () <AuthControllerDelegate> {
     BOOL _authConfigured;
@@ -69,6 +70,7 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(authChanged:) name:AuthStateChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(databaseIncompatible:) name:DataStoreCannotOpenDatabaseNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(protocolIncompatible:) name:DataStoreNeedsMandatorySoftwareUpdateNotification object:nil];
     
     _notificationsRegistered = YES;
 }
@@ -393,6 +395,21 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
 
 - (IBAction)showMarkdownFormattingGuide:(id)sender {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://guides.github.com/features/mastering-markdown/"]];
+}
+
+- (void)protocolIncompatible:(NSNotification *)note {
+    [[Reachability sharedInstance] setForceOffline:YES];
+    
+    NSAlert *alert = [[NSAlert alloc] init];
+    alert.messageText = NSLocalizedString(@"Client out of date", nil);
+    alert.informativeText = NSLocalizedString(@"This version of Ship is too old to access the server. Click OK to check for a newer version.", nil);
+    [alert runModal];
+
+    // FIXME: Sparkel Support
+#if 0
+    SUUpdater *updater = [SUUpdater sharedUpdater];
+    [updater checkForUpdates:self];
+#endif
 }
 
 @end
