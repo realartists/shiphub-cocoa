@@ -189,8 +189,8 @@
                      @"minWidth" : @130,
                      @"maxWidth" : @250 },
                   
-                  @{ @"identifier" : @"closed",
-                     @"title" : NSLocalizedString(@"Closed", nil),
+                  @{ @"identifier" : @"state",
+                     @"title" : NSLocalizedString(@"State", nil),
                      @"width" : @130,
                      @"minWidth" : @100,
                      @"maxWidth" : @150 },
@@ -707,6 +707,7 @@
     if (_upNextMode != mode) {
         _upNextMode = mode;
         [self _makeColumns];
+        [self _makeColumnHeaderMenu];
         [self _sortItems];
     }
 }
