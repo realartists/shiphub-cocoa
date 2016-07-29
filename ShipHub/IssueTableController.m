@@ -1113,7 +1113,12 @@
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
     NSArray *labels = [self objectValue];
     
-    [LabelsView drawLabels:labels inRect:cellFrame highlighted:[self isHighlighted] backgroundColor:[self backgroundColor]];
+    NSColor *background = [self backgroundColor];
+    if ([self isHighlighted]) {
+        background = [self highlightColorWithFrame:cellFrame inView:controlView];
+    }
+    
+    [LabelsView drawLabels:labels inRect:cellFrame highlighted:[self isHighlighted] backgroundColor:background];
 }
 
 - (NSRect)expansionFrameWithFrame:(NSRect)cellFrame inView:(NSView *)view {
