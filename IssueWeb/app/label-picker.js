@@ -19,8 +19,6 @@ var LabelPicker = React.createClass({
     var val = el.value;
     
     if (val === "") {
-      // Ignore the empty strings.  I think these come right after you select
-      // a label.
       return;
     }
 
@@ -47,6 +45,19 @@ var LabelPicker = React.createClass({
   onChange: function() {
     if (!this.handlingMouseDown && !this.hasFocus() && this.isEdited()) {
       this.refs.completer.clear();
+    }
+  },
+  
+  onPlusClick: function() {
+    var completer = this.refs.completer;
+    if (!completer || !(completer.refs.typeInput)) return;
+    var el = ReactDOM.findDOMNode(completer.refs.typeInput);
+    var val = el.value;
+    
+    if (val === "") {
+      this.focus();
+    } else {
+      this.addLabel();
     }
   },
   
@@ -156,7 +167,7 @@ var LabelPicker = React.createClass({
       }),
       h('div', {style: { display: 'inline-block' } },
         h('i', {className: 'fa fa-plus-circle AddLabel Clickable',
-          onClick: this.addLabel,
+          onClick: this.onPlusClick,
           onMouseDown: this.onPlusMouseDown,
           onMouseUp: this.onPlusMouseUp
         })
