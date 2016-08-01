@@ -3114,7 +3114,7 @@ var App = React.createClass({
 function applyIssueState(state) {
   console.log("rendering:", state);
   
-  var issue = state.issue;
+  var issue = state.issue || {};
   
   window.document.title = issue.title || "New Issue";
   
