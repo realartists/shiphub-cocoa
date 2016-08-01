@@ -3114,7 +3114,10 @@ var App = React.createClass({
 function applyIssueState(state) {
   console.log("rendering:", state);
   
-  var issue = state.issue || {};
+  if (!state.issue) {
+    state.issue = makeEmptyIssue();
+  }
+  var issue = state.issue;
   
   window.document.title = issue.title || "New Issue";
   
@@ -3149,7 +3152,20 @@ function applyIssueState(state) {
   )
 }
 
-
+function makeEmptyIssue() {
+  return {
+    title: "",
+    state: "open",
+    milestone: null,
+    assignee: null,
+    labels: [],
+    comments: [],
+    events: [],
+    _bare_owner: owner,
+    _bare_repo: repo,
+    user: meta.me
+  };
+}
 
 function configureNewIssue(initialRepo, meta) {
   if (!meta) {
@@ -3167,18 +3183,7 @@ function configureNewIssue(initialRepo, meta) {
     [owner, repo] = initialRepo.split("/");
   }
   
-  var issue = {
-    title: "",
-    state: "open",
-    milestone: null,
-    assignee: null,
-    labels: [],
-    comments: [],
-    events: [],
-    _bare_owner: owner,
-    _bare_repo: repo,
-    user: meta.me
-  };
+  var issue = makeEmptyIssue();
   
   var state = Object.assign({}, meta, {
     issue: issue
