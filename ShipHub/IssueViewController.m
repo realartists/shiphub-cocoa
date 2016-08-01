@@ -174,10 +174,12 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     dispatch_assert_current_queue(dispatch_get_main_queue());
     //DebugLog(@"%@", issue);
     _issue = issue;
-    NSString *issueJSON = [self issueStateJSON:issue];
-    NSString *js = [NSString stringWithFormat:@"applyIssueState(%@)", issueJSON];
-    //DebugLog(@"%@", js);
-    [self evaluateJavaScript:js];
+    if (issue) {
+        NSString *issueJSON = [self issueStateJSON:issue];
+        NSString *js = [NSString stringWithFormat:@"applyIssueState(%@)", issueJSON];
+        //DebugLog(@"%@", js);
+        [self evaluateJavaScript:js];
+    }
     [self updateTitle];
     _web.hidden = _issue == nil;
 }
