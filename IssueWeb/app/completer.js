@@ -162,8 +162,14 @@ var Completer = React.createClass({
       if (val.length == 0 || matches.length == 0) {
         newVal = "";
       } else {
-        var first = matches[0];
-        newVal = first;
+        // prefer an exact match if there is one
+        // realartists/shiphub-cocoa#160 Cannot assign issues to users whose logins are substrings of other users
+        var exact = matches.filter((x) => x === val);        
+        if (exact.length != 0) {
+          newVal = exact[0];
+        } else {
+          newVal = matches[0];
+        }
       }
       $(el).typeahead('val', newVal);
       this.refs.typeInput.setState({value: newVal}, completion);
@@ -211,7 +217,11 @@ var Completer = React.createClass({
 Completer.SubstrMatcher = function(options) {
   return function(text, cb) {
     var r = new RegExp(text, 'i');
-    cb(options.filter((o) => (r.test(o))));
+    var x = options.filter((o) => (r.test(o)));
+    console.log("sorting ", x);
+    x.sort((a, b) => a.localeCompare(b));
+    console.log("sorted ", x);
+    cb(x);
   }
 }
 

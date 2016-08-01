@@ -2563,6 +2563,8 @@ var AssigneeInput = React.createClass({
       return Object.assign({}, a, { lowerLogin: lowerLogin, lowerName: lowerName });
     });
     
+    ls.sort((a, b) => a.lowerLogin.localeCompare(b.lowerLogin));
+    
     var matcher = (q, cb) => {
       var yieldAssignees = function(a) {
         cb(a.map((x) => x.login));
@@ -2582,7 +2584,7 @@ var AssigneeInput = React.createClass({
         return lowerLogin.indexOf(q) != -1 ||
           (lowerName != null && lowerName.indexOf(q) != -1);
       });
-    
+          
       yieldAssignees(matches);      
     };
     
