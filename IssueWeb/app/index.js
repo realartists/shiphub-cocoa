@@ -316,6 +316,18 @@ function saveNewIssue() {
     return;
   }
   
+  if (window.ivars.issue.savePending) {
+    console.log("Queueing save ...");
+    if (!window.ivars.issue.savePendingQueue) {
+      window.ivars.issue.savePendingQueue = [];
+    }
+    var q = window.ivars.issue.savePendingQueue;
+    var p = new Promise((resolve, reject) => {
+      q.append({resolve, reject});
+    });
+    return p;
+  }
+  
   window.ivars.issue.savePending = true;
   applyIssueState(window.ivars);
   
@@ -339,13 +351,31 @@ function saveNewIssue() {
   return new Promise((resolve, reject) => {
     request.then(function(body) {
       window.ivars.issue = body;
+      var q = window.ivars.issue.savePendingQueue;
       window.ivars.issue.savePending = false;
+      if (q) {
+        delete window.ivars.issue.savePendingQueue;
+      }
       applyIssueState(window.ivars);
       resolve();
+      if (q) {
+        q.forEach((p) => {
+          p.resolve();
+        });
+      }
     }).catch(function(err) {
+      var q = window.ivars.issue.savePendingQueue;
       window.ivars.issue.savePending = false;
+      if (q) {
+        delete window.ivars.issue.savePendingQueue;
+      }
       console.log(err);
       reject(err);
+      if (q) {
+        q.forEach((p) => {
+          p.reject(err);
+        });
+      }
     });
   });
   
@@ -3116,9 +3146,6 @@ var App = React.createClass({
 function applyIssueState(state) {
   console.log("rendering:", state);
   
-  if (!state.issue) {
-    state.issue = makeEmptyIssue();
-  }
   var issue = state.issue;
   
   window.document.title = issue.title || "New Issue";
@@ -3154,20 +3181,7 @@ function applyIssueState(state) {
   )
 }
 
-function makeEmptyIssue() {
-  return {
-    title: "",
-    state: "open",
-    milestone: null,
-    assignee: null,
-    labels: [],
-    comments: [],
-    events: [],
-    _bare_owner: owner,
-    _bare_repo: repo,
-    user: meta.me
-  };
-}
+
 
 function configureNewIssue(initialRepo, meta) {
   if (!meta) {
@@ -3185,7 +3199,18 @@ function configureNewIssue(initialRepo, meta) {
     [owner, repo] = initialRepo.split("/");
   }
   
-  var issue = makeEmptyIssue();
+  var issue = {
+    title: "",
+    state: "open",
+    milestone: null,
+    assignee: null,
+    labels: [],
+    comments: [],
+    events: [],
+    _bare_owner: owner,
+    _bare_repo: repo,
+    user: meta.me
+  };
   
   var state = Object.assign({}, meta, {
     issue: issue

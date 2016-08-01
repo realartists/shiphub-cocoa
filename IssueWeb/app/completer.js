@@ -218,9 +218,7 @@ Completer.SubstrMatcher = function(options) {
   return function(text, cb) {
     var r = new RegExp(text, 'i');
     var x = options.filter((o) => (r.test(o)));
-    console.log("sorting ", x);
     x.sort((a, b) => a.localeCompare(b));
-    console.log("sorted ", x);
     cb(x);
   }
 }
