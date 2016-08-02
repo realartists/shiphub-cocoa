@@ -345,7 +345,7 @@ function saveNewIssue() {
     body: JSON.stringify({
       title: issue.title,
       body: issue.body,
-      assignee: assignees,
+      assignees: assignees,
       milestone: keypath(issue, "milestone.number"),
       labels: issue.labels.map((l) => l.name)
     })
@@ -2282,8 +2282,9 @@ var RepoField = React.createClass({
     state.issue = Object.assign({}, state.issue, { 
       _bare_repo: repo, 
       _bare_owner: owner,
+      repository: null,
       milestone: null,
-      assignee: null,
+      assignees: [],
       labels: []
     });
     applyIssueState(state);
@@ -2297,7 +2298,7 @@ var RepoField = React.createClass({
           _bare_repo: repo, 
           _bare_owner: owner,
           milestone: null,
-          assignee: null,
+          assignees: [],
           labels: []
         });
         applyIssueState(state);
