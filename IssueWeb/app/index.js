@@ -43,6 +43,7 @@ import { emojify } from './emojify.js'
 import marked from './marked.min.js'
 import { githubLinkify } from './github_linkify.js'
 import LabelPicker from './label-picker.js'
+import AssigneesPicker from './assignees-picker.js'
 import uploadAttachment from './file-uploader.js'
 import FilePicker from './file-picker.js'
 import TimeAgo from './time-ago'
@@ -162,8 +163,8 @@ function applyPatch(patch) {
     ghPatch.milestone = patch.milestone.number;
   }
 
-  if (patch.assignee != null) {
-    ghPatch.assignee = patch.assignee.login;
+  if (patch.assignees != null) {
+    ghPatch.assignees = patch.assignees.map((u) => u.login);
   }
 
   console.log("patching", patch, ghPatch);
@@ -331,6 +332,8 @@ function saveNewIssue() {
   window.ivars.issue.savePending = true;
   applyIssueState(window.ivars);
   
+  var assignees = issue.assignees.map((u) => u.login);
+  
   var url = `https://api.github.com/repos/${owner}/${repo}/issues`;
   var request = api(url, {
     headers: { 
@@ -342,7 +345,7 @@ function saveNewIssue() {
     body: JSON.stringify({
       title: issue.title,
       body: issue.body,
-      assignee: keypath(issue, "assignee.login"),
+      assignee: assignees,
       milestone: keypath(issue, "milestone.number"),
       labels: issue.labels.map((l) => l.name)
     })
@@ -423,11 +426,25 @@ function addComment(body) {
 var keypath = function(obj, path) {
   if (!obj) return null;
   if (!path) return obj;
+  var pattern = /(\w[\w\d]+)\[(\d+)\]/;
   path = path.split('.')
   for (var i = 0; i < path.length; i++) {
     var prop = path[i];
+    var match = prop.match(pattern);
+    var idx = null;
+    if (match) {
+      prop = match[1];
+      idx = parseInt(match[2]);
+    }
     if (obj != null && typeof(obj) === 'object' && prop in obj) {
       obj = obj[prop];
+      if (idx !== null) {
+        if (Array.isArray(obj)) {
+          obj = obj[idx];
+        } else {
+          return null;
+        }
+      }
     } else {
       return null;
     }
@@ -2362,7 +2379,8 @@ var RepoField = React.createClass({
     
     return h('div', {className: 'IssueInput RepoField'},
       h(HeaderLabel, {title: 'Repo'}),
-      h(inputType, {ref:'input', placeholder: 'Required', onChange:this.onChange, onEnter:this.onEnter, value:this.repoValue(), matcher: matcher, readOnly:!canEdit})
+      h(inputType, {ref:'input', placeholder: 'Required', onChange:this.onChange, onEnter:this.onEnter, value:this.repoValue(), matcher: matcher, readOnly:!canEdit}),
+      h(StateField, {issue: this.props.issue})
     );
   }
 });
@@ -2515,12 +2533,17 @@ var AssigneeInput = React.createClass({
   },
   
   assigneeChanged: function(value) {
-    var initial = keypath(this.props.issue, "assignee.login") || "";
+    var initial = keypath(this.props.issue, "assignees[0].login") || "";
     if (value != initial) {
       if (value == null || value.length == 0) {
         value = null;
       }
-      return patchIssue({assignee: this.lookupAssignee(value)});
+      var assignee = this.lookupAssignee(value);
+      if (assignee) {
+        return patchIssue({assignees: [assignee]});
+      } else {
+        return patchIssue({assignees: []});
+      }
     } else {
       return Promise.resolve();
     }
@@ -2559,7 +2582,7 @@ var AssigneeInput = React.createClass({
   
   needsSave: function() {
     if (this.refs.completer) {
-      return (this.refs.completer.value() || "") != (keypath(this.props.issue, "assignee.login") || "");
+      return (this.refs.completer.value() || "") != (keypath(this.props.issue, "assignees[0].login") || "");
     } else {
       return false;
     }
@@ -2623,13 +2646,169 @@ var AssigneeInput = React.createClass({
       placeholder: 'Unassigned', 
       onChange: this.assigneeChanged,
       onEnter: this.onEnter,
-      value: keypath(this.props.issue, "assignee.login"),
+      value: keypath(this.props.issue, "assignees[0].login"),
       matcher: matcher
     });
   }
 });
 
+var AddAssignee = React.createClass({
+  propTypes: {
+    issue:React.PropTypes.object,
+  },
+  
+  addAssignee: function(login) {
+    var user = null;
+    var matches = getIvars().assignees.filter((u) => u.login == login);
+    if (matches.length > 0) {
+      user = matches[0];
+      var assignees = [user, ...this.props.issue.assignees];
+      return patchIssue({assignees});
+    }
+  },
+  
+  focus: function() {
+    if (this.refs.picker) {
+      this.refs.picker.focus();
+    }
+  },
+  
+  hasFocus: function() {
+    if (this.refs.picker) {
+      return this.refs.picker.hasFocus();
+    } else {
+      return false;
+    }
+  },
+  
+  needsSave: function() {
+    if (this.refs.picker) {
+      return this.refs.picker.containsCompleteValue();
+    } else {
+      return false;
+    }
+  },
+  
+  save: function() {
+    if (this.needsSave()) {
+      return this.refs.picker.addLabel();
+    } else {
+      return Promise.resolve();
+    }
+  },
+  
+  render: function() {
+    var allAssignees = getIvars().assignees;
+    var chosenAssignees = keypath(this.props.issue, "assignees") || [];
+    
+    var chosenAssigneesLookup = chosenAssignees.reduce((o, l) => { o[l.login] = l; return o; }, {});
+    var availableAssignees = allAssignees.filter((l) => !(l.login in chosenAssigneesLookup));
+
+    if (this.props.issue._bare_owner == null ||
+        this.props.issue._bare_repo == null) {
+      return h("span", {className: "AddAssigneesEmpty"});
+    } else {
+      return h(AssigneesPicker, {
+        ref: "picker",
+        availableAssigneeLogins: availableAssignees.map((l) => (l.login)),
+        onAdd: this.addAssignee,
+      });
+    }
+  }
+});
+
+var AssigneeAtom = React.createClass({
+  propTypes: { 
+    user: React.PropTypes.object.isRequired,
+    onDelete: React.PropTypes.func,
+  },
+  
+  onDeleteClick: function() {
+    if (this.props.onDelete) {
+      this.props.onDelete(this.props.user);
+    }
+  },
+  
+  render: function() {
+    return h("span", {className:"AssigneeAtom"},
+      h("span", {className:"AssigneeAtomName"},
+        this.props.user.login
+      ),
+      h('span', {className:'AssigneeAtomDelete Clickable', onClick:this.onDeleteClick}, 
+        h('i', {className:'fa fa-times'})
+      )
+    );
+  }
+});
+
+var MultipleAssignees = React.createClass({
+  propTypes: { issue: React.PropTypes.object },
+  
+  deleteAssignee: function(login) {
+    var assignees = this.props.issue.assignees.filter((l) => (l.login != login));
+    patchIssue({assignees});
+  },
+  
+  focus: function() {
+    if (this.refs.add) {
+      this.refs.add.focus();
+    }
+  },
+  
+  hasFocus: function() {
+    if (this.refs.add) {
+      return this.refs.add.hasFocus();
+    } else {
+      return false;
+    }
+  },
+  
+  needsSave: function() {
+    if (this.refs.add) {
+      return this.refs.add.needsSave();
+    } else {
+      return false;
+    }
+  },
+  
+  save: function() {
+    if (this.refs.add && this.refs.add.needsSave()) {
+      return this.refs.add.save();
+    } else {
+      return Promise.resolve();
+    }
+  },
+  
+  render: function() {
+    return h('span', {className:'MultipleAssignees'},
+      h(AddAssignee, {issue: this.props.issue, ref:"add"}),
+      this.props.issue.assignees.map((l, i) => { 
+        return [" ", h(AssigneeAtom, {key:i, user:l, onDelete: this.deleteLabel})];
+      }).reduce(function(c, v) { return c.concat(v); }, [])
+    );
+  }
+});
+
 var AssigneeField = React.createClass({
+  propTypes: {
+    issue: React.PropTypes.object
+  },
+  
+  getInitialState: function() {
+    var assignees = keypath(this.props.issue, "assignees") || [];
+    return { multi: assignees.length > 1 };
+  },
+  
+  componentWillReceiveProps: function(nextProps) {
+    var nextNum = keypath(nextProps, "issue.number");
+    var oldNum = keypath(this.props, "issue.number");
+    
+    var assignees = keypath(nextProps, "issue.assignees") || [];
+    if ((oldNum && nextNum != oldNum) || assignees.length > 1) {
+      this.setState({ multi: assignees.length > 1 });
+    }
+  },
+
   focus: function() {
     if (this.refs.assignee) {
       this.refs.assignee.focus();
@@ -2659,13 +2838,37 @@ var AssigneeField = React.createClass({
       return Promise.resolve();
     }
   },
+  
+  toggleMultiAssignee: function() {
+    this.goingMulti = true;
+    this.setState({multi: true});
+  },
 
   render: function() {
+    var inputField;
+    if (this.state.multi) {
+      inputField = h(MultipleAssignees, {key:'assignees', ref:'assignee', issue:this.props.issue, focusNext:this.props.focusNext});
+    } else {
+      inputField = h(AssigneeInput, {key:'assignee', ref:"assignee", issue: this.props.issue, focusNext:this.props.focusNext});
+    }
+  
     return h('div', {className: 'IssueInput AssigneeField'},
-      h(HeaderLabel, {title:"Assignee"}),
-      h(AssigneeInput, {key:'assignee', ref:"assignee", issue: this.props.issue, focusNext:this.props.focusNext}),
-      h(StateField, {issue: this.props.issue})
+      h(HeaderLabel, {title:this.state.multi?"Assignees":"Assignee"}),
+      inputField,
+      h('i', {
+        className:"fa fa-user-plus toggleMultiAssignee",
+        style: {display: this.state.multi?"none":"inline"},
+        title: "Multiple Assignees",
+        onClick: this.toggleMultiAssignee
+      })
     );
+  },
+  
+  componentDidUpdate: function() {
+    if (this.goingMulti) {
+      this.goingMulti = false;
+      this.focus();
+    }
   }
 });
 
@@ -3203,7 +3406,7 @@ function configureNewIssue(initialRepo, meta) {
     title: "",
     state: "open",
     milestone: null,
-    assignee: null,
+    assignees: [],
     labels: [],
     comments: [],
     events: [],

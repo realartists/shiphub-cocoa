@@ -46,7 +46,9 @@
         _updatedAt = li.updatedAt;
         _closedAt = li.closedAt;
         _locked = [li.locked boolValue];
-        _assignee = [ms userWithIdentifier:li.assignee.identifier];
+        _assignees = [[li.assignees array] arrayByMappingObjects:^id(LocalUser *obj) {
+            return [ms userWithIdentifier:obj.identifier];
+        }];
         _originator = [ms userWithIdentifier:li.originator.identifier];
         _closedBy = [ms userWithIdentifier:li.closedBy.identifier];
         _labels = [[[li.labels allObjects] arrayByMappingObjects:^id(id obj) {
@@ -89,6 +91,10 @@
     return [NSString stringWithFormat:@"<%@ %p> %@ %@\nlabels:%@\ncomments:%@\nevents:%@\nunread: %d", NSStringFromClass([self class]), self, self.fullIdentifier, self.title, self.labels, self.comments, self.events, self.unread];
 }
 
+- (User *)assignee {
+    return [_assignees firstObject];
+}
+
 - (NSString *)state {
     return _closed ? @"closed" : @"open";
 }
@@ -97,7 +103,7 @@
     Issue *i = [Issue new];
     i->_body = [self.body copy];
     i->_title = [self.title copy];
-    i->_assignee = self.assignee;
+    i->_assignees = [self.assignees copy];
     i->_labels = [self.labels copy];
     i->_milestone = self.milestone;
     i->_repository = self.repository;

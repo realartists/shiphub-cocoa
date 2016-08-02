@@ -542,6 +542,28 @@ static inline uint8_t h2b(uint8_t v) {
     return [d allValues];
 }
 
+- (NSComparisonResult)localizedStandardCompareContents:(NSArray *)other {
+    NSUInteger c0 = [self count];
+    NSUInteger c1 = [other count];
+    
+    for (NSUInteger i = 0; i < c0 && i < c1; i++) {
+        id o0 = self[i];
+        id o1 = other[i];
+        NSComparisonResult r = [o0 localizedStandardCompare:o1];
+        if (r != NSOrderedSame) {
+            return r;
+        }
+    }
+    
+    if (c0 == c1) {
+        return NSOrderedSame;
+    } else if (c0 < c1) {
+        return NSOrderedAscending;
+    } else {
+        return NSOrderedDescending;
+    }
+}
+
 @end
 
 @implementation NSMutableArray (Extras)
@@ -571,6 +593,14 @@ static inline uint8_t h2b(uint8_t v) {
 
 - (NSSet *)setByMappingObjects:(id (^)(id obj))transformer {
     return [NSSet setWithArray:[[self allObjects] arrayByMappingObjects:transformer]];
+}
+
+@end
+
+@implementation NSOrderedSet (Extras)
+
+- (NSOrderedSet *)orderedSetByMappingObjects:(id (^)(id obj))transformer {
+    return [NSOrderedSet orderedSetWithArray:[[self array] arrayByMappingObjects:transformer]];
 }
 
 @end
@@ -692,7 +722,19 @@ static BOOL equal(id a, id b) {
     if (!a && b) return NO;
     if (a == b) return YES;
     
-    if ([a isKindOfClass:[NSSet class]]) {
+    if ([a isKindOfClass:[NSOrderedSet class]]) {
+        if ([a count] == 0 && [b count] == 0) {
+            return YES;
+        } else if ([a count] != [b count]) {
+            return NO;
+        } else if ([[a firstObject] isKindOfClass:[NSManagedObject class]]) {
+            NSOrderedSet *aID = [a orderedSetByMappingObjects:^id(id obj) { return [obj objectID]; }];
+            NSOrderedSet *bID = [b orderedSetByMappingObjects:^id(id obj) { return [obj objectID]; }];
+            return [aID isEqual:bID];
+        } else {
+            return [a isEqual:b];
+        }
+    } else if ([a isKindOfClass:[NSSet class]]) {
         if ([a count] == 0 && [b count] == 0) {
             return YES;
         } else if ([a count] != [b count]) {

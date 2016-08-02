@@ -54,10 +54,12 @@
     NSExpression *resolveDateExpr = [NSExpression expressionForKeyPath:@"closedAt"];
     NSPredicateEditorRowTemplate *dateTemplate = [[TimeLimitRowTemplate alloc] initWithLeftExpressions:@[creationExpr, modificationExpr, resolveDateExpr]];
     
-    NSExpression *assigneeExpr = [NSExpression expressionForKeyPath:@"assignee.login"];
+    NSExpression *assigneeExpr = [NSExpression expressionForKeyPath:@"assignees.login"];
+    NSPredicateEditorRowTemplate *assigneeTemplate = [[UserRowTemplate alloc] initWithLeftExpressions:@[assigneeExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSAnyPredicateModifier operators:@[@(NSEqualToPredicateOperatorType), @(NSNotEqualToPredicateOperatorType)] options:0];
+    
     NSExpression *originatorExpr = [NSExpression expressionForKeyPath:@"originator.login"];
     NSExpression *resolverExpr = [NSExpression expressionForKeyPath:@"closedBy.login"];
-    NSPredicateEditorRowTemplate *userTemplate = [[UserRowTemplate alloc] initWithLeftExpressions:@[assigneeExpr, originatorExpr, resolverExpr]];
+    NSPredicateEditorRowTemplate *userTemplate = [[UserRowTemplate alloc] initWithLeftExpressions:@[originatorExpr, resolverExpr]];
     
     NSExpression *labelCountExpr = [NSExpression expressionForKeyPath:@"labels.@count"];
     NSPredicateEditorRowTemplate *labeledTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[labelCountExpr] rightExpressions:@[[NSExpression expressionForConstantValue:@0]] modifier:NSDirectPredicateModifier operators:@[@(NSEqualToPredicateOperatorType), @(NSNotEqualToPredicateOperatorType)] options:0];
@@ -77,7 +79,7 @@
     
     NSPredicateEditorRowTemplate *mentionTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[[NSExpression expressionForKeyPath:@"notification.reason"]] rightExpressions:@[[NSExpression expressionForConstantValue:@"mentioned"]] modifier:NSDirectPredicateModifier operators:@[@(NSEqualToPredicateOperatorType)] options:0];
     
-    [self setRowTemplates:@[compounds, userTemplate, dateTemplate, repoTemplate, hasLabelTemplate, hasNotLabelTemplate, labeledTemplate, milestoneTemplate, stateTemplate, titleTemplate, bodyTemplate, commentsTemplate, readTemplate, mentionTemplate]];
+    [self setRowTemplates:@[compounds, assigneeTemplate, userTemplate, dateTemplate, repoTemplate, hasLabelTemplate, hasNotLabelTemplate, labeledTemplate, milestoneTemplate, stateTemplate, titleTemplate, bodyTemplate, commentsTemplate, readTemplate, mentionTemplate]];
 
     @try {
         [self setFormattingStringsFilename:@"SearchEditor"];

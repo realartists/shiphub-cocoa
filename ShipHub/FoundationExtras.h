@@ -126,6 +126,8 @@
 
 - (NSArray *)partitionByKeyPath:(NSString *)keyPath; // returns an array of arrays, where self is partitioned by key path
 
+- (NSComparisonResult)localizedStandardCompareContents:(NSArray *)other;
+
 @end
 
 @interface NSMutableArray (Extras)
@@ -137,6 +139,12 @@
 @interface NSSet (Extras)
 
 - (NSSet *)setByMappingObjects:(id (^)(id obj))transformer;
+
+@end
+
+@interface NSOrderedSet (Extras)
+
+- (NSOrderedSet *)orderedSetByMappingObjects:(id (^)(id obj))transformer;
 
 @end
 

@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *title;
 @property (nullable, nonatomic, retain) NSDate *updatedAt;
 @property (nullable, nonatomic, retain) NSDate *closedAt;
-@property (nullable, nonatomic, retain) LocalUser *assignee;
+@property (nullable, nonatomic, retain) NSOrderedSet<LocalUser *> *assignees;
 @property (nullable, nonatomic, retain) NSSet<LocalRelationship *> *childRelationships;
 @property (nullable, nonatomic, retain) LocalUser *closedBy;
 @property (nullable, nonatomic, retain) NSSet<LocalLabel *> *labels;
@@ -81,6 +81,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeUpNextObject:(LocalPriority *)value;
 - (void)addUpNext:(NSSet<LocalPriority *> *)values;
 - (void)removeUpNext:(NSSet<LocalPriority *> *)values;
+
+- (void)addAssigneesObject:(LocalUser *)value;
+- (void)removeAssigneesObject:(LocalUser *)value;
+- (void)addAssignees:(NSOrderedSet<LocalUser *> *)values;
+- (void)removeAssignees:(NSOrderedSet<LocalUser *> *)values;
 
 @end
 

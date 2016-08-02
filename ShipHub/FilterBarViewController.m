@@ -155,7 +155,62 @@
 }
 
 - (id)assigneeLoginInPredicate:(NSPredicate *)predicate {
-    return [self userLoginInPredicate:predicate field:@"assignee"];
+    __block BOOL unassigned = NO;
+    __block id login = nil;
+    __block id identifier = nil;
+    
+    NSArray *predicates = [predicate predicatesMatchingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        if ([evaluatedObject isKindOfClass:[NSComparisonPredicate class]])
+        {
+            NSComparisonPredicate *c0 = evaluatedObject;
+            NSExpression *lhs = c0.leftExpression;
+            
+            if (lhs.expressionType == NSFunctionExpressionType && [lhs.function isEqualToString:@"count:"])
+            {
+                NSExpression *kp = [lhs.arguments firstObject];
+                if (kp.expressionType == NSKeyPathExpressionType
+                    && [kp.keyPath isEqualToString:@"assignees"])
+                {
+                    NSExpression *v = c0.rightExpression;
+                    
+                    if (v.expressionType == NSConstantValueExpressionType
+                        && [v.constantValue isEqual:@0])
+                    {
+                        unassigned = YES;
+                        return YES;
+                    }
+                    
+                    return YES;
+                }
+            } else if (c0.comparisonPredicateModifier == NSAnyPredicateModifier
+                       && lhs.expressionType == NSKeyPathExpressionType
+                       && ([lhs.keyPath isEqualToString:@"assignees.login"]
+                           || [lhs.keyPath isEqualToString:@"assignees.identifier"]))
+            {
+                NSExpression *rhs = c0.rightExpression;
+                if ([lhs.keyPath isEqualToString:@"assignees.login"]) {
+                    login = [rhs expressionValueWithObject:nil context:NULL];
+                } else {
+                    identifier = [rhs expressionValueWithObject:nil context:NULL];
+                }
+                return YES;
+            }
+        }
+        return NO;
+    }]];
+    
+    if ([predicates count] > 0) {
+        if (unassigned) {
+            return [NSNull null];
+        } else if (login) {
+            return login;
+        } else if (identifier) {
+            if (identifier == [NSNull null]) return identifier;
+            return [[[self metadata] userWithIdentifier:identifier] login];
+        }
+    }
+    
+    return nil;
 }
 
 - (id)authorLoginInPredicate:(NSPredicate *)predicate {
@@ -837,9 +892,9 @@ static BOOL representedObjectEquals(id repr, id val) {
         id selectedOpt = [self selectedObjectInFilter:_assignee];
         if (selectedOpt != nil) {
             if (selectedOpt == [NSNull null]) {
-                pred = [pred and:[NSPredicate predicateWithFormat:@"assignee = nil"]];
+                pred = [pred and:[NSPredicate predicateWithFormat:@"count(assignees) = 0"]];
             } else {
-                pred = [pred and:[NSPredicate predicateWithFormat:@"assignee.login = %@", selectedOpt]];
+                pred = [pred and:[NSPredicate predicateWithFormat:@"ANY assignees.login = %@", selectedOpt]];
             }
         }
     }

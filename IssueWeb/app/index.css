@@ -110,6 +110,69 @@ select.IssueState {
   margin: 0px;
 }
 
+i.toggleMultiAssignee {
+  cursor: default;
+  -webkit-user-select: none;
+  color: #BBB;
+  position: relative;
+  top: 3px;
+}
+
+.MultipleAssignees {
+  padding: 0px;
+  margin: 0px;
+  position: relative;
+  top: -2px;
+  height: 20px;
+}
+
+.AssigneesPicker {
+  display: inline-block;
+}
+
+.AssigneesPicker i.AddAssignee {
+  color: #BBB;
+  -webkit-user-select: none;
+  margin: 0px;
+  margin-right: 4px;
+  position: relative;
+  top: -1px;
+}
+
+.AddAssigneesEmpty {
+  min-height: 8px;
+  display: inline-block;  
+}
+
+.AssigneeAtom {
+  position: relative;
+  top: -2px;
+  margin: 0px;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-bottom: 2px;
+  border-radius: 10px;
+  height: 20px;
+  font-weight: bold;
+  color: white;
+  background-color: #0085E4;
+  -webkit-user-select: none;
+}
+
+.AssigneeAtomName {
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+.AssigneeAtomDelete {
+  padding-left: 8px;
+  padding-right: 2px;
+  cursor: default;
+  font-weight: normal;
+  font-size: 8pt;
+  -webkit-user-select: none;
+}
+
 div.activityList {
   position: relative;
 }
@@ -446,6 +509,31 @@ a.issueTitle span.issueNumber {
 }
 .tt-suggestion p {
   margin: 0;
+}
+
+span.AssigneesPicker .typeahead,
+span.AssigneesPicker .tt-query,
+span.AssigneesPicker .twitter-typeahead {
+  width: 140px;
+  padding: 0px;
+  padding-top: 2px;
+  margin: 0px;
+}
+
+span.AssigneesPicker .tt-hint {
+  width: 100px;
+  padding: 0px;
+  padding-top: 4px;
+  color: #999;
+}
+
+span.AssigneesPicker .tt-suggestion {
+  padding: 0px;
+  margin: 0px;
+}
+
+span.AssigneesPicker .tt-suggestion p {
+  padding: 0px;
 }
 
 .AddLabel {

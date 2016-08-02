@@ -45,7 +45,7 @@
         <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" indexed="YES" syncable="YES"/>
-        <relationship name="assignee" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="assignedIssues" inverseEntity="LocalUser" syncable="YES"/>
+        <relationship name="assignees" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="LocalUser" inverseName="assignedIssues" inverseEntity="LocalUser" syncable="YES"/>
         <relationship name="closedBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="closedIssues" inverseEntity="LocalUser" syncable="YES"/>
         <relationship name="comments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalComment" inverseName="issue" inverseEntity="LocalComment" syncable="YES"/>
         <relationship name="events" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalEvent" inverseName="issue" inverseEntity="LocalEvent" syncable="YES"/>
@@ -126,7 +126,7 @@
         <relationship name="actedEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalEvent" inverseName="actor" inverseEntity="LocalEvent" syncable="YES"/>
         <relationship name="assignable" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="assignees" inverseEntity="LocalRepo" syncable="YES"/>
         <relationship name="assignedEvents" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalEvent" inverseName="assignee" inverseEntity="LocalEvent" syncable="YES"/>
-        <relationship name="assignedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="assignee" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="assignedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="assignees" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="closedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="closedBy" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="comments" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalComment" inverseName="user" inverseEntity="LocalComment" syncable="YES"/>
         <relationship name="orgs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalOrg" inverseName="users" inverseEntity="LocalOrg" syncable="YES"/>

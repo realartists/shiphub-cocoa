@@ -28,8 +28,8 @@
 "%[originator.login]@ %[is]@ %@" = "%1$[Originator]@ %2$[is]@ %3$@";
 "%[originator.login]@ %[is not]@ %@" = "%1$[Originator]@ %2$[is not]@ %3$@";
 
-"%[assignee.login]@ %[is]@ %@" = "%1$[Assignee]@ %2$[is]@ %3$@";
-"%[assignee.login]@ %[is not]@ %@" = "%1$[Assignee]@ %2$[is not]@ %3$@";
+"%[assignees.login]@ %[is]@ %@" = "%1$[Assignees]@ %2$[contains]@ %3$@";
+"%[assignees.login]@ %[is not]@ %@" = "%1$[Assignees]@ %2$[does not contain]@ %3$@";
 
 "%[closedBy.login]@ %[is]@ %@" = "%1$[Resolver]@ %2$[is]@ %3$@";
 "%[closedBy.login]@ %[is not]@ %@" = "%1$[Resolver]@ %2$[is not]@ %3$@";

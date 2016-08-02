@@ -45,6 +45,8 @@
 		1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */; };
 		1A0D87741CA9E25F0069782D /* JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.m */; };
 		1A0D87751CA9E25F0069782D /* JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.m */; };
+		1A20CFC61D5152C800F412DE /* assignees-picker.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A20CFC41D5152C800F412DE /* assignees-picker.js */; };
+		1A20CFC71D5152C800F412DE /* cm-util.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A20CFC51D5152C800F412DE /* cm-util.js */; };
 		1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217921C7E7B14006460E2 /* AppDelegate.m */; };
 		1A2217961C7E7B14006460E2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217951C7E7B14006460E2 /* main.m */; };
 		1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A2217971C7E7B14006460E2 /* Assets.xcassets */; };
@@ -383,6 +385,8 @@
 		1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueDocumentController.m; sourceTree = "<group>"; };
 		1A0D87721CA9E25F0069782D /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSON.h; sourceTree = "<group>"; };
 		1A0D87731CA9E25F0069782D /* JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSON.m; sourceTree = "<group>"; };
+		1A20CFC41D5152C800F412DE /* assignees-picker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "assignees-picker.js"; sourceTree = "<group>"; };
+		1A20CFC51D5152C800F412DE /* cm-util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "cm-util.js"; sourceTree = "<group>"; };
 		1A22178E1C7E7B14006460E2 /* ShipHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShipHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A2217911C7E7B14006460E2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1A2217921C7E7B14006460E2 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -1180,6 +1184,8 @@
 		1AFE21F11CA5EC3F00B51CF6 /* app */ = {
 			isa = PBXGroup;
 			children = (
+				1A20CFC41D5152C800F412DE /* assignees-picker.js */,
+				1A20CFC51D5152C800F412DE /* cm-util.js */,
 				1A9DA7EE1D223DB500A23EC9 /* spellcheck.js */,
 				1AD095E31CF8DF9100A0277A /* completer.js */,
 				1AD095E41CF8DF9100A0277A /* file-picker.js */,
@@ -1350,6 +1356,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A7FD77A1D493B0400B585E2 /* ProgressSheet.xib in Resources */,
+				1A20CFC61D5152C800F412DE /* assignees-picker.js in Resources */,
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
 				1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */,
@@ -1364,6 +1371,7 @@
 				1A7FD7751D492FE000B585E2 /* MilestoneModifyController.xib in Resources */,
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
+				1A20CFC71D5152C800F412DE /* cm-util.js in Resources */,
 				1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */,
 				28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */,
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,

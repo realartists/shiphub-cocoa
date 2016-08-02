@@ -83,8 +83,9 @@ NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification = @"DataStoreN
  1: First Version
  2: Server Integration
  3: realartists/shiphub-cocoa#109 Handle PRs in the database
+ 4: realartists/shiphub-cocoa#76 Support multiple assignees
  */
-static const NSInteger CurrentLocalModelVersion = 3;
+static const NSInteger CurrentLocalModelVersion = 4;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSManagedObjectModel *_mom;
@@ -277,7 +278,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         return NO;
     }
     
-    if (previousStoreVersion < 3) {
+    if (previousStoreVersion < 4) {
         DebugLog(@"Updating to version %td database from %td. Forcing database re-creation.", CurrentLocalModelVersion, previousStoreVersion);
         forceRecreate = YES;
     }
@@ -608,32 +609,27 @@ static NSString *const LastUpdated = @"LastUpdated";
             
             NSError *error = nil;
             NSArray *existing = [_moc executeFetchRequest:fetch error:&error];
-            NSMutableArray *relatedObjs = [NSMutableArray arrayWithArray:existing];
             if (error) ErrLog(@"%@", error);
             
-            NSMutableSet *toCreate = [relatedIDs mutableCopy];
-            for (NSManagedObject *relObj in existing) {
-                NSString *identifier = [relObj valueForKey:@"identifier"];
-                NSDictionary *updates = relatedLookup[identifier];
-                if (updates && !noPopulate) {
-                    [relObj mergeAttributesFromDictionary:updates];
-                }
-                [toCreate removeObject:identifier];
-            }
+            NSDictionary *existingLookup = [NSDictionary lookupWithObjects:existing keyPath:@"identifier"];
             
-            for (id identifier in toCreate) {
-                DebugLog(@"Creating %@ of id %@", rel.destinationEntity.name, identifier);
-                NSManagedObject *relObj = [NSEntityDescription insertNewObjectForEntityForName:rel.destinationEntity.name inManagedObjectContext:_moc];
-                [relObj setValue:identifier forKey:@"identifier"];
-                NSDictionary *populate = relatedLookup[identifier];
-                if (populate) {
-                    [relObj mergeAttributesFromDictionary:populate];
+            id relatedObjs = rel.ordered ? [NSMutableOrderedSet new] : [NSMutableSet new];
+            for (NSNumber *relatedID in relatedIDs) {
+                NSManagedObject *relObj = existingLookup[relatedID];
+                BOOL populate = !noPopulate;
+                if (!relObj) {
+                    relObj = [NSEntityDescription insertNewObjectForEntityForName:rel.destinationEntity.name inManagedObjectContext:_moc];
+                    [relObj setValue:relatedID forKey:@"identifier"];
+                    populate = YES;
+                }
+                NSDictionary *updates = relatedLookup[relatedID];
+                if (updates && populate) {
+                    [relObj mergeAttributesFromDictionary:updates];
                 }
                 [relatedObjs addObject:relObj];
             }
             
-            [obj setValue:[NSSet setWithArray:relatedObjs] forKey:key onlyIfChanged:YES];
-            
+            [obj setValue:relatedObjs forKey:key onlyIfChanged:YES];
         } else /* rel.toOne */ {
             id related = syncDict[syncDictKey];
             

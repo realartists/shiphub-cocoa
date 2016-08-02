@@ -56,16 +56,13 @@
     
     NSMutableIndexSet *selectMe = [NSMutableIndexSet new];
     for (Issue *i in self.issues) {
-        // FIXME: Multiple assignee support
-        if (i.assignee) {
-            NSSet *assignees = [NSSet setWithObject:i.assignee.login];
-            NSInteger idx = [_assignees indexOfObjectPassingTest:^BOOL(User * _Nonnull obj, NSUInteger k, BOOL * _Nonnull stop) {
-                return [assignees containsObject:[obj login]];
-            }];
-            if (idx != NSNotFound) {
-                [selectMe addIndex:idx];
-            }
-        }
+        NSSet *assignees = [NSSet setWithArray:[i.assignees arrayByMappingObjects:^id(id obj) {
+            return [obj login];
+        }]];
+        NSIndexSet *idxs = [_assignees indexesOfObjectsPassingTest:^BOOL(User * _Nonnull obj, NSUInteger k, BOOL * _Nonnull stop) {
+            return [assignees containsObject:[obj login]];
+        }];
+        [selectMe addIndexes:idxs];
     }
     
     [_table selectRowIndexes:selectMe byExtendingSelection:NO];
@@ -86,9 +83,9 @@
     dispatch_group_t group = dispatch_group_create();
     
     for (Issue *issue in self.issues) {
-        // FIXME: Multiple assignee support
-        NSString *issueAssigneeLogin = issue.assignee.login;
-        NSArray *existing = issueAssigneeLogin?@[issueAssigneeLogin]:@[];
+        NSArray *existing = [issue.assignees arrayByMappingObjects:^id(id obj) {
+            return [obj login];
+        }];
         
         NSSet *allowed = [NSSet setWithArray:[[meta assigneesForRepo:issue.repository] arrayByMappingObjects:^id(id obj) { return [obj login]; }]];
         

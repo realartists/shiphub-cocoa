@@ -32,6 +32,7 @@
 @property (readonly) NSDate *closedAt;
 @property (readonly) BOOL locked;
 @property (readonly) User *assignee;
+@property (readonly) NSArray<User*> *assignees;
 @property (readonly) User *originator;
 @property (readonly) User *closedBy;
 @property (readonly) NSArray<Label*> *labels;

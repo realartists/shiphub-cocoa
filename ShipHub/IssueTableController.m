@@ -18,6 +18,9 @@
 #import "BulkModifyHelper.h"
 #import "LabelsView.h"
 
+@interface MultipleAssigneesFormatter : NSFormatter
+@end
+
 @interface IssueTableController () <ProblemTableViewDelegate, NSTableViewDataSource, NSMenuDelegate>
 
 @property (strong) IBOutlet NSTableView *table;
@@ -159,8 +162,10 @@
                      @"minWidth" : @100,
                      @"maxWidth" : @10000 },
                   
-                  @{ @"identifier" : @"assignee.login",
+                  @{ @"identifier" : @"assignees.login",
                      @"title" : NSLocalizedString(@"Assignee", nil),
+                     @"formatter" : [MultipleAssigneesFormatter new],
+                     @"sortDescriptor" : [NSSortDescriptor sortDescriptorWithKey:@"assignees.login" ascending:YES selector:@selector(localizedStandardCompareContents:)],
                      @"width" : @160,
                      @"minWidth" : @130,
                      @"maxWidth" : @200 },
@@ -1129,3 +1134,14 @@
 
 @end
 
+@implementation MultipleAssigneesFormatter
+
+- (nullable NSString *)stringForObjectValue:(id)obj {
+    if ([obj isKindOfClass:[NSArray class]]) {
+        return [obj componentsJoinedByString:@", "];
+    } else {
+        return [obj description];
+    }
+}
+
+@end

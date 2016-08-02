@@ -274,13 +274,22 @@ static const CGFloat marginBottom = 8.0;
     NSRange assignedToRange = NSMakeRange(NSNotFound, 0);
     [infoStr appendAttributes:infoLabelAttrs format:NSLocalizedString(@"By ", nil)];
     [infoStr appendAttributes:infoItemAttrs format:@"%@", _issue.originator.login];
-    if (_issue.assignee) {
+    if (_issue.assignees.count == 1) {
+        User *assignee = [_issue.assignees firstObject];
         [infoStr appendAttributes:infoLabelAttrs format:@" • "];
         assignedToRange.location = infoStr.length;
         assignedToRange.length = assignedTo.length;
         [infoStr appendAttributes:infoItemAttrs format:@"%@", assignedTo];
-        [infoStr appendAttributes:infoItemAttrs format:@"%@", _issue.assignee.login];
+        [infoStr appendAttributes:infoItemAttrs format:@"%@", assignee.login];
+    } else if (_issue.assignees.count > 1) {
+        User *assignee = [_issue.assignees firstObject];
+        [infoStr appendAttributes:infoLabelAttrs format:@" • "];
+        assignedToRange.location = infoStr.length;
+        assignedToRange.length = assignedTo.length;
+        [infoStr appendAttributes:infoItemAttrs format:@"%@", assignedTo];
+        [infoStr appendAttributes:infoItemAttrs format:@"%@ +%tu", assignee.login, _issue.assignees.count-1];
     } else {
+        // Not assigned
         [infoStr appendAttributes:infoLabelAttrs format:@" • "];
         [infoStr appendAttributes:infoItemAttrs format:NSLocalizedString(@"Unassigned", nil)];
     }
@@ -295,7 +304,7 @@ static const CGFloat marginBottom = 8.0;
     }
     
     CGSize infoSize = [infoStr size];
-    if (infoSize.width > (CGRectGetWidth(b) - marginLeft - marginRight - 12.0) && _issue.assignee != nil) {
+    if (infoSize.width > (CGRectGetWidth(b) - marginLeft - marginRight - 12.0) && _issue.assignees.count != 0) {
         // if it's too wide, see if we can abbreviate the assignee label a bit
         [infoStr replaceCharactersInRange:assignedToRange withString:@""];
         infoSize = [infoStr size];
