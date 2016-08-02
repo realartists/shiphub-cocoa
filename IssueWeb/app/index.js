@@ -937,14 +937,14 @@ var ClosedEventDescription = React.createClass({
       if (this.props.event.ship_commit_author &&
           this.props.event.ship_commit_author.login !=
           this.props.event.actor.login) {
-        authoredBy = h("span", {},
+        authoredBy = h("span", {key:"authoredBy"},
                        "(authored by ",
                        h(EventUser, {user: this.props.event.ship_commit_author}),
                        ")"
                       );
       }
 
-      return h("span", {},
+      return h("span", {key:"with"},
         "closed this issue with commit ",
         h("a",
           {
@@ -956,7 +956,7 @@ var ClosedEventDescription = React.createClass({
         authoredBy
       );
     } else {
-      return h("span", {}, "closed this issue");
+      return h("span", {key:"without"}, "closed this issue");
     }
   }
 });
@@ -1284,7 +1284,7 @@ var ActivityList = React.createClass({
             counter.e = counter.e + 1;
             var next = a[i+1];
             return h(Event, {
-              key:(e.id||""+i), 
+              key:(e.id?(e.id+"-"+i):""+i), 
               event:e, 
               first:(i==0 || a[i-1].event == undefined),
               last:(next!=undefined && next.event==undefined),
@@ -1292,7 +1292,7 @@ var ActivityList = React.createClass({
             });
           } else {
             counter.c = counter.c + 1;
-            return h(Comment, {key:(e.id||""+i), ref:"comment." + i, comment:e, first:i==0, commentIdx:counter.c-1})
+            return h(Comment, {key:(e.id?(e.id+"-"+i):""+i), ref:"comment." + i, comment:e, first:i==0, commentIdx:counter.c-1})
           }
         })
       )
@@ -3378,13 +3378,26 @@ function applyIssueState(state) {
   
   setIvars(state);
   
+  if (window.lastErr) {
+    console.log("Rerendering everything");
+    delete window.lastErr;
+    var node = document.getElementById('react-app');
+    try {
+      ReactDOM.unmountComponentAtNode(node);
+    } catch (exc) {
+      node.remove();
+      var body = document.getElementsByTagName('body')[0];
+      node = document.createElement('div');
+      node.setAttribute('id', 'react-app');
+      body.appendChild(node);
+    }
+  }
+  
   window.topLevelComponent = ReactDOM.render(
     h(App, {issue: issue}),
     document.getElementById('react-app')
   )
 }
-
-
 
 function configureNewIssue(initialRepo, meta) {
   if (!meta) {
@@ -3498,3 +3511,11 @@ function applyMarkdownFormat(format) {
 window.applyMarkdownFormat = applyMarkdownFormat;
 
 window.loadComplete.postMessage({});
+
+if (__DEBUG__) {
+  console.log("*** Debug build ***");
+}
+
+window.onerror = function() {
+  window.lastErr = true;
+}

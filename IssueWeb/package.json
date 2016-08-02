@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "production": "webpack -p",
-    "debug": "webpack -d",
-    "start": "webpack-dev-server --open",
-    "dev-server-inline": "webpack-dev-server --inline"
+    "production": "DEBUG=0 webpack -p",
+    "debug": "DEBUG=1 webpack -d",
+    "start": "DEBUG=1 webpack-dev-server --open",
+    "dev-server-inline": "DEBUG=1 webpack-dev-server --inline"
   },
   "author": "",
   "dependencies": {

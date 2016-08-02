@@ -1,8 +1,13 @@
+var webpack = require('webpack');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
   template: __dirname + "/app/index.html",
   filename: "index.html",
   inject: "body"
+});
+
+var definePlugin = new webpack.DefinePlugin({
+  __DEBUG__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
 });
 
 module.exports = {
@@ -28,5 +33,5 @@ module.exports = {
       { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: "url?limit=10000&mimetype=image/svg+xml" }
     ]
   },
-  plugins: [HtmlWebpackPluginConfig]
+  plugins: [HtmlWebpackPluginConfig, definePlugin]
 }
