@@ -989,6 +989,8 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
         return menuItem.representedObject != nil;
     } else if (menuItem.action == @selector(toggleUpNext:)) {
         menuItem.title = NSLocalizedString(@"Add to Up Next", nil);
+    } else if ([NSStringFromSelector(menuItem.action) hasPrefix:@"md"]) {
+        return YES;
     }
     return _issue.fullIdentifier != nil;
 }
