@@ -1003,6 +1003,9 @@
 - (void)tableView:(NSTableView *)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
 {
     [cell setFont:[NSFont systemFontOfSize:12.0]];
+    if ([tableColumn.identifier isEqualToString:@"repository.fullName"]) {
+        [cell setLineBreakMode:NSLineBreakByTruncatingMiddle];
+    }
 }
 
 - (NSIndexSet *)tableView:(NSTableView *)tableView selectionIndexesForProposedSelection:(NSIndexSet *)proposedSelectionIndexes {
