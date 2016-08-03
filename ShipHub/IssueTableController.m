@@ -591,7 +591,7 @@
     NSArray *cols = _tableColumns;
     NSUInteger maxCols = [cols count];
     for (NSTableColumn *column in cols) {
-        if ([column.identifier isEqualToString:@"read"]) {
+        if ([column.identifier isEqualToString:@"unread"]) {
             i++;
             continue;
         }
@@ -613,13 +613,15 @@
     NSUInteger maxCols = [cols count];
     for (NSTableColumn *column in cols) {
         NSString *value = @"--";
-        if ([column.identifier isEqualToString:@"read"]) {
+        if ([column.identifier isEqualToString:@"unread"]) {
             i++;
             continue;
         } else {
             id obj = [problem valueForKeyPath:column.identifier];
             if ([obj isKindOfClass:[NSDate class]]) {
                 value = [obj longUserInterfaceString];
+            } else if ([obj isKindOfClass:[NSArray class]]) {
+                value = [obj componentsJoinedByString:@","];
             } else {
                 value = [obj description];
             }

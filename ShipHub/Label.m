@@ -26,8 +26,12 @@
     return self;
 }
 
-- (NSString *)description {
+- (NSString *)debugDescription {
     return [NSString stringWithFormat:@"<%@ %p> %@", NSStringFromClass([self class]), self, _name];
+}
+
+- (NSString *)description {
+    return _name;
 }
 
 @end
