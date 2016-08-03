@@ -210,6 +210,11 @@
                      @"title" : NSLocalizedString(@"Created", nil),
                      @"width" : @130 },
                   
+                  @{ @"identifier" : @"closedAt",
+                     @"formatter" : [NSDateFormatter shortDateAndTimeFormatter],
+                     @"title" : NSLocalizedString(@"Date Resolved", nil),
+                     @"width" : @130 },
+                  
                   @{ @"identifier" : @"labels",
                      @"title" : NSLocalizedString(@"Labels", nil),
                      @"cellClass" : @"LabelsCell",
