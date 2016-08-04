@@ -26,7 +26,8 @@
     return self;
 }
 
-- (NSMutableURLRequest *)requestWithHost:(NSString *)host endpoint:(NSString *)endpoint authenticated:(BOOL)authenticate {
+- (NSMutableURLRequest *)requestWithHost:(NSString *)host endpoint:(NSString *)endpoint authenticated:(BOOL)authenticate headers:(NSDictionary *)headers
+{
     NSURLComponents *comps = [NSURLComponents new];
     comps.scheme = @"https";
     comps.host = host;
@@ -40,16 +41,24 @@
     }
     [req setValue:@"application/json" forHTTPHeaderField:@"Accept"];
     
+    for (NSString *key in [headers allKeys]) {
+        [req setValue:headers[key] forHTTPHeaderField:key];
+    }
+    
     return req;
 }
 
-- (void)perform:(NSString *)method on:(NSString *)endpoint body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
+- (void)perform:(NSString *)method on:(NSString *)endpoint body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion {
+    [self perform:method on:endpoint headers:nil body:jsonBody completion:completion];
+}
+
+- (void)perform:(NSString *)method on:(NSString *)endpoint headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
 {
     if (![_auth.account.shipHost isEqualToString:_auth.account.ghHost]) {
         endpoint = [@"/github" stringByAppendingString:endpoint];
     }
     
-    NSMutableURLRequest *request = [self requestWithHost:_auth.account.shipHost endpoint:endpoint authenticated:YES];
+    NSMutableURLRequest *request = [self requestWithHost:_auth.account.shipHost endpoint:endpoint authenticated:YES headers:headers];
     request.HTTPMethod = method;
     
     if (jsonBody) {

@@ -11,6 +11,7 @@
 @class User;
 @class LocalComment;
 @class MetadataStore;
+@class Reaction;
 
 @interface IssueComment : NSObject
 
@@ -19,6 +20,7 @@
 @property NSNumber *identifier;
 @property NSDate *updatedAt;
 @property User *user;
+@property NSArray<Reaction *> *reactions;
 
 - (instancetype)initWithLocalComment:(LocalComment *)lc metadataStore:(MetadataStore *)ms;
 

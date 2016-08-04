@@ -19,6 +19,7 @@
 @class LocalComment;
 @class LocalPriority;
 @class LocalNotification;
+@class LocalReaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -47,6 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSSet<LocalComment *> *comments;
 @property (nullable, nonatomic, retain) NSSet<LocalPriority *> *upNext;
 @property (nullable, nonatomic, retain) LocalNotification *notification;
+@property (nullable, nonatomic, retain) NSSet<LocalReaction *> *reactions;
 
 @end
 
@@ -86,6 +88,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeAssigneesObject:(LocalUser *)value;
 - (void)addAssignees:(NSOrderedSet<LocalUser *> *)values;
 - (void)removeAssignees:(NSOrderedSet<LocalUser *> *)values;
+
+- (void)addReactionObject:(LocalReaction *)value;
+- (void)removeReactionObject:(LocalReaction *)value;
+- (void)addReactions:(NSSet<LocalReaction *> *)values;
+- (void)removeReactions:(NSSet<LocalReaction *> *)values;
 
 @end
 

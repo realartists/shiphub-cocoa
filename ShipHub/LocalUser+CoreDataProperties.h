@@ -14,6 +14,7 @@
 @class LocalEvent;
 @class LocalComment;
 @class LocalOrg;
+@class LocalReaction;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSSet<LocalComment *> *comments;
 @property (nullable, nonatomic, retain) NSSet<LocalOrg *> *orgs;
 @property (nullable, nonatomic, retain) NSSet<LocalIssue *> *originatedIssues;
+@property (nullable, nonatomic, retain) NSSet<LocalReaction *> *reactions;
 
 @end
 
@@ -71,6 +73,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeOriginatedIssuesObject:(LocalIssue *)value;
 - (void)addOriginatedIssues:(NSSet<LocalIssue *> *)values;
 - (void)removeOriginatedIssues:(NSSet<LocalIssue *> *)values;
+
+- (void)addReactionObject:(LocalReaction *)value;
+- (void)removeReactionObject:(LocalReaction *)value;
+- (void)addReactions:(NSSet<LocalReaction *> *)values;
+- (void)removeReactions:(NSSet<LocalReaction *> *)values;
 
 @end
 

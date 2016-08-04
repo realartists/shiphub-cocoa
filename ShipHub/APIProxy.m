@@ -150,7 +150,7 @@
         if (http.statusCode >= 200 && http.statusCode < 400) {
             
             NSError *e = nil;
-            id body = data ? [NSJSONSerialization JSONObjectWithData:data options:0 error:&e] : nil;
+            id body = data.length ? [NSJSONSerialization JSONObjectWithData:data options:0 error:&e] : nil;
             
             [self yield:body err:e];
             
@@ -218,6 +218,15 @@
      
      BIND(@"POST /repos/:owner/:repo/issues",
           postIssue:owner:repo:),
+     
+     BIND(@"POST /repos/:owner/:repo/issues/:number/reactions",
+          postIssueReaction:owner:repo:issueNumber:),
+     
+     BIND(@"POST /repos/:owner/:repo/issues/comments/:id/reactions",
+          postCommentReaction:owner:repo:commentIdentifier:),
+     
+     BIND(@"DELETE /reactions/:id",
+          deleteReaction:reactionIdentifier:),
      
      BIND(@"GET /repos/:owner/:repo/issues/:number",
           getIssue:owner:repo:number:),
@@ -287,6 +296,31 @@
     } else {
         [self yield:nil err:[NSError shipErrorWithCode:ShipErrorCodeProblemDoesNotExist localizedMessage:[NSString stringWithFormat:NSLocalizedString(@"Could not locate repo %@/%@", nil), owner, repo]]];
     }
+}
+
+- (void)postIssueReaction:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo issueNumber:(id)number
+{
+    NSString *content = request.bodyJSON[@"content"];
+    [[DataStore activeStore] postIssueReaction:content inIssue:_existingIssue.fullIdentifier completion:^(Reaction *reaction, NSError *error) {
+        [self yield:reaction err:error];
+    }];
+}
+
+- (void)postCommentReaction:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo commentIdentifier:(NSString *)commentIdentifier
+{
+    NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
+    NSString *content = request.bodyJSON[@"content"];
+    [[DataStore activeStore] postCommentReaction:content inIssue:_existingIssue.fullIdentifier inComment:commentNumber completion:^(Reaction *reaction, NSError *error) {
+        [self yield:reaction err:error];
+    }];
+}
+
+- (void)deleteReaction:(ProxyRequest *)request reactionIdentifier:(id)identifier
+{
+    NSNumber *reactionNumber = [NSNumber numberWithLongLong:[identifier longLongValue]];
+    [[DataStore activeStore] deleteReaction:reactionNumber completion:^(NSError *error) {
+        [self yield:nil err:error];
+    }];
 }
 
 - (void)getIssue:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo number:(id)number

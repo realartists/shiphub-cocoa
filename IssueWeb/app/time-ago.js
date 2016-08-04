@@ -1,5 +1,50 @@
 import React, { createElement as h } from 'react'
 
+function TimeAgoDefaultFormatter(value, unit, suffix) {
+  if(value !== 1){
+    unit += 's'
+  }
+  return value + ' ' + unit + ' ' + suffix
+}
+
+function TimeAgoString(then, formatter) {
+  then = (new Date(then)).valueOf()
+  if (!formatter) {
+    formatter = TimeAgoDefaultFormatter
+  }
+  var now = Date.now()
+  var seconds = Math.round(Math.abs(now-then)/1000)
+
+  var suffix = then < now ? 'ago' : 'from now'
+
+  var value, unit
+  
+  if(seconds < 60){
+    return "just now"
+    value = Math.round(seconds)
+    unit = 'second'
+  } else if(seconds < 60*60) {
+    value = Math.round(seconds/60)
+    unit = 'minute'
+  } else if(seconds < 60*60*24) {
+    value = Math.round(seconds/(60*60))
+    unit = 'hour'
+  } else if(seconds < 60*60*24*7) {
+    value = Math.round(seconds/(60*60*24))
+    unit = 'day'
+  } else if(seconds < 60*60*24*30) {
+    value = Math.round(seconds/(60*60*24*7))
+    unit = 'week'
+  } else if(seconds < 60*60*24*365) {
+    value = Math.round(seconds/(60*60*24*30))
+    unit = 'month'
+  } else {
+    value = Math.round(seconds/(60*60*24*365))
+    unit = 'year'
+  }
+  return formatter(value, unit, suffix, then)
+}
+
 var TimeAgo = React.createClass(
   { displayName: 'Time-Ago'
   , timeoutId: 0
@@ -8,12 +53,7 @@ var TimeAgo = React.createClass(
              , component: 'span'
              , minPeriod: 0
              , maxPeriod: Infinity
-             , formatter: function (value, unit, suffix) {
-                 if(value !== 1){
-                   unit += 's'
-                 }
-                 return value + ' ' + unit + ' ' + suffix
-               }
+             , formatter: TimeAgoDefaultFormatter
              }
     }
   , propTypes:
@@ -81,43 +121,9 @@ var TimeAgo = React.createClass(
       }
     }
   , render: function(){
-      var then = (new Date(this.props.date)).valueOf()
-      var now = Date.now()
-      var seconds = Math.round(Math.abs(now-then)/1000)
-
-      var suffix = then < now ? 'ago' : 'from now'
-
-      var value, unit
-      
-      var props = this.props;
-
-      if(seconds < 60){
-        return h( this.props.component, props, "just now" )
-        value = Math.round(seconds)
-        unit = 'second'
-      } else if(seconds < 60*60) {
-        value = Math.round(seconds/60)
-        unit = 'minute'
-      } else if(seconds < 60*60*24) {
-        value = Math.round(seconds/(60*60))
-        unit = 'hour'
-      } else if(seconds < 60*60*24*7) {
-        value = Math.round(seconds/(60*60*24))
-        unit = 'day'
-      } else if(seconds < 60*60*24*30) {
-        value = Math.round(seconds/(60*60*24*7))
-        unit = 'week'
-      } else if(seconds < 60*60*24*365) {
-        value = Math.round(seconds/(60*60*24*30))
-        unit = 'month'
-      } else {
-        value = Math.round(seconds/(60*60*24*365))
-        unit = 'year'
-      }
-
-      return h( this.props.component, props, this.props.formatter(value, unit, suffix, then) )
+      return h( this.props.component, this.props, TimeAgoString(this.props.date, this.props.formatter) )
     }
   }
 );
 
-export default TimeAgo;
+export { TimeAgoDefaultFormatter, TimeAgoString, TimeAgo }

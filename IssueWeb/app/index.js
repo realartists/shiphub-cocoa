@@ -39,17 +39,17 @@ window.jquery = $;
 
 import Completer from './completer.js'
 import SmartInput from './smart-input.js'
-import { emojify } from './emojify.js'
+import { emojify, emojifyReaction } from './emojify.js'
 import marked from './marked.min.js'
 import { githubLinkify } from './github_linkify.js'
 import LabelPicker from './label-picker.js'
 import AssigneesPicker from './assignees-picker.js'
 import uploadAttachment from './file-uploader.js'
 import FilePicker from './file-picker.js'
-import TimeAgo from './time-ago'
+import { TimeAgo, TimeAgoString } from './time-ago'
 import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from './cm-util.js'
 
-var debugToken = "8de44b7cf7050c827165d3f509abb1bd187a62e4";
+var debugToken = "";
 
 /*
 Issue State Storage
@@ -421,6 +421,84 @@ function addComment(body) {
   });
   applyIssueState(window.ivars);
   return applyComment(body);
+}
+
+function addReaction(commentIdx, reactionContent) {
+  var reaction = {
+    id: "new",
+    user: getIvars().me,
+    content: reactionContent,
+    created_at: new Date().toISOString()
+  };
+  var owner = getIvars().issue._bare_owner;
+  var repo = getIvars().issue._bare_repo;
+  var num = getIvars().issue.number;
+  
+  var url;
+  if (commentIdx == 0) {
+    window.ivars.issue.reactions.push(reaction);
+    url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}/reactions`
+  } else {
+    commentIdx--;
+    var c = window.ivars.issue.allComments[commentIdx];
+    c.reactions.push(reaction);
+    url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${c.id}/reactions`
+  }
+  
+  applyIssueState(window.ivars);  
+  var request = api(url, {
+    headers: {
+      Authorization: "token " + getIvars().token,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github.squirrel-girl-preview'
+    },
+    method: 'POST',
+    body: JSON.stringify({content: reactionContent})
+  });
+  return new Promise((resolve, reject) => {
+    request.then(function(body) {
+      reaction.id = body.id;
+      applyIssueState(window.ivars);
+      resolve();
+    }).catch(function(err) {
+      console.error("Add reaction failed", err);
+      reject(err);
+    });
+  });
+}
+
+function deleteReaction(commentIdx, reactionID) {
+  if (reactionID === "new") {
+    console.log("Cannot delete pending reaction");
+    return;
+  }
+
+  if (commentIdx == 0) {
+    window.ivars.issue.reactions = window.ivars.issue.reactions.filter((r) => r.id !== reactionID);
+  } else {
+    commentIdx--;
+    var c = window.ivars.issue.allComments[commentIdx];
+    c.reactions = c.reactions.filter((r) => r.id !== reactionID);
+  }
+  
+  var url = `https://api.github.com/reactions/${reactionID}`
+  applyIssueState(window.ivars);  
+  var request = api(url, {
+    headers: {
+      Authorization: "token " + getIvars().token,
+      'Content-Type': 'application/json',
+      'Accept': 'application/vnd.github.squirrel-girl-preview'
+    },
+    method: 'DELETE'
+  });
+  return new Promise((resolve, reject) => {
+    request.then(function(body) {
+      resolve();
+    }).catch(function(err) {
+      console.error("Add reaction failed", err);
+      reject(err);
+    });
+  });
 }
 
 var keypath = function(obj, path) {
@@ -1208,6 +1286,7 @@ var ActivityList = React.createClass({
       id: this.props.issue.id,
       updated_at: this.props.issue.updated_at || new Date().toISOString(),
       created_at: this.props.issue.created_at || new Date().toISOString(),
+      reactions: this.props.issue.reactions
     };
     
     // need to merge events and comments together into one array, ordered by date
@@ -1389,6 +1468,45 @@ var AddCommentUploadProgress = React.createClass({
   }
 });
 
+var AddReactionOption = React.createClass({
+  render: function() {
+    return h('div', {className:'addReactionOption Clickable', onClick:this.props.onClick},
+      h('span', {className:'addReactionOptionContent'}, emojifyReaction(this.props.reaction))
+    );
+  }
+});
+
+var AddReactionOptions = React.createClass({
+  propTypes: {
+    onEnd: React.PropTypes.func
+  },
+  
+  onAdd: function(reaction) {
+    if (this.props.onEnd) {
+      this.props.onEnd();
+    }
+    if (this.props.onAdd) {
+      this.props.onAdd(reaction);
+    }
+  },
+  
+  render: function() {
+    var reactions = ["+1", "-1", "laugh", "confused", "heart", "hooray"];
+    
+    var buttons = reactions.map((r) => h(AddReactionOption, {key:r, reaction:r, onClick:()=>{this.onAdd(r);}}));
+    buttons.push(h('i', {key:"close", className:'fa fa-times addReactionClose Clickable', onClick:this.props.onEnd}));
+  
+    return h('span', {className:'addReactionOptions'}, buttons);
+  }
+});
+
+var AddReactionButton = React.createClass({
+  render: function() {
+    var button = h('i', Object.assign({}, this.props, {className:'fa fa-smile-o addReactionIcon'}));
+    return button;
+  }
+});
+
 var CommentControls = React.createClass({
   propTypes: {
     comment: React.PropTypes.object.isRequired,
@@ -1402,12 +1520,14 @@ var CommentControls = React.createClass({
     beginEditing: React.PropTypes.func,
     cancelEditing: React.PropTypes.func,
     deleteComment: React.PropTypes.func,
+    addReaction: React.PropTypes.func
   },
   
   getInitialState: function() {
     return {
       confirmingDelete: false,
-      confirmingCancelEditing: false
+      confirmingCancelEditing: false,
+      addingReaction: false
     }
   },
   
@@ -1444,7 +1564,11 @@ var CommentControls = React.createClass({
   abortCancelEditing: function() {
     this.setState({confirmingCancelEditing: false});
   },
-    
+  
+  toggleReactionOptions: function() {
+    this.setState({addingReaction: !this.state.addingReaction});
+  },
+  
   render: function() {
     var buttons = [];
     if (this.props.editing) {
@@ -1474,7 +1598,10 @@ var CommentControls = React.createClass({
           " ",
           h('span', {key:'yes', className:'confirmDeleteControl Clickable', onClick:this.performDelete}, 'Yes')
         ));
-      } else {
+      } else if (this.state.addingReaction) {
+        buttons.push(h(AddReactionOptions, {key:"reactionOptions", onEnd:this.toggleReactionOptions, onAdd:this.props.addReaction}));
+      } else {     
+        buttons.push(h(AddReactionButton, {key:"addReaction", title: "Add Reaction", onClick:this.toggleReactionOptions})); 
         buttons.push(h('i', {key:"edit", className:'fa fa-pencil', onClick:this.props.beginEditing}));
         if (!this.props.first) {
           buttons.push(h('i', {key:"trash", className:'fa fa-trash-o', onClick:this.confirmDelete}));
@@ -1499,6 +1626,84 @@ var CommentHeader = React.createClass({
       h('span', {className:'commentTimeAgo'}, desc),
       h(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
       h(CommentControls, this.props)
+    );
+  }
+});
+
+var CommentReaction = React.createClass({
+  propTypes: { reactions: React.PropTypes.array },
+  
+  onClick: function() {
+    if (this.props.onToggle) {
+      this.props.onToggle(this.props.reactions[0].content);
+    }
+  },
+  
+  render: function() {
+    var r0 = this.props.reactions[0];
+    var title;
+    if (this.props.reactions.length == 1) {
+      title = r0.user.login + " reacted " + TimeAgoString(r0.created_at);
+    } else if (this.props.reactions.length <= 3) {
+      title = this.props.reactions.slice(0, 3).map((r) => r.user.login).join(", ")
+    } else {
+      title = r0.user.login + " and " + (this.props.reactions.length-1) + " others";
+    }
+    var me = getIvars().me.login;
+    var mine = this.props.reactions.filter((r) => r.user.login === me).length > 0;
+    return h("div", {className:"CommentReaction Clickable", title: title, key:r0.content, onClick:this.onClick}, 
+      h("span", {className:"CommentReactionEmoji"}, emojifyReaction(r0.content)),
+      h("span", {className:"CommentReactionCount" + (mine?" CommentReactionCountMine":"")}, ""+this.props.reactions.length)
+    );
+  }
+});
+
+var CommentReactions = React.createClass({
+  propTypes: { reactions: React.PropTypes.array },
+  
+  render: function() {
+    var reactions = this.props.reactions || [];
+    
+    reactions.sort((a, b) => {
+      if (a.created_at < b.created_at) {
+        return -1;
+      } else if (a.created_at == b.created_at) {
+        return 0;
+      } else {
+        return 1;
+      }
+    });
+    
+    var partitionMap = {};
+    reactions.forEach((r) => {
+      var l = partitionMap[r.content];
+      if (!l) {
+        partitionMap[r.content] = l = [];
+      }
+      l.push(r);
+    });
+    
+    var partitions = [];
+    for (var contentKey in partitionMap) {
+      partitions.push(partitionMap[contentKey]);
+    }
+    
+    partitions.sort((a, b) => {
+      var d1 = new Date(a[0].created_at);
+      var d2 = new Date(b[0].created_at);
+      
+      if (d1 < d2) {
+        return -1;
+      } else if (d1 == d2) {
+        return 0;
+      } else {
+        return 1;
+      }
+    });
+    
+    var count = partitions.length;
+    return h("div", {className:"ReactionsBar"},
+      partitions.map((r, i) => h(CommentReaction, {key:r[0].content + "-" + i, reactions:r, onToggle:this.props.onToggle}))
     );
   }
 });
@@ -1599,6 +1804,28 @@ var Comment = React.createClass({
   
   deleteComment: function() {
     deleteComment(this.props.commentIdx);
+  },
+  
+  findReaction: function(reaction) {
+    var me = getIvars().me;
+    var existing = this.props.comment.reactions.filter((r) => r.content === reaction && r.user.login === me.login);
+    return existing.length > 0 ? existing[0] : null;
+  },
+  
+  addReaction: function(reaction) {
+    var existing = this.findReaction(reaction);
+    if (!existing) {
+      addReaction(this.props.commentIdx, reaction);
+    }
+  },
+
+  toggleReaction: function(reaction) {
+    var existing = this.findReaction(reaction);
+    if (existing) {
+      deleteReaction(this.props.commentIdx, existing.id);
+    } else {
+      addReaction(this.props.commentIdx, reaction);
+    }
   },
   
   togglePreview: function() {
@@ -1748,6 +1975,7 @@ var Comment = React.createClass({
         beginEditing:this.beginEditing,
         cancelEditing:this.cancelEditing,
         deleteComment:this.deleteComment,
+        addReaction:this.addReaction
       });
     } else {
       return h(AddCommentHeader, {
@@ -1778,8 +2006,10 @@ var Comment = React.createClass({
           editingExisting: !!(this.props.comment)
         })
       }
+    } else if ((keypath(this.props, "comment.reactions")||[]).length > 0) {
+      return h(CommentReactions, {reactions:this.props.comment.reactions, onToggle:this.toggleReaction});
     } else {
-      return h('span');
+      return h('div', {className:'commentEmptyFooter'});
     }
   },
 
@@ -1797,7 +2027,7 @@ var Comment = React.createClass({
       outerClass += ' addComment';
     }
 
-    return h('div', {className:'comment addComment'},
+    return h('div', {className:outerClass},
       this.renderHeader(),
       (showEditor ? this.renderCodemirror() : this.renderCommentBody(body)),
       this.renderFooter()

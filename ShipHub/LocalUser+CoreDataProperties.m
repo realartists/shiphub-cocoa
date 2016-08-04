@@ -21,5 +21,6 @@
 @dynamic comments;
 @dynamic orgs;
 @dynamic originatedIssues;
+@dynamic reactions;
 
 @end

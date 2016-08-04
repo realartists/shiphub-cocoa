@@ -24,6 +24,7 @@
 #import "Label.h"
 #import "IssueEvent.h"
 #import "IssueComment.h"
+#import "Reaction.h"
 
 #import "MetadataStore.h"
 
@@ -74,8 +75,13 @@
                 return [[IssueComment alloc] initWithLocalComment:obj metadataStore:ms];
             }];
             _commentsCount = _comments.count;
+            
+            _reactions = [[li.reactions allObjects] arrayByMappingObjects:^id(id obj) {
+                return [[Reaction alloc] initWithLocalReaction:obj metadataStore:ms];
+            }];
         } else {
             _commentsCount = [li.comments count];
+            _reactionsCount = [li.reactions count];
         }
         
         BOOL includePriority = [options[IssueOptionIncludeUpNextPriority] boolValue];

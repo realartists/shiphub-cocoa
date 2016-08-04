@@ -47,6 +47,12 @@
 		1A0D87751CA9E25F0069782D /* JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.m */; };
 		1A20CFC61D5152C800F412DE /* assignees-picker.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A20CFC41D5152C800F412DE /* assignees-picker.js */; };
 		1A20CFC71D5152C800F412DE /* cm-util.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A20CFC51D5152C800F412DE /* cm-util.js */; };
+		1A20CFF31D52A3E800F412DE /* LocalReaction+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF01D52A3E800F412DE /* LocalReaction+CoreDataProperties.m */; };
+		1A20CFF41D52A3E800F412DE /* LocalReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF21D52A3E800F412DE /* LocalReaction.m */; };
+		1A20CFFA1D52A81F00F412DE /* Reaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF91D52A81F00F412DE /* Reaction.m */; };
+		1A20CFFB1D52A81F00F412DE /* Reaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF91D52A81F00F412DE /* Reaction.m */; };
+		1A20CFFC1D52A82B00F412DE /* LocalReaction+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF01D52A3E800F412DE /* LocalReaction+CoreDataProperties.m */; };
+		1A20CFFD1D52A82B00F412DE /* LocalReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF21D52A3E800F412DE /* LocalReaction.m */; };
 		1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217921C7E7B14006460E2 /* AppDelegate.m */; };
 		1A2217961C7E7B14006460E2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217951C7E7B14006460E2 /* main.m */; };
 		1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A2217971C7E7B14006460E2 /* Assets.xcassets */; };
@@ -387,6 +393,12 @@
 		1A0D87731CA9E25F0069782D /* JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSON.m; sourceTree = "<group>"; };
 		1A20CFC41D5152C800F412DE /* assignees-picker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "assignees-picker.js"; sourceTree = "<group>"; };
 		1A20CFC51D5152C800F412DE /* cm-util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "cm-util.js"; sourceTree = "<group>"; };
+		1A20CFEF1D52A3E800F412DE /* LocalReaction+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalReaction+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1A20CFF01D52A3E800F412DE /* LocalReaction+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalReaction+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1A20CFF11D52A3E800F412DE /* LocalReaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalReaction.h; sourceTree = "<group>"; };
+		1A20CFF21D52A3E800F412DE /* LocalReaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalReaction.m; sourceTree = "<group>"; };
+		1A20CFF81D52A81F00F412DE /* Reaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reaction.h; sourceTree = "<group>"; };
+		1A20CFF91D52A81F00F412DE /* Reaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reaction.m; sourceTree = "<group>"; };
 		1A22178E1C7E7B14006460E2 /* ShipHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShipHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A2217911C7E7B14006460E2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1A2217921C7E7B14006460E2 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -928,6 +940,8 @@
 				1AFE22041CA6069300B51CF6 /* IssueComment.m */,
 				1A012EA61D443CFC006CE5DF /* CustomQuery.h */,
 				1A012EA71D443CFC006CE5DF /* CustomQuery.m */,
+				1A20CFF81D52A81F00F412DE /* Reaction.h */,
+				1A20CFF91D52A81F00F412DE /* Reaction.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -993,6 +1007,10 @@
 				1A012EAD1D443EBD006CE5DF /* LocalQuery+CoreDataProperties.m */,
 				1A012EAE1D443EBD006CE5DF /* LocalQuery.h */,
 				1A012EAF1D443EBD006CE5DF /* LocalQuery.m */,
+				1A20CFEF1D52A3E800F412DE /* LocalReaction+CoreDataProperties.h */,
+				1A20CFF01D52A3E800F412DE /* LocalReaction+CoreDataProperties.m */,
+				1A20CFF11D52A3E800F412DE /* LocalReaction.h */,
+				1A20CFF21D52A3E800F412DE /* LocalReaction.m */,
 			);
 			name = CoreData;
 			sourceTree = "<group>";
@@ -1451,6 +1469,7 @@
 				1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */,
 				1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */,
 				28BF03B51D1873CA00F22638 /* NewLabelController.m in Sources */,
+				1A20CFF41D52A3E800F412DE /* LocalReaction.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
 				1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */,
 				1A51086A1D319ED000905D4D /* RequestPager.m in Sources */,
@@ -1494,6 +1513,7 @@
 				1A694B111CA3413700F73608 /* ResultsViewModeItem.m in Sources */,
 				1A2217D81C7E981D006460E2 /* Keychain.m in Sources */,
 				1AB503E91D2471EF0097875C /* NSFileWrapper+ImageExtras.m in Sources */,
+				1A20CFF31D52A3E800F412DE /* LocalReaction+CoreDataProperties.m in Sources */,
 				1A694AFB1CA0A96500F73608 /* Account.m in Sources */,
 				1AE09C081C97687E00C5AC35 /* LocalUser.m in Sources */,
 				1AD956B31D0B5654002B1259 /* DownloadBarViewController.m in Sources */,
@@ -1518,6 +1538,7 @@
 				1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */,
 				1AE09C0E1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */,
 				1AC619721D232E9A00FE1E76 /* LocalPriority.m in Sources */,
+				1A20CFFA1D52A81F00F412DE /* Reaction.m in Sources */,
 				1A012EB81D448FF2006CE5DF /* RepoRowTemplate.m in Sources */,
 				1AF349501CDA95F000A5BEB0 /* TimeSeries.m in Sources */,
 				1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */,
@@ -1550,6 +1571,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A20CFFC1D52A82B00F412DE /* LocalReaction+CoreDataProperties.m in Sources */,
 				1A694AEF1CA09E8000F73608 /* Org.m in Sources */,
 				1AE09BF11C97687E00C5AC35 /* LocalRepo.m in Sources */,
 				1AE09BF91C97687E00C5AC35 /* LocalRelationship.m in Sources */,
@@ -1561,6 +1583,7 @@
 				1AE09C171C9779B300C5AC35 /* Keychain.m in Sources */,
 				1A012ED41D46EC45006CE5DF /* LocalQuery+CoreDataProperties.m in Sources */,
 				1A563F7B1CC823CF00755AAC /* APIProxy.m in Sources */,
+				1A20CFFD1D52A82B00F412DE /* LocalReaction.m in Sources */,
 				1A694AE01CA09E0800F73608 /* MetadataStore.m in Sources */,
 				1A694B4C1CA367E300F73608 /* Issue.m in Sources */,
 				1AE09C091C97687E00C5AC35 /* LocalUser.m in Sources */,
@@ -1604,6 +1627,7 @@
 				1AE09C1B1C9779C200C5AC35 /* DataStore.m in Sources */,
 				1A3618FD1C9383CF008C11CB /* ShipHubTests.m in Sources */,
 				1A694AF31CA09E9800F73608 /* Milestone.m in Sources */,
+				1A20CFFB1D52A81F00F412DE /* Reaction.m in Sources */,
 				1AE09C1E1C9779D300C5AC35 /* FoundationExtras.m in Sources */,
 				1AE09C0D1C97687E00C5AC35 /* LocalLabel.m in Sources */,
 				1AE09BF31C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,

@@ -13,6 +13,7 @@
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" indexed="YES" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" syncable="YES"/>
         <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="comments" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalReaction" inverseName="comment" inverseEntity="LocalReaction" syncable="YES"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="comments" inverseEntity="LocalUser" syncable="YES"/>
     </entity>
     <entity name="LocalEvent" representedClassName="LocalEvent" syncable="YES">
@@ -57,6 +58,7 @@
                 <entry key="jsonKey" value="user"/>
             </userInfo>
         </relationship>
+        <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalReaction" inverseName="issue" inverseEntity="LocalReaction" syncable="YES"/>
         <relationship name="repository" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="issues" inverseEntity="LocalRepo" syncable="YES"/>
         <relationship name="upNext" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalPriority" inverseName="issue" inverseEntity="LocalPriority" syncable="YES"/>
     </entity>
@@ -106,6 +108,14 @@
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="queries" inverseEntity="LocalUser" syncable="YES"/>
     </entity>
+    <entity name="LocalReaction" representedClassName="LocalReaction" syncable="YES">
+        <attribute name="content" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <relationship name="comment" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalComment" inverseName="reactions" inverseEntity="LocalComment" syncable="YES"/>
+        <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="reactions" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="reactions" inverseEntity="LocalUser" syncable="YES"/>
+    </entity>
     <entity name="LocalRepo" representedClassName="LocalRepo" syncable="YES">
         <attribute name="fullName" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="hidden" optional="YES" attributeType="Boolean" syncable="YES"/>
@@ -132,13 +142,14 @@
         <relationship name="orgs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalOrg" inverseName="users" inverseEntity="LocalOrg" syncable="YES"/>
         <relationship name="originatedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="originator" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="queries" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalQuery" inverseName="author" inverseEntity="LocalQuery" syncable="YES"/>
+        <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalReaction" inverseName="user" inverseEntity="LocalReaction" syncable="YES"/>
         <relationship name="upNext" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalPriority" inverseName="user" inverseEntity="LocalPriority" syncable="YES"/>
     </entity>
     <elements>
         <element name="LocalAccount" positionX="0" positionY="0" width="128" height="120"/>
-        <element name="LocalComment" positionX="0" positionY="0" width="128" height="135"/>
+        <element name="LocalComment" positionX="0" positionY="0" width="128" height="150"/>
         <element name="LocalEvent" positionX="0" positionY="0" width="128" height="180"/>
-        <element name="LocalIssue" positionX="0" positionY="0" width="128" height="360"/>
+        <element name="LocalIssue" positionX="0" positionY="0" width="128" height="375"/>
         <element name="LocalLabel" positionX="0" positionY="0" width="128" height="105"/>
         <element name="LocalMilestone" positionX="0" positionY="0" width="128" height="210"/>
         <element name="LocalNotification" positionX="9" positionY="153" width="128" height="165"/>
@@ -147,6 +158,7 @@
         <element name="LocalQuery" positionX="9" positionY="153" width="128" height="105"/>
         <element name="LocalRepo" positionX="0" positionY="0" width="128" height="210"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
-        <element name="LocalUser" positionX="0" positionY="0" width="128" height="195"/>
+        <element name="LocalUser" positionX="0" positionY="0" width="128" height="210"/>
+        <element name="LocalReaction" positionX="9" positionY="153" width="128" height="135"/>
     </elements>
 </model>

@@ -14,6 +14,7 @@
 @class Label;
 @class IssueEvent;
 @class IssueComment;
+@class Reaction;
 
 @class LocalIssue;
 @class MetadataStore;
@@ -39,6 +40,7 @@
 @property (readonly) Milestone *milestone;
 @property (readonly) Repo *repository;
 @property (readonly) NSUInteger commentsCount;
+@property (readonly) NSUInteger reactionsCount;
 @property (readonly) BOOL unread;
 
 // events and comments are conditionally populated.
@@ -46,6 +48,7 @@
 // if they're not populated at all, then they will be nil.
 @property (readonly) NSArray<IssueEvent *> *events;
 @property (readonly) NSArray<IssueComment *> *comments;
+@property (readonly) NSArray<Reaction*> *reactions;
 
 // Up Next priority is conditionally populated.
 @property (readonly) NSNumber *upNextPriority;

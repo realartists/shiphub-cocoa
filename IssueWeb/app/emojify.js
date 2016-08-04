@@ -362,7 +362,7 @@ var dictionary = {
   "hatching_chick": "1f423",
   "headphones": "1f3a7",
   "hear_no_evil": "1f649",
-  "heart": "2764",
+  "heart": ["2764", "FE0F"],
   "heart_decoration": "1f49f",
   "heart_eyes": "1f60d",
   "heart_eyes_cat": "1f63b",
@@ -898,7 +898,10 @@ export function emojify(text, opts) {
     return text.replace(/:([\w\+\-_\d]+?):/g, function(p0, p1) {
       var code = dictionary[p1];
       if (code == undefined) return p0;
-      if (code.indexOf("https") == -1) {
+      if (Array.isArray(code)) {
+        var points = code.map((p) => parseInt(p, 16));
+        return String.fromCodePoint(...points)
+      } else if (code.indexOf("https") == -1) {
         var codepoint = parseInt(code, 16);
         return String.fromCodePoint(codepoint);
       } else {
@@ -909,6 +912,13 @@ export function emojify(text, opts) {
     console.log(ex);
     return text;
   }
+}
+
+export function emojifyReaction(content) {
+  // why would the reaction values match their emoji names? it would make too much sense.
+  if (content === "hooray") content = "tada";
+  if (content === "laugh") content = "grinning";
+  return emojify(":" + content + ":");
 }
 
 emojify.dictionary = dictionary;

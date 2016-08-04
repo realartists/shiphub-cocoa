@@ -35,12 +35,14 @@
 #import "LocalPriority.h"
 #import "LocalNotification.h"
 #import "LocalQuery.h"
+#import "LocalReaction.h"
 
 #import "Issue.h"
 #import "IssueComment.h"
 #import "IssueIdentifier.h"
 #import "Repo.h"
 #import "CustomQuery.h"
+#import "Reaction.h"
 
 #import "Error.h"
 
@@ -820,8 +822,20 @@ static NSString *const LastUpdated = @"LastUpdated";
             if (identifier) {
                 [changed addObject:identifier];
             }
-        } else if ([obj isKindOfClass:[LocalEvent class]] || [obj isKindOfClass:[LocalComment class]] || [obj isKindOfClass:[LocalNotification class]]) {
+        } else if ([obj isKindOfClass:[LocalEvent class]]
+                   || [obj isKindOfClass:[LocalComment class]]
+                   || [obj isKindOfClass:[LocalNotification class]])
+        {
             NSString *identifier = [[obj issue] fullIdentifier];
+            if (identifier) {
+                [changed addObject:identifier];
+            }
+        } else if ([obj isKindOfClass:[LocalReaction class]]) {
+            LocalReaction *lr = obj;
+            NSString *identifier = lr.issue.fullIdentifier;
+            if (!identifier) {
+                identifier = lr.comment.issue.fullIdentifier;
+            }
             if (identifier) {
                 [changed addObject:identifier];
             }
@@ -1282,6 +1296,206 @@ static NSString *const LastUpdated = @"LastUpdated";
             RunOnMain(^{
                 completion(nil, error);
             });
+        }
+    }];
+}
+
+- (void)postIssueReaction:(NSString *)reactionContent inIssue:(id)issueFullIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
+{
+    NSParameterAssert(reactionContent);
+    NSParameterAssert(issueFullIdentifier);
+    NSParameterAssert(completion);
+    
+    // POST /repos/:owner/:repo/issues/:number/reactions
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/%@/reactions", [issueFullIdentifier issueRepoFullName], [issueFullIdentifier issueNumber]];
+    [self.serverConnection perform:@"POST" on:endpoint headers:@{@"Accept":@"application/vnd.github.squirrel-girl-preview"} body:@{@"content": reactionContent} completion:^(id jsonResponse, NSError *error) {
+        void (^fail)(NSError *) = ^(NSError *reason) {
+            RunOnMain(^{
+                completion(nil, reason);
+            });
+        };
+        
+        if (!error) {
+            id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
+            NSString *identifier = d[@"identifier"];
+            
+            if (!identifier) {
+                fail([NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse]);
+                return;
+            }
+            
+            [_moc performBlock:^{
+                NSFetchRequest *fetchIssue = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+                fetchIssue.predicate = [self predicateForIssueIdentifiers:@[issueFullIdentifier]];
+                
+                NSError *cdErr = nil;
+                LocalIssue *issue = [[_moc executeFetchRequest:fetchIssue error:&cdErr] firstObject];
+                if (cdErr) {
+                    ErrLog(@"%@", cdErr);
+                    fail(cdErr);
+                    return;
+                }
+                
+                NSFetchRequest *reactionFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalReaction"];
+                reactionFetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
+                
+                LocalReaction *lr = [[_moc executeFetchRequest:reactionFetch error:&cdErr] firstObject];
+                
+                if (cdErr) {
+                    ErrLog(@"%@", cdErr);
+                    fail(cdErr);
+                    return;
+                }
+                
+                if (lr) {
+                    [lr mergeAttributesFromDictionary:d];
+                } else {
+                    lr = [NSEntityDescription insertNewObjectForEntityForName:@"LocalReaction" inManagedObjectContext:_moc];
+                    [lr mergeAttributesFromDictionary:d];
+                    [self updateRelationshipsOn:lr fromSyncDict:d];
+                    [lr setIssue:issue];
+                }
+                
+                [_moc save:&cdErr];
+                if (cdErr) {
+                    ErrLog(@"%@", cdErr);
+                    fail(cdErr);
+                    return;
+                }
+                
+                Reaction *r = [[Reaction alloc] initWithLocalReaction:lr metadataStore:self.metadataStore];
+                
+                RunOnMain(^{
+                    completion(r, nil);
+                });
+            }];
+        } else {
+            fail(error);
+        }
+    }];
+}
+
+- (void)postCommentReaction:(NSString *)reactionContent inIssue:(id)issueFullIdentifier inComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
+{
+    NSParameterAssert(reactionContent);
+    NSParameterAssert(commentIdentifier);
+    NSParameterAssert(completion);
+    
+    // POST /repos/:owner/:repo/issues/comments/:id/reactions
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/comments/%@/reactions", [issueFullIdentifier issueRepoFullName], commentIdentifier];
+    [self.serverConnection perform:@"POST" on:endpoint headers:@{@"Accept":@"application/vnd.github.squirrel-girl-preview"} body:@{@"content": reactionContent} completion:^(id jsonResponse, NSError *error) {
+        void (^fail)(NSError *) = ^(NSError *reason) {
+            RunOnMain(^{
+                completion(nil, reason);
+            });
+        };
+        
+        if (!error) {
+            id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
+            NSString *identifier = d[@"identifier"];
+            
+            if (!identifier) {
+                fail([NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse]);
+                return;
+            }
+            
+            [_moc performBlock:^{
+                NSFetchRequest *fetchComment = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
+                fetchComment.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
+                
+                NSError *cdErr = nil;
+                LocalComment *comment = [[_moc executeFetchRequest:fetchComment error:&cdErr] firstObject];
+                if (cdErr) {
+                    ErrLog(@"%@", cdErr);
+                    fail(cdErr);
+                    return;
+                }
+                
+                NSFetchRequest *reactionFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalReaction"];
+                reactionFetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
+                
+                LocalReaction *lr = [[_moc executeFetchRequest:reactionFetch error:&cdErr] firstObject];
+                
+                if (cdErr) {
+                    ErrLog(@"%@", cdErr);
+                    fail(cdErr);
+                    return;
+                }
+                
+                if (lr) {
+                    [lr mergeAttributesFromDictionary:d];
+                } else {
+                    lr = [NSEntityDescription insertNewObjectForEntityForName:@"LocalReaction" inManagedObjectContext:_moc];
+                    [lr mergeAttributesFromDictionary:d];
+                    [self updateRelationshipsOn:lr fromSyncDict:d];
+                    [lr setComment:comment];
+                }
+                
+                [_moc save:&cdErr];
+                if (cdErr) {
+                    ErrLog(@"%@", cdErr);
+                    fail(cdErr);
+                    return;
+                }
+                
+                Reaction *r = [[Reaction alloc] initWithLocalReaction:lr metadataStore:self.metadataStore];
+                
+                RunOnMain(^{
+                    completion(r, nil);
+                });
+            }];
+        } else {
+            fail(error);
+        }
+    }];
+}
+
+- (void)deleteReaction:(NSNumber *)reactionIdentifier completion:(void (^)(NSError *error))completion
+{
+    NSParameterAssert(reactionIdentifier);
+    NSParameterAssert(completion);
+    
+    // DELETE /reactions/:id
+    NSString *endpoint = [NSString stringWithFormat:@"/reactions/%@", reactionIdentifier];
+    
+    [self.serverConnection perform:@"DELETE" on:endpoint headers:@{@"Accept":@"application/vnd.github.squirrel-girl-preview"} body:nil completion:^(id jsonResponse, NSError *error) {
+        
+        void (^fail)(NSError *) = ^(NSError *reason) {
+            RunOnMain(^{
+                completion(reason);
+            });
+        };
+        
+        if (!error) {
+            [_moc performBlock:^{
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalReaction"];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", reactionIdentifier];
+                
+                NSError *cdErr = nil;
+                NSArray *reactions = [_moc executeFetchRequest:fetch error:&cdErr];
+                if (cdErr) {
+                    ErrLog(@"%@", cdErr);
+                    fail(cdErr);
+                    return;
+                }
+                
+                for (LocalReaction *lr in reactions) {
+                    [_moc deleteObject:lr];
+                }
+                
+                [_moc save:&cdErr];
+                if (cdErr) {
+                    ErrLog(@"%@", cdErr);
+                    fail(cdErr);
+                    return;
+                }
+                
+                RunOnMain(^{
+                    completion(nil);
+                });
+            }];
+        } else {
+            fail(error);
         }
     }];
 }

@@ -13,6 +13,8 @@
 
 #import "LocalUser.h"
 #import "User.h"
+#import "Reaction.h"
+#import "Extras.h"
 
 @implementation IssueComment
 
@@ -24,6 +26,9 @@
         _identifier = lc.identifier;
         _updatedAt = lc.updatedAt;
         _user = [ms userWithLocalUser:lc.user];
+        _reactions = [[lc.reactions allObjects] arrayByMappingObjects:^id(id obj) {
+            return [[Reaction alloc] initWithLocalReaction:obj metadataStore:ms];
+        }];
     }
     return self;
 }

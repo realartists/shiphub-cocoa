@@ -40,5 +40,6 @@
 @dynamic comments;
 @dynamic upNext;
 @dynamic notification;
+@dynamic reactions;
 
 @end

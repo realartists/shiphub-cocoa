@@ -343,10 +343,17 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
 - (void)updateIssue:(id)issueIdentifier {
     
     NSString *issueEndpoint = [NSString stringWithFormat:@"repos/%@/%@/issues/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
+    NSString *commentReactionsBase = [issueEndpoint stringByDeletingLastPathComponent];
     NSString *timelineEndpoint = [issueEndpoint stringByAppendingPathComponent:@"timeline"];
     NSURLRequest *timelineRequest = [_pager get:timelineEndpoint
                                        params:nil
                                       headers:@{@"Accept" : @"application/vnd.github.mockingbird-preview"}];
+    
+    NSDictionary *reactionsHeaders = @{@"Accept" : @"application/vnd.github.squirrel-girl-preview"};
+    NSString *reactionsEndpoint = [issueEndpoint stringByAppendingPathComponent:@"reactions"];
+    NSURLRequest *reactionsRequest = [_pager get:reactionsEndpoint
+                                          params:nil
+                                         headers:reactionsHeaders];
     
     [_pager jsonTask:[_pager get:issueEndpoint] completion:^(id json, NSHTTPURLResponse *response, NSError *err) {
         if (err) {
@@ -357,6 +364,17 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
         NSNumber *issueID = [json objectForKey:@"id"];
         
         [self yield:@[json] type:@"issue" version:0];
+        
+        [_pager fetchPaged:reactionsRequest completion:^(NSArray *data, NSError *reactionsErr) {
+            if (!reactionsErr) {
+                NSArray *reactions = [data arrayByMappingObjects:^id(id obj) {
+                    NSMutableDictionary *d = [obj mutableCopy];
+                    d[@"issue"] = issueID;
+                    return d;
+                }];
+                [self yield:reactions type:@"reaction" version:@{}];
+            }
+        }];
         
         [_pager fetchPaged:timelineRequest completion:^(NSArray *data, NSError *timelineErr) {
             if (!timelineErr) {
@@ -369,6 +387,28 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                 NSArray *comments = [eventsAndComments filteredArrayUsingPredicate:
                                          [NSPredicate predicateWithFormat:@"event == 'commented'"]];
                 [self yield:comments type:@"comment" version:@{}];
+                
+                NSArray *commentReactionsRequests = [comments arrayByMappingObjects:^id(NSDictionary *obj) {
+                    NSString *commentId = obj[@"id"];
+                    NSString *commentReactionsEndpoint = [NSString stringWithFormat:@"%@/comments/%@/reactions", commentReactionsBase, commentId];
+                    return [_pager get:commentReactionsEndpoint params:nil headers:reactionsHeaders];
+                }];
+                
+                [_pager jsonTasks:commentReactionsRequests completion:^(NSArray *commentReactions, NSError *commentReactionsErr) {
+                    if (!commentReactionsErr) {
+                        NSMutableArray *reactionsToYield = [NSMutableArray new];
+                        for (NSUInteger i = 0; i < commentReactions.count; i++) {
+                            NSDictionary *comment = comments[i];
+                            NSNumber *commentID = comment[@"id"];
+                            NSArray *r = commentReactions[i];
+                            r = [r arrayByMappingObjects:^id(NSDictionary *obj) {
+                                return [obj dictionaryByAddingEntriesFromDictionary:@{@"comment" : commentID}];
+                            }];
+                            [reactionsToYield addObjectsFromArray:r];
+                        }
+                        [self yield:reactionsToYield type:@"reaction" version:@{}];
+                    }
+                }];
                 
                 NSArray *crossReferencedEvents = [eventsAndComments filteredArrayUsingPredicate:
                                                   [NSPredicate predicateWithFormat:@"event == %@", @"cross-referenced"]];

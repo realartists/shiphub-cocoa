@@ -9,11 +9,11 @@ INSTALL_MODS = npm install
 
 INPUT = $(shell find . -path ./node_modules -prune -o -path ./dist -prune -o \( -name '*.js' -o -name '*.json' -o -name '*.css' -o -name '*.html' \) -print)
 
-dist/index_bundle.js: node_modules/uptodate $(INPUT)
+dist/index_bundle.js: node_modules/.uptodate $(INPUT)
 	$(CMD) && echo
 
-node_modules/uptodate: npm-shrinkwrap.json
-	$(INSTALL_MODS) && touch node_modules/uptodate
+node_modules/.uptodate: npm-shrinkwrap.json
+	$(INSTALL_MODS) && touch node_modules/.uptodate
 
 clean:
 	rm -r dist/*

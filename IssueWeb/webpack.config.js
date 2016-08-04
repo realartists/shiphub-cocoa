@@ -23,7 +23,7 @@ module.exports = {
         { test: /\.json$/, loader: 'json'},
     ],
     loaders: [
-      { test: /\.js$/, include: __dirname + "/app", loader: "babel-loader" },
+      { test: /\.js$/, include: __dirname + "/app", loader: "babel-loader", query: {compact: true} },
       { test: /\.jpe?g$|\.gif$|\.png$/, loader: "file" },
       { test: /\.css$/, loader: 'style!css?sourceMap' },
       { test: /\.woff(\?v=\d+\.\d+\.\d+)?$/, loader: "url?limit=10000&mimetype=application/font-woff" }, 
