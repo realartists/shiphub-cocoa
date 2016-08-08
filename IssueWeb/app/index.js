@@ -2663,7 +2663,7 @@ var MilestoneField = React.createClass({
   onAddNew: function(initialNewTitle) {
     return new Promise((resolve, reject) => {
       var cb = (newMilestones) => {
-        if (newMilestones.length == 0) {
+        if (newMilestones == null || newMilestones.length == 0) {
           reject();
         } else {
           var m = newMilestones[0];
