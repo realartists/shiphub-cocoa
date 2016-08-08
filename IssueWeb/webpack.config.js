@@ -6,8 +6,10 @@ var HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
   inject: "body"
 });
 
+var debugMode = JSON.stringify(JSON.parse(process.env.DEBUG || 'false'));
+
 var definePlugin = new webpack.DefinePlugin({
-  __DEBUG__: JSON.stringify(JSON.parse(process.env.DEBUG || 'false'))
+  __DEBUG__: debugMode
 });
 
 module.exports = {
@@ -23,7 +25,7 @@ module.exports = {
         { test: /\.json$/, loader: 'json'},
     ],
     loaders: [
-      { test: /\.js$/, include: __dirname + "/app", loader: "babel-loader", query: {compact: true} },
+      { test: /\.js$/, include: __dirname + "/app", loader: "babel-loader", query: {compact: !debugMode} },
       { test: /\.jpe?g$|\.gif$|\.png$/, loader: "file" },
       { test: /\.css$/, loader: 'style!css?sourceMap' },
       { test: /\.woff(\?v=\d+\.\d+\.\d+)?$/, loader: "url?limit=10000&mimetype=application/font-woff" }, 

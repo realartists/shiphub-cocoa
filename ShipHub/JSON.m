@@ -11,6 +11,7 @@
 #import "Extras.h"
 
 #import <objc/runtime.h>
+#import <JavaScriptCore/JavaScriptCore.h>
 
 @implementation JSON
 
@@ -139,6 +140,17 @@ static NSString *stringifyJSONObject(id obj) {
     
     id json = serializeObject(src, nameTransformer);
     return stringifyJSONObject(json);
+}
+
++ (id)JSRepresentableValueFromSerializedObject:(id)src {
+    return [self JSRepresentableValueFromSerializedObject:src withNameTransformer:nil];
+}
+
++ (id)JSRepresentableValueFromSerializedObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer {
+    if (!src) return [NSNull null];
+    
+    id js = serializeObject(src, nameTransformer);
+    return js;
 }
 
 static id renameFields(id json, JSONNameTransformer transformer) {

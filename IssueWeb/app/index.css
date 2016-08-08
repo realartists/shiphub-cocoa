@@ -629,11 +629,11 @@ div.IssueLabels .LabelContainer {
   top: -1px;
 }
 
-.tt-label-suggestion-text .no-highlight > .tt-highlight {
+.tt-suggestion .no-highlight > .tt-highlight {
   font-weight: normal;
 }
 
-.tt-label-suggestion-text .no-highlight > .highlight {
+.tt-suggestion .no-highlight > .highlight {
   font-weight: bold;
 }
 

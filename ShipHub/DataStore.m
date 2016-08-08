@@ -43,6 +43,7 @@
 #import "Repo.h"
 #import "CustomQuery.h"
 #import "Reaction.h"
+#import "Milestone.h"
 
 #import "Error.h"
 
@@ -698,50 +699,6 @@ static NSString *const LastUpdated = @"LastUpdated";
             }
         }
     }
-}
-
-- (void)addLabel:(NSDictionary *)label
-       repoOwner:(NSString *)repoOwner
-        repoName:(NSString *)repoName
-      completion:(void (^)(NSDictionary *label, NSError *error))completion {
-    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/labels", repoOwner, repoName];
-    [self.serverConnection perform:@"POST" on:endpoint body:label completion:^(id jsonResponse, NSError *error) {
-        if (jsonResponse) {
-            [_moc performBlock:^{
-                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
-                fetch.predicate = [NSPredicate predicateWithFormat:@"fullName = %@",
-                                   [NSString stringWithFormat:@"%@/%@", repoOwner, repoName]];
-                fetch.fetchLimit = 1;
-
-                NSError *fetchError;
-                NSArray *results = [_moc executeFetchRequest:fetch error:&fetchError];
-                NSAssert(results != nil, @"Failed to fetch repo: %@", error);
-                LocalRepo *localRepo = (LocalRepo *)[results firstObject];
-
-                LocalLabel *localLabel = [NSEntityDescription insertNewObjectForEntityForName:@"LocalLabel"
-                                                                       inManagedObjectContext:_moc];
-                localLabel.name = label[@"name"];
-                localLabel.color = label[@"color"];
-                localLabel.repo = localRepo;
-
-                NSError *saveError;
-                if ([_moc save:&saveError]) {
-                    RunOnMain(^{
-                        completion(jsonResponse, nil);
-                    });
-                } else {
-                    ErrLog(@"Failed to save: %@", saveError);
-                    RunOnMain(^{
-                        completion(nil, saveError);
-                    });
-                }
-            }];
-        } else {
-            RunOnMain(^{
-                completion(nil, error);
-            });
-        }
-    }];
 }
 
 // Must be called on _moc. Does not call save. Does not update sync version
@@ -1498,6 +1455,170 @@ static NSString *const LastUpdated = @"LastUpdated";
             fail(error);
         }
     }];
+}
+
+#pragma mark - Metadata Mutation
+
+- (void)addLabel:(NSDictionary *)label
+       repoOwner:(NSString *)repoOwner
+        repoName:(NSString *)repoName
+      completion:(void (^)(NSDictionary *label, NSError *error))completion {
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/labels", repoOwner, repoName];
+    [self.serverConnection perform:@"POST" on:endpoint body:label completion:^(id jsonResponse, NSError *error) {
+        if (jsonResponse) {
+            [_moc performBlock:^{
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"fullName = %@",
+                                   [NSString stringWithFormat:@"%@/%@", repoOwner, repoName]];
+                fetch.fetchLimit = 1;
+                
+                NSError *fetchError;
+                NSArray *results = [_moc executeFetchRequest:fetch error:&fetchError];
+                NSAssert(results != nil, @"Failed to fetch repo: %@", error);
+                LocalRepo *localRepo = (LocalRepo *)[results firstObject];
+                
+                LocalLabel *localLabel = [NSEntityDescription insertNewObjectForEntityForName:@"LocalLabel"
+                                                                       inManagedObjectContext:_moc];
+                localLabel.name = label[@"name"];
+                localLabel.color = label[@"color"];
+                localLabel.repo = localRepo;
+                
+                NSError *saveError;
+                if ([_moc save:&saveError]) {
+                    RunOnMain(^{
+                        completion(jsonResponse, nil);
+                    });
+                } else {
+                    ErrLog(@"Failed to save: %@", saveError);
+                    RunOnMain(^{
+                        completion(nil, saveError);
+                    });
+                }
+            }];
+        } else {
+            RunOnMain(^{
+                completion(nil, error);
+            });
+        }
+    }];
+}
+
+- (void)addMilestone:(NSDictionary *)milestone inRepos:(NSArray<Repo *> *)repos completion:(void (^)(NSArray<Milestone *> *milestones, NSError *error))completion
+{
+    NSParameterAssert(milestone);
+    NSParameterAssert(repos);
+    NSParameterAssert(completion);
+    NSParameterAssert(repos.count > 0);
+    
+    NSMutableArray *errors = [NSMutableArray new];
+    NSMutableArray *responses = [NSMutableArray new];
+    
+    dispatch_group_t group = dispatch_group_create();
+    for (NSUInteger i = 0; i < repos.count; i++) {
+        dispatch_group_enter(group);
+        [responses addObject:[NSNull null]];
+    }
+    
+    NSMutableDictionary *contents = [milestone mutableCopy];
+    if (contents[@"milestoneDescription"]) {
+        contents[@"description"] = contents[@"milestoneDescription"];
+        [contents removeObjectForKey:@"milestoneDescription"];
+    }
+    if (contents[@"dueOn"]) {
+        contents[@"due_on"] = [(NSDate *)contents[@"dueOn"] JSONString];
+        [contents removeObjectForKey:@"dueOn"];
+    }
+    
+    NSUInteger i = 0;
+    for (Repo *repo in repos) {
+        // POST /repos/:owner/:repo/milestones
+        NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/milestones", repo.fullName];
+        NSUInteger j = i;
+        i++;
+        [self.serverConnection perform:@"POST" on:endpoint body:contents completion:^(id jsonResponse, NSError *error) {
+            if (error) {
+                ErrLog(@"%@", error);
+                [errors addObject:error];
+            }
+            if (jsonResponse) {
+                responses[j] = jsonResponse;
+            }
+            
+            dispatch_group_leave(group);
+        }];
+    }
+    
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        
+        NSMutableArray *successful = [NSMutableArray new];
+        NSUInteger k = 0;
+        for (id resp in responses) {
+            Repo *repo = repos[k];
+            if ([resp isKindOfClass:[NSDictionary class]]) {
+                NSMutableDictionary *obj = [[JSON parseObject:resp withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
+                // require GitHub to return at least id, number, and title to continue
+                if (!obj[@"identifier"] || !obj[@"number"] || !obj[@"title"]) {
+                    ErrLog(@"GitHub returned bogus new milestone dictionary: %@", obj);
+                    [errors addObject:[NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse]];
+                } else {
+                    obj[@"repository"] = repo.identifier;
+                    [successful addObject:obj];
+                }
+            }
+            k++;
+        }
+        
+        if ([errors count]) {
+            completion(nil, [errors firstObject]);
+        }
+        
+        
+        if ([successful count]) {
+            NSArray *newIdentifiers = [successful arrayByMappingObjects:^id(id obj) {
+                return [obj objectForKey:@"identifier"];
+            }];
+            void (^fail)(NSError *) = ^(NSError *err) {
+                ErrLog(@"%@", err);
+                RunOnMain(^{
+                    completion(nil, err);
+                });
+            };
+            [_moc performBlock:^{
+                NSFetchRequest *existingFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalMilestone"];
+                existingFetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", newIdentifiers];
+                
+                NSError *cdErr = nil;
+                NSDictionary *existing = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:existingFetch error:&cdErr] keyPath:@"identifier"];
+                if (cdErr) {
+                    fail(cdErr);
+                    return;
+                }
+                
+                NSMutableArray<Milestone *> *resultMilestones = [NSMutableArray new];
+                for (NSDictionary *mileDict in successful) {
+                    LocalMilestone *lm = existing[mileDict[@"identifier"]];
+                    if (!lm) {
+                        lm = [NSEntityDescription insertNewObjectForEntityForName:@"LocalMilestone" inManagedObjectContext:_moc];
+                    }
+                    [lm mergeAttributesFromDictionary:mileDict];
+                    [self updateRelationshipsOn:lm fromSyncDict:mileDict];
+                    
+                    Milestone *result = [[Milestone alloc] initWithLocalItem:lm];
+                    [resultMilestones addObject:result];
+                }
+                
+                [_moc save:&cdErr];
+                if (cdErr) {
+                    fail(cdErr);
+                    return;
+                }
+                
+                RunOnMain(^{
+                    completion(resultMilestones, nil);
+                });
+            }];
+        }
+    });
 }
 
 #pragma mark - Time Series

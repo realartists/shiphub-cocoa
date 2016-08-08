@@ -1,6 +1,7 @@
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
 import SmartInput from './smart-input.js'
+import { htmlEncode } from 'js-htmlencode'
 
 import 'typeahead.js'
 
@@ -8,8 +9,10 @@ var Completer = React.createClass({
   propTypes: {
     value: React.PropTypes.string,
     placeholder: React.PropTypes.string,
+    newItem: React.PropTypes.string, /* e.g "New Milestone" */
     onChange: React.PropTypes.func,
     onEnter: React.PropTypes.func,
+    onAddNew: React.PropTypes.func, /* function onAddNew(initialNewItemName) */
     matcher: React.PropTypes.func.isRequired, /* function matcher(text, callback) => ( callback([match1, match2, ...]) ) */
     suggestionFormatter: React.PropTypes.func /* function formatter(value) => "html" */
   },
@@ -30,6 +33,12 @@ var Completer = React.createClass({
     }
   },
   
+  blur: function() {
+    if (this.refs.typeInput) {
+      this.refs.typeInput.blur();
+    }
+  },
+  
   hasFocus: function() {
     if (this.refs.typeInput) {
       this.refs.typeInput.hasFocus();
@@ -40,11 +49,32 @@ var Completer = React.createClass({
     return this.refs.typeInput != null && this.refs.typeInput.isEdited();
   },
   
+  onSelect: function(evt, obj) {
+    if (this.props.newItem) {
+      var content = obj.content;
+      if (obj.newItem) {
+        this.handlingNew = true;
+        this.blur();
+        if (this.props.onAddNew) {
+          setTimeout(() => {
+            this.props.onAddNew(content);
+          }, 1);
+        } else {
+          console.error(`New item ${content} selected, but no onAddNew hander for completer`);
+        }
+      }
+    } else {
+      if (this.props.onEnter) {
+        this.props.onEnter();
+      }
+    }
+  },
+  
   updateTypeahead: function() {
     var el = ReactDOM.findDOMNode(this.refs.typeInput);
     var baseMatcher = this.props.matcher;
     
-    var matcher = (text, cb) => {
+    var matcherPlusInitial = (text, cb) => {
       if (this.opening) {
         /* 
           If opening for the first time, show all possible choices, but put the
@@ -66,7 +96,51 @@ var Completer = React.createClass({
         baseMatcher(text, cb);
       }
     };
-    this.matcher = matcher;
+    this.matcher = matcherPlusInitial;
+    
+    var display, matcher, formatter;
+    display = matcher = formatter = null;
+    if (this.props.newItem) {
+      display = (x) => x.content;
+      matcher = (text, cb) => {
+        matcherPlusInitial(text, (results) => {
+          var trimmedText = text.trim();
+          var lowerText = trimmedText.toLowerCase();
+          var exactResults = results.filter((r) => r.toLowerCase() == lowerText);
+          var augmentedResults = results.map((r) => { return { content: r } });
+          if (exactResults.length == 0) {
+            augmentedResults.push({ newItem: true, content: trimmedText });
+          }
+          cb(augmentedResults);
+        });
+      };
+      var newItemText = this.props.newItem;
+      formatter = (value) => {
+        var inner = "";
+        if (value.newItem) {
+          var renderedValue;
+          if (value.content.length == 0) {
+            renderedValue = `<span class="no-highlight">${newItemText}...</span>`;
+          } else {
+            renderedValue = `
+              <span class="no-highlight">
+                ${newItemText}: <span class="highlight">${htmlEncode(value.content)}</span>
+              </span>`;
+          }
+
+          inner = `
+            <i class="fa fa-plus" aria-hidden="true"></i>
+            <span>${renderedValue}</span>`;
+        } else {
+          inner = htmlEncode(value.content);
+        }
+    
+        return `<div class='tt-suggestion'>${inner}</div>`
+      };
+    } else {
+      display = (x) => x;
+      matcher = matcherPlusInitial;
+    }
     
     var hadFocus = this.refs.typeInput.hasFocus();
     this.remounting = true;
@@ -80,12 +154,17 @@ var Completer = React.createClass({
       // we do want a limit, we'll have to prune the list of options we send
       // to typeahead.js.
       limit: Number.MAX_VALUE,
-      source: matcher
+      source: matcher,
+      display: display
     };
     
     if (this.props.suggestionFormatter) {
       typeaheadDataOpts.templates = {
         suggestion: this.props.suggestionFormatter
+      };
+    } else if (formatter) {
+      typeaheadDataOpts.templates = {
+        suggestion: formatter
       };
     }
     
@@ -117,12 +196,10 @@ var Completer = React.createClass({
       }, 0);
     });
     
-    if (this.props.onEnter) {
-      $(el).on('typeahead:select', (evt, obj) => {
-        this.props.onEnter();
-      });
-    }
-    
+    $(el).on('typeahead:select', (evt, obj) => {
+      this.onSelect(evt, obj);
+    });
+
     $(el).keypress((evt) => {
       if (evt.which == 13) {
         evt.preventDefault();
@@ -193,7 +270,7 @@ var Completer = React.createClass({
   },
   
   onBlur: function() {
-    if (this.remounting) return;  
+    if (this.remounting || this.handlingNew) return;  
     this.completeOrFail(() => {
       this.refs.typeInput.dispatchChangeIfNeeded(false);
     });

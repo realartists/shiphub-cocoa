@@ -16,6 +16,7 @@
 @class TimeSeries;
 @class CustomQuery;
 @class Reaction;
+@class Milestone;
 
 @interface DataStore : NSObject
 
@@ -57,14 +58,17 @@
 
 - (void)timeSeriesMatchingPredicate:(NSPredicate *)predicate startDate:(NSDate *)startDate endDate:(NSDate *)endDate completion:(void (^)(TimeSeries *series, NSError *error))completion;
 
-- (void)addLabel:(NSDictionary *)label
-       repoOwner:(NSString *)repoOwner
-        repoName:(NSString *)repoName
-      completion:(void (^)(NSDictionary *label, NSError *error))completion;
-
 - (void)addToUpNext:(NSArray<NSString *> *)issueIdentifiers atHead:(BOOL)atHead completion:(void (^)(NSError *error))completion;
 - (void)insertIntoUpNext:(NSArray<NSString *> *)issueIdentifiers aboveIssueIdentifier:(NSString *)aboveIssueIdentifier completion:(void (^)(NSError *error))completion;
 - (void)removeFromUpNext:(NSArray<NSString *> *)issueIdentifiers completion:(void (^)(NSError *error))completion;
+
+@end
+
+@interface DataStore (MetadataMutations)
+
+- (void)addLabel:(NSDictionary *)label repoOwner:(NSString *)repoOwner repoName:(NSString *)repoName completion:(void (^)(NSDictionary *label, NSError *error))completion;
+
+- (void)addMilestone:(NSDictionary *)milestone inRepos:(NSArray<Repo *> *)repos completion:(void (^)(NSArray<Milestone *> *milestones, NSError *error))completion;
 
 @end
 

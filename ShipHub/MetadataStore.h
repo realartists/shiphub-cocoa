@@ -27,6 +27,7 @@
 
 - (NSArray<User *> *)membersOfOrg:(Org *)org;
 
+/* Returns the names of active milestones across all repos */
 - (NSArray<NSString *> *)mergedMilestoneNames;
 
 - (NSArray<Label *> *)mergedLabels;

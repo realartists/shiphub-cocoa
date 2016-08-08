@@ -196,6 +196,10 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
 - (void)orgMembership:(NSArray *)dedupedOrgs repos:(NSArray *)repos validMembers:(NSDictionary *)users completion:(dispatch_block_t)completion {
     NSMutableArray *spideredOrgs = [NSMutableArray arrayWithCapacity:dedupedOrgs.count];
     __block BOOL failed = NO;
+    if (dedupedOrgs.count == 0) {
+        completion();
+        return;
+    }
     for (NSDictionary *org in dedupedOrgs) {
         NSMutableDictionary *orgWithUsers = [org mutableCopy];
         NSString *memberEndpoint = [NSString stringWithFormat:@"orgs/%@/members", org[@"login"]];
@@ -247,7 +251,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
             done();
         }];
         
-        [_pager fetchPaged:[_pager get:milestonesEndpoint] completion:^(NSArray *data, NSError *err) {
+        [_pager fetchPaged:[_pager get:milestonesEndpoint params:@{@"state": @"all"}] completion:^(NSArray *data, NSError *err) {
             rwi[@"milestones"] = [data arrayByMappingObjects:^id(id obj) {
                 NSMutableDictionary *mile = [obj mutableCopy];
                 mile[@"repository"] = repo[@"id"];

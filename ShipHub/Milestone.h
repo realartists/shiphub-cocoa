@@ -18,5 +18,8 @@
 @property (readonly) NSDate *dueOn;
 @property (readonly) NSString *milestoneDescription;
 @property (readonly) NSDate *updatedAt;
+@property (readonly) NSDate *createdAt;
+@property (readonly) NSString *state;
+@property (readonly) BOOL closed;
 
 @end

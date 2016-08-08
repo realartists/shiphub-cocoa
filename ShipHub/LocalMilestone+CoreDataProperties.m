@@ -23,5 +23,6 @@
 @dynamic updatedAt;
 @dynamic issues;
 @dynamic repository;
+@dynamic state;
 
 @end

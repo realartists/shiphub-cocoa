@@ -70,6 +70,8 @@
 		1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
 		1A2440CA1C84DEF800E070DA /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
 		1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
+		1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */; };
+		1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */; };
 		1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
 		1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
 		1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
@@ -158,6 +160,7 @@
 		1A7FD7841D497C1700B585E2 /* AssigneeModifyController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7FD7821D497C1700B585E2 /* AssigneeModifyController.xib */; };
 		1A7FD7881D49856600B585E2 /* StateModifyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD7861D49856600B585E2 /* StateModifyController.m */; };
 		1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7FD7871D49856600B585E2 /* StateModifyController.xib */; };
+		1A83679F1D5542ED0019C609 /* SemiMixedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A83679E1D5542ED0019C609 /* SemiMixedButton.m */; };
 		1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */; };
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsView.m */; };
@@ -430,6 +433,9 @@
 		1A2440C91C84DEF800E070DA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		1A2440CF1C85127C00E070DA /* WebKitExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitExtras.h; sourceTree = "<group>"; };
 		1A2440D01C85127C00E070DA /* WebKitExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebKitExtras.m; sourceTree = "<group>"; };
+		1A2A8B5E1D55109200F24F32 /* NewMilestoneController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewMilestoneController.h; sourceTree = "<group>"; };
+		1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewMilestoneController.m; sourceTree = "<group>"; };
+		1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewMilestoneController.xib; sourceTree = "<group>"; };
 		1A3618E11C8FBF96008C11CB /* DataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStore.h; sourceTree = "<group>"; };
 		1A3618E21C8FBF96008C11CB /* DataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataStore.m; sourceTree = "<group>"; };
 		1A3618E71C8FC25B008C11CB /* SyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncConnection.h; sourceTree = "<group>"; };
@@ -561,6 +567,8 @@
 		1A7FD7851D49856600B585E2 /* StateModifyController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StateModifyController.h; sourceTree = "<group>"; };
 		1A7FD7861D49856600B585E2 /* StateModifyController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StateModifyController.m; sourceTree = "<group>"; };
 		1A7FD7871D49856600B585E2 /* StateModifyController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = StateModifyController.xib; sourceTree = "<group>"; };
+		1A83679D1D5542ED0019C609 /* SemiMixedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SemiMixedButton.h; sourceTree = "<group>"; };
+		1A83679E1D5542ED0019C609 /* SemiMixedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SemiMixedButton.m; sourceTree = "<group>"; };
 		1A9905061CDBC93A00EAA474 /* Issue3PaneTableController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Issue3PaneTableController.h; sourceTree = "<group>"; };
 		1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Issue3PaneTableController.m; sourceTree = "<group>"; };
 		1A99050C1CDBC98900EAA474 /* IssueTableControllerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueTableControllerPrivate.h; sourceTree = "<group>"; };
@@ -754,9 +762,6 @@
 				1AD956B01D0B5654002B1259 /* DownloadBarViewController.h */,
 				1AD956B11D0B5654002B1259 /* DownloadBarViewController.m */,
 				1AD956B21D0B5654002B1259 /* DownloadBarViewController.xib */,
-				28BF03B61D1873DF00F22638 /* NewLabelController.h */,
-				28BF03B41D1873CA00F22638 /* NewLabelController.m */,
-				28BF03B71D187EFA00F22638 /* NewLabelController.xib */,
 			);
 			name = "Issue UI";
 			sourceTree = "<group>";
@@ -790,6 +795,8 @@
 				1A694B121CA3414800F73608 /* Overview UI */,
 				1A012E6F1D3EABDB006CE5DF /* Search UI */,
 				1A0D59D21CA4A8B4004F2578 /* Issue UI */,
+				1A2A8B5D1D55101B00F24F32 /* New Label */,
+				1A2A8B591D55100D00F24F32 /* New Milestone */,
 				1AF3494A1CDA95D100A5BEB0 /* Charting */,
 				1A7FD76A1D492E5800B585E2 /* Bulk Modify */,
 				1A694B131CA3419900F73608 /* Shared UI */,
@@ -899,6 +906,8 @@
 				1AD9ECC81D188E6800E9FAFC /* FilterButton.m */,
 				1AB503E71D2471EF0097875C /* NSFileWrapper+ImageExtras.h */,
 				1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */,
+				1A83679D1D5542ED0019C609 /* SemiMixedButton.h */,
+				1A83679E1D5542ED0019C609 /* SemiMixedButton.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -909,6 +918,26 @@
 				1A2440C91C84DEF800E070DA /* libz.tbd */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		1A2A8B591D55100D00F24F32 /* New Milestone */ = {
+			isa = PBXGroup;
+			children = (
+				1A2A8B5E1D55109200F24F32 /* NewMilestoneController.h */,
+				1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */,
+				1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */,
+			);
+			name = "New Milestone";
+			sourceTree = "<group>";
+		};
+		1A2A8B5D1D55101B00F24F32 /* New Label */ = {
+			isa = PBXGroup;
+			children = (
+				28BF03B61D1873DF00F22638 /* NewLabelController.h */,
+				28BF03B41D1873CA00F22638 /* NewLabelController.m */,
+				28BF03B71D187EFA00F22638 /* NewLabelController.xib */,
+			);
+			name = "New Label";
 			sourceTree = "<group>";
 		};
 		1A3618F11C90C7C2008C11CB /* Model */ = {
@@ -1394,6 +1423,7 @@
 				28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */,
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
+				1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */,
 				1A012E811D3EAC0E006CE5DF /* SaveSearchController.xib in Resources */,
 				1A7FD77F1D494A5C00B585E2 /* LabelModifyController.xib in Resources */,
 				1A012E9F1D3EE111006CE5DF /* SearchSheet.xib in Resources */,
@@ -1487,7 +1517,9 @@
 				1AE09BEE1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
 				1A3618EF1C8FC3DB008C11CB /* Reachability.m in Sources */,
 				1A012E901D3EAC47006CE5DF /* FreeformMetadataRowTemplate.m in Sources */,
+				1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */,
 				1A694B0C1CA3413700F73608 /* OverviewController.m in Sources */,
+				1A83679F1D5542ED0019C609 /* SemiMixedButton.m in Sources */,
 				1A694AE61CA09E5800F73608 /* User.m in Sources */,
 				1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */,
 				1A51086E1D31A11A00905D4D /* GHNotificationManager.m in Sources */,

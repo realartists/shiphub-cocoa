@@ -9,6 +9,7 @@
 #import "LabelModifyController.h"
 
 #import "Extras.h"
+#import "SemiMixedButton.h"
 #import "Error.h"
 #import "DataStore.h"
 #import "MetadataStore.h"
@@ -16,10 +17,7 @@
 #import "Label.h"
 #import "Repo.h"
 
-@interface LabelModifyButton : NSButton
-@end
-
-@interface LabelModifyButtonCell : NSButtonCell
+@interface LabelModifyButton : SemiMixedButton
 @end
 
 @interface LabelModifyCell : NSTableCellView
@@ -230,42 +228,5 @@
 @end
 
 @implementation LabelModifyButton
-// https://mikeash.com/pyblog/custom-nscells-done-right.html
-- (id)initWithCoder:(NSCoder *)aCoder {
-    NSKeyedUnarchiver *coder = (id)aCoder;
-    
-    // gather info about the superclass's cell and save the archiver's old mapping
-    Class superCell = [[self superclass] cellClass];
-    NSString *oldClassName = NSStringFromClass( superCell );
-    Class oldClass = [coder classForClassName: oldClassName];
-    if( !oldClass )
-        oldClass = superCell;
-    
-    // override what comes out of the unarchiver
-    [coder setClass: [[self class] cellClass] forClassName: oldClassName];
-    
-    // unarchive
-    self = [super initWithCoder: coder];
-    
-    // set it back
-    [coder setClass: oldClass forClassName: oldClassName];
-    
-    return self;
-}
-
-+ (Class)cellClass {
-    return [LabelModifyButtonCell class];
-}
 @end
 
-@implementation LabelModifyButtonCell
-- (NSInteger)nextState {
-    NSInteger state = self.state;
-    if (state == NSMixedState || state == NSOnState) {
-        state = NSOffState;
-    } else {
-        state = NSOnState;
-    }
-    return state;
-}
-@end

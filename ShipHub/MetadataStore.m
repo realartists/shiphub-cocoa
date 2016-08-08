@@ -181,8 +181,10 @@ static BOOL IsMetadataObject(id obj) {
             for (NSMutableArray *ma in [_milestonesByRepoID allValues]) {
                 [ma sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(localizedStandardCompare:)]]];
                 for (Milestone *m in ma) {
-                    [mergedMilestones addObject:m.title];
-                    milestonesByID[m.identifier] = m;
+                    if (!m.closed) {
+                        [mergedMilestones addObject:m.title];
+                        milestonesByID[m.identifier] = m;
+                    }
                 }
             }
             
@@ -251,7 +253,7 @@ static BOOL IsMetadataObject(id obj) {
 }
 
 - (NSArray<Milestone *> *)activeMilestonesForRepo:(Repo *)repo {
-    return _milestonesByRepoID[repo.identifier];
+    return [_milestonesByRepoID[repo.identifier] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"closed = NO"]];
 }
 
 - (Milestone *)milestoneWithTitle:(NSString *)title inRepo:(Repo *)repo {

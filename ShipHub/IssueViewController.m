@@ -22,6 +22,7 @@
 #import "IssueDocumentController.h"
 #import "IssueIdentifier.h"
 #import "NewLabelController.h"
+#import "NewMilestoneController.h"
 #import "JSON.h"
 #import "UpNextHelper.h"
 #import "User.h"
@@ -465,26 +466,6 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 
 #pragma mark - WebFrameLoadDelegate
 
-- (void)handleNewLabelWithName:(NSString *)name
-                     allLabels:(NSArray *)allLabels
-                         owner:(NSString *)owner
-                          repo:(NSString *)repo
-            completionCallback:(JSValue *)completionCallback {
-    NewLabelController *newLabelController = [[NewLabelController alloc] initWithPrefilledName:(name ?: @"")
-                                                                                     allLabels:allLabels
-                                                                                         owner:owner
-                                                                                          repo:repo];
-
-    [self.view.window beginSheet:newLabelController.window completionHandler:^(NSModalResponse response){
-        if (response == NSModalResponseOK) {
-            NSAssert(newLabelController.createdLabel != nil, @"succeeded but created label was nil");
-            [completionCallback callWithArguments:@[@YES, newLabelController.createdLabel]];
-        } else {
-            [completionCallback callWithArguments:@[@NO]];
-        }
-    }];
-}
-
 - (void)webView:(WebView *)webView didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
     __weak __typeof(self) weakSelf = self;
     [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
@@ -506,6 +487,10 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     [[windowObject JSValue] setValue:^(NSString *name, NSArray *allLabels, NSString *owner, NSString *repo, JSValue *completionCallback){
         [weakSelf handleNewLabelWithName:name allLabels:allLabels owner:owner repo:repo completionCallback:(JSValue *)completionCallback];
     } forProperty:@"newLabel"];
+    
+    [[windowObject JSValue] setValue:^(NSString *name, NSString *owner, NSString *repo, JSValue *completionCallback){
+        [weakSelf handleNewMilestoneWithName:name owner:owner repo:repo completionCallback:completionCallback];
+    } forProperty:@"newMilestone"];
     
     [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
         [weakSelf spellcheck:msg];
@@ -947,6 +932,44 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
             [self evaluateJavaScript:callback];
         });
         
+    }];
+}
+
+- (void)handleNewLabelWithName:(NSString *)name
+                     allLabels:(NSArray *)allLabels
+                         owner:(NSString *)owner
+                          repo:(NSString *)repo
+            completionCallback:(JSValue *)completionCallback {
+    NewLabelController *newLabelController = [[NewLabelController alloc] initWithPrefilledName:(name ?: @"")
+                                                                                     allLabels:allLabels
+                                                                                         owner:owner
+                                                                                          repo:repo];
+    
+    [self.view.window beginSheet:newLabelController.window completionHandler:^(NSModalResponse response){
+        if (response == NSModalResponseOK) {
+            NSAssert(newLabelController.createdLabel != nil, @"succeeded but created label was nil");
+            [completionCallback callWithArguments:@[@YES, newLabelController.createdLabel]];
+        } else {
+            [completionCallback callWithArguments:@[@NO]];
+        }
+    }];
+}
+
+- (void)handleNewMilestoneWithName:(NSString *)name owner:(NSString *)owner repo:(NSString *)repoName completionCallback:(JSValue *)completionCallback
+{
+    Repo *repo = [[[[[DataStore activeStore] metadataStore] activeRepos] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"fullName = %@", [NSString stringWithFormat:@"%@/%@", owner, repoName]] limit:1] firstObject];
+    if (!repo) {
+        [completionCallback callWithArguments:@[[NSNull null]]];
+    }
+    
+    NewMilestoneController *mc = [[NewMilestoneController alloc] initWithInitialRepos:@[repo] initialReposAreRequired:YES initialName:name];
+    [mc beginInWindow:self.view.window completion:^(NSArray<Milestone *> *createdMilestones, NSError *error) {
+        if (error) {
+            [completionCallback callWithArguments:@[[NSNull null]]];
+        } else {
+            id jsRepr = [JSON JSRepresentableValueFromSerializedObject:createdMilestones withNameTransformer:[JSON underbarsAndIDNameTransformer]];
+            [completionCallback callWithArguments:@[jsRepr]];
+        }
     }];
 }
 

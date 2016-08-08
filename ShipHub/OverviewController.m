@@ -35,6 +35,7 @@
 #import "SearchSheet.h"
 #import "CustomQuery.h"
 #import "BulkModifyHelper.h"
+#import "NewMilestoneController.h"
 
 //#import "OutboxViewController.h"
 //#import "AttachmentProgressViewController.h"
@@ -376,6 +377,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         if (multipleOwners) {
             OverviewNode *ownerNode = [OverviewNode new];
             ownerNode.title = repoOwner.login;
+            ownerNode.representedObject = repoOwner;
             ownerNode.predicate = [NSPredicate predicateWithFormat:@"repository.owner.login = %@", repoOwner.login];
             ownerNode.icon = [repoOwner isKindOfClass:[Org class]] ? [NSImage overviewIconNamed:@"974-users-selected"] : [NSImage overviewIconNamed:@"973-user-selected"];
             [reposNode addChild:ownerNode];
@@ -385,6 +387,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         
         for (Repo *repo in [metadata reposForOwner:repoOwner]) {
             OverviewNode *repoNode = [OverviewNode new];
+            repoNode.representedObject = repo;
             repoNode.title = repo.name;
             repoNode.icon = [NSImage overviewIconNamed:@"961-book-32"];
             repoNode.showCount = YES;
@@ -1272,10 +1275,18 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 }
 
 - (IBAction)addNewMilestone:(id)sender {
-#if !INCOMPLETE
-    AppDelegate *delegate = [NSApp delegate];
-    [delegate showAdminWindow:sender];
-#endif
+    OverviewNode *node = [_outlineView selectedItem];
+    id represented = node.representedObject;
+    
+    NSArray *initialRepos = nil;
+    if ([represented isKindOfClass:[Repo class]]) {
+        initialRepos = @[represented];
+    } else if ([represented isKindOfClass:[Account class]]) {
+        initialRepos = [[[DataStore activeStore] metadataStore] reposForOwner:represented];
+    }
+    
+    NewMilestoneController *mc = [[NewMilestoneController alloc] initWithInitialRepos:initialRepos initialReposAreRequired:NO initialName:nil];
+    [mc beginInWindow:self.window completion:nil];
 }
 
 #pragma mark -

@@ -2660,6 +2660,25 @@ var MilestoneField = React.createClass({
     return Promise.all(promises);
   },
   
+  onAddNew: function(initialNewTitle) {
+    return new Promise((resolve, reject) => {
+      var cb = (newMilestones) => {
+        if (newMilestones.length == 0) {
+          reject();
+        } else {
+          var m = newMilestones[0];
+          getIvars().milestones.push(m);
+          this.props.issue.milestone = m;
+          return this.milestoneChanged(m.title).then(resolve, reject);
+        }
+      };
+      window.newMilestone(initialNewTitle, 
+                          this.props.issue._bare_owner, 
+                          this.props.issue._bare_repo,
+                          cb);
+    });
+  },
+  
   focus: function() {
     if (this.refs.completer) {
       this.refs.completer.focus();
@@ -2701,6 +2720,7 @@ var MilestoneField = React.createClass({
   },
   
   render: function() {
+    var canAddNew = !!this.props.issue._bare_repo;
     var opts = getIvars().milestones.map((m) => m.title);
     var matcher = Completer.SubstrMatcher(opts);
     
@@ -2711,6 +2731,8 @@ var MilestoneField = React.createClass({
         placeholder: 'Backlog',
         onChange: this.milestoneChanged,
         onEnter: this.onEnter,
+        newItem: canAddNew ? 'New Milestone' : undefined,
+        onAddNew: canAddNew ? this.onAddNew : undefined,
         value: keypath(this.props.issue, "milestone.title"),
         matcher: matcher
       })

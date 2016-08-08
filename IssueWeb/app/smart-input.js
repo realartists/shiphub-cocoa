@@ -26,6 +26,15 @@ var SmartInput = React.createClass({
     }
   },
   
+  blur: function() {
+    if (this.refs.input) {
+      var el = ReactDOM.findDOMNode(this.refs.input);
+      if (el) {
+        el.blur();
+      }
+    }
+  },
+  
   hasFocus: function() {
     if (this.refs.input) {
       var el = ReactDOM.findDOMNode(this.refs.input);

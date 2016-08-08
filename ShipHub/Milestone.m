@@ -17,11 +17,14 @@
     if (self = [super initWithLocalItem:lm]) {
         _number = lm.number;
         _title = lm.title;
+        _createdAt = lm.createdAt;
         _closedAt = lm.closedAt;
         _dueOn = lm.dueOn;
         _milestoneDescription = lm.milestoneDescription;
         _title = lm.title;
         _updatedAt = lm.updatedAt;
+        _state = lm.state;
+        _closed = [_state isEqualToString:@"closed"];
     }
     return self;
 }

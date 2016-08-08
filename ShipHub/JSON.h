@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class JSValue;
+
 typedef NSString* (^JSONNameTransformer)(NSString *original);
 
 @interface JSON : NSObject
@@ -15,6 +17,10 @@ typedef NSString* (^JSONNameTransformer)(NSString *original);
 + (id)stringifyObject:(id)src;
 
 + (id)stringifyObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer;
+
+// Recursively serialize all object properties into an object passable to JSC
++ (id)JSRepresentableValueFromSerializedObject:(id)src;
++ (id)JSRepresentableValueFromSerializedObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer;
 
 + (id)parseObject:(id)json withNameTransformer:(JSONNameTransformer)nameTransformer;
 
