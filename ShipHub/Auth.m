@@ -206,13 +206,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
 }
 
 - (void)addAuthHeadersToRequest:(NSMutableURLRequest *)request {
-    [request setValue:nil forHTTPHeaderField:@"Authorization"];
-    if ([[[request URL] host] hasSuffix:@"realartists.com"]) {
-        // Authorisation with an 's' to work around IIS HTTP/2 bug
-        [request setValue:[NSString stringWithFormat:@"token %@", self.token] forHTTPHeaderField:@"Authorisation"];
-    } else {
-        [request setValue:[NSString stringWithFormat:@"token %@", self.ghToken] forHTTPHeaderField:@"Authorization"];
-    }
+    [request setValue:[NSString stringWithFormat:@"token %@", self.ghToken] forHTTPHeaderField:@"Authorization"];
 }
 
 - (void)logout {
