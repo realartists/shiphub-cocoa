@@ -968,7 +968,9 @@ static NSString *const LastUpdated = @"LastUpdated";
 // But because fullIdentifier is a computed property, we can't actually query on that, so need to make a slightly reworded query.
 - (NSPredicate *)predicateForIssueIdentifiers:(NSArray<NSString *> *)issueIdentifiers prefix:(NSString *)prefix
 {
-    NSPredicate *p = [NSPredicate predicateWithValue:NO];
+    if (issueIdentifiers.count == 0) {
+        return [NSPredicate predicateWithValue:NO];
+    }
     
     NSString *fullNameKeyPath = @"repository.fullName";
     NSString *numberKeyPath = @"number";
@@ -978,13 +980,18 @@ static NSString *const LastUpdated = @"LastUpdated";
         numberKeyPath = [NSString stringWithFormat:@"%@.number", prefix];
     }
     
+    NSMutableArray *subp = [NSMutableArray new];
     for (NSString *issueIdentifier in issueIdentifiers) {
         NSString *repoFullName = [issueIdentifier issueRepoFullName];
         NSNumber *issueNumber = [issueIdentifier issueNumber];
         
-        p = [p or:[NSPredicate predicateWithFormat:@"%K = %@ AND %K = %@", fullNameKeyPath, repoFullName, numberKeyPath, issueNumber]];
+        [subp addObject:[NSPredicate predicateWithFormat:@"%K = %@ AND %K = %@", fullNameKeyPath, repoFullName, numberKeyPath, issueNumber]];
     }
-    return p;
+    if (subp.count == 1) {
+        return [subp firstObject];
+    } else {
+        return [[NSCompoundPredicate alloc] initWithType:NSOrPredicateType subpredicates:subp];
+    }
 }
 
 - (NSFetchRequest *)fetchRequestForIssueIdentifier:(NSString *)issueIdentifier {
