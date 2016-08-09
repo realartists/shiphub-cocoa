@@ -3033,9 +3033,16 @@ var MultipleAssignees = React.createClass({
   },
   
   render: function() {
+    // this is lame, but it's what GitHub does: sorts em by identifier
+    var sortedAssignees = [...this.props.issue.assignees].sort((a, b) => {
+      if (a.id < b.id) { return -1; }
+      else if (a.id > b.id) { return 1; }
+      else { return 0; }
+    });
+    
     return h('span', {className:'MultipleAssignees'},
       h(AddAssignee, {issue: this.props.issue, ref:"add"}),
-      this.props.issue.assignees.map((l, i) => { 
+      sortedAssignees.map((l, i) => { 
         return [" ", h(AssigneeAtom, {key:i, user:l, onDelete: this.deleteLabel})];
       }).reduce(function(c, v) { return c.concat(v); }, [])
     );
@@ -3191,6 +3198,10 @@ var AddLabel = React.createClass({
   render: function() {
     var allLabels = getIvars().labels;
     var chosenLabels = keypath(this.props.issue, "labels") || [];
+    
+    chosenLabels = [...chosenLabels].sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
     
     var chosenLabelsLookup = chosenLabels.reduce((o, l) => { o[l.name] = l; return o; }, {});  
     var availableLabels = allLabels.filter((l) => !(l.name in chosenLabelsLookup));
