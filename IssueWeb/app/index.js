@@ -2663,9 +2663,15 @@ var MilestoneField = React.createClass({
   onAddNew: function(initialNewTitle) {
     return new Promise((resolve, reject) => {
       var cb = (newMilestones) => {
-        if (newMilestones == null || newMilestones.length == 0) {
+        if (newMilestones === undefined) {
+          // error creating
           reject();
+        } else if (newMilestones == null || newMilestones.length == 0) {
+          // user cancelled
+          this.focus();
+          resolve();
         } else {
+          // success
           var m = newMilestones[0];
           getIvars().milestones.push(m);
           this.props.issue.milestone = m;

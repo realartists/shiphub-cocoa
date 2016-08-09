@@ -11,6 +11,10 @@ var LabelPicker = React.createClass({
     chosenLabels: React.PropTypes.array,
   },
   
+  onNewLabel: function(initialName) {
+    return this.props.onNewLabel(initialName)
+  },
+  
   addLabel: function() {
     var completer = this.refs.completer;
     if (!completer || !(completer.refs.typeInput)) return;
@@ -29,12 +33,6 @@ var LabelPicker = React.createClass({
     if (existingLabelMatch) {
       promise = this.props.onAddExistingLabel(existingLabelMatch)
       $(el).focus();
-    } else if (val === "New Label...") {
-      $(el).blur();
-      promise = this.props.onNewLabel(null);
-    } else {
-      $(el).blur();
-      promise = this.props.onNewLabel(val);
     }
 
     $(el).typeahead('val', "");
@@ -75,6 +73,12 @@ var LabelPicker = React.createClass({
     }
   },
   
+  blur: function() {
+    if (this.refs.completer) {
+      this.refs.completer.focus();
+    }
+  },
+  
   hasFocus: function() {
     if (this.refs.completer) {
       return this.refs.completer.hasFocus();
@@ -100,48 +104,21 @@ var LabelPicker = React.createClass({
   },
   
   render: function() {
-    const matcher = function(text, cb) {
-      const availableLabelNames = this.props.availableLabels
-        .map((l) => l.name)
-        .sort((a, b) => (a.toLowerCase().localeCompare(b.toLowerCase())));
-
-      var r = new RegExp(text, 'i');
-      var results = availableLabelNames.filter((o) => (r.test(o)));
-      const textMatchesChosenLabel = this.props.chosenLabels.find(
-        (o) => (o.name === text)) != null;
-
-      if (text.trim().length > 0 &&
-          availableLabelNames.indexOf(text) == -1 &&
-          !textMatchesChosenLabel) {
-        // To appear when a string is entered that does not match
-        // existing label names.  This will be reformatted to show
-        // as "New Label: <input>"
-        results.push(text.trim());
-      } else if (text.trim().length == 0) {
-        // To appear only when the label drop down is first expanded.
-        // Will disappear if someone starts typing a string.
-        results.push("New Label...");
-      }
-
-      cb(results);
-    }.bind(this);
-
+    var matcher = Completer.SubstrMatcher(this.props.availableLabels.map((l) => l.name));
     var labelLookup = {};
     this.props.availableLabels.forEach((l) => { labelLookup[l.name] = l })
     
     var formatter = (value) => {
       var inner = "";
-      var l = labelLookup[value];
-      if (l != null) {
-        inner = `<div class='LabelSuggestionColor' style='background-color: #${l.color}'></div><span class='tt-label-suggestion-text'>${htmlEncode(value)}</span>`
-      } else {
+      
+      if (value.newItem) {
         var renderedValue;
-        if (value === "New Label...") {
+        if (value.content.length == 0) {
           renderedValue = `<span class="no-highlight">New Label...</span>`;
         } else {
           renderedValue = `
             <span class="no-highlight">
-              New Label: <span class="highlight">${value}</span>
+              New Label: <span class="highlight">${value.content}</span>
             </span>`;
         }
 
@@ -150,10 +127,13 @@ var LabelPicker = React.createClass({
           <span class='tt-label-suggestion-text'>
             ${renderedValue}
           </span>`;
+      } else {
+        var l = labelLookup[value.content];
+        inner = `<div class='LabelSuggestionColor' style='background-color: #${l.color}'></div><span class='tt-label-suggestion-text'>${htmlEncode(l.name)}</span>`
       }
       
       return `<div class='tt-suggestion tt-label-suggestion'>${inner}</div>`
-    }
+    };
   
     return h('span', {className:"LabelPicker"},
       h(Completer, {
@@ -162,6 +142,8 @@ var LabelPicker = React.createClass({
         placeholder: "Add Label",
         onEnter: this.addLabel,
         onChange: this.onChange,
+        newItem: "New Label",
+        onAddNew: this.onNewLabel,
         matcher: matcher,
         suggestionFormatter: formatter
       }),

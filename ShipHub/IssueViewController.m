@@ -959,13 +959,13 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 {
     Repo *repo = [[[[[DataStore activeStore] metadataStore] activeRepos] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"fullName = %@", [NSString stringWithFormat:@"%@/%@", owner, repoName]] limit:1] firstObject];
     if (!repo) {
-        [completionCallback callWithArguments:@[[NSNull null]]];
+        [completionCallback callWithArguments:@[]];
     }
     
     NewMilestoneController *mc = [[NewMilestoneController alloc] initWithInitialRepos:@[repo] initialReposAreRequired:YES initialName:name];
     [mc beginInWindow:self.view.window completion:^(NSArray<Milestone *> *createdMilestones, NSError *error) {
         if (error) {
-            [completionCallback callWithArguments:@[[NSNull null]]];
+            [completionCallback callWithArguments:@[]];
         } else {
             id jsRepr = [JSON JSRepresentableValueFromSerializedObject:createdMilestones withNameTransformer:[JSON underbarsAndIDNameTransformer]];
             [completionCallback callWithArguments:@[jsRepr]];
