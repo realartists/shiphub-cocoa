@@ -261,7 +261,9 @@ div.commentBody blockquote {
   border-left: 4px solid #ddd
 }
 div.commentBody img, video {
+  display: block;
   max-width: 100%;
+  height: auto;
 }
 div.commentHeader {
   height: 32px;
