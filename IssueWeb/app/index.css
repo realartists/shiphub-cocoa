@@ -296,6 +296,18 @@ ul.taskList input {
   position: relative;
   top: -1px;
 }
+ul.taskList li:hover .taskHandle {
+  opacity: 1.0;
+}
+.taskHandle {
+  opacity: 0;
+  color: #BBB;
+  margin-left: -16px;
+  padding-right: 4px;
+}
+.taskGhost {
+  opacity: 0.0;
+}
 div.commentControls {
   display: inline-block;
   float: right;

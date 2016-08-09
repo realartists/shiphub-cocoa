@@ -3059,6 +3059,11 @@
       "from": "sort-keys@>=1.0.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/sort-keys/-/sort-keys-1.1.2.tgz"
     },
+    "sortablejs": {
+      "version": "1.4.2",
+      "from": "sortablejs@>=1.4.2 <2.0.0",
+      "resolved": "https://registry.npmjs.org/sortablejs/-/sortablejs-1.4.2.tgz"
+    },
     "source-list-map": {
       "version": "0.1.6",
       "from": "source-list-map@>=0.1.4 <0.2.0",

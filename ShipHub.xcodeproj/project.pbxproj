@@ -165,6 +165,7 @@
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsView.m */; };
 		1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */; };
+		1AB038401D5AA0CF005093B9 /* promise-queue.js in Resources */ = {isa = PBXBuildFile; fileRef = 1AB0383F1D5AA0CF005093B9 /* promise-queue.js */; };
 		1AB503E91D2471EF0097875C /* NSFileWrapper+ImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */; };
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */; };
@@ -580,6 +581,7 @@
 		1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompactIssueCellViewController.h; sourceTree = "<group>"; };
 		1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompactIssueCellViewController.m; sourceTree = "<group>"; };
 		1A9DA7EE1D223DB500A23EC9 /* spellcheck.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = spellcheck.js; sourceTree = "<group>"; };
+		1AB0383F1D5AA0CF005093B9 /* promise-queue.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "promise-queue.js"; sourceTree = "<group>"; };
 		1AB503E71D2471EF0097875C /* NSFileWrapper+ImageExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileWrapper+ImageExtras.h"; sourceTree = "<group>"; };
 		1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileWrapper+ImageExtras.m"; sourceTree = "<group>"; };
 		1AC6196D1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalPriority+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -1231,6 +1233,7 @@
 		1AFE21F11CA5EC3F00B51CF6 /* app */ = {
 			isa = PBXGroup;
 			children = (
+				1AB0383F1D5AA0CF005093B9 /* promise-queue.js */,
 				1A20CFC41D5152C800F412DE /* assignees-picker.js */,
 				1A20CFC51D5152C800F412DE /* cm-util.js */,
 				1A9DA7EE1D223DB500A23EC9 /* spellcheck.js */,
@@ -1424,6 +1427,7 @@
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
 				1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */,
+				1AB038401D5AA0CF005093B9 /* promise-queue.js in Resources */,
 				1A012E811D3EAC0E006CE5DF /* SaveSearchController.xib in Resources */,
 				1A7FD77F1D494A5C00B585E2 /* LabelModifyController.xib in Resources */,
 				1A012E9F1D3EE111006CE5DF /* SearchSheet.xib in Resources */,

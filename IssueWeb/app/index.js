@@ -14,6 +14,7 @@ import identicon from 'identicon.js'
 import linkify from 'html-linkify'
 import md5 from 'md5'
 import 'whatwg-fetch'
+import Sortable from 'sortablejs'
 import Textarea from 'react-textarea-autosize'
 import CodeMirror from 'codemirror'
 import Codemirror from 'react-codemirror'
@@ -48,6 +49,7 @@ import uploadAttachment from './file-uploader.js'
 import FilePicker from './file-picker.js'
 import { TimeAgo, TimeAgoString } from './time-ago'
 import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from './cm-util.js'
+import { promiseQueue } from './promise-queue.js'
 
 var debugToken = "";
 
@@ -175,26 +177,28 @@ function applyPatch(patch) {
   var num = getIvars().issue.number;
   
   if (num != null) {
-    var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}`
-    var request = api(url, { 
-      headers: { 
-        Authorization: "token " + getIvars().token,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }, 
-      method: "PATCH",
-      body: JSON.stringify(ghPatch)
-    });
-    return new Promise((resolve, reject) => {
-      request.then(function(body) {
-        console.log(body);
-        resolve();
-        if (window.documentEditedHelper) {
-          window.documentEditedHelper.postMessage({});
-        }
-      }).catch(function(err) {
-        console.log(err);
-        reject(err);
+    return promiseQueue("applyPatch", () => {
+      var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}`
+      var request = api(url, { 
+        headers: { 
+          Authorization: "token " + getIvars().token,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }, 
+        method: "PATCH",
+        body: JSON.stringify(ghPatch)
+      });
+      return new Promise((resolve, reject) => {
+        request.then(function(body) {
+          console.log(body);
+          resolve();
+          if (window.documentEditedHelper) {
+            window.documentEditedHelper.postMessage({});
+          }
+        }).catch(function(err) {
+          console.log(err);
+          reject(err);
+        });
       });
     });
   } else {
@@ -209,23 +213,25 @@ function applyCommentEdit(commentIdentifier, newBody) {
   var num = getIvars().issue.number;
   
   if (num != null) {
-    var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
-    var request = api(url, { 
-      headers: { 
-        Authorization: "token " + getIvars().token,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }, 
-      method: "PATCH",
-      body: JSON.stringify({body: newBody})
-    });
-    return new Promise((resolve, reject) => {
-      request.then(function(body) {
-        console.log(body);
-        resolve();
-      }).catch(function(err) {
-        console.log(err);
-        reject(err);
+    return promiseQueue("applyCommentEdit", () => {
+      var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
+      var request = api(url, { 
+        headers: { 
+          Authorization: "token " + getIvars().token,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }, 
+        method: "PATCH",
+        body: JSON.stringify({body: newBody})
+      });
+      return new Promise((resolve, reject) => {
+        request.then(function(body) {
+          console.log(body);
+          resolve();
+        }).catch(function(err) {
+          console.log(err);
+          reject(err);
+        });
       });
     });
   } else {
@@ -264,29 +270,31 @@ function applyComment(commentBody) {
   var num = getIvars().issue.number;
   
   if (num != null) {
-    var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}/comments`
-    var request = api(url, { 
-      headers: { 
-        Authorization: "token " + getIvars().token,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }, 
-      method: "POST",
-      body: JSON.stringify({body: commentBody})
-    });
-    return new Promise((resolve, reject) => {
-      request.then(function(body) {
-        var id = body.id;
-        window.ivars.issue.allComments.forEach((m) => {
-          if (m.id === 'new') {
-            m.id = id;
-          }
+    return promiseQueue("applyComment", () => {
+      var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}/comments`
+      var request = api(url, { 
+        headers: { 
+          Authorization: "token " + getIvars().token,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }, 
+        method: "POST",
+        body: JSON.stringify({body: commentBody})
+      });
+      return new Promise((resolve, reject) => {
+        request.then(function(body) {
+          var id = body.id;
+          window.ivars.issue.allComments.forEach((m) => {
+            if (m.id === 'new') {
+              m.id = id;
+            }
+          });
+          applyIssueState(window.ivars);
+          resolve();
+        }).catch(function(err) {
+          console.log(err);
+          reject(err);
         });
-        applyIssueState(window.ivars);
-        resolve();
-      }).catch(function(err) {
-        console.log(err);
-        reject(err);
       });
     });
   } else {
@@ -559,11 +567,7 @@ markedRenderer.listitem = function(text) {
 
 markedRenderer.list = function(body, ordered) {
   if (body.indexOf('<input type="checkbox"') != -1) {
-    if (ordered) {
-      return "<ol class='taskList'>" + body + "</ol>";
-    } else {
-      return "<ul class='taskList'>" + body + "</ul>";
-    }
+    return "<ul class='taskList'>" + body + "</ol>";
   } else {
     if (ordered) {
       return "<ol>" + body + "</ol>";
@@ -1531,6 +1535,12 @@ var CommentControls = React.createClass({
     }
   },
   
+  componentWillReceiveProps: function(newProps) {
+    if (!newProps.editing) {
+      this.setState({}); // cancel all confirmations
+    }
+  },
+  
   confirmDelete: function() {
     this.setState({confirmingDelete: true});
   },
@@ -2310,6 +2320,39 @@ var Comment = React.createClass({
     }
   },
   
+  /* srcIdx and dstIdx are comment global checkbox indices */
+  moveTaskItem: function(srcIdx, dstIdx) {
+    if (!(this.props.comment)) return;
+    
+    var body = this.props.comment.body;
+    var pattern = /(?:(?:\d+\.)|(?:\-)|(?:\*))\s+\[[x ]\].*(?:\n|$)/g;
+    var matches = matchAll(pattern, body);
+    
+    if (srcIdx < matches.length && dstIdx < matches.length) {
+      var srcMatch = matches[srcIdx];
+      var dstMatch = matches[dstIdx];
+      
+      var withoutSrc = body.slice(0, srcMatch.index) + body.slice(srcMatch.index+srcMatch[0].length);
+      var insertionPoint;
+      insertionPoint = dstMatch.index;
+      if (srcIdx < dstIdx) {
+        insertionPoint += dstMatch[0].length - srcMatch[0].length;
+      }
+      
+      var insertion = srcMatch[0];
+      if (!insertion.endsWith("\n")) {
+        insertion += "\n";
+      }
+      if (!dstMatch[0].endsWith("\n")) {
+        insertion = "\n" + insertion;
+      }
+      body = withoutSrc.slice(0, insertionPoint) + insertion + withoutSrc.slice(insertionPoint)
+      body = body.trim();
+      
+      editComment(this.props.commentIdx, body);
+    }
+  },
+  
   findTaskItems: function() {
     if (!(this.props.comment) || this.state.editing) return;
   
@@ -2328,6 +2371,58 @@ var Comment = React.createClass({
         var checked = evt.target.checked;
         this.updateCheckbox(i, checked);
       };
+    });
+
+
+    // Find and bind sortables to task lists
+    var rootTaskList = (x) => {
+      var k = x.parentElement;
+      while (k && k != el) {
+        if (k.nodeName == 'UL' || k.nodeName == 'OL') {
+          return false;
+        }
+      }
+      return true;
+    };    
+    var taskLists = nodes.filter((x) => x.nodeName == 'UL' && x.className == 'taskList' && rootTaskList(x));
+    
+    var counter = { i: 0 };
+    taskLists.forEach((x) => {
+      if (!x._sortableInstalled) {
+        var handles = [];
+        x._sortableInstalled = true;
+        var offset = counter.i;
+        // install drag handle on each 
+        preOrderTraverseDOM(x, (li) => {
+          if (li.nodeName == 'LI') {
+            var handle = document.createElement('i');
+            handle.className = "fa fa-bars taskHandle";
+            li.insertBefore(handle, li.firstChild);
+            handles.push(handle);
+            counter.i++;
+          }
+        });
+        var s = Sortable.create(x, {
+          animation: 150,
+          handle: '.taskHandle',
+          ghostClass: 'taskGhost',
+          onStart: () => {
+            handles.forEach((h) => {
+              h.style.opacity = "0.0";
+            });
+          },
+          onEnd: (evt) => {
+            handles.forEach((h) => {
+              h.style.opacity = "";
+            });
+            if (evt.oldIndex != evt.newIndex) {
+              var srcIdx = offset + evt.oldIndex;
+              var dstIdx = offset + evt.newIndex;
+              this.moveTaskItem(srcIdx, dstIdx);
+            }
+          }
+        });
+      }
     });
   },
   
