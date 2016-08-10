@@ -166,6 +166,7 @@
 		1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsView.m */; };
 		1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */; };
 		1AB038401D5AA0CF005093B9 /* promise-queue.js in Resources */ = {isa = PBXBuildFile; fileRef = 1AB0383F1D5AA0CF005093B9 /* promise-queue.js */; };
+		1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB038451D5AB7EC005093B9 /* IssueWaiter.m */; };
 		1AB503E91D2471EF0097875C /* NSFileWrapper+ImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */; };
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */; };
@@ -582,6 +583,8 @@
 		1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompactIssueCellViewController.m; sourceTree = "<group>"; };
 		1A9DA7EE1D223DB500A23EC9 /* spellcheck.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = spellcheck.js; sourceTree = "<group>"; };
 		1AB0383F1D5AA0CF005093B9 /* promise-queue.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "promise-queue.js"; sourceTree = "<group>"; };
+		1AB038441D5AB7EC005093B9 /* IssueWaiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWaiter.h; sourceTree = "<group>"; };
+		1AB038451D5AB7EC005093B9 /* IssueWaiter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWaiter.m; sourceTree = "<group>"; };
 		1AB503E71D2471EF0097875C /* NSFileWrapper+ImageExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileWrapper+ImageExtras.h"; sourceTree = "<group>"; };
 		1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileWrapper+ImageExtras.m"; sourceTree = "<group>"; };
 		1AC6196D1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalPriority+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -1184,6 +1187,8 @@
 				1A5108691D319ED000905D4D /* RequestPager.m */,
 				1A51086C1D31A11A00905D4D /* GHNotificationManager.h */,
 				1A51086D1D31A11A00905D4D /* GHNotificationManager.m */,
+				1AB038441D5AB7EC005093B9 /* IssueWaiter.h */,
+				1AB038451D5AB7EC005093B9 /* IssueWaiter.m */,
 			);
 			name = DataStore;
 			sourceTree = "<group>";
@@ -1488,6 +1493,7 @@
 				1A694B001CA0ABEB00F73608 /* MetadataItem.m in Sources */,
 				1A012EC41D454097006CE5DF /* NoneLabelTemplate.m in Sources */,
 				1A0D87741CA9E25F0069782D /* JSON.m in Sources */,
+				1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */,
 				1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */,
 				1AF3497B1CDAC1E900A5BEB0 /* ChartConfig.m in Sources */,
 				1A694AF61CA09EAD00F73608 /* Label.m in Sources */,

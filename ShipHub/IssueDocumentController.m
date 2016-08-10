@@ -11,6 +11,7 @@
 #import "DataStore.h"
 #import "Error.h"
 #import "Issue.h"
+#import "IssueWaiter.h"
 #import "IssueDocument.h"
 #import "IssueIdentifier.h"
 #import "IssueViewController.h"
@@ -42,6 +43,20 @@
 
 - (void)openIssueWithIdentifier:(id)issueIdentifier {
     [self openIssueWithIdentifier:issueIdentifier canOpenExternally:YES completion:nil];
+}
+
+- (void)openIssueWithIdentifier:(id)issueIdentifier waitForIt:(BOOL)waitForIt {
+    if (!waitForIt) {
+        [self openIssueWithIdentifier:issueIdentifier canOpenExternally:YES completion:nil];
+    } else {
+        [self openIssueWithIdentifier:issueIdentifier canOpenExternally:NO completion:^(IssueDocument *doc) {
+            if (!doc) {
+                [[IssueWaiter waiterForIssueIdentifier:issueIdentifier] waitForIssue:^(Issue *issue) {
+                    [self openIssueWithIdentifier:issueIdentifier canOpenExternally:YES completion:nil];
+                }];
+            }
+        }];
+    }
 }
 
 - (void)openIssueWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally completion:(void (^)(IssueDocument *doc))completion {

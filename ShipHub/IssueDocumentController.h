@@ -11,6 +11,7 @@
 @interface IssueDocumentController : NSDocumentController
 
 - (void)openIssueWithIdentifier:(id)issueIdentifier;
+- (void)openIssueWithIdentifier:(id)issueIdentifier waitForIt:(BOOL)waitForIt;
 - (void)openIssuesWithIdentifiers:(NSArray *)issueIdentifiers;
 
 @end

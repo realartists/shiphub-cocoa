@@ -97,7 +97,7 @@
     
     _didFinishLaunching = YES;
     for (NSURL *URL in _pendingURLs) {
-        [self handleURL:URL];
+        [self handleURL:URL atAppLaunch:YES];
     }
     [_pendingURLs removeAllObjects];
 }
@@ -127,18 +127,18 @@
         }
         [_pendingURLs addObject:URL];
     } else {
-        [self handleURL:URL];
+        [self handleURL:URL atAppLaunch:NO];
     }
 }
 
-- (void)handleURL:(NSURL *)URL
+- (void)handleURL:(NSURL *)URL atAppLaunch:(BOOL)atAppLaunch
 {
     if (URL && [[URL scheme] isEqualToString:@"shiphub"]) {
         if ([[URL host] isEqualToString:@"issue"]) {
             NSString *path = [URL path];
             NSString *num = [URL fragment];
             NSString *identifier = [[path substringFromIndex:1] stringByAppendingFormat:@"#%@", num];
-            [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:identifier];
+            [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:identifier waitForIt:atAppLaunch];
         }
     }
 }
