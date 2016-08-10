@@ -235,7 +235,7 @@ static DataStore *sActiveStore = nil;
 - (NSString *)_dbPath {
     NSAssert(_auth.account.shipIdentifier, @"Must have a user identifier to open the database");
     
-    NSString *dbname = @"shiphub.db";
+    NSString *dbname = @"ship.db";
     
     NSString *basePath = [[[Defaults defaults] stringForKey:DefaultsLocalStoragePathKey] stringByExpandingTildeInPath];
     NSString *path = [basePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@/%@", _auth.account.shipHost, _auth.account.shipIdentifier, dbname]];

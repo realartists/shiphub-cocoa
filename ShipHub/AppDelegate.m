@@ -133,7 +133,7 @@
 
 - (void)handleURL:(NSURL *)URL atAppLaunch:(BOOL)atAppLaunch
 {
-    if (URL && [[URL scheme] isEqualToString:@"shiphub"]) {
+    if (URL && [[URL scheme] isEqualToString:@"ship+github"]) {
         if ([[URL host] isEqualToString:@"issue"]) {
             NSString *path = [URL path];
             NSString *num = [URL fragment];

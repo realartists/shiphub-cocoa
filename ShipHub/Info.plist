@@ -30,7 +30,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>2.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -41,10 +41,10 @@
 			<key>CFBundleURLIconFile</key>
 			<string>AppIcon</string>
 			<key>CFBundleURLName</key>
-			<string>shiphub</string>
+			<string>ship+github</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>shiphub</string>
+				<string>ship+github</string>
 			</array>
 		</dict>
 	</array>
@@ -83,12 +83,12 @@ All rights reserved.</string>
 			<key>NSMenuItem</key>
 			<dict>
 				<key>default</key>
-				<string>Open in ShipHub</string>
+				<string>Open GitHub Issue in Ship</string>
 			</dict>
 			<key>NSMessage</key>
 			<string>openById</string>
 			<key>NSPortName</key>
-			<string>ShipHub</string>
+			<string>Ship2</string>
 			<key>NSRequiredContext</key>
 			<dict/>
 			<key>NSSendTypes</key>

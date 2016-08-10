@@ -89,7 +89,7 @@
 
 - (NSURL *)URL {
     NSUUID *UUID = [[NSUUID alloc] initWithUUIDString:[self.identifier uppercaseString]];
-    return [NSURL URLWithString:[NSString stringWithFormat:@"shiphub://Query/%@", [UUID shortString]]];
+    return [NSURL URLWithString:[NSString stringWithFormat:@"ship+github://Query/%@", [UUID shortString]]];
 }
 
 - (NSString *)URLAndTitle {

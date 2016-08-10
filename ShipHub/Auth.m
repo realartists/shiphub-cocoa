@@ -14,7 +14,7 @@
 #import "Error.h"
 #import "ServerConnection.h"
 
-static NSString *const KeychainService = @"com.realartists.ShipHub";
+static NSString *const KeychainService = @"com.realartists.Ship2";
 static NSString *const KeychainAccessGroup = nil;
 
 NSString *const AuthStateChangedNotification = @"AuthStateChanged";

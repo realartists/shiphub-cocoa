@@ -404,7 +404,7 @@
 		1A20CFF21D52A3E800F412DE /* LocalReaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalReaction.m; sourceTree = "<group>"; };
 		1A20CFF81D52A81F00F412DE /* Reaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Reaction.h; sourceTree = "<group>"; };
 		1A20CFF91D52A81F00F412DE /* Reaction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reaction.m; sourceTree = "<group>"; };
-		1A22178E1C7E7B14006460E2 /* ShipHub.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShipHub.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A22178E1C7E7B14006460E2 /* Ship.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Ship.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1A2217911C7E7B14006460E2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		1A2217921C7E7B14006460E2 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		1A2217951C7E7B14006460E2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -784,7 +784,7 @@
 		1A22178F1C7E7B14006460E2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1A22178E1C7E7B14006460E2 /* ShipHub.app */,
+				1A22178E1C7E7B14006460E2 /* Ship.app */,
 				1A3618FA1C9383CF008C11CB /* ShipHubTests.xctest */,
 			);
 			name = Products;
@@ -1287,9 +1287,9 @@
 /* End PBXLegacyTarget section */
 
 /* Begin PBXNativeTarget section */
-		1A22178D1C7E7B14006460E2 /* ShipHub */ = {
+		1A22178D1C7E7B14006460E2 /* Ship */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1A22179F1C7E7B14006460E2 /* Build configuration list for PBXNativeTarget "ShipHub" */;
+			buildConfigurationList = 1A22179F1C7E7B14006460E2 /* Build configuration list for PBXNativeTarget "Ship" */;
 			buildPhases = (
 				1A22178A1C7E7B14006460E2 /* Sources */,
 				1A22178B1C7E7B14006460E2 /* Frameworks */,
@@ -1305,9 +1305,9 @@
 				1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */,
 				1A2217BF1C7E7BAF006460E2 /* PBXTargetDependency */,
 			);
-			name = ShipHub;
+			name = Ship;
 			productName = ShipHub;
-			productReference = 1A22178E1C7E7B14006460E2 /* ShipHub.app */;
+			productReference = 1A22178E1C7E7B14006460E2 /* Ship.app */;
 			productType = "com.apple.product-type.application";
 		};
 		1A3618F91C9383CF008C11CB /* ShipHubTests */ = {
@@ -1367,7 +1367,7 @@
 			);
 			projectRoot = "";
 			targets = (
-				1A22178D1C7E7B14006460E2 /* ShipHub */,
+				1A22178D1C7E7B14006460E2 /* Ship */,
 				1A3618F91C9383CF008C11CB /* ShipHubTests */,
 				1AD956BE1D0BCFBA002B1259 /* IssueWeb */,
 			);
@@ -1807,7 +1807,7 @@
 				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
 				INFOPLIST_FILE = ShipHub/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipHub;
+				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.Ship2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1820,7 +1820,7 @@
 				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
 				INFOPLIST_FILE = ShipHub/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipHub;
+				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.Ship2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -1888,7 +1888,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1A22179F1C7E7B14006460E2 /* Build configuration list for PBXNativeTarget "ShipHub" */ = {
+		1A22179F1C7E7B14006460E2 /* Build configuration list for PBXNativeTarget "Ship" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1A2217A01C7E7B14006460E2 /* Debug */,

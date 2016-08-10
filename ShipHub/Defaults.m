@@ -14,7 +14,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         [[NSUserDefaults standardUserDefaults] registerDefaults:
-  @{ DefaultsLocalStoragePathKey : @"~/Library/RealArtists/ShipHub/LocalStore",
+  @{ DefaultsLocalStoragePathKey : @"~/Library/RealArtists/Ship2/LocalStore",
      @"InactiveMilestones.Collapsed" : @YES,
 #if DEBUG
      @"WebKitDeveloperExtras" : @YES,
