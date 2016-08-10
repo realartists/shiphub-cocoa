@@ -161,7 +161,7 @@ static BOOL isStatePredicate(NSPredicate *predicate, BOOL *isOpenValue) {
 }
 
 - (void)selectRecordsFrom:(NSArray<Issue *> *)records {
-    NSPredicate *p = [TimeSeries predicateFromStartDate:self.startDate untilEndDate:self.endDate open:_open];
+    NSPredicate *p = [TimeSeries timeSeriesPredicateWithPredicate:self.predicate startDate:self.startDate endDate:self.endDate];
     
     self.records = [records filteredArrayUsingPredicate:p];
 }

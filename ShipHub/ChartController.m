@@ -130,8 +130,7 @@ static NSInteger dateToJSONTS(NSDate *d) {
     return (NSInteger)([d timeIntervalSince1970] * 1000.0);
 }
 
-- (NSString *)partitionLabelForKeyPath:(NSString *)keyPath representativeObject:(Issue *)obj {
-    id val = [obj valueForKeyPath:keyPath];
+- (NSString *)partitionLabelForKeyPath:(NSString *)keyPath value:(id)val {
     if (!val) {
         if ([keyPath isEqualToString:@"milestone.name"]) {
             val = NSLocalizedString(@"Backlog", nil);
@@ -140,6 +139,16 @@ static NSInteger dateToJSONTS(NSDate *d) {
         }
     }
     return val;
+}
+
+static NSSet *uniqueKeyPathsInRecords(NSArray *records, NSString *keyPath) {
+    NSMutableSet *s = [NSMutableSet new];
+    for (id record in records) {
+        id val = [record valueForKeyPath:keyPath];
+        if (!val) val = [NSNull null];
+        [s addObject:val];
+    }
+    return s;
 }
 
 - (void)timeSeriesToJSON:(TimeSeries *)timeSeries partition:(NSString *)partitionPath completion:(void (^)(NSString *js))completion {
@@ -158,16 +167,18 @@ static NSInteger dateToJSONTS(NSDate *d) {
         }] ?: @[];
         
         if (partitionPath) {
-            NSArray *partitionedObjects = [timeSeries.records partitionByKeyPath:partitionPath];
-            NSMutableArray *partitionedSeries = [NSMutableArray arrayWithCapacity:partitionedObjects.count];
-            NSMutableArray *partitionedJSON = d[@"partitions"] = [NSMutableArray arrayWithCapacity:partitionedObjects.count];
-            for (NSArray *partition in partitionedObjects) {
-                TimeSeries *ts = [[TimeSeries alloc] initWithPredicate:timeSeries.predicate startDate:timeSeries.startDate endDate:timeSeries.endDate];
-                [ts selectRecordsFrom:partition];
+            NSSet *partitionValues = uniqueKeyPathsInRecords(timeSeries.records, partitionPath);
+            NSMutableArray *partitionedSeries = [NSMutableArray arrayWithCapacity:partitionValues.count];
+            NSMutableArray *partitionedJSON = d[@"partitions"] = [NSMutableArray arrayWithCapacity:partitionValues.count];
+            for (id partitionValue in partitionValues) {
+                id val = partitionValue == [NSNull null] ? nil : partitionValue;
+                NSPredicate *partitionPredicate = [timeSeries.predicate and:[NSPredicate predicateWithFormat:@"%K = %@", partitionPath, val]];
+                TimeSeries *ts = [[TimeSeries alloc] initWithPredicate:partitionPredicate startDate:timeSeries.startDate endDate:timeSeries.endDate];
+                [ts selectRecordsFrom:timeSeries.records];
                 [ts generateIntervalsWithCalendarUnit:NSCalendarUnitDay];
                 [partitionedSeries addObject:ts];
                 
-                NSString *key = [self partitionLabelForKeyPath:partitionPath representativeObject:partition[0]];
+                NSString *key = [self partitionLabelForKeyPath:partitionPath value:val];
                 [partitionedJSON addObject:@{ @"key" : key,
                                               @"intervals" : [ts.intervals arrayByMappingObjects:^id(id obj) {
                     return @{ @"startDate" : @(dateToJSONTS([obj startDate])),

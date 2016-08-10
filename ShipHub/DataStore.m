@@ -1635,7 +1635,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         NSError *error = nil;
         @try {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-            fetchRequest.predicate = [TimeSeries timeSeriesPredicateWithPredicate:[predicate predicateByFoldingExpressions] startDate:startDate endDate:endDate];
+            fetchRequest.predicate = [TimeSeries timeSeriesPredicateWithPredicate:[self issuesPredicate:predicate] startDate:startDate endDate:endDate];
             fetchRequest.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]];
             
             NSError *err = nil;
