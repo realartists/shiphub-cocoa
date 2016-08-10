@@ -3702,7 +3702,7 @@ var App = React.createClass({
         alert(reason);
         return Promise.reject(reason);
       } else {
-        return saveNewIssue();
+        return this.refs.addComment.save();
       }
     } else {
       var l = [this.refs.header, this.refs.activity, this.refs.addComment];
