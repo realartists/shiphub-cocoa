@@ -1742,6 +1742,176 @@ function matchAll(re, str) {
   return matches;
 }
 
+var CommentBody = React.createClass({
+  propTypes: {
+    body: React.PropTypes.string,
+    onEdit: React.PropTypes.func /* function(newBody) */
+  },
+  
+  updateLastRendered: function(lastRendered) {
+    this.lastRendered = lastRendered;
+  },
+  
+  shouldComponentUpdate: function(newProps) {
+    return newProps.body !== this.lastRendered;
+  },
+  
+  render: function() {
+    var body = this.props.body;
+    this.updateLastRendered(body);
+    if (!body || body.trim().length == 0) {
+      return h('div', { 
+        className:'commentBody', 
+        style: {padding: "14px"},
+        ref: 'commentBody',
+        dangerouslySetInnerHTML: {__html:'<i style="color: #777;">No Description Given.</i>'}
+      });
+    } else {
+      return h('div', { 
+        className:'commentBody', 
+        ref: 'commentBody',
+        dangerouslySetInnerHTML: {__html:marked(body, markdownOpts)}
+      });
+    }
+  },
+  
+  updateCheckbox: function(i, checked) {
+    // find the i-th checkbox in the markdown
+    var body = this.props.body;
+    var pattern = /((?:(?:\d+\.)|(?:\-)|(?:\*))\s+)\[[x ]\]/g;
+    var matches = matchAll(pattern, body);
+            
+    if (i < matches.length) {
+      var match = matches[i];
+      
+      var start = match.index;
+      start += match[1].length;
+      
+      var checkText;
+      if (checked) {
+        checkText = "[x]";
+      } else {
+        checkText = "[ ]";
+      }
+      body = body.slice(0, start) + checkText + body.slice(start + 3);
+      
+      this.updateLastRendered(body);
+      this.props.onEdit(body);
+    }
+  },
+  
+  /* srcIdx and dstIdx are comment global checkbox indices */
+  moveTaskItem: function(srcIdx, dstIdx) {
+    var body = this.props.body;
+    var pattern = /(?:(?:\d+\.)|(?:\-)|(?:\*))\s+\[[x ]\].*(?:\n|$)/g;
+    var matches = matchAll(pattern, body);
+    
+    if (srcIdx < matches.length && dstIdx < matches.length) {
+      var srcMatch = matches[srcIdx];
+      var dstMatch = matches[dstIdx];
+      
+      var withoutSrc = body.slice(0, srcMatch.index) + body.slice(srcMatch.index+srcMatch[0].length);
+      var insertionPoint;
+      insertionPoint = dstMatch.index;
+      if (srcIdx < dstIdx) {
+        insertionPoint += dstMatch[0].length - srcMatch[0].length;
+      }
+      
+      var insertion = srcMatch[0];
+      if (!insertion.endsWith("\n")) {
+        insertion += "\n";
+      }
+      if (!dstMatch[0].endsWith("\n")) {
+        insertion = "\n" + insertion;
+      }
+      body = withoutSrc.slice(0, insertionPoint) + insertion + withoutSrc.slice(insertionPoint)
+      body = body.trim();
+      
+      this.updateLastRendered(body);
+      this.props.onEdit(body);
+    }
+  },
+  
+  findTaskItems: function() {
+    var el = ReactDOM.findDOMNode(this.refs.commentBody);
+    
+    // traverse dom, pre-order, rooted at el, looking for checkboxes
+    // we're going to bind to those guys as we find them
+    
+    var nodes = [];
+    preOrderTraverseDOM(el, (x) => nodes.push(x));
+    
+    var checks = nodes.filter((x) => x.nodeName == 'INPUT' && x.type == 'checkbox');
+    
+    checks.forEach((x, i) => {
+      x.onchange = (evt) => {
+        var checked = evt.target.checked;
+        this.updateCheckbox(i, checked);
+      };
+    });
+
+
+    // Find and bind sortables to task lists
+    var rootTaskList = (x) => {
+      var k = x.parentElement;
+      while (k && k != el) {
+        if (k.nodeName == 'UL' || k.nodeName == 'OL') {
+          return false;
+        }
+      }
+      return true;
+    };    
+    var taskLists = nodes.filter((x) => x.nodeName == 'UL' && x.className == 'taskList' && rootTaskList(x));
+    
+    var counter = { i: 0 };
+    taskLists.forEach((x) => {
+      if (!x._sortableInstalled) {
+        var handles = [];
+        x._sortableInstalled = true;
+        var offset = counter.i;
+        // install drag handle on each 
+        preOrderTraverseDOM(x, (li) => {
+          if (li.nodeName == 'LI') {
+            var handle = document.createElement('i');
+            handle.className = "fa fa-bars taskHandle";
+            li.insertBefore(handle, li.firstChild);
+            handles.push(handle);
+            counter.i++;
+          }
+        });
+        var s = Sortable.create(x, {
+          animation: 150,
+          handle: '.taskHandle',
+          ghostClass: 'taskGhost',
+          onStart: () => {
+            handles.forEach((h) => {
+              h.style.opacity = "0.0";
+            });
+          },
+          onEnd: (evt) => {
+            handles.forEach((h) => {
+              h.style.opacity = "";
+            });
+            if (evt.oldIndex != evt.newIndex) {
+              var srcIdx = offset + evt.oldIndex;
+              var dstIdx = offset + evt.newIndex;
+              this.moveTaskItem(srcIdx, dstIdx);
+            }
+          }
+        });
+      }
+    });
+  },
+  
+  componentDidMount: function() {
+    this.findTaskItems();
+  },
+  
+  componentDidUpdate: function() {
+    this.findTaskItems();
+  }
+});
+
 var Comment = React.createClass({
   propTypes: {
     comment: React.PropTypes.object,
@@ -1814,6 +1984,17 @@ var Comment = React.createClass({
   
   deleteComment: function() {
     deleteComment(this.props.commentIdx);
+  },
+  
+  /* Called for task list edits that occur 
+     e.g. checked a task button or reordered a task list
+   */
+  onTaskListEdit: function(newBody) {
+    if (!this.props.comment || this.state.editing) {
+      this.updateCode(newBody);
+    } else {
+      editComment(this.props.commentIdx, newBody);
+    }
   },
   
   findReaction: function(reaction) {
@@ -1954,20 +2135,7 @@ var Comment = React.createClass({
   },
   
   renderCommentBody: function(body) {
-    if (!body || body.trim().length == 0) {
-      return h('div', { 
-        className:'commentBody', 
-        style: {padding: "14px"},
-        ref: 'commentBody',
-        dangerouslySetInnerHTML: {__html:'<i style="color: #777;">No Description Given.</i>'}
-      });
-    } else {
-      return h('div', { 
-        className:'commentBody', 
-        ref: 'commentBody',
-        dangerouslySetInnerHTML: {__html:marked(body, markdownOpts)}
-      });
-    }
+    return h(CommentBody, { body: body, onEdit:this.onTaskListEdit });
   },
   
   renderHeader: function() {
@@ -2294,146 +2462,12 @@ var Comment = React.createClass({
     }
   },
   
-  updateCheckbox: function(i, checked) {
-    if (!(this.props.comment)) return;
-    
-    // find the i-th checkbox in the markdown
-    var body = this.props.comment.body;
-    var pattern = /((?:(?:\d+\.)|(?:\-)|(?:\*))\s+)\[[x ]\]/g;
-    var matches = matchAll(pattern, body);
-            
-    if (i < matches.length) {
-      var match = matches[i];
-      
-      var start = match.index;
-      start += match[1].length;
-      
-      var checkText;
-      if (checked) {
-        checkText = "[x]";
-      } else {
-        checkText = "[ ]";
-      }
-      body = body.slice(0, start) + checkText + body.slice(start + 3);
-      
-      editComment(this.props.commentIdx, body);
-    }
-  },
-  
-  /* srcIdx and dstIdx are comment global checkbox indices */
-  moveTaskItem: function(srcIdx, dstIdx) {
-    if (!(this.props.comment)) return;
-    
-    var body = this.props.comment.body;
-    var pattern = /(?:(?:\d+\.)|(?:\-)|(?:\*))\s+\[[x ]\].*(?:\n|$)/g;
-    var matches = matchAll(pattern, body);
-    
-    if (srcIdx < matches.length && dstIdx < matches.length) {
-      var srcMatch = matches[srcIdx];
-      var dstMatch = matches[dstIdx];
-      
-      var withoutSrc = body.slice(0, srcMatch.index) + body.slice(srcMatch.index+srcMatch[0].length);
-      var insertionPoint;
-      insertionPoint = dstMatch.index;
-      if (srcIdx < dstIdx) {
-        insertionPoint += dstMatch[0].length - srcMatch[0].length;
-      }
-      
-      var insertion = srcMatch[0];
-      if (!insertion.endsWith("\n")) {
-        insertion += "\n";
-      }
-      if (!dstMatch[0].endsWith("\n")) {
-        insertion = "\n" + insertion;
-      }
-      body = withoutSrc.slice(0, insertionPoint) + insertion + withoutSrc.slice(insertionPoint)
-      body = body.trim();
-      
-      editComment(this.props.commentIdx, body);
-    }
-  },
-  
-  findTaskItems: function() {
-    if (!(this.props.comment) || this.state.editing) return;
-  
-    var el = ReactDOM.findDOMNode(this.refs.commentBody);
-    
-    // traverse dom, pre-order, rooted at el, looking for checkboxes
-    // we're going to bind to those guys as we find them
-    
-    var nodes = [];
-    preOrderTraverseDOM(el, (x) => nodes.push(x));
-    
-    var checks = nodes.filter((x) => x.nodeName == 'INPUT' && x.type == 'checkbox');
-    
-    checks.forEach((x, i) => {
-      x.onchange = (evt) => {
-        var checked = evt.target.checked;
-        this.updateCheckbox(i, checked);
-      };
-    });
-
-
-    // Find and bind sortables to task lists
-    var rootTaskList = (x) => {
-      var k = x.parentElement;
-      while (k && k != el) {
-        if (k.nodeName == 'UL' || k.nodeName == 'OL') {
-          return false;
-        }
-      }
-      return true;
-    };    
-    var taskLists = nodes.filter((x) => x.nodeName == 'UL' && x.className == 'taskList' && rootTaskList(x));
-    
-    var counter = { i: 0 };
-    taskLists.forEach((x) => {
-      if (!x._sortableInstalled) {
-        var handles = [];
-        x._sortableInstalled = true;
-        var offset = counter.i;
-        // install drag handle on each 
-        preOrderTraverseDOM(x, (li) => {
-          if (li.nodeName == 'LI') {
-            var handle = document.createElement('i');
-            handle.className = "fa fa-bars taskHandle";
-            li.insertBefore(handle, li.firstChild);
-            handles.push(handle);
-            counter.i++;
-          }
-        });
-        var s = Sortable.create(x, {
-          animation: 150,
-          handle: '.taskHandle',
-          ghostClass: 'taskGhost',
-          onStart: () => {
-            handles.forEach((h) => {
-              h.style.opacity = "0.0";
-            });
-          },
-          onEnd: (evt) => {
-            handles.forEach((h) => {
-              h.style.opacity = "";
-            });
-            if (evt.oldIndex != evt.newIndex) {
-              var srcIdx = offset + evt.oldIndex;
-              var dstIdx = offset + evt.newIndex;
-              this.moveTaskItem(srcIdx, dstIdx);
-            }
-          }
-        });
-      }
-    });
-  },
-  
   componentDidUpdate: function() {
     this.configureCM();
-    this.findTaskItems();
   },
   
   componentDidMount: function() {
     this.configureCM();
-    this.findTaskItems();
   }
 });
 
