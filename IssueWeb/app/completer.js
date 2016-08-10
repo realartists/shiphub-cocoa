@@ -62,6 +62,8 @@ var Completer = React.createClass({
         } else {
           console.error(`New item ${content} selected, but no onAddNew hander for completer`);
         }
+      } else if (this.props.onEnter) {
+        this.props.onEnter();
       }
     } else {
       if (this.props.onEnter) {
