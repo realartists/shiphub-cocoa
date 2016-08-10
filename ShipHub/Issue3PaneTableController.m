@@ -128,13 +128,6 @@
         m.target = self;
     }
     
-    NSString *savedKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"Issue3PaneTableSortKey"];
-    NSNumber *savedDir = [[NSUserDefaults standardUserDefaults] objectForKey:@"Issue3PaneTableSortDir"];
-    
-    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"updatedAt" ascending:NO];
-    if (savedKey && savedDir) {
-        sort = [NSSortDescriptor sortDescriptorWithKey:savedKey ascending:[savedDir boolValue]];
-    }
     
     header.sortButton.menu = sortMenu;
     
@@ -144,6 +137,18 @@
     [self.table setUsesAlternatingRowBackgroundColors:NO];
     [self.table setGridStyleMask:NSTableViewSolidHorizontalGridLineMask];
     
+    [self restoreSortFromDefaults];
+}
+
+- (void)restoreSortFromDefaults {
+    NSString *savedKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"Issue3PaneTableSortKey"];
+    NSNumber *savedDir = [[NSUserDefaults standardUserDefaults] objectForKey:@"Issue3PaneTableSortDir"];
+    
+    NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"updatedAt" ascending:NO];
+    if (savedKey && savedDir) {
+        sort = [NSSortDescriptor sortDescriptorWithKey:savedKey ascending:[savedDir boolValue]];
+    }
+
     [self updateSort:sort];
 }
 
@@ -187,12 +192,25 @@
     }
 }
 
+- (void)saveSortDefaults:(NSSortDescriptor *)sort {
+    NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
+    if (!sort) {
+        [d removeObjectForKey:@"Issue3PaneTableSortKey"];
+        [d removeObjectForKey:@"Issue3PaneTableSortDir"];
+    } else {
+        [d setObject:sort.key forKey:@"Issue3PaneTableSortKey"];
+        [d setBool:sort.ascending forKey:@"Issue3PaneTableSortDir"];
+    }
+}
+
 - (IBAction)changeSort:(id)sender {
     NSMenuItem *item = sender;
     NSDictionary *info = item.representedObject;
     
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:info[@"key"] ascending:[info[@"dir"] isEqualToString:@"asc"]];
     [self updateSort:sort];
+    
+    [self saveSortDefaults:sort];
 }
 
 - (IBAction)changeSortDir:(id)sender {
@@ -204,6 +222,8 @@
         sort = [NSSortDescriptor sortDescriptorWithKey:sort.key ascending:asc];
         [self updateSort:sort];
     }
+    
+    [self saveSortDefaults:sort];
 }
 
 - (void)commonInit {
@@ -220,6 +240,7 @@
         } else {
             self.table.headerView = _header;
             self.table.cornerView = _corner;
+            [self restoreSortFromDefaults];
         }
     }
 }
