@@ -49,6 +49,8 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     
     NSInteger _spellcheckDocumentTag;
     NSDictionary *_spellcheckContextTarget;
+    
+    CFAbsoluteTime _lastCheckedForUpdates;
 }
 
 // Why legacy WebView?
@@ -74,6 +76,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 
 - (void)loadView {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:DataStoreDidUpdateProblemsNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyWindowDidChange:) name:NSWindowDidBecomeKeyNotification object:nil];
     
     NSView *container = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewDidChangeFrame:) name:NSViewFrameDidChangeNotification object:container];
@@ -183,6 +186,26 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     }
     [self updateTitle];
     _web.hidden = _issue == nil;
+}
+
+- (void)noteCheckedForIssueUpdates {
+    _lastCheckedForUpdates = CFAbsoluteTimeGetCurrent();
+}
+
+- (void)checkForIssueUpdates {
+    if (_issue.fullIdentifier) {
+        [self noteCheckedForIssueUpdates];
+        [[DataStore activeStore] checkForIssueUpdates:_issue.fullIdentifier];
+    }
+}
+
+- (void)keyWindowDidChange:(NSNotification *)note {
+    if ([self.view.window isKeyWindow]) {
+        CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+        if (now - _lastCheckedForUpdates > 30.0) {
+            [self checkForIssueUpdates];
+        }
+    }
 }
 
 - (void)setColumnBrowser:(BOOL)columnBrowser {

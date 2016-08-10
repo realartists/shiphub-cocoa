@@ -56,7 +56,7 @@
         if (issue) {
             IssueDocument *doc = [self openUntitledDocumentAndDisplay:YES error:NULL];
             doc.issueViewController.issue = issue;
-            [[DataStore activeStore] checkForIssueUpdates:issueIdentifier];
+            [doc.issueViewController checkForIssueUpdates];
             [[DataStore activeStore] markIssueAsRead:issueIdentifier];
             [self noteNewRecentDocument:doc];
             if (completion) {

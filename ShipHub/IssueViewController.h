@@ -16,6 +16,9 @@
 
 @property (nonatomic) Issue *issue;
 
+- (void)noteCheckedForIssueUpdates;
+- (void)checkForIssueUpdates;
+
 - (void)configureNewIssue;
 
 @property (nonatomic, readonly) BOOL needsSave;

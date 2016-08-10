@@ -99,6 +99,7 @@
         [[DataStore activeStore] loadFullIssue:i.fullIdentifier completion:^(Issue *issue, NSError *error) {
             if ([self.displayedIssue.fullIdentifier isEqualToString:issue.fullIdentifier]) {
                 _issueController.issue = issue;
+                [_issueController noteCheckedForIssueUpdates];
             }
         }];
         
