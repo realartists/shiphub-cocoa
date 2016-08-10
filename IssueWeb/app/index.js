@@ -2128,7 +2128,8 @@ var Comment = React.createClass({
           mode: 'gfm',
           placeholder: (isNewIssue ? "Describe the issue" : "Leave a comment"),
           cursorHeight: 0.85,
-          lineWrapping: true
+          lineWrapping: true,
+          viewportMargin: Infinity
         }
       })
     )
