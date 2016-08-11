@@ -167,6 +167,8 @@
 		1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */; };
 		1AB038401D5AA0CF005093B9 /* promise-queue.js in Resources */ = {isa = PBXBuildFile; fileRef = 1AB0383F1D5AA0CF005093B9 /* promise-queue.js */; };
 		1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB038451D5AB7EC005093B9 /* IssueWaiter.m */; };
+		1AB0384F1D5C011D005093B9 /* HockeySDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB0384B1D5C0117005093B9 /* HockeySDK.framework */; };
+		1AB038501D5C013A005093B9 /* HockeySDK.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB0384B1D5C0117005093B9 /* HockeySDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AB503E91D2471EF0097875C /* NSFileWrapper+ImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */; };
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */; };
@@ -309,6 +311,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				1AB038501D5C013A005093B9 /* HockeySDK.framework in Copy Frameworks */,
 				1A2217C51C7E7BCE006460E2 /* SocketRocket.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
@@ -585,6 +588,12 @@
 		1AB0383F1D5AA0CF005093B9 /* promise-queue.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "promise-queue.js"; sourceTree = "<group>"; };
 		1AB038441D5AB7EC005093B9 /* IssueWaiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWaiter.h; sourceTree = "<group>"; };
 		1AB038451D5AB7EC005093B9 /* IssueWaiter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWaiter.m; sourceTree = "<group>"; };
+		1AB038491D5C0117005093B9 /* CHANGELOG */ = {isa = PBXFileReference; lastKnownFileType = text; path = CHANGELOG; sourceTree = "<group>"; };
+		1AB0384A1D5C0117005093B9 /* de.bitstadium.HockeySDK-Mac-4.0.1.docset */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "de.bitstadium.HockeySDK-Mac-4.0.1.docset"; sourceTree = "<group>"; };
+		1AB0384B1D5C0117005093B9 /* HockeySDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = HockeySDK.framework; sourceTree = "<group>"; };
+		1AB0384C1D5C0117005093B9 /* HockeySDK.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = HockeySDK.framework.dSYM; sourceTree = "<group>"; };
+		1AB0384D1D5C0117005093B9 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
+		1AB0384E1D5C0117005093B9 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1AB503E71D2471EF0097875C /* NSFileWrapper+ImageExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileWrapper+ImageExtras.h"; sourceTree = "<group>"; };
 		1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileWrapper+ImageExtras.m"; sourceTree = "<group>"; };
 		1AC6196D1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalPriority+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -693,6 +702,7 @@
 			files = (
 				1A2440CA1C84DEF800E070DA /* libz.tbd in Frameworks */,
 				1A2217C31C7E7BB9006460E2 /* SocketRocket.framework in Frameworks */,
+				1AB0384F1D5C011D005093B9 /* HockeySDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -828,6 +838,7 @@
 			children = (
 				28BF03C21D1C582E00F22638 /* FontAwesome.otf */,
 				1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */,
+				1AB038481D5C0117005093B9 /* HockeySDK-Mac */,
 			);
 			name = ext;
 			sourceTree = "<group>";
@@ -1161,6 +1172,20 @@
 				1A7FD7871D49856600B585E2 /* StateModifyController.xib */,
 			);
 			name = "Bulk Modify";
+			sourceTree = "<group>";
+		};
+		1AB038481D5C0117005093B9 /* HockeySDK-Mac */ = {
+			isa = PBXGroup;
+			children = (
+				1AB038491D5C0117005093B9 /* CHANGELOG */,
+				1AB0384A1D5C0117005093B9 /* de.bitstadium.HockeySDK-Mac-4.0.1.docset */,
+				1AB0384B1D5C0117005093B9 /* HockeySDK.framework */,
+				1AB0384C1D5C0117005093B9 /* HockeySDK.framework.dSYM */,
+				1AB0384D1D5C0117005093B9 /* LICENSE.md */,
+				1AB0384E1D5C0117005093B9 /* README.md */,
+			);
+			name = "HockeySDK-Mac";
+			path = "ext/HockeySDK-Mac";
 			sourceTree = "<group>";
 		};
 		1AD470D61C99FB7C0050AE4B /* DataStore */ = {
@@ -1804,6 +1829,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/ext/HockeySDK-Mac",
+				);
 				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
 				INFOPLIST_FILE = ShipHub/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
@@ -1817,6 +1846,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/ext/HockeySDK-Mac",
+				);
 				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
 				INFOPLIST_FILE = ShipHub/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";

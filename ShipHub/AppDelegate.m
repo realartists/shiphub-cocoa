@@ -16,7 +16,9 @@
 #import "OverviewController.h"
 #import "Reachability.h"
 
-@interface AppDelegate () <AuthControllerDelegate> {
+#import <HockeySDK/HockeySDK.h>
+
+@interface AppDelegate () <AuthControllerDelegate, BITHockeyManagerDelegate> {
     BOOL _authConfigured;
     BOOL _notificationsRegistered;
     Auth *_nextAuth;
@@ -75,6 +77,21 @@
     _notificationsRegistered = YES;
 }
 
+- (void)registerHockeyApp {
+    [[BITHockeyManager sharedHockeyManager] configureWithIdentifier:@"97cf8174021b4944999c2d3814b42359"];
+    [[BITHockeyManager sharedHockeyManager] setDelegate:self];
+    [[BITHockeyManager sharedHockeyManager].crashManager setAutoSubmitCrashReport: YES];
+#ifdef DEBUG
+    [BITHockeyManager sharedHockeyManager].disableMetricsManager = YES;
+#endif
+    [[BITHockeyManager sharedHockeyManager] startManager];
+}
+
+- (NSString *)userNameForHockeyManager:(BITHockeyManager *)hockeyManager componentManager:(BITHockeyBaseManager *)componentManager
+{
+    return _auth.account.login;
+}
+
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
     [[NSAppleEventManager sharedAppleEventManager]
      setEventHandler:self
@@ -84,6 +101,8 @@
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    [self registerHockeyApp];
+    
     _overviewControllers = [NSMutableArray array];
     _authController = [AuthController new];
     _authController.delegate = self;
