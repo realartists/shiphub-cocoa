@@ -48,7 +48,7 @@
 
 // Compute the progress towards closing all issues in predicate. That is, return open issues / all issues matching predicate.
 // progress = -1 if the predicate is empty.
-- (void)issueProgressMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(double progress, NSError *error))completion;
+- (void)issueProgressMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(double progress, NSInteger open, NSInteger closed, NSError *error))completion;
 
 - (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion;
 

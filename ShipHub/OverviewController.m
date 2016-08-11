@@ -62,6 +62,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 @interface OverviewProgressIndicator : NSView
 
 @property (nonatomic, assign) double doubleValue;
+@property (nonatomic, assign) NSInteger openCount;
+@property (nonatomic, assign) NSInteger closedCount;
 
 @end
 
@@ -464,7 +466,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 - (void)updateCount:(OverviewNode *)node {
     if (node.predicate && node.showProgress) {
-        void (^updateProgress)(double) = ^(double progress) {
+        void (^updateProgress)(double, NSInteger, NSInteger) = ^(double progress, NSInteger open, NSInteger closed) {
             if (node.progress != progress) {
                 node.progress = progress;
                 NSInteger row = [_outlineView rowForItem:node];
@@ -477,14 +479,16 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
                         } else {
                             progressIndicator.hidden = NO;
                             progressIndicator.doubleValue = progress;
+                            progressIndicator.openCount = open;
+                            progressIndicator.closedCount = closed;
                         }
                     }
                 }
             }
         };
         
-        [[DataStore activeStore] issueProgressMatchingPredicate:node.predicate completion:^(double progress, NSError *error) {
-            updateProgress(progress);
+        [[DataStore activeStore] issueProgressMatchingPredicate:node.predicate completion:^(double progress, NSInteger open, NSInteger closed, NSError *error) {
+            updateProgress(progress, open, closed);
         }];
         
     } else {
@@ -1448,9 +1452,28 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 @implementation OverviewProgressIndicator
 
+- (void)_updateTooltip {
+    self.toolTip = [NSString localizedStringWithFormat:NSLocalizedString(@"%.0f%% Complete. %td Open. %td Closed.", nil), _doubleValue * 100.0, _openCount, _closedCount];
+}
+
+- (void)updateTooltip {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(_updateTooltip) object:nil];
+    [self performSelector:@selector(_updateTooltip) withObject:nil afterDelay:0];
+}
+
+- (void)setClosedCount:(NSInteger)closedCount {
+    _closedCount = closedCount;
+    [self updateTooltip];
+}
+
+- (void)setOpenCount:(NSInteger)openCount {
+    _openCount = openCount;
+    [self updateTooltip];
+}
+
 - (void)setDoubleValue:(double)doubleValue {
     _doubleValue = doubleValue;
-    self.toolTip = [NSString localizedStringWithFormat:NSLocalizedString(@"%.0f%% Complete", nil), _doubleValue * 100.0];;
+    [self updateTooltip];
     [self setNeedsDisplay:YES];
 }
 

@@ -917,8 +917,10 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
-- (void)issueProgressMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(double progress, NSError *error))completion {
+- (void)issueProgressMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(double progress, NSInteger open, NSInteger closed, NSError *error))completion {
     __block double progress = 0;
+    __block NSInteger outOpen = 0;
+    __block NSInteger outClosed = 0;
     __block NSError *error = nil;
     [_moc performBlock:^{
         @try {
@@ -945,6 +947,8 @@ static NSString *const LastUpdated = @"LastUpdated";
                 if (total == 0) {
                     progress = -1.0;
                 } else {
+                    outOpen = total - closed;
+                    outClosed = closed;
                     progress = (double)closed / (double)total;
                 }
             }
@@ -954,7 +958,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         }
     } completion:^{
         dispatch_async(dispatch_get_main_queue(), ^{
-            completion(progress, error);
+            completion(progress, outOpen, outClosed, error);
         });
     }];
 }
