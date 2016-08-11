@@ -113,6 +113,7 @@
                                                                         <constraint firstItem="Bkn-0Y-A7B" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="2" id="bxq-q8-NnE"/>
                                                                         <constraint firstItem="IZs-52-waT" firstAttribute="leading" secondItem="6NU-pv-S76" secondAttribute="leading" id="eaK-v5-SwY"/>
                                                                         <constraint firstAttribute="trailing" secondItem="UvG-Oc-UzF" secondAttribute="trailing" constant="3" id="i7w-BR-aD5"/>
+                                                                        <constraint firstItem="3M8-mm-2y3" firstAttribute="leading" secondItem="Bkn-0Y-A7B" secondAttribute="trailing" constant="4" id="jZV-RD-cAi"/>
                                                                     </constraints>
                                                                     <connections>
                                                                         <outlet property="countButton" destination="UvG-Oc-UzF" id="G74-hI-Y6P"/>
