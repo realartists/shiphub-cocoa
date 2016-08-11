@@ -2805,6 +2805,7 @@ var MilestoneField = React.createClass({
           var m = newMilestones[0];
           getIvars().milestones.push(m);
           this.props.issue.milestone = m;
+          this.forceUpdate();
           return this.milestoneChanged(m.title).then(resolve, reject);
         }
       };
