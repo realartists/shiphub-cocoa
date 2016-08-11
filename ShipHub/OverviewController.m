@@ -389,7 +389,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             OverviewNode *repoNode = [OverviewNode new];
             repoNode.representedObject = repo;
             repoNode.title = repo.name;
-            repoNode.icon = [NSImage imageNamed:@"folder"];
+            repoNode.icon = [NSImage overviewIconNamed:@"710-folder"];
             repoNode.showCount = YES;
             repoNode.countOpenOnly = YES;
             repoNode.predicate = [NSPredicate predicateWithFormat:@"repository.identifier = %@", repo.identifier];
