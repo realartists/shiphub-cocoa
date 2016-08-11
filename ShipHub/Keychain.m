@@ -256,7 +256,8 @@ static NSString *ParseServer(NSString *service, NSString *servicePrefix) {
         if (array) {
             // For some reason, specifying the service will end up with no results being returned.
             // So just filter it here.
-            NSArray *filtered = [(__bridge NSArray *)array filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K beginswith %@", (__bridge id)kSecAttrService, _servicePrefix]];
+            NSString *hockeyEntry = [_servicePrefix stringByAppendingString:@".HockeySDK"];
+            NSArray *filtered = [(__bridge NSArray *)array filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"%K beginswith %@ AND %K != %@", (__bridge id)kSecAttrService, _servicePrefix, (__bridge id)kSecAttrService, hockeyEntry]];
             
             // Sort them so newest items are first
             NSArray *sorted = [filtered sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *obj1, NSDictionary *obj2) {
