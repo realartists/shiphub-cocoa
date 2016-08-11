@@ -638,6 +638,13 @@
                                     <action selector="showMarkdownFormattingGuide:" target="Voe-Tx-rLC" id="txD-O5-BcI"/>
                                 </connections>
                             </menuItem>
+                            <menuItem isSeparatorItem="YES" id="Nny-Yg-aSN"/>
+                            <menuItem title="Provide Feedback…" id="N6Y-qA-A5N">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showSendFeedback:" target="Voe-Tx-rLC" id="TFj-0p-LvN"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

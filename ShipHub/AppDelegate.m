@@ -92,6 +92,10 @@
     return _auth.account.login;
 }
 
+- (IBAction)showSendFeedback:(id)sender {
+    [[[BITHockeyManager sharedHockeyManager] feedbackManager] showFeedbackWindow];
+}
+
 - (void)applicationWillFinishLaunching:(NSNotification *)notification {
     [[NSAppleEventManager sharedAppleEventManager]
      setEventHandler:self
