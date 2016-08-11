@@ -594,6 +594,7 @@
 		1AB0384C1D5C0117005093B9 /* HockeySDK.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = HockeySDK.framework.dSYM; sourceTree = "<group>"; };
 		1AB0384D1D5C0117005093B9 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		1AB0384E1D5C0117005093B9 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		1AB038521D5D0E22005093B9 /* cihub.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = cihub.sh; sourceTree = "<group>"; };
 		1AB503E71D2471EF0097875C /* NSFileWrapper+ImageExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileWrapper+ImageExtras.h"; sourceTree = "<group>"; };
 		1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileWrapper+ImageExtras.m"; sourceTree = "<group>"; };
 		1AC6196D1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalPriority+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -787,6 +788,7 @@
 				1A2217901C7E7B14006460E2 /* ShipHub */,
 				1A3618FB1C9383CF008C11CB /* ShipHubTests */,
 				1A2217A21C7E7B78006460E2 /* ext */,
+				1AB038511D5D0E22005093B9 /* scripts */,
 				1A22178F1C7E7B14006460E2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -1186,6 +1188,14 @@
 			);
 			name = "HockeySDK-Mac";
 			path = "ext/HockeySDK-Mac";
+			sourceTree = "<group>";
+		};
+		1AB038511D5D0E22005093B9 /* scripts */ = {
+			isa = PBXGroup;
+			children = (
+				1AB038521D5D0E22005093B9 /* cihub.sh */,
+			);
+			path = scripts;
 			sourceTree = "<group>";
 		};
 		1AD470D61C99FB7C0050AE4B /* DataStore */ = {
