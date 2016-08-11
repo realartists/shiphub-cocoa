@@ -17,6 +17,7 @@
 #import "Reachability.h"
 
 #import <HockeySDK/HockeySDK.h>
+#import <Sparkle/Sparkle.h>
 
 @interface AppDelegate () <AuthControllerDelegate, BITHockeyManagerDelegate> {
     BOOL _authConfigured;
@@ -105,6 +106,12 @@
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+#if DEBUG
+    [[SUUpdater sharedUpdater] setAutomaticallyChecksForUpdates:NO];
+#else
+    [[SUUpdater sharedUpdater] setAutomaticallyChecksForUpdates:YES];
+#endif
+    
     [self registerHockeyApp];
     
     _overviewControllers = [NSMutableArray array];
@@ -428,11 +435,8 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     alert.informativeText = NSLocalizedString(@"This version of Ship is too old to access the server. Click OK to check for a newer version.", nil);
     [alert runModal];
 
-    // FIXME: Sparkel Support
-#if 0
     SUUpdater *updater = [SUUpdater sharedUpdater];
     [updater checkForUpdates:self];
-#endif
 }
 
 @end

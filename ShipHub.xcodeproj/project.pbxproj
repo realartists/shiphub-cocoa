@@ -169,6 +169,8 @@
 		1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB038451D5AB7EC005093B9 /* IssueWaiter.m */; };
 		1AB0384F1D5C011D005093B9 /* HockeySDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB0384B1D5C0117005093B9 /* HockeySDK.framework */; };
 		1AB038501D5C013A005093B9 /* HockeySDK.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB0384B1D5C0117005093B9 /* HockeySDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1AB038551D5D390E005093B9 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB038541D5D390E005093B9 /* Sparkle.framework */; };
+		1AB038591D5D391B005093B9 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB038541D5D390E005093B9 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AB503E91D2471EF0097875C /* NSFileWrapper+ImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */; };
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */; };
@@ -311,6 +313,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				1AB038591D5D391B005093B9 /* Sparkle.framework in Copy Frameworks */,
 				1AB038501D5C013A005093B9 /* HockeySDK.framework in Copy Frameworks */,
 				1A2217C51C7E7BCE006460E2 /* SocketRocket.framework in Copy Frameworks */,
 			);
@@ -595,6 +598,7 @@
 		1AB0384D1D5C0117005093B9 /* LICENSE.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = LICENSE.md; sourceTree = "<group>"; };
 		1AB0384E1D5C0117005093B9 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1AB038521D5D0E22005093B9 /* cihub.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = cihub.sh; sourceTree = "<group>"; };
+		1AB038541D5D390E005093B9 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = ext/Sparkle.framework; sourceTree = "<group>"; };
 		1AB503E71D2471EF0097875C /* NSFileWrapper+ImageExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileWrapper+ImageExtras.h"; sourceTree = "<group>"; };
 		1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileWrapper+ImageExtras.m"; sourceTree = "<group>"; };
 		1AC6196D1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalPriority+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -704,6 +708,7 @@
 				1A2440CA1C84DEF800E070DA /* libz.tbd in Frameworks */,
 				1A2217C31C7E7BB9006460E2 /* SocketRocket.framework in Frameworks */,
 				1AB0384F1D5C011D005093B9 /* HockeySDK.framework in Frameworks */,
+				1AB038551D5D390E005093B9 /* Sparkle.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -838,6 +843,7 @@
 		1A2217A21C7E7B78006460E2 /* ext */ = {
 			isa = PBXGroup;
 			children = (
+				1AB038541D5D390E005093B9 /* Sparkle.framework */,
 				28BF03C21D1C582E00F22638 /* FontAwesome.otf */,
 				1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */,
 				1AB038481D5C0117005093B9 /* HockeySDK-Mac */,
@@ -1842,6 +1848,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ext/HockeySDK-Mac",
+					"$(PROJECT_DIR)/ext",
 				);
 				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
 				INFOPLIST_FILE = ShipHub/Info.plist;
@@ -1859,6 +1866,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/ext/HockeySDK-Mac",
+					"$(PROJECT_DIR)/ext",
 				);
 				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
 				INFOPLIST_FILE = ShipHub/Info.plist;

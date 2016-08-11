@@ -97,5 +97,9 @@ All rights reserved.</string>
 			</array>
 		</dict>
 	</array>
+	<key>SUFeedURL</key>
+	<string>https://beta.realartists.com/builds/2.0/sparkle.xml</string>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
 </dict>
 </plist>
