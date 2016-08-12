@@ -87,7 +87,7 @@
                                                                         </customView>
                                                                         <button horizontalHuggingPriority="251" verticalHuggingPriority="750" placeholderIntrinsicWidth="25" placeholderIntrinsicHeight="16" tag="42" translatesAutoresizingMaskIntoConstraints="NO" id="UvG-Oc-UzF" customClass="LabelButton">
                                                                             <rect key="frame" x="220" y="1" width="25" height="17"/>
-                                                                            <buttonCell key="cell" type="inline" title="42" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="bTj-h2-uqu">
+                                                                            <buttonCell key="cell" type="inline" title="1942" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="bTj-h2-uqu">
                                                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                                                 <font key="font" metaFont="smallSystemBold"/>
                                                                             </buttonCell>
@@ -97,23 +97,24 @@
                                                                             <constraints>
                                                                                 <constraint firstAttribute="width" constant="25" id="9NR-d4-VYF"/>
                                                                                 <constraint firstAttribute="height" constant="12" id="emo-M5-Keu"/>
+                                                                                <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="25" id="ge2-Cl-YaK"/>
+                                                                                <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="12" id="rvH-Py-n1U"/>
                                                                             </constraints>
                                                                         </customView>
                                                                     </subviews>
                                                                     <constraints>
-                                                                        <constraint firstAttribute="trailing" secondItem="3M8-mm-2y3" secondAttribute="trailing" constant="3" id="38d-VY-JrQ"/>
-                                                                        <constraint firstItem="Ilo-vp-Qzg" firstAttribute="leading" secondItem="IZs-52-waT" secondAttribute="trailing" id="9xh-ag-WaL"/>
-                                                                        <constraint firstItem="3M8-mm-2y3" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="4" id="C9M-Kt-F9T"/>
-                                                                        <constraint firstItem="Ilo-vp-Qzg" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="1" id="Cbu-yQ-sFF"/>
-                                                                        <constraint firstItem="UvG-Oc-UzF" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="2" id="Hfq-ci-UAg"/>
-                                                                        <constraint firstAttribute="bottom" secondItem="IZs-52-waT" secondAttribute="bottom" constant="4" id="L1n-JB-no3"/>
-                                                                        <constraint firstItem="Bkn-0Y-A7B" firstAttribute="leading" secondItem="Ilo-vp-Qzg" secondAttribute="trailing" constant="5" id="MPd-ar-KFc"/>
-                                                                        <constraint firstItem="UvG-Oc-UzF" firstAttribute="leading" secondItem="Bkn-0Y-A7B" secondAttribute="trailing" constant="4" id="SCr-61-HT0"/>
-                                                                        <constraint firstItem="IZs-52-waT" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="4" id="T16-uN-OfF"/>
-                                                                        <constraint firstItem="Bkn-0Y-A7B" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="2" id="bxq-q8-NnE"/>
-                                                                        <constraint firstItem="IZs-52-waT" firstAttribute="leading" secondItem="6NU-pv-S76" secondAttribute="leading" id="eaK-v5-SwY"/>
-                                                                        <constraint firstAttribute="trailing" secondItem="UvG-Oc-UzF" secondAttribute="trailing" constant="3" id="i7w-BR-aD5"/>
-                                                                        <constraint firstItem="3M8-mm-2y3" firstAttribute="leading" secondItem="Bkn-0Y-A7B" secondAttribute="trailing" constant="4" id="jZV-RD-cAi"/>
+                                                                        <constraint firstItem="Ilo-vp-Qzg" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="1" id="25q-lM-Pgc"/>
+                                                                        <constraint firstAttribute="trailing" secondItem="3M8-mm-2y3" secondAttribute="trailing" constant="3" id="7vQ-eU-iY5"/>
+                                                                        <constraint firstItem="Bkn-0Y-A7B" firstAttribute="leading" secondItem="Ilo-vp-Qzg" secondAttribute="trailing" constant="5" id="9Ug-uF-o1C"/>
+                                                                        <constraint firstAttribute="trailing" secondItem="UvG-Oc-UzF" secondAttribute="trailing" constant="3" id="E2o-hU-xIL"/>
+                                                                        <constraint firstAttribute="bottom" secondItem="IZs-52-waT" secondAttribute="bottom" constant="4" id="EYK-Ep-zP1"/>
+                                                                        <constraint firstItem="3M8-mm-2y3" firstAttribute="leading" secondItem="Bkn-0Y-A7B" secondAttribute="trailing" constant="4" id="Knh-SL-TLw"/>
+                                                                        <constraint firstItem="Bkn-0Y-A7B" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="2" id="LaY-CP-LDu"/>
+                                                                        <constraint firstItem="Ilo-vp-Qzg" firstAttribute="leading" secondItem="IZs-52-waT" secondAttribute="trailing" id="QSf-I8-0lP"/>
+                                                                        <constraint firstItem="UvG-Oc-UzF" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="2" id="aaZ-2A-iV1"/>
+                                                                        <constraint firstItem="3M8-mm-2y3" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="4" id="fz7-cp-vDk"/>
+                                                                        <constraint firstItem="IZs-52-waT" firstAttribute="top" secondItem="6NU-pv-S76" secondAttribute="top" constant="4" id="n2q-Qh-2Ul"/>
+                                                                        <constraint firstItem="IZs-52-waT" firstAttribute="leading" secondItem="6NU-pv-S76" secondAttribute="leading" id="ncW-aG-jf9"/>
                                                                     </constraints>
                                                                     <connections>
                                                                         <outlet property="countButton" destination="UvG-Oc-UzF" id="G74-hI-Y6P"/>
