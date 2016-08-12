@@ -55,15 +55,14 @@
 }
 
 - (void)update:(NSNotification *)note {
-#if !INCOMPLETE
     BOOL online = [[Reachability sharedInstance] isReachable];
     BOOL reachabilityInited = [[Reachability sharedInstance] receivedFirstUpdate];
     
     // FIXME: Hook this stuff back up
     BOOL offline = !online && reachabilityInited;
-    NSDate *lastUpdated = nil; //[[DataStore activeStore] lastUpdated];
+    NSDate *lastUpdated = [[DataStore activeStore] lastUpdated];
     NSString *since = [lastUpdated shortUserInterfaceString];
-    double progress = 0.0; // [[DataStore activeStore] problemSyncProgress];
+    double progress = [[DataStore activeStore] issueSyncProgress];
     
     DebugLog(@"lastUpdated: %@ progress: %.0f%%", lastUpdated, progress * 100.0);
     
@@ -84,9 +83,6 @@
     } else {
         self.stringValue = @"";
     }
-#else
-    self.stringValue = @"";
-#endif
 }
 
 @end

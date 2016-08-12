@@ -132,6 +132,10 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
     dispatch_assert_current_queue(_q);
     
     if (!_socket && _syncVersions != nil && [[Reachability sharedInstance] isReachable] && self.auth.token) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate syncConnectionWillConnect:self];
+        });
+        
         self.logEntryTotalRemaining = -1;
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:_syncURL];
         [self.auth addAuthHeadersToRequest:request];
@@ -288,8 +292,9 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
         }];
         
         NSInteger remaining = [msg[MessageFieldRemaining] integerValue];
-        if (_logEntryTotalRemaining < 0) {
-            _logEntryTotalRemaining = remaining + [entries count];
+        NSInteger totalRemaining = remaining + [entries count];
+        if (_logEntryTotalRemaining < 0 || totalRemaining > _logEntriesRemaining) {
+            _logEntryTotalRemaining = totalRemaining;
         }
         double progress = 1.0;
         if (_logEntryTotalRemaining > 0) {

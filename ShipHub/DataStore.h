@@ -33,6 +33,9 @@
 
 @property (nonatomic, readonly, getter=isOffline) BOOL offline;
 
+@property (readonly) NSDate *lastUpdated;
+@property (readonly) double issueSyncProgress;
+
 @property (nonatomic, readonly, getter=isMigrating) BOOL migrating;
 @property (nonatomic, readonly, getter=isPerformingInitialSync) BOOL performingInitialSync;
 

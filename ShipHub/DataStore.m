@@ -113,7 +113,7 @@ static const NSInteger CurrentLocalModelVersion = 4;
     NSInteger _initialSyncProgress;
     
     BOOL _sentNetworkActivityBegan;
-    double _problemSyncProgress;
+    double _issueSyncProgress;
 }
 
 @property (strong) Auth *auth;
@@ -173,6 +173,14 @@ static DataStore *sActiveStore = nil;
 
 - (BOOL)isActive {
     return sActiveStore == self;
+}
+
+- (void)postNotification:(NSString *)notificationName userInfo:(NSDictionary *)userInfo {
+    RunOnMain(^{
+        if ([self isActive]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:notificationName object:self userInfo:userInfo];
+        }
+    });
 }
 
 + (Class)serverConnectionClass {
@@ -759,15 +767,45 @@ static NSString *const LastUpdated = @"LastUpdated";
         NSError *error = nil;
         [_moc save:&error];
         if (error) ErrLog("%@", error);
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            _issueSyncProgress = progress;
+            [self postNotification:DataStoreDidUpdateProgressNotification userInfo:nil];
+        });
     }];
 }
 
+- (void)syncConnectionWillConnect:(SyncConnection *)sync {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _issueSyncProgress = 0.0;
+        [self postNotification:DataStoreDidUpdateProgressNotification userInfo:nil];
+    });
+}
+
 - (void)syncConnectionDidConnect:(SyncConnection *)sync {
-    
+    NSDate *lastUpdated = [NSDate date];
+    self.lastUpdated = lastUpdated;
+    [_moc performBlock:^{
+        NSMutableDictionary *metadata = [[_moc.persistentStoreCoordinator metadataForPersistentStore:_persistentStore] mutableCopy];
+        metadata[LastUpdated] = lastUpdated;
+        [_moc.persistentStoreCoordinator setMetadata:metadata forPersistentStore:_persistentStore];
+        NSError *err = nil;
+        [_moc save:&err];
+        if (err) {
+            ErrLog(@"Error updating metadata: %@", err);
+        }
+    }];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _issueSyncProgress = 1.0;
+        [self postNotification:DataStoreDidUpdateProgressNotification userInfo:nil];
+    });
 }
 
 - (void)syncConnectionDidDisconnect:(SyncConnection *)sync {
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _issueSyncProgress = 1.0;
+        [self postNotification:DataStoreDidUpdateProgressNotification userInfo:nil];
+    });
 }
 
 - (NSArray *)changedIssueIdentifiers:(NSNotification *)note {

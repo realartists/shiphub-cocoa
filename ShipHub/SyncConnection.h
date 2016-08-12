@@ -31,6 +31,7 @@
 
 @protocol SyncConnectionDelegate
 
+- (void)syncConnectionWillConnect:(SyncConnection *)sync;
 - (void)syncConnectionDidConnect:(SyncConnection *)sync;
 - (void)syncConnectionDidDisconnect:(SyncConnection *)sync;
 
