@@ -108,7 +108,8 @@ static const NSInteger CurrentLocalModelVersion = 4;
 
     NSString *_purgeVersion;
     
-    NSMutableDictionary *_localMetadataCache; // only manipulated within _moc.
+    NSMutableDictionary *_syncCache; // only manipulated within _moc.
+    NSMutableDictionary *_idCache;   // ""
     
     NSInteger _initialSyncProgress;
     
@@ -213,7 +214,7 @@ static DataStore *sActiveStore = nil;
         _queryUploadProcessing = [NSMutableSet set];
         _needsQuerySyncItems = [NSMutableArray array];
         _needsQuerySyncQueue = dispatch_queue_create("DataStore.ResolveQueries", NULL);
-        _localMetadataCache = [NSMutableDictionary dictionary];
+        _idCache = [NSMutableDictionary new];
         
         if (![self openDB]) {
             return nil;
@@ -329,6 +330,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     _moc.undoManager = nil; // don't care about undo-ing here, and it costs performance to have an undo manager.
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mocDidChange:) name:NSManagedObjectContextObjectsDidChangeNotification object:_moc];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mocDidSave:) name:NSManagedObjectContextDidSaveNotification object:_moc];
     
     BOOL needsSnapshotRebuild = NO;
     BOOL needsKeywordUsageRebuild = NO;
@@ -489,36 +491,98 @@ static NSString *const LastUpdated = @"LastUpdated";
     obj.data = [NSJSONSerialization dataWithJSONObject:versions?:@{} options:0 error:NULL];
 }
 
-// Must be called on _moc.
-// Does not call save:
-- (NSArray *)createPlaceholderEntitiesWithName:(NSString *)entityName withIdentifiers:(NSArray *)identifiers {
-    NSParameterAssert(entityName);
-    NSParameterAssert(identifiers);
+// Must be called on _moc
+- (__kindof NSManagedObject *)cachedObjectWithIdentifier:(NSNumber *)identifier entityName:(NSString *)entityName {
+    NSEntityDescription *entity = _mom.entitiesByName[entityName];
+    id obj = nil;
+    if (entity.isAbstract) {
+        for (NSEntityDescription *child in entity.subentities) {
+            obj = [self cachedObjectWithIdentifier:identifier entityName:child.name];
+            if (obj) break;
+        }
+    } else {
+        NSString *key = [NSString stringWithFormat:@"%@.%lld", entityName, identifier.longLongValue];
+        obj = _syncCache[key];
+        if (!obj) {
+            NSManagedObjectID *objID = _idCache[key];
+            if (objID) {
+                NSAssert([[[objID entity] name] isEqualToString:entityName], @"cached object has the right entity");
+                obj = [_moc objectWithID:objID];
+                if (obj) {
+                    NSAssert([[(id)obj identifier] isEqual:identifier], @"cached object has the right identifier");
+                    _syncCache[key] = obj;
+                }
+            }
+        }
+    }
+    return obj;
+}
+
+- (NSString *)cacheKeyWithObject:(NSManagedObject *)obj {
+    return [NSString stringWithFormat:@"%@.%lld", obj.entity.name, [[(id)obj identifier] longLongValue]];
+}
+
+// Must be called on _moc
+- (__kindof NSManagedObject *)managedObjectWithIdentifier:(NSNumber *)identifier entityName:(NSString *)entityName {
+    id obj = [self cachedObjectWithIdentifier:identifier entityName:entityName];
+    if (!obj) {
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:entityName];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
+        fetch.includesPendingChanges = _syncCache == nil; // If it were pending, we'd already know about it in our cache
+        fetch.fetchLimit = 1;
+        obj = [[_moc executeFetchRequest:fetch error:NULL] firstObject];
+        if (obj) {
+            NSString *key = [self cacheKeyWithObject:obj];
+            _syncCache[key] = obj;
+            _idCache[key] = [obj objectID];
+        }
+    }
+    return obj;
+}
+
+- (NSDictionary<NSNumber *, __kindof NSManagedObject *> *)managedObjectsWithIdentifiers:(NSArray *)identifiers entityName:(NSString *)entityName {
     
-    NSError *error = nil;
-    NSFetchRequest *existing = [NSFetchRequest fetchRequestWithEntityName:entityName];
-    existing.resultType = NSDictionaryResultType;
-    existing.propertiesToFetch = @[@"identifier"];
-    NSArray *ids = [[_moc executeFetchRequest:existing error:&error] arrayByMappingObjects:^id(id obj) {
-        return [obj objectForKey:@"identifier"];
-    }];
-    
-    if (error) {
-        ErrLog(@"entity: %@ error: %@", entityName, error);
+    if (identifiers.count == 0) {
         return nil;
     }
     
-    NSMutableSet *toCreate = [NSMutableSet setWithArray:identifiers];
-    [toCreate minusSet:[NSSet setWithArray:ids]];
-    
-    NSMutableArray *created = [NSMutableArray arrayWithCapacity:toCreate.count];
-    for (id identifier in toCreate) {
-        NSManagedObject *newEntity = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
-        [newEntity setValue:identifier forKey:@"identifier"];
-        [created addObject:newEntity];
+    NSMutableDictionary *results = [NSMutableDictionary new];
+    NSMutableArray *toFetch = [NSMutableArray new];
+    for (NSNumber *identifier in identifiers) {
+        NSManagedObject *obj = [self cachedObjectWithIdentifier:identifier entityName:entityName];
+        if (obj) {
+            results[identifier] = obj;
+        } else {
+            [toFetch addObject:identifier];
+        }
     }
     
-    return created;
+    if (toFetch.count) {
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:entityName];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", toFetch];
+        fetch.includesPendingChanges = _syncCache == nil; // If it were pending, we'd already know about it in our cache
+        NSArray *found = [_moc executeFetchRequest:fetch error:NULL];
+        for (id obj in found) {
+            NSNumber *identifier = [obj identifier];
+            NSString *key = [self cacheKeyWithObject:obj];
+            _syncCache[key] = obj;
+            _idCache[key] = [obj objectID];
+            results[identifier] = obj;
+        }
+        NSDictionary *lookup = [NSDictionary lookupWithObjects:found keyPath:@"identifier"];
+        [results addEntriesFromDictionary:lookup];
+    }
+    
+    return results;
+}
+
+// Must be called on _moc. Does not call save:
+- (__kindof NSManagedObject *)insertManagedObjectWithIdentifier:(NSNumber *)identifier entityName:(NSString *)entityName {
+    NSManagedObject *obj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
+    [obj setValue:identifier forKey:@"identifier"];
+    NSString *key = [NSString stringWithFormat:@"%@.%lld", entityName, identifier.longLongValue];
+    _syncCache[key] = obj;
+    return obj;
 }
 
 // Must be called on _moc.
@@ -615,22 +679,14 @@ static NSString *const LastUpdated = @"LastUpdated";
             }
             
             // find everything in relatedIDs that already exists
-            NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:rel.destinationEntity.name];
-            fetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", relatedIDs];
-            
-            NSError *error = nil;
-            NSArray *existing = [_moc executeFetchRequest:fetch error:&error];
-            if (error) ErrLog(@"%@", error);
-            
-            NSDictionary *existingLookup = [NSDictionary lookupWithObjects:existing keyPath:@"identifier"];
+            NSDictionary *existingLookup = [self managedObjectsWithIdentifiers:relatedIDs entityName:rel.destinationEntity.name];
             
             id relatedObjs = rel.ordered ? [NSMutableOrderedSet new] : [NSMutableSet new];
             for (NSNumber *relatedID in relatedIDs) {
                 NSManagedObject *relObj = existingLookup[relatedID];
                 BOOL populate = !noPopulate;
                 if (!relObj) {
-                    relObj = [NSEntityDescription insertNewObjectForEntityForName:rel.destinationEntity.name inManagedObjectContext:_moc];
-                    [relObj setValue:relatedID forKey:@"identifier"];
+                    relObj = [self insertManagedObjectWithIdentifier:relatedID entityName:rel.destinationEntity.name];
                     populate = YES;
                 }
                 NSDictionary *updates = relatedLookup[relatedID];
@@ -647,7 +703,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             if (!related) continue;
             
             NSDictionary *populate = nil;
-            NSString *relatedID = related;
+            id relatedID = related;
             if ([related isKindOfClass:[NSDictionary class]]) {
                 populate = related;
                 relatedID = populate[@"identifier"];
@@ -657,13 +713,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             }
             
             if (relatedID != nil) {
-                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:rel.destinationEntity.name];
-                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier == %@", relatedID];
-                fetch.fetchLimit = 1;
-                
-                NSError *error = nil;
-                
-                NSManagedObject *relObj = [[_moc executeFetchRequest:fetch error:&error] firstObject];
+                NSManagedObject *relObj = [self managedObjectWithIdentifier:relatedID entityName:rel.destinationEntity.name];
                 if (relObj) {
                     [obj setValue:relObj forKey:key onlyIfChanged:YES];
                     if (populate && !noPopulate) {
@@ -696,8 +746,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                     
                     if (relName) {
                         DebugLog(@"Creating %@ of id %@", rel.destinationEntity.name, relatedID);
-                        relObj = [NSEntityDescription insertNewObjectForEntityForName:relName inManagedObjectContext:_moc];
-                        [relObj setValue:relatedID forKey:@"identifier"];
+                        relObj = [self insertManagedObjectWithIdentifier:relatedID entityName:relName];
                         if (populate) {
                             [relObj mergeAttributesFromDictionary:populate];
                         }
@@ -713,8 +762,6 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)writeSyncObjects:(NSArray<SyncEntry *> *)objs {
     
     for (SyncEntry *e in objs) {
-        NSError *error = nil;
-        
         NSString *type = e.entityName;
         NSString *entityName = [NSString stringWithFormat:@"Local%@", [type PascalCase]];
         if (_mom.entitiesByName[entityName] == nil) {
@@ -732,18 +779,11 @@ static NSString *const LastUpdated = @"LastUpdated";
         }
 
         NSAssert(identifier != nil, @"identifier cannot be nil.");
-        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:entityName];
-        fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
-        fetch.fetchLimit = 1;
-        
-        NSManagedObject *mObj = [[_moc executeFetchRequest:fetch error:&error] firstObject];
-        
-        if (error) ErrLog(@"%@", error);
-        error = nil;
+        NSManagedObject *mObj = [self managedObjectWithIdentifier:identifier entityName:entityName];
         
         if (e.action == SyncEntryActionSet) {
             if (!mObj) {
-                mObj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
+                mObj = [self insertManagedObjectWithIdentifier:identifier entityName:entityName];
             }
             
             if ([data isKindOfClass:[NSDictionary class]]) {
@@ -761,8 +801,12 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)syncConnection:(SyncConnection *)sync receivedEntries:(NSArray<SyncEntry *> *)entries versions:(NSDictionary *)versions progress:(double)progress
 {
     [_moc performBlock:^{
+        _syncCache = [NSMutableDictionary new];
+        
         [self writeSyncObjects:entries];
         [self updateSyncVersions:versions];
+        
+        _syncCache = nil;
         
         NSError *error = nil;
         [_moc save:&error];
@@ -885,6 +929,18 @@ static NSString *const LastUpdated = @"LastUpdated";
             NSDictionary *userInfo = @{ DataStoreUpdatedProblemsKey : changedIssueIdentifiers };
             [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateProblemsNotification object:self userInfo:userInfo];
         });
+    }
+}
+
+- (void)mocDidSave:(NSNotification *)note {
+    for (id obj in note.userInfo[NSInsertedObjectsKey]) {
+        if ([obj respondsToSelector:@selector(identifier)]) {
+            NSManagedObjectID *objectID = [obj objectID];
+            if (![objectID isTemporaryID]) {
+                NSString *key = [self cacheKeyWithObject:obj];
+                _idCache[key] = objectID;
+            }
+        }
     }
 }
 
