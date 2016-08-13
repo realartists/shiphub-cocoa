@@ -37,7 +37,20 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="VOq-y0-SEH"/>
-                            <menuItem title="Preferences…" keyEquivalent="," id="BOF-NM-1cW"/>
+                            <menuItem title="Check for Updates…" id="OUk-8c-ff0">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="checkForUpdates:" target="qG5-Es-pn2" id="4pT-5j-egK"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Provide Feedback…" id="N6Y-qA-A5N">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showSendFeedback:" target="Voe-Tx-rLC" id="TFj-0p-LvN"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
+                            <menuItem title="Preferences…" hidden="YES" keyEquivalent="," id="BOF-NM-1cW"/>
                             <menuItem title="Account" id="Bd0-Fb-PTl">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Account" id="Qjt-qC-mZs">
@@ -59,19 +72,6 @@
                                 </menu>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="Smb-TV-uja"/>
-                            <menuItem title="Check for Updates…" id="OUk-8c-ff0">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="checkForUpdates:" target="qG5-Es-pn2" id="4pT-5j-egK"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem title="Provide Feedback…" id="N6Y-qA-A5N">
-                                <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="showSendFeedback:" target="Voe-Tx-rLC" id="TFj-0p-LvN"/>
-                                </connections>
-                            </menuItem>
-                            <menuItem isSeparatorItem="YES" id="wFC-TO-SCJ"/>
                             <menuItem title="Services" id="NMo-om-nkz">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Services" systemMenu="services" id="hz9-B4-Xy5"/>
