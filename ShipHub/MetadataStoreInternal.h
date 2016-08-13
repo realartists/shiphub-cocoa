@@ -15,6 +15,7 @@
 + (BOOL)changeNotificationContainsMetadata:(NSNotification *)mocNote;
 
 // Read data out of ctx and store in immutable data objects accessible from any thread.
+// Must be called on ctx's private queue.
 - (instancetype)initWithMOC:(NSManagedObjectContext *)ctx;
 
 - (User *)userWithLocalUser:(LocalUser *)lu;

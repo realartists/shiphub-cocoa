@@ -18,14 +18,16 @@
 #import "LocalMilestone.h"
 #import "LocalMetadata.h"
 
-@interface MetadataStore ()
+@interface MetadataStore () {
+    BOOL _allAssigneesNeedsSort;
+    NSMutableArray *_allAssignees;
+}
 
 @property (strong) NSDictionary *usersByID;
 @property (strong) NSDictionary *orgsByID;
 @property (strong) NSDictionary *accountsByID;
 
 @property (strong) NSDictionary *assigneesByRepoID;
-@property (strong) NSArray *allAssignees;
 
 @property (strong) NSArray *repoOwners;
 @property (strong) NSDictionary *reposByOwnerID;
@@ -68,154 +70,154 @@ static BOOL IsMetadataObject(id obj) {
     NSParameterAssert(moc);
     
     if (self = [super init]) {
-        [moc performBlockAndWait:^{
+        NSFetchRequest *reposFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
+        reposFetch.predicate = [NSPredicate predicateWithFormat:@"name != nil && owner != nil"];
+        NSArray *localRepos = [moc executeFetchRequest:reposFetch error:NULL];
+        
+        NSFetchRequest *usersFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
+        usersFetch.predicate = [NSPredicate predicateWithFormat:@"login != nil"];
+        NSArray *localUsers = [moc executeFetchRequest:usersFetch error:NULL];
+        
+        NSMutableArray *repos = [NSMutableArray arrayWithCapacity:localRepos.count];
+        
+        NSMutableDictionary *accountsByID = [NSMutableDictionary new];
+        NSMutableDictionary *orgsByID = [NSMutableDictionary new];
+        NSMutableDictionary *localOrgsByID = [NSMutableDictionary new];
+        NSDictionary *usersByID = [NSDictionary lookupWithObjects:[localUsers arrayByMappingObjects:^id(id obj) {
+            return [[User alloc] initWithLocalItem:obj];
+        }] keyPath:@"identifier"];
+        [accountsByID addEntriesFromDictionary:usersByID];
+        NSMutableDictionary *assigneesByRepoID = [NSMutableDictionary new];
+        NSMutableDictionary *milestonesByRepoID = [NSMutableDictionary new];
+        NSMutableDictionary *labelsByRepoID = [NSMutableDictionary new];
+        NSMutableSet *allAssignees = [NSMutableSet new];
+        
+        NSMutableSet *repoOwners = [NSMutableSet new];
+        NSMutableDictionary *reposByOwnerID = [NSMutableDictionary new];
+        
+        for (LocalRepo *r in localRepos) {
+            Repo *repo = [[Repo alloc] initWithLocalItem:r];
+            [repos addObject:repo];
             
-            NSFetchRequest *reposFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
-            reposFetch.predicate = [NSPredicate predicateWithFormat:@"name != nil && owner != nil"];
-            NSArray *localRepos = [moc executeFetchRequest:reposFetch error:NULL];
-            
-            NSFetchRequest *usersFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
-            NSArray *localUsers = [moc executeFetchRequest:usersFetch error:NULL];
-            
-            NSMutableArray *repos = [NSMutableArray arrayWithCapacity:localRepos.count];
-            
-            NSMutableDictionary *accountsByID = [NSMutableDictionary new];
-            NSMutableDictionary *orgsByID = [NSMutableDictionary new];
-            NSDictionary *usersByID = [NSDictionary lookupWithObjects:[localUsers arrayByMappingObjects:^id(id obj) {
-                return [[User alloc] initWithLocalItem:obj];
-            }] keyPath:@"identifier"];
-            [accountsByID addEntriesFromDictionary:usersByID];
-            NSMutableDictionary *assigneesByRepoID = [NSMutableDictionary new];
-            NSMutableDictionary *milestonesByRepoID = [NSMutableDictionary new];
-            NSMutableDictionary *labelsByRepoID = [NSMutableDictionary new];
-            
-            NSMutableSet *repoOwners = [NSMutableSet new];
-            NSMutableDictionary *reposByOwnerID = [NSMutableDictionary new];
-            
-            for (LocalRepo *r in localRepos) {
-                Repo *repo = [[Repo alloc] initWithLocalItem:r];
-                [repos addObject:repo];
-                
-                NSMutableArray *assignees;
-                assigneesByRepoID[r.identifier] = assignees = [NSMutableArray new];
-                for (LocalUser *lu in r.assignees) {
-                    if (lu.login) {
-                        User *u = usersByID[lu.identifier];
-                        [assignees addObject:u];
-                    }
-                }
-                
-                NSMutableArray *milestones;
-                milestonesByRepoID[r.identifier] = milestones = [NSMutableArray new];
-                
-                for (LocalMilestone *lm in r.milestones) {
-                    if (lm.title) {
-                        Milestone *m = [[Milestone alloc] initWithLocalItem:lm];
-                        [milestones addObject:m];
-                    }
-                }
-                
-                NSMutableArray *labels;
-                labelsByRepoID[r.identifier] = labels = [NSMutableArray new];
-                
-                for (LocalLabel *ll in r.labels) {
-                    Label *l = [[Label alloc] initWithLocalItem:ll];
-                    [labels addObject:l];
-                }
-                
-                LocalAccount *localOwner = r.owner;
-                
-                Account *owner = accountsByID[localOwner.identifier];
-                if (!owner) {
-                    if ([localOwner isKindOfClass:[LocalOrg class]]) {
-                        owner = [[Org alloc] initWithLocalItem:localOwner];
-                        orgsByID[localOwner.identifier] = owner;
-                    } else {
-                        owner = usersByID[localOwner.identifier];
-                    }
-                    accountsByID[localOwner.identifier] = owner;
-                }
-                [repoOwners addObject:owner];
-                
-                NSMutableArray *ownersList = reposByOwnerID[localOwner.identifier];
-                if (!ownersList) {
-                    reposByOwnerID[localOwner.identifier] = ownersList = [NSMutableArray new];
-                }
-                [ownersList addObject:repo];
-            }
-            
-            _usersByID = usersByID;
-            _orgsByID = orgsByID;
-            _accountsByID = accountsByID;
-            
-            _assigneesByRepoID = assigneesByRepoID;
-            
-            _repoOwners = [[repoOwners allObjects] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"login" ascending:YES selector:@selector(localizedStandardCompare:)]]];
-            
-            _reposByOwnerID = reposByOwnerID;
-            for (id ownerID in _reposByOwnerID) {
-                NSMutableArray *r = _reposByOwnerID[ownerID];
-                [r sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedStandardCompare:)]]];
-            }
-            
-            _repos = [repos sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"fullName" ascending:YES selector:@selector(localizedStandardCompare:)]]];
-            
-            _milestonesByRepoID = milestonesByRepoID;
-            
-            _labelsByRepoID = labelsByRepoID;
-            
-            NSMutableDictionary *mergedLabels = [NSMutableDictionary new];
-            
-            for (NSArray *la in [_labelsByRepoID allValues]) {
-                for (Label *l in la) {
-                    if (!mergedLabels[l.name]) {
-                        mergedLabels[l.name] = l;
-                    }
-                }
-            }
-            
-            _mergedLabels = [mergedLabels allValues];
-            
-            NSMutableSet *mergedMilestones = [NSMutableSet new];
-            NSMutableDictionary *milestonesByID = [NSMutableDictionary new];
-            for (NSMutableArray *ma in [_milestonesByRepoID allValues]) {
-                [ma sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(localizedStandardCompare:)]]];
-                for (Milestone *m in ma) {
-                    if (!m.closed) {
-                        [mergedMilestones addObject:m.title];
-                        milestonesByID[m.identifier] = m;
-                    }
-                }
-            }
-            
-            _milestonesByID = milestonesByID;
-            
-            _mergedMilestoneNames = [[mergedMilestones allObjects] sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
-            
-            _reposByID = [NSDictionary lookupWithObjects:_repos keyPath:@"identifier"];
-            
-            NSMutableDictionary *orgIDToMembers = [NSMutableDictionary new];
-            
-            for (Org *org in [orgsByID allValues]) {
-                NSFetchRequest *membersFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
-                membersFetch.predicate = [NSPredicate predicateWithFormat:@"ANY orgs.identifier = %@", org.identifier];
-                
-                NSArray *localMembers = [moc executeFetchRequest:membersFetch error:NULL];
-                
-                NSMutableArray *members = [NSMutableArray new];
-                orgIDToMembers[org.identifier] = members;
-                for (LocalUser *lu in localMembers) {
+            NSMutableArray *assignees;
+            assigneesByRepoID[r.identifier] = assignees = [NSMutableArray new];
+            for (LocalUser *lu in r.assignees) {
+                if (lu.login) {
                     User *u = usersByID[lu.identifier];
-                    if (u) {
-                        [members addObject:u];
-                    }
+                    [assignees addObject:u];
+                    [allAssignees addObject:u];
                 }
             }
             
-            _orgIDToMembers = orgIDToMembers;
+            NSMutableArray *milestones;
+            milestonesByRepoID[r.identifier] = milestones = [NSMutableArray new];
             
-            _allAssignees = [[_usersByID allValues] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"login" ascending:YES selector:@selector(localizedStandardCompare:)]]];
-        }];
+            for (LocalMilestone *lm in r.milestones) {
+                if (lm.title) {
+                    Milestone *m = [[Milestone alloc] initWithLocalItem:lm];
+                    [milestones addObject:m];
+                }
+            }
+            
+            NSMutableArray *labels;
+            labelsByRepoID[r.identifier] = labels = [NSMutableArray new];
+            
+            for (LocalLabel *ll in r.labels) {
+                Label *l = [[Label alloc] initWithLocalItem:ll];
+                [labels addObject:l];
+            }
+            
+            LocalAccount *localOwner = r.owner;
+            
+            Account *owner = accountsByID[localOwner.identifier];
+            if (!owner) {
+                if ([localOwner isKindOfClass:[LocalOrg class]]) {
+                    owner = [[Org alloc] initWithLocalItem:localOwner];
+                    orgsByID[localOwner.identifier] = owner;
+                    localOrgsByID[localOwner.identifier] = localOwner;
+                } else {
+                    owner = usersByID[localOwner.identifier];
+                }
+                accountsByID[localOwner.identifier] = owner;
+            }
+            [repoOwners addObject:owner];
+            
+            NSMutableArray *ownersList = reposByOwnerID[localOwner.identifier];
+            if (!ownersList) {
+                reposByOwnerID[localOwner.identifier] = ownersList = [NSMutableArray new];
+            }
+            [ownersList addObject:repo];
+        }
+        
+        _usersByID = usersByID;
+        _orgsByID = orgsByID;
+        _accountsByID = accountsByID;
+        
+        _assigneesByRepoID = assigneesByRepoID;
+        
+        _repoOwners = [[repoOwners allObjects] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"login" ascending:YES selector:@selector(localizedStandardCompare:)]]];
+        
+        _reposByOwnerID = reposByOwnerID;
+        for (id ownerID in _reposByOwnerID) {
+            NSMutableArray *r = _reposByOwnerID[ownerID];
+            [r sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedStandardCompare:)]]];
+        }
+        
+        _repos = [repos sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"fullName" ascending:YES selector:@selector(localizedStandardCompare:)]]];
+        
+        _milestonesByRepoID = milestonesByRepoID;
+        
+        _labelsByRepoID = labelsByRepoID;
+        
+        NSMutableDictionary *mergedLabels = [NSMutableDictionary new];
+        
+        for (NSArray *la in [_labelsByRepoID allValues]) {
+            for (Label *l in la) {
+                if (!mergedLabels[l.name]) {
+                    mergedLabels[l.name] = l;
+                }
+            }
+        }
+        
+        _mergedLabels = [mergedLabels allValues];
+        
+        NSMutableSet *mergedMilestones = [NSMutableSet new];
+        NSMutableDictionary *milestonesByID = [NSMutableDictionary new];
+        for (NSMutableArray *ma in [_milestonesByRepoID allValues]) {
+            [ma sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(localizedStandardCompare:)]]];
+            for (Milestone *m in ma) {
+                if (!m.closed) {
+                    [mergedMilestones addObject:m.title];
+                    milestonesByID[m.identifier] = m;
+                }
+            }
+        }
+        
+        _milestonesByID = milestonesByID;
+        
+        _mergedMilestoneNames = [[mergedMilestones allObjects] sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
+        
+        _reposByID = [NSDictionary lookupWithObjects:_repos keyPath:@"identifier"];
+        
+        NSMutableDictionary *orgIDToMembers = [NSMutableDictionary new];
+        
+        for (Org *org in [orgsByID allValues]) {
+            NSSet *localMembers = [localOrgsByID[org.identifier] users];
+            
+            NSMutableArray *members = [NSMutableArray new];
+            orgIDToMembers[org.identifier] = members;
+            for (LocalUser *lu in localMembers) {
+                User *u = usersByID[lu.identifier];
+                if (u) {
+                    [members addObject:u];
+                }
+            }
+        }
+        
+        _orgIDToMembers = orgIDToMembers;
+        
+        _allAssignees = [[allAssignees allObjects] mutableCopy];
+        _allAssigneesNeedsSort = YES;
     }
     
     return self;
@@ -227,6 +229,18 @@ static BOOL IsMetadataObject(id obj) {
 
 - (NSArray<User *> *)assigneesForRepo:(Repo *)repo {
     return _assigneesByRepoID[repo.identifier];
+}
+
+- (NSArray<User *> *)allAssignees {
+    @synchronized (_allAssignees) {
+        if (_allAssigneesNeedsSort) {
+            _allAssigneesNeedsSort = NO;
+            [_allAssignees sortUsingComparator:^NSComparisonResult(User *a, User *b) {
+                return [a.login localizedStandardCompare:b.login];
+            }];
+        }
+        return _allAssignees;
+    }
 }
 
 - (User *)userWithIdentifier:(NSNumber *)identifier {
