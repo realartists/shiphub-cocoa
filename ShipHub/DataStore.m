@@ -848,12 +848,10 @@ static NSString *const LastUpdated = @"LastUpdated";
                     }
                     
                     NSArray *relatedIDs = nil;
-                    NSDictionary *relatedLookup = nil;
                     if ([[related firstObject] isKindOfClass:[NSDictionary class]]) {
                         relatedIDs = [related arrayByMappingObjects:^id(NSDictionary *x) {
                             return x[@"identifier"];
                         }];
-                        relatedLookup = [NSDictionary lookupWithObjects:related keyPath:@"identifier"];
                     } else {
                         relatedIDs = related;
                     }
