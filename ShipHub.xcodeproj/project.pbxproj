@@ -252,6 +252,7 @@
 		1AF5673C1D627C2E00611DBB /* OAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF5673A1D627C2E00611DBB /* OAuthController.m */; };
 		1AF5673D1D627C2E00611DBB /* OAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF5673B1D627C2E00611DBB /* OAuthController.xib */; };
 		1AF567401D62831900611DBB /* HelloController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF5673F1D62831900611DBB /* HelloController.m */; };
+		1AF567431D6393FB00611DBB /* ABTesting.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF567421D6393FB00611DBB /* ABTesting.m */; };
 		1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22011CA6053B00B51CF6 /* IssueEvent.m */; };
 		1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
 		1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
@@ -695,6 +696,8 @@
 		1AF5673B1D627C2E00611DBB /* OAuthController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OAuthController.xib; sourceTree = "<group>"; };
 		1AF5673E1D62831900611DBB /* HelloController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelloController.h; sourceTree = "<group>"; };
 		1AF5673F1D62831900611DBB /* HelloController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelloController.m; sourceTree = "<group>"; };
+		1AF567411D6393FB00611DBB /* ABTesting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ABTesting.h; sourceTree = "<group>"; };
+		1AF567421D6393FB00611DBB /* ABTesting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ABTesting.m; sourceTree = "<group>"; };
 		1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
 		1AFE21F01CA5EC3F00B51CF6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		1AFE21F21CA5EC3F00B51CF6 /* emojify.js */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.javascript; path = emojify.js; sourceTree = "<group>"; tabWidth = 2; };
@@ -961,6 +964,8 @@
 				1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */,
 				1A83679D1D5542ED0019C609 /* SemiMixedButton.h */,
 				1A83679E1D5542ED0019C609 /* SemiMixedButton.m */,
+				1AF567411D6393FB00611DBB /* ABTesting.h */,
+				1AF567421D6393FB00611DBB /* ABTesting.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -1643,6 +1648,7 @@
 				1AF5672C1D62427100611DBB /* WelcomeController.m in Sources */,
 				1AE09C121C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */,
 				1A012E7D1D3EAC0E006CE5DF /* SearchEditorViewController.m in Sources */,
+				1AF567431D6393FB00611DBB /* ABTesting.m in Sources */,
 				1AE09BFE1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
 				1A012ECD1D46DD4B006CE5DF /* ServerChooser.m in Sources */,
 				1A694AF21CA09E9800F73608 /* Milestone.m in Sources */,

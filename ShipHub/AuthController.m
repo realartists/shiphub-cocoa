@@ -10,6 +10,7 @@
 
 #import "NavigationController.h"
 #import "WelcomeController.h"
+#import "OAuthController.h"
 
 #import "Auth.h"
 #import "Extras.h"
@@ -77,6 +78,19 @@
     
     [_nav pushViewController:vc animated:NO];
     [super showWindow:nil];
+}
+
+- (void)continueWithLaunchURL:(NSURL *)URL {
+    if (!_nav) {
+        [self start];
+    }
+    
+    NSURLComponents *comps = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
+    NSString *code = comps.queryItemsDictionary[@"code"];
+    OAuthController *oauth = [[OAuthController alloc] initWithAuthCode:code];
+    WelcomeController *welcome = [_nav.viewControllers firstObject];
+    oauth.shipHost = welcome.shipHost;
+    [self continueWithViewController:oauth];
 }
 
 - (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect {

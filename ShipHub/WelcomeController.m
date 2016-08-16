@@ -17,9 +17,6 @@
 
 @interface WelcomeController () <ServerChooserDelegate, NSPopoverDelegate>
 
-@property (copy) NSString *shipHost;
-@property (copy) NSString *ghHost;
-
 @property IBOutlet NSButton *infoButton;
 @property IBOutlet NSButton *serverButton;
 

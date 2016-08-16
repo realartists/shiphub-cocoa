@@ -8,6 +8,8 @@
 
 #import "WebAuthController.h"
 
+#import "ABTesting.h"
+#import "Auth.h"
 #import "AuthController.h"
 #import "Extras.h"
 #import "NavigationController.h"
@@ -126,7 +128,7 @@
 - (BOOL)handleCodeURL:(NSURL *)URL {
     NSURLComponents *comps = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
     if ([@[@"realartists.com", @"beta.realartists.com"] containsObject:comps.host]) {
-        if ([[comps path] isEqualToString:@"/signup/"]) {
+        if ([[comps path] isEqualToString:@"/signup/index.html"]) {
             NSString *code = [comps queryItemsDictionary][@"code"];
             if ([code length]) {
                 [self processAuthCode:code];
@@ -194,6 +196,13 @@
 }
 
 - (void)show {
+    BOOL useBrowser = [[Auth allLogins] count] == 0 && [[ABTesting sharedTesting] usesBrowserBasedOAuth];
+    
+    if (useBrowser) {
+        [[NSWorkspace sharedWorkspace] openURL:[self startURL]];
+        return;
+    }
+    
     CFRetain((__bridge CFTypeRef)self);
     
     [_authController.window close];

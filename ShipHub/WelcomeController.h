@@ -10,4 +10,7 @@
 
 @interface WelcomeController : NSViewController
 
+@property (copy) NSString *shipHost;
+@property (copy) NSString *ghHost;
+
 @end

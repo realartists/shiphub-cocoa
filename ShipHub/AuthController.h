@@ -20,6 +20,8 @@
 
 - (void)continueWithViewController:(NSViewController *)vc;
 
+- (void)continueWithLaunchURL:(NSURL *)URL;
+
 @end
 
 @protocol AuthControllerDelegate <NSObject>
