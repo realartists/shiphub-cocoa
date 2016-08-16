@@ -262,6 +262,14 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     }
     _nextNodeToSelect = nil;
     
+    CGRect lastVisibleRect = [[_outlineView enclosingScrollView] documentVisibleRect];
+    CGRect lastSelectedRect = CGRectZero;
+    NSInteger lastSelectedRow = _outlineView.selectedRow;
+    
+    if (lastSelectedRow != -1) {
+        lastSelectedRect = [_outlineView frameOfOutlineCellAtRow:_outlineView.selectedRow];
+    }
+    
     NSMutableDictionary *oldCounts = nil;
     if (_outlineRoots) {
         oldCounts = [NSMutableDictionary dictionary];
@@ -459,6 +467,14 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     
     if (savedIdentifier) {
         [self selectItemsMatchingPredicate:[NSPredicate predicateWithFormat:@"identifier = %@", savedIdentifier]];
+    }
+    
+    if (savedIdentifier && lastSelectedRow != -1) {
+        CGRect newRect = [_outlineView frameOfOutlineCellAtRow:_outlineView.selectedRow];
+        CGRect documentRect = lastVisibleRect;
+        documentRect.origin.y -= newRect.origin.y - lastSelectedRect.origin.y;
+        documentRect = CGRectIntersection(_outlineView.frame, documentRect);
+        [_outlineView scrollRectToVisible:documentRect];
     }
     
     [self updateCounts:nil];
