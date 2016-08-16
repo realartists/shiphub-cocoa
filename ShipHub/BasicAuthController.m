@@ -29,7 +29,7 @@
 
 @end
 
-@interface BasicAuthController () <NSTextFieldDelegate, ServerChooserDelegate, NSPopoverDelegate>
+@interface BasicAuthController () <NSTextFieldDelegate>
 
 @property IBOutlet NSTextField *signInLabel;
 
@@ -41,15 +41,6 @@
 
 @property IBOutlet NSProgressIndicator *progress;
 @property IBOutlet NSButton *goButton;
-
-@property IBOutlet NSButton *infoButton;
-
-@property IBOutlet NSButton *serverButton;
-
-@property NSPopover *popover;
-
-@property NSString *shipHost;
-@property NSString *ghHost;
 
 @end
 
@@ -78,9 +69,6 @@
         [shipString addAttribute:NSParagraphStyleAttributeName value:para range:NSMakeRange(0, shipString.length)];
         
         self.navigationItem.attributedTitle = shipString;
-        
-        _shipHost = DefaultShipHost();
-        _ghHost = DefaultGHHost();
     }
     return self;
 }
@@ -104,11 +92,6 @@
     _box.wantsLayer = YES;
     _box.layer.backgroundColor = [[[NSColor blackColor] colorWithAlphaComponent:0.2] CGColor];
     _box.layer.cornerRadius = 8.0;
-    
-    NSMutableAttributedString *str = [_infoButton.attributedTitle mutableCopy];
-    [str addAttribute:NSForegroundColorAttributeName value:[NSColor whiteColor] range:NSMakeRange(0, str.length)];
-    
-    _infoButton.attributedTitle = str;
     
     _progress.hidden = YES;
 }
@@ -136,13 +119,83 @@
     }];
 }
 
-
-- (NSString *)clientID {
-    return @"da1cde7cfd134d837ae6";
+- (void)addAuthToRequest:(NSMutableURLRequest *)request {
+    dispatch_assert_current_queue(dispatch_get_main_queue());
+    
+    NSString *authStr = [NSString stringWithFormat:@"%@:%@", _username.stringValue, _password.stringValue];
+    NSData *authData = [authStr dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *auth64 = [authData base64EncodedStringWithOptions:0];
+    
+    [request setValue:[NSString stringWithFormat:@"Basic %@", auth64] forHTTPHeaderField:@"Authorization"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
 }
 
-- (NSString *)clientSecret {
-    return @"3aeb9af555d7d2285120b133304c34e5a8058078";
+- (void)deleteExistingTokenWithID:(NSNumber *)tokenID {
+    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/authorizations/%@", [self ghHost], tokenID]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+    request.HTTPMethod = @"DELETE";
+    [self addAuthToRequest:request];
+    
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        NSHTTPURLResponse *http = (NSHTTPURLResponse *)response;
+        DebugLog(@"%@", http);
+        if (data) {
+            DebugLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+        }
+        
+        if (http.statusCode == 204) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self go:nil];
+            });
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self presentError:error?:[NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse]];
+            });
+        }
+    }] resume];
+}
+
+- (void)deleteExistingToken:(NSDictionary *)requestBody {
+    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/authorizations", [self ghHost]]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+    request.HTTPMethod = @"GET";
+    request.cachePolicy = NSURLRequestReloadIgnoringCacheData;
+    [self addAuthToRequest:request];
+    
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        NSError *err = nil;
+        NSHTTPURLResponse *http = (NSHTTPURLResponse *)response;
+        DebugLog(@"%@", http);
+        if (data) {
+            DebugLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+        }
+        
+        if (http.statusCode == 200 || http.statusCode == 201) {
+            NSError *decodeErr = nil;
+            NSArray *reply = [NSJSONSerialization JSONObjectWithData:data options:0 error:&decodeErr];
+            if (decodeErr == nil && ![reply isKindOfClass:[NSArray class]]) {
+                decodeErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+            }
+            if (!decodeErr) {
+                NSDictionary *existing = [[reply filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"note = %@", requestBody[@"note"]]] firstObject];
+                if (existing) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self deleteExistingTokenWithID:existing[@"id"]];
+                    });
+                    return;
+                }
+            }
+            err = decodeErr;
+        }
+        
+        if (err) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self presentError:err];
+            });
+        }
+    }] resume];
 }
 
 - (IBAction)go:(id)sender {
@@ -160,33 +213,25 @@
     _username.enabled = NO;
     _password.enabled = NO;
     _goButton.hidden = YES;
-    _serverButton.hidden = YES;
     _progress.hidden = NO;
     [_progress startAnimation:nil];
     
     // Authenticate with GitHub
     
-    // use a unique fingerprint since if we're here, we aren't aware of any tokens and therefore we need a new one.
-    NSString *fingerprint = [[[NSUUID UUID] UUIDString] stringByReplacingOccurrencesOfString:@"-" withString:@""];
-    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/authorizations/clients/%@", [self ghHost], [self clientID]]];
+    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/authorizations", [self ghHost]]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-    request.HTTPMethod = @"PUT";
-
-    NSString *authStr = [NSString stringWithFormat:@"%@:%@", _username.stringValue, _password.stringValue];
-    NSData *authData = [authStr dataUsingEncoding:NSUTF8StringEncoding];
-    NSString *auth64 = [authData base64EncodedStringWithOptions:0];
-    
-    [request setValue:[NSString stringWithFormat:@"Basic %@", auth64] forHTTPHeaderField:@"Authorization"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    request.HTTPMethod = @"POST";
+    [self addAuthToRequest:request];
     
     if (_oneTimeCode.stringValue.length > 0) {
         [request setValue:[_oneTimeCode.stringValue trim] forHTTPHeaderField:@"X-GitHub-OTP"];
     }
     
+    NSString *note = [NSString stringWithFormat:@"Ship (%@)", [[NSProcessInfo processInfo] hostName]];
+    NSString *noteURL = @"https://www.realartists.com";
     NSDictionary *bodyDict = @{ @"scopes": [@"user:email,repo,admin:repo_hook,read:org,admin:org_hook" componentsSeparatedByString:@","],
-                                @"client_id": [self clientID],
-                                @"client_secret": [self clientSecret],
-                                @"fingerprint": fingerprint };
+                                @"note": note,
+                                @"note_url" : noteURL };
     
     request.HTTPBody = [NSJSONSerialization dataWithJSONObject:bodyDict options:0 error:NULL];
     
@@ -227,6 +272,10 @@
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self presentError:[NSError shipErrorWithCode:ShipErrorCodeInvalidPassword]];
             });
+        } else if (http.statusCode == 422) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self deleteExistingToken:bodyDict];
+            });
         } else {
             if (!error) {
                 error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
@@ -239,134 +288,7 @@
     }] resume];
 }
 
-- (void)sayHello:(NSString *)oauthToken {
-    // callable from any queue, so we're not necessarily on the main queue here.
-    
-    if ([_shipHost isEqualToString:_ghHost]) {
-        [self sayHelloLocal:oauthToken];
-        return;
-    }
-    
-    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/api/authentication/login",
-                  [self shipHost]]];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-    
-    NSDictionary *body = @{ @"accessToken" : oauthToken,
-                            @"applicationId" : [self clientID],
-                            @"clientName" : [[NSBundle mainBundle] bundleIdentifier] };
-    
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-    
-    request.HTTPMethod = @"POST";
-    request.HTTPBody = [NSJSONSerialization dataWithJSONObject:body options:0 error:NULL];
-    
-    DebugLog(@"%@", request);
-    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        
-        NSHTTPURLResponse *http = (NSHTTPURLResponse *)response;
-        DebugLog(@"%@", http);
-        if (data) {
-            DebugLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-        }
-        
-        if (http.statusCode == 200 || http.statusCode == 201) {
-            NSError *decodeErr = nil;
-            NSDictionary *reply = [NSJSONSerialization JSONObjectWithData:data options:0 error:&decodeErr];
-            if (decodeErr == nil && ![reply isKindOfClass:[NSDictionary class]]) {
-                decodeErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
-            }
-            
-            NSDictionary *userDict = nil;
-            if (!decodeErr) {
-                NSMutableDictionary *user = [reply mutableCopy];
-                user[@"ghIdentifier"] = user[@"id"];
-                user[@"identifier"] = user[@"id"];
-                userDict = user;
-            }
-            
-            if (!decodeErr && !userDict)
-            {
-                decodeErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
-            }
-            
-            if (decodeErr) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self presentError:decodeErr];
-                });
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self finishWithShipToken:oauthToken ghToken:oauthToken user:userDict billing:@{}];
-                });
-            }
-        } else {
-            if (!error) {
-                error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
-            }
-            ErrLog(@"%@", error);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self presentError:error];
-            });
-        }
-    }] resume];
-}
 
-- (void)sayHelloLocal:(NSString *)oauthToken {
-    NSURL *URL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/user",
-                                       [self ghHost]]];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-    
-    [request setValue:[NSString stringWithFormat:@"token %@", oauthToken] forHTTPHeaderField:@"Authorization"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-    
-    request.HTTPMethod = @"GET";
-    
-    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        
-        if (error) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self presentError:error];
-            });
-        } else {
-            NSMutableDictionary *user = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:NULL];
-            user[@"ghIdentifier"] = user[@"id"];
-            user[@"identifier"] = [NSString stringWithFormat:@"%@", user[@"id"]];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self finishWithShipToken:@"local" ghToken:oauthToken user:user billing:@{}];
-            });
-        }
-        
-    }] resume];
-}
-
-- (void)finishWithShipToken:(NSString *)shipToken ghToken:(NSString *)ghToken user:(NSDictionary *)user billing:(NSDictionary *)billing
-{
-    NSAssert([NSThread isMainThread], nil);
-    
-    [self resetUI];
-    
-    // FIXME: Do something with billing
-    
-    NSMutableDictionary *accountDict = [user mutableCopy];
-    accountDict[@"ghHost"] = [self ghHost];
-    accountDict[@"shipHost"] = [self shipHost];
-
-    AuthAccount *account = [[AuthAccount alloc] initWithDictionary:accountDict];
-    Auth *auth = [Auth authWithAccount:account shipToken:shipToken ghToken:ghToken];
-
-    [self finishWithAuth:auth];
-}
-
-- (void)finishWithAuth:(Auth *)auth {
-    AuthController *ac = (AuthController *)self.view.window.delegate;
-    [ac.delegate authController:ac authenticated:auth];
-}
-
-- (IBAction)moreInformation:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.realartists.com"]];
-}
 
 - (IBAction)submitUsername:(id)sender {
     [self.view.window makeFirstResponder:_password];
@@ -390,7 +312,7 @@
     }
 }
 
-- (BOOL)presentError:(NSError *)error {
+- (void)presentError:(NSError *)error {
     [_progress stopAnimation:nil];
     _progress.hidden = YES;
     NSAlert *alert = [[NSAlert alloc] init];
@@ -399,13 +321,11 @@
         [self resetUI];
         [self.view.window makeFirstResponder:_username];
     }];
-    return YES;
 }
 
 - (void)resetUI {
     _username.enabled = YES;
     _password.enabled = YES;
-    _serverButton.hidden = NO;
     _goButton.hidden = NO;
     [_progress stopAnimation:nil];
     _progress.hidden = YES;
@@ -415,34 +335,6 @@
     [self resetUI];
     [self.view.window makeFirstResponder:_oneTimeCode];
     [self flashField:_oneTimeCode];
-}
-
-- (IBAction)showServerChooser:(id)sender {
-    ServerChooser *chooser = [ServerChooser new];
-    chooser.delegate = self;
-    chooser.ghHostValue = _ghHost;
-    chooser.shipHostValue = _shipHost;
-    
-    _popover = [[NSPopover alloc] init];
-    _popover.delegate = self;
-    _popover.behavior = NSPopoverBehaviorTransient;
-    _popover.contentViewController = chooser;
-    _popover.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
-    
-    [_popover showRelativeToRect:_serverButton.bounds ofView:_serverButton preferredEdge:NSMaxYEdge];
-}
-
-- (void)serverChooser:(ServerChooser *)chooser didChooseShipHost:(NSString *)shipHost ghHost:(NSString *)ghHost {
-    _shipHost = shipHost;
-    _ghHost = ghHost;
-    
-    [_popover performClose:nil];
-    _popover = nil;
-}
-
-- (void)serverChooserDidCancel:(ServerChooser *)chooser {
-    [_popover performClose:nil];
-    _popover = nil;
 }
 
 @end

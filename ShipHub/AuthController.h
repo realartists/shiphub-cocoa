@@ -9,11 +9,16 @@
 #import <Cocoa/Cocoa.h>
 
 @class Auth;
+@class NavigationController;
 @protocol AuthControllerDelegate;
 
 @interface AuthController : NSWindowController
 
++ (AuthController *)authControllerForViewController:(NSViewController *)vc;
+
 @property (weak) id<AuthControllerDelegate> delegate;
+
+- (void)continueWithViewController:(NSViewController *)vc;
 
 @end
 

@@ -8,17 +8,9 @@
 
 #import <Cocoa/Cocoa.h>
 
-@protocol BasicAuthControllerDelegate;
+#import "HelloController.h"
 
-@interface BasicAuthController : NSViewController
-
-@property (weak) id<BasicAuthControllerDelegate> delegate;
-
-@end
-
-@protocol BasicAuthControllerDelegate <NSObject>
-
-- (void)basicAuthController:(BasicAuthController *)c didAuthenticate:(NSDictionary *)authInfo;
+@interface BasicAuthController : HelloController
 
 @end
 

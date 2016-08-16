@@ -9,7 +9,7 @@
 #import "AuthController.h"
 
 #import "NavigationController.h"
-#import "BasicAuthController.h"
+#import "WelcomeController.h"
 
 #import "Auth.h"
 #import "Extras.h"
@@ -52,6 +52,10 @@
     [[self window] setHasShadow:YES];
 }
 
++ (AuthController *)authControllerForViewController:(NSViewController *)vc {
+    return (AuthController *)vc.view.window.delegate;
+}
+
 - (IBAction)showWindow:(id)sender {
     [self window];
     [self start];
@@ -60,10 +64,19 @@
 }
 
 - (void)start {
-    BasicAuthController *basic = [BasicAuthController new];
-    _nav = [[NavigationController alloc] initWithRootViewController:basic];
+    WelcomeController *welcome = [WelcomeController new];
+    _nav = [[NavigationController alloc] initWithRootViewController:welcome];
     
     [_container setContentView:_nav.view];
+}
+
+- (void)continueWithViewController:(NSViewController *)vc {
+    if (!_nav) {
+        [self start];
+    }
+    
+    [_nav pushViewController:vc animated:NO];
+    [super showWindow:nil];
 }
 
 - (NSRect)window:(NSWindow *)window willPositionSheet:(NSWindow *)sheet usingRect:(NSRect)rect {

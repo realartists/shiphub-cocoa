@@ -352,3 +352,10 @@ void RunOnMain(dispatch_block_t);
 - (BOOL)isSuccessStatusCode;
 
 @end
+
+@interface NSURLComponents (Extras)
+
+- (void)setQueryItemsFromDictionary:(NSDictionary *)dictionary;
+- (NSDictionary *)queryItemsDictionary;
+
+@end

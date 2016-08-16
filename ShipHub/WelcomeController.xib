@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="WelcomeController">
+            <connections>
+                <outlet property="infoButton" destination="zbj-Qc-tSl" id="KFc-aH-JF2"/>
+                <outlet property="serverButton" destination="xQJ-Sp-ffQ" id="1lg-Oa-P3h"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView wantsLayer="YES" id="Hz6-mo-xeY">
+            <rect key="frame" x="0.0" y="0.0" width="520" height="380"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zbj-Qc-tSl">
+                    <rect key="frame" x="209" y="20" width="103" height="14"/>
+                    <contentFilters>
+                        <ciFilter name="CIColorControls">
+                            <configuration>
+                                <real key="inputBrightness" value="1"/>
+                                <real key="inputContrast" value="1"/>
+                                <null key="inputImage"/>
+                                <real key="inputSaturation" value="1"/>
+                            </configuration>
+                        </ciFilter>
+                    </contentFilters>
+                    <buttonCell key="cell" type="inline" title="More Information" bezelStyle="inline" alignment="center" inset="2" id="IgE-ii-m5A">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystemBold"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="moreInformation:" target="-2" id="QmY-sI-iQW"/>
+                    </connections>
+                </button>
+                <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xQJ-Sp-ffQ">
+                    <rect key="frame" x="210" y="186" width="102" height="14"/>
+                    <contentFilters>
+                        <ciFilter name="CIColorControls">
+                            <configuration>
+                                <real key="inputBrightness" value="1"/>
+                                <real key="inputContrast" value="1"/>
+                                <null key="inputImage"/>
+                                <real key="inputSaturation" value="1"/>
+                            </configuration>
+                        </ciFilter>
+                    </contentFilters>
+                    <buttonCell key="cell" type="inline" title="Choose Server …" bezelStyle="inline" alignment="center" inset="2" id="blx-mT-GuK">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="showServerChooser:" target="-2" id="uKQ-Mp-WaU"/>
+                    </connections>
+                </button>
+                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Geu-t9-Q9i">
+                    <rect key="frame" x="166" y="205" width="189" height="37"/>
+                    <buttonCell key="cell" type="bevel" title="Sign in with GitHub" bezelStyle="regularSquare" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="L3Y-An-Y3Y">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="systemBold" size="14"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="start:" target="-2" id="o96-qv-pjv"/>
+                    </connections>
+                </button>
+            </subviews>
+            <point key="canvasLocation" x="438" y="387"/>
+        </customView>
+    </objects>
+</document>

@@ -245,6 +245,13 @@
 		1AF349891CDAC4AC00A5BEB0 /* index.html in Copy Chart Web Content */ = {isa = PBXBuildFile; fileRef = 1AF3497F1CDAC25900A5BEB0 /* index.html */; };
 		1AF3498A1CDAC4AC00A5BEB0 /* nv.d3.min.css in Copy Chart Web Content */ = {isa = PBXBuildFile; fileRef = 1AF349801CDAC25900A5BEB0 /* nv.d3.min.css */; };
 		1AF3498B1CDAC4AC00A5BEB0 /* nv.d3.min.js in Copy Chart Web Content */ = {isa = PBXBuildFile; fileRef = 1AF349811CDAC25900A5BEB0 /* nv.d3.min.js */; };
+		1AF5672C1D62427100611DBB /* WelcomeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF5672A1D62427100611DBB /* WelcomeController.m */; };
+		1AF5672D1D62427100611DBB /* WelcomeController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF5672B1D62427100611DBB /* WelcomeController.xib */; };
+		1AF567341D62487200611DBB /* WebAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF567321D62487200611DBB /* WebAuthController.m */; };
+		1AF567381D625E2300611DBB /* WebAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF567371D625E2300611DBB /* WebAuthController.xib */; };
+		1AF5673C1D627C2E00611DBB /* OAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF5673A1D627C2E00611DBB /* OAuthController.m */; };
+		1AF5673D1D627C2E00611DBB /* OAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF5673B1D627C2E00611DBB /* OAuthController.xib */; };
+		1AF567401D62831900611DBB /* HelloController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF5673F1D62831900611DBB /* HelloController.m */; };
 		1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22011CA6053B00B51CF6 /* IssueEvent.m */; };
 		1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
 		1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
@@ -677,6 +684,17 @@
 		1AF3497F1CDAC25900A5BEB0 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		1AF349801CDAC25900A5BEB0 /* nv.d3.min.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = nv.d3.min.css; sourceTree = "<group>"; };
 		1AF349811CDAC25900A5BEB0 /* nv.d3.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = nv.d3.min.js; sourceTree = "<group>"; };
+		1AF567291D62427100611DBB /* WelcomeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WelcomeController.h; sourceTree = "<group>"; };
+		1AF5672A1D62427100611DBB /* WelcomeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeController.m; sourceTree = "<group>"; };
+		1AF5672B1D62427100611DBB /* WelcomeController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WelcomeController.xib; sourceTree = "<group>"; };
+		1AF567311D62487200611DBB /* WebAuthController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebAuthController.h; sourceTree = "<group>"; };
+		1AF567321D62487200611DBB /* WebAuthController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebAuthController.m; sourceTree = "<group>"; };
+		1AF567371D625E2300611DBB /* WebAuthController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WebAuthController.xib; sourceTree = "<group>"; };
+		1AF567391D627C2E00611DBB /* OAuthController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OAuthController.h; sourceTree = "<group>"; };
+		1AF5673A1D627C2E00611DBB /* OAuthController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OAuthController.m; sourceTree = "<group>"; };
+		1AF5673B1D627C2E00611DBB /* OAuthController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OAuthController.xib; sourceTree = "<group>"; };
+		1AF5673E1D62831900611DBB /* HelloController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HelloController.h; sourceTree = "<group>"; };
+		1AF5673F1D62831900611DBB /* HelloController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelloController.m; sourceTree = "<group>"; };
 		1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
 		1AFE21F01CA5EC3F00B51CF6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		1AFE21F21CA5EC3F00B51CF6 /* emojify.js */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.javascript; path = emojify.js; sourceTree = "<group>"; tabWidth = 2; };
@@ -875,12 +893,23 @@
 				1A2305DE1C7FC2940034C871 /* AuthController.h */,
 				1A2305DF1C7FC2940034C871 /* AuthController.m */,
 				1A2305E01C7FC2940034C871 /* AuthController.xib */,
+				1AF5673E1D62831900611DBB /* HelloController.h */,
+				1AF5673F1D62831900611DBB /* HelloController.m */,
 				1A7A414E1C8E52D70043DAF0 /* BasicAuthController.h */,
 				1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */,
 				1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */,
+				1AF567291D62427100611DBB /* WelcomeController.h */,
+				1AF5672A1D62427100611DBB /* WelcomeController.m */,
+				1AF5672B1D62427100611DBB /* WelcomeController.xib */,
 				1A012ECA1D46DD4B006CE5DF /* ServerChooser.h */,
 				1A012ECB1D46DD4B006CE5DF /* ServerChooser.m */,
 				1A012ECC1D46DD4B006CE5DF /* ServerChooser.xib */,
+				1AF567311D62487200611DBB /* WebAuthController.h */,
+				1AF567321D62487200611DBB /* WebAuthController.m */,
+				1AF567371D625E2300611DBB /* WebAuthController.xib */,
+				1AF567391D627C2E00611DBB /* OAuthController.h */,
+				1AF5673A1D627C2E00611DBB /* OAuthController.m */,
+				1AF5673B1D627C2E00611DBB /* OAuthController.xib */,
 			);
 			name = Auth;
 			sourceTree = "<group>";
@@ -1453,9 +1482,12 @@
 			files = (
 				1A7FD77A1D493B0400B585E2 /* ProgressSheet.xib in Resources */,
 				1A20CFC61D5152C800F412DE /* assignees-picker.js in Resources */,
+				1AF5673D1D627C2E00611DBB /* OAuthController.xib in Resources */,
+				1AF5672D1D62427100611DBB /* WelcomeController.xib in Resources */,
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
 				1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */,
+				1AF567381D625E2300611DBB /* WebAuthController.xib in Resources */,
 				1A012E7E1D3EAC0E006CE5DF /* SearchEditorViewController.xib in Resources */,
 				1AD956B41D0B5654002B1259 /* DownloadBarViewController.xib in Resources */,
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
@@ -1578,6 +1610,7 @@
 				1A694AEE1CA09E8000F73608 /* Org.m in Sources */,
 				1A51085F1D317AB400905D4D /* LocalNotification.m in Sources */,
 				1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */,
+				1AF567401D62831900611DBB /* HelloController.m in Sources */,
 				1AE09C0C1C97687E00C5AC35 /* LocalLabel.m in Sources */,
 				1A012E7C1D3EAC0E006CE5DF /* SearchEditor.m in Sources */,
 				1A694B311CA342D500F73608 /* SearchResultsController.m in Sources */,
@@ -1595,6 +1628,7 @@
 				1A7FD7881D49856600B585E2 /* StateModifyController.m in Sources */,
 				1A694B111CA3413700F73608 /* ResultsViewModeItem.m in Sources */,
 				1A2217D81C7E981D006460E2 /* Keychain.m in Sources */,
+				1AF5673C1D627C2E00611DBB /* OAuthController.m in Sources */,
 				1AB503E91D2471EF0097875C /* NSFileWrapper+ImageExtras.m in Sources */,
 				1A20CFF31D52A3E800F412DE /* LocalReaction+CoreDataProperties.m in Sources */,
 				1A694AFB1CA0A96500F73608 /* Account.m in Sources */,
@@ -1606,6 +1640,7 @@
 				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
 				1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */,
 				1AE09C021C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,
+				1AF5672C1D62427100611DBB /* WelcomeController.m in Sources */,
 				1AE09C121C97687E00C5AC35 /* LocalComment+CoreDataProperties.m in Sources */,
 				1A012E7D1D3EAC0E006CE5DF /* SearchEditorViewController.m in Sources */,
 				1AE09BFE1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
@@ -1617,6 +1652,7 @@
 				1A5604E11CD7FFC100ACF0DF /* AttachmentManager.m in Sources */,
 				1A012E971D3EAC8E006CE5DF /* CompletingTextField.m in Sources */,
 				1AE09C141C97687E00C5AC35 /* LocalComment.m in Sources */,
+				1AF567341D62487200611DBB /* WebAuthController.m in Sources */,
 				1A012E931D3EAC47006CE5DF /* PopUpMetadataRowTemplate.m in Sources */,
 				1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */,
 				1AE09C0E1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */,

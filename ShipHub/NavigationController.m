@@ -51,6 +51,24 @@
     [self childDidAppear:root animated:NO];
 }
 
+- (BOOL)isTitleFieldIsChangingFrom:(NSViewController *)oldVC to:(NSViewController *)newVC
+{
+    if (!oldVC) return YES;
+    if (oldVC && !newVC) return YES;
+    if (!oldVC && !newVC) return YES;
+    
+    NSString *title1 = oldVC.title ?: @"";
+    NSAttributedString *attributedTitle1 = oldVC.navigationItem.attributedTitle;
+    
+    NSString *title2 = newVC.title ?: @"";
+    NSAttributedString *attributedTitle2 = newVC.navigationItem.attributedTitle;
+    
+    if (attributedTitle1 && !attributedTitle2) return YES;
+    if (!attributedTitle1 && attributedTitle2) return YES;
+    if (attributedTitle1 && attributedTitle2) return ![attributedTitle1 isEqual:attributedTitle2];
+    return ![title1 isEqual:title2];
+}
+
 - (void)updateTitleField:(NSViewController *)vc {
     NSString *title = vc.title;
     NSAttributedString *attributedTitle = vc.navigationItem.attributedTitle;
@@ -93,6 +111,8 @@ static NSTimeInterval duration() {
     NSView *newView = vc.view;
     NSView *oldView = oldVC.view;
     
+    BOOL titleChanging = [self isTitleFieldIsChangingFrom:oldVC to:vc];
+    
     [self childWillAppear:vc animated:animate];
     [self childWillDisappear:oldVC animated:animate];
 
@@ -125,7 +145,7 @@ static NSTimeInterval duration() {
                 [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
                     [context setDuration:animate?d/2.0:0.0];
                     
-                    _titleField.animator.alphaValue = 0.0;
+                    _titleField.animator.alphaValue = titleChanging?0.0:1.0;
                 } completionHandler:^{
                     
                     [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
@@ -180,6 +200,8 @@ static NSTimeInterval duration() {
     NSView *newView = newVC.view;
     NSView *oldView = oldVC.view;
     
+    BOOL titleChanging = [self isTitleFieldIsChangingFrom:oldVC to:newVC];
+    
     [self childWillAppear:newVC animated:animate];
     [self childWillDisappear:oldVC animated:animate];
     
@@ -213,7 +235,7 @@ static NSTimeInterval duration() {
             [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
                 [context setDuration:animate?d/2.0:0.0];
                 
-                _titleField.animator.alphaValue = 0.0;
+                _titleField.animator.alphaValue = titleChanging?0.0:1.0;
             } completionHandler:^{
                 
                 [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
@@ -259,6 +281,8 @@ static NSTimeInterval duration() {
     NSView *newView = newVC.view;
     NSView *oldView = oldVC.view;
     
+    BOOL titleChanging = [self isTitleFieldIsChangingFrom:oldVC to:newVC];
+    
     [self childWillAppear:newVC animated:animate];
     [self childWillDisappear:oldVC animated:animate];
     
@@ -299,7 +323,7 @@ static NSTimeInterval duration() {
             [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
                 [context setDuration:animate?d/2.0:0.0];
                 
-                _titleField.animator.alphaValue = 0.0;
+                _titleField.animator.alphaValue = titleChanging?0.0:1.0;
             } completionHandler:^{
                 
                 [NSAnimationContext runAnimationGroup:^(NSAnimationContext *context) {
