@@ -38,6 +38,12 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 
 static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 
+@interface IssueWebView : WebView
+
+@property (copy) NSString *dragPasteboardName;
+
+@end
+
 @interface IssueViewController () <WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate> {
     NSMutableDictionary *_saveCompletions;
     NSTimer *_needsSaveTimer;
@@ -56,7 +62,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 // Why legacy WebView?
 // Because WKWebView doesn't support everything we need :(
 // See https://bugs.webkit.org/show_bug.cgi?id=137759
-@property WebView *web;
+@property IssueWebView *web;
 
 @property DownloadBarViewController *downloadBar;
 @property MultiDownloadProgress *downloadProgress;
@@ -81,7 +87,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     NSView *container = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewDidChangeFrame:) name:NSViewFrameDidChangeNotification object:container];
     
-    _web = [[WebView alloc] initWithFrame:container.bounds frameName:nil groupName:nil];
+    _web = [[IssueWebView alloc] initWithFrame:container.bounds frameName:nil groupName:nil];
     _web.continuousSpellCheckingEnabled = YES;
     _web.drawsBackground = NO;
     _web.UIDelegate = self;
@@ -746,7 +752,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     
     NSPasteboard *pasteboard = nil;
     if ([pasteboardName isEqualToString:@"dragging"]) {
-        pasteboard = [NSPasteboard pasteboardWithName:NSDragPboard];
+        pasteboard = [NSPasteboard pasteboardWithName:_web.dragPasteboardName?:NSDragPboard];
     } else {
         pasteboard = [NSPasteboard generalPasteboard];
     }
@@ -1137,6 +1143,15 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 
 - (IBAction)mdOutdent:(id)sender {
     [self applyFormat:@"indentLess"];
+}
+
+@end
+
+@implementation IssueWebView
+
+- (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
+    self.dragPasteboardName = [[sender draggingPasteboard] name];
+    return [super performDragOperation:sender];
 }
 
 @end
