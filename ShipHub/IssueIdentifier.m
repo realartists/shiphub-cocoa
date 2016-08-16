@@ -157,7 +157,7 @@
 }
 
 + (void)copyIssueIdentifiers:(NSArray<NSString *> *)identifiers toPasteboard:(NSPasteboard *)pboard {
-    if ([identifiers count] == 0) {
+    if ([identifiers count] == 1) {
         [[identifiers firstObject] copyIssueIdentifierToPasteboard:pboard];
         return;
     }
