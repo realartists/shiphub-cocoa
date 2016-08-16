@@ -92,6 +92,7 @@
         <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="notification" inverseEntity="LocalIssue" syncable="YES"/>
     </entity>
     <entity name="LocalOrg" representedClassName="LocalOrg" parentEntity="LocalAccount" syncable="YES">
+        <attribute name="shipNeedsWebhookHelp" optional="YES" attributeType="Boolean" syncable="YES"/>
         <relationship name="users" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="orgs" inverseEntity="LocalUser" syncable="YES"/>
         <userInfo>
             <entry key="jsonType" value="Organization"/>
@@ -123,6 +124,7 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="private" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="repoDescription" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="shipNeedsWebhookHelp" optional="YES" attributeType="Boolean" syncable="YES"/>
         <relationship name="assignees" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="assignable" inverseEntity="LocalUser" syncable="YES"/>
         <relationship name="issues" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalIssue" inverseName="repository" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="labels" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalLabel" inverseName="repo" inverseEntity="LocalLabel" syncable="YES"/>
@@ -153,11 +155,11 @@
         <element name="LocalLabel" positionX="0" positionY="0" width="128" height="105"/>
         <element name="LocalMilestone" positionX="0" positionY="0" width="128" height="210"/>
         <element name="LocalNotification" positionX="9" positionY="153" width="128" height="165"/>
-        <element name="LocalOrg" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="LocalOrg" positionX="0" positionY="0" width="128" height="75"/>
         <element name="LocalPriority" positionX="0" positionY="0" width="128" height="90"/>
         <element name="LocalQuery" positionX="9" positionY="153" width="128" height="105"/>
         <element name="LocalReaction" positionX="9" positionY="153" width="128" height="135"/>
-        <element name="LocalRepo" positionX="0" positionY="0" width="128" height="210"/>
+        <element name="LocalRepo" positionX="0" positionY="0" width="128" height="225"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
         <element name="LocalUser" positionX="0" positionY="0" width="128" height="210"/>
     </elements>

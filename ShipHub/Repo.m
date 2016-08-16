@@ -19,6 +19,7 @@
         _hidden = [lr.hidden boolValue];
         _name = lr.name;
         _private = [lr.private boolValue];
+        _shipNeedsWebhookHelp = [lr.shipNeedsWebhookHelp boolValue];
     }
     return self;
 }

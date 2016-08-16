@@ -12,4 +12,6 @@
 
 @interface Org : Account
 
+@property (readonly) BOOL shipNeedsWebhookHelp;
+
 @end

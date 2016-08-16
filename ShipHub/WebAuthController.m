@@ -106,7 +106,7 @@
     NSURLComponents *comps = [NSURLComponents componentsWithString:@"https://github.com/login/oauth/authorize"];
     NSDictionary *query = @{ @"client_id" : [self clientID],
                              @"scope" : [self scopes] };
-    [comps setQueryItemsFromDictionary:query];
+    [comps setQueryItemsDictionary:query];
     return comps.URL;
 }
 

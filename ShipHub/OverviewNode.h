@@ -51,6 +51,8 @@ typedef void (^OverviewNodeDropHandler)(NSArray<NSString *> *issueIdentifiers);
 @property BOOL showProgress;
 @property double progress;
 
+@property BOOL showWarning;
+
 @property (nonatomic, strong) NSString *path;
 
 @property (nonatomic, strong) NSString *toolTip;
@@ -58,6 +60,8 @@ typedef void (^OverviewNodeDropHandler)(NSArray<NSString *> *issueIdentifiers);
 @property (strong) NSImage *icon;
 
 @property (copy) OverviewNodeDropHandler dropHandler;
+
+@property NSString *cellIdentifier;
 
 @end
 

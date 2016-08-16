@@ -355,7 +355,6 @@ void RunOnMain(dispatch_block_t);
 
 @interface NSURLComponents (Extras)
 
-- (void)setQueryItemsFromDictionary:(NSDictionary *)dictionary;
-- (NSDictionary *)queryItemsDictionary;
+@property (nonatomic) NSDictionary *queryItemsDictionary;
 
 @end

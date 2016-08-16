@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *name;
 @property (nullable, nonatomic, retain) NSNumber *private;
 @property (nullable, nonatomic, retain) NSString *repoDescription;
+@property (nullable, nonatomic, retain) NSNumber *shipNeedsWebhookHelp;
 @property (nullable, nonatomic, retain) NSSet<LocalUser *> *assignees;
 @property (nullable, nonatomic, retain) NSSet<LocalIssue *> *issues;
 @property (nullable, nonatomic, retain) NSSet<LocalLabel *> *labels;

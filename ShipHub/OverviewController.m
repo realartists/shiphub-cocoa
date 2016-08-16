@@ -69,15 +69,26 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 @interface OverviewCellView : NSTableCellView
 
-@property IBOutlet NSButton *countButton;
-@property IBOutlet OverviewProgressIndicator *progressIndicator;
-@property IBOutlet Sparkline *sparkline;
+@end
 
-@property IBOutlet NSLayoutConstraint *sparklineWidth;
+@interface OverviewCountCellView : NSTableCellView
+
+@property IBOutlet NSButton *countButton;
 
 @end
 
-#define SPARKLINE_WIDTH 20.0
+@interface OverviewOwnerCellView : OverviewCellView
+
+@property IBOutlet NSButton *warningButton;
+@property IBOutlet NSLayoutConstraint *warningWidth;
+
+@end
+
+@interface OverviewMilestoneCellView : OverviewCellView
+
+@property IBOutlet OverviewProgressIndicator *progressIndicator;
+
+@end
 
 @interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate, NSTextFieldDelegate>
 
@@ -295,6 +306,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     _allProblemsNode = [OverviewNode new];
     _allProblemsNode.showCount = YES;
     _allProblemsNode.countOpenOnly = YES;
+    _allProblemsNode.cellIdentifier = @"CountCell";
     _allProblemsNode.identifier = @"AllProblems";
     _allProblemsNode.title = NSLocalizedString(@"All Issues", nil);
     _allProblemsNode.predicate = [NSPredicate predicateWithValue:YES];
@@ -303,6 +315,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     
     _upNextNode = [OverviewNode new];
     _upNextNode.showCount = YES;
+    _upNextNode.cellIdentifier = @"CountCell";
     _upNextNode.allowChart = NO;
     _upNextNode.title = NSLocalizedString(@"Up Next", nil);
     _upNextNode.predicate = [NSPredicate predicateWithFormat:@"closed = NO AND ANY upNext.user.identifier = %@", [[User me] identifier]];
@@ -315,6 +328,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     
     OverviewNode *notificationsNode = [OverviewNode new];
     notificationsNode.showCount = YES;
+    notificationsNode.cellIdentifier = @"CountCell";
     notificationsNode.allowChart = NO;
     notificationsNode.filterBarDefaultsToOpenState = NO;
     notificationsNode.icon = [NSImage overviewIconNamed:@"756-bell-selected"];
@@ -335,6 +349,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     NSImage *milestoneIcon = [NSImage overviewIconNamed:@"563-calendar"];
     for (NSString *milestone in [metadata mergedMilestoneNames]) {
         OverviewNode *node = [OverviewNode new];
+        node.cellIdentifier = @"MilestoneCell";
         node.representedObject = milestone;
         node.title = milestone;
         node.showProgress = YES;
@@ -350,6 +365,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     backlog.title = NSLocalizedString(@"Backlog", nil);
     backlog.predicate = [NSPredicate predicateWithFormat:@"milestone = nil AND closed = NO"];
     backlog.showCount = YES;
+    backlog.cellIdentifier = @"CountCell";
     backlog.icon = [NSImage overviewIconNamed:@"832-stack-1"];
     [milestonesRoot addChild:backlog];
     
@@ -370,6 +386,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             queryNode.menu = [self menuForCustomQuery:query];
             queryNode.titleEditable = YES;
             queryNode.showCount = YES;
+            queryNode.cellIdentifier = @"CountCell";
             queryNode.icon = queryIcon;
             [myQueriesRoot addChild:queryNode];
         }
@@ -384,8 +401,10 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     for (Account *repoOwner in [metadata repoOwners]) {
         
         OverviewNode *parent = reposNode;
+        OverviewNode *ownerNode = nil;
         if (multipleOwners) {
-            OverviewNode *ownerNode = [OverviewNode new];
+            ownerNode = [OverviewNode new];
+            ownerNode.cellIdentifier = @"OwnerCell";
             ownerNode.title = repoOwner.login;
             ownerNode.representedObject = repoOwner;
             ownerNode.predicate = [NSPredicate predicateWithFormat:@"repository.owner.login = %@", repoOwner.login];
@@ -397,6 +416,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         
         for (Repo *repo in [metadata reposForOwner:repoOwner]) {
             OverviewNode *repoNode = [OverviewNode new];
+            repoNode.cellIdentifier = @"CountCell";
             repoNode.representedObject = repo;
             repoNode.title = repo.name;
             repoNode.icon = [NSImage overviewIconNamed:@"710-folder"];
@@ -404,6 +424,18 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             repoNode.countOpenOnly = YES;
             repoNode.predicate = [NSPredicate predicateWithFormat:@"repository.identifier = %@", repo.identifier];
             [parent addChild:repoNode];
+            
+            if (repo.shipNeedsWebhookHelp) {
+                ownerNode.showWarning = YES;
+            }
+        }
+        
+        if (ownerNode.showWarning) {
+            NSString *warningHiddenKey = [NSString stringWithFormat:@"WebhookWarningHidden.%@", repoOwner.identifier];
+            BOOL warningHidden = [[NSUserDefaults standardUserDefaults] boolForKey:warningHiddenKey];
+            if (warningHidden) {
+                ownerNode.showWarning = NO;
+            }
         }
     }
     
@@ -487,7 +519,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
                 node.progress = progress;
                 NSInteger row = [_outlineView rowForItem:node];
                 if (row >= 0) {
-                    OverviewCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
+                    OverviewMilestoneCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
                     if (view) {
                         OverviewProgressIndicator *progressIndicator = view.progressIndicator;
                         if (progress < 0.0) {
@@ -514,7 +546,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
                 node.count = count;
                 NSInteger row = [_outlineView rowForItem:node];
                 if (row >= 0) {
-                    OverviewCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
+                    OverviewCountCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
                     if (view) {
                         NSButton *countButton = view.countButton;
                         if (count != NSNotFound) {
@@ -538,32 +570,6 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             [[DataStore activeStore] countIssuesMatchingPredicate:predicate completion:^(NSUInteger count, NSError *error) {
                 updateCount(count);
             }];
-    #if 0
-            if ([[NSUserDefaults standardUserDefaults] boolForKey:@"sparklines"]
-                && [[DataStore activeStore] predicateCanBeUsedForTimeSeries:node.predicate])
-            {
-                NSDate *end = [NSDate date];
-                NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
-                NSDate *start = [calendar dateByAddingUnit:NSCalendarUnitDay value:-5 toDate:end options:0];
-
-                [[DataStore activeStore] timeSeriesMatchingPredicate:node.predicate startDate:start endDate:end completion:^(TimeSeries *series) {
-                    [series generateIntervalsWithCalendarUnit:NSCalendarUnitDay];
-                    NSArray *values = [series.intervals arrayByMappingObjects:^id(id obj) {
-                        return @([[obj latestRecords] count]);
-                    }];
-                    node.sparkValues = values;
-                    NSInteger row = [_outlineView rowForItem:node];
-                    if (row >= 0) {
-                        OverviewCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
-                        if (view) {
-                            Sparkline *spark = view.sparkline;
-                            spark.values = values;
-                            view.sparklineWidth.constant = SPARKLINE_WIDTH;
-                        }
-                    }
-                }];
-            }
-    #endif
         } else if (node == _outboxNode) {
     #if !INCOMPLETE
             [[DataStore activeStore] outboxWithCompletion:^(NSArray *outbox) {
@@ -827,32 +833,38 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 {
     if ([item isKindOfClass:[OverviewNode class]]) {
         OverviewNode *node = item;
-        OverviewCellView *cell = [outlineView makeViewWithIdentifier:@"Label" owner:self];
-        NSButton *countButton = cell.countButton;
-        OverviewProgressIndicator *progress = cell.progressIndicator;
+        OverviewCellView *cell = [outlineView makeViewWithIdentifier:node.cellIdentifier owner:self];
         
-        progress.hidden = YES;
-        countButton.hidden = YES;
-        cell.sparklineWidth.constant = 0.0;
-        
-        Sparkline *sparkline = cell.sparkline;
-        if (node.showProgress) {
-            progress.hidden = node.progress < 0.0;
-            progress.doubleValue = MIN(MAX(node.progress, 0.0), 1.0);
-        } else if (node.count == NSNotFound) {
-            countButton.hidden = YES;
-            countButton.title = @"";
-            cell.sparklineWidth.constant = 0.0;
-        } else {
-            countButton.title = [NSString localizedStringWithFormat:@"%tu", node.count];
-            countButton.hidden = NO;
-            if ([node.sparkValues count]) {
-                sparkline.values = node.sparkValues;
-                cell.sparklineWidth.constant = SPARKLINE_WIDTH;
+        if ([cell isKindOfClass:[OverviewCountCellView class]]) {
+            OverviewCountCellView *countCell = (id)cell;
+            NSButton *countButton = countCell.countButton;
+            if (node.count != NSNotFound) {
+                countButton.title = [NSString localizedStringWithFormat:@"%tu", node.count];
+                countButton.hidden = NO;
             } else {
-                cell.sparklineWidth.constant = 0.0;
+                countButton.title = @"";
+                countButton.hidden = YES;
             }
         }
+        
+        if ([cell isKindOfClass:[OverviewMilestoneCellView class]]) {
+            OverviewMilestoneCellView *mileCell = (id)cell;
+            OverviewProgressIndicator *progress = mileCell.progressIndicator;
+            
+            if (node.showProgress) {
+                progress.hidden = node.progress < 0.0;
+                progress.doubleValue = MIN(MAX(node.progress, 0.0), 1.0);
+            }
+        }
+        
+        if ([cell isKindOfClass:[OverviewOwnerCellView class]]) {
+            OverviewOwnerCellView *ownerCell = (id)cell;
+            ownerCell.warningWidth.constant = node.showWarning?18.0:0.0;
+            ownerCell.warningButton.extras_representedObject = node;
+            ownerCell.warningButton.target = self;
+            ownerCell.warningButton.action = @selector(showWebhookWarning:);
+        }
+        
         cell.imageView.image = node.icon;
         cell.textField.stringValue = node.title;
         cell.menu = node.menu;
@@ -1311,6 +1323,63 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 #pragma mark -
 
+- (IBAction)showWebhookWarning:(id)sender {
+    OverviewNode *node = [sender extras_representedObject];
+    NSString *message = nil;
+    NSString *viewTitle = nil;
+    NSURL *viewURL = nil;
+    Account *owner = node.representedObject;
+    NSString *webhost = [[[[[DataStore activeStore] auth] account] ghHost] stringByReplacingOccurrencesOfString:@"api." withString:@""];
+    if ([owner isKindOfClass:[Org class]]) {
+        message = [NSString stringWithFormat:NSLocalizedString(@"Ship was unable to install webhooks in the %@ organization. Without webhooks installed, Ship may take longer to reflect changes made on github.com.\n\nTo fix this, please ask a user with admin rights in the %@ organization to sign in with Ship.", @"Org Webhook Error"), owner.login, owner.login];
+        viewTitle = NSLocalizedString(@"View Admins", nil);
+        
+        NSURLComponents *comps = [NSURLComponents new];
+        comps.scheme = @"https";
+        comps.host = webhost;
+        comps.path = [NSString stringWithFormat:@"/orgs/%@/people", [owner.login stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]];
+        comps.queryItemsDictionary = @{ @"utf8" : @"✓",
+                                        @"query" : @"role:owner " };
+        
+        viewURL = comps.URL;
+    } else if (![owner.identifier isEqual:[[User me] identifier]]) {
+        message = [NSString stringWithFormat:NSLocalizedString(@"Ship was unable to install webhooks for %@. Without webhooks installed, Ship may take longer to reflect changes made on github.com.\n\nTo fix this, please ask %@ to sign in with Ship.", @"Other User Webhook Error"), owner.login, owner.login];
+        viewTitle = NSLocalizedString(@"View Owner", nil);
+        viewURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://github.com/%@", [owner.login stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]]];
+    } else {
+        message = NSLocalizedString(@"Ship was unable to install webhooks for your repositories. Without webhooks installed, Ship may take longer to reflect changes made on github.com.\n\nTo fix this, please check the webhooks and services settings for your repositories.", @"User Webhook Error");
+    }
+    
+    NSAlert *alert = [NSAlert new];
+    alert.messageText = NSLocalizedString(@"Webhook Installation Failed", nil);
+    alert.informativeText = message;
+    
+    alert.showsSuppressionButton = YES;
+    alert.suppressionButton.title = NSLocalizedString(@"Hide this warning", nil);
+    
+    [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+    
+    if (viewURL && viewTitle) {
+        [alert addButtonWithTitle:viewTitle];
+    }
+    
+    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertSecondButtonReturn) {
+            [[NSWorkspace sharedWorkspace] openURL:viewURL];
+        }
+        if (alert.suppressionButton.state == NSOnState) {
+            NSString *defaultsKey = [NSString stringWithFormat:@"WebhookWarningHidden.%@", owner.identifier];
+            [[NSUserDefaults standardUserDefaults] setBool:YES forKey:defaultsKey];
+            
+            NSInteger row = [_outlineView rowForItem:node];
+            OverviewOwnerCellView *cell = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
+            cell.warningWidth.constant = 0.0;
+        }
+    }];
+}
+
+#pragma mark -
+
 - (NSArray<Issue *> *)selectedIssues {
     if (_modeItem.mode == ResultsViewModeList) {
         return [_searchResults selectedProblemSnapshots];
@@ -1531,6 +1600,18 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 @end
 
 @implementation OverviewCellView
+
+@end
+
+@implementation OverviewCountCellView
+
+@end
+
+@implementation OverviewOwnerCellView
+
+@end
+
+@implementation OverviewMilestoneCellView
 
 @end
 

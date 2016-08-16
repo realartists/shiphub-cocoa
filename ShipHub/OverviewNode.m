@@ -18,6 +18,7 @@
         _progress = -1.0;
         _allowChart = YES;
         _filterBarDefaultsToOpenState = YES;
+        _cellIdentifier = @"BasicCell";
     }
     return self;
 }

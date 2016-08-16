@@ -18,6 +18,8 @@
 @property (readonly, getter=isPrivate) BOOL private;
 @property (readonly) BOOL hasIssues;
 
+@property (readonly) BOOL shipNeedsWebhookHelp;
+
 @property (readonly) NSString *repoDescription;
 
 @end

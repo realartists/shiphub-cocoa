@@ -13,6 +13,7 @@
 
 @implementation LocalOrg (CoreDataProperties)
 
+@dynamic shipNeedsWebhookHelp;
 @dynamic users;
 
 @end

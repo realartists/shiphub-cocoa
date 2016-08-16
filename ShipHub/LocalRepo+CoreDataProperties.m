@@ -19,6 +19,7 @@
 @dynamic name;
 @dynamic private;
 @dynamic repoDescription;
+@dynamic shipNeedsWebhookHelp;
 @dynamic assignees;
 @dynamic issues;
 @dynamic labels;

@@ -1706,7 +1706,7 @@ CGRect IntegralRect(CGRect r) {
 
 @implementation NSURLComponents (Extras)
 
-- (void)setQueryItemsFromDictionary:(NSDictionary *)params {
+- (void)setQueryItemsDictionary:(NSDictionary *)params {
     NSMutableArray *qps = [NSMutableArray new];
     for (NSString *k in [params allKeys]) {
         id v = params[k];

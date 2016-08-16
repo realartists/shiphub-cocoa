@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalOrg (CoreDataProperties)
 
+@property (nullable, nonatomic, retain) NSNumber *shipNeedsWebhookHelp;
 @property (nullable, nonatomic, retain) NSSet<LocalUser *> *users;
 
 @end
