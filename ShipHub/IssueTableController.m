@@ -177,7 +177,7 @@
                      @"maxWidth" : @200 },
                   
                   @{ @"identifier" : @"closedBy.login",
-                     @"title" : NSLocalizedString(@"Resolver", nil),
+                     @"title" : NSLocalizedString(@"Closed By", nil),
                      @"width" : @160,
                      @"minWidth" : @130,
                      @"maxWidth" : @200 },
@@ -212,7 +212,7 @@
                   
                   @{ @"identifier" : @"closedAt",
                      @"formatter" : [NSDateFormatter shortDateAndTimeFormatter],
-                     @"title" : NSLocalizedString(@"Date Resolved", nil),
+                     @"title" : NSLocalizedString(@"Date Closed", nil),
                      @"width" : @130 },
                   
                   @{ @"identifier" : @"labels",

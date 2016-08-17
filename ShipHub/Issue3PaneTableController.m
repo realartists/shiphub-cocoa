@@ -73,7 +73,7 @@
        @"asc": dateAsc,
        @"desc": dateDesc };
     
-    m = [sortMenu addItemWithTitle:NSLocalizedString(@"Date Resolved", nil) action:@selector(changeSort:) keyEquivalent:@""];
+    m = [sortMenu addItemWithTitle:NSLocalizedString(@"Date Closed", nil) action:@selector(changeSort:) keyEquivalent:@""];
     m.representedObject =
     @{ @"key": @"closedAt",
        @"dir": @"desc",

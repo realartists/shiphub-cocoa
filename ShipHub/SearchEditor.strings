@@ -22,8 +22,8 @@
 "%[updatedAt]@ %[is less than]@ %@ %@" = "%1$[Modification date]@ %2$[is less than]@ %3$@ %4$@";
 "%[updatedAt]@ %[is greater than]@ %@ %@" = "%1$[Modification date]@ %2$[is greater than]@ %3$@ %4$@";
 
-"%[closedAt]@ %[is less than]@ %@ %@" = "%1$[Resolved on date]@ %2$[is less than]@ %3$@ %4$@";
-"%[closedAt]@ %[is greater than]@ %@ %@" = "%1$[Resolved on date]@ %2$[is greater than]@ %3$@ %4$@";
+"%[closedAt]@ %[is less than]@ %@ %@" = "%1$[Closed on date]@ %2$[is less than]@ %3$@ %4$@";
+"%[closedAt]@ %[is greater than]@ %@ %@" = "%1$[Closed on date]@ %2$[is greater than]@ %3$@ %4$@";
 
 "%[originator.login]@ %[is]@ %@" = "%1$[Originator]@ %2$[is]@ %3$@";
 "%[originator.login]@ %[is not]@ %@" = "%1$[Originator]@ %2$[is not]@ %3$@";
@@ -31,8 +31,8 @@
 "%[assignees.login]@ %[is]@ %@" = "%1$[Assignees]@ %2$[contains]@ %3$@";
 "%[assignees.login]@ %[is not]@ %@" = "%1$[Assignees]@ %2$[does not contain]@ %3$@";
 
-"%[closedBy.login]@ %[is]@ %@" = "%1$[Resolver]@ %2$[is]@ %3$@";
-"%[closedBy.login]@ %[is not]@ %@" = "%1$[Resolver]@ %2$[is not]@ %3$@";
+"%[closedBy.login]@ %[is]@ %@" = "%1$[Closed by]@ %2$[is]@ %3$@";
+"%[closedBy.login]@ %[is not]@ %@" = "%1$[Closed by]@ %2$[is not]@ %3$@";
 
 "%[milestone.title]@ %[is]@ %@" = "%1$[Milestone]@ %2$[is]@ %3$@";
 "%[milestone.title]@ %[is not]@ %@" = "%1$[Milestone]@ %2$[is not]@ %3$@";
