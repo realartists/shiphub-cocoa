@@ -1331,8 +1331,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     Account *owner = node.representedObject;
     NSString *webhost = [[[[[DataStore activeStore] auth] account] ghHost] stringByReplacingOccurrencesOfString:@"api." withString:@""];
     if ([owner isKindOfClass:[Org class]]) {
-        message = [NSString stringWithFormat:NSLocalizedString(@"Ship was unable to install webhooks in the %@ organization. Without webhooks installed, Ship may take longer to reflect changes made on github.com.\n\nTo fix this, please ask a user with admin rights in the %@ organization to sign in with Ship.", @"Org Webhook Error"), owner.login, owner.login];
-        viewTitle = NSLocalizedString(@"View Admins", nil);
+        message = [NSString stringWithFormat:NSLocalizedString(@"Ship was unable to install webhooks in the %@ organization. Without webhooks installed, Ship may take longer to reflect changes made on github.com.\n\nTo fix this, please ask an owner of the %@ organization to sign in with Ship.", @"Org Webhook Error"), owner.login, owner.login];
+        viewTitle = NSLocalizedString(@"View Owners", nil);
         
         NSURLComponents *comps = [NSURLComponents new];
         comps.scheme = @"https";
@@ -1345,13 +1345,13 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     } else if (![owner.identifier isEqual:[[User me] identifier]]) {
         message = [NSString stringWithFormat:NSLocalizedString(@"Ship was unable to install webhooks for %@. Without webhooks installed, Ship may take longer to reflect changes made on github.com.\n\nTo fix this, please ask %@ to sign in with Ship.", @"Other User Webhook Error"), owner.login, owner.login];
         viewTitle = NSLocalizedString(@"View Owner", nil);
-        viewURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://github.com/%@", [owner.login stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]]];
+        viewURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", webhost, [owner.login stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]]];
     } else {
-        message = NSLocalizedString(@"Ship was unable to install webhooks for your repositories. Without webhooks installed, Ship may take longer to reflect changes made on github.com.\n\nTo fix this, please check the webhooks and services settings for your repositories.", @"User Webhook Error");
+        message = NSLocalizedString(@"Ship was unable to install webhooks for your repositories. Without webhooks installed, Ship may take longer to reflect changes made on github.com.\n\nTo fix this, please check the Webhooks and Services settings for your repositories.", @"User Webhook Error");
     }
     
     NSAlert *alert = [NSAlert new];
-    alert.messageText = NSLocalizedString(@"Webhook Installation Failed", nil);
+    alert.messageText = NSLocalizedString(@"Make Ship faster with webhooks", nil);
     alert.informativeText = message;
     
     alert.showsSuppressionButton = YES;
