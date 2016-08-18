@@ -253,6 +253,10 @@
 		1AF5673D1D627C2E00611DBB /* OAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF5673B1D627C2E00611DBB /* OAuthController.xib */; };
 		1AF567401D62831900611DBB /* HelloController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF5673F1D62831900611DBB /* HelloController.m */; };
 		1AF567431D6393FB00611DBB /* ABTesting.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF567421D6393FB00611DBB /* ABTesting.m */; };
+		1AF567481D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF567451D665C5100611DBB /* LocalHidden+CoreDataProperties.m */; };
+		1AF567491D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF567451D665C5100611DBB /* LocalHidden+CoreDataProperties.m */; };
+		1AF5674A1D665C5100611DBB /* LocalHidden.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF567471D665C5100611DBB /* LocalHidden.m */; };
+		1AF5674B1D665C5100611DBB /* LocalHidden.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF567471D665C5100611DBB /* LocalHidden.m */; };
 		1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22011CA6053B00B51CF6 /* IssueEvent.m */; };
 		1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
 		1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
@@ -698,6 +702,10 @@
 		1AF5673F1D62831900611DBB /* HelloController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HelloController.m; sourceTree = "<group>"; };
 		1AF567411D6393FB00611DBB /* ABTesting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ABTesting.h; sourceTree = "<group>"; };
 		1AF567421D6393FB00611DBB /* ABTesting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ABTesting.m; sourceTree = "<group>"; };
+		1AF567441D665C5100611DBB /* LocalHidden+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalHidden+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1AF567451D665C5100611DBB /* LocalHidden+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalHidden+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1AF567461D665C5100611DBB /* LocalHidden.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalHidden.h; sourceTree = "<group>"; };
+		1AF567471D665C5100611DBB /* LocalHidden.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalHidden.m; sourceTree = "<group>"; };
 		1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
 		1AFE21F01CA5EC3F00B51CF6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		1AFE21F21CA5EC3F00B51CF6 /* emojify.js */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.javascript; path = emojify.js; sourceTree = "<group>"; tabWidth = 2; };
@@ -1098,6 +1106,10 @@
 				1A20CFF01D52A3E800F412DE /* LocalReaction+CoreDataProperties.m */,
 				1A20CFF11D52A3E800F412DE /* LocalReaction.h */,
 				1A20CFF21D52A3E800F412DE /* LocalReaction.m */,
+				1AF567441D665C5100611DBB /* LocalHidden+CoreDataProperties.h */,
+				1AF567451D665C5100611DBB /* LocalHidden+CoreDataProperties.m */,
+				1AF567461D665C5100611DBB /* LocalHidden.h */,
+				1AF567471D665C5100611DBB /* LocalHidden.m */,
 			);
 			name = CoreData;
 			sourceTree = "<group>";
@@ -1574,6 +1586,7 @@
 				1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */,
 				1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */,
 				1AF3497B1CDAC1E900A5BEB0 /* ChartConfig.m in Sources */,
+				1AF5674A1D665C5100611DBB /* LocalHidden.m in Sources */,
 				1A694AF61CA09EAD00F73608 /* Label.m in Sources */,
 				1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */,
 				1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */,
@@ -1589,6 +1602,7 @@
 				28BF03B51D1873CA00F22638 /* NewLabelController.m in Sources */,
 				1A20CFF41D52A3E800F412DE /* LocalReaction.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
+				1AF567481D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */,
 				1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */,
 				1A51086A1D319ED000905D4D /* RequestPager.m in Sources */,
 				1A694B2B1CA341D500F73608 /* NetworkStatusTextField.m in Sources */,
@@ -1698,6 +1712,7 @@
 			files = (
 				1A20CFFC1D52A82B00F412DE /* LocalReaction+CoreDataProperties.m in Sources */,
 				1A694AEF1CA09E8000F73608 /* Org.m in Sources */,
+				1AF567491D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */,
 				1AE09BF11C97687E00C5AC35 /* LocalRepo.m in Sources */,
 				1AE09BF91C97687E00C5AC35 /* LocalRelationship.m in Sources */,
 				1AE09BFF1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
@@ -1710,6 +1725,7 @@
 				1A563F7B1CC823CF00755AAC /* APIProxy.m in Sources */,
 				1A20CFFD1D52A82B00F412DE /* LocalReaction.m in Sources */,
 				1A694AE01CA09E0800F73608 /* MetadataStore.m in Sources */,
+				1AF5674B1D665C5100611DBB /* LocalHidden.m in Sources */,
 				1A694B4C1CA367E300F73608 /* Issue.m in Sources */,
 				1AE09C091C97687E00C5AC35 /* LocalUser.m in Sources */,
 				1AE09C031C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,

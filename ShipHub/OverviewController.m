@@ -207,7 +207,9 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         [_splitView setPosition:240.0 ofDividerAtIndex:0];
         [self updateSidebarItem];
     }
-
+    
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"Hidden.collapsed"]; // reset the hidden items collapsed state when opening a new window
+    
     [self buildOutline];
     if ([[_outlineView selectedItem] filterBarDefaultsToOpenState]) {
         [_filterBar resetFilters:[NSPredicate predicateWithFormat:@"closed = NO"]];
@@ -261,6 +263,41 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     return menu;
 }
 
+- (NSMenu *)hideOwnerMenu {
+    NSMenu *hideMenu = [NSMenu new];
+    NSMenuItem *hideItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Hide all repos", nil) action:@selector(hideItem:) keyEquivalent:@""];
+    hideItem.target = self;
+    return hideMenu;
+}
+
+- (NSMenu *)hideRepoMenu {
+    NSMenu *hideMenu = [NSMenu new];
+    NSMenuItem *hideItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Hide repo", nil) action:@selector(hideItem:) keyEquivalent:@""];
+    hideItem.target = self;
+    return hideMenu;
+}
+
+- (NSMenu *)hideMilestoneMenu {
+    NSMenu *hideMenu = [NSMenu new];
+    NSMenuItem *hideItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Hide milestone", nil) action:@selector(hideItem:) keyEquivalent:@""];
+    hideItem.target = self;
+    return hideMenu;
+}
+
+- (NSMenu *)hideMilestonesMenu {
+    NSMenu *hideMenu = [NSMenu new];
+    NSMenuItem *hideItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Hide milestones", nil) action:@selector(hideItem:) keyEquivalent:@""];
+    hideItem.target = self;
+    return hideMenu;
+}
+
+- (NSMenu *)unhideMenu {
+    NSMenu *hideMenu = [NSMenu new];
+    NSMenuItem *hideItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Unhide item", nil) action:@selector(unhideItem:) keyEquivalent:@""];
+    hideItem.target = self;
+    return hideMenu;
+}
+
 - (void)buildOutline {
     NSString *savedIdentifier = nil;
     if (_nextNodeToSelect) {
@@ -296,6 +333,11 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             }
         }];
     }
+    
+    NSMenu *hideMilestoneMenu = [self hideMilestoneMenu];
+    NSMenu *hideMilestonesMenu = [self hideMilestonesMenu];
+    NSMenu *hideOwnerMenu = [self hideOwnerMenu];
+    NSMenu *hideRepoMenu = [self hideRepoMenu];
     
     NSMutableArray *roots = [NSMutableArray array];
     
@@ -340,7 +382,6 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     [topNode addChild:notificationsNode];
     
     OverviewNode *milestonesRoot = [OverviewNode new];
-//    milestonesRoot.representedObject = _milestoneMap;
     milestonesRoot.title = NSLocalizedString(@"Milestones", nil);
     [roots addObject:milestonesRoot];
     
@@ -350,7 +391,16 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     for (NSString *milestone in [metadata mergedMilestoneNames]) {
         OverviewNode *node = [OverviewNode new];
         node.cellIdentifier = @"MilestoneCell";
-        node.representedObject = milestone;
+        NSArray *milestoneObjs = [metadata mergedMilestonesWithTitle:milestone];
+        node.representedObject = milestoneObjs;
+        node.toolTip = [[milestoneObjs arrayByMappingObjects:^id(Milestone *obj) {
+            if (obj.dueOn) {
+                return [NSString stringWithFormat:@"%@ (Due %@)", obj.repoFullName, [[NSDateFormatter shortRelativeDateFormatter] stringFromDate:obj.dueOn]];
+            } else {
+                return [obj repoFullName];
+            }
+        }] componentsJoinedByString:@", "];
+        node.menu = milestoneObjs.count > 1 ? hideMilestonesMenu : hideMilestoneMenu;
         node.title = milestone;
         node.showProgress = YES;
         node.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@", milestone];
@@ -366,6 +416,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     backlog.predicate = [NSPredicate predicateWithFormat:@"milestone = nil AND closed = NO"];
     backlog.showCount = YES;
     backlog.cellIdentifier = @"CountCell";
+    backlog.toolTip = NSLocalizedString(@"The backlog contains all issues not assigned to a milestone", nil);
     backlog.icon = [NSImage overviewIconNamed:@"832-stack-1"];
     [milestonesRoot addChild:backlog];
     
@@ -404,6 +455,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         OverviewNode *ownerNode = nil;
         if (multipleOwners) {
             ownerNode = [OverviewNode new];
+            ownerNode.menu = hideOwnerMenu;
             ownerNode.cellIdentifier = @"OwnerCell";
             ownerNode.title = repoOwner.login;
             ownerNode.representedObject = repoOwner;
@@ -418,6 +470,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             OverviewNode *repoNode = [OverviewNode new];
             repoNode.cellIdentifier = @"CountCell";
             repoNode.representedObject = repo;
+            repoNode.menu = hideRepoMenu;
             repoNode.title = repo.name;
             repoNode.icon = [NSImage overviewIconNamed:@"710-folder"];
             repoNode.showCount = YES;
@@ -435,6 +488,55 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             BOOL warningHidden = [[NSUserDefaults standardUserDefaults] boolForKey:warningHiddenKey];
             if (warningHidden) {
                 ownerNode.showWarning = NO;
+            }
+        }
+    }
+    
+    NSArray *hiddenRepos = [metadata hiddenRepos];
+    NSArray *hiddenMilestones = [metadata hiddenMilestones];
+    
+    if (hiddenRepos.count > 0 || hiddenMilestones.count > 0) {
+        NSMenu *unhideMenu = [self unhideMenu];
+        
+        OverviewNode *hiddenRoot = [OverviewNode new];
+        hiddenRoot.title = NSLocalizedString(@"Hidden Items", nil);
+        hiddenRoot.defaultCollapsed = YES;
+        hiddenRoot.identifier = @"Hidden";
+        [roots addObject:hiddenRoot];
+        
+        if (hiddenRepos.count > 0) {
+            OverviewNode *hiddenRepoRoot = [OverviewNode new];
+            hiddenRepoRoot.title = NSLocalizedString(@"Repos", nil);
+            hiddenRepoRoot.identifier = @"Hidden.Repo";
+            [hiddenRoot addChild:hiddenRepoRoot];
+            
+            for (Repo *hr in hiddenRepos) {
+                OverviewNode *node = [OverviewNode new];
+                node.title = hr.fullName;
+                node.representedObject = hr;
+                node.identifier = [NSString stringWithFormat:@"Hidden.Repo.%@", hr.identifier];
+                node.predicate = [NSPredicate predicateWithValue:NO];
+                node.menu = unhideMenu;
+                [hiddenRepoRoot addChild:node];
+            }
+        }
+        
+        if (hiddenMilestones.count > 0) {
+            OverviewNode *hiddenMilestoneRoot = [OverviewNode new];
+            hiddenMilestoneRoot.title = NSLocalizedString(@"Milestones", nil);
+            hiddenMilestoneRoot.identifier = @"Hidden.Milestone";
+            [hiddenRoot addChild:hiddenMilestoneRoot];
+            
+            NSArray *byTitle = [hiddenMilestones partitionByKeyPath:@"title"];
+            for (NSArray *msGroup in byTitle) {
+                Milestone *m = [msGroup firstObject];
+                OverviewNode *node = [OverviewNode new];
+                node.title = m.title;
+                node.representedObject = msGroup;
+                node.identifier = [NSString stringWithFormat:@"Hidden.Milestone.%@", m.title];
+                node.predicate = [NSPredicate predicateWithValue:NO];
+                node.menu = unhideMenu;
+                [hiddenMilestoneRoot addChild:node];
             }
         }
     }
@@ -621,8 +723,17 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 - (void)expandDefault {
     [self walkNodes:^(OverviewNode *node) {
         if (node.children.count > 0) {
-            BOOL collapse = [[NSUserDefaults standardUserDefaults] boolForKey:[NSString stringWithFormat:@"%@.collapsed", node.identifier]];
-            if (!collapse) {
+            Boolean collapsed = NO;
+            Boolean exists = NO;
+            
+            NSString *key = [NSString stringWithFormat:@"%@.collapsed", node.identifier];
+            
+            collapsed = CFPreferencesGetAppBooleanValue((__bridge CFStringRef)key, kCFPreferencesCurrentApplication, &exists);
+            if (!exists) {
+                collapsed = node.defaultCollapsed;
+            }
+            
+            if (!collapsed) {
                 [_outlineView expandItem:node];
             }
         }
@@ -1376,6 +1487,106 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             cell.warningWidth.constant = 0.0;
         }
     }];
+}
+
+#pragma mark -
+
+- (OverviewNode *)itemForContextMenu {
+    NSInteger row = [_outlineView clickedRow];
+    if (row >= 0 && row < _outlineView.numberOfRows) {
+        return [_outlineView itemAtRow:row];
+    } else {
+        return [_outlineView selectedItem];
+    }
+}
+
+- (IBAction)hideItem:(id)sender {
+    OverviewNode *node = [self itemForContextMenu];
+    if (!node) return;
+    
+    NSString *message;
+    NSString *information;
+    NSString *confirmButton;
+    NSString *warningKey;
+    dispatch_block_t work;
+    
+    NSString *repoInformation = NSLocalizedString(@"Hidden repos will no longer appear in the sidebar, and any issues in hidden repos will be hidden throughout the application.", nil);
+    
+    if ([node.representedObject isKindOfClass:[Account class]]) {
+        // hiding all repos in an account
+        Account *account = node.representedObject;
+        message = [NSString stringWithFormat:NSLocalizedString(@"Hide all repos owned by %@?", nil), account.login];
+        information = repoInformation;
+        warningKey = @"Warning.Repos";
+        confirmButton = NSLocalizedString(@"Hide Repos", nil);
+        
+        work = ^{
+            _nextNodeToSelect = @"AllProblems";
+            NSArray *allRepos = [[[DataStore activeStore] metadataStore] reposForOwner:account];
+            [[DataStore activeStore] setHidden:YES forRepos:allRepos completion:nil];
+        };
+        
+    } else if ([node.representedObject isKindOfClass:[Repo class]]) {
+        Repo *repo = node.representedObject;
+        message = [NSString stringWithFormat:NSLocalizedString(@"Hide \"%@\"?", nil), repo.fullName];
+        information = repoInformation;
+        warningKey = @"Warning.Repos";
+        confirmButton = NSLocalizedString(@"Hide Repo", nil);
+        
+        work = ^{
+            _nextNodeToSelect = @"AllProblems";
+            [[DataStore activeStore] setHidden:YES forRepos:@[node.representedObject] completion:nil];
+        };
+    } else {
+        NSArray *milestones = node.representedObject;
+        if (milestones.count == 1) {
+            message = [NSString stringWithFormat:NSLocalizedString(@"Hide milestone \"%@\"?", nil), node.title];
+        } else {
+            message = [NSString stringWithFormat:NSLocalizedString(@"Hide all milestones titled \"%@\"?", nil), node.title];
+        }
+        information = NSLocalizedString(@"Hidden milestones will no longer appear in the sidebar, but any issues assigned to them will still be visible throughout the application. Additionally, new or modified issues may still be assigned to the hidden milestone.", nil);
+        warningKey = @"Warning.Milestones";
+        confirmButton = NSLocalizedString(@"Hide Milestone", nil);
+        
+        work = ^{
+            _nextNodeToSelect = @"AllProblems";
+            [[DataStore activeStore] setHidden:YES forMilestones:milestones completion:nil];
+        };
+    }
+    
+    BOOL skipAlert = [[NSUserDefaults standardUserDefaults] boolForKey:warningKey];
+    
+    if (skipAlert) {
+        work();
+    } else {
+        NSAlert *alert = [NSAlert new];
+        alert.messageText = message;
+        alert.informativeText = information;
+        alert.showsSuppressionButton = YES;
+        [alert addButtonWithTitle:confirmButton];
+        [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+        
+        [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+            if (returnCode == NSAlertFirstButtonReturn) {
+                work();
+                if (alert.suppressionButton.state == NSOnState) {
+                    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:warningKey];
+                }
+            }
+        }];
+    }
+}
+
+- (IBAction)unhideItem:(id)sender {
+    OverviewNode *node = [self itemForContextMenu];
+    if (!node) return;
+    
+    if ([node.representedObject isKindOfClass:[Repo class]]) {
+        [[DataStore activeStore] setHidden:NO forRepos:@[node.representedObject] completion:nil];
+    } else {
+        NSArray *milestones = node.representedObject;
+        [[DataStore activeStore] setHidden:NO forMilestones:milestones completion:nil];
+    }
 }
 
 #pragma mark -

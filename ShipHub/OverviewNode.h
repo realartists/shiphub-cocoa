@@ -53,6 +53,8 @@ typedef void (^OverviewNodeDropHandler)(NSArray<NSString *> *issueIdentifiers);
 
 @property BOOL showWarning;
 
+@property BOOL defaultCollapsed;
+
 @property (nonatomic, strong) NSString *path;
 
 @property (nonatomic, strong) NSString *toolTip;

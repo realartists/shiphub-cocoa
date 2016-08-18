@@ -13,6 +13,7 @@
 
 @class LocalIssue;
 @class LocalRepo;
+@class LocalHidden;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -29,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *state;
 @property (nullable, nonatomic, retain) NSSet<LocalIssue *> *issues;
 @property (nullable, nonatomic, retain) LocalRepo *repository;
+@property (nullable, nonatomic, retain) LocalHidden *hidden;
 
 @end
 

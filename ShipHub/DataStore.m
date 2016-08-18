@@ -36,6 +36,7 @@
 #import "LocalNotification.h"
 #import "LocalQuery.h"
 #import "LocalReaction.h"
+#import "LocalHidden.h"
 
 #import "Issue.h"
 #import "IssueComment.h"
@@ -97,8 +98,9 @@ NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification = @"DataStoreN
  2: Server Integration
  3: realartists/shiphub-cocoa#109 Handle PRs in the database
  4: realartists/shiphub-cocoa#76 Support multiple assignees
+ 5: Milestone and repo hidding
  */
-static const NSInteger CurrentLocalModelVersion = 4;
+static const NSInteger CurrentLocalModelVersion = 5;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSManagedObjectModel *_mom;
@@ -298,7 +300,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         return NO;
     }
     
-    if (previousStoreVersion < 4) {
+    if (previousStoreVersion < 5) {
         DebugLog(@"Updating to version %td database from %td. Forcing database re-creation.", CurrentLocalModelVersion, previousStoreVersion);
         forceRecreate = YES;
     }
@@ -1051,7 +1053,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (NSPredicate *)issuesPredicate:(NSPredicate *)basePredicate {
-    return [[basePredicate predicateByFoldingExpressions] and:[NSPredicate predicateWithFormat:@"repository.fullName != nil AND pullRequest = NO"]];
+    return [[basePredicate predicateByFoldingExpressions] and:[NSPredicate predicateWithFormat:@"repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"]];
 }
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
@@ -1827,6 +1829,78 @@ static NSString *const LastUpdated = @"LastUpdated";
         }
     });
 }
+
+#pragma mark - Milestone and Repo Hiding
+
+- (void)setHidden:(BOOL)hidden forMilestones:(NSArray<Milestone *> *)milestones completion:(void (^)(NSError *error))completion {
+    NSParameterAssert(milestones);
+    
+    [_moc performBlock:^{
+        NSFetchRequest *fetchMilestones = [NSFetchRequest fetchRequestWithEntityName:@"LocalMilestone"];
+        fetchMilestones.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", [milestones arrayByMappingObjects:^id(id obj) {
+            return [obj identifier];
+        }]];
+        
+        NSArray *localMilestones = [_moc executeFetchRequest:fetchMilestones error:NULL];
+        
+        if (!hidden) {
+            NSFetchRequest *fetchHiddens = [NSFetchRequest fetchRequestWithEntityName:@"LocalHidden"];
+            fetchHiddens.predicate = [NSPredicate predicateWithFormat:@"milestone IN %@", localMilestones];
+            
+            NSArray *localHiddens = [_moc executeFetchRequest:fetchHiddens error:NULL];
+            
+            for (LocalHidden *h in localHiddens) {
+                [_moc deleteObject:h];
+            }
+        } else {
+            for (LocalMilestone *lm in localMilestones) {
+                if (lm.hidden == nil) {
+                    LocalHidden *h = [NSEntityDescription insertNewObjectForEntityForName:@"LocalHidden" inManagedObjectContext:_moc];
+                    lm.hidden = h;
+                }
+            }
+        }
+        
+        [_moc save:NULL];
+        
+        RunOnMain(^{
+            if (completion) completion(nil);
+        });
+    }];
+}
+
+- (void)setHidden:(BOOL)hidden forRepos:(NSArray<Repo *> *)repos completion:(void (^)(NSError *error))completion {
+    NSParameterAssert(repos);
+    
+    [_moc performBlock:^{
+        NSFetchRequest *fetchRepos = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
+        fetchRepos.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", [repos arrayByMappingObjects:^id(id obj) {
+            return [obj identifier];
+        }]];
+        
+        NSArray *localRepos = [_moc executeFetchRequest:fetchRepos error:NULL];
+        
+        for (LocalRepo *lr in localRepos) {
+            if (hidden) {
+                if (!lr.hidden) {
+                    LocalHidden *h = [NSEntityDescription insertNewObjectForEntityForName:@"LocalHidden" inManagedObjectContext:_moc];
+                    lr.hidden = h;
+                }
+            } else {
+                if (lr.hidden) {
+                    [_moc deleteObject:lr.hidden];
+                }
+            }
+        }
+        
+        [_moc save:NULL];
+        
+        RunOnMain(^{
+            if (completion) completion(nil);
+        });
+    }];
+}
+
 
 #pragma mark - Time Series
 

@@ -9,6 +9,7 @@
 #import "Milestone.h"
 
 #import "LocalMilestone.h"
+#import "LocalRepo.h"
 
 @implementation Milestone
 
@@ -25,6 +26,8 @@
         _updatedAt = lm.updatedAt;
         _state = lm.state;
         _closed = [_state isEqualToString:@"closed"];
+        _hidden = lm.hidden != nil;
+        _repoFullName = lm.repository.fullName;
     }
     return self;
 }

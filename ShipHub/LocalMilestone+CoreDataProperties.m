@@ -24,5 +24,6 @@
 @dynamic issues;
 @dynamic repository;
 @dynamic state;
+@dynamic hidden;
 
 @end

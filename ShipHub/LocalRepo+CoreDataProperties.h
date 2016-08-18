@@ -11,14 +11,13 @@
 
 #import "LocalRepo.h"
 
-@class LocalAccount, LocalUser, LocalIssue, LocalLabel, LocalMilestone;
+@class LocalAccount, LocalUser, LocalIssue, LocalLabel, LocalMilestone, LocalHidden;
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalRepo (CoreDataProperties)
 
 @property (nullable, nonatomic, retain) NSString *fullName;
-@property (nullable, nonatomic, retain) NSNumber *hidden;
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSString *name;
 @property (nullable, nonatomic, retain) NSNumber *private;
@@ -29,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSSet<LocalLabel *> *labels;
 @property (nullable, nonatomic, retain) NSSet<LocalMilestone *> *milestones;
 @property (nullable, nonatomic, retain) LocalAccount *owner;
+@property (nullable, nonatomic, retain) LocalHidden *hidden;
 
 @end
 

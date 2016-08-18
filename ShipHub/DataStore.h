@@ -75,6 +75,13 @@
 
 @end
 
+@interface DataStore (Hiding)
+
+- (void)setHidden:(BOOL)hidden forMilestones:(NSArray<Milestone *> *)milestones completion:(void (^)(NSError *error))completion;
+- (void)setHidden:(BOOL)hidden forRepos:(NSArray<Repo *> *)repo completion:(void (^)(NSError *error))completion;
+
+@end
+
 @interface DataStore (APIProxyMutations)
 
 - (void)patchIssue:(NSDictionary *)patch issueIdentifier:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion;

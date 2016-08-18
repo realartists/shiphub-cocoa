@@ -29,6 +29,7 @@
 
 /* Returns the names of active milestones across all repos */
 - (NSArray<NSString *> *)mergedMilestoneNames;
+- (NSArray<Milestone *> *)mergedMilestonesWithTitle:(NSString *)title;
 
 - (NSArray<Label *> *)mergedLabels;
 - (NSArray<Label *> *)labelsForRepo:(Repo *)repo;
@@ -39,5 +40,8 @@
 - (NSArray<Account *> *)repoOwners;
 
 - (NSArray<Repo *> *)reposForOwner:(Account *)owner;
+
+- (NSArray<Repo *> *)hiddenRepos;
+- (NSArray<Milestone *> *)hiddenMilestones;
 
 @end

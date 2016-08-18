@@ -17,6 +17,7 @@
 #import "LocalLabel.h"
 #import "LocalMilestone.h"
 #import "LocalMetadata.h"
+#import "LocalHidden.h"
 
 @interface MetadataStore () {
     BOOL _allAssigneesNeedsSort;
@@ -44,12 +45,17 @@
 
 @property (strong) NSDictionary *orgIDToMembers;
 
+@property (strong) NSArray *hiddenRepos;
+@property (strong) NSArray *hiddenMilestones;
+
+@property (strong) NSDictionary *milestoneTitleToMilestones;
+
 @end
 
 @implementation MetadataStore
 
 static BOOL IsMetadataObject(id obj) {
-    return [obj conformsToProtocol:@protocol(LocalMetadata)];
+    return [obj conformsToProtocol:@protocol(LocalMetadata)] || [obj isKindOfClass:[LocalHidden class]];
 }
 
 + (BOOL)changeNotificationContainsMetadata:(NSNotification *)mocNote {
@@ -72,6 +78,7 @@ static BOOL IsMetadataObject(id obj) {
     if (self = [super init]) {
         NSFetchRequest *reposFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
         reposFetch.predicate = [NSPredicate predicateWithFormat:@"name != nil && owner != nil"];
+        
         NSArray *localRepos = [moc executeFetchRequest:reposFetch error:NULL];
         
         NSFetchRequest *usersFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
@@ -140,13 +147,15 @@ static BOOL IsMetadataObject(id obj) {
                 }
                 accountsByID[localOwner.identifier] = owner;
             }
-            [repoOwners addObject:owner];
-            
-            NSMutableArray *ownersList = reposByOwnerID[localOwner.identifier];
-            if (!ownersList) {
-                reposByOwnerID[localOwner.identifier] = ownersList = [NSMutableArray new];
+            if (!r.hidden) {
+                [repoOwners addObject:owner];
+                
+                NSMutableArray *ownersList = reposByOwnerID[localOwner.identifier];
+                if (!ownersList) {
+                    reposByOwnerID[localOwner.identifier] = ownersList = [NSMutableArray new];
+                }
+                [ownersList addObject:repo];
             }
-            [ownersList addObject:repo];
         }
         
         _usersByID = usersByID;
@@ -163,7 +172,8 @@ static BOOL IsMetadataObject(id obj) {
             [r sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedStandardCompare:)]]];
         }
         
-        _repos = [repos sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"fullName" ascending:YES selector:@selector(localizedStandardCompare:)]]];
+        NSArray *notHiddenRepos = [repos filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hidden = NO"]];
+        _repos = [notHiddenRepos sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"fullName" ascending:YES selector:@selector(localizedStandardCompare:)]]];
         
         _milestonesByRepoID = milestonesByRepoID;
         
@@ -181,23 +191,33 @@ static BOOL IsMetadataObject(id obj) {
         
         _mergedLabels = [mergedLabels allValues];
         
+        _reposByID = [NSDictionary lookupWithObjects:repos keyPath:@"identifier"];
+        
         NSMutableSet *mergedMilestones = [NSMutableSet new];
         NSMutableDictionary *milestonesByID = [NSMutableDictionary new];
-        for (NSMutableArray *ma in [_milestonesByRepoID allValues]) {
+        NSMutableArray *hiddenMilestones = [NSMutableArray new];
+        NSMutableDictionary *milestoneTitleToMilestones = [NSMutableDictionary new];
+        for (NSNumber *repoID in _milestonesByRepoID) {
+            NSMutableArray *ma = _milestonesByRepoID[repoID];
+            if ([_reposByID[repoID] isHidden]) continue;
             [ma sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(localizedStandardCompare:)]]];
             for (Milestone *m in ma) {
-                if (!m.closed) {
+                if (!m.closed && !m.hidden) {
                     [mergedMilestones addObject:m.title];
-                    milestonesByID[m.identifier] = m;
+                    NSMutableArray *a = milestoneTitleToMilestones[m.title];
+                    if (!a) milestoneTitleToMilestones[m.title] = a = [NSMutableArray new];
+                    [a addObject:m];
+                } else if (m.hidden) {
+                    [hiddenMilestones addObject:m];
                 }
+                milestonesByID[m.identifier] = m;
             }
         }
         
         _milestonesByID = milestonesByID;
         
         _mergedMilestoneNames = [[mergedMilestones allObjects] sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
-        
-        _reposByID = [NSDictionary lookupWithObjects:_repos keyPath:@"identifier"];
+        _milestoneTitleToMilestones = milestoneTitleToMilestones;
         
         NSMutableDictionary *orgIDToMembers = [NSMutableDictionary new];
         
@@ -218,6 +238,9 @@ static BOOL IsMetadataObject(id obj) {
         
         _allAssignees = [[allAssignees allObjects] mutableCopy];
         _allAssigneesNeedsSort = YES;
+        
+        _hiddenRepos = [[repos filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hidden = YES"]] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"fullName" ascending:YES selector:@selector(localizedStandardCompare:)]]];
+        _hiddenMilestones = hiddenMilestones;
     }
     
     return self;
@@ -272,6 +295,10 @@ static BOOL IsMetadataObject(id obj) {
 
 - (Milestone *)milestoneWithTitle:(NSString *)title inRepo:(Repo *)repo {
     return [[_milestonesByRepoID[repo.identifier] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"title = %@", title] limit:1] firstObject];
+}
+
+- (NSArray<Milestone *> *)mergedMilestonesWithTitle:(NSString *)title {
+    return _milestoneTitleToMilestones[title];
 }
 
 - (NSArray<Repo *> *)reposForOwner:(Account *)owner {

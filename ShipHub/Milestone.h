@@ -20,6 +20,8 @@
 @property (readonly) NSDate *updatedAt;
 @property (readonly) NSDate *createdAt;
 @property (readonly) NSString *state;
-@property (readonly) BOOL closed;
+@property (readonly) NSString *repoFullName;
+@property (readonly, getter=isHidden) BOOL hidden;
+@property (readonly, getter=isClosed) BOOL closed;
 
 @end

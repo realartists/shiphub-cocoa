@@ -16,10 +16,11 @@
     LocalRepo *lr = localItem;
     if (self = [super initWithLocalItem:localItem]) {
         _fullName = lr.fullName;
-        _hidden = [lr.hidden boolValue];
+        _hidden = lr.hidden != nil;
         _name = lr.name;
         _private = [lr.private boolValue];
         _shipNeedsWebhookHelp = [lr.shipNeedsWebhookHelp boolValue];
+        
     }
     return self;
 }
