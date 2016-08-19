@@ -103,9 +103,6 @@ static BOOL IsMetadataObject(id obj) {
         NSMutableDictionary *reposByOwnerID = [NSMutableDictionary new];
         
         for (LocalRepo *r in localRepos) {
-            Repo *repo = [[Repo alloc] initWithLocalItem:r];
-            [repos addObject:repo];
-            
             NSMutableArray *assignees;
             assigneesByRepoID[r.identifier] = assignees = [NSMutableArray new];
             for (LocalUser *lu in r.assignees) {
@@ -147,6 +144,10 @@ static BOOL IsMetadataObject(id obj) {
                 }
                 accountsByID[localOwner.identifier] = owner;
             }
+            
+            Repo *repo = [[Repo alloc] initWithLocalItem:r owner:owner];
+            [repos addObject:repo];
+            
             if (!r.hidden) {
                 [repoOwners addObject:owner];
                 

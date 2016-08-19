@@ -12,7 +12,12 @@
 
 @implementation Repo
 
-- (instancetype)initWithLocalItem:(id)localItem {
+- (id)initWithLocalItem:(id)localItem {
+    NSAssert(NO, @"Use initWithLocalItem:owner: instead");
+    return nil;
+}
+
+- (id)initWithLocalItem:(id)localItem owner:(Account *)owner {
     LocalRepo *lr = localItem;
     if (self = [super initWithLocalItem:localItem]) {
         _fullName = lr.fullName;
@@ -20,7 +25,7 @@
         _name = lr.name;
         _private = [lr.private boolValue];
         _shipNeedsWebhookHelp = [lr.shipNeedsWebhookHelp boolValue];
-        
+        _owner = owner;
     }
     return self;
 }
