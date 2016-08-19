@@ -439,6 +439,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             queryNode.showCount = YES;
             queryNode.cellIdentifier = @"CountCell";
             queryNode.icon = queryIcon;
+            queryNode.filterBarDefaultsToOpenState = NO;
             [myQueriesRoot addChild:queryNode];
         }
     }
