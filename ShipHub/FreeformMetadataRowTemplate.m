@@ -60,6 +60,23 @@ static BOOL operatorAllowsNil(NSPredicateOperatorType type) {
             identifier = @"";
         }
         
+        if (comparison.comparisonPredicateModifier != NSDirectPredicateModifier
+            && !identifier) {
+            // special handling for 'To-many contains <not set>'
+            // and 'To-many does not contains <not set>'
+            
+            if (comparison.comparisonPredicateModifier == NSAnyPredicateModifier) {
+                NSAssert(comparison.predicateOperatorType == NSEqualToPredicateOperatorType, @"ANY To-Many = %%@ is the only implemented construction here");
+                p = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForFunction:@"count:" arguments:@[comparison.leftExpression]] rightExpression:[NSExpression expressionForConstantValue:@0] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:0];
+            } else {
+                NSAssert(comparison.comparisonPredicateModifier == NSAllPredicateModifier, @"Must be ANY or ALL if not Direct");
+                NSAssert(comparison.predicateOperatorType != NSEqualToPredicateOperatorType, @"ALL To-Many != %%@ is the only implemented construction here");
+                p = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForFunction:@"count:" arguments:@[comparison.leftExpression]] rightExpression:[NSExpression expressionForConstantValue:@0] modifier:NSDirectPredicateModifier type:NSNotEqualToPredicateOperatorType options:0];
+            }
+            
+            return p;
+        }
+        
         NSExpression *right = [NSExpression expressionForConstantValue:identifier];
         
         p = [NSComparisonPredicate predicateWithLeftExpression:[comparison leftExpression]
@@ -74,10 +91,10 @@ static BOOL operatorAllowsNil(NSPredicateOperatorType type) {
         {
             NSPredicate *orNil = [NSComparisonPredicate predicateWithLeftExpression:[comparison leftExpression]
                                                                     rightExpression:[NSExpression expressionForConstantValue:nil]
-                                                                           modifier:NSDirectPredicateModifier
+                                                                           modifier:[comparison comparisonPredicateModifier]
                                                                                type:NSEqualToPredicateOperatorType
                                                                             options:0];
-            p = [p or:orNil];
+            p = [p or:orNil];               
         }
     }
     return p;
@@ -88,7 +105,10 @@ static BOOL operatorAllowsNil(NSPredicateOperatorType type) {
         NSComparisonPredicate * comparison = (NSComparisonPredicate *)newPredicate;
         
         NSExpression * right = [comparison rightExpression];
-        NSString *rightValue = [right constantValue];
+        id rightValue = [right constantValue];
+        if ([rightValue isEqual:@0]) {
+            rightValue = nil;
+        }
         
         NSString *displayValue = [self valueWithIdentifier:rightValue];
         [[self textField] setStringValue:displayValue ?: @""];
@@ -103,7 +123,25 @@ static BOOL operatorAllowsNil(NSPredicateOperatorType type) {
 
 - (double)matchForPredicate:(NSPredicate *)predicate {
     if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
-        return [super matchForPredicate:predicate];
+        NSComparisonPredicate *c0 = (id)predicate;
+        NSExpression *lhs = c0.leftExpression;
+        NSExpression *rhs = c0.rightExpression;
+        
+        if (lhs.expressionType == NSFunctionExpressionType
+            && rhs.expressionType == NSConstantValueExpressionType
+            && [rhs.constantValue isEqual:@0]) {
+            
+            lhs = [lhs.arguments firstObject];
+            
+            if (c0.predicateOperatorType == NSEqualToPredicateOperatorType) {
+                return [super matchForPredicate:[NSComparisonPredicate predicateWithLeftExpression:lhs rightExpression:[NSExpression expressionForConstantValue:nil] modifier:NSAnyPredicateModifier type:NSEqualToPredicateOperatorType options:0]];
+            } else {
+                return [super matchForPredicate:[NSComparisonPredicate predicateWithLeftExpression:lhs rightExpression:[NSExpression expressionForConstantValue:nil] modifier:NSAllPredicateModifier type:NSNotEqualToPredicateOperatorType options:0]];
+            }
+            
+        } else {
+            return [super matchForPredicate:predicate];
+        }
     } else if ([predicate isKindOfClass:[NSCompoundPredicate class]]) {
         // if it's a compound predicate, it must be exactly of this form:
         // "%K != %@ OR %K == nil"

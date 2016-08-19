@@ -1053,7 +1053,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (NSPredicate *)issuesPredicate:(NSPredicate *)basePredicate {
-    return [[basePredicate predicateByFoldingExpressions] and:[NSPredicate predicateWithFormat:@"repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"]];
+    return [[basePredicate coreDataPredicate] and:[NSPredicate predicateWithFormat:@"repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"]];
 }
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {

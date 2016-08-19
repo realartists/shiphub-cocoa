@@ -11,6 +11,31 @@
 
 @implementation NSPredicate (Folding)
 
+- (NSPredicate *)coreDataPredicate {
+    NSPredicate *folded = [self predicateByFoldingExpressions];
+    return [folded predicateByRewriting:^NSPredicate *(NSPredicate *original) {
+        if ([original isKindOfClass:[NSComparisonPredicate class]]) {
+            NSComparisonPredicate *c0 = (id)original;
+            if (c0.comparisonPredicateModifier == NSAllPredicateModifier) {
+                // rdar://26948853 Core Data does not support predicates of the form ALL <toMany> IN <set>
+                // Rewrite ALL foo = bar to
+                // COUNT(SUBQUERY(foo, $i, $i = bar)) = COUNT(foo)
+                
+                NSComparisonPredicate *subqP = [NSComparisonPredicate predicateWithLeftExpression:[NSExpression expressionForVariable:@"$i"] rightExpression:c0.rightExpression modifier:NSDirectPredicateModifier type:c0.predicateOperatorType options:c0.options];
+                
+                NSExpression *subq = [NSExpression expressionForSubquery:c0.leftExpression usingIteratorVariable:@"$i" predicate:subqP];
+                
+                NSExpression *lhs = [NSExpression expressionForFunction:@"count:" arguments:@[subq]];
+                NSExpression *rhs = [NSExpression expressionForFunction:@"count:" arguments:@[c0.leftExpression]];
+                
+                return [NSComparisonPredicate predicateWithLeftExpression:lhs rightExpression:rhs modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:0];
+            }
+        }
+        
+        return original;
+    }];
+}
+
 - (NSPredicate *)predicateByFoldingExpressions {
     if ([self isKindOfClass:[NSCompoundPredicate class]]) {
         NSCompoundPredicate *c0 = (id)self;

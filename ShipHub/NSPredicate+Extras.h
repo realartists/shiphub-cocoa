@@ -10,6 +10,7 @@
 
 @interface NSPredicate (Folding)
 
+- (NSPredicate *)coreDataPredicate; // folds expressions and converts ALL (...) predicates to COUNT(SUBQUERY(...)) = COUNT(...) form
 - (NSPredicate *)predicateByFoldingExpressions;
 
 @end
