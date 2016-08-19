@@ -296,6 +296,9 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
         if (_logEntryTotalRemaining < 0 || totalRemaining > _logEntriesRemaining) {
             _logEntryTotalRemaining = totalRemaining;
         }
+        if (remaining == 0) {
+            _logEntryTotalRemaining = totalRemaining = 0;
+        }
         double progress = 1.0;
         if (_logEntryTotalRemaining > 0) {
             progress = (double)(_logEntryTotalRemaining - remaining) / (double)_logEntryTotalRemaining;
