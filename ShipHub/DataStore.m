@@ -98,9 +98,10 @@ NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification = @"DataStoreN
  2: Server Integration
  3: realartists/shiphub-cocoa#109 Handle PRs in the database
  4: realartists/shiphub-cocoa#76 Support multiple assignees
- 5: Milestone and repo hidding
+ 5: Milestone and repo hiding (realartists/shiphub-cocoa#157 realartists/shiphub-cocoa#145)
+ 6: realartists/shiphub-cocoa#217 User.queries needs to be modeled as to-many relationship
  */
-static const NSInteger CurrentLocalModelVersion = 5;
+static const NSInteger CurrentLocalModelVersion = 6;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSManagedObjectModel *_mom;
@@ -300,7 +301,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         return NO;
     }
     
-    if (previousStoreVersion < 5) {
+    if (previousStoreVersion < 6) {
         DebugLog(@"Updating to version %td database from %td. Forcing database re-creation.", CurrentLocalModelVersion, previousStoreVersion);
         forceRecreate = YES;
     }
