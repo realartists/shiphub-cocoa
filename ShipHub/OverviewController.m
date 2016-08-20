@@ -1798,7 +1798,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     [fillPath stroke];
 
     CGRect clipRect;
-    clipRect.size.width = round((b.size.width - 2.0) * _doubleValue);
+    clipRect.size.width = floor((b.size.width - 2.0) * _doubleValue);
     clipRect.origin.x = 1.0;
     clipRect.origin.y = 0.0;
     clipRect.size.height = b.size.height;
