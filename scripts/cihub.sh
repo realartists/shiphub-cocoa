@@ -96,6 +96,7 @@ ditto -c -k --sequesterRsrc --keepParent "$AppName.app" "$AppName.app.zip"
 ditto -c -k --sequesterRsrc --keepParent "$AppName.app.dSYM" "$AppName.app.dSYM.zip"
 curl \
   -F "release_type=3" \
+  -F "status=2" \
   -F "ipa=@$AppName.app.zip" \
   -F "dsym=@$AppName.app.dSYM.zip" \
   -H "X-HockeyAppToken: b3bd5a0b7737405c8795d6f9d749e914" \

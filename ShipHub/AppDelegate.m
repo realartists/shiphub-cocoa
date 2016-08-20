@@ -106,6 +106,15 @@
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    NSString *alternateFeedURLString = [[NSUserDefaults standardUserDefaults] stringForKey:@"SUFeedURL"];
+    if (alternateFeedURLString) {
+        NSURL *alternateFeedURL = [NSURL URLWithString:alternateFeedURLString];
+        if (alternateFeedURL) {
+            [[SUUpdater sharedUpdater] setFeedURL:alternateFeedURL];
+        } else {
+            ErrLog(@"Invalid SUFeedURL in defaults: %@", alternateFeedURLString);
+        }
+    }
 #if DEBUG
     [[SUUpdater sharedUpdater] setAutomaticallyChecksForUpdates:NO];
 #else
