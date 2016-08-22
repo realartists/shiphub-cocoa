@@ -746,6 +746,28 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     [self evaluateJavaScript:js];
 }
 
+- (void)selectAttachments:(NSNumber *)handle {
+    NSOpenPanel* panel = [NSOpenPanel openPanel];
+    
+    panel.canChooseFiles = YES;
+    panel.canChooseDirectories = NO;
+    panel.allowsMultipleSelection = YES;
+    
+    [panel beginSheetModalForWindow:self.view.window completionHandler:^(NSInteger result) {
+        if (result == NSFileHandlingPanelOKButton && panel.URLs.count > 0) {
+            NSArray *wrappers = [panel.URLs arrayByMappingObjects:^id(id obj) {
+                return [[NSFileWrapper alloc] initWithURL:obj options:0 error:NULL];
+            }];
+            
+            [self pasteWrappers:wrappers handle:handle];
+        } else {
+            // cancel
+            NSString *js = [NSString stringWithFormat:@"pasteCallback(%@, 'completed')", handle];
+            [self evaluateJavaScript:js];
+        }
+    }];
+}
+
 - (void)pasteHelper:(NSDictionary *)msg {
     NSNumber *handle = msg[@"handle"];
     NSString *pasteboardName = msg[@"pasteboard"];
@@ -753,6 +775,8 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     NSPasteboard *pasteboard = nil;
     if ([pasteboardName isEqualToString:@"dragging"]) {
         pasteboard = [NSPasteboard pasteboardWithName:_web.dragPasteboardName?:NSDragPboard];
+    } else if ([pasteboardName isEqualToString:@"NSOpenPanel"]) {
+        [self selectAttachments:handle];
     } else {
         pasteboard = [NSPasteboard generalPasteboard];
     }

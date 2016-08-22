@@ -45,8 +45,6 @@ import marked from './marked.min.js'
 import { githubLinkify } from './github_linkify.js'
 import LabelPicker from './label-picker.js'
 import AssigneesPicker from './assignees-picker.js'
-import uploadAttachment from './file-uploader.js'
-import FilePicker from './file-picker.js'
 import { TimeAgo, TimeAgoString } from './time-ago'
 import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from './cm-util.js'
 import { promiseQueue } from './promise-queue.js'
@@ -2214,52 +2212,35 @@ var Comment = React.createClass({
   },
   
   selectFiles: function() {
-    FilePicker({
-      multiple: true
-    }, (files) => {
-      this.attachFiles(files);
-    });
+    var cm = this.refs.codemirror;
+    if (!cm) return;
+    cm = cm.getCodeMirror();
+    if (!cm) return;
+
+    var pasteText = (text) => {
+      cm.replaceSelection(text);
+    };
+      
+    var uploadsStarted = (count, placeholders) => {
+      this.updateUploadCount(count);
+    };
+
+    var uploadFinished = (placeholder, link) => {
+      this.replaceInCode(placeholder, link);
+      this.updateUploadCount(-1);
+    };
+
+    var uploadFailed = (placeholder, err) => {
+      this.replaceInCode(placeholder, "");
+      this.updateUploadCount(-1);
+      alert(err);
+    };
+
+    pasteHelper("NSOpenPanel", pasteText, uploadsStarted, uploadFinished, uploadFailed);
   },
   
   updateUploadCount: function(delta) {
     this.setState(Object.assign({}, this.state, {uploadCount:this.state.uploadCount+delta}));
-  },
-  
-  attachFiles: function(fileList) {
-    if (!(this.refs.codemirror)) {
-      return;
-    }
-    
-    var files = [];
-    for (var i = 0; i < fileList.length; i++) {
-      files.push(fileList[i]);
-    }
-    
-    this.updateUploadCount(files.length);
-    var cm = this.refs.codemirror.getCodeMirror();
-    files.forEach((file) => {
-      var filename = file.name;
-      var isImage = file.type.indexOf("image/") == 0;
-      var placeholder = `[Uploading ${filename}](...)`;
-      if (isImage) {
-        placeholder = "!" + placeholder;
-      }
-      cm.replaceSelection(placeholder + "\n");
-      
-      uploadAttachment(getIvars().token, file).then((url) => {
-        var link = `[${filename}](${url})`
-        if (isImage) {
-          link = "!" + link;
-        }
-        this.replaceInCode(placeholder, link);
-        this.updateUploadCount(-1);
-      }).catch((err) => {
-        console.log(err);
-        this.replaceInCode(placeholder, "");
-        this.updateUploadCount(-1);
-        alert(err);
-      });
-    });
   },
   
   configureCM: function() {
@@ -2388,17 +2369,6 @@ var Comment = React.createClass({
       cm.on('drop', (cm, e) => {
         if (window.inAppPasteHelper) {
           return doAppPaste('dragging', cm, e);
-        } else {
-          // handle the upload natively in the browser
-          var files = e.dataTransfer.files;
-          if (files.length > 0) {
-            this.attachFiles(files);
-            e.stopPropagation();
-            e.preventDefault();
-            return true;
-          } else {
-            return false;
-          }
         }
       });
       
@@ -2450,7 +2420,24 @@ var Comment = React.createClass({
     }
   },
   
+  cmGoToEnd: function() {
+    if (!this.refs.codemirror) return;
+    var cm = this.refs.codemirror.getCodeMirror();
+    cm.execCommand('goDocEnd');
+  },
+  
   applyMarkdownFormat: function(format) {
+    if (this.state.previewing) {
+      this.setState(Object.assign({}, this.state, {previewing: false}), () => {
+        this.focusCodemirror();
+        var cm = this.refs.codemirror.getCodeMirror();
+        cm.execCommand('goDocEnd');
+        insertTemplate('\n')(cm);
+        this.applyMarkdownFormat(format);
+      });
+      return;
+    }
+  
     if (!(this.refs.codemirror)) {
       return;
     }
