@@ -579,7 +579,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (__kindof NSManagedObject *)insertManagedObjectWithIdentifier:(NSNumber *)identifier entityName:(NSString *)entityName {
     NSManagedObject *obj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
     [obj setValue:identifier forKey:@"identifier"];
-    NSString *key = [NSString stringWithFormat:@"%@.%lld", entityName, identifier.longLongValue];
+    NSString *key = [self cacheKeyWithObject:obj];
     _syncCache[key] = obj;
     return obj;
 }
