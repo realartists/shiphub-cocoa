@@ -108,7 +108,13 @@
         end = [NSDate date];
     }
     
-    [[DataStore activeStore] timeSeriesMatchingPredicate:self.predicate startDate:start endDate:end completion:^(TimeSeries *series, NSError *error) {
+    NSPredicate *basePredicate = self.predicate;
+    if ([config.partitionKeyPath isEqualToString:@"state"]) {
+        // if we're partitioning on state, don't also filter on it, it doesn't make sense to do so
+        basePredicate = [TimeSeries predicateWithoutState:basePredicate];
+    }
+    
+    [[DataStore activeStore] timeSeriesMatchingPredicate:basePredicate startDate:start endDate:end completion:^(TimeSeries *series, NSError *error) {
         if (generation == _searchGeneration) {
             _resultsCount = series.records.count;
             [self timeSeriesToJSON:series partition:config.partitionKeyPath completion:^(NSString *js) {
@@ -167,12 +173,13 @@ static NSSet *uniqueKeyPathsInRecords(NSArray *records, NSString *keyPath) {
         }] ?: @[];
         
         if (partitionPath) {
+            NSPredicate *basePredicate = timeSeries.predicate;
             NSSet *partitionValues = uniqueKeyPathsInRecords(timeSeries.records, partitionPath);
             NSMutableArray *partitionedSeries = [NSMutableArray arrayWithCapacity:partitionValues.count];
             NSMutableArray *partitionedJSON = d[@"partitions"] = [NSMutableArray arrayWithCapacity:partitionValues.count];
             for (id partitionValue in partitionValues) {
                 id val = partitionValue == [NSNull null] ? nil : partitionValue;
-                NSPredicate *partitionPredicate = [timeSeries.predicate and:[NSPredicate predicateWithFormat:@"%K = %@", partitionPath, val]];
+                NSPredicate *partitionPredicate = [basePredicate and:[NSPredicate predicateWithFormat:@"%K = %@", partitionPath, val]];
                 TimeSeries *ts = [[TimeSeries alloc] initWithPredicate:partitionPredicate startDate:timeSeries.startDate endDate:timeSeries.endDate];
                 [ts selectRecordsFrom:timeSeries.records];
                 [ts generateIntervalsWithCalendarUnit:NSCalendarUnitDay];

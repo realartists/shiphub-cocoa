@@ -124,6 +124,18 @@ static BOOL isStatePredicate(NSPredicate *predicate, BOOL *isOpenValue) {
     return NO;
 }
 
++ (NSPredicate *)predicateWithoutState:(NSPredicate *)p; // strip out any state or closed comparison predicates
+{
+    return [p predicateByRewriting:^NSPredicate *(NSPredicate *original) {
+        BOOL ignored;
+        if (isStatePredicate(original, &ignored)) {
+            return [NSPredicate predicateWithValue:YES];
+        }
+        
+        return original;
+    }];
+}
+
 + (NSPredicate *)timeSeriesPredicateWithPredicate:(NSPredicate *)queryPredicate startDate:(NSDate *)startDate endDate:(NSDate *)endDate open:(NSNumber *__autoreleasing*)outOpen
 {
     __block NSInteger openCount = 0;
