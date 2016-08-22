@@ -88,7 +88,7 @@
        @"asc": strAsc,
        @"desc": strDesc };
     
-    m = [sortMenu addItemWithTitle:NSLocalizedString(@"Originator", nil) action:@selector(changeSort:) keyEquivalent:@""];
+    m = [sortMenu addItemWithTitle:NSLocalizedString(@"Author", nil) action:@selector(changeSort:) keyEquivalent:@""];
     m.representedObject =
     @{ @"key": @"originator.login",
        @"dir": @"asc",

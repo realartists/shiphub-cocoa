@@ -25,8 +25,8 @@
 "%[closedAt]@ %[is less than]@ %@ %@" = "%1$[Closed on date]@ %2$[is less than]@ %3$@ %4$@";
 "%[closedAt]@ %[is greater than]@ %@ %@" = "%1$[Closed on date]@ %2$[is greater than]@ %3$@ %4$@";
 
-"%[originator.login]@ %[is]@ %@" = "%1$[Originator]@ %2$[is]@ %3$@";
-"%[originator.login]@ %[is not]@ %@" = "%1$[Originator]@ %2$[is not]@ %3$@";
+"%[originator.login]@ %[is]@ %@" = "%1$[Author]@ %2$[is]@ %3$@";
+"%[originator.login]@ %[is not]@ %@" = "%1$[Author]@ %2$[is not]@ %3$@";
 
 "%[assignees.login]@ %[is]@ %@" = "%1$[Assignees]@ %2$[contains]@ %3$@";
 "%[assignees.login]@ %[is not]@ %@" = "%1$[Assignees]@ %2$[does not contain]@ %3$@";

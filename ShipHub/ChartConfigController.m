@@ -48,7 +48,7 @@
     [_partitionPopUp addItemWithTitle:NSLocalizedString(@"Assignee", nil)];
     [[_partitionPopUp.itemArray lastObject] setRepresentedObject:@"assignee.login"];
     
-    [_partitionPopUp addItemWithTitle:NSLocalizedString(@"Originator", nil)];
+    [_partitionPopUp addItemWithTitle:NSLocalizedString(@"Author", nil)];
     [[_partitionPopUp.itemArray lastObject] setRepresentedObject:@"originator.login"];
     
     [_partitionPopUp addItemWithTitle:NSLocalizedString(@"Closed By", nil)];

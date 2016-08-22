@@ -171,7 +171,7 @@
                      @"maxWidth" : @200 },
                   
                   @{ @"identifier" : @"originator.login",
-                     @"title" : NSLocalizedString(@"Originator", nil),
+                     @"title" : NSLocalizedString(@"Author", nil),
                      @"width" : @160,
                      @"minWidth" : @130,
                      @"maxWidth" : @200 },
