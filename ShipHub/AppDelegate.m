@@ -319,6 +319,7 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
         _auth = nil;
         [self showAuthIfNeededAnimated:YES];
     }
+    [self rebuildAccountMenu];
 }
 
 - (IBAction)changeAccount:(id)sender {
@@ -339,6 +340,7 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
             _nextAuth = nil;
         }
         
+        [_authController close];
         [_overviewControllers makeObjectsPerformSelector:@selector(close)];
         
         IssueDocumentController *docController = [IssueDocumentController sharedDocumentController];
