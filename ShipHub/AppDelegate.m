@@ -440,6 +440,10 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://guides.github.com/features/mastering-markdown/"]];
 }
 
+- (IBAction)showHelp:(id)sender {
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://beta.realartists.com/docs/2.0/index.html"]];
+}
+
 - (void)protocolIncompatible:(NSNotification *)note {
     [[Reachability sharedInstance] setForceOffline:YES];
     
