@@ -89,8 +89,8 @@
     [self.view addSubview:filter];
 }
 
-- (void)viewDidLayout {
-    [super viewDidLayout];
+- (void)viewWillLayout {
+    [super viewWillLayout];
     [self layoutButtons];
 }
 
