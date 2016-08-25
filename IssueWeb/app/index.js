@@ -1182,6 +1182,7 @@ var CommitInfoEventBody = React.createClass({
                {
                  className: "referencedCommitSubject",
                  href: `https://github.com/${urlParts.owner}/${urlParts.repo}/commit/${this.props.event.commit_id}`,
+                 title: body ? message : ""
                },
                subject
               ),
