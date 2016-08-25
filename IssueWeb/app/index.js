@@ -3688,7 +3688,7 @@ var App = React.createClass({
   registerGlobalEventHandlers: function() {
     var doc = window.document;
     doc.onkeypress = (evt) => {
-      if (evt.which == 115 && evt.metaKey) {
+      if (evt.which == 115 && evt.metaKey && !evt.shiftKey && !evt.ctrlKey && !evt.altKey) {
         console.log("global save");
         this.save();
         evt.preventDefault();
