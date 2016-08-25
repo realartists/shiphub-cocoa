@@ -558,9 +558,13 @@ var markedRenderer = new marked.Renderer();
 
 markedRenderer.defaultListItem = markedRenderer.listitem;
 markedRenderer.listitem = function(text) {
-  var result = this.defaultListItem(text);
-  result = result.replace(/\[ \]/, '<input type="checkbox">');
-  result = result.replace(/\[x\]/, '<input type="checkbox" checked>');
+  if (/\[[ x]\]/.test(text)) {
+    text = text.replace(/\[ \]/, '<input type="checkbox">');
+    text = text.replace(/\[x\]/, '<input type="checkbox" checked>');
+    return "<li class='taskItem'>" + text + "</li>";
+  } else {
+    return this.defaultListItem(text);
+  }
   return result;
 }
 
@@ -1855,7 +1859,7 @@ var CommentBody = React.createClass({
         x._sortableInstalled = true;
         var offset = counter.i;
         // install drag handle on each 
-        Array.from(x.childNodes).filter((cn) => cn.nodeName == 'LI').forEach((li) => {
+        Array.from(x.childNodes).filter((cn) => cn.nodeName == 'LI' && cn.className == 'taskItem').forEach((li) => {
           var handle = document.createElement('i');
           handle.className = "fa fa-bars taskHandle";
           li.insertBefore(handle, li.firstChild);
@@ -1864,6 +1868,7 @@ var CommentBody = React.createClass({
         });
         var s = Sortable.create(x, {
           animation: 150,
+          draggable: '.taskItem',
           handle: '.taskHandle',
           ghostClass: 'taskGhost',
           onStart: () => {
@@ -1876,8 +1881,22 @@ var CommentBody = React.createClass({
               h.style.opacity = "";
             });
             if (evt.oldIndex != evt.newIndex) {
-              var srcIdx = offset + evt.oldIndex;
-              var dstIdx = offset + evt.newIndex;
+              var srcIdx = evt.oldIndex;
+              var dstIdx = evt.newIndex;
+              
+              var nonTasksLTSrc = 0;
+              var nonTasksLTDst = 0;
+              for (var i = 0; i < srcIdx || i < dstIdx; i++) {
+                var cn = x.childNodes[i];
+                if (cn.nodeName == 'LI' && cn.className != 'taskItem') {
+                  if (i < srcIdx) nonTasksLTSrc++;
+                  if (i < dstIdx) nonTasksLTDst++;
+                }
+              }
+              
+              srcIdx += offset - nonTasksLTSrc;
+              dstIdx += offset - nonTasksLTDst;
+              
               this.moveTaskItem(srcIdx, dstIdx);
             }
           }
