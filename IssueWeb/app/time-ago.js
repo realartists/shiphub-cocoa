@@ -121,7 +121,9 @@ var TimeAgo = React.createClass(
       }
     }
   , render: function(){
-      return h( this.props.component, this.props, TimeAgoString(this.props.date, this.props.formatter) )
+      var fullDateString = new Date(this.props.date).toLocaleString();
+      var props = Object.assign({}, { title: fullDateString }, this.props);
+      return h( this.props.component, props, TimeAgoString(this.props.date, this.props.formatter) )
     }
   }
 );
