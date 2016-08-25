@@ -45,8 +45,6 @@
 		1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */; };
 		1A0D87741CA9E25F0069782D /* JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.m */; };
 		1A0D87751CA9E25F0069782D /* JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.m */; };
-		1A20CFC61D5152C800F412DE /* assignees-picker.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A20CFC41D5152C800F412DE /* assignees-picker.js */; };
-		1A20CFC71D5152C800F412DE /* cm-util.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A20CFC51D5152C800F412DE /* cm-util.js */; };
 		1A20CFF31D52A3E800F412DE /* LocalReaction+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF01D52A3E800F412DE /* LocalReaction+CoreDataProperties.m */; };
 		1A20CFF41D52A3E800F412DE /* LocalReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF21D52A3E800F412DE /* LocalReaction.m */; };
 		1A20CFFA1D52A81F00F412DE /* Reaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF91D52A81F00F412DE /* Reaction.m */; };
@@ -165,7 +163,6 @@
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsView.m */; };
 		1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */; };
-		1AB038401D5AA0CF005093B9 /* promise-queue.js in Resources */ = {isa = PBXBuildFile; fileRef = 1AB0383F1D5AA0CF005093B9 /* promise-queue.js */; };
 		1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB038451D5AB7EC005093B9 /* IssueWaiter.m */; };
 		1AB0384F1D5C011D005093B9 /* HockeySDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB0384B1D5C0117005093B9 /* HockeySDK.framework */; };
 		1AB038501D5C013A005093B9 /* HockeySDK.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB0384B1D5C0117005093B9 /* HockeySDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -414,6 +411,7 @@
 		1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueDocumentController.m; sourceTree = "<group>"; };
 		1A0D87721CA9E25F0069782D /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSON.h; sourceTree = "<group>"; };
 		1A0D87731CA9E25F0069782D /* JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSON.m; sourceTree = "<group>"; };
+		1A1584D71D6E7E070050DCC6 /* rewrite-task-list.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "rewrite-task-list.js"; sourceTree = "<group>"; };
 		1A20CFC41D5152C800F412DE /* assignees-picker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "assignees-picker.js"; sourceTree = "<group>"; };
 		1A20CFC51D5152C800F412DE /* cm-util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "cm-util.js"; sourceTree = "<group>"; };
 		1A20CFEF1D52A3E800F412DE /* LocalReaction+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalReaction+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -618,8 +616,6 @@
 		1AC6196F1D232E9A00FE1E76 /* LocalPriority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPriority.h; sourceTree = "<group>"; };
 		1AC619701D232E9A00FE1E76 /* LocalPriority.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalPriority.m; sourceTree = "<group>"; };
 		1AD095E31CF8DF9100A0277A /* completer.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = completer.js; sourceTree = "<group>"; };
-		1AD095E41CF8DF9100A0277A /* file-picker.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "file-picker.js"; sourceTree = "<group>"; };
-		1AD095E51CF8DF9100A0277A /* file-uploader.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "file-uploader.js"; sourceTree = "<group>"; };
 		1AD095E61CF8DF9100A0277A /* label-picker.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "label-picker.js"; sourceTree = "<group>"; };
 		1AD095E71CF8DF9100A0277A /* smart-input.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "smart-input.js"; sourceTree = "<group>"; };
 		1AD095E81CF8DF9100A0277A /* time-ago.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "time-ago.js"; sourceTree = "<group>"; };
@@ -1325,13 +1321,12 @@
 		1AFE21F11CA5EC3F00B51CF6 /* app */ = {
 			isa = PBXGroup;
 			children = (
+				1A1584D71D6E7E070050DCC6 /* rewrite-task-list.js */,
 				1AB0383F1D5AA0CF005093B9 /* promise-queue.js */,
 				1A20CFC41D5152C800F412DE /* assignees-picker.js */,
 				1A20CFC51D5152C800F412DE /* cm-util.js */,
 				1A9DA7EE1D223DB500A23EC9 /* spellcheck.js */,
 				1AD095E31CF8DF9100A0277A /* completer.js */,
-				1AD095E41CF8DF9100A0277A /* file-picker.js */,
-				1AD095E51CF8DF9100A0277A /* file-uploader.js */,
 				1AD095E61CF8DF9100A0277A /* label-picker.js */,
 				1AD095E71CF8DF9100A0277A /* smart-input.js */,
 				1AD095E81CF8DF9100A0277A /* time-ago.js */,
@@ -1498,7 +1493,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A7FD77A1D493B0400B585E2 /* ProgressSheet.xib in Resources */,
-				1A20CFC61D5152C800F412DE /* assignees-picker.js in Resources */,
 				1AF5673D1D627C2E00611DBB /* OAuthController.xib in Resources */,
 				1AF5672D1D62427100611DBB /* WelcomeController.xib in Resources */,
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
@@ -1516,13 +1510,11 @@
 				1A7FD7751D492FE000B585E2 /* MilestoneModifyController.xib in Resources */,
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
-				1A20CFC71D5152C800F412DE /* cm-util.js in Resources */,
 				1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */,
 				28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */,
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
 				1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */,
-				1AB038401D5AA0CF005093B9 /* promise-queue.js in Resources */,
 				1A012E811D3EAC0E006CE5DF /* SaveSearchController.xib in Resources */,
 				1A7FD77F1D494A5C00B585E2 /* LabelModifyController.xib in Resources */,
 				1A012E9F1D3EE111006CE5DF /* SearchSheet.xib in Resources */,

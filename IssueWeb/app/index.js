@@ -48,6 +48,7 @@ import AssigneesPicker from './assignees-picker.js'
 import { TimeAgo, TimeAgoString } from './time-ago'
 import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from './cm-util.js'
 import { promiseQueue } from './promise-queue.js'
+import { rewriteTaskList } from './rewrite-task-list.js'
 
 var debugToken = "";
 
@@ -565,7 +566,7 @@ markedRenderer.listitem = function(text) {
 
 markedRenderer.list = function(body, ordered) {
   if (body.indexOf('<input type="checkbox"') != -1) {
-    return "<ul class='taskList'>" + body + "</ol>";
+    return "<ul class='taskList'>" + body + "</ul>";
   } else {
     if (ordered) {
       return "<ol>" + body + "</ol>";
@@ -1801,32 +1802,12 @@ var CommentBody = React.createClass({
   /* srcIdx and dstIdx are comment global checkbox indices */
   moveTaskItem: function(srcIdx, dstIdx) {
     var body = this.props.body;
-    var pattern = /(?:(?:\d+\.)|(?:\-)|(?:\*))\s+\[[x ]\].*(?:\n|$)/g;
-    var matches = matchAll(pattern, body);
     
-    if (srcIdx < matches.length && dstIdx < matches.length) {
-      var srcMatch = matches[srcIdx];
-      var dstMatch = matches[dstIdx];
-      
-      var withoutSrc = body.slice(0, srcMatch.index) + body.slice(srcMatch.index+srcMatch[0].length);
-      var insertionPoint;
-      insertionPoint = dstMatch.index;
-      if (srcIdx < dstIdx) {
-        insertionPoint += dstMatch[0].length - srcMatch[0].length;
-      }
-      
-      var insertion = srcMatch[0];
-      if (!insertion.endsWith("\n")) {
-        insertion += "\n";
-      }
-      if (!dstMatch[0].endsWith("\n")) {
-        insertion = "\n" + insertion;
-      }
-      body = withoutSrc.slice(0, insertionPoint) + insertion + withoutSrc.slice(insertionPoint)
-      body = body.trim();
-      
-      this.updateLastRendered(body);
-      this.props.onEdit(body);
+    var newBody = rewriteTaskList(body, srcIdx, dstIdx);
+    
+    if (body != newBody) {
+      this.updateLastRendered(newBody);
+      this.props.onEdit(newBody);
     }
   },
   
@@ -1856,6 +1837,7 @@ var CommentBody = React.createClass({
         if (k.nodeName == 'UL' || k.nodeName == 'OL') {
           return false;
         }
+        k = k.parentElement;
       }
       return true;
     };    
@@ -1868,14 +1850,12 @@ var CommentBody = React.createClass({
         x._sortableInstalled = true;
         var offset = counter.i;
         // install drag handle on each 
-        preOrderTraverseDOM(x, (li) => {
-          if (li.nodeName == 'LI') {
-            var handle = document.createElement('i');
-            handle.className = "fa fa-bars taskHandle";
-            li.insertBefore(handle, li.firstChild);
-            handles.push(handle);
-            counter.i++;
-          }
+        Array.from(x.childNodes).filter((cn) => cn.nodeName == 'LI').forEach((li) => {
+          var handle = document.createElement('i');
+          handle.className = "fa fa-bars taskHandle";
+          li.insertBefore(handle, li.firstChild);
+          handles.push(handle);
+          counter.i++;
         });
         var s = Sortable.create(x, {
           animation: 150,
