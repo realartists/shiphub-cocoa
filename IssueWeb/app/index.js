@@ -830,8 +830,12 @@ var AssignedEventDescription = React.createClass({
 var UnassignedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    // XXX: GitHub bug always sets the actor to the assignee.
-    return h("span", {}, "is no longer assigned");
+    var actor = this.props.event.assigner || this.props.event.actor;
+    if (this.props.event.assignee.id == actor.id) {
+      return h("span", {}, "is no longer assigned");
+    } else {
+      return h("span", {}, "removed assignee ", h(EventUser, {user:this.props.event.assignee}));
+    }
   }
 });
 
