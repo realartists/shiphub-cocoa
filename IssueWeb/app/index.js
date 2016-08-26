@@ -945,25 +945,60 @@ function expandCommit(event) {
 
 var ReferencedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
+  
+  willCloseIssueOnMerge: function() {
+    var info = getOwnerRepoTypeNumberFromURL(this.props.event.commit_url);
+    var issue = getIvars().issue;
+    
+    if (issue.state != "open") {
+      // if the issue is already closed, this commit won't close it further.
+      return false;
+    }
+    
+    if (info.owner != issue._bare_owner ||
+        info.repo != issue._bare_repo)
+    {
+      // commit is in a different repo. it won't close it.
+      return false;
+    }
+    
+    var msg = this.props.event.ship_commit_message || "";
+    var fixes = /(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s+((?:[\w\d\-_]+\/[\w\d\-_]+)#\d+)/gi;
+    var allFixes = matchAll(fixes, msg);
+    var issueNum = "#" + (issue.number || "");
+    var fullIssueNum = issue.full_identifier || (issue._bare_owner + "/" + issue._bare_repo + issueNum);
+    var fixes = allFixes.map((x) => x[1]).filter((x) => x == issueNum || x == fullIssueNum);
+    return fixes.length > 0;
+  },
+  
   render: function() {
     var [committish, commitURL] = expandCommit(this.props.event);
 
-    var authoredBy = null;
+    var parts = ["referenced this issue in commit ",
+                 h("a", {key: "shaLink", className: "shaLink", href:commitURL, target:"_blank"}, committish)];
+
     if (this.props.event.ship_commit_author &&
         this.props.event.ship_commit_author.login !=
         this.props.event.actor.login) {
-      authoredBy = h("span", {},
+      var authoredBy = h("span", {key: "authoredBy"},
                      "(authored by ",
                      h(EventUser, {user: this.props.event.ship_commit_author}),
                      ")"
                     );
+      parts.push(authoredBy);
     }
-
-    return h("span", {},
-      "referenced this issue in commit ",
-      h("a", {className: "shaLink", href:commitURL, target:"_blank"}, committish),
-      authoredBy
-    );
+    
+    if (this.willCloseIssueOnMerge()) {
+      var closeInfo = h("i", {
+        key: "willCloseOnMerge",
+        className: "fa fa-code-fork", 
+        style: { paddingLeft: "4px", paddingRight: "1px" },
+        title: "This issue will close once this commit is merged"}
+      );
+      parts.push(closeInfo);
+    }
+    
+    return h("span", {}, parts);
   }
 });
 
