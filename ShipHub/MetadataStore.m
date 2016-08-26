@@ -58,11 +58,28 @@ static BOOL IsMetadataObject(id obj) {
     return [obj conformsToProtocol:@protocol(LocalMetadata)] || [obj isKindOfClass:[LocalHidden class]];
 }
 
+static BOOL IsImportantUserChange(LocalUser *lu) {
+    static NSSet *ignoredKeys;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        ignoredKeys = [NSSet setWithObjects:@"actedEvents", @"assignedEvents", @"assignedIssues", @"closedIssues", @"comments", @"originatedIssues", @"reactions", nil];
+    });
+    for (NSString *key in lu.changedValues) {
+        return ![ignoredKeys containsObject:key];
+    }
+    return NO;
+}
+
 + (BOOL)changeNotificationContainsMetadata:(NSNotification *)mocNote {
     
     __block BOOL result = NO;
     [mocNote enumerateModifiedObjects:^(id obj, CoreDataModificationType modType, BOOL *stop) {
         if (IsMetadataObject(obj)) {
+            if (modType == CoreDataModificationTypeUpdated
+                && [obj isKindOfClass:[LocalUser class]]
+                && !IsImportantUserChange(obj)) {
+                return;
+            }
             result = YES;
             *stop = YES;
         }
