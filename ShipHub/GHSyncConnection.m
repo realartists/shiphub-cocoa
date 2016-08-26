@@ -288,7 +288,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
         
         NSString *endpoint = [NSString stringWithFormat:@"repos/%@/%@/issues", repo[@"owner"][@"login"], repo[@"name"]];
         
-        [_pager fetchPaged:[_pager get:endpoint params:params] completion:^(NSArray *data, NSError *err) {
+        [_pager fetchPaged:[_pager get:endpoint params:params headers:@{ @"Accept" : @"application/vnd.github.squirrel-girl-preview"}] completion:^(NSArray *data, NSError *err) {
             NSArray *issues = nil;
             
             if (data) {
@@ -359,7 +359,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                                           params:nil
                                          headers:reactionsHeaders];
     
-    [_pager jsonTask:[_pager get:issueEndpoint] completion:^(id json, NSHTTPURLResponse *response, NSError *err) {
+    [_pager jsonTask:[_pager get:issueEndpoint params:nil headers:@{ @"Accept" : @"application/vnd.github.squirrel-girl-preview"}] completion:^(id json, NSHTTPURLResponse *response, NSError *err) {
         if (err) {
             ErrLog(@"%@", err);
             return;

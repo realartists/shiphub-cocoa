@@ -253,6 +253,9 @@ static NSString *camelsToBars(NSString *s) {
         if ([s isEqualToString:@"events"]) {
             return @"eventsCount";
         }
+        if ([s isEqualToString:@"reactions"]) {
+            return @"shipReactionSummary";
+        }
         if ([s rangeOfString:@"_"].location == NSNotFound) {
             return s;
         }

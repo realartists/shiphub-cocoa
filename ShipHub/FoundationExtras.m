@@ -1225,7 +1225,40 @@ CGRect IntegralRect(CGRect r) {
 
 @end
 
+@interface PositiveOnlyIntegerFormatter : NSNumberFormatter
+
+@end
+
+@implementation PositiveOnlyIntegerFormatter
+
+- (NSString *)stringForObjectValue:(id)obj {
+    if ([obj isKindOfClass:[NSNumber class]]) {
+        return [self stringFromNumber:obj];
+    } else {
+        return @"";
+    }
+}
+
+- (NSString *)stringFromNumber:(NSNumber *)number {
+    if (number.integerValue < 1) {
+        return @"";
+    } else {
+        return [NSString localizedStringWithFormat:@"%td", number.integerValue];
+    }
+}
+
+@end
+
 @implementation NSNumberFormatter (Extras)
+
++ (NSNumberFormatter *)positiveOnlyIntegerFormatter {
+    static dispatch_once_t onceToken;
+    static PositiveOnlyIntegerFormatter *formatter;
+    dispatch_once(&onceToken, ^{
+        formatter = [PositiveOnlyIntegerFormatter new];
+    });
+    return formatter;
+}
 
 + (NSNumberFormatter *)positiveAndNegativeIntegerFormatter {
     static dispatch_once_t onceToken;

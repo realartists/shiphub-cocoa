@@ -21,6 +21,11 @@
 @interface MultipleAssigneesFormatter : NSFormatter
 @end
 
+static NSString *reactionContentToEmoji(NSString *content);
+
+@interface ReactionSummaryFormatter : NSFormatter
+@end
+
 @interface IssueTableController () <ProblemTableViewDelegate, NSTableViewDataSource, NSMenuDelegate>
 
 @property (strong) IBOutlet NSTableView *table;
@@ -128,6 +133,16 @@
     [self _makeColumnHeaderMenu];
 }
 
+static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
+    return
+        @{ @"identifier" : [@"reactionSummary." stringByAppendingString:reactionContent],
+           @"menuGroup" : NSLocalizedString(@"Reactions", nil),
+           @"title" : reactionContentToEmoji(reactionContent),
+           @"formatter" : [NSNumberFormatter positiveOnlyIntegerFormatter],
+           @"minWidth" : @46,
+           @"maxWidth" : @46 };
+}
+
 + (NSArray *)columnSpecs {
     static NSArray *specs;
     if (!specs) {
@@ -220,7 +235,23 @@
                      @"cellClass" : @"LabelsCell",
                      @"sortDescriptor" : [NSSortDescriptor sortDescriptorWithKey:@"labels.@count" ascending:YES],
                      @"minWidth" : @100,
-                     @"maxWidth" : @10000 }
+                     @"maxWidth" : @10000 },
+                  
+                  @{ @"identifier" : @"reactionSummary",
+                     @"menuGroup" : NSLocalizedString(@"Reactions", nil),
+                     @"title" : NSLocalizedString(@"All Reactions", nil),
+                     @"formatter" : [ReactionSummaryFormatter new],
+                     @"sortDescriptor" : [NSSortDescriptor sortDescriptorWithKey:@"reactionsCount" ascending:YES],
+                     @"minWidth" : @100,
+                     @"maxWidth" : @1000 },
+                  
+                  makeReactionColumnSpec(@"+1"),
+                  makeReactionColumnSpec(@"-1"),
+                  makeReactionColumnSpec(@"laugh"),
+                  makeReactionColumnSpec(@"confused"),
+                  makeReactionColumnSpec(@"heart"),
+                  makeReactionColumnSpec(@"hooray"),
+                  
                   ];
     }
     return specs;
@@ -249,13 +280,28 @@
     menu.delegate = self;
     [[_table headerView] setMenu:menu];
     //loop through columns, creating a menu item for each
+    NSMutableDictionary *menuGroups = [NSMutableDictionary new];
     for (NSTableColumn *col in _tableColumns) {
         NSDictionary *spec = [[self class] columnSpecWithIdentifier:col.identifier];
         NSMenuItem *mi = [[NSMenuItem alloc] initWithTitle:spec[@"menuTitle"] ?: spec[@"title"]
                                                     action:@selector(toggleColumn:)  keyEquivalent:@""];
         mi.target = self;
         mi.representedObject = col;
-        [menu addItem:mi];
+        
+        NSString *menuGroupName = spec[@"menuGroup"];
+        if (menuGroupName) {
+            NSMenu *submenu = menuGroups[menuGroupName];
+            if (!submenu) {
+                NSMenuItem *submenuItem = [[NSMenuItem alloc] initWithTitle:menuGroupName action:nil keyEquivalent:@""];
+                menuGroups[menuGroupName] = submenu = [[NSMenu alloc] init];
+                submenu.delegate = self;
+                submenuItem.submenu = submenu;
+                [menu addItem:submenuItem];
+            }
+            [submenu addItem:mi];
+        } else {
+            [menu addItem:mi];
+        }
     }
     
     [menu addItem:[NSMenuItem separatorItem]];
@@ -273,7 +319,7 @@
 }
 
 -(void)menuWillOpen:(NSMenu *)menu {
-    if (menu == _table.headerView.menu) {
+    if (menu == _table.headerView.menu || menu.supermenu == _table.headerView.menu) {
         for (NSMenuItem *mi in menu.itemArray) {
             NSTableColumn *col = [mi representedObject];
             if (col) {
@@ -772,7 +818,9 @@
 {
     Issue *item = _items[row];
     if ([tableColumn.identifier isEqualToString:@"labels"]) {
-        return item.labels; // don't ever return a @"--" for labels.
+        return item.labels; // don't ever return a @"--" for labels
+    } else if ([tableColumn.identifier hasPrefix:@"reactionSummary"]) {
+        return [item valueForKeyPath:tableColumn.identifier]; // let reactions handle all their formatting.
     }
     
     id result = [item valueForKeyPath:tableColumn.identifier] ?: @"--";
@@ -1155,3 +1203,40 @@
 }
 
 @end
+
+static NSString *reactionContentToEmoji(NSString *content) {
+    static dispatch_once_t onceToken;
+    static NSDictionary *lookup;
+    dispatch_once(&onceToken, ^{
+        lookup = @{ @"+1" : @"👍",
+                    @"-1" : @"👎",
+                    @"laugh" : @"😀",
+                    @"confused" : @"😕",
+                    @"heart" : @"\u2764\uFE0F",
+                    @"hooray" : @"🎉" };
+    });
+    return lookup[content] ?: @"";
+}
+
+@implementation ReactionSummaryFormatter
+
+- (nullable NSString *)stringForObjectValue:(NSDictionary *)obj {
+    if ([obj isKindOfClass:[NSDictionary class]]) {
+        NSArray *keys = [[obj allKeys] sortedArrayUsingSelector:@selector(compare:)];
+        if (keys.count == 0) return @"";
+        NSMutableString *str = [NSMutableString new];
+        for (NSString *key in keys) {
+            NSString *emoji = reactionContentToEmoji(key);
+            NSNumber *value = obj[key];
+            if ([emoji length] && value.integerValue > 0) {
+                [str appendFormat:@"%@%@ ", emoji, value];
+            }
+        }
+        return [str trim];
+    } else {
+        return [obj description];
+    }
+}
+
+@end
+

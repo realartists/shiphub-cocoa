@@ -57,6 +57,11 @@
         }] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
         _milestone = [ms milestoneWithIdentifier:li.milestone.identifier];
         _repository = [ms repoWithIdentifier:li.repository.identifier];
+        _reactionSummary = (id)(li.shipReactionSummary);
+        
+        for (NSNumber *v in _reactionSummary.allValues) {
+            _reactionsCount += v.integerValue;
+        }
         
         _unread = [li.notification.unread boolValue];
         
@@ -74,14 +79,10 @@
             _comments = [localComments arrayByMappingObjects:^id(LocalComment *obj) {
                 return [[IssueComment alloc] initWithLocalComment:obj metadataStore:ms];
             }];
-            _commentsCount = _comments.count;
             
             _reactions = [[li.reactions allObjects] arrayByMappingObjects:^id(id obj) {
                 return [[Reaction alloc] initWithLocalReaction:obj metadataStore:ms];
             }];
-        } else {
-            _commentsCount = [li.comments count];
-            _reactionsCount = [li.reactions count];
         }
         
         BOOL includePriority = [options[IssueOptionIncludeUpNextPriority] boolValue];

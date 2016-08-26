@@ -39,8 +39,8 @@
 @property (readonly) NSArray<Label*> *labels;
 @property (readonly) Milestone *milestone;
 @property (readonly) Repo *repository;
-@property (readonly) NSUInteger commentsCount;
-@property (readonly) NSUInteger reactionsCount;
+@property (readonly) NSDictionary<NSString *, NSNumber *> *reactionSummary;
+@property (readonly) NSInteger reactionsCount; // computed from reactionSummary, not the array of reactions
 @property (readonly) BOOL unread;
 
 // events and comments are conditionally populated.

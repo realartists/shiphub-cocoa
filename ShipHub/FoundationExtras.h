@@ -60,6 +60,7 @@
 @interface NSNumberFormatter (Extras)
 
 + (NSNumberFormatter *)positiveAndNegativeIntegerFormatter; // Positive numbers appear as 123456789, negative appear in red as (123456789)
++ (NSNumberFormatter *)positiveOnlyIntegerFormatter; // i<=0 => "", i > 0 => i
 
 @end
 

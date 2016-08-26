@@ -47,6 +47,7 @@
         <attribute name="locked" optional="YES" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
         <attribute name="number" optional="YES" attributeType="Integer 64" defaultValueString="0" indexed="YES" syncable="YES"/>
         <attribute name="pullRequest" attributeType="Boolean" defaultValueString="NO" indexed="YES" syncable="YES"/>
+        <attribute name="shipReactionSummary" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="updatedAt" optional="YES" attributeType="Date" indexed="YES" syncable="YES"/>
@@ -157,7 +158,7 @@
         <element name="LocalComment" positionX="0" positionY="0" width="128" height="150"/>
         <element name="LocalEvent" positionX="0" positionY="0" width="128" height="180"/>
         <element name="LocalHidden" positionX="9" positionY="153" width="128" height="75"/>
-        <element name="LocalIssue" positionX="0" positionY="0" width="128" height="375"/>
+        <element name="LocalIssue" positionX="0" positionY="0" width="128" height="390"/>
         <element name="LocalLabel" positionX="0" positionY="0" width="128" height="105"/>
         <element name="LocalMilestone" positionX="0" positionY="0" width="128" height="225"/>
         <element name="LocalNotification" positionX="9" positionY="153" width="128" height="165"/>
