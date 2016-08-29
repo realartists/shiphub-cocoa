@@ -695,7 +695,9 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
             // for hidpi images we want to write an <img> tag instead of using markdown syntax, as this will prevent it from drawing too large.
             filename = [filename stringByReplacingOccurrencesOfString:@"'" withString:@"`"];
             CGSize size = image.size;
-            return [NSString stringWithFormat:@"<img src='%@' title='%@' width=%.0f height=%.0f>", linkURL, filename, size.width, size.height];
+            // Workaround for realartists/shiphub-cocoa#241 Image attachments from Ship appear stretched / squished when viewed on github.com
+            // Only include the image width, not the height so GitHub doesn't get confused.
+            return [NSString stringWithFormat:@"<img src='%@' title='%@' width=%.0f>", linkURL, filename, size.width];
         } else {
             return [NSString stringWithFormat:@"![%@](%@)", filename, linkURL];
         }
