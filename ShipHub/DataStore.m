@@ -1202,7 +1202,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSNumber *issueNumber = [issueIdentifier issueNumber];
     
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"repository.fullName = %@ AND number = %@", repoFullName, issueNumber];
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"repository.fullName = %@ AND number = %@ AND pullRequest = NO", repoFullName, issueNumber];
     
     return fetchRequest;
 }
