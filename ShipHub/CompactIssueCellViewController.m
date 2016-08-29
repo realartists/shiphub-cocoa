@@ -71,6 +71,8 @@
     CGRect _labelsRect;
     NSToolTipTag _labelsTTT;
     NSString *_labelsTT;
+    NSToolTipTag _dateTTT;
+    NSString *_dateTT;
 }
 
 @end
@@ -181,6 +183,23 @@ static const CGFloat marginBottom = 8.0;
                                  dateSize.width,
                                  dateSize.height);
     [dateStr drawInRect:dateRect withAttributes:dateAttrs];
+    
+    if (_issue.closed && _issue.closedAt) {
+        if ([_issue.updatedAt isEqual:_issue.closedAt]) {
+            _dateTT = [NSString stringWithFormat:NSLocalizedString(@"Created %@\nClosed %@", nil), [[NSDateFormatter longDateAndTimeFormatter] stringFromDate:_issue.createdAt], [[NSDateFormatter longDateAndTimeFormatter] stringFromDate:_issue.closedAt]];
+        } else {
+            _dateTT = [NSString stringWithFormat:NSLocalizedString(@"Created %@\nClosed %@\nModified %@", nil), [[NSDateFormatter longDateAndTimeFormatter] stringFromDate:_issue.createdAt], [[NSDateFormatter longDateAndTimeFormatter] stringFromDate:_issue.closedAt], [[NSDateFormatter longDateAndTimeFormatter] stringFromDate:_issue.updatedAt]];
+        }
+    } else if (_issue.updatedAt && ![_issue.updatedAt isEqual:_issue.createdAt]) {
+        _dateTT = [NSString stringWithFormat:NSLocalizedString(@"Created %@\nModified %@", nil), [[NSDateFormatter longDateAndTimeFormatter] stringFromDate:_issue.createdAt], [[NSDateFormatter longDateAndTimeFormatter] stringFromDate:_issue.updatedAt]];
+    } else {
+        _dateTT = [NSString stringWithFormat:NSLocalizedString(@"Created %@", nil), [[NSDateFormatter longDateAndTimeFormatter] stringFromDate:_issue.createdAt]];
+    }
+    
+    if (_dateTT != 0) {
+        [self removeToolTip:_dateTTT];
+    }
+    _dateTTT = [self addToolTipRect:dateRect owner:_dateTT userData:NULL];
     
     CGContextSetTextMatrix(ctx, CGAffineTransformIdentity); // needed after using -drawInRect:withAttributes: and before using CoreText
     
