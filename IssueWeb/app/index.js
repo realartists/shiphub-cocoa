@@ -2452,7 +2452,12 @@ var Comment = React.createClass({
         'Cmd-I': cm.extraCommands.italic,
         'Cmd-S': () => { this.save(); },
         'Shift-Tab': shiftTab,
-        'Tab': 'indentMore'
+        'Tab': 'indentMore',
+        // unbind cmd-u/shift-cmd-u to let app handle them
+        // codemirror treats them as undo/redo selection, but this is nonstandard
+        // and we need these bindings elsewhere
+        'Cmd-U': false,
+        'Shift-Cmd-U' : false,
       });
       
       cm.on('blur', () => { this.onBlur(); });
