@@ -107,7 +107,8 @@ curl \
   -F "status=2" \
   -F "ipa=@$AppName.app.zip" \
   -F "dsym=@$AppName.app.dSYM.zip" \
-  -F "notes=@$COMMITTMP" \
+  -F "notes=`cat $COMMITTMP`" \
+  -F "notes_type=1" \
   -H "X-HockeyAppToken: b3bd5a0b7737405c8795d6f9d749e914" \
   https://rink.hockeyapp.net/api/2/apps/upload
 popd
