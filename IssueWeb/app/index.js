@@ -2088,7 +2088,7 @@ var Comment = React.createClass({
     }
   },
   
-  save: function() {
+  _save: function() {
     var issue = getIvars().issue;
     var isNewIssue = !(issue.number);
     var isAddNew = !(this.props.comment);
@@ -2119,6 +2119,27 @@ var Comment = React.createClass({
     }
     
     return Promise.resolve();
+  },
+  
+  waitForUploads: function() {
+    if (this.state.uploadCount == 0) {
+      return Promise.resolve();
+    } else {
+      var uploadQueue = this.uploadQueue;
+      if (!uploadQueue) {
+        this.uploadQueue = uploadQueue = [];
+      }
+      var p = new Promise((resolve, reject) => {
+        uploadQueue.push({resolve, reject});
+      });
+      return p;
+    }
+  },
+  
+  save: function() { 
+    return this.waitForUploads().then(() => {
+      return this._save()
+    });
   },
   
   saveAndClose: function() {
@@ -2271,15 +2292,27 @@ var Comment = React.createClass({
 
     var uploadFailed = (placeholder, err) => {
       this.replaceInCode(placeholder, "");
-      this.updateUploadCount(-1);
+      this.updateUploadCount(-1, err);
       alert(err);
     };
 
     pasteHelper("NSOpenPanel", pasteText, uploadsStarted, uploadFinished, uploadFailed);
   },
   
-  updateUploadCount: function(delta) {
-    this.setState(Object.assign({}, this.state, {uploadCount:this.state.uploadCount+delta}));
+  updateUploadCount: function(delta, error) {
+    var newCount = this.state.uploadCount + delta;
+    this.setState(Object.assign({}, this.state, {uploadCount:newCount}));
+    if ((newCount == 0 || error) && this.uploadQueue) {
+      var q = this.uploadQueue;
+      delete this.uploadQueue;
+      q.forEach((cb) => {
+        if (error) {
+          cb.reject(error);
+        } else {
+          cb.resolve();
+        }
+      });
+    }
   },
   
   configureCM: function() {
