@@ -174,7 +174,17 @@ static NSSet *uniqueKeyPathsInRecords(NSArray *records, NSString *keyPath) {
         
         if (partitionPath) {
             NSPredicate *basePredicate = timeSeries.predicate;
-            NSSet *partitionValues = uniqueKeyPathsInRecords(timeSeries.records, partitionPath);
+            NSSet *partitionValues;
+            
+            // realartists/shiphub-cocoa#243 State partition chart can be wrong if all matching issues are currently closed
+            // Treat state partition specially as even though all the issues in timeSeries might be closed
+            // right now, that wasn't always true, so be sure to check the full set of states.
+            if ([partitionPath isEqualToString:@"state"]) {
+                partitionValues = [NSSet setWithObjects:@"open", @"closed", nil];
+            } else {
+                partitionValues = uniqueKeyPathsInRecords(timeSeries.records, partitionPath);
+            }
+            
             NSMutableArray *partitionedSeries = [NSMutableArray arrayWithCapacity:partitionValues.count];
             NSMutableArray *partitionedJSON = d[@"partitions"] = [NSMutableArray arrayWithCapacity:partitionValues.count];
             for (id partitionValue in partitionValues) {
