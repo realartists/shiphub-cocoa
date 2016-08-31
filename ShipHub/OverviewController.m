@@ -653,6 +653,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         void (^updateProgress)(double, NSInteger, NSInteger) = ^(double progress, NSInteger open, NSInteger closed) {
             if (node.progress != progress) {
                 node.progress = progress;
+                node.openCount = open;
+                node.closedCount = closed;
                 NSInteger row = [_outlineView rowForItem:node];
                 if (row >= 0) {
                     OverviewMilestoneCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
@@ -999,6 +1001,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             if (node.showProgress) {
                 progress.hidden = node.progress < 0.0;
                 progress.doubleValue = MIN(MAX(node.progress, 0.0), 1.0);
+                progress.openCount = node.openCount;
+                progress.closedCount = node.closedCount;
             }
         }
         

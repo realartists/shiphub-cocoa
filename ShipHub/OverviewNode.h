@@ -50,6 +50,8 @@ typedef void (^OverviewNodeDropHandler)(NSArray<NSString *> *issueIdentifiers);
 
 @property BOOL showProgress;
 @property double progress;
+@property NSInteger openCount;
+@property NSInteger closedCount;
 
 @property BOOL showWarning;
 
