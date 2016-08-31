@@ -36,12 +36,16 @@ echo ln -s $XCS_INTEGRATION_NUMBER $SymlinkPath
 rm -f $SymlinkPath
 ln -s $XCS_INTEGRATION_NUMBER $SymlinkPath
 
+cd "$XCS_SOURCE_DIR/ShipHub"
+BUILD_COMMIT=`git rev-parse HEAD`
+
 GITTMP=`mktemp -d /tmp/git_XXXXX`
 echo $GITTMP
 pushd .
 cd $GITTMP
 git clone git+ssh://git@github.com/realartists/shiphub-cocoa.git
 cd shiphub-cocoa
+git checkout $BUILD_COMMIT
 
 pwd
 
