@@ -117,7 +117,7 @@
     if (!result) {
         NSImage *base = [NSImage imageNamed:name];
         [base setTemplate:YES];
-        result = [base renderWithColor:[NSColor extras_outlineGray]];
+        result = base;
         cache[name] = result;
     }
     return result;

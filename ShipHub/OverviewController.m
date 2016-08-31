@@ -67,6 +67,10 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 @end
 
+@interface OverviewCellImageView : NSImageView
+
+@end
+
 @interface OverviewCellView : NSTableCellView
 
 @end
@@ -204,6 +208,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     
     CGFloat dividerPos = [[[_splitView subviews] objectAtIndex:0] frame].size.width;
     if (dividerPos > 0.0 && dividerPos < 180.0) {
+        dividerPos = 240.0;
         [_splitView setPosition:240.0 ofDividerAtIndex:0];
         [self updateSidebarItem];
     }
@@ -214,6 +219,21 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     if ([[_outlineView selectedItem] filterBarDefaultsToOpenState]) {
         [_filterBar resetFilters:[NSPredicate predicateWithFormat:@"closed = NO"]];
     }
+    
+    /*  Work around an AppKit bug where the outline view provides space for scrollers on the right even though they aren't there. this only happens for the first window created after launch. it's weird, but if you look closely at Mail.app as it launches, you can see they have the same problem! */
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [NSAnimationContext runAnimationGroup:^(NSAnimationContext * _Nonnull context) {
+                [context setDuration:0.2];
+                [context setAllowsImplicitAnimation:YES];
+                [_splitView setPosition:dividerPos+1.0 ofDividerAtIndex:0];
+                [_splitView setPosition:dividerPos ofDividerAtIndex:0];
+            } completionHandler:nil];
+        });
+    });
+    
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(metadataChanged:) name:DataStoreDidUpdateMetadataNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataStoreChanged:) name:DataStoreActiveDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(queriesChanged:) name:DataStoreDidUpdateMyQueriesNotification object:nil];
@@ -343,6 +363,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     
     OverviewNode *topNode = [OverviewNode new];
     topNode.title = NSLocalizedString(@"Overview", nil);
+    topNode.cellIdentifier = @"GroupCell";
     [roots addObject:topNode];
     
     _allProblemsNode = [OverviewNode new];
@@ -352,7 +373,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     _allProblemsNode.identifier = @"AllProblems";
     _allProblemsNode.title = NSLocalizedString(@"All Issues", nil);
     _allProblemsNode.predicate = [NSPredicate predicateWithValue:YES];
-    _allProblemsNode.icon = [NSImage overviewIconNamed:@"928-inbox-files-selected"];
+    _allProblemsNode.icon = [NSImage overviewIconNamed:@"All Issues"];
     [topNode addChild:_allProblemsNode];
     
     _upNextNode = [OverviewNode new];
@@ -361,7 +382,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     _upNextNode.allowChart = NO;
     _upNextNode.title = NSLocalizedString(@"Up Next", nil);
     _upNextNode.predicate = [NSPredicate predicateWithFormat:@"closed = NO AND ANY upNext.user.identifier = %@", [[User me] identifier]];
-    _upNextNode.icon = [NSImage overviewIconNamed:@"1175-numbered-list"];
+    _upNextNode.icon = [NSImage overviewIconNamed:@"Up Next"];
     __weak __typeof(self) weakSelf = self;
     _upNextNode.dropHandler = ^(NSArray *identifiers) {
         [[UpNextHelper sharedHelper] addToUpNext:identifiers atHead:NO window:weakSelf.window completion:nil];
@@ -373,7 +394,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     notificationsNode.cellIdentifier = @"CountCell";
     notificationsNode.allowChart = NO;
     notificationsNode.filterBarDefaultsToOpenState = NO;
-    notificationsNode.icon = [NSImage overviewIconNamed:@"756-bell-selected"];
+    notificationsNode.icon = [NSImage overviewIconNamed:@"Notifications"];
     notificationsNode.title = NSLocalizedString(@"Notifications", nil);
     notificationsNode.predicate = [NSPredicate predicateWithFormat:@"notification.unread = YES"];
     NSMenu *notificationsMenu = [NSMenu new];
@@ -383,11 +404,12 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     
     OverviewNode *milestonesRoot = [OverviewNode new];
     milestonesRoot.title = NSLocalizedString(@"Milestones", nil);
+    milestonesRoot.cellIdentifier = @"GroupCell";
     [roots addObject:milestonesRoot];
     
     MetadataStore *metadata = [[DataStore activeStore] metadataStore];
     
-    NSImage *milestoneIcon = [NSImage overviewIconNamed:@"563-calendar"];
+    NSImage *milestoneIcon = [NSImage overviewIconNamed:@"Milestone"];
     for (NSString *milestone in [metadata mergedMilestoneNames]) {
         OverviewNode *node = [OverviewNode new];
         node.cellIdentifier = @"MilestoneCell";
@@ -417,14 +439,15 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     backlog.showCount = YES;
     backlog.cellIdentifier = @"CountCell";
     backlog.toolTip = NSLocalizedString(@"The backlog contains all issues not assigned to a milestone", nil);
-    backlog.icon = [NSImage overviewIconNamed:@"832-stack-1"];
+    backlog.icon = [NSImage overviewIconNamed:@"Backlog"];
     [milestonesRoot addChild:backlog];
     
     NSArray *queries = [[DataStore activeStore] myQueries];
     if ([queries count] > 0) {
-        NSImage *queryIcon = [NSImage overviewIconNamed:@"666-gear2"];
+        NSImage *queryIcon = [NSImage overviewIconNamed:@"Smart Query"];
         NSArray *myQueries = [queries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(localizedStandardCompare:)]]];
         OverviewNode *myQueriesRoot = [OverviewNode new];
+        myQueriesRoot.cellIdentifier = @"GroupCell";
         myQueriesRoot.title = NSLocalizedString(@"Smart Queries", nil);
         [roots addObject:myQueriesRoot];
         
@@ -446,6 +469,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     
     OverviewNode *reposNode = [OverviewNode new];
     reposNode.title = NSLocalizedString(@"Repos", nil);
+    reposNode.cellIdentifier = @"GroupCell";
     [roots addObject:reposNode];
     
     BOOL multipleOwners = [[metadata repoOwners] count] > 1;
@@ -461,7 +485,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             ownerNode.title = repoOwner.login;
             ownerNode.representedObject = repoOwner;
             ownerNode.predicate = [NSPredicate predicateWithFormat:@"repository.owner.login = %@", repoOwner.login];
-            ownerNode.icon = [repoOwner isKindOfClass:[Org class]] ? [NSImage overviewIconNamed:@"974-users-selected"] : [NSImage overviewIconNamed:@"973-user-selected"];
+            ownerNode.icon = [repoOwner isKindOfClass:[Org class]] ? [NSImage overviewIconNamed:@"Org"] : [NSImage overviewIconNamed:@"User"];
             [reposNode addChild:ownerNode];
             
             parent = ownerNode;
@@ -473,7 +497,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             repoNode.representedObject = repo;
             repoNode.menu = hideRepoMenu;
             repoNode.title = repo.name;
-            repoNode.icon = [NSImage overviewIconNamed:@"710-folder"];
+            repoNode.icon = [NSImage overviewIconNamed:@"Repo"];
             repoNode.showCount = YES;
             repoNode.countOpenOnly = YES;
             repoNode.predicate = [NSPredicate predicateWithFormat:@"repository.identifier = %@", repo.identifier];
@@ -501,6 +525,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         
         OverviewNode *hiddenRoot = [OverviewNode new];
         hiddenRoot.title = NSLocalizedString(@"Hidden Items", nil);
+        hiddenRoot.cellIdentifier = @"GroupCell";
         hiddenRoot.defaultCollapsed = YES;
         hiddenRoot.identifier = @"Hidden";
         [roots addObject:hiddenRoot];
@@ -518,6 +543,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
                 node.identifier = [NSString stringWithFormat:@"Hidden.Repo.%@", hr.identifier];
                 node.predicate = [NSPredicate predicateWithValue:NO];
                 node.menu = unhideMenu;
+                node.icon = [NSImage overviewIconNamed:@"Repo"];
                 [hiddenRepoRoot addChild:node];
             }
         }
@@ -533,6 +559,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
                 Milestone *m = [msGroup firstObject];
                 OverviewNode *node = [OverviewNode new];
                 node.title = m.title;
+                node.icon = [NSImage overviewIconNamed:@"Milestone"];
                 node.representedObject = msGroup;
                 node.identifier = [NSString stringWithFormat:@"Hidden.Milestone.%@", m.title];
                 node.predicate = [NSPredicate predicateWithValue:NO];
@@ -582,6 +609,12 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     }
 #endif
     
+#endif
+    
+#if DEBUG
+    for (OverviewNode *root in roots) {
+        NSAssert(root.cellIdentifier = @"GroupCell", @"root %@ should be a GroupCell", root.identifier);
+    }
 #endif
     
     _outlineRoots = roots;
@@ -652,7 +685,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
                     OverviewCountCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
                     if (view) {
                         NSButton *countButton = view.countButton;
-                        if (count != NSNotFound) {
+                        if (count != NSNotFound && count != 0) {
                             countButton.title = [NSString localizedStringWithFormat:@"%tu", count];
                             countButton.hidden = NO;
                         } else {
@@ -950,7 +983,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         if ([cell isKindOfClass:[OverviewCountCellView class]]) {
             OverviewCountCellView *countCell = (id)cell;
             NSButton *countButton = countCell.countButton;
-            if (node.count != NSNotFound) {
+            if (node.count != NSNotFound && node.count != 0) {
                 countButton.title = [NSString localizedStringWithFormat:@"%tu", node.count];
                 countButton.hidden = NO;
             } else {
@@ -995,7 +1028,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 }
 
 - (CGFloat)outlineView:(NSOutlineView *)outlineView heightOfRowByItem:(id)item {
-    if ([item isKindOfClass:[OverviewNode class]]) return 20.0;
+    if ([self outlineView:outlineView isGroupItem:item]) return 20.0;
+    if ([item isKindOfClass:[OverviewNode class]]) return 24.0;
     else {
         NSAssert([item isKindOfClass:[OverviewKnob class]], @"Must be a knob if not a node");
         OverviewKnob *knob = item;
@@ -1749,6 +1783,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 @implementation OverviewProgressIndicator
 
+- (BOOL)allowsVibrancy { return YES; }
+
 - (void)_updateTooltip {
     self.toolTip = [NSString localizedStringWithFormat:NSLocalizedString(@"%.0f%% Complete. %td Open. %td Closed.", nil), _doubleValue * 100.0, _openCount, _closedCount];
 }
@@ -1775,8 +1811,11 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-    NSColor *fillColor = [NSColor colorWithWhite:0.467 alpha:1.0];
-    NSColor *bgColor = [[NSColor blackColor] colorWithAlphaComponent:0.1];
+    CGContextRef ctx = [[NSGraphicsContext currentContext] CGContext];
+    CGContextSetBlendMode(ctx, kCGBlendModeCopy);
+    
+    NSColor *fillColor = [NSColor colorWithDeviceWhite:0.0 alpha:0.48];
+    NSColor *bgColor = [NSColor colorWithDeviceWhite:0.0 alpha:0.1];
     
     CGRect b = self.bounds;
 
@@ -1799,6 +1838,11 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
     CGRect clipRect;
     clipRect.size.width = floor((b.size.width - 2.0) * _doubleValue);
+    // ensure that there's always a bit of background showing if we're not fully complete.
+    // like in the case where we're like 99% complete.
+    if (_doubleValue < 1.0) {
+        clipRect.size.width = MIN(clipRect.size.width, b.size.width - 4.0);
+    }
     clipRect.origin.x = 1.0;
     clipRect.origin.y = 0.0;
     clipRect.size.height = b.size.height;
@@ -1807,6 +1851,20 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     [clip addClip];
     
     [fillPath fill];
+}
+
+@end
+
+@implementation OverviewCellImageView
+
+- (BOOL)allowsVibrancy { return YES; }
+
+- (NSSize)intrinsicContentSize {
+    if (self.hidden || self.image == nil) {
+        return CGSizeZero;
+    } else {
+        return CGSizeMake(24.0, 24.0);
+    }
 }
 
 @end
@@ -1838,3 +1896,4 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 }
 
 @end
+
