@@ -36,8 +36,13 @@ echo ln -s $XCS_INTEGRATION_NUMBER $SymlinkPath
 rm -f $SymlinkPath
 ln -s $XCS_INTEGRATION_NUMBER $SymlinkPath
 
-echo "Tagging in git"
-cd "$XCS_SOURCE_DIR/ShipHub"
+GITTMP=`mktemp -d /tmp/git_XXXXX`
+echo $GITTMP
+pushd .
+cd $GITTMP
+git clone git+ssh://git@github.com/realartists/shiphub-cocoa.git
+cd shiphub-cocoa
+
 pwd
 
 TAG_LATEST="${XCS_BOT_NAME}-Latest"
@@ -45,19 +50,17 @@ TAG_CURRENT="${XCS_BOT_NAME}-${XCS_INTEGRATION_NUMBER}"
 
 echo "Latest tag is $TAG_LATEST and current tag is $TAG_CURRENT"
 
-git config user.name "Xcode Server"
-git config user.email "xcode@"`hostname`
-git config credential.https://github.com.username `cat /Library/Developer/XcodeServer/SharedSecrets/ShipHubCIUsername`
+git config user.name "James Howard"
+git config user.email "jameshoward@mac.com"
 
 git fetch --tags
 
 git tag -a "$TAG_CURRENT" -m "Tagging for CI build"
 
-# Update build keywords on problems
-# echo log $TAG_LATEST..$TAG_CURRENT
-# git log $TAG_LATEST..$TAG_CURRENT
-# echo python /Users/Shared/ci_to_ship.py --apitoken "b157d2978b4a0a7b4ab4f09cdd99d751" "$XCS_BOT_NAME" "$XCS_INTEGRATION_NUMBER" . "$TAG_LATEST" "$TAG_CURRENT"
-# python /Users/Shared/ci_to_ship.py --apitoken "b157d2978b4a0a7b4ab4f09cdd99d751" "$XCS_BOT_NAME" "$XCS_INTEGRATION_NUMBER" . "$TAG_LATEST" "$TAG_CURRENT"
+COMMITTMP=`mktemp /tmp/commitlog_XXXXX`
+
+# Grab the commit log since our last build
+git log $TAG_LATEST..$TAG_CURRENT > $COMMITTMP
 
 # Delete the old latest tag
 git push origin ":refs/tags/$TAG_LATEST"
@@ -65,6 +68,11 @@ git push origin ":refs/tags/$TAG_LATEST"
 git tag -fa "$TAG_LATEST" -m "Tagging for CI build"
 # Push all the tags to remote
 git push origin master --tags
+
+popd
+
+# Clean up temporary git checkout
+rm -rf $GITTMP
 
 echo "Creating disk images for dropbox upload"
 DMGTMP=`mktemp -d /tmp/DMGSRC_XXXXX`
@@ -99,6 +107,7 @@ curl \
   -F "status=2" \
   -F "ipa=@$AppName.app.zip" \
   -F "dsym=@$AppName.app.dSYM.zip" \
+  -F "notes=@$COMMITTMP" \
   -H "X-HockeyAppToken: b3bd5a0b7737405c8795d6f9d749e914" \
   https://rink.hockeyapp.net/api/2/apps/upload
 popd
