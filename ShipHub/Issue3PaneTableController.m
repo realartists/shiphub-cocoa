@@ -136,7 +136,10 @@
     
     [self.table setUsesAlternatingRowBackgroundColors:NO];
     [self.table setGridStyleMask:NSTableViewSolidHorizontalGridLineMask];
-    
+}
+
+- (void)viewDidAppear {
+    [super viewDidAppear];
     [self restoreSortFromDefaults];
 }
 
