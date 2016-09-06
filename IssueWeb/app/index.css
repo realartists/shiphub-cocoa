@@ -255,6 +255,9 @@ div.commentBody blockquote {
   color: #777;
   border-left: 4px solid #ddd
 }
+div.commentBody a {
+  overflow-wrap: break-word;
+}
 div.commentBody img, video {
   display: block;
   max-width: 100%;
