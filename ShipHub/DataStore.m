@@ -61,6 +61,10 @@ NSString *const DataStoreDidUpdateProblemsNotification = @"DataStoreDidUpdatePro
 NSString *const DataStoreUpdatedProblemsKey = @"DataStoreUpdatedProblemsKey";
 NSString *const DataStoreUpdateProblemSourceKey = @"DataStoreUpdateProblemSourceKey";
 
+NSString *const DataStoreDidChangeReposHidingNotification = @"DataStoreDidChangeReposHidingNotification";
+NSString *const DataStoreHiddenReposKey = @"DataStoreHiddenReposKey";
+NSString *const DataStoreUnhiddenReposKey = @"DataStoreUnhiddenReposKey";
+
 NSString *const DataStoreDidUpdateOutboxNotification = @"DataStoreDidUpdateOutboxNotification";
 NSString *const DataStoreOutboxResolvedProblemIdentifiersKey = @"DataStoreOutboxResolvedProblemIdentifiersKey";
 
@@ -1023,6 +1027,25 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
 }
 
+- (void)checkForHiddenRepoChanges:(NSNotification *)note {
+    NSMutableArray *nowHidden = [NSMutableArray new];
+    NSMutableArray *nowUnhidden = [NSMutableArray new];
+    
+    [note enumerateModifiedObjects:^(id obj, CoreDataModificationType modType, BOOL *stop) {
+        if ([obj isKindOfClass:[LocalHidden class]]) {
+            LocalHidden *hidden = obj;
+            LocalRepo *repo = hidden.repository;
+            if (repo && repo.fullName) {
+                [modType == CoreDataModificationTypeDeleted ? nowUnhidden : nowHidden addObject:repo.fullName];
+            }
+        }
+    }];
+    
+    if (nowHidden.count > 0 || nowUnhidden.count > 0) {
+        [self postNotification:DataStoreDidChangeReposHidingNotification userInfo:@{ DataStoreHiddenReposKey : nowHidden, DataStoreUnhiddenReposKey : nowUnhidden }];
+    }
+}
+
 - (void)mocDidChange:(NSNotification *)note {
     //DebugLog(@"%@", note);
     
@@ -1037,6 +1060,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
     
     [self checkForCustomQueryChanges:note];
+    [self checkForHiddenRepoChanges:note];
     
     // calculate which issues are affected by this change
     NSArray *changedIssueIdentifiers = [self changedIssueIdentifiers:note];

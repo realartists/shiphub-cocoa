@@ -123,6 +123,10 @@ extern NSString *const DataStoreDidUpdateProblemsNotification;
 extern NSString *const DataStoreUpdatedProblemsKey; // => NSArray of Issue IDs updated
 extern NSString *const DataStoreUpdateProblemSourceKey; // => DataStoreProblemUpdateSource
 
+extern NSString *const DataStoreDidChangeReposHidingNotification;
+extern NSString *const DataStoreHiddenReposKey; // => NSArray of NSString repo fullName
+extern NSString *const DataStoreUnhiddenReposKey; // => NSArray of NSString repo fullName
+
 extern NSString *const DataStoreDidUpdateOutboxNotification;
 extern NSString *const DataStoreOutboxResolvedProblemIdentifiersKey; // => NSDictionary mapping old identifier (<0) to new identifier (>0)
 extern NSString *const DataStoreMigrationProgressKey; // => NSProgress

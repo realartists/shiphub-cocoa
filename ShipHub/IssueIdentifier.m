@@ -15,6 +15,11 @@
 @implementation NSString (IssueIdentifier)
 
 + (NSString *)issueIdentifierWithGitHubURL:(NSURL *)URL {
+    return [self issueIdentifierWithGitHubURL:URL commentIdentifier:NULL];
+}
+
++ (NSString *)issueIdentifierWithGitHubURL:(NSURL *)URL commentIdentifier:(NSNumber *__autoreleasing *)outCommentIdentifier
+{
     // https://github.com/realartists/shiphub-server/issues/22
     
     NSURLComponents *components = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
@@ -29,6 +34,21 @@
     NSString *repo = pathParts[2];
     NSString *numberStr = pathParts[4];
     NSNumber *number = @([numberStr longLongValue]);
+    NSString *fragment = [components fragment];
+    
+    NSNumber *num = nil;
+    if (outCommentIdentifier && [fragment hasPrefix:@"issuecomment-"]) {
+        NSString *suffix = [[fragment componentsSeparatedByString:@"-"] lastObject];
+        NSScanner *scanner = [NSScanner scannerWithString:suffix];
+        uint64_t v = 0;
+        if ([scanner scanUnsignedLongLong:&v]) {
+            num = @(v);
+        }
+    }
+    
+    if (outCommentIdentifier) {
+        *outCommentIdentifier = num;
+    }
     
     return [self issueIdentifierWithOwner:owner repo:repo number:number];
 }

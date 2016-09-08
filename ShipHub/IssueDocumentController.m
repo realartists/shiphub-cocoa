@@ -60,9 +60,16 @@
 }
 
 - (void)openIssueWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally completion:(void (^)(IssueDocument *doc))completion {
+    [self openIssueWithIdentifier:issueIdentifier canOpenExternally:canOpenExternally scrollToCommentWithIdentifier:nil completion:completion];
+}
+
+- (void)openIssueWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier completion:(void (^)(IssueDocument *doc))completion {
     for (IssueDocument *doc in [self documents]) {
         if ([[doc.issueViewController.issue fullIdentifier] isEqual:issueIdentifier]) {
             [doc showWindows];
+            if (commentIdentifier) {
+                [doc.issueViewController scrollToCommentWithIdentifier:commentIdentifier];
+            }
             return;
         }
     }
@@ -70,7 +77,7 @@
     [[DataStore activeStore] loadFullIssue:issueIdentifier completion:^(Issue *issue, NSError *error) {
         if (issue) {
             IssueDocument *doc = [self openUntitledDocumentAndDisplay:YES error:NULL];
-            doc.issueViewController.issue = issue;
+            [doc.issueViewController setIssue:issue scrollToCommentWithIdentifier:commentIdentifier];
             [doc.issueViewController checkForIssueUpdates];
             [[DataStore activeStore] markIssueAsRead:issueIdentifier];
             [self noteNewRecentDocument:doc];

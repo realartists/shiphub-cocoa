@@ -80,6 +80,8 @@
 		1A36190B1C9383E7008C11CB /* TestSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619051C9383E7008C11CB /* TestSyncConnection.m */; };
 		1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619071C9383E7008C11CB /* TestDataStore.m */; };
 		1A36190D1C9383E7008C11CB /* TestMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619091C9383E7008C11CB /* TestMetadata.m */; };
+		1A48BB4D1D80D8BF001E761E /* UserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */; };
+		1A48BB531D80DED6001E761E /* IssueNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB521D80DED6001E761E /* IssueNotification.m */; };
 		1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
 		1A4A20A91CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A61CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m */; };
 		1A4A20AA1CF3BB06000C1D5E /* LocalSyncVersion.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A81CF3BB06000C1D5E /* LocalSyncVersion.m */; };
@@ -474,6 +476,10 @@
 		1A3619071C9383E7008C11CB /* TestDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDataStore.m; sourceTree = "<group>"; };
 		1A3619081C9383E7008C11CB /* TestMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMetadata.h; sourceTree = "<group>"; };
 		1A3619091C9383E7008C11CB /* TestMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestMetadata.m; sourceTree = "<group>"; };
+		1A48BB4B1D80D8BF001E761E /* UserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserNotificationManager.h; sourceTree = "<group>"; };
+		1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserNotificationManager.m; sourceTree = "<group>"; };
+		1A48BB511D80DED6001E761E /* IssueNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueNotification.h; sourceTree = "<group>"; };
+		1A48BB521D80DED6001E761E /* IssueNotification.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueNotification.m; sourceTree = "<group>"; };
 		1A4A209F1CEFBCBC000C1D5E /* WSSyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WSSyncConnection.h; sourceTree = "<group>"; };
 		1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WSSyncConnection.m; sourceTree = "<group>"; };
 		1A4A20A51CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalSyncVersion+CoreDataProperties.h"; sourceTree = "<group>"; };
@@ -934,6 +940,8 @@
 				1A2305DC1C7F84D80034C871 /* Error.m */,
 				1A0D59ED1CA4ABF5004F2578 /* IssueDocumentController.h */,
 				1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */,
+				1A48BB4B1D80D8BF001E761E /* UserNotificationManager.h */,
+				1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */,
 			);
 			name = App;
 			sourceTree = "<group>";
@@ -1033,6 +1041,8 @@
 				1A012EA71D443CFC006CE5DF /* CustomQuery.m */,
 				1A20CFF81D52A81F00F412DE /* Reaction.h */,
 				1A20CFF91D52A81F00F412DE /* Reaction.m */,
+				1A48BB511D80DED6001E761E /* IssueNotification.h */,
+				1A48BB521D80DED6001E761E /* IssueNotification.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -1663,11 +1673,13 @@
 				1A694B3C1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */,
 				1A5604E11CD7FFC100ACF0DF /* AttachmentManager.m in Sources */,
 				1A012E971D3EAC8E006CE5DF /* CompletingTextField.m in Sources */,
+				1A48BB531D80DED6001E761E /* IssueNotification.m in Sources */,
 				1AE09C141C97687E00C5AC35 /* LocalComment.m in Sources */,
 				1AF567341D62487200611DBB /* WebAuthController.m in Sources */,
 				1A012E931D3EAC47006CE5DF /* PopUpMetadataRowTemplate.m in Sources */,
 				1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */,
 				1AE09C0E1C97687E00C5AC35 /* LocalOrg+CoreDataProperties.m in Sources */,
+				1A48BB4D1D80D8BF001E761E /* UserNotificationManager.m in Sources */,
 				1AC619721D232E9A00FE1E76 /* LocalPriority.m in Sources */,
 				1A20CFFA1D52A81F00F412DE /* Reaction.m in Sources */,
 				1A012EB81D448FF2006CE5DF /* RepoRowTemplate.m in Sources */,

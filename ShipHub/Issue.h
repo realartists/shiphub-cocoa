@@ -14,6 +14,7 @@
 @class Label;
 @class IssueEvent;
 @class IssueComment;
+@class IssueNotification;
 @class Reaction;
 
 @class LocalIssue;
@@ -53,6 +54,9 @@
 // Up Next priority is conditionally populated.
 @property (readonly) NSNumber *upNextPriority;
 
+// Notification is conditionally populated.
+@property (readonly) IssueNotification *notification;
+
 - (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms;
 
 - (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms options:(NSDictionary *)options;
@@ -63,3 +67,4 @@
 
 extern NSString const* IssueOptionIncludeEventsAndComments;
 extern NSString const* IssueOptionIncludeUpNextPriority;
+extern NSString const* IssueOptionIncludeNotification;

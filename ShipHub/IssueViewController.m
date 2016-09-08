@@ -181,21 +181,30 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 }
 
 - (void)setIssue:(Issue *)issue {
+    [self setIssue:issue scrollToCommentWithIdentifier:nil];
+}
+
+- (void)setIssue:(Issue *)issue scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier {
     dispatch_assert_current_queue(dispatch_get_main_queue());
     //DebugLog(@"%@", issue);
     BOOL issueChanged = issue != nil && _issue != nil && ![_issue.fullIdentifier isEqualToString:issue.fullIdentifier];
     _issue = issue;
     if (issue) {
         NSString *issueJSON = [self issueStateJSON:issue];
-        NSString *js = [NSString stringWithFormat:@"applyIssueState(%@)", issueJSON];
+        NSString *js = [NSString stringWithFormat:@"applyIssueState(%@, %@)", issueJSON, commentIdentifier];
         //DebugLog(@"%@", js);
         [self evaluateJavaScript:js];
-        if (issueChanged) {
+        if (issueChanged && !commentIdentifier) {
             [self evaluateJavaScript:@"window.scroll(0, 0)"];
         }
     }
     [self updateTitle];
     _web.hidden = _issue == nil;
+}
+
+- (void)scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier {
+    NSString *js = [NSString stringWithFormat:@"scrollToCommentWithIdentifier(%@)", [JSON stringifyObject:commentIdentifier]];
+    [self evaluateJavaScript:js];
 }
 
 - (void)noteCheckedForIssueUpdates {

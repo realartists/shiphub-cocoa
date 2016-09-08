@@ -1321,6 +1321,13 @@ var ActivityList = React.createClass({
     return null;
   },
   
+  scrollToCommentWithIdentifier: function(commentIdentifier) {
+    var c = this.allComments().filter((c) => c.commentIdentifier() === commentIdentifier);
+    if (c.length > 0) {
+      c[0].scrollIntoView();
+    }
+  },
+  
   save: function() {
     var c = this.allComments();
     return Promise.all(c.filter((x) => x.needsSave()).map((x) => x.save()));
@@ -1971,6 +1978,10 @@ var Comment = React.createClass({
     }
   },
   
+  commentIdentifier: function() {
+    return keypath(this.props, "comment.id");
+  },
+  
   setInitialContents: function(contents) {
     this.setState(Object.assign({}, this.state, {code: contents}));
   },
@@ -2056,13 +2067,19 @@ var Comment = React.createClass({
     }
   },
   
+  scrollIntoView: function() {
+    var el = ReactDOM.findDOMNode(this);
+    if (el) {
+      el.scrollIntoView();
+    }
+  },
+  
   togglePreview: function() {
     var previewing = !this.state.previewing;
     this.doFocus = !previewing;
     this.setState(Object.assign({}, this.state, {previewing:previewing}));
-    var el = ReactDOM.findDOMNode(this);
     setTimeout(() => { 
-      el.scrollIntoView();
+      this.scrollIntoView();
       if (!previewing) {
         this.focusCodemirror();
       }
@@ -3808,10 +3825,17 @@ var App = React.createClass({
     if (c) { 
       c.applyMarkdownFormat(format);
     }
+  },
+  
+  scrollToCommentWithIdentifier: function(commentID) {
+    var activity = this.refs.activity;
+    if (activity) {
+      activity.scrollToCommentWithIdentifier(commentID);
+    }
   }
 });
 
-function applyIssueState(state) {
+function applyIssueState(state, scrollToCommentIdentifier) {
   console.log("rendering:", state);
   
   var issue = state.issue;
@@ -3860,8 +3884,21 @@ function applyIssueState(state) {
   
   window.topLevelComponent = ReactDOM.render(
     h(App, {issue: issue}),
-    document.getElementById('react-app')
+    document.getElementById('react-app'),
+    function() {
+      if (scrollToCommentIdentifier) {
+        setTimeout(function() {        
+          window.scrollToCommentWithIdentifier(scrollToCommentIdentifier);
+        }, 0);
+      }
+    }
   )
+}
+
+function scrollToCommentWithIdentifier(scrollToCommentIdentifier) {
+  if (window.topLevelComponent) {
+    window.topLevelComponent.scrollToCommentWithIdentifier(scrollToCommentIdentifier);
+  }
 }
 
 function configureNewIssue(initialRepo, meta) {
@@ -3903,6 +3940,7 @@ function configureNewIssue(initialRepo, meta) {
 window.apiCallback = apiCallback;
 window.updateIssue = updateIssue;
 window.applyIssueState = applyIssueState;
+window.scrollToCommentWithIdentifier = scrollToCommentWithIdentifier;
 window.configureNewIssue = configureNewIssue;
 window.renderIssue = function(issue) {
   applyIssueState({issue: issue});

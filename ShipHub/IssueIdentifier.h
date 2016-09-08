@@ -15,6 +15,7 @@
 @interface NSString (IssueIdentifier)
 
 + (NSString *)issueIdentifierWithGitHubURL:(NSURL *)URL;
++ (NSString *)issueIdentifierWithGitHubURL:(NSURL *)URL commentIdentifier:(NSNumber *__autoreleasing *)outCommentIdentifier;
 + (NSString *)issueIdentifierWithOwner:(NSString *)ownerLogin repo:(NSString *)repoName number:(NSNumber *)number;
 
 @property (readonly, getter=isIssueIdentifier) BOOL issueIdentifier;

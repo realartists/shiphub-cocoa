@@ -16,6 +16,10 @@
 
 @property (nonatomic) Issue *issue;
 
+- (void)setIssue:(Issue *)issue scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier;
+
+- (void)scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier;
+
 - (void)noteCheckedForIssueUpdates;
 - (void)checkForIssueUpdates;
 

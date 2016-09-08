@@ -24,6 +24,7 @@
 #import "Label.h"
 #import "IssueEvent.h"
 #import "IssueComment.h"
+#import "IssueNotification.h"
 #import "Reaction.h"
 
 #import "MetadataStore.h"
@@ -90,6 +91,12 @@
             LocalPriority *upNext = [[li.upNext filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"user.identifier = %@", [[User me] identifier]]] anyObject];
             _upNextPriority = upNext.priority;
         }
+        
+        BOOL includeNotification = [options[IssueOptionIncludeNotification] boolValue];
+        if (includeNotification) {
+            LocalNotification *ln = li.notification;
+            _notification = [[IssueNotification alloc] initWithLocalNotification:ln];
+        }
     }
     return self;
 }
@@ -122,3 +129,4 @@
 
 NSString const* IssueOptionIncludeEventsAndComments = @"IssueOptionIncludeEventsAndComments";
 NSString const* IssueOptionIncludeUpNextPriority = @"IssueOptionIncludeUpNextPriority";
+NSString const* IssueOptionIncludeNotification = @"IssueOptionIncludeNotification";

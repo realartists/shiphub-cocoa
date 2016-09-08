@@ -15,6 +15,7 @@
 #import "IssueDocumentController.h"
 #import "OverviewController.h"
 #import "Reachability.h"
+#import "UserNotificationManager.h"
 
 #import <HockeySDK/HockeySDK.h>
 #import <Sparkle/Sparkle.h>
@@ -131,6 +132,7 @@
     [self rebuildAccountMenu];
     [self showAuthIfNeededAnimated:NO];
     [self configureDataStoreAndShowUI];
+    [[UserNotificationManager sharedManager] applicationDidLaunch:notification]; // start handling local user notifications
     
     [NSApp setServicesProvider:self];
     
@@ -172,7 +174,9 @@
 
 - (void)handleURL:(NSURL *)URL atAppLaunch:(BOOL)atAppLaunch
 {
-    if (URL && [[URL scheme] isEqualToString:@"ship+github"]) {
+    if (!URL) return;
+    
+    if ([[URL scheme] isEqualToString:@"ship+github"]) {
         if ([[URL host] isEqualToString:@"issue"]) {
             NSString *path = [URL path];
             NSString *num = [URL fragment];
@@ -180,6 +184,14 @@
             [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:identifier waitForIt:atAppLaunch];
         } else if ([[URL host] isEqualToString:@"signup"]) {
             [_authController continueWithLaunchURL:URL];
+        }
+    } else if ([[URL scheme] isEqualToString:@"https"]) {
+        if ([[URL host] isEqualToString:@"github.com"]) {
+            NSNumber *commentIdentifier = nil;
+            NSString *issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL commentIdentifier:&commentIdentifier];
+            if (issueIdentifier) {
+                [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier canOpenExternally:YES scrollToCommentWithIdentifier:commentIdentifier completion:nil];
+            }
         }
     }
 }

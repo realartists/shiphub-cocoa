@@ -8,10 +8,13 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class IssueDocument;
+
 @interface IssueDocumentController : NSDocumentController
 
 - (void)openIssueWithIdentifier:(id)issueIdentifier;
 - (void)openIssueWithIdentifier:(id)issueIdentifier waitForIt:(BOOL)waitForIt;
+- (void)openIssueWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier completion:(void (^)(IssueDocument *doc))completion;
 - (void)openIssuesWithIdentifiers:(NSArray *)issueIdentifiers;
 
 @end

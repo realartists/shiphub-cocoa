@@ -88,7 +88,7 @@
         <relationship name="repository" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="milestones" inverseEntity="LocalRepo" syncable="YES"/>
     </entity>
     <entity name="LocalNotification" representedClassName="LocalNotification" syncable="YES">
-        <attribute name="commentIdentifier" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <attribute name="commentIdentifier" optional="YES" attributeType="Integer 64" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" indexed="YES" syncable="YES"/>
         <attribute name="issueFullIdentifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="lastReadAt" optional="YES" attributeType="Date" syncable="YES"/>
