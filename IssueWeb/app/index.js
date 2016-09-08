@@ -2493,6 +2493,11 @@ var Comment = React.createClass({
           '  print("Hello, \(name)!")\n' +
           '}\n' +
           '```'
+        ),
+        insertTable: insertTemplate(
+          'Heading 1 | Heading 2\n' +
+          '----------|----------\n' +
+          'Cel1 1    | Cell 2   \n'
         )
       };
       

@@ -500,6 +500,12 @@
                                     <action selector="mdTaskList:" target="-1" id="JDs-Ay-cNx"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Insert | Table" id="RMf-2b-ZQJ">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="mdTable:" target="-1" id="Aak-Sg-F8v"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="iRS-Bx-X2f"/>
                             <menuItem title="`Code Block`" id="adf-fa-hS2">
                                 <modifierMask key="keyEquivalentModifierMask"/>

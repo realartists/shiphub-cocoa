@@ -1148,6 +1148,10 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     [self applyFormat:@"insertTaskList"];
 }
 
+- (IBAction)mdTable:(id)sender {
+    [self applyFormat:@"insertTable"];
+}
+
 - (IBAction)mdCodeBlock:(id)sender {
     [self applyFormat:@"code"];
 }
