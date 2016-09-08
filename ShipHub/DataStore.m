@@ -2288,7 +2288,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         NSArray *notes = [_moc executeFetchRequest:fetch error:NULL];
         
         if ([notes count]) {
-            [_serverConnection perform:@"PUT" on:@"/notifications" body:nil completion:^(id jsonResponse, NSError *error) {
+            [_serverConnection perform:@"PUT" on:@"/notifications" body:@{} completion:^(id jsonResponse, NSError *error) {
                 if (!error) {
                     [_moc performBlock:^{
                         for (LocalNotification *note in notes) {
