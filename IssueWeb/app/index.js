@@ -2497,8 +2497,9 @@ var Comment = React.createClass({
         insertTable: insertTemplate(
           'Heading 1 | Heading 2\n' +
           '----------|----------\n' +
-          'Cel1 1    | Cell 2   \n'
-        )
+          'Cell 1    | Cell 2   \n'
+        ),
+        insertHorizontalRule: insertTemplate('\n\n---\n\n')
       };
       
       // Configure some formatting controls

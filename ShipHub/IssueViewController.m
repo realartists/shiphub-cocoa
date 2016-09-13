@@ -1152,6 +1152,10 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     [self applyFormat:@"insertTable"];
 }
 
+- (IBAction)mdHorizontalRule:(id)sender {
+    [self applyFormat:@"insertHorizontalRule"];
+}
+
 - (IBAction)mdCodeBlock:(id)sender {
     [self applyFormat:@"code"];
 }
