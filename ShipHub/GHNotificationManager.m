@@ -128,15 +128,15 @@
                 [records addObject:record];
             }
             
-            NSInteger pollInterval = [respHeaders[@"X-Poll-Interval"] integerValue];
-            if (pollInterval == 0) pollInterval = 60;
-            
-            [self scheduleTimerWithInterval:(NSTimeInterval)pollInterval];
-            
             [self writeRecords:records];
         } else {
             ErrLog(@"%@", err);
         }
+        
+        NSInteger pollInterval = [respHeaders[@"X-Poll-Interval"] integerValue];
+        if (pollInterval == 0) pollInterval = 60;
+        
+        [self scheduleTimerWithInterval:(NSTimeInterval)pollInterval];
     }];
 }
 
