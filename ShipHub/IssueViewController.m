@@ -13,6 +13,7 @@
 #import "Auth.h"
 #import "DataStore.h"
 #import "DownloadBarViewController.h"
+#import "EmptyLabelView.h"
 #import "Error.h"
 #import "Extras.h"
 #import "MetadataStore.h"
@@ -68,6 +69,8 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 @property MultiDownloadProgress *downloadProgress;
 @property NSTimer *downloadDebounceTimer;
 
+@property EmptyLabelView *nothingLabel;
+
 @end
 
 @implementation IssueViewController
@@ -93,9 +96,14 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     _web.UIDelegate = self;
     _web.frameLoadDelegate = self;
     _web.policyDelegate = self;
-    //_web.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     
     [container addSubview:_web];
+    
+    _nothingLabel = [[EmptyLabelView alloc] initWithFrame:container.bounds];
+    _nothingLabel.hidden = YES;
+    _nothingLabel.font = [NSFont systemFontOfSize:28.0];
+    _nothingLabel.stringValue = NSLocalizedString(@"No Issue Selected", nil);
+    [container addSubview:_nothingLabel];
     
     self.view = container;
 }
@@ -118,6 +126,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
             _downloadBar.view.frame = CGRectMake(0, -_downloadBar.view.frame.size.height, CGRectGetWidth(b), _downloadBar.view.frame.size.height);
         }
     }
+    _nothingLabel.frame = _web.frame;
 }
 
 - (NSURL *)indexURL {
@@ -151,6 +160,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 - (void)configureNewIssue {
     [self evaluateJavaScript:@"configureNewIssue();"];
     _web.hidden = NO;
+    _nothingLabel.hidden = YES;
 }
 
 - (NSString *)issueStateJSON:(Issue *)issue {
@@ -199,7 +209,9 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
         }
     }
     [self updateTitle];
-    _web.hidden = _issue == nil;
+    BOOL hidden = _issue == nil;
+    _web.hidden = hidden;
+    _nothingLabel.hidden = !hidden;
 }
 
 - (void)scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier {

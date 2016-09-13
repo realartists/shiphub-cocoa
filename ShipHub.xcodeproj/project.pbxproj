@@ -101,6 +101,7 @@
 		1A5604E21CD7FFC100ACF0DF /* AttachmentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */; };
 		1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
 		1A563F7B1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
+		1A5B293B1D888C0A000C9F4B /* EmptyLabelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */; };
 		1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694ADE1CA09E0800F73608 /* MetadataStore.m */; };
 		1A694AE01CA09E0800F73608 /* MetadataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694ADE1CA09E0800F73608 /* MetadataStore.m */; };
 		1A694AE61CA09E5800F73608 /* User.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694AE51CA09E5800F73608 /* User.m */; };
@@ -504,6 +505,8 @@
 		1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AttachmentManager.m; sourceTree = "<group>"; };
 		1A563F781CC823CF00755AAC /* APIProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIProxy.h; sourceTree = "<group>"; };
 		1A563F791CC823CF00755AAC /* APIProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIProxy.m; sourceTree = "<group>"; };
+		1A5B29391D888C0A000C9F4B /* EmptyLabelView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmptyLabelView.h; sourceTree = "<group>"; };
+		1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmptyLabelView.m; sourceTree = "<group>"; };
 		1A694ADD1CA09E0800F73608 /* MetadataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MetadataStore.h; sourceTree = "<group>"; };
 		1A694ADE1CA09E0800F73608 /* MetadataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MetadataStore.m; sourceTree = "<group>"; };
 		1A694AE41CA09E5800F73608 /* User.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = User.h; sourceTree = "<group>"; };
@@ -1205,6 +1208,8 @@
 				1A7FD7761D493B0400B585E2 /* ProgressSheet.h */,
 				1A7FD7771D493B0400B585E2 /* ProgressSheet.m */,
 				1A7FD7781D493B0400B585E2 /* ProgressSheet.xib */,
+				1A5B29391D888C0A000C9F4B /* EmptyLabelView.h */,
+				1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */,
 			);
 			name = "Shared UI";
 			sourceTree = "<group>";
@@ -1688,6 +1693,7 @@
 				1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */,
 				1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */,
 				1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */,
+				1A5B293B1D888C0A000C9F4B /* EmptyLabelView.m in Sources */,
 				1A012E941D3EAC47006CE5DF /* StateRowTemplate.m in Sources */,
 				1A012EC11D452F17006CE5DF /* LabelRowTemplate.m in Sources */,
 				1A694B0E1CA3413700F73608 /* OverviewNode.m in Sources */,
