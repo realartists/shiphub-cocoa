@@ -214,7 +214,7 @@
     [note enumerateModifiedObjects:^(id obj, CoreDataModificationType modType, BOOL *stop) {
         if ([obj isKindOfClass:[LocalIssue class]]) {
             id identifier = [obj fullIdentifier];
-            [changed addObject:identifier];
+            if (identifier) { [changed addObject:identifier]; }
         }
     }];
     
