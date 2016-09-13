@@ -208,17 +208,12 @@
     }];
 }
 
-- (NSString *)issueFullIdentifier:(LocalIssue *)li {
-    NSParameterAssert(li);
-    return [NSString issueIdentifierWithOwner:li.repository.owner.login repo:li.repository.name number:li.number];
-}
-
 - (NSArray *)changedIssueIdentifiers:(NSNotification *)note {
     NSMutableSet *changed = [NSMutableSet new];
     
     [note enumerateModifiedObjects:^(id obj, CoreDataModificationType modType, BOOL *stop) {
         if ([obj isKindOfClass:[LocalIssue class]]) {
-            id identifier = [self issueFullIdentifier:obj];
+            id identifier = [obj fullIdentifier];
             [changed addObject:identifier];
         }
     }];
