@@ -419,7 +419,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                 NSMutableArray *referencedAndCommitEvents = [[eventsAndComments filteredArrayUsingPredicate:
                                                               [NSPredicate predicateWithFormat:@"event IN {'referenced', 'closed'}"]] mutableCopy];
                 NSArray *allOtherEvents = [eventsAndComments filteredArrayUsingPredicate:
-                                           [NSPredicate predicateWithFormat:@"NOT event IN {'referenced', 'cross-referenced', 'commented', 'closed'} AND identifier != nil"]];
+                                           [NSPredicate predicateWithFormat:@"NOT event IN {'referenced', 'cross-referenced', 'commented', 'closed'} AND id != nil"]];
                 [self yield:allOtherEvents type:@"event" version:@{}];
 
 

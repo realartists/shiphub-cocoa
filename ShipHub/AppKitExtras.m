@@ -420,6 +420,8 @@
 }
 
 + (NSColor *)colorWithHexString:(NSString *)hexString {
+    if (!hexString) return nil;
+    
     if ([hexString hasPrefix:@"#"]) {
         hexString = [hexString substringWithRange:NSMakeRange(1, hexString.length-1)];
     }
