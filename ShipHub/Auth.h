@@ -11,6 +11,7 @@
 #import "JSONItem.h"
 
 @class ServerConnection;
+@class WebSession;
 
 @interface AuthAccountPair : NSObject
 
@@ -50,10 +51,12 @@ typedef NS_ENUM(NSInteger, AuthState) {
 
 // Add a new account and token to the keychain
 + (Auth *)authWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken;
++ (Auth *)authWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken sessionCookies:(NSArray<NSHTTPCookie *> *)sessionCookies;
 
 @property (readonly, strong) AuthAccount *account;
 @property (readonly, copy) NSString *token;
 @property (readonly, copy) NSString *ghToken;
+@property (readonly, strong) WebSession *webSession;
 
 @property (readonly) AuthState authState;
 

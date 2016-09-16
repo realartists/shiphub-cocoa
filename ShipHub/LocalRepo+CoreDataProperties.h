@@ -11,7 +11,7 @@
 
 #import "LocalRepo.h"
 
-@class LocalAccount, LocalUser, LocalIssue, LocalLabel, LocalMilestone, LocalHidden;
+@class LocalAccount, LocalUser, LocalIssue, LocalLabel, LocalMilestone, LocalHidden, LocalProject;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSSet<LocalIssue *> *issues;
 @property (nullable, nonatomic, retain) NSSet<LocalLabel *> *labels;
 @property (nullable, nonatomic, retain) NSSet<LocalMilestone *> *milestones;
+@property (nullable, nonatomic, retain) NSSet<LocalProject *> *projects;
 @property (nullable, nonatomic, retain) LocalAccount *owner;
 @property (nullable, nonatomic, retain) LocalHidden *hidden;
 
@@ -53,6 +54,12 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeMilestonesObject:(LocalMilestone *)value;
 - (void)addMilestones:(NSSet<LocalMilestone *> *)values;
 - (void)removeMilestones:(NSSet<LocalMilestone *> *)values;
+
+- (void)addProjectsObject:(LocalProject *)value;
+- (void)removeProjectsObject:(LocalProject *)value;
+- (void)addProjects:(NSSet<LocalProject *> *)values;
+- (void)removeProjects:(NSSet<LocalProject *> *)values;
+
 
 @end
 

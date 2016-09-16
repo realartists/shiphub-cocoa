@@ -147,7 +147,7 @@
     accountDict[@"shipHost"] = [self shipHost];
     
     AuthAccount *account = [[AuthAccount alloc] initWithDictionary:accountDict];
-    Auth *auth = [Auth authWithAccount:account shipToken:shipToken ghToken:ghToken];
+    Auth *auth = [Auth authWithAccount:account shipToken:shipToken ghToken:ghToken sessionCookies:self.sessionCookies];
     
     [self finishWithAuth:auth];
 }

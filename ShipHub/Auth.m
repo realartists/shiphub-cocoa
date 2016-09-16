@@ -13,6 +13,7 @@
 #import "JSONItem.h"
 #import "Error.h"
 #import "ServerConnection.h"
+#import "WebSession.h"
 
 static NSString *const KeychainService = @"com.realartists.Ship2";
 static NSString *const KeychainAccessGroup = nil;
@@ -27,6 +28,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
 @property (readwrite, copy) NSString *token;
 @property (readwrite, copy) NSString *ghToken;
 @property (readwrite) AuthState authState;
+@property (readwrite, strong) WebSession *webSession;
 
 @end
 
@@ -113,6 +115,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
                         self.account = account;
                         self.token = token;
                         self.ghToken = ghToken;
+                        self.webSession = [[WebSession alloc] initWithAuthAccount:account];
                         [self changeAuthState:AuthStateValid];
                         return self;
                     }
@@ -130,11 +133,16 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     return nil;
 }
 
-+ (Auth *)authWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken; {
-    return [[self alloc] initWithAccount:account shipToken:shipToken ghToken:ghToken];
++ (Auth *)authWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken {
+    return [[self class] authWithAccount:account shipToken:shipToken ghToken:ghToken sessionCookies:nil];
 }
 
-- (instancetype)initWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken {
++ (Auth *)authWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken sessionCookies:(NSArray<NSHTTPCookie *> *)sessionCookies {
+    return [[self alloc] initWithAccount:account shipToken:shipToken ghToken:ghToken sessionCookies:sessionCookies];
+}
+
+- (instancetype)initWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken sessionCookies:(NSArray<NSHTTPCookie *> *)sessionCookies
+{
     NSParameterAssert(account);
     NSParameterAssert(shipToken);
     NSParameterAssert(ghToken);
@@ -161,6 +169,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
         self.account = account;
         self.token = shipToken;
         self.ghToken = ghToken;
+        self.webSession = [[WebSession alloc] initWithAuthAccount:account initialCookies:sessionCookies];
         [self changeAuthState:AuthStateValid];
         
         [[[self class] accountsCache] addObject:[account pair]];

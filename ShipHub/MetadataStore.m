@@ -18,6 +18,7 @@
 #import "LocalMilestone.h"
 #import "LocalMetadata.h"
 #import "LocalHidden.h"
+#import "LocalProject.h"
 
 @interface MetadataStore () {
     BOOL _allAssigneesNeedsSort;
@@ -38,6 +39,7 @@
 
 @property (strong) NSDictionary *milestonesByRepoID;
 @property (strong) NSDictionary *labelsByRepoID;
+@property (strong) NSDictionary *projectsByRepoID;
 
 @property (strong) NSArray *mergedLabels;
 @property (strong) NSArray *mergedMilestoneNames;
@@ -113,6 +115,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
         [accountsByID addEntriesFromDictionary:usersByID];
         NSMutableDictionary *assigneesByRepoID = [NSMutableDictionary new];
         NSMutableDictionary *milestonesByRepoID = [NSMutableDictionary new];
+        NSMutableDictionary *projectsByRepoID = [NSMutableDictionary new];
         NSMutableDictionary *labelsByRepoID = [NSMutableDictionary new];
         NSMutableSet *allAssignees = [NSMutableSet new];
         
@@ -137,6 +140,15 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
                 if (lm.title) {
                     Milestone *m = [[Milestone alloc] initWithLocalItem:lm];
                     [milestones addObject:m];
+                }
+            }
+            
+            NSMutableArray *projects;
+            projectsByRepoID[r.identifier] = projects = [NSMutableArray new];
+            for (LocalProject *lp in r.projects) {
+                if (lp.name && lp.number) {
+                    Project *p = [[Project alloc] initWithLocalItem:lp];
+                    [projects addObject:p];
                 }
             }
             
@@ -196,6 +208,8 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
         _milestonesByRepoID = milestonesByRepoID;
         
         _labelsByRepoID = labelsByRepoID;
+        
+        _projectsByRepoID = projectsByRepoID;
         
         NSMutableDictionary *mergedLabels = [NSMutableDictionary new];
         
@@ -326,6 +340,10 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
 
 - (NSArray<Label *> *)labelsForRepo:(Repo *)repo {
     return _labelsByRepoID[repo.identifier];
+}
+
+- (NSArray<Project *> *)projectsForRepo:(Repo *)repo {
+    return _projectsByRepoID[repo.identifier];
 }
 
 - (User *)userWithLocalUser:(LocalUser *)lu {

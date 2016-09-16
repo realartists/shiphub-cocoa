@@ -16,6 +16,7 @@
 #import "ButtonToolbarItem.h"
 #import "OAuthController.h"
 #import "Reachability.h"
+#import "WebSession.h"
 
 #import <WebKit/WebKit.h>
 #import <SecurityInterface/SFCertificatePanel.h>
@@ -43,6 +44,8 @@
 
 @property (getter=isComplete) BOOL complete;
 @property BOOL failed;
+
+@property (copy) NSArray<NSHTTPCookie *> *sessionCookies;
 
 @end
 
@@ -112,7 +115,6 @@
 
 - (NSURLRequest *)startRequest {
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[self startURL]];
-    //request.HTTPShouldHandleCookies = NO;
     return request;
 }
 
@@ -121,6 +123,7 @@
     
     OAuthController *oauth = [[OAuthController alloc] initWithAuthCode:authCode];
     oauth.shipHost = self.shipHost;
+    oauth.sessionCookies = self.sessionCookies;
     [_authController continueWithViewController:oauth];
     [self close];
 }
@@ -184,6 +187,19 @@
     [self handleWebError:error];
 }
 
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler
+{
+    NSHTTPURLResponse *http = (NSHTTPURLResponse *)(navigationResponse.response);
+    if ([[http.URL host] isEqualToString:[[self startURL] host]]) {
+        NSArray *cookies = [WebSession sessionCookiesInResponse:http];
+        if (cookies) {
+            DebugLog(@"Snarfed session cookies %@", cookies);
+            self.sessionCookies = cookies;
+        }
+    }
+    decisionHandler(WKNavigationResponsePolicyAllow);
+}
+
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
     [self webWindow].secure = webView.hasOnlySecureContent;
 }
@@ -196,7 +212,8 @@
 }
 
 - (void)show {
-    BOOL useBrowser = [[Auth allLogins] count] == 0 && [[ABTesting sharedTesting] usesBrowserBasedOAuth];
+    // Currently never using the browser method as we're snarfing web cookies during oauth in order to show GitHub web pages in app.
+    BOOL useBrowser = NO; //[[Auth allLogins] count] == 0 && [[ABTesting sharedTesting] usesBrowserBasedOAuth];
     
     if (useBrowser) {
         [[NSWorkspace sharedWorkspace] openURL:[self startURL]];

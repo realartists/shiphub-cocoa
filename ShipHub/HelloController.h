@@ -15,6 +15,8 @@
 @property (copy) NSString *ghHost;
 @property (copy) NSString *shipHost;
 
+@property (copy) NSArray<NSHTTPCookie *> *sessionCookies;
+
 - (NSString *)clientID;
 
 - (void)sayHello:(NSString *)oauthToken;

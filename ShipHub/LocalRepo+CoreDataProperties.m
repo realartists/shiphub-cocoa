@@ -25,5 +25,6 @@
 @dynamic labels;
 @dynamic milestones;
 @dynamic owner;
+@dynamic projects;
 
 @end

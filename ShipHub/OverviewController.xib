@@ -287,7 +287,7 @@
                                             <constraint firstAttribute="width" constant="12" id="29I-ao-FDz"/>
                                             <constraint firstAttribute="height" constant="12" id="eXs-hx-Hoe"/>
                                         </constraints>
-                                        <popUpButtonCell key="cell" type="square" title="Item" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" imageScaling="proportionallyDown" inset="2" pullsDown="YES" arrowPosition="noArrow" autoenablesItems="NO" altersStateOfSelectedItem="NO" id="AFs-6i-m0Q">
+                                        <popUpButtonCell key="cell" type="square" title="Item" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" imageScaling="proportionallyDown" inset="2" pullsDown="YES" arrowPosition="noArrow" autoenablesItems="NO" altersStateOfSelectedItem="NO" selectedItem="0AE-Dc-g65" id="AFs-6i-m0Q">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
                                             <menu key="menu" autoenablesItems="NO" id="f8l-Dg-vDW">
@@ -305,6 +305,12 @@
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="addNewMilestone:" target="-2" id="yXm-Jr-t2A"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                    <menuItem title="New Project…" id="0AE-Dc-g65">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="addNewProject:" target="-2" id="FcW-Z3-Fwa"/>
                                                         </connections>
                                                     </menuItem>
                                                 </items>

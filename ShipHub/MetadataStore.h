@@ -13,6 +13,7 @@
 #import "Org.h"
 #import "Milestone.h"
 #import "Label.h"
+#import "Project.h"
 
 @interface MetadataStore : NSObject
 
@@ -33,6 +34,7 @@
 
 - (NSArray<Label *> *)mergedLabels;
 - (NSArray<Label *> *)labelsForRepo:(Repo *)repo;
+- (NSArray<Project *> *)projectsForRepo:(Repo *)repo;
 
 - (NSArray<Milestone *> *)activeMilestonesForRepo:(Repo *)repo;
 - (Milestone *)milestoneWithTitle:(NSString *)title inRepo:(Repo *)repo;

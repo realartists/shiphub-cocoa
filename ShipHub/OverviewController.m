@@ -13,6 +13,7 @@
 #import "MetadataStore.h"
 #import "Extras.h"
 #import "Milestone.h"
+#import "Project.h"
 #import "Repo.h"
 #import "OverviewNode.h"
 #import "SearchResultsController.h"
@@ -36,10 +37,13 @@
 #import "CustomQuery.h"
 #import "BulkModifyHelper.h"
 #import "NewMilestoneController.h"
+#import "NewProjectController.h"
 #import "BillingToolbarItem.h"
 #import "UnsubscribedRepoController.h"
 #import "HiddenRepoViewController.h"
 #import "HiddenMilestoneViewController.h"
+#import "ProjectsViewController.h"
+#import "ProgressSheet.h"
 
 //#import "OutboxViewController.h"
 //#import "AttachmentProgressViewController.h"
@@ -135,6 +139,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 @property UnsubscribedRepoController *unsubscribedRepoController;
 @property HiddenRepoViewController *hiddenRepoController;
 @property HiddenMilestoneViewController *hiddenMilestoneController;
+@property ProjectsViewController *projectsController;
 
 @end
 
@@ -325,6 +330,13 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     NSMenuItem *hideItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Unhide item", nil) action:@selector(unhideItem:) keyEquivalent:@""];
     hideItem.target = self;
     return hideMenu;
+}
+
+- (NSMenu *)projectMenu {
+    NSMenu *projectMenu = [NSMenu new];
+    NSMenuItem *delItem = [projectMenu addItemWithTitle:NSLocalizedString(@"Delete Project", nil) action:@selector(deleteProject:) keyEquivalent:@""];
+    delItem.target = self;
+    return projectMenu;
 }
 
 - (void)buildOutline {
@@ -524,6 +536,21 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
                 }
                 repoNode.viewController = _unsubscribedRepoController;
                 repoNode.icon = [NSImage overviewIconNamed:@"Locked"];
+            } else {
+                NSArray *projects = [metadata projectsForRepo:repo];
+                for (Project *proj in projects) {
+                    OverviewNode *projNode = [OverviewNode new];
+                    projNode.identifier = [NSString stringWithFormat:@"Project.%@", proj.identifier];
+                    projNode.representedObject = @{@"repo": repo, @"project": proj};
+                    projNode.title = proj.name;
+                    projNode.icon = [NSImage overviewIconNamed:@"Project"];
+                    if (!_projectsController) {
+                        _projectsController = [ProjectsViewController new];
+                    }
+                    projNode.viewController = _projectsController;
+                    projNode.menu = [self projectMenu];
+                    [repoNode addChild:projNode];
+                }
             }
         }
         
@@ -1125,6 +1152,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     }
     
     if ([selectedItem viewController]) {
+        [[selectedItem viewController] setRepresentedObject:selectedItem.representedObject];
         [_filterBar removeFromWindow];
         _searchItem.enabled = NO;
         _predicateItem.enabled = NO;
@@ -1474,6 +1502,10 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     } else if (menuItem.action == @selector(copy:)) {
         return [[self activeResultsController] respondsToSelector:@selector(copy:)]
         && (![[self activeResultsController] respondsToSelector:@selector(validateMenuItem:)] || [[self activeResultsController] validateMenuItem:menuItem]);
+    } else if (menuItem.action == @selector(deleteProject:)) {
+        return [self canDeleteProject];
+    } else if (menuItem.action == @selector(addNewProject:)) {
+        return [self canAddNewProject];
     }
     return YES;
 }
@@ -1524,6 +1556,71 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     
     NewMilestoneController *mc = [[NewMilestoneController alloc] initWithInitialRepos:initialRepos initialReposAreRequired:NO initialName:nil];
     [mc beginInWindow:self.window completion:nil];
+}
+
+- (BOOL)canAddNewProject {
+    OverviewNode *node = [_outlineView selectedItem];
+    while (node && ![node.representedObject isKindOfClass:[Repo class]]) {
+        node = node.parent;
+    }
+    
+    return node != nil;
+}
+
+- (BOOL)canDeleteProject {
+    OverviewNode *node = [self itemForContextMenu];
+    if ([node.representedObject isKindOfClass:[NSDictionary class]]) {
+        return [node.representedObject objectForKey:@"project"] != nil;
+    }
+    return NO;
+}
+
+- (IBAction)deleteProject:(id)sender {
+    if (![self canDeleteProject])
+        return;
+    
+    OverviewNode *node = [self itemForContextMenu];
+    Project *project = [node.representedObject objectForKey:@"project"];
+    
+    _nextNodeToSelect = node.parent.identifier;
+    
+    NSAlert *alert = [NSAlert new];
+    alert.messageText = [NSString stringWithFormat:NSLocalizedString(@"Delete Project \"%@\"?", nil), project.name];
+    alert.informativeText = NSLocalizedString(@"This action cannot be undone.", nil);
+    [alert addButtonWithTitle:NSLocalizedString(@"Delete", nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+    
+    [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertFirstButtonReturn) {
+            ProgressSheet *progress = [ProgressSheet new];
+            progress.message = NSLocalizedString(@"Deleting Project", nil);
+            [progress beginSheetInWindow:self.window];
+            [[DataStore activeStore] deleteProject:project completion:^(NSError *error) {
+                [progress endSheet];
+                
+                if (error) {
+                    NSAlert *errAlert = [NSAlert new];
+                    errAlert.messageText = NSLocalizedString(@"Failed to delete project", nil);
+                    errAlert.informativeText = [error localizedDescription];
+                    [errAlert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+                    [errAlert beginSheetModalForWindow:self.window completionHandler:nil];
+                }
+            }];
+        }
+    }];
+}
+
+- (IBAction)addNewProject:(id)sender {
+    OverviewNode *node = [_outlineView selectedItem];
+    while (node && ![node.representedObject isKindOfClass:[Repo class]]) {
+        node = node.parent;
+    }
+    
+    if (!node)
+        return;
+    
+    NewProjectController *pc = [[NewProjectController alloc] initWithRepo:node.representedObject];
+    [pc beginInWindow:self.window completion:nil];
 }
 
 #pragma mark -

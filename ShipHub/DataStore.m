@@ -38,6 +38,7 @@
 #import "LocalQuery.h"
 #import "LocalReaction.h"
 #import "LocalHidden.h"
+#import "LocalProject.h"
 
 #import "Issue.h"
 #import "IssueComment.h"
@@ -46,6 +47,7 @@
 #import "CustomQuery.h"
 #import "Reaction.h"
 #import "Milestone.h"
+#import "Project.h"
 
 #import "Error.h"
 
@@ -1866,6 +1868,88 @@ static NSString *const LastUpdated = @"LastUpdated";
             }];
         }
     });
+}
+
+- (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inRepo:(Repo *)repo completion:(void (^)(Project *proj, NSError *error))completion
+{
+    NSParameterAssert(projName);
+    NSParameterAssert(repo);
+    NSParameterAssert(completion);
+    
+    NSMutableDictionary *contents = [NSMutableDictionary new];
+    contents[@"name"] = projName;
+    if ([projBody length]) {
+        contents[@"body"] = projBody;
+    }
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/projects", repo.fullName];
+    [self.serverConnection perform:@"POST" on:endpoint headers:@{@"Accept":@"application/vnd.github.inertia-preview+json"} body:contents completion:^(id jsonResponse, NSError *error) {
+        if (error) {
+            RunOnMain(^{
+                completion(nil, error);
+            });
+        } else {
+            [_moc performBlock:^{
+                LocalProject *proj = [NSEntityDescription insertNewObjectForEntityForName:@"LocalProject" inManagedObjectContext:_moc];
+                NSMutableDictionary *projDict = [[JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
+                projDict[@"repository"] = repo.identifier;
+                [proj mergeAttributesFromDictionary:projDict];
+                [self updateRelationshipsOn:proj fromSyncDict:projDict];
+                
+                Project *result = [[Project alloc] initWithLocalItem:proj];
+                NSError *cdErr = nil;
+                [_moc save:&cdErr];
+                if (cdErr) {
+                    RunOnMain(^{
+                        completion(nil, cdErr);
+                    });
+                } else {
+                    RunOnMain(^{
+                        completion(result, nil);
+                    });
+                }
+            }];
+        }
+    }];
+}
+
+- (void)deleteProject:(Project *)proj completion:(void (^)(NSError *error))completion {
+    NSParameterAssert(proj);
+    NSParameterAssert(completion);
+    
+    [_moc performBlock:^{
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalProject"];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", proj.identifier];
+        fetch.fetchLimit = 1;
+        
+        LocalProject *lp = [[_moc executeFetchRequest:fetch error:NULL] firstObject];
+        
+        if (lp.number && lp.repository.fullName) {
+            NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/projects/%@", lp.repository.fullName, lp.number];
+            [self.serverConnection perform:@"DELETE" on:endpoint headers:@{@"Accept":@"application/vnd.github.inertia-preview+json"} body:nil completion:^(id jsonResponse, NSError *error) {
+                
+                if (!error) {
+                    [_moc performBlock:^{
+                        [_moc deleteObject:lp];
+                        [_moc save:NULL];
+                        
+                        RunOnMain(^{
+                            completion(nil);
+                        });
+                    }];
+                } else {
+                    RunOnMain(^{
+                        completion(error);
+                    });
+                }
+                
+            }];
+        } else {
+            RunOnMain(^{
+                completion([NSError shipErrorWithCode:ShipErrorCodeInternalInconsistencyError]);
+            });
+        }
+    }];
 }
 
 #pragma mark - Milestone and Repo Hiding

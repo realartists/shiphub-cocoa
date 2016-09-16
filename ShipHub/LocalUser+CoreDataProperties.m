@@ -22,5 +22,6 @@
 @dynamic orgs;
 @dynamic originatedIssues;
 @dynamic reactions;
+@dynamic createdProjects;
 
 @end

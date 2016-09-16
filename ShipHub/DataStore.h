@@ -18,7 +18,9 @@
 @class CustomQuery;
 @class Reaction;
 @class Milestone;
+@class Project;
 @class ServerConnection;
+
 
 @interface DataStore : NSObject
 
@@ -77,6 +79,9 @@
 - (void)addLabel:(NSDictionary *)label repoOwner:(NSString *)repoOwner repoName:(NSString *)repoName completion:(void (^)(NSDictionary *label, NSError *error))completion;
 
 - (void)addMilestone:(NSDictionary *)milestone inRepos:(NSArray<Repo *> *)repos completion:(void (^)(NSArray<Milestone *> *milestones, NSError *error))completion;
+
+- (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inRepo:(Repo *)repo completion:(void (^)(Project *proj, NSError *error))completion;
+- (void)deleteProject:(Project *)proj completion:(void (^)(NSError *error))completion;
 
 @end
 

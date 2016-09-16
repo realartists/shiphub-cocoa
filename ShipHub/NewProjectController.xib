@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G1004" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NewProjectController">
+            <connections>
+                <outlet property="bodyView" destination="fxO-zl-500" id="Bdc-oc-z0I"/>
+                <outlet property="cancelButton" destination="sTf-rY-giY" id="PB4-qc-yio"/>
+                <outlet property="createButton" destination="azM-39-5Ws" id="xth-8Q-DgA"/>
+                <outlet property="nameField" destination="hS9-Cs-mZi" id="mwB-Cy-d8p"/>
+                <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window title="New Project" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="F0z-JX-Cv5">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="196" y="240" width="497" height="275"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <value key="minSize" type="size" width="497" height="275"/>
+            <view key="contentView" id="se5-gp-TjO">
+                <rect key="frame" x="0.0" y="0.0" width="497" height="275"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="L8S-pr-ayQ">
+                        <rect key="frame" x="18" y="238" width="121" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="New Project Name:" id="yN7-FZ-tQs">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="hS9-Cs-mZi">
+                        <rect key="frame" x="145" y="235" width="332" height="22"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Required" drawsBackground="YES" id="tEK-kE-Roy">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <outlet property="delegate" destination="-2" id="Ygi-38-YgW"/>
+                        </connections>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Chh-qF-Utu">
+                        <rect key="frame" x="18" y="204" width="124" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Project Description:" id="o4x-iT-zf1">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wD0-PJ-Ph1">
+                        <rect key="frame" x="20" y="61" width="457" height="135"/>
+                        <clipView key="contentView" id="26G-2V-L5P">
+                            <rect key="frame" x="1" y="1" width="440" height="133"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <textView importsGraphics="NO" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" smartInsertDelete="YES" id="fxO-zl-500">
+                                    <rect key="frame" x="0.0" y="0.0" width="440" height="133"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <size key="minSize" width="440" height="133"/>
+                                    <size key="maxSize" width="463" height="10000000"/>
+                                    <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                    <size key="minSize" width="440" height="133"/>
+                                    <size key="maxSize" width="463" height="10000000"/>
+                                </textView>
+                            </subviews>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        </clipView>
+                        <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="VgM-VQ-2xY">
+                            <rect key="frame" x="-100" y="-100" width="87" height="18"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                        <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="1" horizontal="NO" id="7mv-of-ZPM">
+                            <rect key="frame" x="441" y="1" width="15" height="133"/>
+                            <autoresizingMask key="autoresizingMask"/>
+                        </scroller>
+                    </scrollView>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="azM-39-5Ws">
+                        <rect key="frame" x="356" y="13" width="127" height="32"/>
+                        <buttonCell key="cell" type="push" title="Create Project" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="DbZ-75-yfH">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                            <modifierMask key="keyEquivalentModifierMask" command="YES"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="create:" target="-2" id="r1U-qF-CCZ"/>
+                        </connections>
+                    </button>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="sTf-rY-giY">
+                        <rect key="frame" x="274" y="13" width="82" height="32"/>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="5Kw-CL-gaM">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="cancel:" target="-2" id="Q0F-MV-eUP"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="wD0-PJ-Ph1" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" id="5lL-KF-a2A"/>
+                    <constraint firstItem="Chh-qF-Utu" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" id="Cbb-CM-Q2f"/>
+                    <constraint firstItem="hS9-Cs-mZi" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" constant="18" id="Ckx-oS-IYM"/>
+                    <constraint firstAttribute="bottom" secondItem="azM-39-5Ws" secondAttribute="bottom" constant="20" id="E9L-oe-k3c"/>
+                    <constraint firstItem="wD0-PJ-Ph1" firstAttribute="top" secondItem="Chh-qF-Utu" secondAttribute="bottom" constant="8" id="R58-ow-NAD"/>
+                    <constraint firstItem="L8S-pr-ayQ" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" id="RZk-df-HKD"/>
+                    <constraint firstItem="hS9-Cs-mZi" firstAttribute="leading" secondItem="L8S-pr-ayQ" secondAttribute="trailing" constant="8" id="Thg-EM-YjV"/>
+                    <constraint firstAttribute="trailing" secondItem="hS9-Cs-mZi" secondAttribute="trailing" constant="20" id="WGU-b1-OdC"/>
+                    <constraint firstItem="L8S-pr-ayQ" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" constant="20" id="WKa-x9-lXw"/>
+                    <constraint firstItem="azM-39-5Ws" firstAttribute="leading" secondItem="sTf-rY-giY" secondAttribute="trailing" constant="12" id="gha-Wy-ym5"/>
+                    <constraint firstAttribute="bottom" secondItem="sTf-rY-giY" secondAttribute="bottom" constant="20" id="iGW-qb-Uui"/>
+                    <constraint firstItem="Chh-qF-Utu" firstAttribute="top" secondItem="L8S-pr-ayQ" secondAttribute="bottom" constant="17" id="kAp-L8-n06"/>
+                    <constraint firstAttribute="trailing" secondItem="azM-39-5Ws" secondAttribute="trailing" constant="20" id="oSW-8p-C0S"/>
+                    <constraint firstAttribute="trailing" secondItem="wD0-PJ-Ph1" secondAttribute="trailing" constant="20" id="qWe-0i-GeO"/>
+                    <constraint firstItem="sTf-rY-giY" firstAttribute="top" secondItem="wD0-PJ-Ph1" secondAttribute="bottom" constant="20" id="wVk-P4-Aac"/>
+                </constraints>
+            </view>
+            <connections>
+                <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
+            </connections>
+            <point key="canvasLocation" x="331.5" y="387.5"/>
+        </window>
+    </objects>
+</document>

@@ -231,7 +231,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
 }
 
 - (void)findMilestonesAndLabels:(NSArray *)repos completion:(void (^)(NSArray *rwi))completion {
-    __block NSUInteger remaining = repos.count * 2;
+    __block NSUInteger remaining = repos.count * 3;
     NSMutableArray *rwis = [NSMutableArray arrayWithCapacity:repos.count];
     
     dispatch_block_t done = ^{
@@ -248,8 +248,18 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
         NSString *baseEndpoint = [NSString stringWithFormat:@"repos/%@/%@", repo[@"owner"][@"login"], repo[@"name"]];
         NSString *labelsEndpoint = [baseEndpoint stringByAppendingPathComponent:@"labels"];
         NSString *milestonesEndpoint = [baseEndpoint stringByAppendingPathComponent:@"milestones"];
+        NSString *projectsEndpoint = [baseEndpoint stringByAppendingPathComponent:@"projects"];
         [_pager fetchPaged:[_pager get:labelsEndpoint] completion:^(NSArray *data, NSError *err) {
             rwi[@"labels"] = data;
+            done();
+        }];
+        
+        [_pager fetchPaged:[_pager get:projectsEndpoint params:nil headers:@{@"Accept":@"application/vnd.github.inertia-preview+json"}] completion:^(NSArray *data, NSError *err) {
+            rwi[@"projects"] = [data arrayByMappingObjects:^id(id obj) {
+                NSMutableDictionary *proj = [obj mutableCopy];
+                proj[@"repository"] = repo[@"id"];
+                return proj;
+            }];
             done();
         }];
         
