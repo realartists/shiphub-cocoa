@@ -41,6 +41,8 @@
 
 - (void)syncConnectionRequiresSoftwareUpdate:(SyncConnection *)sync;
 
+- (void)syncConnection:(SyncConnection *)sync didReceiveBillingUpdate:(NSDictionary *)update;
+
 @end
 
 typedef NS_ENUM(NSInteger, SyncEntryAction) {

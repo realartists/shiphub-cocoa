@@ -80,6 +80,19 @@
 		1A36190B1C9383E7008C11CB /* TestSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619051C9383E7008C11CB /* TestSyncConnection.m */; };
 		1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619071C9383E7008C11CB /* TestDataStore.m */; };
 		1A36190D1C9383E7008C11CB /* TestMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619091C9383E7008C11CB /* TestMetadata.m */; };
+		1A3AB3481D907712004BB768 /* Billing.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3471D907712004BB768 /* Billing.m */; };
+		1A3AB3491D907712004BB768 /* Billing.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3471D907712004BB768 /* Billing.m */; };
+		1A3AB3521D9095BA004BB768 /* LocalBilling+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB34F1D9095BA004BB768 /* LocalBilling+CoreDataProperties.m */; };
+		1A3AB3531D9095BA004BB768 /* LocalBilling+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB34F1D9095BA004BB768 /* LocalBilling+CoreDataProperties.m */; };
+		1A3AB3541D9095BA004BB768 /* LocalBilling.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3511D9095BA004BB768 /* LocalBilling.m */; };
+		1A3AB3551D9095BA004BB768 /* LocalBilling.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3511D9095BA004BB768 /* LocalBilling.m */; };
+		1A3AB3591D909F80004BB768 /* BillingToolbarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3581D909F80004BB768 /* BillingToolbarItem.m */; };
+		1A3AB35D1D90AE17004BB768 /* SubscriptionController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB35B1D90AE17004BB768 /* SubscriptionController.m */; };
+		1A3AB35E1D90AE17004BB768 /* SubscriptionController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A3AB35C1D90AE17004BB768 /* SubscriptionController.xib */; };
+		1A3AB3611D90AF54004BB768 /* TimeRemainingFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3601D90AF54004BB768 /* TimeRemainingFormatter.m */; };
+		1A3AB3641D919F5E004BB768 /* AvatarManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3631D919F5E004BB768 /* AvatarManager.m */; };
+		1A3AB36A1D91BDA7004BB768 /* UnsubscribedRepoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3681D91BDA7004BB768 /* UnsubscribedRepoController.m */; };
+		1A3AB36B1D91BDA7004BB768 /* UnsubscribedRepoController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A3AB3691D91BDA7004BB768 /* UnsubscribedRepoController.xib */; };
 		1A48BB4D1D80D8BF001E761E /* UserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */; };
 		1A48BB531D80DED6001E761E /* IssueNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB521D80DED6001E761E /* IssueNotification.m */; };
 		1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
@@ -477,6 +490,25 @@
 		1A3619071C9383E7008C11CB /* TestDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDataStore.m; sourceTree = "<group>"; };
 		1A3619081C9383E7008C11CB /* TestMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMetadata.h; sourceTree = "<group>"; };
 		1A3619091C9383E7008C11CB /* TestMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestMetadata.m; sourceTree = "<group>"; };
+		1A3AB3461D907712004BB768 /* Billing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Billing.h; sourceTree = "<group>"; };
+		1A3AB3471D907712004BB768 /* Billing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Billing.m; sourceTree = "<group>"; };
+		1A3AB34D1D9085C6004BB768 /* DataStoreInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataStoreInternal.h; sourceTree = "<group>"; };
+		1A3AB34E1D9095BA004BB768 /* LocalBilling+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalBilling+CoreDataProperties.h"; sourceTree = "<group>"; };
+		1A3AB34F1D9095BA004BB768 /* LocalBilling+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalBilling+CoreDataProperties.m"; sourceTree = "<group>"; };
+		1A3AB3501D9095BA004BB768 /* LocalBilling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalBilling.h; sourceTree = "<group>"; };
+		1A3AB3511D9095BA004BB768 /* LocalBilling.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalBilling.m; sourceTree = "<group>"; };
+		1A3AB3571D909F80004BB768 /* BillingToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BillingToolbarItem.h; sourceTree = "<group>"; };
+		1A3AB3581D909F80004BB768 /* BillingToolbarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BillingToolbarItem.m; sourceTree = "<group>"; };
+		1A3AB35A1D90AE17004BB768 /* SubscriptionController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SubscriptionController.h; sourceTree = "<group>"; };
+		1A3AB35B1D90AE17004BB768 /* SubscriptionController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SubscriptionController.m; sourceTree = "<group>"; };
+		1A3AB35C1D90AE17004BB768 /* SubscriptionController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = SubscriptionController.xib; sourceTree = "<group>"; };
+		1A3AB35F1D90AF54004BB768 /* TimeRemainingFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeRemainingFormatter.h; sourceTree = "<group>"; };
+		1A3AB3601D90AF54004BB768 /* TimeRemainingFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeRemainingFormatter.m; sourceTree = "<group>"; };
+		1A3AB3621D919F5E004BB768 /* AvatarManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AvatarManager.h; sourceTree = "<group>"; };
+		1A3AB3631D919F5E004BB768 /* AvatarManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AvatarManager.m; sourceTree = "<group>"; };
+		1A3AB3671D91BDA7004BB768 /* UnsubscribedRepoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnsubscribedRepoController.h; sourceTree = "<group>"; };
+		1A3AB3681D91BDA7004BB768 /* UnsubscribedRepoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnsubscribedRepoController.m; sourceTree = "<group>"; };
+		1A3AB3691D91BDA7004BB768 /* UnsubscribedRepoController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UnsubscribedRepoController.xib; sourceTree = "<group>"; };
 		1A48BB4B1D80D8BF001E761E /* UserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserNotificationManager.h; sourceTree = "<group>"; };
 		1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserNotificationManager.m; sourceTree = "<group>"; };
 		1A48BB511D80DED6001E761E /* IssueNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueNotification.h; sourceTree = "<group>"; };
@@ -856,6 +888,7 @@
 				1AF3494A1CDA95D100A5BEB0 /* Charting */,
 				1A7FD76A1D492E5800B585E2 /* Bulk Modify */,
 				1A694B131CA3419900F73608 /* Shared UI */,
+				1A3AB3561D909F5A004BB768 /* Billing */,
 				1A2217CE1C7E80C0006460E2 /* Extras */,
 				1A2217941C7E7B14006460E2 /* Supporting Files */,
 				1A2440CE1C850CD900E070DA /* Frameworks */,
@@ -981,6 +1014,10 @@
 				1A83679E1D5542ED0019C609 /* SemiMixedButton.m */,
 				1AF567411D6393FB00611DBB /* ABTesting.h */,
 				1AF567421D6393FB00611DBB /* ABTesting.m */,
+				1A3AB35F1D90AF54004BB768 /* TimeRemainingFormatter.h */,
+				1A3AB3601D90AF54004BB768 /* TimeRemainingFormatter.m */,
+				1A3AB3621D919F5E004BB768 /* AvatarManager.h */,
+				1A3AB3631D919F5E004BB768 /* AvatarManager.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -1119,6 +1156,10 @@
 				1AF567451D665C5100611DBB /* LocalHidden+CoreDataProperties.m */,
 				1AF567461D665C5100611DBB /* LocalHidden.h */,
 				1AF567471D665C5100611DBB /* LocalHidden.m */,
+				1A3AB34E1D9095BA004BB768 /* LocalBilling+CoreDataProperties.h */,
+				1A3AB34F1D9095BA004BB768 /* LocalBilling+CoreDataProperties.m */,
+				1A3AB3501D9095BA004BB768 /* LocalBilling.h */,
+				1A3AB3511D9095BA004BB768 /* LocalBilling.m */,
 			);
 			name = CoreData;
 			sourceTree = "<group>";
@@ -1138,6 +1179,23 @@
 				1A3618FE1C9383CF008C11CB /* Info.plist */,
 			);
 			path = ShipHubTests;
+			sourceTree = "<group>";
+		};
+		1A3AB3561D909F5A004BB768 /* Billing */ = {
+			isa = PBXGroup;
+			children = (
+				1A3AB3461D907712004BB768 /* Billing.h */,
+				1A3AB3471D907712004BB768 /* Billing.m */,
+				1A3AB3571D909F80004BB768 /* BillingToolbarItem.h */,
+				1A3AB3581D909F80004BB768 /* BillingToolbarItem.m */,
+				1A3AB35A1D90AE17004BB768 /* SubscriptionController.h */,
+				1A3AB35B1D90AE17004BB768 /* SubscriptionController.m */,
+				1A3AB35C1D90AE17004BB768 /* SubscriptionController.xib */,
+				1A3AB3671D91BDA7004BB768 /* UnsubscribedRepoController.h */,
+				1A3AB3681D91BDA7004BB768 /* UnsubscribedRepoController.m */,
+				1A3AB3691D91BDA7004BB768 /* UnsubscribedRepoController.xib */,
+			);
+			name = Billing;
 			sourceTree = "<group>";
 		};
 		1A694B121CA3414800F73608 /* Overview UI */ = {
@@ -1267,6 +1325,7 @@
 				1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */,
 				1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */,
 				1A3618E11C8FBF96008C11CB /* DataStore.h */,
+				1A3AB34D1D9085C6004BB768 /* DataStoreInternal.h */,
 				1A3618E21C8FBF96008C11CB /* DataStore.m */,
 				1A3618E71C8FC25B008C11CB /* SyncConnection.h */,
 				1A3618E81C8FC25B008C11CB /* SyncConnection.m */,
@@ -1513,6 +1572,7 @@
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
 				1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */,
+				1A3AB35E1D90AE17004BB768 /* SubscriptionController.xib in Resources */,
 				1AF567381D625E2300611DBB /* WebAuthController.xib in Resources */,
 				1A012E7E1D3EAC0E006CE5DF /* SearchEditorViewController.xib in Resources */,
 				1AD956B41D0B5654002B1259 /* DownloadBarViewController.xib in Resources */,
@@ -1520,6 +1580,7 @@
 				1A012E7F1D3EAC0E006CE5DF /* SearchEditor.strings in Resources */,
 				1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */,
 				1AF349791CDAC1E900A5BEB0 /* ChartConfigController.xib in Resources */,
+				1A3AB36B1D91BDA7004BB768 /* UnsubscribedRepoController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
 				1A7FD7841D497C1700B585E2 /* AssigneeModifyController.xib in Resources */,
 				1A7FD7751D492FE000B585E2 /* MilestoneModifyController.xib in Resources */,
@@ -1588,6 +1649,7 @@
 				1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */,
 				1A012E9A1D3EACB5006CE5DF /* ChevronButton.m in Sources */,
 				1A694B001CA0ABEB00F73608 /* MetadataItem.m in Sources */,
+				1A3AB3641D919F5E004BB768 /* AvatarManager.m in Sources */,
 				1A012EC41D454097006CE5DF /* NoneLabelTemplate.m in Sources */,
 				1A0D87741CA9E25F0069782D /* JSON.m in Sources */,
 				1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */,
@@ -1607,6 +1669,7 @@
 				1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */,
 				1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */,
 				28BF03B51D1873CA00F22638 /* NewLabelController.m in Sources */,
+				1A3AB36A1D91BDA7004BB768 /* UnsubscribedRepoController.m in Sources */,
 				1A20CFF41D52A3E800F412DE /* LocalReaction.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
 				1AF567481D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */,
@@ -1625,6 +1688,8 @@
 				1AE09C101C97687E00C5AC35 /* LocalOrg.m in Sources */,
 				1AE09BEE1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
 				1A3618EF1C8FC3DB008C11CB /* Reachability.m in Sources */,
+				1A3AB3541D9095BA004BB768 /* LocalBilling.m in Sources */,
+				1A3AB3591D909F80004BB768 /* BillingToolbarItem.m in Sources */,
 				1A012E901D3EAC47006CE5DF /* FreeformMetadataRowTemplate.m in Sources */,
 				1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */,
 				1A694B0C1CA3413700F73608 /* OverviewController.m in Sources */,
@@ -1638,7 +1703,10 @@
 				1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */,
 				1AF567401D62831900611DBB /* HelloController.m in Sources */,
 				1AE09C0C1C97687E00C5AC35 /* LocalLabel.m in Sources */,
+				1A3AB3521D9095BA004BB768 /* LocalBilling+CoreDataProperties.m in Sources */,
 				1A012E7C1D3EAC0E006CE5DF /* SearchEditor.m in Sources */,
+				1A3AB3611D90AF54004BB768 /* TimeRemainingFormatter.m in Sources */,
+				1A3AB3481D907712004BB768 /* Billing.m in Sources */,
 				1A694B311CA342D500F73608 /* SearchResultsController.m in Sources */,
 				1A694AEA1CA09E6A00F73608 /* Repo.m in Sources */,
 				1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
@@ -1692,6 +1760,7 @@
 				1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */,
 				1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */,
 				1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */,
+				1A3AB35D1D90AE17004BB768 /* SubscriptionController.m in Sources */,
 				1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */,
 				1A5B293B1D888C0A000C9F4B /* EmptyLabelView.m in Sources */,
 				1A012E941D3EAC47006CE5DF /* StateRowTemplate.m in Sources */,
@@ -1721,6 +1790,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A20CFFC1D52A82B00F412DE /* LocalReaction+CoreDataProperties.m in Sources */,
+				1A3AB3531D9095BA004BB768 /* LocalBilling+CoreDataProperties.m in Sources */,
 				1A694AEF1CA09E8000F73608 /* Org.m in Sources */,
 				1AF567491D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */,
 				1AE09BF11C97687E00C5AC35 /* LocalRepo.m in Sources */,
@@ -1775,6 +1845,7 @@
 				1AE09C191C9779BE00C5AC35 /* Error.m in Sources */,
 				1A694AFC1CA0A96500F73608 /* Account.m in Sources */,
 				1A36190A1C9383E7008C11CB /* TestServerConnection.m in Sources */,
+				1A3AB3551D9095BA004BB768 /* LocalBilling.m in Sources */,
 				1AE09C1B1C9779C200C5AC35 /* DataStore.m in Sources */,
 				1A3618FD1C9383CF008C11CB /* ShipHubTests.m in Sources */,
 				1A694AF31CA09E9800F73608 /* Milestone.m in Sources */,
@@ -1791,6 +1862,7 @@
 				1AE09C011C97687E00C5AC35 /* LocalEvent.m in Sources */,
 				1AE09C1C1C9779C400C5AC35 /* SyncConnection.m in Sources */,
 				1AE09C151C97687E00C5AC35 /* LocalComment.m in Sources */,
+				1A3AB3491D907712004BB768 /* Billing.m in Sources */,
 				1A0D59CD1CA46926004F2578 /* IssueIdentifier.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

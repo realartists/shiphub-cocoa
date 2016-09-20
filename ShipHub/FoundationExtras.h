@@ -21,6 +21,8 @@
 - (void)sendAction:(SEL)action toTarget:(id)target;
 @property (strong, setter=extras_setRepresentedObject:) id extras_representedObject;
 
++ (BOOL)object:(id)objA isEqual:(id)objB;
+
 @end
 
 @interface NSString (Extras)
@@ -68,6 +70,8 @@
 
 + (NSDate *)dateWithJSONString:(NSString *)date;
 - (NSString *)JSONString;
+
++ (NSDate *)dateWithHTTPHeaderString:(NSString *)str;
 
 - (NSString *)shortUserInterfaceString;
 - (NSString *)longUserInterfaceString;

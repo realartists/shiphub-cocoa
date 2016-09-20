@@ -8,6 +8,8 @@
 
 #import "GHNotificationManager.h"
 
+#import "DataStoreInternal.h"
+
 #import "Auth.h"
 #import "Error.h"
 #import "JSON.h"
@@ -21,18 +23,10 @@
 #import "LocalRepo.h"
 #import "LocalAccount.h"
 
-@interface DataStore (Friend)
-
-@property Auth *auth;
-
-@end
-
 @interface GHNotificationManager ()
 
-@property NSManagedObjectContext *moc;
 @property dispatch_queue_t q;
 @property dispatch_source_t timer;
-@property Auth *auth;
 @property NSMutableSet *pendingIssues;
 @property NSDate *lastUpdate;
 @property RequestPager *pager;
@@ -41,10 +35,8 @@
 
 @implementation GHNotificationManager
 
-- (id)initWithManagedObjectContext:(NSManagedObjectContext *)ctx auth:(Auth *)auth store:(DataStore *)store {
+- (id)initWithDataStore:(DataStore *)store {
     if (self = [super init]) {
-        self.moc = ctx;
-        self.auth = auth;
         self.store = store;
         
         _q = dispatch_queue_create("GHNotificationManager", NULL);
@@ -58,7 +50,7 @@
         });
         dispatch_resume(_timer);
         
-        _pager = [[RequestPager alloc] initWithAuth:auth queue:_q];
+        _pager = [[RequestPager alloc] initWithAuth:store.auth queue:_q];
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mocDidChange:) name:NSManagedObjectContextObjectsDidChangeNotification object:nil];
         
@@ -145,7 +137,7 @@
     
     if ([records count] == 0) return;
     
-    [_moc performBlock:^{
+    [_store.moc performBlock:^{
         NSError *err = nil;
         
         NSMutableSet *issueIdentifiers = [NSMutableSet setWithCapacity:records.count];
@@ -161,13 +153,13 @@
         NSFetchRequest *issuesFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
         issuesFetch.predicate = identifiersPredicate;
         
-        NSArray *issues = [_moc executeFetchRequest:issuesFetch error:&err];
+        NSArray *issues = [_store.moc executeFetchRequest:issuesFetch error:&err];
         if (err) ErrLog(@"%@", err);
         err = nil;
         NSDictionary *issuesLookup = [NSDictionary lookupWithObjects:issues keyPath:@"fullIdentifier"];
         
         NSFetchRequest *noteFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalNotification"];
-        NSArray *notes = [_moc executeFetchRequest:noteFetch error:&err];
+        NSArray *notes = [_store.moc executeFetchRequest:noteFetch error:&err];
         if (err) ErrLog(@"%@", err);
         
         NSDictionary *notesLookup = [NSDictionary lookupWithObjects:notes keyPath:@"identifier"];
@@ -178,7 +170,7 @@
             id identifier = record[@"identifier"];
             LocalNotification *note = notesLookup[identifier];
             if (!note) {
-                note = [NSEntityDescription insertNewObjectForEntityForName:@"LocalNotification" inManagedObjectContext:_moc];
+                note = [NSEntityDescription insertNewObjectForEntityForName:@"LocalNotification" inManagedObjectContext:_store.moc];
             }
             [note mergeAttributesFromDictionary:record onlyIfChanged:YES];
             
@@ -198,7 +190,7 @@
             needsRead.unread = @NO;
         }
         
-        [_moc save:&err];
+        [_store.moc save:&err];
         if (err) ErrLog(@"%@", err);
         
         dispatch_async(_q, ^{
@@ -242,7 +234,7 @@
     
     if ([linkThese count] == 0) return;
     
-    [_moc performBlock:^{
+    [_store.moc performBlock:^{
         NSError *err = nil;
         
         NSFetchRequest *noteFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalNotification"];
@@ -251,12 +243,12 @@
         NSFetchRequest *issuesFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
         issuesFetch.predicate = [_store predicateForIssueIdentifiers:[linkThese allObjects]];
         
-        NSArray *notes = [_moc executeFetchRequest:noteFetch error:&err];
+        NSArray *notes = [_store.moc executeFetchRequest:noteFetch error:&err];
         
         if (err) ErrLog(@"%@", err);
         err = nil;
         
-        NSArray *issues = [_moc executeFetchRequest:issuesFetch error:&err];
+        NSArray *issues = [_store.moc executeFetchRequest:issuesFetch error:&err];
         
         if (err) ErrLog(@"%@", err);
         err = nil;
@@ -267,7 +259,7 @@
             note.issue = issuesLookup[note.issueFullIdentifier];
         }
         
-        [_moc save:&err];
+        [_store.moc save:&err];
         if (err) ErrLog(@"%@", err);
         
         DebugLog(@"Linked notifications: %@", linkThese);
@@ -279,11 +271,11 @@
 }
 
 - (void)discoverPendingIssues {
-    [_moc performBlock:^{
+    [_store.moc performBlock:^{
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalNotification"];
         fetch.predicate = [NSPredicate predicateWithFormat:@"issueFullIdentifier != nil AND issue = nil"];
         
-        NSArray *pending = [_moc executeFetchRequest:fetch error:NULL];
+        NSArray *pending = [_store.moc executeFetchRequest:fetch error:NULL];
         NSMutableSet *pendingIdentifiers = [NSMutableSet new];
         for (LocalNotification *note in pending) {
             [pendingIdentifiers addObject:note.issueFullIdentifier];
@@ -298,7 +290,7 @@
 }
 
 - (void)discoverLastUpdateAndStartPolling {
-    [_moc performBlock:^{
+    [_store.moc performBlock:^{
         NSError *err = nil;
         
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalNotification"];
@@ -307,7 +299,7 @@
         fetch.propertiesToFetch = @[@"updatedAt"];
         fetch.fetchLimit = 1;
         
-        NSDate *max = [[[_moc executeFetchRequest:fetch error:&err] firstObject] objectForKey:@"updatedAt"];
+        NSDate *max = [[[_store.moc executeFetchRequest:fetch error:&err] firstObject] objectForKey:@"updatedAt"];
         if (err) ErrLog(@"%@", err);
         err = nil;
 

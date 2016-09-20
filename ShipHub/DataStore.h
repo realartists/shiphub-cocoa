@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class Auth;
+@class Billing;
 @class MetadataStore;
 @class Issue;
 @class IssueComment;
@@ -17,12 +18,14 @@
 @class CustomQuery;
 @class Reaction;
 @class Milestone;
+@class ServerConnection;
 
 @interface DataStore : NSObject
 
 + (instancetype)storeWithAuth:(Auth *)auth;
 
 @property (strong, readonly) Auth *auth;
+@property (strong, readonly) Billing *billing;
 
 + (instancetype)activeStore;
 - (void)activate;
@@ -40,6 +43,8 @@
 @property (nonatomic, readonly, getter=isPerformingInitialSync) BOOL performingInitialSync;
 
 @property (readonly) MetadataStore *metadataStore;
+
+@property (readonly) ServerConnection *serverConnection;
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion;
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion;
@@ -148,6 +153,8 @@ extern NSString *const DataStoreDidEndNetworkActivityNotification;
 extern NSString *const DataStoreDidUpdateProgressNotification;
 
 extern NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification;
+
+extern NSString *const DataStoreBillingStateDidChangeNotification;
 
 typedef NS_ENUM (NSInteger, DataStoreProblemUpdateSource) {
     DataStoreProblemUpdateSourceSync = 1,

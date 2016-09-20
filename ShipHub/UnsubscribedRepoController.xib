@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10117" systemVersion="15G1004" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10117"/>
+        <capability name="box content view" minToolsVersion="7.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="UnsubscribedRepoController">
+            <connections>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Hz6-mo-xeY">
+            <rect key="frame" x="0.0" y="0.0" width="480" height="272"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <box autoresizesSubviews="NO" title="Box" boxType="custom" borderType="none" translatesAutoresizingMaskIntoConstraints="NO" id="xdA-xb-7Pg">
+                    <rect key="frame" x="2" y="77" width="476" height="118"/>
+                    <view key="contentView" id="tgb-g9-URA">
+                        <rect key="frame" x="0.0" y="0.0" width="476" height="118"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="54Y-R0-Z9C">
+                                <rect key="frame" x="191" y="11" width="94" height="32"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="Vil-IL-YA9"/>
+                                    <constraint firstAttribute="width" constant="82" id="xEJ-EI-6Ee"/>
+                                </constraints>
+                                <buttonCell key="cell" type="push" title="Buy Now" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="6zD-kS-ufc">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="systemBold"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="showBilling:" target="-2" id="Obo-ai-Akd"/>
+                                </connections>
+                            </button>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bMw-Eg-ePS">
+                                <rect key="frame" x="-2" y="79" width="480" height="19"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Please support Ship development by buying a subscription" id="I4u-re-4Gu">
+                                    <font key="font" metaFont="systemBold" size="15"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="e18-g3-SyZ">
+                                <rect key="frame" x="-2" y="61" width="480" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="A subscription is required to view private repositories" id="BSV-ur-ynS">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="e18-g3-SyZ" firstAttribute="top" secondItem="bMw-Eg-ePS" secondAttribute="bottom" constant="1" id="EYU-ci-k6S"/>
+                            <constraint firstItem="bMw-Eg-ePS" firstAttribute="top" secondItem="tgb-g9-URA" secondAttribute="top" constant="20" id="Fsq-iW-h2A"/>
+                            <constraint firstItem="54Y-R0-Z9C" firstAttribute="centerX" secondItem="tgb-g9-URA" secondAttribute="centerX" id="LP7-7v-fcx"/>
+                            <constraint firstItem="54Y-R0-Z9C" firstAttribute="top" secondItem="e18-g3-SyZ" secondAttribute="bottom" constant="22" id="WMN-JA-cEe"/>
+                            <constraint firstAttribute="trailing" secondItem="e18-g3-SyZ" secondAttribute="trailing" id="a5e-hK-4h9"/>
+                            <constraint firstItem="e18-g3-SyZ" firstAttribute="leading" secondItem="tgb-g9-URA" secondAttribute="leading" id="bFm-up-fpw"/>
+                            <constraint firstItem="bMw-Eg-ePS" firstAttribute="leading" secondItem="tgb-g9-URA" secondAttribute="leading" id="woC-15-hWh"/>
+                            <constraint firstAttribute="trailing" secondItem="bMw-Eg-ePS" secondAttribute="trailing" id="zQw-Rc-iQ9"/>
+                        </constraints>
+                    </view>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="118" id="3Fg-uN-4aE"/>
+                    </constraints>
+                    <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                    <color key="fillColor" red="0.0" green="0.0" blue="0.0" alpha="0.0" colorSpace="calibratedRGB"/>
+                </box>
+            </subviews>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="xdA-xb-7Pg" secondAttribute="trailing" constant="2" id="7IH-gZ-fgQ"/>
+                <constraint firstItem="xdA-xb-7Pg" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="2" id="9VM-Uk-Xku"/>
+                <constraint firstItem="xdA-xb-7Pg" firstAttribute="centerY" secondItem="Hz6-mo-xeY" secondAttribute="centerY" id="AOg-al-F07"/>
+            </constraints>
+        </customView>
+    </objects>
+</document>

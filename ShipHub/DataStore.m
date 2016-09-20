@@ -20,6 +20,7 @@
 #import "JSON.h"
 #import "TimeSeries.h"
 #import "GHNotificationManager.h"
+#import "Billing.h"
 
 #import "LocalAccount.h"
 #import "LocalUser.h"
@@ -86,6 +87,8 @@ NSString *const DataStoreDidUpdateProgressNotification = @"DataStoreDidUpdatePro
 
 NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification = @"DataStoreNeedsMandatorySoftwareUpdateNotification";
 
+NSString *const DataStoreBillingStateDidChangeNotification = @"DataStoreBillingStateDidChangeNotification";
+
 @interface SyncCacheKey : NSObject <NSCopying>
 
 + (SyncCacheKey *)keyWithEntity:(NSString *)entity identifier:(NSNumber *)identifier;
@@ -108,11 +111,6 @@ NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification = @"DataStoreN
 static const NSInteger CurrentLocalModelVersion = 6;
 
 @interface DataStore () <SyncConnectionDelegate> {
-    NSManagedObjectModel *_mom;
-    NSPersistentStore *_persistentStore;
-    NSPersistentStoreCoordinator *_persistentCoordinator;
-    NSManagedObjectContext *_moc;
-    
     NSLock *_metadataLock;
     
     dispatch_queue_t _needsMetadataQueue;
@@ -134,9 +132,15 @@ static const NSInteger CurrentLocalModelVersion = 6;
 }
 
 @property (strong) Auth *auth;
+@property (strong) Billing *billing;
 @property (strong) ServerConnection *serverConnection;
 @property (strong) SyncConnection *syncConnection;
 @property (strong) GHNotificationManager *ghNotificationManager;
+
+@property (strong) NSManagedObjectModel *mom;
+@property (strong) NSManagedObjectContext *moc;
+@property (strong) NSPersistentStore *persistentStore;
+@property (strong) NSPersistentStoreCoordinator *persistentCoordinator;
 
 @property (readwrite, strong) NSDate *lastUpdated;
 
@@ -235,6 +239,8 @@ static DataStore *sActiveStore = nil;
             return nil;
         }
         
+        self.billing = [[Billing alloc] initWithDataStore:self];
+        
         self.serverConnection = [[[[self class] serverConnectionClass] alloc] initWithAuth:_auth];
         self.syncConnection = [[[[self class] syncConnectionClassWithAuth:_auth] alloc] initWithAuth:_auth];
         self.syncConnection.delegate = self;
@@ -243,7 +249,7 @@ static DataStore *sActiveStore = nil;
         [self loadQueries];
         [self updateSyncConnectionWithVersions];
         
-        _ghNotificationManager = [[GHNotificationManager alloc] initWithManagedObjectContext:_moc auth:_auth store:self];
+        _ghNotificationManager = [[GHNotificationManager alloc] initWithDataStore:self];
     }
     return self;
 }
@@ -458,7 +464,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 
 - (void)loadMetadata {
     [_moc performBlockAndWait:^{
-        self.metadataStore = [[MetadataStore alloc] initWithMOC:_moc];
+        self.metadataStore = [[MetadataStore alloc] initWithMOC:_moc billingState:_billing.state];
     }];
 }
 
@@ -1051,7 +1057,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     if ([MetadataStore changeNotificationContainsMetadata:note]) {
         DebugLog(@"Updating metadata store");
-        MetadataStore *store = [[MetadataStore alloc] initWithMOC:_moc];
+        MetadataStore *store = [[MetadataStore alloc] initWithMOC:_moc billingState:_billing.state];
         self.metadataStore = store;
         dispatch_async(dispatch_get_main_queue(), ^{
             NSDictionary *userInfo = @{ DataStoreMetadataKey : store };
@@ -1073,12 +1079,19 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
 }
 
-- (void)issuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
-    return [self issuesMatchingPredicate:predicate sortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"number" ascending:YES]] options:nil completion:completion];
+- (NSPredicate *)issuesPredicate:(NSPredicate *)basePredicate {
+    NSPredicate *extra = nil;
+    if (_billing.limited) {
+        extra = [NSPredicate predicateWithFormat:@"repository.private = NO AND repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"];
+    } else {
+        extra = [NSPredicate predicateWithFormat:@"repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"];
+    }
+    
+    return [[basePredicate coreDataPredicate] and:extra];
 }
 
-- (NSPredicate *)issuesPredicate:(NSPredicate *)basePredicate {
-    return [[basePredicate coreDataPredicate] and:[NSPredicate predicateWithFormat:@"repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"]];
+- (void)issuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
+    return [self issuesMatchingPredicate:predicate sortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"number" ascending:YES]] options:nil completion:completion];
 }
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
@@ -2466,6 +2479,12 @@ static NSString *const LastUpdated = @"LastUpdated";
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreNeedsMandatorySoftwareUpdateNotification object:self];
     });
+}
+
+#pragma mark - SyncConnection billing update
+
+- (void)syncConnection:(SyncConnection *)sync didReceiveBillingUpdate:(NSDictionary *)update {
+    [_billing updateWithRecord:update];
 }
 
 @end

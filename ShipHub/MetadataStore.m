@@ -89,7 +89,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
 }
 
 // Read data out of ctx and store in immutable data objects accessible from any thread.
-- (instancetype)initWithMOC:(NSManagedObjectContext *)moc {
+- (instancetype)initWithMOC:(NSManagedObjectContext *)moc billingState:(BillingState)billingState {
     NSParameterAssert(moc);
     
     if (self = [super init]) {
@@ -162,7 +162,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
                 accountsByID[localOwner.identifier] = owner;
             }
             
-            Repo *repo = [[Repo alloc] initWithLocalItem:r owner:owner];
+            Repo *repo = [[Repo alloc] initWithLocalItem:r owner:owner billingState:billingState];
             [repos addObject:repo];
             
             if (!r.hidden) {
@@ -190,7 +190,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
             [r sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedStandardCompare:)]]];
         }
         
-        NSArray *notHiddenRepos = [repos filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hidden = NO"]];
+        NSArray *notHiddenRepos = [repos filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hidden = NO AND restricted = NO"]];
         _repos = [notHiddenRepos sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"fullName" ascending:YES selector:@selector(localizedStandardCompare:)]]];
         
         _milestonesByRepoID = milestonesByRepoID;
@@ -217,7 +217,8 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
         NSMutableDictionary *milestoneTitleToMilestones = [NSMutableDictionary new];
         for (NSNumber *repoID in _milestonesByRepoID) {
             NSMutableArray *ma = _milestonesByRepoID[repoID];
-            if ([_reposByID[repoID] isHidden]) continue;
+            Repo *repo = _reposByID[repoID];
+            if (repo.hidden || repo.restricted) continue;
             [ma sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(localizedStandardCompare:)]]];
             for (Milestone *m in ma) {
                 if (!m.closed && !m.hidden) {

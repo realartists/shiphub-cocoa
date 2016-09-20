@@ -41,6 +41,13 @@
     return objc_getAssociatedObject(self, "extras_representedObject");
 }
 
++ (BOOL)object:(id)objA isEqual:(id)objB {
+    if (objA == nil && objB == nil) return YES;
+    if (objA == nil && objB != nil) return NO;
+    if (objA != nil && objB == nil) return NO;
+    else return [objA isEqual:objB];
+}
+
 @end
 
 
@@ -362,6 +369,48 @@ static inline uint8_t h2b(uint8_t v) {
 - (NSString *)JSONString {
     NSDateFormatter *formatter = [NSDateFormatter ISO8601Formatter];
     return [formatter stringFromDate:self];
+}
+
++ (NSDate *)dateWithHTTPHeaderString:(NSString *)str {
+    if (!str) return nil;
+    
+    // http://blog.mro.name/2009/08/nsdateformatter-http-header/
+    static dispatch_once_t onceToken;
+    static NSDateFormatter *rfc1123;
+    static NSDateFormatter *rfc850;
+    static NSDateFormatter *asctime;
+    dispatch_once(&onceToken, ^{
+        NSLocale *locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+        NSTimeZone *tz = [[NSTimeZone alloc] initWithName:@"GMT"];
+        
+        rfc1123 = [NSDateFormatter new];
+        rfc1123.locale = locale;
+        rfc1123.timeZone = tz;
+        rfc1123.dateFormat = @"EEE',' dd MMM yyyy HH':'mm':'ss z";
+        
+        rfc850 = [NSDateFormatter new];
+        rfc850.locale = locale;
+        rfc850.timeZone = tz;
+        rfc850.dateFormat = @"EEEE',' dd'-'MMM'-'yy HH':'mm':'ss z";
+        
+        asctime = [NSDateFormatter new];
+        asctime.locale = locale;
+        asctime.timeZone = tz;
+        asctime.dateFormat = @"EEE MMM d HH':'mm':'ss yyyy";
+    });
+    
+    if ([str isDigits]) {
+        // it's a time in seconds from now
+        return [NSDate dateWithTimeIntervalSinceNow:[str integerValue]];
+    } else {
+        NSDate *date = nil;
+        date = [rfc1123 dateFromString:str];
+        if (date) return date;
+        date = [rfc850 dateFromString:str];
+        if (date) return date;
+        date = [asctime dateFromString:str];
+        return date;
+    }
 }
 
 - (NSString *)shortUserInterfaceString {

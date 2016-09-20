@@ -71,6 +71,12 @@
                                     </items>
                                 </menu>
                             </menuItem>
+                            <menuItem title="Manage Subscription…" id="vBb-Yq-3ef">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showBilling:" target="Voe-Tx-rLC" id="cZy-5e-EKL"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="Smb-TV-uja"/>
                             <menuItem title="Services" id="NMo-om-nkz">
                                 <modifierMask key="keyEquivalentModifierMask"/>

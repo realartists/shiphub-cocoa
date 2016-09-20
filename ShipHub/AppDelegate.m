@@ -16,6 +16,7 @@
 #import "OverviewController.h"
 #import "Reachability.h"
 #import "UserNotificationManager.h"
+#import "SubscriptionController.h"
 
 #import <HockeySDK/HockeySDK.h>
 #import <Sparkle/Sparkle.h>
@@ -32,6 +33,7 @@
 
 @property Auth *auth;
 @property AuthController *authController;
+@property SubscriptionController *subscriptionController;
 
 @property IBOutlet NSMenu *accountMenu;
 @property IBOutlet NSMenuItem *accountMenuSeparator;
@@ -212,7 +214,8 @@
     if (menuItem.action == @selector(logout:)
         || menuItem.action == @selector(showOverviewController:)
         || menuItem.action == @selector(newOverviewController:)
-        || menuItem.action == @selector(searchAllProblems:))
+        || menuItem.action == @selector(searchAllProblems:)
+        || menuItem.action == @selector(showBilling:))
     {
         return _auth != nil && _auth.authState == AuthStateValid;
     }
@@ -353,6 +356,7 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
         }
         
         [_authController close];
+        [_subscriptionController close];
         [_overviewControllers makeObjectsPerformSelector:@selector(close)];
         
         IssueDocumentController *docController = [IssueDocumentController sharedDocumentController];
@@ -466,6 +470,13 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
 
     SUUpdater *updater = [SUUpdater sharedUpdater];
     [updater checkForUpdates:self];
+}
+
+- (IBAction)showBilling:(id)sender {
+    if (!_subscriptionController) {
+        _subscriptionController = [SubscriptionController new];
+    }
+    [_subscriptionController showWindow:sender];
 }
 
 @end

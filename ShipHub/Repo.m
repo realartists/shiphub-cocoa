@@ -17,7 +17,7 @@
     return nil;
 }
 
-- (id)initWithLocalItem:(id)localItem owner:(Account *)owner {
+- (id)initWithLocalItem:(id)localItem owner:(Account *)owner billingState:(BillingState)billingState {
     LocalRepo *lr = localItem;
     if (self = [super initWithLocalItem:localItem]) {
         _fullName = lr.fullName;
@@ -26,6 +26,7 @@
         _private = [lr.private boolValue];
         _shipNeedsWebhookHelp = [lr.shipNeedsWebhookHelp boolValue];
         _owner = owner;
+        _restricted = _private && billingState == BillingStateFree;
     }
     return self;
 }

@@ -36,6 +36,8 @@
 #import "CustomQuery.h"
 #import "BulkModifyHelper.h"
 #import "NewMilestoneController.h"
+#import "BillingToolbarItem.h"
+#import "UnsubscribedRepoController.h"
 
 //#import "OutboxViewController.h"
 //#import "AttachmentProgressViewController.h"
@@ -103,6 +105,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 @property (strong) IBOutlet NSSplitView *splitView;
 @property (strong) IBOutlet OverviewOutlineView *outlineView;
 
+@property (strong) IBOutlet BillingToolbarItem *billingItem;
 @property (strong) IBOutlet SearchFieldToolbarItem *searchItem;
 @property (strong) IBOutlet ButtonToolbarItem *predicateItem;
 @property (strong) IBOutlet ButtonToolbarItem *createNewItem;
@@ -126,6 +129,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 #if !INCOMPLETE
 @property ProblemProgressController *initialSyncController;
 #endif
+
+@property UnsubscribedRepoController *unsubscribedRepoController;
 
 @end
 
@@ -506,6 +511,14 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             if (repo.shipNeedsWebhookHelp) {
                 ownerNode.showWarning = YES;
             }
+            
+            if (repo.restricted) {
+                if (!_unsubscribedRepoController) {
+                    _unsubscribedRepoController = [UnsubscribedRepoController new];
+                }
+                repoNode.viewController = _unsubscribedRepoController;
+                repoNode.icon = [NSImage overviewIconNamed:@"Locked"];
+            }
         }
         
         if (ownerNode.showWarning) {
@@ -545,6 +558,14 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
                 node.menu = unhideMenu;
                 node.icon = [NSImage overviewIconNamed:@"Repo"];
                 [hiddenRepoRoot addChild:node];
+                
+                if (hr.restricted) {
+                    if (!_unsubscribedRepoController) {
+                        _unsubscribedRepoController = [UnsubscribedRepoController new];
+                    }
+                    node.viewController = _unsubscribedRepoController;
+                    node.icon = [NSImage overviewIconNamed:@"Locked"];
+                }
             }
         }
         
@@ -823,6 +844,15 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     }
 }
 
+- (NSViewController *)activeRightController {
+    OverviewNode *node = [_outlineView selectedItem];
+    if (node.viewController) {
+        return node.viewController;
+    } else {
+        return [self activeResultsController];
+    }
+}
+
 #pragma mark -
 
 - (void)updatePredicate {
@@ -1073,15 +1103,21 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     }
     
     NSView *rightPane = [_splitView.subviews lastObject];
+    NSViewController *activeVC = [self activeRightController];
+    
+    if (!activeVC.view.superview) {
+        [rightPane setContentView:activeVC.view];
+    }
+    
     if ([selectedItem viewController]) {
-        NSViewController *vc = selectedItem.viewController;
-        if (!vc.view.superview) {
-            [rightPane setContentView:vc.view];
-        }
+        [_filterBar removeFromWindow];
         _searchItem.enabled = NO;
         _predicateItem.enabled = NO;
         _modeItem.enabled = NO;
     } else {
+        if (!_filterBar.window) {
+            [_filterBar addToWindow:self.window];
+        }
         _searchItem.enabled = YES;
         _predicateItem.enabled = YES;
         _modeItem.enabled = YES;
@@ -1165,6 +1201,10 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     [[IssueDocumentController sharedDocumentController] newDocument:sender];
 }
 
+- (IBAction)showBilling:(id)sender {
+    [[AppDelegate sharedDelegate] showBilling:sender];
+}
+
 - (IBAction)searchItemChanged:(id)sender {
     [self updatePredicate];
 }
@@ -1246,7 +1286,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 - (CGFloat)splitView:(NSSplitView *)splitView constrainMaxCoordinate:(CGFloat)proposedMaximumPosition ofSubviewAt:(NSInteger)dividerIndex {
     if (splitView == _splitView) {
         if (dividerIndex == 0) {
-            ResultsController *active = [self activeResultsController];
+            NSViewController *active = [self activeRightController];
             NSSize minSize = active.preferredMinimumSize;
             
             CGFloat totalWidth = splitView.frame.size.width;
@@ -1646,7 +1686,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 }
 
 - (NSSize)minimumWindowSize {
-    ResultsController *active = [self activeResultsController];
+    NSViewController *active = [self activeRightController];
     NSSize minSize = active.preferredMinimumSize;
     
     CGFloat sidebarWidth = [self isSidebarCollapsed] ? 0.0 : _outlineView.frame.size.width;
@@ -1692,7 +1732,21 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 - (IBAction)toggleSidebar:(id)sender {
     BOOL collapsed = [self isSidebarCollapsed];
-    [_splitView setPosition:collapsed?240.0:0.0 ofDividerAtIndex:0 animated:YES];
+    CGFloat newWidth = collapsed ? 240.0 : 0.0;
+    if (collapsed) {
+        NSViewController *active = [self activeRightController];
+        NSSize minSize = active.preferredMinimumSize;
+        
+        minSize.width += newWidth;
+        
+        NSRect frame = self.window.frame;
+        
+        frame.size.width = MAX(minSize.width, frame.size.width);
+        frame.size.height = MAX(minSize.height, frame.size.height);
+        
+        [self.window setFrame:frame display:YES animate:YES];
+    }
+    [_splitView setPosition:newWidth ofDividerAtIndex:0 animated:YES];
     [self updateSidebarItem];
 }
 

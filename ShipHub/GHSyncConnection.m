@@ -81,6 +81,8 @@ typedef NS_ENUM(NSInteger, SyncState) {
         return;
     }
     
+    [self.delegate syncConnection:self didReceiveBillingUpdate:@{ @"mode" : @"paid" }];
+    
     _state = SyncStateRoot;
     
     [_pager fetchPaged:[_pager get:@"/user/repos"] completion:^(NSArray *repos, NSError *err) {

@@ -18,5 +18,7 @@
 - (OverviewController *)defaultOverviewController;
 - (OverviewController *)activeOverviewController;
 
+- (IBAction)showBilling:(id)sender;
+
 @end
 

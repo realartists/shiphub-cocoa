@@ -8,6 +8,8 @@
 
 #import "MetadataStore.h"
 
+#import "Billing.h"
+
 @class LocalUser;
 
 @interface MetadataStore (Internal)
@@ -16,7 +18,7 @@
 
 // Read data out of ctx and store in immutable data objects accessible from any thread.
 // Must be called on ctx's private queue.
-- (instancetype)initWithMOC:(NSManagedObjectContext *)ctx;
+- (instancetype)initWithMOC:(NSManagedObjectContext *)ctx billingState:(BillingState)state;
 
 - (User *)userWithLocalUser:(LocalUser *)lu;
 
