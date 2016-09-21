@@ -407,7 +407,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     notificationsNode.title = NSLocalizedString(@"Notifications", nil);
     notificationsNode.predicate = [NSPredicate predicateWithFormat:@"notification.unread = YES"];
     NSMenu *notificationsMenu = [NSMenu new];
-    [notificationsMenu addItemWithTitle:@"Mark All Notifications as Read" action:@selector(markAllNotificationsAsRead:) keyEquivalent:@""];
+    [notificationsMenu addItemWithTitle:NSLocalizedString(@"Mark All Notifications as Read", nil) action:@selector(markAllNotificationsAsRead:) keyEquivalent:@""];
     notificationsNode.menu = notificationsMenu;
     [topNode addChild:notificationsNode];
     
