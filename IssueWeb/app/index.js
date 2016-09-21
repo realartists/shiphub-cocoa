@@ -227,6 +227,9 @@ function applyCommentEdit(commentIdentifier, newBody) {
         request.then(function(body) {
           console.log(body);
           resolve();
+          if (window.documentEditedHelper) {
+            window.documentEditedHelper.postMessage({});
+          }
         }).catch(function(err) {
           console.log(err);
           reject(err);
