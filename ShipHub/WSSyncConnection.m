@@ -30,7 +30,7 @@ static NSString *const MessageViewing = @"viewing";
 // Incoming MessageTypes:
 static NSString *const MessageSync = @"sync";
 static NSString *const MessagePurge = @"purge";
-static NSString *const MessageBilling = @"billing";
+static NSString *const MessageBilling = @"subscription";
 
 // Shared Message fields
 static NSString *const MessageFieldVersions = @"versions";
