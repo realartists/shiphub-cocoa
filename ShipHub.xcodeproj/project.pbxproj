@@ -80,6 +80,10 @@
 		1A36190B1C9383E7008C11CB /* TestSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619051C9383E7008C11CB /* TestSyncConnection.m */; };
 		1A36190C1C9383E7008C11CB /* TestDataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619071C9383E7008C11CB /* TestDataStore.m */; };
 		1A36190D1C9383E7008C11CB /* TestMetadata.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3619091C9383E7008C11CB /* TestMetadata.m */; };
+		1A38C9EE1D9203AB00655891 /* HiddenRepoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A38C9EC1D9203AB00655891 /* HiddenRepoViewController.m */; };
+		1A38C9EF1D9203AB00655891 /* HiddenRepoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A38C9ED1D9203AB00655891 /* HiddenRepoViewController.xib */; };
+		1A38C9F61D9206C800655891 /* HiddenMilestoneViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A38C9F41D9206C800655891 /* HiddenMilestoneViewController.m */; };
+		1A38C9F71D9206C800655891 /* HiddenMilestoneViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A38C9F51D9206C800655891 /* HiddenMilestoneViewController.xib */; };
 		1A3AB3481D907712004BB768 /* Billing.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3471D907712004BB768 /* Billing.m */; };
 		1A3AB3491D907712004BB768 /* Billing.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3471D907712004BB768 /* Billing.m */; };
 		1A3AB3521D9095BA004BB768 /* LocalBilling+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB34F1D9095BA004BB768 /* LocalBilling+CoreDataProperties.m */; };
@@ -490,6 +494,12 @@
 		1A3619071C9383E7008C11CB /* TestDataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestDataStore.m; sourceTree = "<group>"; };
 		1A3619081C9383E7008C11CB /* TestMetadata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestMetadata.h; sourceTree = "<group>"; };
 		1A3619091C9383E7008C11CB /* TestMetadata.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestMetadata.m; sourceTree = "<group>"; };
+		1A38C9EB1D9203AB00655891 /* HiddenRepoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HiddenRepoViewController.h; sourceTree = "<group>"; };
+		1A38C9EC1D9203AB00655891 /* HiddenRepoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HiddenRepoViewController.m; sourceTree = "<group>"; };
+		1A38C9ED1D9203AB00655891 /* HiddenRepoViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HiddenRepoViewController.xib; sourceTree = "<group>"; };
+		1A38C9F31D9206C800655891 /* HiddenMilestoneViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HiddenMilestoneViewController.h; sourceTree = "<group>"; };
+		1A38C9F41D9206C800655891 /* HiddenMilestoneViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HiddenMilestoneViewController.m; sourceTree = "<group>"; };
+		1A38C9F51D9206C800655891 /* HiddenMilestoneViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = HiddenMilestoneViewController.xib; sourceTree = "<group>"; };
 		1A3AB3461D907712004BB768 /* Billing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Billing.h; sourceTree = "<group>"; };
 		1A3AB3471D907712004BB768 /* Billing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Billing.m; sourceTree = "<group>"; };
 		1A3AB34D1D9085C6004BB768 /* DataStoreInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DataStoreInternal.h; sourceTree = "<group>"; };
@@ -1230,6 +1240,12 @@
 				1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */,
 				1A5108431D2CC52A00905D4D /* EmptyUpNextViewController.h */,
 				1A5108441D2CC52A00905D4D /* EmptyUpNextViewController.m */,
+				1A38C9EB1D9203AB00655891 /* HiddenRepoViewController.h */,
+				1A38C9EC1D9203AB00655891 /* HiddenRepoViewController.m */,
+				1A38C9ED1D9203AB00655891 /* HiddenRepoViewController.xib */,
+				1A38C9F31D9206C800655891 /* HiddenMilestoneViewController.h */,
+				1A38C9F41D9206C800655891 /* HiddenMilestoneViewController.m */,
+				1A38C9F51D9206C800655891 /* HiddenMilestoneViewController.xib */,
 			);
 			name = "Overview UI";
 			sourceTree = "<group>";
@@ -1571,6 +1587,7 @@
 				1AF5672D1D62427100611DBB /* WelcomeController.xib in Resources */,
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
+				1A38C9F71D9206C800655891 /* HiddenMilestoneViewController.xib in Resources */,
 				1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */,
 				1A3AB35E1D90AE17004BB768 /* SubscriptionController.xib in Resources */,
 				1AF567381D625E2300611DBB /* WebAuthController.xib in Resources */,
@@ -1583,6 +1600,7 @@
 				1A3AB36B1D91BDA7004BB768 /* UnsubscribedRepoController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
 				1A7FD7841D497C1700B585E2 /* AssigneeModifyController.xib in Resources */,
+				1A38C9EF1D9203AB00655891 /* HiddenRepoViewController.xib in Resources */,
 				1A7FD7751D492FE000B585E2 /* MilestoneModifyController.xib in Resources */,
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
@@ -1665,6 +1683,7 @@
 				1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
 				1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
+				1A38C9F61D9206C800655891 /* HiddenMilestoneViewController.m in Sources */,
 				1A694B351CA3431700F73608 /* IssueTableController.m in Sources */,
 				1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */,
 				1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */,
@@ -1739,6 +1758,7 @@
 				1A012E7D1D3EAC0E006CE5DF /* SearchEditorViewController.m in Sources */,
 				1AF567431D6393FB00611DBB /* ABTesting.m in Sources */,
 				1AE09BFE1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
+				1A38C9EE1D9203AB00655891 /* HiddenRepoViewController.m in Sources */,
 				1A012ECD1D46DD4B006CE5DF /* ServerChooser.m in Sources */,
 				1A694AF21CA09E9800F73608 /* Milestone.m in Sources */,
 				1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */,

@@ -22,6 +22,8 @@
 
 - (NSArray<Issue *> *)selectedIssues;
 
+- (IBAction)unhideItem:(id)sender;
+
 #if !INCOMPLETE
 - (IBAction)showDownloads:(id)sender;
 - (void)openQuery:(CustomQuery *)query;

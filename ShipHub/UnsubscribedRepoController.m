@@ -16,6 +16,8 @@
 
 @implementation UnsubscribedRepoController
 
+- (NSString *)nibName { return @"UnsubscribedRepoController"; }
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do view setup here.

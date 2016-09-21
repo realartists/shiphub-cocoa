@@ -38,6 +38,8 @@
 #import "NewMilestoneController.h"
 #import "BillingToolbarItem.h"
 #import "UnsubscribedRepoController.h"
+#import "HiddenRepoViewController.h"
+#import "HiddenMilestoneViewController.h"
 
 //#import "OutboxViewController.h"
 //#import "AttachmentProgressViewController.h"
@@ -131,6 +133,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 #endif
 
 @property UnsubscribedRepoController *unsubscribedRepoController;
+@property HiddenRepoViewController *hiddenRepoController;
+@property HiddenMilestoneViewController *hiddenMilestoneController;
 
 @end
 
@@ -435,6 +439,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         node.dropHandler = ^(NSArray *identifiers) {
             [[BulkModifyHelper sharedHelper] moveIssues:identifiers toMilestone:milestone window:weakSelf.window completion:nil];
         };
+        node.identifier = [NSString stringWithFormat:@"Milestone.%@", milestone];
         [milestonesRoot addChild:node];
     }
     
@@ -498,6 +503,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         
         for (Repo *repo in [metadata reposForOwner:repoOwner]) {
             OverviewNode *repoNode = [OverviewNode new];
+            repoNode.identifier = [NSString stringWithFormat:@"Repo.%@", repo.identifier];
             repoNode.cellIdentifier = @"CountCell";
             repoNode.representedObject = repo;
             repoNode.menu = hideRepoMenu;
@@ -565,6 +571,11 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
                     }
                     node.viewController = _unsubscribedRepoController;
                     node.icon = [NSImage overviewIconNamed:@"Locked"];
+                } else {
+                    if (!_hiddenRepoController) {
+                        _hiddenRepoController = [HiddenRepoViewController new];
+                    }
+                    node.viewController = _hiddenRepoController;
                 }
             }
         }
@@ -585,6 +596,10 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
                 node.identifier = [NSString stringWithFormat:@"Hidden.Milestone.%@", m.title];
                 node.predicate = [NSPredicate predicateWithValue:NO];
                 node.menu = unhideMenu;
+                if (!_hiddenMilestoneController) {
+                    _hiddenMilestoneController = [HiddenMilestoneViewController new];
+                }
+                node.viewController = _hiddenMilestoneController;
                 [hiddenMilestoneRoot addChild:node];
             }
         }
@@ -1660,6 +1675,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     OverviewNode *node = [self itemForContextMenu];
     if (!node) return;
     
+    _nextNodeToSelect = [node.identifier stringByReplacingOccurrencesOfString:@"Hidden." withString:@""];
     if ([node.representedObject isKindOfClass:[Repo class]]) {
         [[DataStore activeStore] setHidden:NO forRepos:@[node.representedObject] completion:nil];
     } else {
