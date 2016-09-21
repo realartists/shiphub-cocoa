@@ -16,3 +16,9 @@
 - (NSImage *)imageForAccountIdentifier:(NSNumber *)accountIdentifier avatarURL:(NSURL *)avatarURL;
 
 @end
+
+extern NSString *const AvatarImageDidUpdateNotification; // sent by an avatar NSImage instance when it gains a representation
+
+@interface AvatarImageView : NSImageView
+
+@end

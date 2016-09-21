@@ -15,6 +15,8 @@
 
 #import <libkern/OSAtomic.h>
 
+NSString *const AvatarImageDidUpdateNotification = @"AvatarImageDidUpdateNotification";
+
 @interface AvatarManager ()
 
 @property (copy) NSString *ghHost;
@@ -65,7 +67,8 @@
 - (NSString *)imagePathForIdentifier:(NSNumber *)identifier {
     CGFloat w = [self defaultSize].width;
     w *= [[NSScreen mainScreen] backingScaleFactor];
-    NSString *imagePath = [_cachePath stringByAppendingFormat:@"%@.%.0f.png", identifier, w];
+    NSString *imageName = [NSString stringWithFormat:@"%@.%.0f.png", identifier, w];
+    NSString *imagePath = [_cachePath stringByAppendingPathComponent:imageName];
     return imagePath;
 }
 
@@ -94,7 +97,7 @@
     
     
     NSURLRequest *request = [NSURLRequest requestWithURL:imageURL];
-    [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error) {
             ErrLog(@"%@", error);
         }
@@ -114,10 +117,12 @@
                     for (NSImageRep *oldRep in existing) {
                         [image removeRepresentation:oldRep];
                     }
+                    [image recache];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:AvatarImageDidUpdateNotification object:image];
                 });
             }
         }
-    }];
+    }] resume];
 }
 
 - (void)loadImage:(NSImage *)image identifier:(NSNumber *)identifier avatarURL:(NSURL *)avatarURL {
@@ -128,6 +133,8 @@
         if (rep) {
             [image addRepresentation:rep];
             image.extras_representedObject = [[NSFileManager defaultManager] attributesOfItemAtPath:imagePath error:NULL][NSFileModificationDate];
+            [image recache];
+            [[NSNotificationCenter defaultCenter] postNotificationName:AvatarImageDidUpdateNotification object:image];
         }
     }
 }
@@ -143,6 +150,34 @@
     [self checkForUpdatesToImage:image identifier:accountIdentifier avatarURL:avatarURL];
     
     return image;
+}
+
+@end
+
+@interface AvatarImageView () <NSImageDelegate>
+
+@end
+
+@implementation AvatarImageView
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)setImage:(NSImage *)image {
+    if (image != self.image) {
+        if (self.image) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:AvatarImageDidUpdateNotification object:self.image];
+        }
+        [super setImage:image];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateImage:) name:AvatarImageDidUpdateNotification object:image];
+    }
+}
+
+- (void)didUpdateImage:(NSNotification *)note {
+    NSImage *image = self.image;
+    [super setImage:nil];
+    [super setImage:image];
 }
 
 @end

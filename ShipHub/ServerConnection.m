@@ -54,7 +54,12 @@
 
 - (void)perform:(NSString *)method on:(NSString *)endpoint headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
 {
-    if (![_auth.account.shipHost isEqualToString:_auth.account.ghHost]) {
+    [self perform:method on:endpoint forGitHub:YES headers:headers body:jsonBody completion:completion];
+}
+
+- (void)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
+{
+    if (forGitHub && ![_auth.account.shipHost isEqualToString:_auth.account.ghHost]) {
         endpoint = [@"/github" stringByAppendingString:endpoint];
     }
     

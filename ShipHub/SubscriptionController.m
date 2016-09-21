@@ -79,7 +79,7 @@
     _subscriptions = nil;
     [_table reloadData];
     
-    [conn perform:@"GET" on:@"/billing/accounts" body:nil completion:^(id jsonResponse, NSError *error) {
+    [conn perform:@"GET" on:@"/billing/accounts" forGitHub:NO headers:nil body:nil completion:^(id jsonResponse, NSError *error) {
         RunOnMain(^{
             [_progress stopAnimation:nil];
             _progress.hidden = YES;
@@ -104,7 +104,7 @@
     NSDictionary *sub = _subscriptions[row];
     DebugLog(@"%@", sub);
     
-    NSString *action = sub[@"actionURL"];
+    NSString *action = sub[@"actionUrl"];
     NSURL *URL = [NSURL URLWithString:action];
     
     [[NSWorkspace sharedWorkspace] openURL:URL];
@@ -166,10 +166,28 @@
         cell.accountType.stringValue = NSLocalizedString(@"Personal", nil);
     }
     
-    NSURL *avatarURL = account[@"avatarURL"] ? [NSURL URLWithString:account[@"avatarURL"]] : nil;
+    NSURL *avatarURL = account[@"avatarUrl"] ? [NSURL URLWithString:account[@"avatarUrl"]] : nil;
     cell.imageView.image = [[AvatarManager activeManager] imageForAccountIdentifier:account[@"identifier"] avatarURL:avatarURL];
     
     return cell;
 }
+
+@end
+
+@implementation SubscriptionCellView
+
+@dynamic imageView;
+
+@end
+
+@implementation UnsubscribedOrgCellView
+
+@end
+
+@implementation UnsubscribedUserCellView
+
+@end
+
+@implementation SubscribedCellView
 
 @end
