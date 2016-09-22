@@ -285,7 +285,10 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
 }
 
 - (void)findIssueTemplate:(NSDictionary *)repo completion:(void (^)(NSString *template, NSError *err))completion {
-    NSArray *paths = @[@".github/issue_template.md", @"issue_template.md"];
+    NSArray *paths = @[@".github/ISSUE_TEMPLATE.md",
+                       @".github/ISSUE_TEMPLATE",
+                       @"ISSUE_TEMPLATE.md",
+                       @"ISSUE_TEMPLATE"];
     
     NSArray *endpoints = [paths arrayByMappingObjects:^id(id path) {
         return [NSString stringWithFormat:@"repos/%@/contents/%@", repo[@"full_name"], path];
