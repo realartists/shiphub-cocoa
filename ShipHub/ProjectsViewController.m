@@ -31,6 +31,7 @@
 
 - (void)loadView {
     WKWebViewConfiguration *config = [WKWebViewConfiguration new];
+    config.websiteDataStore = [WKWebsiteDataStore nonPersistentDataStore];
     _web = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, 600, 600) configuration:config];
     
     _web.UIDelegate = self;
