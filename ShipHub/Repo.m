@@ -23,6 +23,7 @@
         _fullName = lr.fullName;
         _hidden = lr.hidden != nil;
         _name = lr.name;
+        _issueTemplate = lr.issueTemplate;
         _private = [lr.private boolValue];
         _shipNeedsWebhookHelp = [lr.shipNeedsWebhookHelp boolValue];
         _owner = owner;

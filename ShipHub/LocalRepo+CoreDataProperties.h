@@ -20,6 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *fullName;
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSString *name;
+@property (nullable, nonatomic, retain) NSString *issueTemplate;
 @property (nullable, nonatomic, retain) NSNumber *private;
 @property (nullable, nonatomic, retain) NSString *repoDescription;
 @property (nullable, nonatomic, retain) NSNumber *shipNeedsWebhookHelp;

@@ -20,6 +20,7 @@
 
 @property (readonly) NSString *fullName;
 @property (readonly) NSString *name;
+@property (readonly) NSString *issueTemplate;
 @property (readonly, getter=isPrivate) BOOL private;
 @property (readonly) BOOL hasIssues;
 @property (readonly, getter=isHidden) BOOL hidden;

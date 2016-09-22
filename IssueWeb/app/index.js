@@ -2703,7 +2703,8 @@ var IssueNumber = React.createClass({
 
 var RepoField = React.createClass({
   propTypes: { 
-    issue: React.PropTypes.object
+    issue: React.PropTypes.object,
+    onIssueTemplate: React.PropTypes.func
   },
   
   onChange: function(newRepo, goNext) {
@@ -2744,13 +2745,21 @@ var RepoField = React.createClass({
       loadMetadata(newRepo).then((meta) => {
         var state = getIvars();
         state = Object.assign({}, state, meta);
-        state.issue = Object.assign({}, state.issue, { 
+        var nextIssueState = { 
           _bare_repo: repo, 
           _bare_owner: owner,
           milestone: null,
           assignees: [],
           labels: []
-        });
+        };
+        var issueTemplate = repoInfo.issue_template;
+        if ((issueTemplate||"").trim().length > 0 && (keypath(state, "issue.body")||"").trim().length == 0) {
+          nextIssueState.body = issueTemplate;
+          if (this.props.onIssueTemplate) {
+            this.props.onIssueTemplate(issueTemplate);
+          }
+        }
+        state.issue = Object.assign({}, state.issue, nextIssueState);
         applyIssueState(state);
         resolve();
       }).catch((err) => {
@@ -3498,7 +3507,10 @@ var IssueLabels = React.createClass({
 });
 
 var Header = React.createClass({
-  propTypes: { issue: React.PropTypes.object },
+  propTypes: { 
+    issue: React.PropTypes.object,
+    onIssueTemplate: React.PropTypes.func
+  },
   
   focussed: function() {
     if (this.queuedFocus) {
@@ -3591,7 +3603,7 @@ var Header = React.createClass({
     
     els.push(h(IssueTitle, {key:"title", ref:"title", issue: this.props.issue, focusNext:this.focusNext}),
              h(HeaderSeparator, {key:"sep0"}),
-             h(RepoField, {key:"repo", ref:"repo", issue: this.props.issue, focusNext:this.focusNext}));
+             h(RepoField, {key:"repo", ref:"repo", issue: this.props.issue, focusNext:this.focusNext, onIssueTemplate:this.props.onIssueTemplate}));
              
     els.push(h(HeaderSeparator, {key:"sep1"}),
              h(MilestoneField, {key:"milestone", ref:"milestone", issue: this.props.issue, focusNext:this.focusNext}),
@@ -3733,7 +3745,7 @@ var App = React.createClass({
   render: function() {
     var issue = this.props.issue;
 
-    var header = h(Header, {ref:"header", issue: issue});
+    var header = h(Header, {ref:"header", issue: issue, onIssueTemplate:this.onIssueTemplate});
     var activity = h(ActivityList, {key:issue["id"], ref:"activity", issue:issue});
     var addComment = h(Comment, {ref:"addComment"});
     
@@ -3752,6 +3764,13 @@ var App = React.createClass({
     }
     
     return outerElement;
+  },
+  
+  onIssueTemplate: function(template) {
+    var addComment = this.refs.addComment;
+    if (addComment) {
+      addComment.setInitialContents(template);
+    }
   },
   
   componentDidMount: function() {

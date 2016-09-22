@@ -231,7 +231,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
 }
 
 - (void)findMilestonesAndLabels:(NSArray *)repos completion:(void (^)(NSArray *rwi))completion {
-    __block NSUInteger remaining = repos.count * 3;
+    __block NSUInteger remaining = repos.count * 4;
     NSMutableArray *rwis = [NSMutableArray arrayWithCapacity:repos.count];
     
     dispatch_block_t done = ^{
@@ -249,6 +249,16 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
         NSString *labelsEndpoint = [baseEndpoint stringByAppendingPathComponent:@"labels"];
         NSString *milestonesEndpoint = [baseEndpoint stringByAppendingPathComponent:@"milestones"];
         NSString *projectsEndpoint = [baseEndpoint stringByAppendingPathComponent:@"projects"];
+        
+        [self findIssueTemplate:repo completion:^(NSString *template, NSError *err) {
+            if (template) {
+                rwi[@"issue_template"] = template;
+            } else {
+                rwi[@"issue_template"] = [NSNull null];
+            }
+            done();
+        }];
+        
         [_pager fetchPaged:[_pager get:labelsEndpoint] completion:^(NSArray *data, NSError *err) {
             rwi[@"labels"] = data;
             done();
@@ -272,6 +282,33 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
             done();
         }];
     }
+}
+
+- (void)findIssueTemplate:(NSDictionary *)repo completion:(void (^)(NSString *template, NSError *err))completion {
+    NSArray *paths = @[@".github/issue_template.md", @"issue_template.md"];
+    
+    NSArray *endpoints = [paths arrayByMappingObjects:^id(id path) {
+        return [NSString stringWithFormat:@"repos/%@/contents/%@", repo[@"full_name"], path];
+    }];
+    
+    NSDictionary *headers = @{@"Accept":@"application/vnd.github.VERSION.raw"};
+    NSArray *requests = [endpoints arrayByMappingObjects:^id(id endpoint) {
+        return [_pager get:endpoint params:nil headers:headers];
+    }];
+    
+    [_pager tasks:requests completion:^(NSArray<URLSessionResult *> *results) {
+        
+        for (URLSessionResult *result in results) {
+            NSHTTPURLResponse *http = (id)(result.response);
+            if (http.statusCode == 200 && result.data.length > 0) {
+                NSString *template = [[NSString alloc] initWithData:result.data encoding:NSUTF8StringEncoding];
+                completion(template, nil);
+                return;
+            }
+        }
+        
+        completion(nil, nil /* it's not an error not to have a template */);
+    }];
 }
 
 - (void)findIssues:(NSArray *)repos {
@@ -372,7 +409,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                                          headers:reactionsHeaders];
     
     [_pager jsonTask:[_pager get:issueEndpoint params:nil headers:@{ @"Accept" : @"application/vnd.github.squirrel-girl-preview"}] completion:^(id json, NSHTTPURLResponse *response, NSError *err) {
-        if (err) {
+        if (err || response.statusCode != 200) {
             ErrLog(@"%@", err);
             return;
         }

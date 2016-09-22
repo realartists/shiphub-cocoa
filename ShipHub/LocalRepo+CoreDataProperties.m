@@ -17,6 +17,7 @@
 @dynamic hidden;
 @dynamic identifier;
 @dynamic name;
+@dynamic issueTemplate;
 @dynamic private;
 @dynamic repoDescription;
 @dynamic shipNeedsWebhookHelp;
