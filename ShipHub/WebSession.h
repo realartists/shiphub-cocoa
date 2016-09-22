@@ -15,10 +15,10 @@
 - (id)initWithAuthAccount:(AuthAccount *)account;
 - (id)initWithAuthAccount:(AuthAccount *)account initialCookies:(NSArray<NSHTTPCookie *> *)cookies;
 
-@property (readonly) AuthAccount *account;
-@property (readonly) NSString *host;
+@property (readonly, strong) AuthAccount *account;
+@property (readonly, copy) NSString *host;
 
-@property (readonly) NSArray<NSHTTPCookie *> *cookies;
+@property (readonly, strong) NSArray<NSHTTPCookie *> *cookies;
 
 - (void)addToRequest:(NSMutableURLRequest *)request;
 - (BOOL)updateSessionWithResponse:(NSHTTPURLResponse *)response;
