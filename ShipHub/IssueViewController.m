@@ -71,6 +71,8 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 
 @property EmptyLabelView *nothingLabel;
 
+@property NSTimer *markAsReadTimer;
+
 @end
 
 @implementation IssueViewController
@@ -236,6 +238,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
         if (now - _lastCheckedForUpdates > 30.0) {
             [self checkForIssueUpdates];
         }
+        [self scheduleMarkAsReadTimerIfNeeded];
     }
 }
 
@@ -248,6 +251,31 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
       (_columnBrowser ? @"true" : @"false")]];
 }
 
+- (void)markAsReadTimerFired:(NSTimer *)timer {
+    _markAsReadTimer = nil;
+    if ([_issue.fullIdentifier isEqualToString:timer.userInfo] && _issue.unread) {
+        NSWindow *window = self.view.window;
+        if ([window isKeyWindow]) {
+            [[DataStore activeStore] markIssueAsRead:timer.userInfo];
+        }
+    }
+}
+
+- (void)scheduleMarkAsReadTimerIfNeeded {
+    if (!_issue) {
+        [_markAsReadTimer invalidate];
+        _markAsReadTimer = nil;
+        return;
+    }
+    if (_markAsReadTimer && ![_markAsReadTimer.userInfo isEqualToString:_issue.fullIdentifier]) {
+        [_markAsReadTimer invalidate];
+        _markAsReadTimer = nil;
+    }
+    if (_issue.unread && !_markAsReadTimer) {
+        _markAsReadTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 weakTarget:self selector:@selector(markAsReadTimerFired:) userInfo:_issue.fullIdentifier repeats:NO];
+    }
+}
+
 - (void)issueDidUpdate:(NSNotification *)note {
     if (!_issue) return;
     if ([note object] == [DataStore activeStore]) {
@@ -256,6 +284,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
             [[DataStore activeStore] loadFullIssue:_issue.fullIdentifier completion:^(Issue *issue, NSError *error) {
                 if (issue) {
                     self.issue = issue;
+                    [self scheduleMarkAsReadTimerIfNeeded];
                 }
             }];
         }
