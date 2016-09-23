@@ -210,6 +210,7 @@
 		1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD956B61D0B75AD002B1259 /* MultiDownloadProgress.m */; };
 		1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */; };
 		1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC81D188E6800E9FAFC /* FilterButton.m */; };
+		1ADED9D01D95AA590093A098 /* RateDampener.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9CF1D95AA590093A098 /* RateDampener.m */; };
 		1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */; };
 		1AE09BEB1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */; };
 		1AE09BEC1C97687E00C5AC35 /* LocalMilestone.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC11C97687E00C5AC35 /* LocalMilestone.m */; };
@@ -707,6 +708,8 @@
 		1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterBarViewController.m; sourceTree = "<group>"; };
 		1AD9ECC71D188E6800E9FAFC /* FilterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterButton.h; sourceTree = "<group>"; };
 		1AD9ECC81D188E6800E9FAFC /* FilterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterButton.m; sourceTree = "<group>"; };
+		1ADED9CE1D95AA590093A098 /* RateDampener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RateDampener.h; sourceTree = "<group>"; };
+		1ADED9CF1D95AA590093A098 /* RateDampener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RateDampener.m; sourceTree = "<group>"; };
 		1AE09BBE1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalMilestone+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalMilestone+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BC01C97687E00C5AC35 /* LocalMilestone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalMilestone.h; sourceTree = "<group>"; };
@@ -1056,6 +1059,8 @@
 				1A3AB3601D90AF54004BB768 /* TimeRemainingFormatter.m */,
 				1A3AB3621D919F5E004BB768 /* AvatarManager.h */,
 				1A3AB3631D919F5E004BB768 /* AvatarManager.m */,
+				1ADED9CE1D95AA590093A098 /* RateDampener.h */,
+				1ADED9CF1D95AA590093A098 /* RateDampener.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -1834,6 +1839,7 @@
 				1AC619721D232E9A00FE1E76 /* LocalPriority.m in Sources */,
 				1A20CFFA1D52A81F00F412DE /* Reaction.m in Sources */,
 				1A012EB81D448FF2006CE5DF /* RepoRowTemplate.m in Sources */,
+				1ADED9D01D95AA590093A098 /* RateDampener.m in Sources */,
 				1A38C9FC1D9339D400655891 /* WebSession.m in Sources */,
 				1AF349501CDA95F000A5BEB0 /* TimeSeries.m in Sources */,
 				1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */,

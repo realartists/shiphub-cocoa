@@ -14,6 +14,7 @@
 #import "Issue.h"
 #import "Issue3PaneTableController.h"
 #import "IssueViewController.h"
+#import "RateDampener.h"
 
 @interface ThreePaneController () <IssueTableControllerDelegate>
 
@@ -27,9 +28,18 @@
 
 @property Issue *issueToRemoveOnSelectionChange;
 
+@property RateDampener *checkForUpdatesDampener;
+
 @end
 
 @implementation ThreePaneController
+
+- (id)init {
+    if (self = [super init]) {
+        _checkForUpdatesDampener = [RateDampener new];
+    }
+    return self;
+}
 
 - (void)loadView {
     self.table = _tableController = [Issue3PaneTableController new];
@@ -95,7 +105,9 @@
     DebugLog(@"%@", i.fullIdentifier);
     
     if (i) {
-        [[DataStore activeStore] checkForIssueUpdates:i.fullIdentifier];
+        [_checkForUpdatesDampener addBlock:^{
+            [[DataStore activeStore] checkForIssueUpdates:i.fullIdentifier];
+        }];
         [[DataStore activeStore] loadFullIssue:i.fullIdentifier completion:^(Issue *issue, NSError *error) {
             if ([self.displayedIssue.fullIdentifier isEqualToString:issue.fullIdentifier]) {
                 _issueController.issue = issue;
