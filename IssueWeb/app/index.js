@@ -1319,7 +1319,7 @@ var ActivityList = React.createClass({
   },
   
   activeComment: function() {
-    var cs = this.allComments().filter((c) => c.hasFocus());
+    var cs = this.allComments().filter((c) => c.isActive());
     if (cs.length > 0) return cs[0];
     return null;
   },
@@ -1441,11 +1441,11 @@ var AddCommentHeader = React.createClass({
     var buttons = [];
     
     if (this.props.previewing) {
-      buttons.push(h('i', {key:"eye-slash", className:'fa fa-eye-slash', title:"Toggle Preview", onClick:this.props.togglePreview}));
+      buttons.push(h('i', {key:"eye-slash", className:'fa fa-eye-slash', title:"Toggle Preview (⌥⌘P)", onClick:this.props.togglePreview}));
     } else {
       buttons.push(h('i', {key:"paperclip", className:'fa fa-paperclip fa-flip-horizontal', title:"Attach Files", onClick:this.props.attachFiles}));
       if (this.props.hasContents) {
-        buttons.push(h('i', {key:"eye", className:'fa fa-eye', title:"Toggle Preview", onClick:this.props.togglePreview}));
+        buttons.push(h('i', {key:"eye", className:'fa fa-eye', title:"Toggle Preview (⌥⌘P)", onClick:this.props.togglePreview}));
       }
     }
   
@@ -2095,6 +2095,10 @@ var Comment = React.createClass({
       return cm && cm.hasFocus(); 
     }
     return false;
+  },
+  
+  isActive: function() {
+    return this.state.previewing || this.hasFocus();
   },
   
   focusCodemirror: function() {
@@ -3855,6 +3859,13 @@ var App = React.createClass({
     }
   },
   
+  toggleCommentPreview: function() {
+    var c = this.activeComment();
+    if (c) {
+      c.togglePreview();
+    }
+  },
+  
   scrollToCommentWithIdentifier: function(commentID) {
     var activity = this.refs.activity;
     if (activity) {
@@ -4040,6 +4051,13 @@ function applyMarkdownFormat(format) {
 }
 
 window.applyMarkdownFormat = applyMarkdownFormat;
+
+function toggleCommentPreview() {
+  if (window.topLevelComponent) {
+    window.topLevelComponent.toggleCommentPreview();
+  }
+}
+window.toggleCommentPreview = toggleCommentPreview;
 
 window.loadComplete.postMessage({});
 

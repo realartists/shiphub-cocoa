@@ -620,6 +620,13 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="ocu-wI-aZt"/>
+                            <menuItem title="Toggle Preview" keyEquivalent="p" id="eaL-JR-j2t">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="toggleCommentPreview:" target="-1" id="vsV-tr-CcL"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="NOP-bg-KI9"/>
                         </items>
                     </menu>
                 </menuItem>

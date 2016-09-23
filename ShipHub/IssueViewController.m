@@ -1124,6 +1124,8 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
         menuItem.title = NSLocalizedString(@"Add to Up Next", nil);
     } else if ([NSStringFromSelector(menuItem.action) hasPrefix:@"md"]) {
         return YES;
+    } else if (menuItem.action == @selector(toggleCommentPreview:)) {
+        return YES;
     }
     return _issue.fullIdentifier != nil;
 }
@@ -1227,6 +1229,12 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 
 - (IBAction)mdOutdent:(id)sender {
     [self applyFormat:@"indentLess"];
+}
+
+#pragma mark -
+
+- (IBAction)toggleCommentPreview:(id)sender {
+    [self evaluateJavaScript:@"toggleCommentPreview()"];
 }
 
 @end
