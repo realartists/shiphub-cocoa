@@ -12,6 +12,8 @@
 #import "ServerConnection.h"
 #import "Extras.h"
 #import "AvatarManager.h"
+#import "Billing.h"
+#import "TimeRemainingFormatter.h"
 
 @interface SubscriptionCellView : NSTableCellView
 
@@ -48,6 +50,8 @@
 
 @property NSArray *subscriptions;
 
+@property NSTimer *updateTimer;
+
 @end
 
 @implementation SubscriptionController
@@ -62,11 +66,41 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [_updateTimer invalidate];
 }
 
 - (void)showWindow:(id)sender {
     [[self window] makeKeyAndOrderFront:sender];
     [self refresh];
+}
+
+- (void)updateLabel {
+    static TimeRemainingFormatter *formatter;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        formatter = [TimeRemainingFormatter new];
+    });
+    
+    [_updateTimer invalidate];
+    _updateTimer = nil;
+    Billing *billing = [[DataStore activeStore] billing];
+    
+    if (billing.state == BillingStatePaid) {
+        _label.stringValue = NSLocalizedString(@"Your subscription is active. View or modify it below.", nil);
+    } else if (billing.state == BillingStateFree) {
+        _label.stringValue = NSLocalizedString(@"Your free trial has ended. Buy a subscription to continue using Ship.", nil);
+    } else {
+        NSString *remaining = [formatter stringFromDate:billing.trialEndDate];
+        NSTimeInterval updateInterval = [formatter timerUpdateIntervalFromDate:billing.trialEndDate];
+        
+        NSString *label = [NSString stringWithFormat:NSLocalizedString(@"Your free trial has %@. Buy a subscription to continue using Ship.", nil),remaining];
+        
+        _label.stringValue = label;
+        
+        if (updateInterval > 0) {
+            _updateTimer = [NSTimer scheduledTimerWithTimeInterval:updateInterval weakTarget:self selector:@selector(updateLabel) userInfo:nil repeats:NO];
+        }
+    }
 }
 
 - (void)refresh {
@@ -78,6 +112,8 @@
     
     _subscriptions = nil;
     [_table reloadData];
+    
+    [self updateLabel];
     
     [conn perform:@"GET" on:@"/billing/accounts" forGitHub:NO headers:nil body:nil completion:^(id jsonResponse, NSError *error) {
         RunOnMain(^{

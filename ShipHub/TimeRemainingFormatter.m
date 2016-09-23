@@ -19,7 +19,7 @@
     NSInteger secondsRemaining = round(diff);
     
     if (diff <= 1.0) {
-        return NSLocalizedString(@"No time remaining", nil);
+        return NSLocalizedString(@"no time remaining", nil);
     }
     
     if (daysRemaining == 0) {
