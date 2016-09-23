@@ -739,7 +739,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                             if (!_mom.entitiesByName[relName]) {
                                 for (NSEntityDescription *sub in rel.destinationEntity.subentities) {
                                     NSString *jsonType = sub.userInfo[@"jsonType"];
-                                    if ([jsonType isEqualToString:@"type"]) {
+                                    if ([jsonType isEqualToString:type]) {
                                         relName = sub.name;
                                         break;
                                     }
@@ -878,10 +878,9 @@ static NSString *const LastUpdated = @"LastUpdated";
                     
                     if (!related) continue;
                     
-                    NSDictionary *populate = nil;
                     id relatedID = related;
                     if ([related isKindOfClass:[NSDictionary class]]) {
-                        relatedID = populate[@"identifier"];
+                        relatedID = related[@"identifier"];
                     } else if (related == [NSNull null]) {
                         relatedID = nil;
                     }
@@ -917,8 +916,13 @@ static NSString *const LastUpdated = @"LastUpdated";
         for (NSNumber *identifier in idNums) {
             NSManagedObject *obj = lookup[identifier];
             if (!obj) {
-                obj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
-                [obj setValue:identifier forKey:@"identifier"];
+                NSEntityDescription *entity = _mom.entitiesByName[entityName];
+                if (!entity.abstract) {
+                    obj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
+                    [obj setValue:identifier forKey:@"identifier"];
+                } else {
+                    continue;
+                }
             }
             id key = [self cacheKeyWithObject:obj];
             _syncCache[key] = obj;
