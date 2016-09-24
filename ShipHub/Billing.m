@@ -97,8 +97,11 @@
             newState = BillingStateFree;
         }
         
-        NSDate *newDate = [NSDate dateWithJSONString:record[@"trialEndDate"]];
-        
+        NSDate *newDate = nil;
+        if (record[@"trialEndDate"] != [NSNull null]) {
+            newDate = [NSDate dateWithJSONString:record[@"trialEndDate"]];
+        }
+
         if (_state != newState || ![NSObject object:_trialEndDate isEqual:newDate])
         {
             _state = newState;
