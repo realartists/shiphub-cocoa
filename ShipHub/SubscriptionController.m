@@ -186,7 +186,8 @@
         cellIdentifier = @"UnsubscribedUser";
     }
     cell = [tableView makeViewWithIdentifier:cellIdentifier owner:self];
-    
+
+    cell.login.stringValue = account[@"login"];
     cell.actionButton.enabled = [sub[@"canEdit"] boolValue];
     
     NSTextField *line1 = cell.mainLabel;
