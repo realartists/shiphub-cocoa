@@ -12,9 +12,14 @@
 #import "LocalBilling.h"
 #import "Extras.h"
 
+#import <notify.h>
+
+#define TEST_BILLING_STATE 0
+
 @interface Billing ()
 
 @property NSTimer *expirationTimer;
+@property int notifyToken;
 
 @end
 
@@ -33,9 +38,34 @@
             
             [self checkForBillingExpiration];
         }];
+        
+#if TEST_BILLING_STATE
+        __weak __typeof(self) weakSelf = self;
+        notify_register_dispatch("com.realartists.Ship.BillingTest", &_notifyToken, dispatch_get_main_queue(), ^(int x){
+            [weakSelf billingTest];
+        });
+#endif
     }
     return self;
 }
+
+- (void)dealloc {
+#if TEST_BILLING_STATE
+    notify_cancel(_notifyToken);
+#endif
+}
+
+#if TEST_BILLING_STATE
+- (void)billingTest {
+    if (_state == BillingStateFree) {
+        [self updateWithRecord:@{@"mode":@"paid"}];
+    } else if (_state == BillingStateTrial) {
+        [self updateWithRecord:@{@"mode":@"free"}];
+    } else {
+        [self updateWithRecord:@{@"mode":@"trial", @"trialEndDate":[[[NSDate date] dateByAddingDays:@1] JSONString]}];
+    }
+}
+#endif
 
 // Must be called on _store.moc
 - (LocalBilling *)localBilling {

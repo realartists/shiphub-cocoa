@@ -90,15 +90,6 @@
         [_segmented setLabel:label forSegment:0];
         self.enabled = YES;
     }
-    
-    if (label == nil) {
-        self.minSize = self.maxSize = CGSizeZero;
-    } else {
-        CGSize textSize = [label sizeWithAttributes:@{ NSFontAttributeName : _segmented.font }];
-        textSize.height = 23.0;
-        textSize.width += 8.0;
-        textSize.width = ceil(textSize.width);
-    }
 }
 
 @end
