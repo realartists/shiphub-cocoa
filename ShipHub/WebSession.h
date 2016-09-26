@@ -23,6 +23,8 @@
 - (void)addToRequest:(NSMutableURLRequest *)request;
 - (BOOL)updateSessionWithResponse:(NSHTTPURLResponse *)response;
 
+- (void)logout;
+
 + (NSArray<NSHTTPCookie *> *)sessionCookiesInResponse:(NSHTTPURLResponse *)response;
 
 @end

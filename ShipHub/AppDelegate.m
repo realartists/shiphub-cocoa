@@ -272,15 +272,7 @@
 }
 
 - (IBAction)logout:(id)sender {
-    NSAlert *alert = [[NSAlert alloc] init];
-    alert.messageText = NSLocalizedString(@"Are you sure you want to logout?", nil);
-    alert.informativeText = NSLocalizedString(@"Logging out will deauthorize your access on this computer only.", nil);
-    [alert addButtonWithTitle:NSLocalizedString(@"Logout", nil)];
-    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
-    if (NSAlertFirstButtonReturn == [alert runModal]) {
-        [_auth logout];
-        [self authChanged:nil];
-    }
+    [self changeAccount:sender];
 }
 
 - (void)rebuildAccountMenu {
@@ -352,6 +344,7 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
         if (login) {
             _nextAuth = [Auth authWithAccountPair:login];
         } else {
+            [_auth logout];
             _nextAuth = nil;
         }
         
@@ -373,12 +366,16 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
                 loginName = [NSString stringWithFormat:@"%@ [%@]", loginName, login.shipHost];
             }
             alert.messageText = [NSString stringWithFormat:NSLocalizedString(@"Logout and change account to %@?", nil), loginName];
+            alert.informativeText = NSLocalizedString(@"Changing accounts will close all open issues.", nil);
+            [alert addButtonWithTitle:NSLocalizedString(@"Change Account", nil)];
+            [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
         } else {
-            alert.messageText = NSLocalizedString(@"Logout and sign in to another account?", nil);
+            alert.messageText = NSLocalizedString(@"Are you sure you want to logout?", nil);
+            alert.informativeText = NSLocalizedString(@"Logging out will deauthorize your access on this computer only.", nil);
+            [alert addButtonWithTitle:NSLocalizedString(@"Logout", nil)];
+            [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
         }
-        alert.informativeText = NSLocalizedString(@"Changing accounts will close all open issues.", nil);
-        [alert addButtonWithTitle:NSLocalizedString(@"Change Account", nil)];
-        [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+        
         if (NSAlertFirstButtonReturn == [alert runModal]) {
             changeBlock();
         }

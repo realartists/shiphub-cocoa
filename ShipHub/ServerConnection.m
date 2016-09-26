@@ -57,6 +57,8 @@
     [self perform:method on:endpoint forGitHub:YES headers:headers body:jsonBody completion:completion];
 }
 
+#define DebugResponse(data, response, error) do { DebugLog(@"response:\n%@\ndata:\n%@\nerror:%@", [response debugDescription], [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], error); } while (0)
+
 - (void)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
 {
     if (forGitHub && ![_auth.account.shipHost isEqualToString:_auth.account.ghHost]) {
@@ -100,10 +102,16 @@
                     }
                 }
                 
+                if (error) {
+                    DebugResponse(data, response, error);
+                }
+                
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     completion(responseJSON, error);
                 });
             } else {
+                DebugResponse(data, response, error);
+                
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                     completion(nil, error);
                 });
@@ -112,6 +120,8 @@
         } else {
             error = [NSError shipErrorWithCode:ShipErrorCodeNeedsAuthToken];
             
+            DebugResponse(data, response, error);
+            
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 completion(nil, error);
             });
@@ -119,7 +129,5 @@
         
     }] resume];
 }
-
-#define DebugResponse(data, response, error) do { DebugLog(@"response:\n%@\ndata:\n%@\nerror:%@", [response debugDescription], [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], error); } while (0)
 
 @end

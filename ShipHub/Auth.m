@@ -231,6 +231,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     }
     
     [[[self class] accountsCache] removeObject:pair];
+    [_webSession logout];
     [self changeAuthState:AuthStateInvalid];
 }
 

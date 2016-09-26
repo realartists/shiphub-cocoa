@@ -110,6 +110,13 @@ static NSString *const UserSessionCookie = @"user_session";
     });
 }
 
+- (void)logout {
+    _cookies = nil;
+    dispatch_async(_writeQ, ^{
+        [[NSFileManager defaultManager] removeItemAtPath:_path error:NULL];
+    });
+}
+
 - (BOOL)updateSessionWithResponse:(NSHTTPURLResponse *)response {
     DebugLog(@"%@", response);
     
