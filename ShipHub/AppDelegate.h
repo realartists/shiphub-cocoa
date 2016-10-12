@@ -21,5 +21,7 @@
 
 - (IBAction)showBilling:(id)sender;
 
+- (void)openURL:(NSURL *)URL;
+
 @end
 

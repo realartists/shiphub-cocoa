@@ -1317,6 +1317,14 @@ var ActivityList = React.createClass({
     eventsAndComments = eventsAndComments.concat(this.props.issue.allComments || []);
     
     eventsAndComments = eventsAndComments.sort(function(a, b) {
+      if (a == firstComment && b == firstComment) {
+        return 0;
+      } else if (a == firstComment) {
+        return -1;
+      } else if (b == firstComment) {
+        return 1;
+      }
+      
       var da = new Date(a.created_at);
       var db = new Date(b.created_at);
       if (da < db) {
@@ -1728,9 +1736,44 @@ var CommentReactions = React.createClass({
       }
     });
     
-    var count = partitions.length;
-    return h("div", {className:"ReactionsBar"},
-      partitions.map((r, i) => h(CommentReaction, {key:r[0].content + "-" + i, reactions:r, onToggle:this.props.onToggle}))
+    console.log(partitions);
+    
+    var contents = partitions.map((r, i) => h(CommentReaction, {key:r[0].content + "-" + i, reactions:r, onToggle:this.props.onToggle}));
+    if (this.props.children) {
+      if (Array.isArray(this.props.children)) {
+        contents.push(...this.props.children);
+      } else {
+        contents.push(this.props.children);
+      }
+    }
+    
+    console.log(contents);
+    
+    return h("div", {className:"ReactionsBar"}, contents);
+  }
+});
+
+var PullRequest = React.createClass({
+  props: {
+    issue: React.PropTypes.object,
+    comment: React.PropTypes.object,
+    onToggleReaction: React.PropTypes.func
+  },
+  
+  viewDiff: function() {
+    
+  },
+  
+  render: function() {
+    var issue = this.props.issue;
+    var href = `https://github.com/${issue._bare_owner}/${issue._bare_repo}/pulls/${issue.number}/files`;
+    return h('div', {className:'ReactionsBarWithPR'},
+      h(CommentReactions, {reactions:this.props.comment.reactions, onToggle:this.props.onToggleReaction}, 
+        h('a', 
+          {className:'Clickable addCommentButton viewDiffButton', href:href},
+          'View Code Changes'
+        )
+      )
     );
   }
 });
@@ -2266,6 +2309,8 @@ var Comment = React.createClass({
           editingExisting: !!(this.props.comment)
         })
       }
+    } else if (this.props.first && getIvars().issue.pull_request) {
+      return h(PullRequest, {key:"pr", comment:this.props.comment, issue:getIvars().issue, onToggleReaction:this.toggleReaction});
     } else if ((keypath(this.props, "comment.reactions")||[]).length > 0) {
       return h(CommentReactions, {reactions:this.props.comment.reactions, onToggle:this.toggleReaction});
     } else {

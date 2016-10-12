@@ -8,6 +8,7 @@
 
 #import "IssueViewController.h"
 
+#import "AppDelegate.h"
 #import "APIProxy.h"
 #import "AttachmentManager.h"
 #import "Auth.h"
@@ -418,12 +419,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     NSDictionary *element = item.representedObject;
     NSURL *URL = element[WebElementLinkURLKey];
     if (URL) {
-        id issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
-        if (issueIdentifier) {
-            [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier];
-        } else {
-            [[NSWorkspace sharedWorkspace] openURL:URL];
-        }
+        [[AppDelegate sharedDelegate] openURL:URL];
     }
 }
 
@@ -657,14 +653,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
         }
     } else {
         NSURL *URL = actionInformation[WebActionOriginalURLKey];
-        id issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
-        
-        if (issueIdentifier) {
-            [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier];
-        } else {
-            [[NSWorkspace sharedWorkspace] openURL:URL];
-        }
-        
+        [[AppDelegate sharedDelegate] openURL:URL];
         [listener ignore];
     }
 }
@@ -672,14 +661,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 - (void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id<WebPolicyDecisionListener>)listener
 {
     NSURL *URL = actionInformation[WebActionOriginalURLKey];
-    id issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
-    
-    if (issueIdentifier) {
-        [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier];
-    } else {
-        [[NSWorkspace sharedWorkspace] openURL:URL];
-    }
-    
+    [[AppDelegate sharedDelegate] openURL:URL];
     [listener ignore];
 }
 

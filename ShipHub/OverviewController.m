@@ -400,7 +400,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     _allProblemsNode.countOpenOnly = YES;
     _allProblemsNode.cellIdentifier = @"CountCell";
     _allProblemsNode.identifier = @"AllProblems";
-    _allProblemsNode.title = NSLocalizedString(@"All Issues", nil);
+    _allProblemsNode.title = NSLocalizedString(@"Everything", nil);
     _allProblemsNode.predicate = [NSPredicate predicateWithValue:YES];
     _allProblemsNode.icon = [NSImage overviewIconNamed:@"All Issues"];
     [topNode addChild:_allProblemsNode];

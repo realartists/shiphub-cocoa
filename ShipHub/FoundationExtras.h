@@ -353,3 +353,11 @@ void RunOnMain(dispatch_block_t);
 @property (nonatomic) NSDictionary *queryItemsDictionary;
 
 @end
+
+#if !TARGET_OS_IOS
+@interface NSTask (Extras)
+
+- (int)launchAndWaitForTermination;
+
+@end
+#endif

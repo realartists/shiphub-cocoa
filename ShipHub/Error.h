@@ -28,6 +28,7 @@ typedef NS_ENUM(NSInteger, ShipErrorCode) {
     ShipErrorCodeInvalidUserAccount = 13,
     ShipErrorCodeProblemSaveOtherError = 14,
     ShipErrorCodeInternalInconsistencyError = 15,
+    ShipErrorCodeGitCloneError = 16
 };
 
 NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code);

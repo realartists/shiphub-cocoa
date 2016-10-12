@@ -30,6 +30,7 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
         case ShipErrorCodeInvalidUserAccount: return NSLocalizedString(@"Invalid or non-existent account", nil);
         case ShipErrorCodeProblemSaveOtherError: return NSLocalizedString(@"Unable to save issue", nil);
         case ShipErrorCodeInternalInconsistencyError: return NSLocalizedString(@"Internal inconsistency error. Consider removing the contents of ~/Library/RealArtists and restarting the application.", nil);
+        case ShipErrorCodeGitCloneError: return NSLocalizedString(@"Unable to clone the repository", nil);
         default: return NSLocalizedString(@"Unexpected Error", nil);
     }
 }

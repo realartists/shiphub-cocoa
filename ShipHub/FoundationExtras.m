@@ -1753,3 +1753,18 @@ CGRect IntegralRect(CGRect r) {
 }
 
 @end
+
+#if !TARGET_OS_IOS
+@implementation NSTask (Extras)
+
+- (int)launchAndWaitForTermination {
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    self.terminationHandler = ^(NSTask *t) {
+        dispatch_semaphore_signal(sema);
+    };
+    [self launch];
+    return [self terminationStatus];
+}
+
+@end
+#endif

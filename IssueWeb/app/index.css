@@ -711,6 +711,20 @@ div.IssueLabels .LabelContainer {
   border: 1px solid #CCC;
 }
 
+.viewDiffButton {
+  float: right;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.addCommentButton:visited,
+.addCommentButton:hover,
+.addCommentButton:active 
+{
+  color: #555;
+  text-decoration: none;
+}
+
 .commentUploadingLabel {
   color: #555;
 }
@@ -840,6 +854,10 @@ div.CommentReaction {
   margin-right: 16px;
   padding: 4px;
   padding-left: 0px;
+}
+
+div.ReactionsBarWithPR div.CommentReaction {
+  margin-top: 12px;
 }
 
 span.CommentReactionEmoji {

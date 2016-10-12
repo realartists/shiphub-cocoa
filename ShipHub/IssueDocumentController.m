@@ -11,8 +11,10 @@
 #import "DataStore.h"
 #import "Error.h"
 #import "Issue.h"
+#import "PullRequest.h"
 #import "IssueWaiter.h"
 #import "IssueDocument.h"
+#import "PRDocument.h"
 #import "IssueIdentifier.h"
 #import "IssueViewController.h"
 #import "AppDelegate.h"
@@ -40,6 +42,48 @@
         return NO;
     }
     return [super respondsToSelector:aSelector];
+}
+
+- (NSString *)defaultType {
+    return @"issue";
+}
+
+- (NSString *)displayNameForType:(NSString *)typeName {
+    if ([typeName isEqualToString:@"issue"]) {
+        return NSLocalizedString(@"Issue", nil);
+    } else if ([typeName isEqualToString:@"diff"]) {
+        return NSLocalizedString(@"Diff", nil);
+    } else {
+        NSAssert(NO, nil);
+        return nil;
+    }
+}
+
+- (NSArray<NSString *> *)documentClassNames {
+    return @[@"IssueDocument", @"DiffDocument"];
+}
+
+- (Class)documentClassForType:(NSString *)typeName {
+    if ([typeName isEqualToString:@"issue"]) {
+        return [IssueDocument class];
+    } else if ([typeName isEqualToString:@"diff"]) {
+        return [PRDocument class];
+    } else {
+        NSAssert(NO, nil);
+        return nil;
+    }
+}
+
+- (NSArray<IssueDocument *> *)issueDocuments {
+    return [[self documents] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        return [evaluatedObject class] == [IssueDocument class];
+    }]];
+}
+
+- (NSArray<PRDocument *> *)diffDocuments {
+    return [[self documents] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        return [evaluatedObject class] == [PRDocument class];
+    }]];
 }
 
 - (IBAction)newDocument:(id)sender {
@@ -77,7 +121,7 @@
 }
 
 - (void)openIssueWithIdentifier:(id)issueIdentifier display:(BOOL)display canOpenExternally:(BOOL)canOpenExternally scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier completion:(void (^)(IssueDocument *doc))completion {
-    for (IssueDocument *doc in [self documents]) {
+    for (IssueDocument *doc in [self issueDocuments]) {
         if ([[doc.issueViewController.issue fullIdentifier] isEqual:issueIdentifier]) {
             if (display) [doc showWindows];
             if (commentIdentifier) {
@@ -92,7 +136,7 @@
     
     [[DataStore activeStore] loadFullIssue:issueIdentifier completion:^(Issue *issue, NSError *error) {
         if (issue) {
-            IssueDocument *doc = [self openUntitledDocumentAndDisplay:YES error:NULL];
+            IssueDocument *doc = [self openUntitledDocumentAndDisplay:display error:NULL];
             [doc.issueViewController setIssue:issue scrollToCommentWithIdentifier:commentIdentifier];
             [doc.issueViewController checkForIssueUpdates];
             [[DataStore activeStore] markIssueAsRead:issueIdentifier];
@@ -103,6 +147,41 @@
         } else {
             if (canOpenExternally) {
                 [[NSWorkspace sharedWorkspace] openURL:[issueIdentifier issueGitHubURL]];
+            }
+            if (completion) {
+                completion(nil);
+            }
+        }
+    }];
+}
+
+- (void)openDiffWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier completion:(void (^)(PRDocument *doc))completion
+{
+    for (PRDocument *doc in [self diffDocuments]) {
+        if ([[doc.prViewController.pr.issue fullIdentifier] isEqual:issueIdentifier]) {
+            [doc showWindows];
+            if (commentIdentifier) {
+                [doc.prViewController scrollToCommentWithIdentifier:commentIdentifier];
+            }
+            return;
+        }
+    }
+    
+    [[DataStore activeStore] loadFullIssue:issueIdentifier completion:^(Issue *issue, NSError *error) {
+        if (issue) {
+            PRDocument *doc = [self makeUntitledDocumentOfType:@"diff" error:NULL];
+            [doc.prViewController loadForIssue:issue];
+            [doc.prViewController scrollToCommentWithIdentifier:commentIdentifier];
+            [self addDocument:doc];
+            [doc makeWindowControllers];
+            [doc showWindows];
+            
+            if (completion) {
+                completion(doc);
+            }
+        } else {
+            if (canOpenExternally) {
+                [[NSWorkspace sharedWorkspace] openURL:[PullRequest gitHubFilesURLForIssueIdentifier:issueIdentifier]];
             }
             if (completion) {
                 completion(nil);
@@ -179,11 +258,14 @@
     completionHandler(nil, nil);
 }
 
-- (void)noteNewRecentDocument:(IssueDocument *)document {
-    id identifier = document.issueViewController.issue.fullIdentifier;
+- (void)noteNewRecentDocument:(NSDocument *)document {
+    if (![document isKindOfClass:[IssueDocument class]]) return; // FIXME: Recents for diffs?
+    
+    IssueDocument *idoc = (id)document;
+    id identifier = idoc.issueViewController.issue.fullIdentifier;
     if (!identifier) return;
     
-    NSString *title = document.issueViewController.issue.title ?: @"";
+    NSString *title = idoc.issueViewController.issue.title ?: @"";
     
     NSMutableArray *recents = [[[NSUserDefaults standardUserDefaults] arrayForKey:@"RecentDocuments"] mutableCopy];
     if (!recents) {
