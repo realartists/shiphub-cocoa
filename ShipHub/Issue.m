@@ -60,6 +60,7 @@
         _milestone = [ms milestoneWithIdentifier:li.milestone.identifier];
         _repository = [ms repoWithIdentifier:li.repository.identifier];
         _reactionSummary = (id)(li.shipReactionSummary);
+        _pullRequest = [li.pullRequest boolValue];
         
         for (NSNumber *v in _reactionSummary.allValues) {
             _reactionsCount += v.integerValue;

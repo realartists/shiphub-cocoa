@@ -148,7 +148,7 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="rSE-gs-ECS"/>
-                            <menuItem title="Search All Issues" keyEquivalent="F" id="sJW-8m-F3u">
+                            <menuItem title="Search Everything" keyEquivalent="F" id="sJW-8m-F3u">
                                 <connections>
                                     <action selector="searchAllProblems:" target="Voe-Tx-rLC" id="e1Y-Lu-txP"/>
                                 </connections>

@@ -128,6 +128,7 @@
 		1A3C5B6A1DDD0896005F9A01 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305D81C7F80EA0034C871 /* Defaults.m */; };
 		1A3C5B6B1DDD089E005F9A01 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
 		1A3C5B6C1DDD08BC005F9A01 /* WebSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A38C9FB1D9339D400655891 /* WebSession.m */; };
+		1A3D34451DAEC9DF00CDF167 /* PartialClone.sh in Copy Git Support */ = {isa = PBXBuildFile; fileRef = 1ADED9ED1DADA2D30093A098 /* PartialClone.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1A48BB4D1D80D8BF001E761E /* UserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */; };
 		1A48BB531D80DED6001E761E /* IssueNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB521D80DED6001E761E /* IssueNotification.m */; };
 		1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
@@ -232,6 +233,11 @@
 		1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */; };
 		1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC81D188E6800E9FAFC /* FilterButton.m */; };
 		1ADED9D01D95AA590093A098 /* RateDampener.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9CF1D95AA590093A098 /* RateDampener.m */; };
+		1ADED9D81DA720430093A098 /* git in Copy Git Support */ = {isa = PBXBuildFile; fileRef = 1ADED9D51DA71EE20093A098 /* git */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1ADED9E21DAC47310093A098 /* PRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9E01DAC47310093A098 /* PRViewController.m */; };
+		1ADED9E61DAC47CF0093A098 /* PullRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9E51DAC47CF0093A098 /* PullRequest.m */; };
+		1ADED9EA1DAC4A220093A098 /* PRDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9E81DAC4A220093A098 /* PRDocument.m */; };
+		1ADED9EB1DAC4A220093A098 /* PRDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1ADED9E91DAC4A220093A098 /* PRDocument.xib */; };
 		1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */; };
 		1AE09BEB1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */; };
 		1AE09BEC1C97687E00C5AC35 /* LocalMilestone.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE09BC11C97687E00C5AC35 /* LocalMilestone.m */; };
@@ -373,6 +379,18 @@
 				1A2217C51C7E7BCE006460E2 /* SocketRocket.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1ADED9D41DA71EAC0093A098 /* Copy Git Support */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 12;
+			files = (
+				1A3D34451DAEC9DF00CDF167 /* PartialClone.sh in Copy Git Support */,
+				1ADED9D81DA720430093A098 /* git in Copy Git Support */,
+			);
+			name = "Copy Git Support";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */ = {
@@ -741,6 +759,15 @@
 		1AD9ECC81D188E6800E9FAFC /* FilterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterButton.m; sourceTree = "<group>"; };
 		1ADED9CE1D95AA590093A098 /* RateDampener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RateDampener.h; sourceTree = "<group>"; };
 		1ADED9CF1D95AA590093A098 /* RateDampener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RateDampener.m; sourceTree = "<group>"; };
+		1ADED9D51DA71EE20093A098 /* git */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = git; path = ext/git; sourceTree = "<group>"; };
+		1ADED9DF1DAC47310093A098 /* PRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRViewController.h; sourceTree = "<group>"; };
+		1ADED9E01DAC47310093A098 /* PRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRViewController.m; sourceTree = "<group>"; };
+		1ADED9E41DAC47CF0093A098 /* PullRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PullRequest.h; sourceTree = "<group>"; };
+		1ADED9E51DAC47CF0093A098 /* PullRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PullRequest.m; sourceTree = "<group>"; };
+		1ADED9E71DAC4A220093A098 /* PRDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDocument.h; sourceTree = "<group>"; };
+		1ADED9E81DAC4A220093A098 /* PRDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDocument.m; sourceTree = "<group>"; };
+		1ADED9E91DAC4A220093A098 /* PRDocument.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRDocument.xib; sourceTree = "<group>"; };
+		1ADED9ED1DADA2D30093A098 /* PartialClone.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = PartialClone.sh; sourceTree = "<group>"; };
 		1AE09BBE1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalMilestone+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalMilestone+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BC01C97687E00C5AC35 /* LocalMilestone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalMilestone.h; sourceTree = "<group>"; };
@@ -957,6 +984,7 @@
 				1A694B121CA3414800F73608 /* Overview UI */,
 				1A012E6F1D3EABDB006CE5DF /* Search UI */,
 				1A0D59D21CA4A8B4004F2578 /* Issue UI */,
+				1ADED9D91DAC46EB0093A098 /* Pull Request Files */,
 				1A2A8B5D1D55101B00F24F32 /* New Label */,
 				1A2A8B591D55100D00F24F32 /* New Milestone */,
 				1A38CA0D1D9363C100655891 /* New Project */,
@@ -987,6 +1015,7 @@
 		1A2217A21C7E7B78006460E2 /* ext */ = {
 			isa = PBXGroup;
 			children = (
+				1ADED9D51DA71EE20093A098 /* git */,
 				1AB038541D5D390E005093B9 /* Sparkle.framework */,
 				28BF03C21D1C582E00F22638 /* FontAwesome.otf */,
 				1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */,
@@ -1489,6 +1518,29 @@
 			name = DataStore;
 			sourceTree = "<group>";
 		};
+		1ADED9D91DAC46EB0093A098 /* Pull Request Files */ = {
+			isa = PBXGroup;
+			children = (
+				1ADED9EC1DADA1F90093A098 /* GitScripts */,
+				1ADED9E41DAC47CF0093A098 /* PullRequest.h */,
+				1ADED9E51DAC47CF0093A098 /* PullRequest.m */,
+				1ADED9E71DAC4A220093A098 /* PRDocument.h */,
+				1ADED9E81DAC4A220093A098 /* PRDocument.m */,
+				1ADED9E91DAC4A220093A098 /* PRDocument.xib */,
+				1ADED9DF1DAC47310093A098 /* PRViewController.h */,
+				1ADED9E01DAC47310093A098 /* PRViewController.m */,
+			);
+			name = "Pull Request Files";
+			sourceTree = "<group>";
+		};
+		1ADED9EC1DADA1F90093A098 /* GitScripts */ = {
+			isa = PBXGroup;
+			children = (
+				1ADED9ED1DADA2D30093A098 /* PartialClone.sh */,
+			);
+			path = GitScripts;
+			sourceTree = "<group>";
+		};
 		1AF3494A1CDA95D100A5BEB0 /* Charting */ = {
 			isa = PBXGroup;
 			children = (
@@ -1595,6 +1647,7 @@
 				1A0D87791CAB03710069782D /* Copy Issue Web Content */,
 				1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */,
 				1A2217C41C7E7BC1006460E2 /* Copy Frameworks */,
+				1ADED9D41DA71EAC0093A098 /* Copy Git Support */,
 			);
 			buildRules = (
 			);
@@ -1757,6 +1810,7 @@
 				28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */,
 				1AC01D951DC9087B00920C3F /* npm-shrinkwrap.json in Resources */,
 				1A51A5841DBE95A300272822 /* Acknowledgements.rtf in Resources */,
+				1ADED9EB1DAC4A220093A098 /* PRDocument.xib in Resources */,
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
 				1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */,
@@ -1815,6 +1869,7 @@
 				1AE09BEC1C97687E00C5AC35 /* LocalMilestone.m in Sources */,
 				1A51A58A1DBE9BC200272822 /* TextViewController.m in Sources */,
 				1A3BEBA91E492CD000CBFBEF /* MapLocalModel1to2.xcmappingmodel in Sources */,
+				1ADED9E61DAC47CF0093A098 /* PullRequest.m in Sources */,
 				1A5108461D2CC52A00905D4D /* EmptyUpNextViewController.m in Sources */,
 				1A2217961C7E7B14006460E2 /* main.m in Sources */,
 				1AE09BF61C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
@@ -1857,6 +1912,7 @@
 				1AF567481D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */,
 				1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */,
 				1A51086A1D319ED000905D4D /* RequestPager.m in Sources */,
+				1ADED9EA1DAC4A220093A098 /* PRDocument.m in Sources */,
 				1A694B2B1CA341D500F73608 /* NetworkStatusTextField.m in Sources */,
 				1A012E8F1D3EAC47006CE5DF /* TimeLimitRowTemplate.m in Sources */,
 				1A694B2E1CA342B000F73608 /* Sparkline.m in Sources */,
@@ -1890,6 +1946,7 @@
 				1A694B311CA342D500F73608 /* SearchResultsController.m in Sources */,
 				1A38CA071D934EF800655891 /* LocalProject.m in Sources */,
 				1A694AEA1CA09E6A00F73608 /* Repo.m in Sources */,
+				1ADED9E21DAC47310093A098 /* PRViewController.m in Sources */,
 				1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
 				282710121E3E814F001F031E /* Analytics.m in Sources */,
 				1AE09BF01C97687E00C5AC35 /* LocalRepo.m in Sources */,

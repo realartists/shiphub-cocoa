@@ -13,6 +13,7 @@
 #import "AuthController.h"
 #import "DataStore.h"
 #import "Extras.h"
+#import "PullRequest.h"
 #import "IssueIdentifier.h"
 #import "IssueDocumentController.h"
 #import "OverviewController.h"
@@ -190,9 +191,9 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     }
 }
 
-- (void)handleURL:(NSURL *)URL atAppLaunch:(BOOL)atAppLaunch
+- (BOOL)handleURL:(NSURL *)URL atAppLaunch:(BOOL)atAppLaunch
 {
-    if (!URL) return;
+    if (!URL) return YES;
     
     if ([[URL scheme] isEqualToString:@"ship+github"]) {
         if ([[URL host] isEqualToString:@"issue"]) {
@@ -212,14 +213,28 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
                 [self showOverviewController:nil];
             }
         }
+        return YES;
     } else if ([[URL scheme] isEqualToString:@"https"]) {
-        if ([[URL host] isEqualToString:@"github.com"]) {
-            NSNumber *commentIdentifier = nil;
-            NSString *issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL commentIdentifier:&commentIdentifier];
-            if (issueIdentifier) {
-                [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier canOpenExternally:YES scrollToCommentWithIdentifier:commentIdentifier completion:nil];
-            }
+        NSNumber *commentIdentifier = nil;
+        NSNumber *reviewCommentIdentifier = nil;
+        NSString *issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL commentIdentifier:&commentIdentifier];
+        NSString *diffIdentifier = [PullRequest issueIdentifierForGitHubFilesURL:URL commentIdentifier:&reviewCommentIdentifier];
+        if (issueIdentifier) {
+            [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier canOpenExternally:YES scrollToCommentWithIdentifier:commentIdentifier completion:nil];
+            return YES;
+        } else if (diffIdentifier) {
+            [[IssueDocumentController sharedDocumentController] openDiffWithIdentifier:diffIdentifier canOpenExternally:YES scrollToCommentWithIdentifier:reviewCommentIdentifier completion:nil];
+            return YES;
         }
+    }
+    
+    return NO;
+}
+
+- (void)openURL:(NSURL *)URL {
+    BOOL handled = [self handleURL:URL atAppLaunch:NO];
+    if (!handled) {
+        [[NSWorkspace sharedWorkspace] openURL:URL];
     }
 }
 

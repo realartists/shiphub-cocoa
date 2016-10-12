@@ -25,6 +25,7 @@
 @property FilterButton *state;
 @property FilterButton *label;
 @property FilterButton *milestone;
+@property FilterButton *pullRequest;
 
 @property NSMutableArray *filters;
 
@@ -73,6 +74,10 @@
     [self addFilter:_milestone];
     [self buildMilestoneMenu];
     
+    _pullRequest = [self popUpButton];
+    [self addFilter:_pullRequest];
+    [self buildPullRequestMenu];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(metadataChanged:) name:DataStoreDidUpdateMetadataNotification object:nil];
 }
 
@@ -100,6 +105,7 @@
     [self buildRepoMenu];
     [self buildLabelMenu];
     [self buildMilestoneMenu];
+    [self buildPullRequestMenu];
 }
 
 - (void)metadataChanged:(NSNotification *)note {
@@ -338,6 +344,11 @@
     else return [ms title];
 }
 
+- (NSNumber *)pullRequestInPredicate:(NSPredicate *)predicate {
+    id val = [self valueInPredicate:predicate forKeyPath:@"pullRequest"];
+    return val;
+}
+
 #pragma mark - Menu Builders
 
 - (void)buildUserMenu:(FilterButton *)button action:(SEL)action notSet:(NSString *)notSet {
@@ -569,6 +580,27 @@
     [self updateMilestoneMenuStateFromPredicate];
 }
 
+- (void)buildPullRequestMenu {
+    NSMenu *menu = [NSMenu new];
+    NSMenuItem *m;
+    
+    m = [menu addItemWithTitle:NSLocalizedString(@"Issues & PRs", nil) action:@selector(pickPullRequest:) keyEquivalent:@""];
+    m.target = self;
+    m.representedObject = nil;
+    
+    m = [menu addItemWithTitle:NSLocalizedString(@"Issues Only", nil) action:@selector(pickPullRequest:) keyEquivalent:@""];
+    m.target = self;
+    m.representedObject = @NO;
+    
+    m = [menu addItemWithTitle:NSLocalizedString(@"Pull Requests Only", nil) action:@selector(pickPullRequest:) keyEquivalent:@""];
+    m.target = self;
+    m.representedObject = @YES;
+    
+    _pullRequest.menu = menu;
+    
+    [self updatePullRequestMenuStateFromPredicate];
+}
+
 #pragma mark - Menu Updaters
 
 static BOOL representedObjectEquals(id repr, id val) {
@@ -735,6 +767,25 @@ static BOOL representedObjectEquals(id repr, id val) {
     [self needsButtonLayout];
 }
 
+- (void)updatePullRequestMenuStateFromPredicate {
+    NSNumber *val = [self pullRequestInPredicate:_predicate];
+    
+    __block NSString *title = @"";
+    [_pullRequest.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
+        if (representedObjectEquals(m.representedObject, val)) {
+            title = m.title;
+            m.state = NSOnState;
+        } else {
+            m.state = NSOffState;
+        }
+    }];
+    
+    _pullRequest.filterEnabled = val != nil;
+    _pullRequest.title = title;
+    
+    [self needsButtonLayout];
+}
+
 #pragma mark - Menu Actions
 
 - (void)pickAssignee:(id)sender {
@@ -854,6 +905,15 @@ static BOOL representedObjectEquals(id repr, id val) {
     
     [self updatePredicateFromFilterButtons];
     [self updateMilestoneMenuStateFromPredicate];
+}
+
+- (void)pickPullRequest:(id)sender {
+    [_pullRequest.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
+        m.state = m == sender ? NSOnState : NSOffState;
+    }];
+    
+    [self updatePredicateFromFilterButtons];
+    [self updatePullRequestMenuStateFromPredicate];
 }
 
 #pragma mark - FilterButton Utils
@@ -979,6 +1039,14 @@ static BOOL representedObjectEquals(id repr, id val) {
         }
     }
     
+    // Pull Request
+    if (!_pullRequest.hidden) {
+        id val = [self selectedObjectInFilter:_pullRequest];
+        if (val) {
+            pred = [pred and:[NSPredicate predicateWithFormat:@"pullRequest = %@", val]];
+        }
+    }
+    
     self.predicate = pred;
     [self.delegate filterBar:self didUpdatePredicate:pred];
 }
@@ -992,6 +1060,7 @@ static BOOL representedObjectEquals(id repr, id val) {
     [self updateStateMenuStateFromPredicate];
     [self updateLabelMenuStateFromPredicate];
     [self updateMilestoneMenuStateFromPredicate];
+    [self updatePullRequestMenuStateFromPredicate];
 }
 
 #pragma mark - API
@@ -1052,6 +1121,7 @@ static BOOL representedObjectEquals(id repr, id val) {
     _state.hidden = [self closedInPredicate:basePredicate] != nil;
     _label.hidden = [self hasLabelsInPredicate:basePredicate];
     _milestone.hidden = [self milestoneTitleInPredicate:basePredicate] != nil;
+    _pullRequest.hidden = [self pullRequestInPredicate:basePredicate] != nil;
     
     [self rebuildMenus];
     [self updatePredicateFromFilterButtons];

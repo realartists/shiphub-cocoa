@@ -1177,9 +1177,9 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (NSPredicate *)issuesPredicate:(NSPredicate *)basePredicate {
     NSPredicate *extra = nil;
     if (_billing.limited) {
-        extra = [NSPredicate predicateWithFormat:@"repository.private = NO AND repository.disabled = NO AND repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"];
+        extra = [NSPredicate predicateWithFormat:@"repository.private = NO AND repository.disabled = NO && repository.hidden = nil AND repository.fullName != nil"];
     } else {
-        extra = [NSPredicate predicateWithFormat:@"repository.disabled = NO AND repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"];
+        extra = [NSPredicate predicateWithFormat:@"repository.disabled = NO AND repository.hidden = nil AND repository.fullName != nil"];
     }
     
     return [[basePredicate coreDataPredicate] and:extra];
@@ -1353,7 +1353,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSNumber *issueNumber = [issueIdentifier issueNumber];
     
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"repository.fullName = %@ AND number = %@ AND pullRequest = NO", repoFullName, issueNumber];
+    fetchRequest.predicate = [NSPredicate predicateWithFormat:@"repository.fullName = %@ AND number = %@", repoFullName, issueNumber];
     
     return fetchRequest;
 }

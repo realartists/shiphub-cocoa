@@ -43,6 +43,7 @@
 @property (readonly) NSDictionary<NSString *, NSNumber *> *reactionSummary;
 @property (readonly) NSInteger reactionsCount; // computed from reactionSummary, not the array of reactions
 @property (readonly) BOOL unread;
+@property (readonly) BOOL pullRequest;
 
 // events and comments are conditionally populated.
 // if they're just nonexistent, then they will be empty arrays.

@@ -9,6 +9,7 @@
 #import "IssueViewController.h"
 
 #import "Analytics.h"
+#import "AppDelegate.h"
 #import "APIProxy.h"
 #import "AttachmentManager.h"
 #import "Auth.h"
@@ -584,12 +585,7 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
     NSDictionary *element = item.representedObject;
     NSURL *URL = element[WebElementLinkURLKey];
     if (URL) {
-        id issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
-        if (issueIdentifier) {
-            [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier];
-        } else {
-            [[NSWorkspace sharedWorkspace] openURL:URL];
-        }
+        [[AppDelegate sharedDelegate] openURL:URL];
     }
 }
 
@@ -827,14 +823,7 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
         }
     } else {
         NSURL *URL = actionInformation[WebActionOriginalURLKey];
-        id issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
-        
-        if (issueIdentifier) {
-            [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier];
-        } else {
-            [[NSWorkspace sharedWorkspace] openURL:URL];
-        }
-        
+        [[AppDelegate sharedDelegate] openURL:URL];
         [listener ignore];
     }
 }
@@ -842,14 +831,7 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
 - (void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id<WebPolicyDecisionListener>)listener
 {
     NSURL *URL = actionInformation[WebActionOriginalURLKey];
-    id issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
-    
-    if (issueIdentifier) {
-        [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier];
-    } else {
-        [[NSWorkspace sharedWorkspace] openURL:URL];
-    }
-    
+    [[AppDelegate sharedDelegate] openURL:URL];
     [listener ignore];
 }
 
