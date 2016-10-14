@@ -369,6 +369,13 @@
 			remoteGlobalIDString = F668C87F153E91210044DBAC;
 			remoteInfo = SocketRocketOSX;
 		};
+		1A3D346E1DB1685B00CDF167 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217861C7E7B14006460E2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1A3D346A1DB167ED00CDF167;
+			remoteInfo = DiffWeb;
+		};
 		1AD956C51D0BCFF6002B1259 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1A2217861C7E7B14006460E2 /* Project object */;
@@ -623,6 +630,22 @@
 		1A3D34661DB05F5E00CDF167 /* IssueWebController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWebController.h; sourceTree = "<group>"; };
 		1A3D34671DB05F5E00CDF167 /* IssueWebController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWebController.m; sourceTree = "<group>"; };
 		1A3D34691DB05F9D00CDF167 /* IssueWebControllerInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IssueWebControllerInternal.h; sourceTree = "<group>"; };
+		1A3D34721DB16AD200CDF167 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
+		1A3D34731DB16AD200CDF167 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		1A3D34751DB16AD200CDF167 /* attributed-string.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "attributed-string.js"; sourceTree = "<group>"; };
+		1A3D34761DB16AD200CDF167 /* diff.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = diff.txt; sourceTree = "<group>"; };
+		1A3D34771DB16AD200CDF167 /* filter-selection.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "filter-selection.js"; sourceTree = "<group>"; };
+		1A3D34781DB16AD200CDF167 /* index.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = index.css; sourceTree = "<group>"; };
+		1A3D34791DB16AD200CDF167 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		1A3D347A1DB16AD200CDF167 /* index.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index.js; sourceTree = "<group>"; };
+		1A3D347B1DB16AD200CDF167 /* left.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = left.m; sourceTree = "<group>"; };
+		1A3D347C1DB16AD200CDF167 /* minimap.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = minimap.js; sourceTree = "<group>"; };
+		1A3D347D1DB16AD200CDF167 /* right.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = right.m; sourceTree = "<group>"; };
+		1A3D347E1DB16AD200CDF167 /* xcode7.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = xcode7.css; sourceTree = "<group>"; };
+		1A3D34821DB16AD200CDF167 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		1A3D62FD1DB16B0000CDF167 /* npm-shrinkwrap.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "npm-shrinkwrap.json"; sourceTree = "<group>"; };
+		1A3D62FE1DB16B0000CDF167 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
+		1A3D62FF1DB16B0000CDF167 /* webpack.config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = webpack.config.js; sourceTree = "<group>"; };
 		1A48BB4B1D80D8BF001E761E /* UserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserNotificationManager.h; sourceTree = "<group>"; };
 		1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserNotificationManager.m; sourceTree = "<group>"; };
 		1A48BB511D80DED6001E761E /* IssueNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueNotification.h; sourceTree = "<group>"; };
@@ -1404,6 +1427,37 @@
 			name = Git;
 			sourceTree = "<group>";
 		};
+		1A3D34711DB16AD200CDF167 /* DiffWeb */ = {
+			isa = PBXGroup;
+			children = (
+				1A3D34721DB16AD200CDF167 /* .babelrc */,
+				1A3D34731DB16AD200CDF167 /* .gitignore */,
+				1A3D34741DB16AD200CDF167 /* app */,
+				1A3D34821DB16AD200CDF167 /* Makefile */,
+				1A3D62FD1DB16B0000CDF167 /* npm-shrinkwrap.json */,
+				1A3D62FE1DB16B0000CDF167 /* package.json */,
+				1A3D62FF1DB16B0000CDF167 /* webpack.config.js */,
+			);
+			path = DiffWeb;
+			sourceTree = SOURCE_ROOT;
+		};
+		1A3D34741DB16AD200CDF167 /* app */ = {
+			isa = PBXGroup;
+			children = (
+				1A3D34751DB16AD200CDF167 /* attributed-string.js */,
+				1A3D34761DB16AD200CDF167 /* diff.txt */,
+				1A3D34771DB16AD200CDF167 /* filter-selection.js */,
+				1A3D34781DB16AD200CDF167 /* index.css */,
+				1A3D34791DB16AD200CDF167 /* index.html */,
+				1A3D347A1DB16AD200CDF167 /* index.js */,
+				1A3D347B1DB16AD200CDF167 /* left.m */,
+				1A3D347C1DB16AD200CDF167 /* minimap.js */,
+				1A3D347D1DB16AD200CDF167 /* right.m */,
+				1A3D347E1DB16AD200CDF167 /* xcode7.css */,
+			);
+			path = app;
+			sourceTree = "<group>";
+		};
 		1A5B293F1D89DCA8000C9F4B /* Projects */ = {
 			isa = PBXGroup;
 			children = (
@@ -1574,6 +1628,7 @@
 		1ADED9D91DAC46EB0093A098 /* Pull Request Files */ = {
 			isa = PBXGroup;
 			children = (
+				1A3D34711DB16AD200CDF167 /* DiffWeb */,
 				1ADED9EC1DADA1F90093A098 /* GitScripts */,
 				1ADED9E41DAC47CF0093A098 /* PullRequest.h */,
 				1ADED9E51DAC47CF0093A098 /* PullRequest.m */,
@@ -1678,6 +1733,20 @@
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
+		1A3D346A1DB167ED00CDF167 /* DiffWeb */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "";
+			buildConfigurationList = 1A3D346B1DB167ED00CDF167 /* Build configuration list for PBXLegacyTarget "DiffWeb" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = DiffWeb;
+			dependencies = (
+			);
+			name = DiffWeb;
+			passBuildSettingsInEnvironment = 1;
+			productName = IssueWeb;
+		};
 		1AD956BE1D0BCFBA002B1259 /* IssueWeb */ = {
 			isa = PBXLegacyTarget;
 			buildArgumentsString = "";
@@ -1704,6 +1773,7 @@
 				1A22178C1C7E7B14006460E2 /* Resources */,
 				28BF04101D22236400F22638 /* Copy Fonts */,
 				1A0D87791CAB03710069782D /* Copy Issue Web Content */,
+				1A3D34701DB1686F00CDF167 /* Copy Diff Web Content */,
 				1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */,
 				1A2217C41C7E7BC1006460E2 /* Copy Frameworks */,
 				1ADED9D41DA71EAC0093A098 /* Copy Git Support */,
@@ -1711,6 +1781,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				1A3D346F1DB1685B00CDF167 /* PBXTargetDependency */,
 				1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */,
 				1A2217BF1C7E7BAF006460E2 /* PBXTargetDependency */,
 			);
@@ -1801,6 +1872,7 @@
 				1A3618F91C9383CF008C11CB /* ShipHubTests */,
 				1AD956BE1D0BCFBA002B1259 /* IssueWeb */,
 				1A3C5B4E1DDD012F005F9A01 /* AccountTool */,
+				1A3D346A1DB167ED00CDF167 /* DiffWeb */,
 			);
 		};
 /* End PBXProject section */
@@ -1914,6 +1986,20 @@
 			shellPath = /bin/sh;
 			shellScript = "ISSUE_WEB_DST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/IssueWeb\"\nISSUE_WEB_SRC=\"${PROJECT_DIR}/IssueWeb/dist\"\n\necho ISSUE_WEB_SRC=$ISSUE_WEB_SRC\necho ISSUE_WEB_DST=$ISSUE_WEB_DST\n\nmkdir -p \"$ISSUE_WEB_DST\"\n\nrsync -avz -u --delete \"$ISSUE_WEB_SRC/\" \"$ISSUE_WEB_DST/\"\n";
 			showEnvVarsInLog = 0;
+		};
+		1A3D34701DB1686F00CDF167 /* Copy Diff Web Content */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Diff Web Content";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "DIFF_WEB_DST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DiffWeb\"\nDIFF_WEB_SRC=\"${PROJECT_DIR}/DiffWeb/dist\"\n\necho DIFF_WEB_SRC=$DIFF_WEB_SRC\necho DIFF_WEB_DST=$DIFF_WEB_DST\n\nmkdir -p \"$DIFF_WEB_DST\"\n\nrsync -avz -u --delete \"$DIFF_WEB_SRC/\" \"$DIFF_WEB_DST/\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2211,6 +2297,11 @@
 			name = SocketRocketOSX;
 			targetProxy = 1A2217BE1C7E7BAF006460E2 /* PBXContainerItemProxy */;
 		};
+		1A3D346F1DB1685B00CDF167 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 1A3D346A1DB167ED00CDF167 /* DiffWeb */;
+			targetProxy = 1A3D346E1DB1685B00CDF167 /* PBXContainerItemProxy */;
+		};
 		1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 1AD956BE1D0BCFBA002B1259 /* IssueWeb */;
@@ -2407,6 +2498,16 @@
 				INFOPLIST_FILE = AccountTool/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.AccountTool;
+		1A3D346C1DB167ED00CDF167 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -2423,6 +2524,13 @@
 				INFOPLIST_FILE = AccountTool/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.AccountTool;
+		1A3D346D1DB167ED00CDF167 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -2487,6 +2595,11 @@
 			buildConfigurations = (
 				1A3C5B5D1DDD012F005F9A01 /* Debug */,
 				1A3C5B5E1DDD012F005F9A01 /* Release */,
+		1A3D346B1DB167ED00CDF167 /* Build configuration list for PBXLegacyTarget "DiffWeb" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A3D346C1DB167ED00CDF167 /* Debug */,
+				1A3D346D1DB167ED00CDF167 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

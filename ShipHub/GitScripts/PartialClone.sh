@@ -16,10 +16,12 @@ usage() {
     exit 1
 }
 
-GIT="$1"; (shift || usage())
-AUTH_TOKEN="$1"; (shift || usage())
-URL="$1"; (shift || usage())
-REF="$1"; (shift || usage())
+GIT="$1"
+shift || usage
+URL="$1"
+shift || usage
+REF="$1"
+shift || usage
 
 echo "Cloning into $PWD"
 

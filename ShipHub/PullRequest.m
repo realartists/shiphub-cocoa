@@ -62,11 +62,11 @@
 
 // runs on a background queue
 - (NSError *)cloneWithProgress:(NSProgress *)progress {
-    NSString *dirName = [NSString stringWithFormat:@"%@-XXXXXX.git", _issue.repository.name];
-    _dir = [NSTemporaryDirectory() stringByAppendingPathComponent:dirName];
-    char *dirStr = strdup([_dir UTF8String]);
+    NSString *dirName = [NSString stringWithFormat:@"%@-XXXXXX", _issue.repository.name];
+    NSString *dirTemplate = [NSTemporaryDirectory() stringByAppendingPathComponent:dirName];
+    char *dirStr = strdup([dirTemplate UTF8String]);
     mkdtemp(dirStr);
-    free(dirStr);
+    _dir = [[NSString alloc] initWithBytesNoCopy:dirStr length:strlen(dirStr) encoding:NSUTF8StringEncoding freeWhenDone:YES];
     
     NSString *cloneURLStr = _info[@"head"][@"repo"][@"clone_url"];
     if (!cloneURLStr) {
@@ -82,7 +82,7 @@
     NSURL *cloneURL = comps.URL;
     
     NSString *supportPath = [[NSBundle mainBundle] sharedSupportPath];
-    NSString *gitPath = [supportPath stringByAppendingPathComponent:@"git"];
+    NSString *gitPath = @"/usr/bin/git"; //[supportPath stringByAppendingPathComponent:@"git"];
     NSString *cloneScriptPath = [supportPath stringByAppendingPathComponent:@"PartialClone.sh"];
     
     NSMutableArray *args = [@[cloneScriptPath,

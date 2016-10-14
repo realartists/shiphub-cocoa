@@ -9,10 +9,6 @@ import filterSelection from './filter-selection.js'
 import MiniMap from './minimap.js'
 import AttributedString from './attributed-string.js'
 
-var leftText = require('raw!./left.m')
-var rightText = require('raw!./right.m')
-var uDiff = require('raw!./diff.txt')
-
 function splitLines(text) {
   return text.split(/\r\n|\r|\n/);
 }
@@ -129,13 +125,39 @@ class Row {
 
 class App {
   constructor(root) {  
+    var minimapWidth = 32;
+    
+    var style = {
+      'width': '100%',
+      'max-width': '100%'
+    };
+    this.table = h('table', {className:"diff", style:style});
+    
+    this.table.addEventListener('mousedown', (event) => {
+      this.updateSelectability(event);
+    });
+    
+    this.table.addEventListener('copy', (event) => {
+      this.copyCode(event);
+    });
+    
+    this.table.addEventListener('dragstart', (event) => {
+      this.dragCode(event);
+    });
+    
+    root.appendChild(this.table);
+    
+    this.miniMap = new MiniMap(root, this.table, minimapWidth);
+  }
+  
+  updateDiff(leftText, rightText, uDiff) {
     // note: the left is considered the 'original' (what's in master)
     // and the right is considered the 'modified' (result of original + patch)
   
     var leftLines = splitLines(leftText);
-    var leftHighlighted = splitHighlight(hljs.highlightAuto(leftText, ["objc"]).value);
+    var leftHighlighted = splitHighlight(hljs.highlightAuto(leftText).value);
     var rightLines = splitLines(rightText);
-    var rightHighlighted = splitHighlight(hljs.highlightAuto(rightText, ["objc"]).value);
+    var rightHighlighted = splitHighlight(hljs.highlightAuto(rightText).value);
     var diffLines = splitLines(uDiff);
     
     // contain information needed to build Row objects (indexes into left, right, and diff)
@@ -236,37 +258,12 @@ class App {
     
     var rowNodes = rows.map((r) => r.node);
     
-    var style = {
-      'width': '100%',
-      'max-width': '100%'
-    };
-    this.table = h('table', {className:"diff", style:style}, rowNodes);
-    
-    this.table.addEventListener('mousedown', (event) => {
-      this.updateSelectability(event);
+    this.table.innerHTML = '';
+    rowNodes.forEach((rn) => {
+      this.table.appendChild(rn);
     });
     
-    this.table.addEventListener('copy', (event) => {
-      this.copyCode(event);
-    });
-    
-    this.table.addEventListener('dragstart', (event) => {
-      this.dragCode(event);
-    });
-    
-    var minimapWidth = 32;
-    style = {
-      position: 'absolute',
-      left: '0',
-      right: minimapWidth + 'px',
-      top: '0',
-      bottom: '0',
-      'overflow-y': 'scroll'
-    }
-    var scrollable = h('div', {className:'diff-scroller', style:style}, this.table);
-    root.appendChild(scrollable);
-    
-    this.miniMap = new MiniMap(root, this.table, minimapWidth);
+    console.log(this.table);
     
     var miniMapRegions = rows.reduce((accum, row) => {
       if (row.miniMapRegions) {
@@ -341,3 +338,11 @@ class App {
 }
 
 var app = new App(document.getElementById('app'));
+
+window.updateDiff = function(oldFile, newFile, patch) {
+  console.log("updateDiff");
+  app.updateDiff(oldFile||"", newFile||"", patch||"");
+};
+
+window.loadComplete.postMessage({});
+

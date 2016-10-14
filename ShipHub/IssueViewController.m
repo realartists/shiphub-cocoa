@@ -211,6 +211,10 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
     [self.web.mainFrame.frameView scrollPageDown:sender];
 }
 
+- (NSString *)webResourcePath {
+    return @"IssueWeb";
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     

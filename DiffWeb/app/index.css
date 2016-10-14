@@ -5,6 +5,11 @@ html, body {
 
 body {
   -webkit-font-smoothing: subpixel-antialiased;
+  margin-right: 32px;
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }
 
 table.diff {
@@ -23,10 +28,6 @@ table.diff {
   padding: 0;
   margin: 0;
   vertical-align: top;
-}
-
-.diff-scroller::-webkit-scrollbar { 
-    display: none; 
 }
 
 .diff pre {

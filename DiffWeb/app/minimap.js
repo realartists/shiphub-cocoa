@@ -24,7 +24,7 @@ class MiniMap {
     this.scrollable = scrollable;
     container.appendChild(this.canvas);
     
-    this.scrollable.parentNode.addEventListener('scroll', () => this.setNeedsDisplay());
+    window.addEventListener('scroll', () => this.setNeedsDisplay());
     window.addEventListener('resize', () => this.setNeedsDisplay());
     
     this.canvas.addEventListener('mousedown', (e) => this.mouseDown(e));
@@ -36,7 +36,7 @@ class MiniMap {
   scrollToEvent(e) {
     var myHeight = this.canvas.clientHeight;
     var scrollableHeight = this.scrollable.scrollHeight;
-    var visibleHeight = this.scrollable.parentNode.clientHeight;
+    var visibleHeight = myHeight;
     
     var y = e.clientY;
     
@@ -44,7 +44,7 @@ class MiniMap {
     scrollTop = Math.max(0, scrollTop);
     scrollTop = Math.min(scrollableHeight - visibleHeight, scrollTop);
     
-    this.scrollable.parentNode.scrollTop = scrollTop;
+    window.scroll(0, scrollTop);
   }
   
   mouseDown(e) {
@@ -69,14 +69,14 @@ class MiniMap {
     var scrollableHeight = this.scrollable.scrollHeight;
     var visibleHeight = this.scrollable.parentNode.clientHeight;
     
-    var scrollTop = this.scrollable.parentNode.scrollTop;
+    var scrollTop = this.scrollable.scrollTop;
     scrollTop += e.deltaY;
     
     scrollTop = Math.floor(scrollTop);
     scrollTop = Math.max(0, scrollTop);
     scrollTop = Math.min(scrollableHeight - visibleHeight, scrollTop);
     
-    this.scrollable.parentNode.scrollTop = scrollTop;
+    this.scrollable.scrollTop = scrollTop;
   }
   
   setNeedsDisplay() {
@@ -121,8 +121,8 @@ class MiniMap {
     var scrollableWidth = this.scrollable.scrollWidth;
     var scrollableHeight = this.scrollable.scrollHeight;
     
-    var visibleHeight = this.scrollable.parentNode.clientHeight;
-    var visibleOffsetY = this.scrollable.parentNode.scrollTop;
+    var visibleHeight = canvasHeight;
+    var visibleOffsetY = window.scrollY;
     
     var scaleX = canvasWidth/scrollableWidth;
     var scaleY = canvasHeight/scrollableHeight;
