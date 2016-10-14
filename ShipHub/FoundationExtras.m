@@ -1763,6 +1763,7 @@ CGRect IntegralRect(CGRect r) {
         dispatch_semaphore_signal(sema);
     };
     [self launch];
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
     return [self terminationStatus];
 }
 

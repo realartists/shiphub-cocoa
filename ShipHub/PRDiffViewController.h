@@ -12,7 +12,7 @@
 
 @class GitDiffFile;
 
-@interface PRDiffViewController : NSViewController
+@interface PRDiffViewController : IssueWebController
 
 @property (nonatomic, strong) GitDiffFile *diffFile;
 

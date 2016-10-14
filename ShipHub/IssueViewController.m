@@ -55,6 +55,10 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+- (NSString *)webResourcePath {
+    return @"IssueWeb";
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     

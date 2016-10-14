@@ -170,11 +170,11 @@
     [[DataStore activeStore] loadFullIssue:issueIdentifier completion:^(Issue *issue, NSError *error) {
         if (issue) {
             PRDocument *doc = [self makeUntitledDocumentOfType:@"diff" error:NULL];
-            [doc.prViewController loadForIssue:issue];
-            [doc.prViewController scrollToCommentWithIdentifier:commentIdentifier];
             [self addDocument:doc];
             [doc makeWindowControllers];
             [doc showWindows];
+            [doc.prViewController loadForIssue:issue];
+            [doc.prViewController scrollToCommentWithIdentifier:commentIdentifier];
             
             if (completion) {
                 completion(doc);

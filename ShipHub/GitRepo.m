@@ -12,7 +12,7 @@
 
 @interface GitRepo ()
 
-@property git_repository *repository;
+@property git_repository *repo;
 
 @end
 
@@ -38,13 +38,13 @@ static void initGit2() {
     }
     
     GitRepo *result = [GitRepo new];
-    result.repository = repo;
+    result.repo = repo;
     return result;
 }
 
 - (void)dealloc {
-    if (_repository) {
-        git_repository_free(_repository);
+    if (_repo) {
+        git_repository_free(_repo);
     }
 }
 

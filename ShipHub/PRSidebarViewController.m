@@ -32,6 +32,7 @@
     NSAssert(pr.spanDiff != nil, nil);
     
     _pr = pr;
+    self.activeDiff = pr.spanDiff;
 }
 
 - (void)setActiveDiff:(GitDiff *)diff {
@@ -55,7 +56,7 @@
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
     if (item == nil) {
-        return 1;
+        return _activeDiff != nil ? 1 : 0;
     } else if ([item isKindOfClass:[GitFileTree class]]) {
         return [[item children] count];
     } else {
@@ -78,10 +79,6 @@
     return [self outlineView:outlineView numberOfChildrenOfItem:item] > 0;
 }
 
-- (BOOL)outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item {
-    return [item isKindOfClass:[GitDiffFile class]];
-}
-
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification {
     id item = [_outline selectedItem];
     if ([item isKindOfClass:[GitDiffFile class]]) {
@@ -91,7 +88,7 @@
 
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
-    NSTableCellView *cell = [outlineView makeViewWithIdentifier:tableColumn.identifier owner:self];
+    NSTableCellView *cell = [outlineView makeViewWithIdentifier:@"DataCell" owner:self];
     
     if (item == _activeDiff.fileTree) {
         // root item

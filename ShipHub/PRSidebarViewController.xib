@@ -63,12 +63,16 @@
                                                 <rect key="frame" x="1" y="20" width="322" height="17"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <imageView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nun-68-sSA">
+                                                    <imageView translatesAutoresizingMaskIntoConstraints="NO" id="nun-68-sSA">
                                                         <rect key="frame" x="3" y="0.0" width="17" height="17"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="width" constant="17" id="8du-GU-1p7"/>
+                                                            <constraint firstAttribute="height" constant="17" id="GGb-tI-Ekb"/>
+                                                        </constraints>
                                                         <imageCell key="cell" refusesFirstResponder="YES" imageScaling="proportionallyDown" image="NSActionTemplate" id="dGw-S6-xD0"/>
                                                     </imageView>
-                                                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SUQ-c7-fYn">
-                                                        <rect key="frame" x="25" y="0.0" width="120" height="17"/>
+                                                    <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SUQ-c7-fYn">
+                                                        <rect key="frame" x="25" y="0.0" width="296" height="17"/>
                                                         <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="gMk-xq-U8k">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -76,6 +80,13 @@
                                                         </textFieldCell>
                                                     </textField>
                                                 </subviews>
+                                                <constraints>
+                                                    <constraint firstItem="SUQ-c7-fYn" firstAttribute="leading" secondItem="nun-68-sSA" secondAttribute="trailing" constant="7" id="OLS-97-o0i"/>
+                                                    <constraint firstAttribute="trailing" secondItem="SUQ-c7-fYn" secondAttribute="trailing" constant="3" id="RFF-2l-UiF"/>
+                                                    <constraint firstItem="nun-68-sSA" firstAttribute="leading" secondItem="ilr-MM-Z5w" secondAttribute="leading" constant="3" id="sDY-5Z-SSf"/>
+                                                    <constraint firstItem="nun-68-sSA" firstAttribute="top" secondItem="ilr-MM-Z5w" secondAttribute="top" id="vhI-Lg-3qH"/>
+                                                    <constraint firstItem="SUQ-c7-fYn" firstAttribute="top" secondItem="ilr-MM-Z5w" secondAttribute="top" id="zGM-eZ-9aT"/>
+                                                </constraints>
                                                 <connections>
                                                     <outlet property="imageView" destination="nun-68-sSA" id="duN-ku-P96"/>
                                                     <outlet property="textField" destination="SUQ-c7-fYn" id="EdH-XG-I7J"/>
