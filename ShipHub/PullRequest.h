@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class Issue;
+@class GitDiff;
 
 @interface PullRequest : NSObject
 
@@ -17,6 +18,8 @@
 @property (readonly) Issue *issue;
 
 - (NSProgress *)checkout:(void (^)(NSError *error))completion;
+
+@property (readonly) GitDiff *spanDiff; // available after checkout is completed
 
 + (BOOL)isGitHubFilesURL:(NSURL *)URL;
 + (id)issueIdentifierForGitHubFilesURL:(NSURL *)URL commentIdentifier:(NSNumber *__autoreleasing *)outCommentIdentifier;

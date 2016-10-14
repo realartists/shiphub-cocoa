@@ -129,6 +129,17 @@
 		1A3C5B6B1DDD089E005F9A01 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
 		1A3C5B6C1DDD08BC005F9A01 /* WebSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A38C9FB1D9339D400655891 /* WebSession.m */; };
 		1A3D34451DAEC9DF00CDF167 /* PartialClone.sh in Copy Git Support */ = {isa = PBXBuildFile; fileRef = 1ADED9ED1DADA2D30093A098 /* PartialClone.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1A3D34481DAEE73E00CDF167 /* libgit2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A3D34471DAEE73E00CDF167 /* libgit2.dylib */; };
+		1A3D34491DAEE75500CDF167 /* libgit2.dylib in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1A3D34471DAEE73E00CDF167 /* libgit2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		1A3D344C1DAEF0A800CDF167 /* GitDiff.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D344B1DAEF0A800CDF167 /* GitDiff.m */; };
+		1A3D344F1DAEF5F900CDF167 /* GitCommit.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D344E1DAEF5F900CDF167 /* GitCommit.m */; };
+		1A3D34521DAEF74300CDF167 /* GitRepo.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D34511DAEF74300CDF167 /* GitRepo.m */; };
+		1A3D34571DAEF88100CDF167 /* NSError+Git.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D34561DAEF88100CDF167 /* NSError+Git.m */; };
+		1A3D345A1DB0147A00CDF167 /* NSString+Git.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D34591DB0147A00CDF167 /* NSString+Git.m */; };
+		1A3D345E1DB0380300CDF167 /* PRSidebarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D345C1DB0380300CDF167 /* PRSidebarViewController.m */; };
+		1A3D345F1DB0380300CDF167 /* PRSidebarViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A3D345D1DB0380300CDF167 /* PRSidebarViewController.xib */; };
+		1A3D34621DB0528200CDF167 /* PRDiffViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D34611DB0528200CDF167 /* PRDiffViewController.m */; };
+		1A3D34681DB05F5E00CDF167 /* IssueWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D34671DB05F5E00CDF167 /* IssueWebController.m */; };
 		1A48BB4D1D80D8BF001E761E /* UserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */; };
 		1A48BB531D80DED6001E761E /* IssueNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB521D80DED6001E761E /* IssueNotification.m */; };
 		1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
@@ -374,6 +385,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				1A3D34491DAEE75500CDF167 /* libgit2.dylib in Copy Frameworks */,
 				1AB038591D5D391B005093B9 /* Sparkle.framework in Copy Frameworks */,
 				1AB038501D5C013A005093B9 /* HockeySDK.framework in Copy Frameworks */,
 				1A2217C51C7E7BCE006460E2 /* SocketRocket.framework in Copy Frameworks */,
@@ -591,6 +603,26 @@
 		1A3C5B571DDD012F005F9A01 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1A3C5B5A1DDD012F005F9A01 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 		1A3C5B5C1DDD012F005F9A01 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1A3D34471DAEE73E00CDF167 /* libgit2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgit2.dylib; path = ext/libgit2.dylib; sourceTree = "<group>"; };
+		1A3D344A1DAEF0A800CDF167 /* GitDiff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GitDiff.h; sourceTree = "<group>"; };
+		1A3D344B1DAEF0A800CDF167 /* GitDiff.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GitDiff.m; sourceTree = "<group>"; };
+		1A3D344D1DAEF5F900CDF167 /* GitCommit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GitCommit.h; sourceTree = "<group>"; };
+		1A3D344E1DAEF5F900CDF167 /* GitCommit.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GitCommit.m; sourceTree = "<group>"; };
+		1A3D34501DAEF74300CDF167 /* GitRepo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GitRepo.h; sourceTree = "<group>"; };
+		1A3D34511DAEF74300CDF167 /* GitRepo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GitRepo.m; sourceTree = "<group>"; };
+		1A3D34541DAEF7F500CDF167 /* GitRepoInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GitRepoInternal.h; sourceTree = "<group>"; };
+		1A3D34551DAEF88100CDF167 /* NSError+Git.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+Git.h"; sourceTree = "<group>"; };
+		1A3D34561DAEF88100CDF167 /* NSError+Git.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+Git.m"; sourceTree = "<group>"; };
+		1A3D34581DB0147A00CDF167 /* NSString+Git.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+Git.h"; sourceTree = "<group>"; };
+		1A3D34591DB0147A00CDF167 /* NSString+Git.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+Git.m"; sourceTree = "<group>"; };
+		1A3D345B1DB0380300CDF167 /* PRSidebarViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRSidebarViewController.h; sourceTree = "<group>"; };
+		1A3D345C1DB0380300CDF167 /* PRSidebarViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRSidebarViewController.m; sourceTree = "<group>"; };
+		1A3D345D1DB0380300CDF167 /* PRSidebarViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRSidebarViewController.xib; sourceTree = "<group>"; };
+		1A3D34601DB0528200CDF167 /* PRDiffViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDiffViewController.h; sourceTree = "<group>"; };
+		1A3D34611DB0528200CDF167 /* PRDiffViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDiffViewController.m; sourceTree = "<group>"; };
+		1A3D34661DB05F5E00CDF167 /* IssueWebController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWebController.h; sourceTree = "<group>"; };
+		1A3D34671DB05F5E00CDF167 /* IssueWebController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWebController.m; sourceTree = "<group>"; };
+		1A3D34691DB05F9D00CDF167 /* IssueWebControllerInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IssueWebControllerInternal.h; sourceTree = "<group>"; };
 		1A48BB4B1D80D8BF001E761E /* UserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserNotificationManager.h; sourceTree = "<group>"; };
 		1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserNotificationManager.m; sourceTree = "<group>"; };
 		1A48BB511D80DED6001E761E /* IssueNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueNotification.h; sourceTree = "<group>"; };
@@ -861,6 +893,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1A2440CA1C84DEF800E070DA /* libz.tbd in Frameworks */,
+				1A3D34481DAEE73E00CDF167 /* libgit2.dylib in Frameworks */,
 				1A2217C31C7E7BB9006460E2 /* SocketRocket.framework in Frameworks */,
 				1AB0384F1D5C011D005093B9 /* HockeySDK.framework in Frameworks */,
 				1AB038551D5D390E005093B9 /* Sparkle.framework in Frameworks */,
@@ -938,6 +971,9 @@
 			isa = PBXGroup;
 			children = (
 				1AFE21EE1CA5EC3F00B51CF6 /* IssueWeb */,
+				1A3D34661DB05F5E00CDF167 /* IssueWebController.h */,
+				1A3D34691DB05F9D00CDF167 /* IssueWebControllerInternal.h */,
+				1A3D34671DB05F5E00CDF167 /* IssueWebController.m */,
 				1A0D59D31CA4A8D1004F2578 /* IssueViewController.h */,
 				1A0D59D41CA4A8D1004F2578 /* IssueViewController.m */,
 				1A0D59E81CA4AA3A004F2578 /* IssueDocument.h */,
@@ -1015,6 +1051,7 @@
 		1A2217A21C7E7B78006460E2 /* ext */ = {
 			isa = PBXGroup;
 			children = (
+				1A3D34471DAEE73E00CDF167 /* libgit2.dylib */,
 				1ADED9D51DA71EE20093A098 /* git */,
 				1AB038541D5D390E005093B9 /* Sparkle.framework */,
 				28BF03C21D1C582E00F22638 /* FontAwesome.otf */,
@@ -1349,6 +1386,22 @@
 				1A3C5B551DDD012F005F9A01 /* main.m */,
 			);
 			name = "Supporting Files";
+		1A3D34531DAEF74E00CDF167 /* Git */ = {
+			isa = PBXGroup;
+			children = (
+				1A3D344A1DAEF0A800CDF167 /* GitDiff.h */,
+				1A3D344B1DAEF0A800CDF167 /* GitDiff.m */,
+				1A3D344D1DAEF5F900CDF167 /* GitCommit.h */,
+				1A3D344E1DAEF5F900CDF167 /* GitCommit.m */,
+				1A3D34501DAEF74300CDF167 /* GitRepo.h */,
+				1A3D34541DAEF7F500CDF167 /* GitRepoInternal.h */,
+				1A3D34511DAEF74300CDF167 /* GitRepo.m */,
+				1A3D34551DAEF88100CDF167 /* NSError+Git.h */,
+				1A3D34561DAEF88100CDF167 /* NSError+Git.m */,
+				1A3D34581DB0147A00CDF167 /* NSString+Git.h */,
+				1A3D34591DB0147A00CDF167 /* NSString+Git.m */,
+			);
+			name = Git;
 			sourceTree = "<group>";
 		};
 		1A5B293F1D89DCA8000C9F4B /* Projects */ = {
@@ -1529,6 +1582,12 @@
 				1ADED9E91DAC4A220093A098 /* PRDocument.xib */,
 				1ADED9DF1DAC47310093A098 /* PRViewController.h */,
 				1ADED9E01DAC47310093A098 /* PRViewController.m */,
+				1A3D345B1DB0380300CDF167 /* PRSidebarViewController.h */,
+				1A3D345C1DB0380300CDF167 /* PRSidebarViewController.m */,
+				1A3D345D1DB0380300CDF167 /* PRSidebarViewController.xib */,
+				1A3D34601DB0528200CDF167 /* PRDiffViewController.h */,
+				1A3D34611DB0528200CDF167 /* PRDiffViewController.m */,
+				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request Files";
 			sourceTree = "<group>";
@@ -1802,6 +1861,7 @@
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
 				1A7FD7841D497C1700B585E2 /* AssigneeModifyController.xib in Resources */,
 				1A38C9EF1D9203AB00655891 /* HiddenRepoViewController.xib in Resources */,
+				1A3D345F1DB0380300CDF167 /* PRSidebarViewController.xib in Resources */,
 				1A7FD7751D492FE000B585E2 /* MilestoneModifyController.xib in Resources */,
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
@@ -1881,8 +1941,10 @@
 				1A694B441CA34B9000F73608 /* DeemphasizedRowView.m in Sources */,
 				1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */,
 				1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */,
+				1A3D34681DB05F5E00CDF167 /* IssueWebController.m in Sources */,
 				1A51085D1D317AB300905D4D /* LocalNotification+CoreDataProperties.m in Sources */,
 				1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */,
+				1A3D34621DB0528200CDF167 /* PRDiffViewController.m in Sources */,
 				1A012E9A1D3EACB5006CE5DF /* ChevronButton.m in Sources */,
 				1A694B001CA0ABEB00F73608 /* MetadataItem.m in Sources */,
 				1A3AB3641D919F5E004BB768 /* AvatarManager.m in Sources */,
@@ -1900,10 +1962,13 @@
 				1A694B101CA3413700F73608 /* ResultsController.m in Sources */,
 				1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
+				1A3D344F1DAEF5F900CDF167 /* GitCommit.m in Sources */,
 				1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
+				1A3D34571DAEF88100CDF167 /* NSError+Git.m in Sources */,
 				1A38C9F61D9206C800655891 /* HiddenMilestoneViewController.m in Sources */,
 				1A694B351CA3431700F73608 /* IssueTableController.m in Sources */,
 				1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */,
+				1A3D345A1DB0147A00CDF167 /* NSString+Git.m in Sources */,
 				1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */,
 				28BF03B51D1873CA00F22638 /* NewLabelController.m in Sources */,
 				1A3AB36A1D91BDA7004BB768 /* UnsubscribedRepoController.m in Sources */,
@@ -1915,6 +1980,7 @@
 				1ADED9EA1DAC4A220093A098 /* PRDocument.m in Sources */,
 				1A694B2B1CA341D500F73608 /* NetworkStatusTextField.m in Sources */,
 				1A012E8F1D3EAC47006CE5DF /* TimeLimitRowTemplate.m in Sources */,
+				1A3D345E1DB0380300CDF167 /* PRSidebarViewController.m in Sources */,
 				1A694B2E1CA342B000F73608 /* Sparkline.m in Sources */,
 				1A012E801D3EAC0E006CE5DF /* SaveSearchController.m in Sources */,
 				1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */,
@@ -1929,6 +1995,7 @@
 				1A3AB3591D909F80004BB768 /* BillingToolbarItem.m in Sources */,
 				1A012E901D3EAC47006CE5DF /* FreeformMetadataRowTemplate.m in Sources */,
 				1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */,
+				1A3D344C1DAEF0A800CDF167 /* GitDiff.m in Sources */,
 				1A694B0C1CA3413700F73608 /* OverviewController.m in Sources */,
 				1A83679F1D5542ED0019C609 /* SemiMixedButton.m in Sources */,
 				1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */,
@@ -1970,6 +2037,7 @@
 				1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */,
 				1A7FD7791D493B0400B585E2 /* ProgressSheet.m in Sources */,
 				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
+				1A3D34521DAEF74300CDF167 /* GitRepo.m in Sources */,
 				1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */,
 				1AE09C021C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,
 				1AF5672C1D62427100611DBB /* WelcomeController.m in Sources */,
@@ -2266,8 +2334,13 @@
 					"$(PROJECT_DIR)/ext",
 				);
 				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/ext/libgit2_include";
 				INFOPLIST_FILE = ShipHub/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/ext",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.Ship2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2284,8 +2357,13 @@
 					"$(PROJECT_DIR)/ext",
 				);
 				GCC_PREFIX_HEADER = "ShipHub/ShipHub-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/ext/libgit2_include";
 				INFOPLIST_FILE = ShipHub/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/ext",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.Ship2;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

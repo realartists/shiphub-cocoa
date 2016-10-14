@@ -1,0 +1,117 @@
+html, body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+table.diff {
+  border-collapse: collapse;
+}
+
+.diff tr:first-child > td {
+  padding-top: 4px;
+}
+
+.diff tr:last-child > td {
+  padding-bottom: 4px;
+}
+
+.diff td {
+  padding: 0;
+  margin: 0;
+  vertical-align: top;
+}
+
+.diff-scroller::-webkit-scrollbar { 
+    display: none; 
+}
+
+.diff pre {
+  padding: 0;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+  font-family: menlo;
+  font-size: 11px;
+  line-height: 13px;
+  min-height: 13px; /* for empty lines */
+  width: 100%;
+}
+
+.diff .gutter {
+  background-color: #F7F7F7;
+  font-family: menlo;
+  color: #929292;
+  font-size: 10px;
+  text-align: right;
+  padding-right: 4px;
+  padding-left: 8px;
+  vertical-align: top;
+  width: 30px;
+  border-left: 1px solid #B3B3B3;
+  border-right: 1px solid #E7E7E7;
+  line-height: 13px;
+  user-select: none;
+  cursor: default;
+}
+
+.diff .gutter::selection {
+  background: transparent;
+}
+
+.diff .codecol {
+  padding-left: 8px;
+  padding-right: 8px;
+  width: 50%;
+}
+
+.diff .inserted-new {
+  background-color: #E0FFDF;
+}
+
+.diff .deleted-original {
+  background-color: #FFEDED;
+}
+
+.diff .changed-original {
+  background-color: #E7EEFA;
+}
+
+.diff .changed-new {
+  background-color: #E7EEFA;
+}
+
+.diff .char-changed {
+  background-color: #FBE4C8;
+}
+
+.diff .spacer {
+  background-color: #EEE;
+}
+
+.selecting-left td.right,
+.selecting-left td.right *,
+.selecting-left th.right,
+.selecting-left th.right *,
+.selecting-right td.left,
+.selecting-right td.left *,
+.selecting-right th.left,
+.selecting-right th.left * {
+  user-select: none;
+}
+
+.selecting-left td.right::selection,
+.selecting-left td.right *::selection,
+.selecting-left th.right::selection,
+.selecting-left th.right *::selection,
+.selecting-right td.left::selection,
+.selecting-right td.left *::selection,
+.selecting-right th.left::selection,
+.selecting-right th.left *::selection {
+  background: transparent;
+}

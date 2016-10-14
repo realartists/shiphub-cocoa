@@ -17,11 +17,16 @@
 #import "IssueIdentifier.h"
 #import "ServerConnection.h"
 
+#import "GitDiff.h"
+#import "GitRepo.h"
+
 @interface PullRequest ()
 
 @property NSArray *files;
 @property NSDictionary *info;
 @property NSString *dir;
+@property GitRepo *repo;
+@property GitDiff *spanDiff;
 
 @end
 
@@ -36,8 +41,23 @@
 
 - (void)dealloc {
     if (_dir) {
-        [[NSFileManager defaultManager] removeItemAtPath:_dir error:NULL];
+        NSString *dir = [_dir copy];
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+            [[NSFileManager defaultManager] removeItemAtPath:dir error:NULL];
+        });
     }
+}
+
+// runs on a background queue
+- (NSError *)loadSpanDiff {
+    NSError *err = nil;
+    _repo = [GitRepo repoAtPath:_dir error:&err];
+    if (err) return err;
+    
+    _spanDiff = [GitDiff diffWithRepo:_repo from:_info[@"base"][@"sha"] to:_info[@"head"][@"sha"] error:&err];
+    if (err) return err;
+    
+    return nil;
 }
 
 // runs on a background queue
@@ -46,6 +66,7 @@
     _dir = [NSTemporaryDirectory() stringByAppendingPathComponent:dirName];
     char *dirStr = strdup([_dir UTF8String]);
     mkdtemp(dirStr);
+    free(dirStr);
     
     NSString *cloneURLStr = _info[@"head"][@"repo"][@"clone_url"];
     if (!cloneURLStr) {
@@ -83,6 +104,12 @@
     if (result != 0) {
         return [NSError shipErrorWithCode:ShipErrorCodeGitCloneError];
     }
+    
+    NSError *err = [self loadSpanDiff];
+    if (err) {
+        return err;
+    }
+    
     
     return nil;
 }
