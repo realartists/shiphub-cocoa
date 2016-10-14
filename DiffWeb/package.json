@@ -1,0 +1,41 @@
+{
+  "name": "DiffWeb",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "production": "DEBUG=0 webpack -p",
+    "debug": "DEBUG=1 webpack -d",
+    "start": "DEBUG=1 webpack-dev-server --port 8081 --open",
+    "dev-server-inline": "DEBUG=1 webpack-dev-server --port 8081 --inline"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.14.0",
+    "babel-loader": "^6.2.5",
+    "babel-preset-es2015": "^6.14.0",
+    "css-loader": "^0.25.0",
+    "exports-loader": "^0.6.3",
+    "file-loader": "^0.9.0",
+    "html-webpack-plugin": "^2.22.0",
+    "imports-loader": "^0.6.5",
+    "json-loader": "^0.5.4",
+    "less": "^2.7.1",
+    "raw-loader": "^0.5.1",
+    "script-loader": "^0.7.0",
+    "style-loader": "^0.13.1",
+    "url-loader": "^0.5.7",
+    "webpack": "^1.13.2",
+    "webpack-dev-server": "^1.16.1"
+  },
+  "dependencies": {
+    "diff-match-patch": "^1.0.0",
+    "highlight.js": "^9.7.0",
+    "html-escape": "^2.0.0",
+    "html-linkify": "^1.2.2",
+    "hyperscript": "^2.0.2",
+    "js-htmlencode": "^0.2.0",
+    "whatwg-fetch": "^1.0.0"
+  }
+}

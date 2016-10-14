@@ -8,9 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "IssueWebController.h"
+
 @class Issue;
 
-@interface IssueViewController : NSViewController
+@interface IssueViewController : IssueWebController
 
 @property (nonatomic, getter=isColumnBrowser) BOOL columnBrowser;
 

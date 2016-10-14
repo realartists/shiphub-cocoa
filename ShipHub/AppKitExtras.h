@@ -213,3 +213,9 @@
 + (void)performWithoutAnimation:(dispatch_block_t)block;
 
 @end
+
+@interface NSOutlineView (AppKitExtras)
+
+- (id)selectedItem;
+
+@end

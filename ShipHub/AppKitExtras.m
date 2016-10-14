@@ -920,3 +920,16 @@ static CGFloat GetAttachmentWidth(void *ref) {
 }
 
 @end
+
+@implementation NSOutlineView (AppKitExtras)
+
+- (id)selectedItem {
+    NSIndexSet *selected = [self selectedRowIndexes];
+    if ([selected count]) {
+        return [self itemAtRow:[selected firstIndex]];
+    } else {
+        return nil;
+    }
+}
+
+@end

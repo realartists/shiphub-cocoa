@@ -63,8 +63,6 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 @interface OverviewOutlineView : NSOutlineView
 
-- (id)selectedItem;
-
 @end
 
 @interface OverviewProgressIndicator : NSView
@@ -1912,15 +1910,6 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     // be like Mail.app and add a bit of padding at the bottom
     newSize.height += 12.0;
     [super setFrameSize:newSize];
-}
-
-- (id)selectedItem {
-    NSIndexSet *selected = [self selectedRowIndexes];
-    if ([selected count]) {
-        return [self itemAtRow:[selected firstIndex]];
-    } else {
-        return nil;
-    }
 }
 
 - (NSRect)frameOfOutlineCellAtRow:(NSInteger)row {
