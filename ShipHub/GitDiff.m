@@ -194,7 +194,9 @@ static NSUInteger pathDepth(NSString *path) {
                 grandparent = parents[gpdirname];
             } while (grandparent == nil);
             
-            parent.dirname = [dirname substringFromIndex:gpdirname.length];
+            NSUInteger subIdx = gpdirname.length;
+            if ([dirname characterAtIndex:subIdx] == '/') subIdx++;
+            parent.dirname = [dirname substringFromIndex:subIdx];
             
             [grandparent.mutableChildren addObject:parent];
             parents[dirname] = parent;
