@@ -34,7 +34,6 @@
   color: #0E0EFF;
 }
 
-.hljs-title,
 .hljs-tag,
 .hljs-symbol,
 .hljs-bullet,
@@ -43,7 +42,7 @@
 }
 
 .hljs-section,
-.hljs-class .hljs-title,
+.hljs-title,
 .hljs-type,
 .hljs-attr,
 .hljs-built_in,
