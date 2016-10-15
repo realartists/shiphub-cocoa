@@ -2,40 +2,16 @@ import './xcode7.css'
 import './index.css'
 
 import h from 'hyperscript'
-import hljs from 'highlight.js'
 import diff_match_patch from 'diff-match-patch'
+import htmlEscape from 'html-escape';
 
 import filterSelection from './filter-selection.js'
 import MiniMap from './minimap.js'
 import AttributedString from './attributed-string.js'
+var HighlightWorker = require('worker!./highlight-worker.js');
 
 function splitLines(text) {
   return text.split(/\r\n|\r|\n/);
-}
-
-function splitHighlight(html) {
-  var lines = splitLines(html);
-  var stack = [];
-  return lines.map((line) => {
-    var newLine = line;
-    if (stack.length) {
-      newLine = stack.join("") + line;
-    }
-    var tags = line.match(/(<span.*?>)|(<\/span>)/g);
-    if (tags) {
-      tags.forEach((tag) => {
-        if (tag.startsWith("</")) {
-          stack.pop();
-        } else {
-          stack.push(tag);
-        }
-      });
-    }
-    for (var i = 0; i < stack.length; i++) {
-      newLine += "</span>";
-    }
-    return newLine;
-  });
 }
 
 function codeColContents(code) {
@@ -44,7 +20,7 @@ function codeColContents(code) {
 } 
 
 class Row {
-  constructor(leftLine, leftLineHighlighted, leftLineNum, rightLine, rightLineHighlighted, rightLineNum, diffLine, changed) {
+  constructor(leftLine, leftLineNum, rightLine, rightLineNum, diffLine, changed) {
     this.leftLineNum = leftLineNum;
     this.rightLineNum = rightLineNum;
     this.diffLine = diffLine;  
@@ -72,7 +48,30 @@ class Row {
     } else if (changed) {
       leftClasses += ' changed-original';
       rightClasses += ' changed-new';
-      
+    }
+    
+    var left = this.left = h('td', {className:leftClasses});
+    left.innerHTML = codeColContents(htmlEscape(leftLine||""));
+    
+    var right = this.right = h('td', {className:rightClasses});
+    right.innerHTML = codeColContents(htmlEscape(rightLine||""));
+    
+    var row = h('tr', {}, gutterLeft, left, gutterRight, right);
+    this.node = row;
+    
+    if (leftLine === undefined) {
+      this.miniMapRegions = [new MiniMap.Region(right, 'green')];
+    } else if (rightLine == undefined) {
+      this.miniMapRegions = [new MiniMap.Region(left, 'red')];
+    } else if (changed) {
+      this.miniMapRegions = [
+        new MiniMap.Region(row, "blue")
+      ];
+    }
+  }
+  
+  updateHighlight(leftLineHighlighted, rightLineHighlighted) {
+    if (this.changed) {
       var leftAstr = AttributedString.fromHTML(leftLineHighlighted);
       var rightAstr = AttributedString.fromHTML(rightLineHighlighted);
       
@@ -102,24 +101,8 @@ class Row {
       rightLineHighlighted = rightAstr.toHTML();
     }
     
-    var left = h('td', {className:leftClasses});
-    left.innerHTML = codeColContents(leftLineHighlighted);
-    
-    var right = h('td', {className:rightClasses});
-    right.innerHTML = codeColContents(rightLineHighlighted);
-    
-    var row = h('tr', {}, gutterLeft, left, gutterRight, right);
-    this.node = row;
-    
-    if (leftLine === undefined) {
-      this.miniMapRegions = [new MiniMap.Region(right, 'green')];
-    } else if (rightLine == undefined) {
-      this.miniMapRegions = [new MiniMap.Region(left, 'red')];
-    } else if (changed) {
-      this.miniMapRegions = [
-        new MiniMap.Region(row, "blue")
-      ];
-    }
+    this.left.innerHTML = codeColContents(leftLineHighlighted);
+    this.right.innerHTML = codeColContents(rightLineHighlighted);
   }
 }
 
@@ -150,21 +133,19 @@ class App {
     this.miniMap = new MiniMap(root, this.table, minimapWidth);
   }
   
-  updateDiff(leftText, rightText, uDiff) {
+  updateDiff(filename, leftText, rightText, uDiff) {
     // note: the left is considered the 'original' (what's in master)
     // and the right is considered the 'modified' (result of original + patch)
   
     var leftLines = splitLines(leftText);
-    var leftHighlighted = splitHighlight(hljs.highlightAuto(leftText).value);
     var rightLines = splitLines(rightText);
-    var rightHighlighted = splitHighlight(hljs.highlightAuto(rightText).value);
     var diffLines = splitLines(uDiff);
     
     // contain information needed to build Row objects (indexes into left, right, and diff)
     var rowInfos = [];
     
-    var leftIdx = 0;    // into leftLines/leftHighlighted
-    var rightIdx = 0;   // into rightLines/rightHighlighted
+    var leftIdx = 0;    // into leftLines
+    var rightIdx = 0;   // into rightLines
     var diffIdx = 0;    // into diffLines
     var hunkQueue = 0;  // offset from end of rowInfos. implements a queue for lining up corresponding deletions and insertions
 
@@ -246,10 +227,8 @@ class App {
     var rows = rowInfos.map((ri) => {
       return new Row(
         ri.leftIdx===undefined?undefined:leftLines[ri.leftIdx],
-        ri.leftIdx===undefined?undefined:leftHighlighted[ri.leftIdx],
         ri.leftIdx,
         ri.rightIdx==undefined?undefined:rightLines[ri.rightIdx],
-        ri.rightIdx===undefined?undefined:rightHighlighted[ri.rightIdx],
         ri.rightIdx,
         ri.diffIdx,
         ri.changed===true
@@ -263,8 +242,6 @@ class App {
       this.table.appendChild(rn);
     });
     
-    console.log(this.table);
-    
     var miniMapRegions = rows.reduce((accum, row) => {
       if (row.miniMapRegions) {
         accum = accum.concat(row.miniMapRegions);
@@ -272,6 +249,20 @@ class App {
       return accum;
     }, []);
     this.miniMap.setRegions(miniMapRegions);
+    
+    var hw = new HighlightWorker;
+    hw.onmessage = function(result) {
+      var leftHighlighted = result.data.leftHighlighted;
+      var rightHighlighted = result.data.rightHighlighted;
+      
+      rowInfos.forEach((ri, i) => {
+        var row = rows[i];
+        var left = ri.leftIdx===undefined?undefined:leftHighlighted[ri.leftIdx];
+        var right = ri.rightIdx===undefined?undefined:rightHighlighted[ri.rightIdx];
+        row.updateHighlight(left, right);
+      });
+    };
+    hw.postMessage({filename, leftText, rightText});
   }
   
   updateSelectability(e) {
@@ -339,9 +330,8 @@ class App {
 
 var app = new App(document.getElementById('app'));
 
-window.updateDiff = function(oldFile, newFile, patch) {
-  console.log("updateDiff");
-  app.updateDiff(oldFile||"", newFile||"", patch||"");
+window.updateDiff = function(filename, oldFile, newFile, patch) {
+  app.updateDiff(filename||"", oldFile||"", newFile||"", patch||"");
 };
 
 window.loadComplete.postMessage({});

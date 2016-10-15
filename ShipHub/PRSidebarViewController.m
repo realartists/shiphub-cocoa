@@ -79,6 +79,10 @@
     return [self outlineView:outlineView numberOfChildrenOfItem:item] > 0;
 }
 
+- (BOOL)outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)item {
+    return [item isKindOfClass:[GitDiffFile class]];
+}
+
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification {
     id item = [_outline selectedItem];
     if ([item isKindOfClass:[GitDiffFile class]]) {
