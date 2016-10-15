@@ -14,7 +14,15 @@
 
 #import <WebKit/WebKit.h>
 
-@interface PRDiffViewController ()
+@interface NSObject (BadManTings)
+
+- (void)setAlwaysHideVerticalScroller:(BOOL)flag;
+
+@end
+
+@interface PRDiffViewController () {
+    NSInteger _loadCount;
+}
 
 
 @end
@@ -33,13 +41,17 @@
     [super viewDidLoad];
     self.web.drawsBackground = YES;
     self.web.wantsLayer = YES;
-    self.web.mainFrame.frameView.documentView.enclosingScrollView.hasVerticalScroller = NO;
+    DebugLog(@"%@", self.web.mainFrame.frameView.documentView.enclosingScrollView);
+    //[self.web.mainFrame.frameView.documentView.enclosingScrollView setAlwaysHideVerticalScroller:YES];
 }
 
 - (void)setDiffFile:(GitDiffFile *)diffFile {
     _diffFile = diffFile;
+    NSInteger count = ++_loadCount;
     [diffFile loadTextContents:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
-        NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@, %@, %@);", [JSON stringifyObject:oldFile], [JSON stringifyObject:newFile], [JSON stringifyObject:patch]];
+        if (_loadCount != count) return;
+        
+        NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@, %@, %@, %@);", [JSON stringifyObject:diffFile.name], [JSON stringifyObject:oldFile], [JSON stringifyObject:newFile], [JSON stringifyObject:patch]];
         [self evaluateJavaScript:js];
     }];
 }

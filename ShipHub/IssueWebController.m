@@ -54,6 +54,13 @@
 
 @implementation IssueWebController
 
+- (id)init {
+    if (self = [super init]) {
+        _useWebpackDevServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseWebpackDevServer"];
+    }
+    return self;
+}
+
 - (void)dealloc {
     _web.UIDelegate = nil;
     _web.frameLoadDelegate = nil;
@@ -116,8 +123,7 @@
 
 - (NSURL *)indexURL {
     NSURL *URL;
-    BOOL useWebpack = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseWebpackDevServer"];
-    if (useWebpack) {
+    if (_useWebpackDevServer) {
         NSString *webpackURLStr = [NSString stringWithFormat:@"http://localhost:%td/", [self webpackDevServerPort]];
         URL = [NSURL URLWithString:webpackURLStr];
     } else {
