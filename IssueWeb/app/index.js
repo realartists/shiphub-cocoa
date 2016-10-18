@@ -4059,12 +4059,14 @@ function toggleCommentPreview() {
 }
 window.toggleCommentPreview = toggleCommentPreview;
 
-window.loadComplete.postMessage({});
-
 if (__DEBUG__) {
   console.log("*** Debug build ***");
 }
 
 window.onerror = function() {
   window.lastErr = true;
+}
+
+window.onload = function() {
+  window.loadComplete.postMessage({});
 }
