@@ -545,15 +545,6 @@ span.AssigneesPicker .tt-hint {
   color: #999;
 }
 
-span.AssigneesPicker .tt-suggestion {
-  padding: 0px;
-  margin: 0px;
-}
-
-span.AssigneesPicker .tt-suggestion p {
-  padding: 0px;
-}
-
 .AddLabel {
   color: #0085E4;
   -webkit-user-select: none;
