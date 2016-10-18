@@ -3237,8 +3237,8 @@ var AssigneeAtom = React.createClass({
 var MultipleAssignees = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
-  deleteAssignee: function(login) {
-    var assignees = this.props.issue.assignees.filter((l) => (l.login != login));
+  deleteAssignee: function(user) {
+    var assignees = this.props.issue.assignees.filter((u) => (u != user));
     patchIssue({assignees});
   },
   
@@ -3283,7 +3283,7 @@ var MultipleAssignees = React.createClass({
     return h('span', {className:'MultipleAssignees'},
       h(AddAssignee, {issue: this.props.issue, ref:"add"}),
       sortedAssignees.map((l, i) => { 
-        return [" ", h(AssigneeAtom, {key:i, user:l, onDelete: this.deleteLabel})];
+        return [" ", h(AssigneeAtom, {key:i, user:l, onDelete: this.deleteAssignee})];
       }).reduce(function(c, v) { return c.concat(v); }, [])
     );
   }
