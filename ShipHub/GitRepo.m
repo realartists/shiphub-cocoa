@@ -10,7 +10,11 @@
 
 #import "NSError+Git.h"
 
-@interface GitRepo ()
+#import <pthread.h>
+
+@interface GitRepo () {
+    pthread_rwlock_t _rwlock;
+}
 
 @property git_repository *repo;
 
@@ -31,7 +35,7 @@ static void initGit2() {
     if (error) *error = nil;
     
     git_repository *repo = NULL;
-    int err = git_repository_init(&repo, [path fileSystemRepresentation], false /* not bare */);
+    int err = git_repository_init(&repo, [path fileSystemRepresentation], true /* bare */);
     if (err) {
         if (error) *error = [NSError gitError];
         return nil;
@@ -42,10 +46,73 @@ static void initGit2() {
     return result;
 }
 
+- (instancetype)init {
+    if (self = [super init]) {
+        pthread_rwlock_init(&_rwlock, NULL);
+    }
+    return self;
+}
+
+- (void)readLock {
+    pthread_rwlock_rdlock(&_rwlock);
+}
+
+- (void)writeLock {
+    pthread_rwlock_wrlock(&_rwlock);
+}
+
+- (void)unlock {
+    pthread_rwlock_unlock(&_rwlock);
+}
+
 - (void)dealloc {
     if (_repo) {
         git_repository_free(_repo);
     }
+    pthread_rwlock_destroy(&_rwlock);
+}
+
+- (NSError *)fetchRemote:(NSURL *)remoteURL refs:(NSArray *)refs {
+    [self writeLock];
+    
+    git_remote *remote = NULL;
+    git_strarray refspecs = {0};
+    
+    dispatch_block_t cleanup = ^{
+        if (remote) git_remote_free(remote);
+        if (refspecs.strings) {
+            for (size_t i = 0; i < refspecs.count; i++) {
+                free(refspecs.strings[i]);
+            }
+            free(refspecs.strings);
+        }
+        [self unlock];
+    };
+    
+#define CHK(X) \
+    do { \
+        int giterr = (X); \
+        if (giterr) { \
+            NSError *err = [NSError gitError]; \
+            cleanup(); \
+            return err; \
+        } \
+    } while (0);
+    
+    
+    if ([refs count]) {
+        refspecs.strings = malloc(sizeof(char *) * [refs count]);
+        refspecs.count = [refs count];
+        for (size_t i = 0; i < refspecs.count; i++) {
+            refspecs.strings[i] = strdup([refs[i] UTF8String]);
+        }
+    }
+    
+    CHK(git_remote_create_anonymous(&remote, _repo, [[remoteURL description] UTF8String]));
+    CHK(git_remote_fetch(remote, &refspecs, NULL /*opts*/, NULL /*reflogs msg*/));
+    
+    cleanup();
+    return nil;
 }
 
 @end

@@ -12,4 +12,11 @@
 
 + (GitRepo *)repoAtPath:(NSString *)path error:(NSError *__autoreleasing *)error;
 
+- (void)readLock;
+- (void)writeLock;
+- (void)unlock;
+
+// synchronously fetch remote. Acquires writeLock for the duration.
+- (NSError *)fetchRemote:(NSURL *)remoteURL refs:(NSArray *)refs;
+
 @end

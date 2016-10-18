@@ -243,7 +243,6 @@
 		1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */; };
 		1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC81D188E6800E9FAFC /* FilterButton.m */; };
 		1ADED9D01D95AA590093A098 /* RateDampener.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9CF1D95AA590093A098 /* RateDampener.m */; };
-		1ADED9D81DA720430093A098 /* git in Copy Git Support */ = {isa = PBXBuildFile; fileRef = 1ADED9D51DA71EE20093A098 /* git */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1ADED9E21DAC47310093A098 /* PRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9E01DAC47310093A098 /* PRViewController.m */; };
 		1ADED9E61DAC47CF0093A098 /* PullRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9E51DAC47CF0093A098 /* PullRequest.m */; };
 		1ADED9EA1DAC4A220093A098 /* PRDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9E81DAC4A220093A098 /* PRDocument.m */; };
@@ -404,18 +403,6 @@
 				1A2217C51C7E7BCE006460E2 /* SocketRocket.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		1ADED9D41DA71EAC0093A098 /* Copy Git Support */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 12;
-			files = (
-				1A3D34451DAEC9DF00CDF167 /* PartialClone.sh in Copy Git Support */,
-				1ADED9D81DA720430093A098 /* git in Copy Git Support */,
-			);
-			name = "Copy Git Support";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */ = {
@@ -827,7 +814,6 @@
 		1ADED9E71DAC4A220093A098 /* PRDocument.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDocument.h; sourceTree = "<group>"; };
 		1ADED9E81DAC4A220093A098 /* PRDocument.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDocument.m; sourceTree = "<group>"; };
 		1ADED9E91DAC4A220093A098 /* PRDocument.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRDocument.xib; sourceTree = "<group>"; };
-		1ADED9ED1DADA2D30093A098 /* PartialClone.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = PartialClone.sh; sourceTree = "<group>"; };
 		1AE09BBE1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalMilestone+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1AE09BBF1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalMilestone+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BC01C97687E00C5AC35 /* LocalMilestone.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalMilestone.h; sourceTree = "<group>"; };
@@ -1638,7 +1624,6 @@
 			isa = PBXGroup;
 			children = (
 				1A3D34711DB16AD200CDF167 /* DiffWeb */,
-				1ADED9EC1DADA1F90093A098 /* GitScripts */,
 				1ADED9E41DAC47CF0093A098 /* PullRequest.h */,
 				1ADED9E51DAC47CF0093A098 /* PullRequest.m */,
 				1ADED9E71DAC4A220093A098 /* PRDocument.h */,
@@ -1654,14 +1639,6 @@
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request Files";
-			sourceTree = "<group>";
-		};
-		1ADED9EC1DADA1F90093A098 /* GitScripts */ = {
-			isa = PBXGroup;
-			children = (
-				1ADED9ED1DADA2D30093A098 /* PartialClone.sh */,
-			);
-			path = GitScripts;
 			sourceTree = "<group>";
 		};
 		1AF3494A1CDA95D100A5BEB0 /* Charting */ = {
@@ -1785,7 +1762,6 @@
 				1A3D34701DB1686F00CDF167 /* Copy Diff Web Content */,
 				1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */,
 				1A2217C41C7E7BC1006460E2 /* Copy Frameworks */,
-				1ADED9D41DA71EAC0093A098 /* Copy Git Support */,
 			);
 			buildRules = (
 			);

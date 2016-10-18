@@ -63,6 +63,8 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     NSParameterAssert(baseRev);
     NSParameterAssert(headRev);
     
+    [repo readLock];
+    
     if (error) *error = nil;
     
     git_object *baseObj = NULL;
@@ -81,6 +83,7 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
         if (baseTree) git_tree_free(baseTree);
         if (headTree) git_tree_free(headTree);
         if (diff) git_diff_free(diff);
+        [repo unlock];
     };
     
 #define CHK(X) \
@@ -285,11 +288,15 @@ static NSUInteger pathDepth(NSString *path) {
         NSString *oldText = nil;
         NSString *patchText = nil;
         
+        [_repo readLock];
+        
         dispatch_block_t cleanup = ^{
             if (newBlob) git_blob_free(newBlob);
             if (oldBlob) git_blob_free(oldBlob);
             if (gitPatch) git_patch_free(gitPatch);
             if (patchBuf.ptr) git_buf_free(&patchBuf);
+            
+            [_repo unlock];
         };
 
         #define CHK(X) \
