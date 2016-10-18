@@ -22,7 +22,6 @@
 
 @interface PullRequest ()
 
-@property NSArray *files;
 @property NSDictionary *info;
 @property NSString *dir;
 @property GitRepo *repo;
@@ -39,77 +38,72 @@
     return self;
 }
 
-- (void)dealloc {
-    if (_dir) {
-        NSString *dir = [_dir copy];
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-            [[NSFileManager defaultManager] removeItemAtPath:dir error:NULL];
-        });
-    }
-}
-
 // runs on a background queue
 - (NSError *)loadSpanDiff {
     NSError *err = nil;
-    _repo = [GitRepo repoAtPath:_dir error:&err];
-    if (err) return err;
-    
     _spanDiff = [GitDiff diffWithRepo:_repo from:_info[@"base"][@"sha"] to:_info[@"head"][@"sha"] error:&err];
     if (err) return err;
     
     return nil;
 }
 
++ (GitRepo *)repoAtPath:(NSString *)path error:(NSError *__autoreleasing *)error {
+    // TODO: Garbage collect old repos
+    
+    static dispatch_queue_t q;
+    static dispatch_once_t onceToken;
+    static NSMutableDictionary *directory;
+    dispatch_once(&onceToken, ^{
+        q = dispatch_queue_create(NULL, NULL);
+        directory = [NSMutableDictionary new];
+    });
+    
+    __block GitRepo *repo = nil;
+    __block NSError *err = nil;
+    dispatch_sync(q, ^{
+        repo = directory[path];
+        if (!repo) {
+            NSError *outErr = nil;
+            [[NSFileManager defaultManager] createDirectoryAtPath:path withIntermediateDirectories:YES attributes:NULL error:&outErr];
+            if (!outErr) {
+                repo = [GitRepo repoAtPath:path error:&outErr];
+                err = outErr;
+                if (repo) directory[path] = repo;
+            }
+        }
+    });
+    
+    if (error) *error = err;
+    return repo;
+}
+
 // runs on a background queue
 - (NSError *)cloneWithProgress:(NSProgress *)progress {
-    NSString *dirName = [NSString stringWithFormat:@"%@-XXXXXX", _issue.repository.name];
-    NSString *dirTemplate = [NSTemporaryDirectory() stringByAppendingPathComponent:dirName];
-    char *dirStr = strdup([dirTemplate UTF8String]);
-    mkdtemp(dirStr);
-    _dir = [[NSString alloc] initWithBytesNoCopy:dirStr length:strlen(dirStr) encoding:NSUTF8StringEncoding freeWhenDone:YES];
+    NSString *reposDir = [@"~/Library/RealArtists/Ship2/git" stringByExpandingTildeInPath];
+    _dir = [NSString stringWithFormat:@"%@/%@", reposDir, _issue.repository.fullName];
     
-    NSString *cloneURLStr = _info[@"head"][@"repo"][@"clone_url"];
-    if (!cloneURLStr) {
-        return [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+    NSError *error = nil;
+    _repo = [[self class] repoAtPath:_dir error:&error];
+    if (error) {
+        return error;
     }
     
-    NSString *cloneRef = _info[@"head"][@"ref"];
+    NSString *remoteURLStr = _info[@"base"][@"repo"][@"clone_url"]; // want to use the base, as this is "origin"
     
     // See https://github.com/blog/1270-easier-builds-and-deployments-using-git-over-https-and-oauth
-    NSURLComponents *comps = [NSURLComponents componentsWithString:cloneURLStr];
+    NSURLComponents *comps = [NSURLComponents componentsWithString:remoteURLStr];
     comps.user = [[[DataStore activeStore] auth] ghToken];
     comps.password = @"x-oauth-basic";
-    NSURL *cloneURL = comps.URL;
+    NSURL *remoteURL = comps.URL;
     
-    NSString *supportPath = [[NSBundle mainBundle] sharedSupportPath];
-    NSString *gitPath = @"/usr/bin/git"; //[supportPath stringByAppendingPathComponent:@"git"];
-    NSString *cloneScriptPath = [supportPath stringByAppendingPathComponent:@"PartialClone.sh"];
+    // See https://help.github.com/articles/checking-out-pull-requests-locally/
+    NSString *refSpec = [NSString stringWithFormat:@"pull/%@/head", _issue.number];
     
-    NSMutableArray *args = [@[cloneScriptPath,
-                              gitPath,
-                              [cloneURL description],
-                              cloneRef] mutableCopy];
+    error = [_repo fetchRemote:remoteURL refs:@[refSpec]];
+    if (error) return error;
     
-    for (NSDictionary *fileInfo in _files) {
-        [args addObject:fileInfo[@"filename"]];
-    }
-    
-    NSTask *task = [NSTask new];
-    task.launchPath = @"/bin/bash";
-    task.currentDirectoryPath = _dir;
-    task.arguments = args;
-    task.qualityOfService = NSQualityOfServiceUserInitiated;
-    
-    int result = [task launchAndWaitForTermination];
-    if (result != 0) {
-        return [NSError shipErrorWithCode:ShipErrorCodeGitCloneError];
-    }
-    
-    NSError *err = [self loadSpanDiff];
-    if (err) {
-        return err;
-    }
-    
+    error = [self loadSpanDiff];
+    if (error) return error;
     
     return nil;
 }
@@ -120,8 +114,6 @@
     ServerConnection *conn = [[DataStore activeStore] serverConnection];
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     
-    __block NSArray *filesJSON = nil;
-    __block NSError *filesError = nil;
     __block NSDictionary *prInfo = nil;
     __block NSError *prError = nil;
     
@@ -138,27 +130,11 @@
         dispatch_semaphore_signal(sema);
     }];
     
-    endpoint = [endpoint stringByAppendingPathComponent:@"files"];
-    [conn perform:@"GET" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
-        if ([jsonResponse isKindOfClass:[NSArray class]]) {
-            filesJSON = jsonResponse;
-        } else {
-            filesError = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
-        }
-        if (!filesError) {
-            filesError = error;
-        }
-        dispatch_semaphore_signal(sema);
-    }];
-    
-    // wait for pr and files responses
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    // wait for pr response
     dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
     
     if (prError) return prError;
-    if (filesError) return filesError;
     
-    _files = filesJSON;
     _info = prInfo;
     
     return [self cloneWithProgress:progress];
