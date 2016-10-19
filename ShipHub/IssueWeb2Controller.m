@@ -1,12 +1,12 @@
 //
-//  IssueWebController.m
+//  IssueWeb2Controller.m
 //  ShipHub
 //
-//  Created by James Howard on 10/13/16.
+//  Created by James Howard on 10/19/16.
 //  Copyright © 2016 Real Artists, Inc. All rights reserved.
 //
 
-#import "IssueWebControllerInternal.h"
+#import "IssueWeb2ControllerInternal.h"
 
 #import "AppDelegate.h"
 #import "AttachmentManager.h"
@@ -20,16 +20,14 @@
 #import "NSFileWrapper+ImageExtras.h"
 
 #import <WebKit/WebKit.h>
-#import <JavaScriptCore/JavaScriptCore.h>
 
-@interface IssueWebView : WebView
+@interface IssueWeb2View : WKWebView
 
 @property (copy) NSString *dragPasteboardName;
 
 @end
 
-@interface IssueWebController () <WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate>
-{
+@interface IssueWeb2Controller () {
     BOOL _didFinishLoading;
     NSMutableArray *_javaScriptToRun;
     NSInteger _pastedImageCount;
@@ -39,10 +37,9 @@
     NSDictionary *_spellcheckContextTarget;
 }
 
-// Why legacy WebView?
-// Because WKWebView doesn't support everything we need :(
-// See https://bugs.webkit.org/show_bug.cgi?id=137759
-@property IssueWebView *web;
+@property IssueWeb2View *web;
+@property WKWebViewConfiguration *config;
+@property WKUserContentController *userContentController;
 
 @property DownloadBarViewController *downloadBar;
 @property MultiDownloadProgress *downloadProgress;
@@ -52,7 +49,7 @@
 
 @end
 
-@implementation IssueWebController
+@implementation IssueWeb2Controller
 
 - (id)init {
     if (self = [super init]) {
@@ -63,9 +60,8 @@
 
 - (void)dealloc {
     _web.UIDelegate = nil;
-    _web.frameLoadDelegate = nil;
-    _web.policyDelegate = nil;
-    [_web close];
+    _web.navigationDelegate = nil;
+    [_web stopLoading];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -73,12 +69,17 @@
     NSView *container = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewDidChangeFrame:) name:NSViewFrameDidChangeNotification object:container];
     
-    _web = [[IssueWebView alloc] initWithFrame:container.bounds frameName:nil groupName:nil];
-    _web.continuousSpellCheckingEnabled = YES;
-    _web.drawsBackground = NO;
+    _config = [WKWebViewConfiguration new];
+    WKPreferences *prefs = [WKPreferences new];
+    [prefs setValue:@YES forKey:@"allowFileAccessFromFileURLs"]; // Needed to support webworkers
+    _userContentController= [WKUserContentController new];
+    [self registerJavaScriptAPI:_userContentController];
+    _config.userContentController = _userContentController;
+    _config.preferences = prefs;
+    
+    _web = [[IssueWeb2View alloc] initWithFrame:CGRectMake(0, 0, 600, 600) configuration:_config];
     _web.UIDelegate = self;
-    _web.frameLoadDelegate = self;
-    _web.policyDelegate = self;
+    _web.navigationDelegate = self;
     
     [container addSubview:_web];
     
@@ -131,55 +132,29 @@
     }
     return URL;
 }
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
     NSURL *URL = [self indexURL];
     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
-    [_web.mainFrame loadRequest:request];
+    [_web loadRequest:request];
 }
 
-- (void)evaluateJavaScript:(NSString *)js {
+- (void)evaluateJavaScript:(NSString *)js
+{
     if (!_didFinishLoading) {
         if (!_javaScriptToRun) {
             _javaScriptToRun = [NSMutableArray new];
         }
         [_javaScriptToRun addObject:js];
     } else {
-        [_web stringByEvaluatingJavaScriptFromString:js];
+        [_web evaluateJavaScript:js completionHandler:nil];
     }
 }
 
-#pragma mark - WebUIDelegate
-
-- (void)webView:(WebView *)sender runOpenPanelForFileButtonWithResultListener:(id<WebOpenPanelResultListener>)resultListener allowMultipleFiles:(BOOL)allowMultipleFiles
+- (NSArray *)webView:(IssueWeb2View *)sender contextMenuItemsForElement:(NSDictionary *)element defaultMenuItems:(NSArray *)defaultMenuItems
 {
-    NSOpenPanel* panel = [NSOpenPanel openPanel];
-    
-    panel.canChooseFiles = YES;
-    panel.canChooseDirectories = NO;
-    panel.allowsMultipleSelection = allowMultipleFiles;
-    
-    [panel beginSheetModalForWindow:self.view.window completionHandler:^(NSInteger result) {
-        if (result == NSFileHandlingPanelOKButton) {
-            [resultListener chooseFilenames:[panel.URLs arrayByMappingObjects:^id(NSURL * obj) {
-                return [obj path];
-            }]];
-        } else {
-            [resultListener cancel];
-        }
-    }];
-}
-
-- (void)webView:(WebView *)sender runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WebFrame *)frame
-{
-    NSAlert *alert = [[NSAlert alloc] init];
-    alert.messageText = message;
-    
-    [alert beginSheetModalForWindow:self.view.window completionHandler:nil];
-}
-
-- (NSArray *)webView:(WebView *)sender contextMenuItemsForElement:(NSDictionary *)element defaultMenuItems:(NSArray *)defaultMenuItems {
     NSArray *menuItems = defaultMenuItems;
     
     if (_spellcheckContextTarget) {
@@ -214,8 +189,6 @@
     
     for (NSMenuItem *i in menuItems) {
         switch (i.tag) {
-            case 2000: /* WebMenuItemTagOpenLink */
-                i.hidden = YES;
             case WebMenuItemTagOpenLinkInNewWindow:
                 i.target = self;
                 i.action = @selector(openLinkInNewWindow:);
@@ -392,28 +365,22 @@
     });
 }
 
-#pragma mark - WebFrameLoadDelegate
+#pragma mark - JavaScript Registration
 
-- (void)registerJavaScriptAPI:(WebScriptObject *)windowObject {
-    
-}
-
-- (void)webView:(WebView *)webView didClearWindowObject:(WebScriptObject *)windowObject forFrame:(WebFrame *)frame {
+- (void)registerJavaScriptAPI:(WKUserContentController *)cc {
     __weak __typeof(self) weakSelf = self;
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf pasteHelper:msg];
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf pasteHelper:msg.body];
     } name:@"inAppPasteHelper"];
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf spellcheck:msg];
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf spellcheck:msg.body];
     } name:@"spellcheck"];
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
         [weakSelf javascriptLoadComplete];
     } name:@"loadComplete"];
-    
-    [self registerJavaScriptAPI:windowObject];
 }
 
 - (void)javascriptLoadComplete {
@@ -425,7 +392,7 @@
     }
 }
 
-#pragma mark - WebPolicyDelegate
+#pragma mark - WKNavigationDelegate
 
 - (IBAction)reload:(id)sender {
     
@@ -435,46 +402,37 @@
     
 }
 
-- (void)webView:(WebView *)webView decidePolicyForNavigationAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request frame:(WebFrame *)frame decisionListener:(id<WebPolicyDecisionListener>)listener
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler
 {
-    //DebugLog(@"%@", actionInformation);
-    
-    WebNavigationType navigationType = [actionInformation[WebActionNavigationTypeKey] integerValue];
-    
-    if (navigationType == WebNavigationTypeReload) {
+    if (navigationAction.navigationType == WKNavigationTypeReload) {
         if (_useWebpackDevServer) {
             // The webpack-dev-server page will auto-refresh as the content updates,
             // so reloading needs to be allowed.
             
             _didFinishLoading = NO;
             
-            [self reconfigureForReload];
+            RunOnMain(^{[self reconfigureForReload];});
             
-            [listener use];
+            decisionHandler(WKNavigationActionPolicyAllow);
         } else {
             [self reload:nil];
-            [listener ignore];
+            decisionHandler(WKNavigationActionPolicyCancel);
         }
-    } else if (navigationType == WebNavigationTypeOther) {
-        NSURL *URL = actionInformation[WebActionOriginalURLKey];
+    } else if (navigationAction.navigationType == WKNavigationTypeOther) {
+        NSURL *URL = navigationAction.request.URL;
         if ([URL isEqual:[self indexURL]]) {
-            [listener use];
+            decisionHandler(WKNavigationActionPolicyAllow);
         } else {
-            [listener ignore];
+            decisionHandler(WKNavigationActionPolicyCancel);
         }
     } else {
-        NSURL *URL = actionInformation[WebActionOriginalURLKey];
-        [[AppDelegate sharedDelegate] openURL:URL];
-        [listener ignore];
+        NSURL *URL = navigationAction.request.URL;
+        RunOnMain(^{[[AppDelegate sharedDelegate] openURL:URL];});
+        decisionHandler(WKNavigationActionPolicyCancel);
     }
 }
 
-- (void)webView:(WebView *)webView decidePolicyForNewWindowAction:(NSDictionary *)actionInformation request:(NSURLRequest *)request newFrameName:(NSString *)frameName decisionListener:(id<WebPolicyDecisionListener>)listener
-{
-    NSURL *URL = actionInformation[WebActionOriginalURLKey];
-    [[AppDelegate sharedDelegate] openURL:URL];
-    [listener ignore];
-}
+#pragma mark - JavaScript Handlers
 
 #pragma mark - JavaScript Bridge
 
@@ -779,7 +737,8 @@
 
 @end
 
-@implementation IssueWebView
+@implementation IssueWeb2View
+
 
 - (BOOL)performKeyEquivalent:(NSEvent *)event {
     // realartists/shiphub-cocoa#272 Ctrl-Tab to go between tabs doesn’t work for IssueDocuments
@@ -795,4 +754,3 @@
 }
 
 @end
-

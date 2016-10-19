@@ -7,18 +7,12 @@
 //
 
 #import "PRDiffViewController.h"
-#import "IssueWebControllerInternal.h"
+#import "IssueWeb2ControllerInternal.h"
 
 #import "GitDiff.h"
 #import "JSON.h"
 
 #import <WebKit/WebKit.h>
-
-@interface NSObject (BadManTings)
-
-- (void)setAlwaysHideVerticalScroller:(BOOL)flag;
-
-@end
 
 @interface PRDiffViewController () {
     NSInteger _loadCount;
@@ -39,10 +33,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.web.drawsBackground = YES;
-    self.web.wantsLayer = YES;
-    DebugLog(@"%@", self.web.mainFrame.frameView.documentView.enclosingScrollView);
-    //[self.web.mainFrame.frameView.documentView.enclosingScrollView setAlwaysHideVerticalScroller:YES];
 }
 
 - (void)setDiffFile:(GitDiffFile *)diffFile {

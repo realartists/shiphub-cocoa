@@ -32,6 +32,10 @@
     ScriptMessageHandler *handler = [ScriptMessageHandler new];
     handler.block = block;
     [self addScriptMessageHandler:handler name:name];
+    
+    NSString *namingSrc = [NSString stringWithFormat:@"window.%@ = window.webkit.messageHandlers.%@;", name, name];
+    WKUserScript *naming = [[WKUserScript alloc] initWithSource:namingSrc injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
+    [self addUserScript:naming];
 }
 
 @end

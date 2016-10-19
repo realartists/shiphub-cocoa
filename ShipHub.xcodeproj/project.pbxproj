@@ -36,6 +36,7 @@
 		1A012ED41D46EC45006CE5DF /* LocalQuery+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EAD1D443EBD006CE5DF /* LocalQuery+CoreDataProperties.m */; };
 		1A012ED51D46EC55006CE5DF /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
 		1A012ED61D46EC91006CE5DF /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2217B91C7E7B92006460E2 /* SocketRocket.framework */; };
+		1A069E9D1DB7EC03009085AF /* IssueWeb2Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A069E9C1DB7EC03009085AF /* IssueWeb2Controller.m */; };
 		1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59CD1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59D11CA48B8A004F2578 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
@@ -476,6 +477,10 @@
 		1A012ECA1D46DD4B006CE5DF /* ServerChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerChooser.h; sourceTree = "<group>"; };
 		1A012ECB1D46DD4B006CE5DF /* ServerChooser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerChooser.m; sourceTree = "<group>"; };
 		1A012ECC1D46DD4B006CE5DF /* ServerChooser.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ServerChooser.xib; sourceTree = "<group>"; };
+		1A069E9B1DB7EC03009085AF /* IssueWeb2Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWeb2Controller.h; sourceTree = "<group>"; };
+		1A069E9C1DB7EC03009085AF /* IssueWeb2Controller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWeb2Controller.m; sourceTree = "<group>"; };
+		1A069E9F1DB7EC4D009085AF /* IssueWeb2ControllerInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IssueWeb2ControllerInternal.h; sourceTree = "<group>"; };
+		1A069EA41DB7FAFE009085AF /* entitlements-Debug.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "entitlements-Debug.plist"; sourceTree = "<group>"; };
 		1A0D59CA1CA46926004F2578 /* IssueIdentifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueIdentifier.h; sourceTree = "<group>"; };
 		1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueIdentifier.m; sourceTree = "<group>"; };
 		1A0D59D31CA4A8D1004F2578 /* IssueViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueViewController.h; sourceTree = "<group>"; };
@@ -985,13 +990,23 @@
 			name = "Predicate Editor Row Templates";
 			sourceTree = "<group>";
 		};
+		1A069E9E1DB7EC1C009085AF /* WebKit Integration */ = {
+			isa = PBXGroup;
+			children = (
+				1A3D34661DB05F5E00CDF167 /* IssueWebController.h */,
+				1A3D34691DB05F9D00CDF167 /* IssueWebControllerInternal.h */,
+				1A3D34671DB05F5E00CDF167 /* IssueWebController.m */,
+				1A069E9B1DB7EC03009085AF /* IssueWeb2Controller.h */,
+				1A069E9F1DB7EC4D009085AF /* IssueWeb2ControllerInternal.h */,
+				1A069E9C1DB7EC03009085AF /* IssueWeb2Controller.m */,
+			);
+			name = "WebKit Integration";
+			sourceTree = "<group>";
+		};
 		1A0D59D21CA4A8B4004F2578 /* Issue UI */ = {
 			isa = PBXGroup;
 			children = (
 				1AFE21EE1CA5EC3F00B51CF6 /* IssueWeb */,
-				1A3D34661DB05F5E00CDF167 /* IssueWebController.h */,
-				1A3D34691DB05F9D00CDF167 /* IssueWebControllerInternal.h */,
-				1A3D34671DB05F5E00CDF167 /* IssueWebController.m */,
 				1A0D59D31CA4A8D1004F2578 /* IssueViewController.h */,
 				1A0D59D41CA4A8D1004F2578 /* IssueViewController.m */,
 				1A0D59E81CA4AA3A004F2578 /* IssueDocument.h */,
@@ -1038,7 +1053,7 @@
 				1A694B121CA3414800F73608 /* Overview UI */,
 				1A012E6F1D3EABDB006CE5DF /* Search UI */,
 				1A0D59D21CA4A8B4004F2578 /* Issue UI */,
-				1ADED9D91DAC46EB0093A098 /* Pull Request Files */,
+				1ADED9D91DAC46EB0093A098 /* Pull Request */,
 				1A2A8B5D1D55101B00F24F32 /* New Label */,
 				1A2A8B591D55100D00F24F32 /* New Milestone */,
 				1A38CA0D1D9363C100655891 /* New Project */,
@@ -1048,6 +1063,7 @@
 				1A694B131CA3419900F73608 /* Shared UI */,
 				1A3AB3561D909F5A004BB768 /* Billing */,
 				1A2217CE1C7E80C0006460E2 /* Extras */,
+				1A069E9E1DB7EC1C009085AF /* WebKit Integration */,
 				1A2217941C7E7B14006460E2 /* Supporting Files */,
 				1A2440CE1C850CD900E070DA /* Frameworks */,
 			);
@@ -1062,6 +1078,7 @@
 				1A2217971C7E7B14006460E2 /* Assets.xcassets */,
 				1A2217951C7E7B14006460E2 /* main.m */,
 				1A2217D21C7E80F0006460E2 /* ShipHub-Prefix.pch */,
+				1A069EA41DB7FAFE009085AF /* entitlements-Debug.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -1620,7 +1637,7 @@
 			name = DataStore;
 			sourceTree = "<group>";
 		};
-		1ADED9D91DAC46EB0093A098 /* Pull Request Files */ = {
+		1ADED9D91DAC46EB0093A098 /* Pull Request */ = {
 			isa = PBXGroup;
 			children = (
 				1A3D34711DB16AD200CDF167 /* DiffWeb */,
@@ -1638,7 +1655,7 @@
 				1A3D34611DB0528200CDF167 /* PRDiffViewController.m */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
-			name = "Pull Request Files";
+			name = "Pull Request";
 			sourceTree = "<group>";
 		};
 		1AF3494A1CDA95D100A5BEB0 /* Charting */ = {
@@ -2014,6 +2031,7 @@
 				1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */,
 				1A3D34681DB05F5E00CDF167 /* IssueWebController.m in Sources */,
 				1A51085D1D317AB300905D4D /* LocalNotification+CoreDataProperties.m in Sources */,
+				1A069E9D1DB7EC03009085AF /* IssueWeb2Controller.m in Sources */,
 				1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */,
 				1A3D34621DB0528200CDF167 /* PRDiffViewController.m in Sources */,
 				1A012E9A1D3EACB5006CE5DF /* ChevronButton.m in Sources */,
@@ -2409,6 +2427,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "ShipHub/entitlements-Debug.plist";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
