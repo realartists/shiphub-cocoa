@@ -8,11 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "IssueWebController.h"
+#import "IssueWeb2Controller.h"
 
 @class GitDiffFile;
 
-@interface PRDiffViewController : IssueWebController
+@interface PRDiffViewController : IssueWeb2Controller
 
 @property (nonatomic, strong) GitDiffFile *diffFile;
 
