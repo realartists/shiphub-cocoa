@@ -167,8 +167,12 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     
 //    self.window.titleVisibility = NSWindowTitleHidden;
     
-    if ([self.window respondsToSelector:@selector(setTabbingIdentifier:)]) {
-        self.window.tabbingIdentifier = @"OverviewController";
+    SEL setTabbingIdentifier = NSSelectorFromString(@"setTabbingIdentifier:");
+    if ([self.window respondsToSelector:setTabbingIdentifier]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [self.window performSelector:setTabbingIdentifier withObject:@"OverviewController"];
+#pragma clang diagnostic pop
     }
     
     static BOOL isElCapOrNewer;

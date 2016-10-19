@@ -104,7 +104,8 @@
 }
 
 - (void)openIssuesWithIdentifiers:(NSArray *)issueIdentifiers {
-    if ([NSWindow instancesRespondToSelector:@selector(addTabbedWindow:ordered:)]) {
+    SEL addTabbedSEL = NSSelectorFromString(@"addTabbedWindow:ordered:");
+    if ([NSWindow instancesRespondToSelector:addTabbedSEL]) {
         // realartists/shiphub-cocoa#270 Opening multiple issues at once should open them in tabs on Sierra
         __block NSWindow *groupWindow = nil;
         __block NSInteger i = 0;
@@ -117,7 +118,15 @@
                     if (!groupWindow) {
                         groupWindow = window;
                     } else {
-                        [groupWindow addTabbedWindow:window ordered:NSWindowBelow];
+                        NSMethodSignature *sig = [groupWindow methodSignatureForSelector:addTabbedSEL];
+                        NSInvocation *ivk = [NSInvocation invocationWithMethodSignature:sig];
+                        ivk.target = groupWindow;
+                        ivk.selector = addTabbedSEL;
+                        id arg2 = window;
+                        NSWindowOrderingMode arg3 = NSWindowBelow;
+                        [ivk setArgument:&arg2 atIndex:2];
+                        [ivk setArgument:&arg3 atIndex:3];
+                        [ivk invoke];
                     }
                 }
                 if (i == count) {

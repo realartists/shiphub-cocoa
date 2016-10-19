@@ -35,8 +35,12 @@
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController {
     [super windowControllerDidLoadNib:aController];
-    if ([aController.window respondsToSelector:@selector(setTabbingIdentifier:)]) {
-        aController.window.tabbingIdentifier = @"IssueDocument";
+    SEL setTabbingIdentifier = NSSelectorFromString(@"setTabbingIdentifier:");
+    if ([aController.window respondsToSelector:setTabbingIdentifier]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        [aController.window performSelector:setTabbingIdentifier withObject:@"IssueDocument"];
+#pragma clang diagnostic pop
     }
     aController.contentViewController = self.issueViewController;
     
