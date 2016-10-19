@@ -1241,6 +1241,14 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 
 @implementation IssueWebView
 
+- (BOOL)performKeyEquivalent:(NSEvent *)event {
+    // realartists/shiphub-cocoa#272 Ctrl-Tab to go between tabs doesn’t work for IssueDocuments
+    if ((event.modifierFlags & NSControlKeyMask) != 0 && [event isTabKey]) {
+        return NO;
+    }
+    return [super performKeyEquivalent:event];
+}
+
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
     self.dragPasteboardName = [[sender draggingPasteboard] name];
     return [super performDragOperation:sender];
