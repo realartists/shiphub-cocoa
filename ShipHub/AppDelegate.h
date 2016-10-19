@@ -17,6 +17,7 @@
 
 - (OverviewController *)defaultOverviewController;
 - (OverviewController *)activeOverviewController;
+- (IBAction)newOverviewController:(id)sender;
 
 - (IBAction)showBilling:(id)sender;
 

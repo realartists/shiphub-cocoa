@@ -35,6 +35,9 @@
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController {
     [super windowControllerDidLoadNib:aController];
+    if ([aController.window respondsToSelector:@selector(setTabbingIdentifier:)]) {
+        aController.window.tabbingIdentifier = @"IssueDocument";
+    }
     aController.contentViewController = self.issueViewController;
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(needsSaveChanged:) name:IssueViewControllerNeedsSaveDidChangeNotification object:self.issueViewController];

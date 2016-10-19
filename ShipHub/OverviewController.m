@@ -167,6 +167,10 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     
 //    self.window.titleVisibility = NSWindowTitleHidden;
     
+    if ([self.window respondsToSelector:@selector(setTabbingIdentifier:)]) {
+        self.window.tabbingIdentifier = @"OverviewController";
+    }
+    
     static BOOL isElCapOrNewer;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -1242,6 +1246,10 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 - (IBAction)newDocument:(id)sender {
     [[IssueDocumentController sharedDocumentController] newDocument:sender];
+}
+
+- (IBAction)newWindowForTab:(id)sender {
+    [[AppDelegate sharedDelegate] newOverviewController:sender];
 }
 
 - (IBAction)showBilling:(id)sender {
