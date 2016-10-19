@@ -63,12 +63,20 @@
     [self openIssueWithIdentifier:issueIdentifier canOpenExternally:canOpenExternally scrollToCommentWithIdentifier:nil completion:completion];
 }
 
+
 - (void)openIssueWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier completion:(void (^)(IssueDocument *doc))completion {
+    [self openIssueWithIdentifier:issueIdentifier display:YES canOpenExternally:canOpenExternally scrollToCommentWithIdentifier:commentIdentifier completion:completion];
+}
+
+- (void)openIssueWithIdentifier:(id)issueIdentifier display:(BOOL)display canOpenExternally:(BOOL)canOpenExternally scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier completion:(void (^)(IssueDocument *doc))completion {
     for (IssueDocument *doc in [self documents]) {
         if ([[doc.issueViewController.issue fullIdentifier] isEqual:issueIdentifier]) {
-            [doc showWindows];
+            if (display) [doc showWindows];
             if (commentIdentifier) {
                 [doc.issueViewController scrollToCommentWithIdentifier:commentIdentifier];
+            }
+            if (completion) {
+                completion(doc);
             }
             return;
         }
@@ -96,8 +104,31 @@
 }
 
 - (void)openIssuesWithIdentifiers:(NSArray *)issueIdentifiers {
-    for (id identifier in issueIdentifiers) {
-        [self openIssueWithIdentifier:identifier];
+    if ([NSWindow instancesRespondToSelector:@selector(addTabbedWindow:ordered:)]) {
+        // realartists/shiphub-cocoa#270 Opening multiple issues at once should open them in tabs on Sierra
+        __block NSWindow *groupWindow = nil;
+        __block NSInteger i = 0;
+        __block NSInteger count = issueIdentifiers.count;
+        for (id identifier in issueIdentifiers) {
+            [self openIssueWithIdentifier:identifier display:NO canOpenExternally:YES scrollToCommentWithIdentifier:nil completion:^(IssueDocument *doc) {
+                i++;
+                NSWindow *window = [[doc.windowControllers firstObject] window];
+                if (window) {
+                    if (!groupWindow) {
+                        groupWindow = window;
+                    } else {
+                        [groupWindow addTabbedWindow:window ordered:NSWindowBelow];
+                    }
+                }
+                if (i == count) {
+                    [groupWindow makeKeyAndOrderFront:nil];
+                }
+            }];
+        }
+    } else {
+        for (id identifier in issueIdentifiers) {
+            [self openIssueWithIdentifier:identifier];
+        }
     }
 }
 
