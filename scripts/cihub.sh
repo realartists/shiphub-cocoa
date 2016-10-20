@@ -78,28 +78,12 @@ popd
 # Clean up temporary git checkout
 rm -rf $GITTMP
 
-echo "Creating disk images for dropbox upload"
 DMGTMP=`mktemp -d /tmp/DMGSRC_XXXXX`
 mkdir $DMGTMP/Production
 
 echo "$XCS_BOT_NAME $XCS_INTEGRATION_NUMBER" > $DMGTMP/CurrentVersion
 
 cp -R "$AppArchiveDir/$AppName.app.dSYM" "$AppArchiveDir/$AppName.app" $DMGTMP/Production/
-
-hdiutil create $DMGTMP/Production.dmg -srcdir $DMGTMP/Production
-
-echo "Copying to Amium"
-/usr/local/bin/xpcdropboxclient $DMGTMP/CurrentVersion
-/usr/local/bin/xpcdropboxclient $DMGTMP/Production.dmg
-
-echo "Uploading to Dropbox"
-# change HOME in order to trick dropbox_uploader into not trying to do its setup thing again (-f doesn't seem to work)
-OLDHOME="$HOME"
-export HOME=/Library/Developer/XcodeServer
-/Library/Developer/XcodeServer/dropbox_uploader.sh upload $DMGTMP/Production.dmg "ShipHubBuilds/Mac/Production.dmg"
-/Library/Developer/XcodeServer/dropbox_uploader.sh upload $DMGTMP/CurrentVersion "ShipHubBuilds/Mac/CurrentVersion"
-echo "Done uploading to Dropbox"
-export HOME="$OLDHOME"
 
 echo "Uploading to HockeyApp"
 pushd .
@@ -117,7 +101,5 @@ curl \
   https://rink.hockeyapp.net/api/2/apps/upload
 popd
 
-# Clean up temporary dmg stuff
+# Clean up temporary stuff
 rm -r $DMGTMP
-
-
