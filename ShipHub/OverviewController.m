@@ -1021,7 +1021,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             return [node.children objectAtIndex:index-node.knobs.count];
         }
     } else {
-        return nil;
+        NSAssert(NO, @"Unhandled outline node type");
+        return item;
     }
 }
 
