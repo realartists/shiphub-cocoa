@@ -34,6 +34,14 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didFinishLaunching:) name:NSApplicationDidFinishLaunchingNotification object:nil];
 }
 
+// Work around rdar://28899384 <New windows can be opened in wrong tab group after newWindowForTab:>
+- (BOOL)respondsToSelector:(SEL)aSelector {
+    if (aSelector == @selector(newWindowForTab:)) {
+        return NO;
+    }
+    return [super respondsToSelector:aSelector];
+}
+
 - (IBAction)newDocument:(id)sender {
     if ([[DataStore activeStore] isValid]) {
         IssueDocument *doc = [self openUntitledDocumentAndDisplay:YES error:NULL];

@@ -11,6 +11,7 @@
 #import "Extras.h"
 #import "Issue.h"
 #import "IssueIdentifier.h"
+#import "IssueDocumentController.h"
 
 @implementation IssueDocument
 
@@ -184,6 +185,12 @@
     } else {
         return NO;
     }
+}
+
+#pragma mark -
+
+- (void)newWindowForTab:(id)sender {
+    [[IssueDocumentController sharedDocumentController] newDocument:sender];
 }
 
 @end

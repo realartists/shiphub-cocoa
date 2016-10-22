@@ -1253,9 +1253,13 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     [[IssueDocumentController sharedDocumentController] newDocument:sender];
 }
 
+// Sadly, this must be disabled due to:
+// rdar://28899384 <New windows can be opened in wrong tab group after newWindowForTab:>
+#if 0
 - (IBAction)newWindowForTab:(id)sender {
     [[AppDelegate sharedDelegate] newOverviewController:sender];
 }
+#endif
 
 - (IBAction)showBilling:(id)sender {
     [[AppDelegate sharedDelegate] showBilling:sender];
