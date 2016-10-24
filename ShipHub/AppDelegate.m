@@ -17,6 +17,7 @@
 #import "Reachability.h"
 #import "UserNotificationManager.h"
 #import "SubscriptionController.h"
+#import "TextViewController.h"
 
 #import <HockeySDK/HockeySDK.h>
 #import <Sparkle/Sparkle.h>
@@ -34,6 +35,7 @@
 @property Auth *auth;
 @property AuthController *authController;
 @property SubscriptionController *subscriptionController;
+@property (strong) NSWindowController *acknowledgementsController;
 
 @property IBOutlet NSMenu *accountMenu;
 @property IBOutlet NSMenuItem *accountMenuSeparator;
@@ -474,6 +476,31 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
         _subscriptionController = [SubscriptionController new];
     }
     [_subscriptionController showWindow:sender];
+}
+
+- (IBAction)showAcknowledgements:(id)sender {
+    if (!_acknowledgementsController) {
+        NSWindow *window = [[NSWindow alloc] initWithContentRect:CGRectMake(0, 0, 600, 500) styleMask:NSTitledWindowMask|NSClosableWindowMask|NSResizableWindowMask backing:NSBackingStoreBuffered defer:YES];
+        window.title = NSLocalizedString(@"Acknowledgements", nil);
+        window.minSize = CGSizeMake(300, 300);
+        _acknowledgementsController = [[NSWindowController alloc] initWithWindow:window];
+        TextViewController *textController = [[TextViewController alloc] init];
+        NSURL *URL = [[NSBundle mainBundle] URLForResource:@"Acknowledgements" withExtension:@"rtf"];
+        NSDictionary *opts = @{ NSDocumentTypeDocumentAttribute : NSRTFTextDocumentType, NSCharacterEncodingDocumentAttribute : @(NSUTF8StringEncoding) };
+        NSAttributedString *str = [[NSAttributedString alloc] initWithURL:URL options:opts documentAttributes:NULL error:NULL];
+        [textController setAttributedStringValue:str];
+        _acknowledgementsController.contentViewController = textController;
+    }
+    
+    if (!_acknowledgementsController.window.visible) {
+        [_acknowledgementsController.contentViewController scrollToBeginningOfDocument:nil];
+        [_acknowledgementsController.window setContentSize:CGSizeMake(600, 500)];
+        [_acknowledgementsController.window center];
+        [_acknowledgementsController showWindow:sender];
+        [_acknowledgementsController.window setContentSize:CGSizeMake(600, 501)];
+    } else {
+        [_acknowledgementsController showWindow:sender];
+    }
 }
 
 @end

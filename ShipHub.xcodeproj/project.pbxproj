@@ -124,6 +124,9 @@
 		1A51086B1D319ED000905D4D /* RequestPager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5108691D319ED000905D4D /* RequestPager.m */; };
 		1A51086E1D31A11A00905D4D /* GHNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A51086D1D31A11A00905D4D /* GHNotificationManager.m */; };
 		1A51086F1D31A11A00905D4D /* GHNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A51086D1D31A11A00905D4D /* GHNotificationManager.m */; };
+		1A51A5841DBE95A300272822 /* Acknowledgements.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1A51A5831DBE95A300272822 /* Acknowledgements.rtf */; };
+		1A51A58A1DBE9BC200272822 /* TextViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A51A5891DBE9BC200272822 /* TextViewController.m */; };
+		1A51A58C1DBE9C5400272822 /* TextViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A51A58B1DBE9C5400272822 /* TextViewController.xib */; };
 		1A5604E11CD7FFC100ACF0DF /* AttachmentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */; };
 		1A5604E21CD7FFC100ACF0DF /* AttachmentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */; };
 		1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
@@ -566,6 +569,10 @@
 		1A5108691D319ED000905D4D /* RequestPager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RequestPager.m; sourceTree = "<group>"; };
 		1A51086C1D31A11A00905D4D /* GHNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHNotificationManager.h; sourceTree = "<group>"; };
 		1A51086D1D31A11A00905D4D /* GHNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHNotificationManager.m; sourceTree = "<group>"; };
+		1A51A5831DBE95A300272822 /* Acknowledgements.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = Acknowledgements.rtf; sourceTree = "<group>"; };
+		1A51A5881DBE9BC200272822 /* TextViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextViewController.h; sourceTree = "<group>"; };
+		1A51A5891DBE9BC200272822 /* TextViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextViewController.m; sourceTree = "<group>"; };
+		1A51A58B1DBE9C5400272822 /* TextViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TextViewController.xib; sourceTree = "<group>"; };
 		1A5604DF1CD7FFC100ACF0DF /* AttachmentManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AttachmentManager.h; sourceTree = "<group>"; };
 		1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AttachmentManager.m; sourceTree = "<group>"; };
 		1A563F781CC823CF00755AAC /* APIProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIProxy.h; sourceTree = "<group>"; };
@@ -938,6 +945,7 @@
 		1A2217941C7E7B14006460E2 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				1A51A5831DBE95A300272822 /* Acknowledgements.rtf */,
 				1A22179C1C7E7B14006460E2 /* Info.plist */,
 				1A2217971C7E7B14006460E2 /* Assets.xcassets */,
 				1A2217951C7E7B14006460E2 /* main.m */,
@@ -1061,6 +1069,9 @@
 				1A3AB3631D919F5E004BB768 /* AvatarManager.m */,
 				1ADED9CE1D95AA590093A098 /* RateDampener.h */,
 				1ADED9CF1D95AA590093A098 /* RateDampener.m */,
+				1A51A5881DBE9BC200272822 /* TextViewController.h */,
+				1A51A5891DBE9BC200272822 /* TextViewController.m */,
+				1A51A58B1DBE9C5400272822 /* TextViewController.xib */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -1664,7 +1675,9 @@
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
 				1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */,
+				1A51A58C1DBE9C5400272822 /* TextViewController.xib in Resources */,
 				28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */,
+				1A51A5841DBE95A300272822 /* Acknowledgements.rtf in Resources */,
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,
 				1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */,
@@ -1711,6 +1724,7 @@
 				1A7A415B1C8F603E0043DAF0 /* CAExtras.m in Sources */,
 				1A2305E91C7FC2940034C871 /* AuthController.m in Sources */,
 				1AE09BEC1C97687E00C5AC35 /* LocalMilestone.m in Sources */,
+				1A51A58A1DBE9BC200272822 /* TextViewController.m in Sources */,
 				1A5108461D2CC52A00905D4D /* EmptyUpNextViewController.m in Sources */,
 				1A2217961C7E7B14006460E2 /* main.m in Sources */,
 				1AE09BF61C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
