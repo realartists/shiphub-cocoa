@@ -6,7 +6,7 @@
 //  Copyright © 2016 Real Artists, Inc. All rights reserved.
 //
 
-#import "DataStore.h"
+#import "DataStoreInternal.h"
 
 #import "Auth.h"
 #import "Extras.h"
@@ -101,6 +101,12 @@ NSString *const DataStoreBillingStateDidChangeNotification = @"DataStoreBillingS
 
 @end
 
+@interface ReadOnlyManagedObjectContext : NSManagedObjectContext
+
+@property NSUInteger writeGeneration;
+
+@end
+
 /*
  Change History:
  1: First Version
@@ -131,6 +137,12 @@ static const NSInteger CurrentLocalModelVersion = 6;
     
     BOOL _sentNetworkActivityBegan;
     double _issueSyncProgress;
+    
+    dispatch_queue_t _dbq;
+    dispatch_queue_t _readMocsQ;
+    dispatch_semaphore_t _readSema;
+    
+    NSUInteger _writeGeneration;
 }
 
 @property (strong) Auth *auth;
@@ -140,7 +152,8 @@ static const NSInteger CurrentLocalModelVersion = 6;
 @property (strong) GHNotificationManager *ghNotificationManager;
 
 @property (strong) NSManagedObjectModel *mom;
-@property (strong) NSManagedObjectContext *moc;
+@property (strong) NSManagedObjectContext *writeMoc;
+@property (strong) NSMutableArray<ReadOnlyManagedObjectContext *> *readMocs;
 @property (strong) NSPersistentStore *persistentStore;
 @property (strong) NSPersistentStoreCoordinator *persistentCoordinator;
 
@@ -348,11 +361,33 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     _lastUpdated = storeMetadata[LastUpdated];
     
-    _moc = [[SerializedManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-    _moc.persistentStoreCoordinator = _persistentCoordinator;
-    _moc.undoManager = nil; // don't care about undo-ing here, and it costs performance to have an undo manager.
+    _writeMoc = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+    _writeMoc.persistentStoreCoordinator = _persistentCoordinator;
+    _writeMoc.undoManager = nil; // don't care about undo-ing here, and it costs performance to have an undo manager.
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mocDidChange:) name:NSManagedObjectContextObjectsDidChangeNotification object:_moc];
+    NSUInteger ncpus = [[NSProcessInfo processInfo] processorCount];
+    NSMutableArray *readMocs = [NSMutableArray arrayWithCapacity:ncpus];
+    for (NSUInteger i = 0; i < ncpus; i++) {
+        NSManagedObjectContext *readMoc = [[ReadOnlyManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+        
+        if (&NSPersistentStoreConnectionPoolMaxSizeKey != NULL) {
+            readMoc.persistentStoreCoordinator = _persistentCoordinator; // 10.12 / iOS 10
+        } else {
+            // 10.11 / iOS 9
+            NSPersistentStoreCoordinator *pc = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:_mom];
+            [pc addPersistentStoreWithType:NSSQLiteStoreType configuration:@"Default" URL:storeURL options:@{NSReadOnlyPersistentStoreOption : @YES } error:NULL];
+            readMoc.persistentStoreCoordinator = pc;
+        }
+        
+        readMoc.undoManager = nil;
+        [readMocs addObject:readMoc];
+    }
+    _readMocs = readMocs;
+    _readMocsQ = dispatch_queue_create("DataStore.readMocs", NULL);
+    _readSema = dispatch_semaphore_create(_readMocs.count);
+    _dbq = dispatch_queue_create("DataStore.dbq", DISPATCH_QUEUE_CONCURRENT);
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mocDidChange:) name:NSManagedObjectContextObjectsDidChangeNotification object:_writeMoc];
     
     BOOL needsSnapshotRebuild = NO;
     BOOL needsKeywordUsageRebuild = NO;
@@ -377,7 +412,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     if (needsMetadataResync) {
         DebugLog(@"Forcing metadata resync");
-        [_moc performBlockAndWait:^{
+        [_writeMoc performBlockAndWait:^{
 #if !INCOMPLETE
             [self setLatestSequence:0 syncType:@"addressBook"];
             [self setLatestSequence:0 syncType:@"classifications"];
@@ -386,19 +421,66 @@ static NSString *const LastUpdated = @"LastUpdated";
             [self setLatestSequence:0 syncType:@"priorities"];
             [self setLatestSequence:0 syncType:@"states"];
 #endif
-            [_moc save:NULL];
+            [_writeMoc save:NULL];
         }];
     } else if (needsABResync) {
         DebugLog(@"Forcing address book resync");
-        [_moc performBlockAndWait:^{
+        [_writeMoc performBlockAndWait:^{
 #if !INCOMPLETE
             [self setLatestSequence:0 syncType:@"addressBook"];
 #endif
-            [_moc save:NULL];
+            [_writeMoc save:NULL];
         }];
     }
     
     return YES;
+}
+
+- (void)performWrite:(void (^)(NSManagedObjectContext *moc))block {
+    NSParameterAssert(block);
+    
+    dispatch_barrier_async(_dbq, ^{
+        [_writeMoc performBlockAndWait:^{
+            block(_writeMoc);
+        }];
+        _writeGeneration++;
+    });
+}
+
+- (void)performWriteAndWait:(void (^)(NSManagedObjectContext *moc))block {
+    NSParameterAssert(block);
+    
+    dispatch_barrier_sync(_dbq, ^{
+        [_writeMoc performBlockAndWait:^{
+            block(_writeMoc);
+        }];
+        _writeGeneration++;
+    });
+}
+
+- (void)performRead:(void (^)(NSManagedObjectContext *moc))block {
+    dispatch_async(_dbq, ^{
+        dispatch_semaphore_wait(_readSema, DISPATCH_TIME_FOREVER);
+        __block ReadOnlyManagedObjectContext *reader = nil;
+        dispatch_sync(_readMocsQ, ^{
+            reader = [_readMocs lastObject];
+            [_readMocs removeLastObject];
+        });
+        
+        
+        [reader performBlockAndWait:^{
+            if (reader.writeGeneration != _writeGeneration) {
+                [reader reset];
+                reader.writeGeneration = _writeGeneration;
+            }
+            block(reader);
+        }];
+        
+        dispatch_sync(_readMocsQ, ^{
+            [_readMocs addObject:reader];
+        });
+        dispatch_semaphore_signal(_readSema);
+    });
 }
 
 - (void)migrationRebuildSnapshots:(BOOL)rebuildSnapshots
@@ -409,7 +491,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSAssert(rebuildSnapshots || rebuildKeywordUsage, @"Should be rebuilding at least something here");
     
     [self loadMetadata];
-    [_moc performBlock:^{
+    [self performWrite:^(NSManagedObjectContext *moc) {
         [self activateThreadLocal];
         
         CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
@@ -447,7 +529,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 #endif
         
         err = nil;
-        [_moc save:&err];
+        [moc save:&err];
         if (err) {
             ErrLog(@"Error saving updated snapshots: %@", err);
         }
@@ -457,7 +539,11 @@ static NSString *const LastUpdated = @"LastUpdated";
         (void)start; (void)end;
         
         [self deactivateThreadLocal];
-    } completion:completion];
+        
+        if (completion) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), completion);
+        }
+    }];
 }
 
 - (void)dealloc {
@@ -465,16 +551,16 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (void)loadMetadata {
-    [_moc performBlockAndWait:^{
-        self.metadataStore = [[MetadataStore alloc] initWithMOC:_moc billingState:_billing.state];
+    [_writeMoc performBlockAndWait:^{
+        self.metadataStore = [[MetadataStore alloc] initWithMOC:_writeMoc billingState:_billing.state];
     }];
 }
 
 - (void)updateSyncConnectionWithVersions {
-    [_moc performBlock:^{
+    [self performRead:^(NSManagedObjectContext *moc) {
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalSyncVersion"];
         NSError *err = nil;
-        NSArray *results = [_moc executeFetchRequest:fetch error:&err];
+        NSArray *results = [moc executeFetchRequest:fetch error:&err];
         if (err) {
             ErrLog("%@", err);
         }
@@ -498,24 +584,24 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
-// Must be called on _moc.
+// Must be called on _writeMoc.
 // Does not call save:
 - (void)updateSyncVersions:(NSDictionary *)versions {
     NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalSyncVersion"];
     
     NSError *err = nil;
-    NSArray *results = [_moc executeFetchRequest:fetchRequest error:&err];
+    NSArray *results = [_writeMoc executeFetchRequest:fetchRequest error:&err];
     if (err) {
         ErrLog(@"%@", err);
         return;
     }
     
-    LocalSyncVersion *obj = [results firstObject] ?: [NSEntityDescription insertNewObjectForEntityForName:@"LocalSyncVersion" inManagedObjectContext:_moc];
+    LocalSyncVersion *obj = [results firstObject] ?: [NSEntityDescription insertNewObjectForEntityForName:@"LocalSyncVersion" inManagedObjectContext:_writeMoc];
     
     obj.data = [NSJSONSerialization dataWithJSONObject:versions?:@{} options:0 error:NULL];
 }
 
-// Must be called on _moc
+// Must be called on _writeMoc
 - (__kindof NSManagedObject *)cachedObjectWithIdentifier:(NSNumber *)identifier entityName:(NSString *)entityName {
     NSEntityDescription *entity = _mom.entitiesByName[entityName];
     id obj = nil;
@@ -535,7 +621,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     return [SyncCacheKey keyWithManagedObject:obj];
 }
 
-// Must be called on _moc
+// Must be called on _writeMoc
 - (__kindof NSManagedObject *)managedObjectWithIdentifier:(NSNumber *)identifier entityName:(NSString *)entityName {
     id obj = [self cachedObjectWithIdentifier:identifier entityName:entityName];
     if (!obj) {
@@ -543,7 +629,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
         fetch.includesPendingChanges = _syncCache == nil; // If it were pending, we'd already know about it in our cache
         fetch.fetchLimit = 1;
-        obj = [[_moc executeFetchRequest:fetch error:NULL] firstObject];
+        obj = [[_writeMoc executeFetchRequest:fetch error:NULL] firstObject];
         if (obj) {
             id key = [self cacheKeyWithObject:obj];
             _syncCache[key] = obj;
@@ -573,7 +659,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:entityName];
         fetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", toFetch];
         fetch.includesPendingChanges = _syncCache == nil; // If it were pending, we'd already know about it in our cache
-        NSArray *found = [_moc executeFetchRequest:fetch error:NULL];
+        NSArray *found = [_writeMoc executeFetchRequest:fetch error:NULL];
         for (id obj in found) {
             NSNumber *identifier = [obj identifier];
             id key = [self cacheKeyWithObject:obj];
@@ -587,22 +673,22 @@ static NSString *const LastUpdated = @"LastUpdated";
     return results;
 }
 
-// Must be called on _moc. Does not call save:
+// Must be called on _writeMoc. Does not call save:
 - (__kindof NSManagedObject *)insertManagedObjectWithIdentifier:(NSNumber *)identifier entityName:(NSString *)entityName {
-    NSManagedObject *obj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
+    NSManagedObject *obj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_writeMoc];
     [obj setValue:identifier forKey:@"identifier"];
     NSString *key = [self cacheKeyWithObject:obj];
     _syncCache[key] = obj;
     return obj;
 }
 
-// Must be called on _moc.
+// Must be called on _writeMoc.
 // Does not call save:
 - (void)updateLabelsOn:(NSManagedObject *)owner fromDicts:(NSArray *)lDicts relationship:(NSRelationshipDescription *)relationship {
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalLabel"];
     fetch.predicate = [NSPredicate predicateWithFormat:@"%K = %@", relationship.inverseRelationship.name, owner];
     NSError *error = nil;
-    NSArray *existingLabels = [_moc executeFetchRequest:fetch error:&error];
+    NSArray *existingLabels = [_writeMoc executeFetchRequest:fetch error:&error];
     if (error) ErrLog("%@", error);
     
     NSDictionary *existingLookup = [NSDictionary lookupWithObjects:existingLabels keyPath:@"name"];
@@ -621,9 +707,9 @@ static NSString *const LastUpdated = @"LastUpdated";
             [ll mergeAttributesFromDictionary:d];
             [relatedLabels addObject:ll];
         } else if (ll && !d) {
-            [_moc deleteObject:ll];
+            [_writeMoc deleteObject:ll];
         } else if (!ll && d) {
-            ll = [NSEntityDescription insertNewObjectForEntityForName:@"LocalLabel" inManagedObjectContext:_moc];
+            ll = [NSEntityDescription insertNewObjectForEntityForName:@"LocalLabel" inManagedObjectContext:_writeMoc];
             [ll mergeAttributesFromDictionary:d];
             [relatedLabels addObject:ll];
         }
@@ -684,7 +770,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                     id identifier = [relObj valueForKey:@"identifier"];
                     if (![relatedIDSet containsObject:identifier]) {
                         DebugLog(@"Will delete relationship %@ to %@ (%@)", rel, relObj, identifier);
-                        [_moc deleteObject:relObj];
+                        [_writeMoc deleteObject:relObj];
                     }
                 }
             }
@@ -803,7 +889,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             }
         } else /*e.action == SyncEntryActionDelete*/ {
             if (mObj) {
-                [_moc deleteObject:mObj];
+                [_writeMoc deleteObject:mObj];
             }
         }
     }
@@ -896,7 +982,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     return identifiers;
 }
 
-// must be called on _moc. Does not call save:.
+// must be called on _writeMoc. Does not call save:.
 - (void)ensureEntitiesForIdentifiers:(NSDictionary<NSString *, NSSet *> *)identifiers {
     for (NSString *entityName in identifiers) {
         NSSet *idNums = identifiers[entityName];
@@ -905,7 +991,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         fetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", idNums];
         
         NSError *err = nil;
-        NSArray *existing = [_moc executeFetchRequest:fetch error:&err];
+        NSArray *existing = [_writeMoc executeFetchRequest:fetch error:&err];
         if (err) {
             ErrLog(@"%@", err);
             err = nil;
@@ -918,7 +1004,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             if (!obj) {
                 NSEntityDescription *entity = _mom.entitiesByName[entityName];
                 if (!entity.abstract) {
-                    obj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_moc];
+                    obj = [NSEntityDescription insertNewObjectForEntityForName:entityName inManagedObjectContext:_writeMoc];
                     [obj setValue:identifier forKey:@"identifier"];
                 } else {
                     continue;
@@ -934,7 +1020,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 {
     NSDictionary *identifiers = [self identifiersInSyncEntries:entries];
     
-    [_moc performBlock:^{
+    [self performWrite:^(NSManagedObjectContext *moc) {
         _syncCache = [NSMutableDictionary new];
         
         [self ensureEntitiesForIdentifiers:identifiers];
@@ -945,7 +1031,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         _syncCache = nil;
         
         NSError *error = nil;
-        [_moc save:&error];
+        [moc save:&error];
         if (error) ErrLog("%@", error);
         
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -965,12 +1051,12 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)syncConnectionDidConnect:(SyncConnection *)sync {
     NSDate *lastUpdated = [NSDate date];
     self.lastUpdated = lastUpdated;
-    [_moc performBlock:^{
-        NSMutableDictionary *metadata = [[_moc.persistentStoreCoordinator metadataForPersistentStore:_persistentStore] mutableCopy];
+    [self performWrite:^(NSManagedObjectContext *moc) {
+        NSMutableDictionary *metadata = [[moc.persistentStoreCoordinator metadataForPersistentStore:_persistentStore] mutableCopy];
         metadata[LastUpdated] = lastUpdated;
-        [_moc.persistentStoreCoordinator setMetadata:metadata forPersistentStore:_persistentStore];
+        [moc.persistentStoreCoordinator setMetadata:metadata forPersistentStore:_persistentStore];
         NSError *err = nil;
-        [_moc save:&err];
+        [moc save:&err];
         if (err) {
             ErrLog(@"Error updating metadata: %@", err);
         }
@@ -1030,8 +1116,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
     
     if (changed) {
-        [_moc performBlock:^{
-            self.myQueries = [self _fetchQueries];
+        [self performRead:^(NSManagedObjectContext *moc) {
+            self.myQueries = [self _fetchQueries:moc];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMyQueriesNotification object:nil];
             });
@@ -1063,7 +1149,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     if ([MetadataStore changeNotificationContainsMetadata:note]) {
         DebugLog(@"Updating metadata store");
-        MetadataStore *store = [[MetadataStore alloc] initWithMOC:_moc billingState:_billing.state];
+        MetadataStore *store = [[MetadataStore alloc] initWithMOC:_writeMoc billingState:_billing.state];
         self.metadataStore = store;
         dispatch_async(dispatch_get_main_queue(), ^{
             NSDictionary *userInfo = @{ DataStoreMetadataKey : store };
@@ -1107,14 +1193,15 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors options:(NSDictionary *)options completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
     __block NSArray *results = nil;
     __block NSError *error = nil;
-    [_moc performBlock:^{
+    [self performRead:^(NSManagedObjectContext *moc) {
         @try {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
             fetchRequest.predicate = [self issuesPredicate:predicate];
+            fetchRequest.relationshipKeyPathsForPrefetching = @[@"assignees.identifier", @"originator.identifier", @"closedBy.identifier", @"labels.name", @"labels.color", @"milestone.identifier", @"repository.identifier", @"notification.unread"];
             fetchRequest.sortDescriptors = sortDescriptors;
             
             NSError *err = nil;
-            NSArray *entities = [_moc executeFetchRequest:fetchRequest error:&err];
+            NSArray *entities = [moc executeFetchRequest:fetchRequest error:&err];
             if (err) {
                 ErrLog(@"%@", err);
             }
@@ -1126,8 +1213,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             error = [NSError shipErrorWithCode:ShipErrorCodeInvalidQuery];
             ErrLog(@"%@", exc);
         }
-    } completion:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
+        
+        RunOnMain(^{
             completion(results, error);
         });
     }];
@@ -1137,12 +1224,12 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)countIssuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSUInteger count, NSError *error))completion {
     __block NSUInteger result = 0;
     __block NSError *error = nil;
-    [_moc performBlock:^{
+    [self performRead:^(NSManagedObjectContext *moc) {
         @try {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
             fetchRequest.predicate = [self issuesPredicate:predicate];
             NSError *err = nil;
-            result = [_moc countForFetchRequest:fetchRequest error:&err];
+            result = [moc countForFetchRequest:fetchRequest error:&err];
             
             if (err) {
                 ErrLog(@"%@", err);
@@ -1152,8 +1239,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             error = [NSError shipErrorWithCode:ShipErrorCodeInvalidQuery];
             ErrLog(@"%@", exc);
         }
-    } completion:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
+        
+        RunOnMain(^{
             completion(result, error);
         });
     }];
@@ -1164,7 +1251,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     __block NSInteger outOpen = 0;
     __block NSInteger outClosed = 0;
     __block NSError *error = nil;
-    [_moc performBlock:^{
+    
+    [self performRead:^(NSManagedObjectContext *moc) {
         @try {
             NSError *err = nil;
             
@@ -1172,14 +1260,14 @@ static NSString *const LastUpdated = @"LastUpdated";
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
             fetchRequest.predicate = pred;
             
-            NSUInteger total = [_moc countForFetchRequest:fetchRequest error:&err];
+            NSUInteger total = [moc countForFetchRequest:fetchRequest error:&err];
             
             if (err) {
                 ErrLog(@"%@", err);
                 progress = -1.0;
             } else {
                 fetchRequest.predicate = [pred and:[NSPredicate predicateWithFormat:@"closed = YES"]];
-                NSUInteger closed = [_moc countForFetchRequest:fetchRequest error:&err];
+                NSUInteger closed = [moc countForFetchRequest:fetchRequest error:&err];
                 
                 if (err) {
                     ErrLog(@"%@", err);
@@ -1198,8 +1286,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             error = [NSError shipErrorWithCode:ShipErrorCodeInvalidQuery];
             ErrLog(@"%@", exc);
         }
-    } completion:^{
-        dispatch_async(dispatch_get_main_queue(), ^{
+        
+        RunOnMain(^{
             completion(progress, outOpen, outClosed, error);
         });
     }];
@@ -1253,12 +1341,12 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion {
     NSParameterAssert(issueIdentifier);
     
-    [_moc performBlock:^{
+    [self performRead:^(NSManagedObjectContext *moc) {
         NSFetchRequest *fetchRequest = [self fetchRequestForIssueIdentifier:issueIdentifier];
         fetchRequest.relationshipKeyPathsForPrefetching = @[@"events", @"comments", @"labels"];
         
         NSError *err = nil;
-        NSArray *entities = [_moc executeFetchRequest:fetchRequest error:&err];
+        NSArray *entities = [moc executeFetchRequest:fetchRequest error:&err];
         
         if (err) ErrLog(@"%@", err);
         
@@ -1283,7 +1371,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 
 - (void)storeSingleSyncObject:(id)obj type:(NSString *)type completion:(dispatch_block_t)completion
 {
-    [_moc performBlock:^{
+    [self performWrite:^(NSManagedObjectContext *moc) {
         SyncEntry *e = [SyncEntry new];
         e.action = SyncEntryActionSet;
         e.entityName = type;
@@ -1292,9 +1380,13 @@ static NSString *const LastUpdated = @"LastUpdated";
         [self writeSyncObjects:@[e]];
         
         NSError *err = nil;
-        [_moc save:&err];
+        [moc save:&err];
         if (err) ErrLog(@"%@", err);
-    } completion:completion];
+        
+        if (completion) {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), completion);
+        }
+    }];
 }
 
 #pragma mark - Issue Mutation
@@ -1371,21 +1463,21 @@ static NSString *const LastUpdated = @"LastUpdated";
     [self.serverConnection perform:@"DELETE" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
         if (!error) {
             
-            [_moc performBlock:^{
+            [self performWrite:^(NSManagedObjectContext *moc) {
                 NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
                 
                 fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
                 fetch.fetchLimit = 1;
                 
                 NSError *err = nil;
-                LocalComment *lc = [[_moc executeFetchRequest:fetch error:&err] firstObject];;
+                LocalComment *lc = [[moc executeFetchRequest:fetch error:&err] firstObject];;
                 
                 if (err) {
                     ErrLog(@"%@", err);
                 }
                 
                 if (lc) {
-                    [_moc deleteObject:lc];
+                    [moc deleteObject:lc];
                 }
             }];
         }
@@ -1410,11 +1502,11 @@ static NSString *const LastUpdated = @"LastUpdated";
         
         if (!error) {
             
-            [_moc performBlock:^{
+            [self performWrite:^(NSManagedObjectContext *moc) {
                 NSFetchRequest *fetch = [self fetchRequestForIssueIdentifier:issueIdentifier];
                 
                 NSError *err = nil;
-                LocalIssue *issue = [[_moc executeFetchRequest:fetch error:&err] firstObject];
+                LocalIssue *issue = [[moc executeFetchRequest:fetch error:&err] firstObject];
                 
                 if (err) ErrLog(@"%@", err);
                 
@@ -1434,7 +1526,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                     NSFetchRequest *fetch2 = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
                     fetch2.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", d[@"identifier"]];
                     err = nil;
-                    LocalComment *lc = [[_moc executeFetchRequest:fetch2 error:&err] firstObject];
+                    LocalComment *lc = [[moc executeFetchRequest:fetch2 error:&err] firstObject];
                     if (err) ErrLog(@"%@", err);
                     
                     IssueComment *ic = nil;
@@ -1443,7 +1535,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                     }
                     
                     err = nil;
-                    [_moc save:&err];
+                    [moc save:&err];
                     if (err) ErrLog(@"%@", err);
                     
                     RunOnMain(^{
@@ -1478,13 +1570,13 @@ static NSString *const LastUpdated = @"LastUpdated";
     [self.serverConnection perform:@"PATCH" on:endpoint body:@{ @"body" : newCommentBody } completion:^(id jsonResponse, NSError *error)
     {
         if (!error) {
-            [_moc performBlock:^{
+            [self performWrite:^(NSManagedObjectContext *moc) {
                 NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
                 fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
                 fetch.fetchLimit = 1;
                 
                 NSError *err = nil;
-                LocalComment *lc = [[_moc executeFetchRequest:fetch error:&err] firstObject];
+                LocalComment *lc = [[moc executeFetchRequest:fetch error:&err] firstObject];
                 if (err) ErrLog(@"%@", err);
                 
                 id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
@@ -1494,7 +1586,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                     [lc mergeAttributesFromDictionary:d];
                     ic = [[IssueComment alloc] initWithLocalComment:lc metadataStore:self.metadataStore];
                     err = nil;
-                    [_moc save:&err];
+                    [moc save:&err];
                     if (err) ErrLog(@"%@", err);
                 }
                 
@@ -1534,12 +1626,12 @@ static NSString *const LastUpdated = @"LastUpdated";
                 return;
             }
             
-            [_moc performBlock:^{
+            [self performWrite:^(NSManagedObjectContext *moc) {
                 NSFetchRequest *fetchIssue = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
                 fetchIssue.predicate = [self predicateForIssueIdentifiers:@[issueFullIdentifier]];
                 
                 NSError *cdErr = nil;
-                LocalIssue *issue = [[_moc executeFetchRequest:fetchIssue error:&cdErr] firstObject];
+                LocalIssue *issue = [[moc executeFetchRequest:fetchIssue error:&cdErr] firstObject];
                 if (cdErr) {
                     ErrLog(@"%@", cdErr);
                     fail(cdErr);
@@ -1549,7 +1641,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                 NSFetchRequest *reactionFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalReaction"];
                 reactionFetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
                 
-                LocalReaction *lr = [[_moc executeFetchRequest:reactionFetch error:&cdErr] firstObject];
+                LocalReaction *lr = [[moc executeFetchRequest:reactionFetch error:&cdErr] firstObject];
                 
                 if (cdErr) {
                     ErrLog(@"%@", cdErr);
@@ -1560,13 +1652,13 @@ static NSString *const LastUpdated = @"LastUpdated";
                 if (lr) {
                     [lr mergeAttributesFromDictionary:d];
                 } else {
-                    lr = [NSEntityDescription insertNewObjectForEntityForName:@"LocalReaction" inManagedObjectContext:_moc];
+                    lr = [NSEntityDescription insertNewObjectForEntityForName:@"LocalReaction" inManagedObjectContext:moc];
                     [lr mergeAttributesFromDictionary:d];
                     [self updateRelationshipsOn:lr fromSyncDict:d];
                     [lr setIssue:issue];
                 }
                 
-                [_moc save:&cdErr];
+                [moc save:&cdErr];
                 if (cdErr) {
                     ErrLog(@"%@", cdErr);
                     fail(cdErr);
@@ -1609,12 +1701,12 @@ static NSString *const LastUpdated = @"LastUpdated";
                 return;
             }
             
-            [_moc performBlock:^{
+            [self performWrite:^(NSManagedObjectContext *moc) {
                 NSFetchRequest *fetchComment = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
                 fetchComment.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
                 
                 NSError *cdErr = nil;
-                LocalComment *comment = [[_moc executeFetchRequest:fetchComment error:&cdErr] firstObject];
+                LocalComment *comment = [[moc executeFetchRequest:fetchComment error:&cdErr] firstObject];
                 if (cdErr) {
                     ErrLog(@"%@", cdErr);
                     fail(cdErr);
@@ -1624,7 +1716,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                 NSFetchRequest *reactionFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalReaction"];
                 reactionFetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
                 
-                LocalReaction *lr = [[_moc executeFetchRequest:reactionFetch error:&cdErr] firstObject];
+                LocalReaction *lr = [[moc executeFetchRequest:reactionFetch error:&cdErr] firstObject];
                 
                 if (cdErr) {
                     ErrLog(@"%@", cdErr);
@@ -1635,13 +1727,13 @@ static NSString *const LastUpdated = @"LastUpdated";
                 if (lr) {
                     [lr mergeAttributesFromDictionary:d];
                 } else {
-                    lr = [NSEntityDescription insertNewObjectForEntityForName:@"LocalReaction" inManagedObjectContext:_moc];
+                    lr = [NSEntityDescription insertNewObjectForEntityForName:@"LocalReaction" inManagedObjectContext:moc];
                     [lr mergeAttributesFromDictionary:d];
                     [self updateRelationshipsOn:lr fromSyncDict:d];
                     [lr setComment:comment];
                 }
                 
-                [_moc save:&cdErr];
+                [moc save:&cdErr];
                 if (cdErr) {
                     ErrLog(@"%@", cdErr);
                     fail(cdErr);
@@ -1677,12 +1769,12 @@ static NSString *const LastUpdated = @"LastUpdated";
         };
         
         if (!error) {
-            [_moc performBlock:^{
+            [self performWrite:^(NSManagedObjectContext *moc) {
                 NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalReaction"];
                 fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", reactionIdentifier];
                 
                 NSError *cdErr = nil;
-                NSArray *reactions = [_moc executeFetchRequest:fetch error:&cdErr];
+                NSArray *reactions = [moc executeFetchRequest:fetch error:&cdErr];
                 if (cdErr) {
                     ErrLog(@"%@", cdErr);
                     fail(cdErr);
@@ -1690,10 +1782,10 @@ static NSString *const LastUpdated = @"LastUpdated";
                 }
                 
                 for (LocalReaction *lr in reactions) {
-                    [_moc deleteObject:lr];
+                    [moc deleteObject:lr];
                 }
                 
-                [_moc save:&cdErr];
+                [moc save:&cdErr];
                 if (cdErr) {
                     ErrLog(@"%@", cdErr);
                     fail(cdErr);
@@ -1719,25 +1811,25 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/labels", repoOwner, repoName];
     [self.serverConnection perform:@"POST" on:endpoint body:label completion:^(id jsonResponse, NSError *error) {
         if (jsonResponse) {
-            [_moc performBlock:^{
+            [self performWrite:^(NSManagedObjectContext *moc) {
                 NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
                 fetch.predicate = [NSPredicate predicateWithFormat:@"fullName = %@",
                                    [NSString stringWithFormat:@"%@/%@", repoOwner, repoName]];
                 fetch.fetchLimit = 1;
                 
                 NSError *fetchError;
-                NSArray *results = [_moc executeFetchRequest:fetch error:&fetchError];
+                NSArray *results = [moc executeFetchRequest:fetch error:&fetchError];
                 NSAssert(results != nil, @"Failed to fetch repo: %@", error);
                 LocalRepo *localRepo = (LocalRepo *)[results firstObject];
                 
                 LocalLabel *localLabel = [NSEntityDescription insertNewObjectForEntityForName:@"LocalLabel"
-                                                                       inManagedObjectContext:_moc];
+                                                                       inManagedObjectContext:moc];
                 localLabel.name = label[@"name"];
                 localLabel.color = label[@"color"];
                 localLabel.repo = localRepo;
                 
                 NSError *saveError;
-                if ([_moc save:&saveError]) {
+                if ([moc save:&saveError]) {
                     RunOnMain(^{
                         completion(jsonResponse, nil);
                     });
@@ -1836,12 +1928,12 @@ static NSString *const LastUpdated = @"LastUpdated";
                     completion(nil, err);
                 });
             };
-            [_moc performBlock:^{
+            [self performWrite:^(NSManagedObjectContext *moc) {
                 NSFetchRequest *existingFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalMilestone"];
                 existingFetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", newIdentifiers];
                 
                 NSError *cdErr = nil;
-                NSDictionary *existing = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:existingFetch error:&cdErr] keyPath:@"identifier"];
+                NSDictionary *existing = [NSDictionary lookupWithObjects:[moc executeFetchRequest:existingFetch error:&cdErr] keyPath:@"identifier"];
                 if (cdErr) {
                     fail(cdErr);
                     return;
@@ -1851,7 +1943,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                 for (NSDictionary *mileDict in successful) {
                     LocalMilestone *lm = existing[mileDict[@"identifier"]];
                     if (!lm) {
-                        lm = [NSEntityDescription insertNewObjectForEntityForName:@"LocalMilestone" inManagedObjectContext:_moc];
+                        lm = [NSEntityDescription insertNewObjectForEntityForName:@"LocalMilestone" inManagedObjectContext:moc];
                     }
                     [lm mergeAttributesFromDictionary:mileDict];
                     [self updateRelationshipsOn:lm fromSyncDict:mileDict];
@@ -1860,7 +1952,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                     [resultMilestones addObject:result];
                 }
                 
-                [_moc save:&cdErr];
+                [moc save:&cdErr];
                 if (cdErr) {
                     fail(cdErr);
                     return;
@@ -1893,8 +1985,8 @@ static NSString *const LastUpdated = @"LastUpdated";
                 completion(nil, error);
             });
         } else {
-            [_moc performBlock:^{
-                LocalProject *proj = [NSEntityDescription insertNewObjectForEntityForName:@"LocalProject" inManagedObjectContext:_moc];
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                LocalProject *proj = [NSEntityDescription insertNewObjectForEntityForName:@"LocalProject" inManagedObjectContext:moc];
                 NSMutableDictionary *projDict = [[JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
                 projDict[@"repository"] = repo.identifier;
                 [proj mergeAttributesFromDictionary:projDict];
@@ -1902,7 +1994,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                 
                 Project *result = [[Project alloc] initWithLocalItem:proj];
                 NSError *cdErr = nil;
-                [_moc save:&cdErr];
+                [moc save:&cdErr];
                 if (cdErr) {
                     RunOnMain(^{
                         completion(nil, cdErr);
@@ -1921,21 +2013,23 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(proj);
     NSParameterAssert(completion);
     
-    [_moc performBlock:^{
+    [self performRead:^(NSManagedObjectContext *read) {
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalProject"];
         fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", proj.identifier];
         fetch.fetchLimit = 1;
         
-        LocalProject *lp = [[_moc executeFetchRequest:fetch error:NULL] firstObject];
+        LocalProject *lp = [[read executeFetchRequest:fetch error:NULL] firstObject];
+        NSManagedObjectID *lpID = [lp objectID];
         
         if (lp.number && lp.repository.fullName) {
             NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/projects/%@", lp.repository.fullName, lp.number];
             [self.serverConnection perform:@"DELETE" on:endpoint headers:@{@"Accept":@"application/vnd.github.inertia-preview+json"} body:nil completion:^(id jsonResponse, NSError *error) {
                 
                 if (!error) {
-                    [_moc performBlock:^{
-                        [_moc deleteObject:lp];
-                        [_moc save:NULL];
+                    [self performWrite:^(NSManagedObjectContext *write) {
+                        LocalProject *toDelete = [write objectWithID:lpID];
+                        [write deleteObject:toDelete];
+                        [write save:NULL];
                         
                         RunOnMain(^{
                             completion(nil);
@@ -1961,33 +2055,33 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)setHidden:(BOOL)hidden forMilestones:(NSArray<Milestone *> *)milestones completion:(void (^)(NSError *error))completion {
     NSParameterAssert(milestones);
     
-    [_moc performBlock:^{
+    [self performWrite:^(NSManagedObjectContext *moc) {
         NSFetchRequest *fetchMilestones = [NSFetchRequest fetchRequestWithEntityName:@"LocalMilestone"];
         fetchMilestones.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", [milestones arrayByMappingObjects:^id(id obj) {
             return [obj identifier];
         }]];
         
-        NSArray *localMilestones = [_moc executeFetchRequest:fetchMilestones error:NULL];
+        NSArray *localMilestones = [moc executeFetchRequest:fetchMilestones error:NULL];
         
         if (!hidden) {
             NSFetchRequest *fetchHiddens = [NSFetchRequest fetchRequestWithEntityName:@"LocalHidden"];
             fetchHiddens.predicate = [NSPredicate predicateWithFormat:@"milestone IN %@", localMilestones];
             
-            NSArray *localHiddens = [_moc executeFetchRequest:fetchHiddens error:NULL];
+            NSArray *localHiddens = [moc executeFetchRequest:fetchHiddens error:NULL];
             
             for (LocalHidden *h in localHiddens) {
-                [_moc deleteObject:h];
+                [moc deleteObject:h];
             }
         } else {
             for (LocalMilestone *lm in localMilestones) {
                 if (lm.hidden == nil) {
-                    LocalHidden *h = [NSEntityDescription insertNewObjectForEntityForName:@"LocalHidden" inManagedObjectContext:_moc];
+                    LocalHidden *h = [NSEntityDescription insertNewObjectForEntityForName:@"LocalHidden" inManagedObjectContext:moc];
                     lm.hidden = h;
                 }
             }
         }
         
-        [_moc save:NULL];
+        [moc save:NULL];
         
         RunOnMain(^{
             if (completion) completion(nil);
@@ -1998,28 +2092,28 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)setHidden:(BOOL)hidden forRepos:(NSArray<Repo *> *)repos completion:(void (^)(NSError *error))completion {
     NSParameterAssert(repos);
     
-    [_moc performBlock:^{
+    [self performWrite:^(NSManagedObjectContext *moc) {
         NSFetchRequest *fetchRepos = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
         fetchRepos.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", [repos arrayByMappingObjects:^id(id obj) {
             return [obj identifier];
         }]];
         
-        NSArray *localRepos = [_moc executeFetchRequest:fetchRepos error:NULL];
+        NSArray *localRepos = [moc executeFetchRequest:fetchRepos error:NULL];
         
         for (LocalRepo *lr in localRepos) {
             if (hidden) {
                 if (!lr.hidden) {
-                    LocalHidden *h = [NSEntityDescription insertNewObjectForEntityForName:@"LocalHidden" inManagedObjectContext:_moc];
+                    LocalHidden *h = [NSEntityDescription insertNewObjectForEntityForName:@"LocalHidden" inManagedObjectContext:moc];
                     lr.hidden = h;
                 }
             } else {
                 if (lr.hidden) {
-                    [_moc deleteObject:lr.hidden];
+                    [moc deleteObject:lr.hidden];
                 }
             }
         }
         
-        [_moc save:NULL];
+        [moc save:NULL];
         
         RunOnMain(^{
             if (completion) completion(nil);
@@ -2031,7 +2125,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 #pragma mark - Time Series
 
 - (void)timeSeriesMatchingPredicate:(NSPredicate *)predicate startDate:(NSDate *)startDate endDate:(NSDate *)endDate completion:(void (^)(TimeSeries *series, NSError *error))completion {
-    [_moc performBlock:^{
+    [self performRead:^(NSManagedObjectContext *moc) {
         NSError *error = nil;
         @try {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
@@ -2039,7 +2133,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             fetchRequest.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]];
             
             NSError *err = nil;
-            NSArray *entities = [_moc executeFetchRequest:fetchRequest error:&err];
+            NSArray *entities = [moc executeFetchRequest:fetchRequest error:&err];
             if (err) {
                 ErrLog(@"%@", err);
                 error = error;
@@ -2073,7 +2167,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(issueIdentifiers);
     NSAssert([issueIdentifiers count] > 0, @"Must pass in at least one issue identifier");
     
-    [_moc performBlock:^{
+    [self performWrite:^(NSManagedObjectContext *moc) {
         __block NSError *err = nil;
         
         dispatch_block_t complete = ^{
@@ -2086,7 +2180,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         meRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[User me] identifier]];
         meRequest.fetchLimit = 1;
         
-        LocalUser *me = [[_moc executeFetchRequest:meRequest error:&err] firstObject];
+        LocalUser *me = [[moc executeFetchRequest:meRequest error:&err] firstObject];
         if (err) {
             ErrLog(@"%@", err);
             complete();
@@ -2104,7 +2198,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         NSFetchRequest *existingRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalPriority"];
         existingRequest.predicate = [mePredicate and:[self predicateForIssueIdentifiers:issueIdentifiers prefix:@"issue"]];
         
-        NSDictionary *existing = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:existingRequest error:&err] keyPath:@"issue.fullIdentifier"];
+        NSDictionary *existing = [NSDictionary lookupWithObjects:[moc executeFetchRequest:existingRequest error:&err] keyPath:@"issue.fullIdentifier"];
         if (err) {
             ErrLog(@"%@", err);
             complete();
@@ -2121,7 +2215,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         minMaxRequest.propertiesToFetch = @[@"priority"];
         minMaxRequest.fetchLimit = 1;
         
-        NSNumber *minMax = [[[_moc executeFetchRequest:minMaxRequest error:&err] firstObject] objectForKey:@"priority"];
+        NSNumber *minMax = [[[moc executeFetchRequest:minMaxRequest error:&err] firstObject] objectForKey:@"priority"];
         if (err) {
             ErrLog(@"%@", err);
             complete();
@@ -2139,7 +2233,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         
         NSFetchRequest *issuesFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
         issuesFetch.predicate = [self predicateForIssueIdentifiers:[neededIssueIdentifiers allObjects]];
-        NSDictionary *missingIssues = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:issuesFetch error:&err] keyPath:@"fullIdentifier"];
+        NSDictionary *missingIssues = [NSDictionary lookupWithObjects:[moc executeFetchRequest:issuesFetch error:&err] keyPath:@"fullIdentifier"];
         
         double priority = start;
         for (NSString *issueIdentifier in issueIdentifiers) {
@@ -2147,7 +2241,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             if (!mObj) {
                 LocalIssue *issue = missingIssues[issueIdentifier];
                 if (issue) {
-                    mObj = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPriority" inManagedObjectContext:_moc];
+                    mObj = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPriority" inManagedObjectContext:moc];
                     mObj.user = me;
                     mObj.issue = issue;
                 }
@@ -2156,7 +2250,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             priority += increment;
         }
         
-        [_moc save:&err];
+        [moc save:&err];
         if (err) {
             ErrLog(@"%@", err);
             complete();
@@ -2174,7 +2268,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(issueIdentifiers);
     NSAssert(issueIdentifiers.count > 0, @"Must pass in at least 1 issueIdentifier");
     
-    [_moc performBlock:^{
+    [self performWrite:^(NSManagedObjectContext *moc) {
         __block NSError *err = nil;
         
         dispatch_block_t complete = ^{
@@ -2188,14 +2282,14 @@ static NSString *const LastUpdated = @"LastUpdated";
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPriority"];
         fetch.predicate = [[NSPredicate predicateWithFormat:@"user.identifier = %@", me.identifier] and:[self predicateForIssueIdentifiers:issueIdentifiers prefix:@"issue"]];
         
-        [_moc batchDeleteEntitiesWithRequest:fetch error:&err];
+        [moc batchDeleteEntitiesWithRequest:fetch error:&err];
         if (err) {
             ErrLog(@"%@", err);
             complete();
             return;
         }
         
-        [_moc save:&err];
+        [moc save:&err];
         
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completion) completion(err);
@@ -2211,8 +2305,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         return;
     }
     
-    [_moc performBlock:^{
-        
+    [self performWrite:^(NSManagedObjectContext *moc) {
         __block NSError *err = nil;
         
         dispatch_block_t complete = ^{
@@ -2225,7 +2318,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         meRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[User me] identifier]];
         meRequest.fetchLimit = 1;
         
-        LocalUser *me = [[_moc executeFetchRequest:meRequest error:&err] firstObject];
+        LocalUser *me = [[moc executeFetchRequest:meRequest error:&err] firstObject];
         if (err) {
             ErrLog(@"%@", err);
             complete();
@@ -2243,7 +2336,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         fetch.predicate = [NSPredicate predicateWithFormat:@"user = %@", me];
         fetch.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"priority" ascending:YES]];
         
-        NSArray *upNext = [_moc executeFetchRequest:fetch error:&err];
+        NSArray *upNext = [moc executeFetchRequest:fetch error:&err];
         if (err) {
             ErrLog(@"%@", err);
             complete();
@@ -2257,7 +2350,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         
         NSFetchRequest *issuesFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
         issuesFetch.predicate = [self predicateForIssueIdentifiers:[neededIssueIdentifiers allObjects]];
-        NSDictionary *missingIssues = [NSDictionary lookupWithObjects:[_moc executeFetchRequest:issuesFetch error:&err] keyPath:@"fullIdentifier"];
+        NSDictionary *missingIssues = [NSDictionary lookupWithObjects:[moc executeFetchRequest:issuesFetch error:&err] keyPath:@"fullIdentifier"];
         
         LocalPriority *context = lookup[aboveIssueIdentifier];
         
@@ -2301,7 +2394,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                         if (!next) {
                             LocalIssue *issue = missingIssues[ii];
                             if (issue) {
-                                next = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPriority" inManagedObjectContext:_moc];
+                                next = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPriority" inManagedObjectContext:moc];
                                 next.issue = issue;
                                 next.user = me;
                             }
@@ -2326,7 +2419,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                 if (!next) {
                     LocalIssue *issue = missingIssues[ii];
                     if (issue) {
-                        next = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPriority" inManagedObjectContext:_moc];
+                        next = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPriority" inManagedObjectContext:moc];
                         next.issue = issue;
                         next.user = me;
                     }
@@ -2336,7 +2429,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             }
         }
         
-        [_moc save:&err];
+        [moc save:&err];
         if (err) {
             ErrLog(@"%@", err);
             complete();
@@ -2353,18 +2446,21 @@ static NSString *const LastUpdated = @"LastUpdated";
 # pragma mark - GitHub notifications handling
 
 - (void)markIssueAsRead:(id)issueIdentifier {
-    [_moc performBlock:^{
+    [self performRead:^(NSManagedObjectContext *read) {
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalNotification"];
         fetch.predicate = [self predicateForIssueIdentifiers:@[issueIdentifier] prefix:@"issue"];
         
-        LocalNotification *note = [[_moc executeFetchRequest:fetch error:NULL] firstObject];
+        LocalNotification *note = [[read executeFetchRequest:fetch error:NULL] firstObject];
+        NSManagedObjectID *noteID = [note objectID];
+        
         if (note.unread) {
             NSString *endpoint = [NSString stringWithFormat:@"/notifications/threads/%@", note.identifier];
             [_serverConnection perform:@"PATCH" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
                 if (!error) {
-                    [_moc performBlock:^{
-                        note.unread = NO;
-                        [_moc save:NULL];
+                    [self performWrite:^(NSManagedObjectContext *write) {
+                        LocalNotification *writeNote = [write objectWithID:noteID];
+                        writeNote.unread = NO;
+                        [write save:NULL];
                     }];
                 } else {
                     ErrLog(@"%@", error);
@@ -2383,21 +2479,25 @@ static NSString *const LastUpdated = @"LastUpdated";
         }
     };
     
-    [_moc performBlock:^{
+    [self performRead:^(NSManagedObjectContext *read) {
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalNotification"];
         fetch.predicate = [NSPredicate predicateWithFormat:@"unread = YES"];
-        NSArray *notes = [_moc executeFetchRequest:fetch error:NULL];
+        NSArray *notes = [read executeFetchRequest:fetch error:NULL];
+        NSArray *noteIDs = [notes arrayByMappingObjects:^id(id obj) {
+            return [obj objectID];
+        }];
         
         if ([notes count]) {
             [_serverConnection perform:@"PUT" on:@"/notifications" body:@{} completion:^(id jsonResponse, NSError *error) {
                 if (!error) {
-                    [_moc performBlock:^{
-                        for (LocalNotification *note in notes) {
+                    [self performWrite:^(NSManagedObjectContext *write) {
+                        NSFetchRequest *wrFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalNotification"];
+                        wrFetch.predicate = [NSPredicate predicateWithFormat:@"SELF IN %@", noteIDs];
+                        NSArray *wrNotes = [write executeFetchRequest:wrFetch error:NULL];
+                        for (LocalNotification *note in wrNotes) {
                             note.unread = NO;
                         }
-                        [_moc save:NULL];
-                        
-                        complete(nil);
+                        [write save:NULL];
                     }];
                 } else {
                     complete(error);
@@ -2413,15 +2513,15 @@ static NSString *const LastUpdated = @"LastUpdated";
 
 // used only by init. blocks.
 - (void)loadQueries {
-    [_moc performBlockAndWait:^{
-        self.myQueries = [self _fetchQueries];
+    [_writeMoc performBlockAndWait:^{
+        self.myQueries = [self _fetchQueries:_writeMoc];
     }];
 }
 
 // must be called on _moc queue.
-- (NSArray *)_fetchQueries {
+- (NSArray *)_fetchQueries:(NSManagedObjectContext *)moc {
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQuery"];
-    NSArray *queries = [_moc executeFetchRequest:fetch error:NULL];
+    NSArray *queries = [moc executeFetchRequest:fetch error:NULL];
     
     return [queries arrayByMappingObjects:^id(id obj) {
         return [[CustomQuery alloc] initWithLocalItem:obj];
@@ -2432,11 +2532,11 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(query);
     NSParameterAssert(query.identifier);
     
-    [_moc performBlock:^{
+    [self performWrite:^(NSManagedObjectContext *moc) {
         NSFetchRequest *meFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
         meFetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[User me] identifier]];
         
-        LocalUser *me = [[_moc executeFetchRequest:meFetch error:NULL] firstObject];
+        LocalUser *me = [[moc executeFetchRequest:meFetch error:NULL] firstObject];
         if (!me) {
             ErrLog(@"Missing me");
             return;
@@ -2445,7 +2545,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQuery"];
         fetch.predicate = [NSPredicate predicateWithFormat:@"author = %@ AND (identifier = %@ OR title =[cd] %@)", me, query.identifier, query.title];
         
-        NSArray *queries = [_moc executeFetchRequest:fetch error:NULL];
+        NSArray *queries = [moc executeFetchRequest:fetch error:NULL];
         
         if ([queries count]) {
             for (LocalQuery *q in queries) {
@@ -2457,15 +2557,15 @@ static NSString *const LastUpdated = @"LastUpdated";
                 }
             }
         } else {
-            LocalQuery *q = [NSEntityDescription insertNewObjectForEntityForName:@"LocalQuery" inManagedObjectContext:_moc];
+            LocalQuery *q = [NSEntityDescription insertNewObjectForEntityForName:@"LocalQuery" inManagedObjectContext:moc];
             [q mergeAttributesFromDictionary:[query dictionaryRepresentation]];
             q.author = me;
         }
         
-        NSArray *myQueries = [self _fetchQueries];
+        NSArray *myQueries = [self _fetchQueries:moc];
         
         NSError *error = nil;
-        [_moc save:&error];
+        [moc save:&error];
         
         if (error) {
             ErrLog(@"%@", error);
@@ -2484,18 +2584,18 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(query);
     NSParameterAssert(query.identifier);
     
-    [_moc performBlock:^{
+    [self performWrite:^(NSManagedObjectContext *moc) {
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQuery"];
         fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", query.identifier];
         
-        for (LocalQuery *q in [_moc executeFetchRequest:fetch error:NULL]) {
-            [_moc deleteObject:q];
+        for (LocalQuery *q in [moc executeFetchRequest:fetch error:NULL]) {
+            [moc deleteObject:q];
         }
         
-        NSArray *myQueries = [self _fetchQueries];
+        NSArray *myQueries = [self _fetchQueries:moc];
         
         NSError *error = nil;
-        [_moc save:&error];
+        [moc save:&error];
         
         if (error) {
             ErrLog(@"%@", error);
@@ -2524,11 +2624,11 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSString *currentPurge = currentMetadata[PurgeVersion];
     if (!currentPurge) {
         DebugLog(@"Updating NULL purge identifier to %@", purgeIdentifier);
-        [_moc performBlock:^{
+        [self performWrite:^(NSManagedObjectContext *moc) {
             NSMutableDictionary *newMetadata = [currentMetadata mutableCopy];
             newMetadata[PurgeVersion] = purgeIdentifier;
             [_persistentCoordinator setMetadata:newMetadata forPersistentStore:store];
-            [_moc save:NULL];
+            [moc save:NULL];
         }];
     } else if (![currentPurge isEqualToString:purgeIdentifier]) {
         DebugLog(@"Purge identifier changed from %@ to %@. Must purge database :(", currentPurge, purgeIdentifier);
@@ -2539,19 +2639,20 @@ static NSString *const LastUpdated = @"LastUpdated";
         dispatch_async(_needsMetadataQueue, ^{
             [_needsMetadataItems removeAllObjects];
         });
-        [_moc performBlock:^{
+        [self performWrite:^(NSManagedObjectContext *moc) {
             NSMutableDictionary *newMetadata = [currentMetadata mutableCopy];
             newMetadata[PurgeVersion] = purgeIdentifier;
             [_persistentCoordinator setMetadata:newMetadata forPersistentStore:store];
-            [_moc purge]; // purge will call save: to persist the new metadata
-        } completion:^{
+            [moc purge]; // purge will call save: to persist the new metadata
             
-            [self loadMetadata];
-            [self loadQueries];
-            [self updateSyncConnectionWithVersions];
-            
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidPurgeNotification object:self];
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                [self loadMetadata];
+                [self loadQueries];
+                [self updateSyncConnectionWithVersions];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidPurgeNotification object:self];
+                });
             });
         }];
         
@@ -2606,6 +2707,21 @@ static NSString *const LastUpdated = @"LastUpdated";
     if (_hash != other->_hash) return NO;
     return _identifier.longLongValue == other->_identifier.longLongValue
         && [_entity isEqualToString:other->_entity];
+}
+
+@end
+
+@implementation ReadOnlyManagedObjectContext
+
+- (BOOL)save:(NSError * _Nullable __autoreleasing *)error {
+    ErrLog(@"Illegal Attempt to write to ReadOnlyManagedObjectContext");
+    abort();
+    return NO;
+}
+
+- (void)deleteObject:(NSManagedObject *)object {
+    ErrLog(@"Illegal Attempt to write to ReadOnlyManagedObjectContext");
+    abort();
 }
 
 @end

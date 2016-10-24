@@ -816,59 +816,6 @@ static BOOL equal(id a, id b) {
 
 @end
 
-@implementation SerializedManagedObjectContext {
-#ifdef DEBUG
-    dispatch_queue_t _myq;
-#endif
-}
-
-- (id)initWithConcurrencyType:(NSManagedObjectContextConcurrencyType)ct {
-    if (self = [super initWithConcurrencyType:ct]) {
-#ifdef DEBUG
-        [self performBlockAndWait:^{
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-            _myq = dispatch_get_current_queue();
-#pragma diagnostic pop
-        }];
-#endif
-    }
-    return self;
-}
-
-- (void)assertConfinementQueue {
-#ifdef DEBUG
-    dispatch_queue_t expected = _myq;
-    if (expected) {
-        dispatch_assert_current_queue(expected);
-    }
-#endif
-}
-
-- (NSArray *)executeFetchRequest:(NSFetchRequest *)request error:(NSError *__autoreleasing *)error {
-    [self assertConfinementQueue];
-    return [super executeFetchRequest:request error:error];
-}
-
-- (BOOL)save:(NSError *__autoreleasing *)error {
-    [self assertConfinementQueue];
-    return [super save:error];
-}
-
-@end
-
-@implementation SerializedManagedObject
-
-- (void)willAccessValueForKey:(NSString *)key {
-    id moc = [self managedObjectContext];
-    if ([moc isKindOfClass:[SerializedManagedObjectContext class]]) {
-        [moc assertConfinementQueue];
-    }
-    [super willAccessValueForKey:key];
-}
-
-@end
-
 @implementation NSNotification (CoreDataExtras)
 
 - (void)enumerateModifiedObjects:(void (^)(id obj, CoreDataModificationType modType, BOOL *stop))block

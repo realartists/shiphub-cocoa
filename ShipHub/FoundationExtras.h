@@ -183,16 +183,6 @@
 
 @end
 
-// Enforces that all actions are performed within a performBlock context
-@interface SerializedManagedObjectContext : NSManagedObjectContext
-
-@end
-
-// Enforces that usage of a managed object does not escape its SerializedManagedObjectContext's private queue
-@interface SerializedManagedObject : NSManagedObject
-
-@end
-
 typedef NS_ENUM(NSInteger, CoreDataModificationType) {
     CoreDataModificationTypeInserted,
     CoreDataModificationTypeUpdated,

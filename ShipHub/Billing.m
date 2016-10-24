@@ -28,8 +28,8 @@
 - (id)initWithDataStore:(DataStore *)store {
     if (self = [super init]) {
         self.store = store;
-        [_store.moc performBlockAndWait:^{
-            LocalBilling *billing = [self localBilling];
+        [_store performWriteAndWait:^(NSManagedObjectContext *moc) {
+            LocalBilling *billing = [self localBilling:moc];
             
             _state = [billing.billingState integerValue];
             _trialEndDate = billing.endDate;
@@ -68,20 +68,20 @@
 #endif
 
 // Must be called on _store.moc
-- (LocalBilling *)localBilling {
+- (LocalBilling *)localBilling:(NSManagedObjectContext *)moc {
     NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalBilling"];
     fetch.fetchLimit = 1;
     
-    LocalBilling *billing = [[_store.moc executeFetchRequest:fetch error:NULL] firstObject];
+    LocalBilling *billing = [[moc executeFetchRequest:fetch error:NULL] firstObject];
     if (!billing) {
         // If we have no billing info, start a 30 day trial until we can get some more info from the server
-        billing = [NSEntityDescription insertNewObjectForEntityForName:@"LocalBilling" inManagedObjectContext:_store.moc];
+        billing = [NSEntityDescription insertNewObjectForEntityForName:@"LocalBilling" inManagedObjectContext:moc];
         billing.billingState = @(BillingStateTrial);
         NSDate *now = [NSDate date];
         NSCalendar *cal = [NSCalendar currentCalendar];
         NSDate *then = [cal dateByAddingUnit:NSCalendarUnitDay value:30 toDate:now options:0];
         billing.endDate = then;
-        [_store.moc save:NULL];
+        [moc save:NULL];
     }
     
     return billing;
@@ -96,10 +96,10 @@
 - (void)billingExpired:(NSTimer *)timer {
     _expirationTimer = nil;
     _state = BillingStateFree;
-    [_store.moc performBlock:^{
-        LocalBilling *billing = [self localBilling];
+    [_store performWrite:^(NSManagedObjectContext *moc) {
+        LocalBilling *billing = [self localBilling:moc];
         billing.billingState = @(BillingStateFree);
-        [_store.moc save:NULL];
+        [moc save:NULL];
     }];
     [self notifyStateChange];
 }
@@ -136,11 +136,11 @@
         {
             _state = newState;
             _trialEndDate = newDate;
-            [_store.moc performBlock:^{
-                LocalBilling *billing = [self localBilling];
+            [_store performWrite:^(NSManagedObjectContext *moc) {
+                LocalBilling *billing = [self localBilling:moc];
                 billing.billingState = @(newState);
                 billing.endDate = newDate;
-                [_store.moc save:NULL];
+                [moc save:NULL];
             }];
             [self checkForBillingExpiration];
             [self notifyStateChange];

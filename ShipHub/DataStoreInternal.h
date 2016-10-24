@@ -13,8 +13,11 @@
 @interface DataStore (Internal)
 
 @property (readonly) Auth *auth;
-@property (readonly) NSManagedObjectContext *moc;
 @property (readonly) NSManagedObjectModel *mom;
+
+- (void)performWrite:(void (^)(NSManagedObjectContext *moc))block;
+- (void)performWriteAndWait:(void (^)(NSManagedObjectContext *moc))block;
+- (void)performRead:(void (^)(NSManagedObjectContext *moc))block;
 
 - (void)postNotification:(NSString *)notificationName userInfo:(NSDictionary *)userInfo;
 
