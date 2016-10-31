@@ -55,7 +55,6 @@
     
     if ([tableItem respondsToSelector:@selector(setMinimumThickness:)]) {
         tableItem.minimumThickness = 200.0;
-        tableItem.maximumThickness = 400.0;
         issueItem.minimumThickness = 440.0;
     }
     
