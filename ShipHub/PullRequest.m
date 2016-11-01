@@ -88,22 +88,30 @@
         return error;
     }
     
-    NSString *remoteURLStr = _info[@"base"][@"repo"][@"clone_url"]; // want to use the base, as this is "origin"
-    
-    // See https://github.com/blog/1270-easier-builds-and-deployments-using-git-over-https-and-oauth
-    NSURLComponents *comps = [NSURLComponents componentsWithString:remoteURLStr];
-    comps.user = [[[DataStore activeStore] auth] ghToken];
-    comps.password = @"x-oauth-basic";
-    NSURL *remoteURL = comps.URL;
-    
-    // See https://help.github.com/articles/checking-out-pull-requests-locally/
-    NSString *refSpec = [NSString stringWithFormat:@"pull/%@/head", _issue.number];
-    
-    error = [_repo fetchRemote:remoteURL refs:@[refSpec]];
-    if (error) return error;
-    
-    error = [self loadSpanDiff];
-    if (error) return error;
+    // optimistically, see if we can find the PR without doing any network operations
+    NSError *optimisticErr = [self loadSpanDiff];
+    if (optimisticErr) {
+        NSString *remoteURLStr = _info[@"base"][@"repo"][@"clone_url"]; // want to use the base, as this is "origin"
+        
+        // See https://github.com/blog/1270-easier-builds-and-deployments-using-git-over-https-and-oauth
+        NSURLComponents *comps = [NSURLComponents componentsWithString:remoteURLStr];
+        comps.user = [[[DataStore activeStore] auth] ghToken];
+        comps.password = @"x-oauth-basic";
+        NSURL *remoteURL = comps.URL;
+        
+        // See https://help.github.com/articles/checking-out-pull-requests-locally/
+        NSString *refSpec = [NSString stringWithFormat:@"pull/%@/head", _issue.number];
+        
+        DebugLog(@"Have to fetch refSpac %@ from %@", refSpec, remoteURLStr);
+        
+        error = [_repo fetchRemote:remoteURL refs:@[refSpec]];
+        if (error) return error;
+        
+        error = [self loadSpanDiff];
+        if (error) return error;
+    } else {
+        DebugLog(@"Loaded span diff without network op");
+    }
     
     return nil;
 }
