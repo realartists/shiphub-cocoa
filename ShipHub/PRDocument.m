@@ -8,6 +8,18 @@
 
 #import "PRDocument.h"
 
+@interface PRDocumentWindow : NSWindow
+
+@end
+
+@implementation PRDocumentWindow
+
+- (void)setFrame:(NSRect)frameRect display:(BOOL)flag {
+    [super setFrame:frameRect display:flag];
+}
+
+@end
+
 @implementation PRDocument
 
 - (NSString *)windowNibName {
@@ -16,7 +28,10 @@
 
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController {
     [super windowControllerDidLoadNib:aController];
+    NSWindow *window = aController.window;
+    NSScreen *screen = window.screen ?: [NSScreen mainScreen];
     aController.contentViewController = self.prViewController;
+    [window setFrame:screen.visibleFrame display:NO];
 }
 
 - (void)awakeFromNib {

@@ -53,6 +53,7 @@
 
 - (void)loadForIssue:(Issue *)issue {
     self.pr = [[PullRequest alloc] initWithIssue:issue];
+    self.title = [NSString stringWithFormat:NSLocalizedString(@"Code Changes for %@ %@", nil), issue.fullIdentifier, issue.title];
     
     ProgressSheet *sheet = [ProgressSheet new];
     sheet.message = NSLocalizedString(@"Loading Pull Request", nil);
