@@ -106,6 +106,19 @@ class Row {
   }
 }
 
+class TrailerRow {
+  constructor() {
+    var gutterLeft = h('td', { className:'gutter gutter-left' });
+    var gutterRight = h('td', { className:'gutter gutter-right' });
+    var left = this.left = h('td', {style:{height:'100%'}});
+    var right = this.right = h('td', {style:{height:'100%'}});
+    
+    var row = h('tr', {style:{height:'100%'}}, gutterLeft, left, gutterRight, right);
+    this.node = row;
+  }
+  updateHighlight() { }
+}
+
 class App {
   constructor(root) {  
     var minimapWidth = 32;
@@ -128,9 +141,18 @@ class App {
       this.dragCode(event);
     });
     
+    window.addEventListener('resize', () => {
+      this.sizeTable();
+    });
+    
     root.appendChild(this.table);
     
     this.miniMap = new MiniMap(root, this.table, minimapWidth);
+    this.sizeTable();
+  }
+  
+  sizeTable() {
+    this.table.style.minHeight = window.innerHeight + 'px';
   }
   
   updateDiff(filename, leftText, rightText, uDiff) {
@@ -234,6 +256,10 @@ class App {
         ri.changed===true
       );
     });
+    
+    // add a trailing row to take up space for short diffs
+    var trailer = new TrailerRow();
+    rows.push(trailer);
     
     var rowNodes = rows.map((r) => r.node);
     
