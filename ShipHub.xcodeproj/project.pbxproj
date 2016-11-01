@@ -625,14 +625,11 @@
 		1A3D34721DB16AD200CDF167 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
 		1A3D34731DB16AD200CDF167 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		1A3D34751DB16AD200CDF167 /* attributed-string.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "attributed-string.js"; sourceTree = "<group>"; };
-		1A3D34761DB16AD200CDF167 /* diff.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = diff.txt; sourceTree = "<group>"; };
 		1A3D34771DB16AD200CDF167 /* filter-selection.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "filter-selection.js"; sourceTree = "<group>"; };
 		1A3D34781DB16AD200CDF167 /* index.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = index.css; sourceTree = "<group>"; };
 		1A3D34791DB16AD200CDF167 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		1A3D347A1DB16AD200CDF167 /* index.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index.js; sourceTree = "<group>"; };
-		1A3D347B1DB16AD200CDF167 /* left.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = left.m; sourceTree = "<group>"; };
 		1A3D347C1DB16AD200CDF167 /* minimap.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = minimap.js; sourceTree = "<group>"; };
-		1A3D347D1DB16AD200CDF167 /* right.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = right.m; sourceTree = "<group>"; };
 		1A3D347E1DB16AD200CDF167 /* xcode7.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = xcode7.css; sourceTree = "<group>"; };
 		1A3D34821DB16AD200CDF167 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		1A3D62FD1DB16B0000CDF167 /* npm-shrinkwrap.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "npm-shrinkwrap.json"; sourceTree = "<group>"; };
@@ -1457,14 +1454,11 @@
 			isa = PBXGroup;
 			children = (
 				1A3D34751DB16AD200CDF167 /* attributed-string.js */,
-				1A3D34761DB16AD200CDF167 /* diff.txt */,
 				1A3D34771DB16AD200CDF167 /* filter-selection.js */,
 				1A3D34781DB16AD200CDF167 /* index.css */,
 				1A3D34791DB16AD200CDF167 /* index.html */,
 				1A3D347A1DB16AD200CDF167 /* index.js */,
-				1A3D347B1DB16AD200CDF167 /* left.m */,
 				1A3D347C1DB16AD200CDF167 /* minimap.js */,
-				1A3D347D1DB16AD200CDF167 /* right.m */,
 				1A3D347E1DB16AD200CDF167 /* xcode7.css */,
 			);
 			path = app;
