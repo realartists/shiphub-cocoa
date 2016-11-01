@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "LocalAccount.h"
 
-@class LocalUser;
+@class LocalUser, LocalProject;
 
 NS_ASSUME_NONNULL_BEGIN
 

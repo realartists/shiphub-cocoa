@@ -48,6 +48,18 @@
     return self;
 }
 
+- (id)initWithOrg:(Org *)org {
+    NSParameterAssert(org);
+    
+    if (self = [super init]) {
+        _org = org;
+        
+        MetadataStore *ms = [[DataStore activeStore] metadataStore];
+        _existingProjects = [ms projectsForOrg:org];
+    }
+    return self;
+}
+
 - (void)windowDidLoad {
     [super windowDidLoad];
     [self validateUI];
@@ -77,7 +89,10 @@
     progressSheet.message = NSLocalizedString(@"Creating Project", nil);
     [progressSheet beginSheetInWindow:sheetParent];
     
-    [[DataStore activeStore] addProjectNamed:[_nameField.stringValue trim] body:[_bodyView.textStorage.string trim] inRepo:_repo completion:^(Project *proj, NSError *error) {
+    NSString *projName = [_nameField.stringValue trim];
+    NSString *projBody = [_bodyView.textStorage.string trim];
+    
+    void (^completion)(Project *, NSError *) = ^(Project *proj, NSError *error) {
         [progressSheet endSheet];
         if (error) {
             NSAlert *err = [NSAlert new];
@@ -89,7 +104,14 @@
         } else {
             [self finishWithProject:proj error:nil];
         }
-    }];
+    };
+    
+    DataStore *store = [DataStore activeStore];
+    if (_repo) {
+        [store addProjectNamed:projName body:projBody inRepo:_repo completion:completion];
+    } else {
+        [store addProjectNamed:projName body:projBody inOrg:_org completion:completion];
+    }
 }
 
 - (void)finishWithProject:(Project *)proj error:(NSError *)error {

@@ -166,6 +166,12 @@ typedef NS_ENUM(NSInteger, SyncState) {
                 dispatch_group_leave(waitForOrgsAndMilestones);
             }];
             
+            // find org level projects
+            dispatch_group_enter(waitForOrgsAndMilestones);
+            [self orgProjects:dedupedOrgs completion:^{
+                dispatch_group_leave(waitForOrgsAndMilestones);
+            }];
+            
             dispatch_group_notify(waitForOrgsAndMilestones, _q, ^{
                 // yield the repos
                 [self yield:reposWithInfo type:@"repo" version:@{}];
@@ -279,6 +285,38 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
                 mile[@"repository"] = repo[@"id"];
                 return mile;
             }];
+            done();
+        }];
+    }
+}
+
+- (void)orgProjects:(NSArray *)orgs completion:(dispatch_block_t)completion {
+    NSParameterAssert(completion);
+    
+    if (orgs.count == 0) {
+        completion();
+    }
+    
+    __block NSUInteger remaining = orgs.count;
+    dispatch_block_t done = ^{
+        remaining--;
+        if (remaining == 0) {
+            completion();
+        }
+    };
+    
+    for (NSDictionary *org in orgs) {
+        NSString *endpoint = [NSString stringWithFormat:@"/orgs/%@/projects", org[@"login"]];
+        [_pager fetchPaged:[_pager get:endpoint params:nil headers:@{@"Accept":@"application/vnd.github.inertia-preview+json"}] completion:^(NSArray *data, NSError *err) {
+            
+            NSArray *projs = [data arrayByMappingObjects:^id(NSDictionary *obj) {
+                NSMutableDictionary *proj = [obj mutableCopy];
+                proj[@"organization"] = org[@"id"];
+                return proj;
+            }];
+            
+            [self yield:projs type:@"project" version:@{}];
+            
             done();
         }];
     }

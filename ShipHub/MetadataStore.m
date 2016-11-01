@@ -46,6 +46,7 @@
 @property (strong) NSDictionary *milestonesByID;
 
 @property (strong) NSDictionary *orgIDToMembers;
+@property (strong) NSDictionary *orgIDToProjects;
 
 @property (strong) NSArray *hiddenRepos;
 @property (strong) NSArray *hiddenMilestones;
@@ -143,15 +144,6 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
                 }
             }
             
-            NSMutableArray *projects;
-            projectsByRepoID[r.identifier] = projects = [NSMutableArray new];
-            for (LocalProject *lp in r.projects) {
-                if (lp.name && lp.number) {
-                    Project *p = [[Project alloc] initWithLocalItem:lp];
-                    [projects addObject:p];
-                }
-            }
-            
             NSMutableArray *labels;
             labelsByRepoID[r.identifier] = labels = [NSMutableArray new];
             
@@ -177,6 +169,15 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
             Repo *repo = [[Repo alloc] initWithLocalItem:r owner:owner billingState:billingState];
             [repos addObject:repo];
             
+            NSMutableArray *projects;
+            projectsByRepoID[r.identifier] = projects = [NSMutableArray new];
+            for (LocalProject *lp in r.projects) {
+                if (lp.name && lp.number) {
+                    Project *p = [[Project alloc] initWithLocalItem:lp owningRepo:repo];
+                    [projects addObject:p];
+                }
+            }
+            
             if (!r.hidden) {
                 [repoOwners addObject:owner];
                 
@@ -187,6 +188,19 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
                 [ownersList addObject:repo];
             }
         }
+        
+        NSMutableDictionary *orgIDToProjects = [NSMutableDictionary new];
+        for (LocalOrg *lo in localOrgsByID.allValues) {
+            NSMutableArray *projects = [NSMutableArray new];
+            for (LocalProject *lp in lo.projects) {
+                if (lp.name && lp.number) {
+                    Project *p = [[Project alloc] initWithLocalItem:lp owningOrg:orgsByID[lo.identifier]];
+                    [projects addObject:p];
+                }
+            }
+            orgIDToProjects[lo.identifier] = projects;
+        }
+        _orgIDToProjects = orgIDToProjects;
         
         _usersByID = usersByID;
         _orgsByID = orgsByID;
@@ -344,6 +358,10 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
 
 - (NSArray<Project *> *)projectsForRepo:(Repo *)repo {
     return _projectsByRepoID[repo.identifier];
+}
+
+- (NSArray<Project *> *)projectsForOrg:(Org *)org {
+    return _orgIDToProjects[org.identifier];
 }
 
 - (User *)userWithLocalUser:(LocalUser *)lu {

@@ -44,6 +44,7 @@
 #import "IssueComment.h"
 #import "IssueIdentifier.h"
 #import "Repo.h"
+#import "Org.h"
 #import "CustomQuery.h"
 #import "Reaction.h"
 #import "Milestone.h"
@@ -1992,7 +1993,50 @@ static NSString *const LastUpdated = @"LastUpdated";
                 [proj mergeAttributesFromDictionary:projDict];
                 [self updateRelationshipsOn:proj fromSyncDict:projDict];
                 
-                Project *result = [[Project alloc] initWithLocalItem:proj];
+                Project *result = [[Project alloc] initWithLocalItem:proj owningRepo:repo];
+                NSError *cdErr = nil;
+                [moc save:&cdErr];
+                if (cdErr) {
+                    RunOnMain(^{
+                        completion(nil, cdErr);
+                    });
+                } else {
+                    RunOnMain(^{
+                        completion(result, nil);
+                    });
+                }
+            }];
+        }
+    }];
+}
+
+- (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inOrg:(Org *)org completion:(void (^)(Project *proj, NSError *error))completion
+{
+    NSParameterAssert(projName);
+    NSParameterAssert(org);
+    NSParameterAssert(completion);
+    
+    NSMutableDictionary *contents = [NSMutableDictionary new];
+    contents[@"name"] = projName;
+    if ([projBody length]) {
+        contents[@"body"] = projBody;
+    }
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/orgs/%@/projects", org.login];
+    [self.serverConnection perform:@"POST" on:endpoint headers:@{@"Accept":@"application/vnd.github.inertia-preview+json"} body:contents completion:^(id jsonResponse, NSError *error) {
+        if (error) {
+            RunOnMain(^{
+                completion(nil, error);
+            });
+        } else {
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                LocalProject *proj = [NSEntityDescription insertNewObjectForEntityForName:@"LocalProject" inManagedObjectContext:moc];
+                NSMutableDictionary *projDict = [[JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
+                projDict[@"organization"] = org.identifier;
+                [proj mergeAttributesFromDictionary:projDict];
+                [self updateRelationshipsOn:proj fromSyncDict:projDict];
+                
+                Project *result = [[Project alloc] initWithLocalItem:proj owningOrg:org];
                 NSError *cdErr = nil;
                 [moc save:&cdErr];
                 if (cdErr) {
@@ -2013,38 +2057,29 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(proj);
     NSParameterAssert(completion);
     
-    [self performRead:^(NSManagedObjectContext *read) {
-        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalProject"];
-        fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", proj.identifier];
-        fetch.fetchLimit = 1;
+    NSString *endpoint = [NSString stringWithFormat:@"/projects/%@", proj.identifier];
+    [self.serverConnection perform:@"DELETE" on:endpoint headers:@{@"Accept":@"application/vnd.github.inertia-preview+json"} body:nil completion:^(id jsonResponse, NSError *error) {
         
-        LocalProject *lp = [[read executeFetchRequest:fetch error:NULL] firstObject];
-        NSManagedObjectID *lpID = [lp objectID];
-        
-        if (lp.number && lp.repository.fullName) {
-            NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/projects/%@", lp.repository.fullName, lp.number];
-            [self.serverConnection perform:@"DELETE" on:endpoint headers:@{@"Accept":@"application/vnd.github.inertia-preview+json"} body:nil completion:^(id jsonResponse, NSError *error) {
+        if (!error) {
+            [self performWrite:^(NSManagedObjectContext *write) {
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalProject"];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", proj.identifier];
+                fetch.fetchLimit = 1;
                 
-                if (!error) {
-                    [self performWrite:^(NSManagedObjectContext *write) {
-                        LocalProject *toDelete = [write objectWithID:lpID];
-                        [write deleteObject:toDelete];
-                        [write save:NULL];
-                        
-                        RunOnMain(^{
-                            completion(nil);
-                        });
-                    }];
-                } else {
-                    RunOnMain(^{
-                        completion(error);
-                    });
+                LocalProject *lp = [[write executeFetchRequest:fetch error:NULL] firstObject];
+                
+                if (lp) {
+                    [write deleteObject:lp];
+                    [write save:NULL];
                 }
                 
+                RunOnMain(^{
+                    completion(nil);
+                });
             }];
         } else {
             RunOnMain(^{
-                completion([NSError shipErrorWithCode:ShipErrorCodeInternalInconsistencyError]);
+                completion(error);
             });
         }
     }];

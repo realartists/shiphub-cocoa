@@ -14,6 +14,7 @@
 @class Issue;
 @class IssueComment;
 @class Repo;
+@class Org;
 @class TimeSeries;
 @class CustomQuery;
 @class Reaction;
@@ -81,6 +82,8 @@
 - (void)addMilestone:(NSDictionary *)milestone inRepos:(NSArray<Repo *> *)repos completion:(void (^)(NSArray<Milestone *> *milestones, NSError *error))completion;
 
 - (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inRepo:(Repo *)repo completion:(void (^)(Project *proj, NSError *error))completion;
+- (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inOrg:(Org *)org completion:(void (^)(Project *proj, NSError *error))completion;
+
 - (void)deleteProject:(Project *)proj completion:(void (^)(NSError *error))completion;
 
 @end

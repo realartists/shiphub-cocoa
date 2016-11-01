@@ -23,6 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *body;
 @property (nullable, nonatomic, retain) LocalRepo *repository;
 @property (nullable, nonatomic, retain) LocalUser *creator;
+@property (nullable, nonatomic, retain) LocalOrg *organization;
 
 @end
 

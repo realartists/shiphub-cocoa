@@ -17,6 +17,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nullable, nonatomic, retain) NSNumber *shipNeedsWebhookHelp;
 @property (nullable, nonatomic, retain) NSSet<LocalUser *> *users;
+@property (nullable, nonatomic, retain) NSSet<LocalProject *> *projects;
 
 @end
 
@@ -26,6 +27,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeUsersObject:(LocalUser *)value;
 - (void)addUsers:(NSSet<LocalUser *> *)values;
 - (void)removeUsers:(NSSet<LocalUser *> *)values;
+
+- (void)addProjectsObject:(LocalProject *)value;
+- (void)removeProjectsObject:(LocalProject *)value;
+- (void)addProjects:(NSSet<LocalProject *> *)values;
+- (void)removeProjects:(NSSet<LocalProject *> *)values;
 
 @end
 

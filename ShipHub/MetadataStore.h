@@ -43,6 +43,8 @@
 
 - (NSArray<Repo *> *)reposForOwner:(Account *)owner;
 
+- (NSArray<Project *> *)projectsForOrg:(Org *)org;
+
 - (NSArray<Repo *> *)hiddenRepos;
 - (NSArray<Milestone *> *)hiddenMilestones;
 

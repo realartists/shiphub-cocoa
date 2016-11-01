@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class LocalRepo, LocalUser;
+@class LocalRepo, LocalUser, LocalOrg;
 
 NS_ASSUME_NONNULL_BEGIN
 

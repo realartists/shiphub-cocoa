@@ -15,5 +15,6 @@
 
 @dynamic shipNeedsWebhookHelp;
 @dynamic users;
+@dynamic projects;
 
 @end

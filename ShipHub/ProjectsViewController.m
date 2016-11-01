@@ -11,6 +11,7 @@
 #import "Auth.h"
 #import "DataStore.h"
 #import "Repo.h"
+#import "Org.h"
 #import "Project.h"
 #import "Extras.h"
 #import "WebSession.h"
@@ -55,20 +56,12 @@
     [super viewDidLoad];
 }
 
-- (void)setRepresentedObject:(NSDictionary *)representedObject {
-    NSDictionary *current = self.representedObject;
+- (void)setRepresentedObject:(Project *)proj {
+    Project *current = self.representedObject;
     
-    [super setRepresentedObject:representedObject];
+    [super setRepresentedObject:proj];
     
-    Repo *oldRepo = current[@"repo"];
-    Project *oldProject = current[@"project"];
-    
-    Repo *repo = representedObject[@"repo"];
-    Project *project = representedObject[@"project"];
-    
-    if ([NSObject object:repo.identifier isEqual:oldRepo.identifier]
-        && [NSObject object:project.identifier isEqual:oldProject.identifier])
-    {
+    if ([NSObject object:proj isEqual:current]) {
         return; // nothing changed
     }
     
@@ -76,29 +69,28 @@
 }
 
 - (NSURL *)projectURL {
-    NSDictionary *representedObject = self.representedObject;
+    Project *project = self.representedObject;
     
-    Repo *repo = representedObject[@"repo"];
-    Project *project = representedObject[@"project"];
-    
-    if (!repo || !project)
-        return nil;
+    if (!project) return nil;
     
     Auth *auth = [[DataStore activeStore] auth];
     WebSession *webSession = auth.webSession;
     
     NSString *host = webSession.host;
     
-    NSString *URLStr = [NSString stringWithFormat:@"https://%@/%@/projects/%@?fullscreen=true", host, repo.fullName, project.number];
+    NSString *URLStr = nil;
+    if (project.repository) {
+        URLStr = [NSString stringWithFormat:@"https://%@/%@/projects/%@?fullscreen=true", host, project.repository.fullName, project.number];
+    } else {
+        URLStr = [NSString stringWithFormat:@"https://%@/orgs/%@/projects/%@?fullscreen=true", host, project.organization.login, project.number];
+    }
     NSURL *URL = [NSURL URLWithString:URLStr];
     
     return URL;
 }
 
 - (void)loadProject {
-    NSDictionary *representedObject = self.representedObject;
-    
-    Project *project = representedObject[@"project"];
+    Project *project = self.representedObject;
     
     self.title = project.name ?: NSLocalizedString(@"Project", nil);
     

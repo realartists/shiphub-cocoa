@@ -8,8 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class Repo;
-
 @interface ProjectsViewController : NSViewController
 
 @end

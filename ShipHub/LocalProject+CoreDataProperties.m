@@ -21,5 +21,6 @@
 @dynamic body;
 @dynamic repository;
 @dynamic creator;
+@dynamic organization;
 
 @end

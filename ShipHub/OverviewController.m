@@ -521,6 +521,22 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
             parent = ownerNode;
         }
         
+        if ([repoOwner isKindOfClass:[Org class]]) {
+            for (Project *proj in [metadata projectsForOrg:(Org *)repoOwner]) {
+                OverviewNode *projNode = [OverviewNode new];
+                projNode.identifier = [NSString stringWithFormat:@"Project.%@", proj.identifier];
+                projNode.representedObject = proj;
+                projNode.title = proj.name;
+                projNode.icon = [NSImage overviewIconNamed:@"Project"];
+                if (!_projectsController) {
+                    _projectsController = [ProjectsViewController new];
+                }
+                projNode.viewController = _projectsController;
+                projNode.menu = [self projectMenu];
+                [parent addChild:projNode];
+            }
+        }
+        
         for (Repo *repo in [metadata reposForOwner:repoOwner]) {
             OverviewNode *repoNode = [OverviewNode new];
             repoNode.identifier = [NSString stringWithFormat:@"Repo.%@", repo.identifier];
@@ -549,7 +565,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
                 for (Project *proj in projects) {
                     OverviewNode *projNode = [OverviewNode new];
                     projNode.identifier = [NSString stringWithFormat:@"Project.%@", proj.identifier];
-                    projNode.representedObject = @{@"repo": repo, @"project": proj};
+                    projNode.representedObject = proj;
                     projNode.title = proj.name;
                     projNode.icon = [NSImage overviewIconNamed:@"Project"];
                     if (!_projectsController) {
@@ -1577,19 +1593,16 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 - (BOOL)canAddNewProject {
     OverviewNode *node = [_outlineView selectedItem];
-    while (node && ![node.representedObject isKindOfClass:[Repo class]]) {
+    while (node && [node.representedObject isKindOfClass:[Project class]]) {
         node = node.parent;
     }
     
-    return node != nil;
+    return [node isKindOfClass:[Org class]] || [node isKindOfClass:[Repo class]];
 }
 
 - (BOOL)canDeleteProject {
     OverviewNode *node = [self itemForContextMenu];
-    if ([node.representedObject isKindOfClass:[NSDictionary class]]) {
-        return [node.representedObject objectForKey:@"project"] != nil;
-    }
-    return NO;
+    return [node.representedObject isKindOfClass:[Project class]];
 }
 
 - (IBAction)deleteProject:(id)sender {
@@ -1597,7 +1610,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         return;
     
     OverviewNode *node = [self itemForContextMenu];
-    Project *project = [node.representedObject objectForKey:@"project"];
+    Project *project = node.representedObject;
     
     _nextNodeToSelect = node.parent.identifier;
     
@@ -1629,14 +1642,20 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 - (IBAction)addNewProject:(id)sender {
     OverviewNode *node = [_outlineView selectedItem];
-    while (node && ![node.representedObject isKindOfClass:[Repo class]]) {
+    while (node && !([node.representedObject isKindOfClass:[Repo class]] || [node.representedObject isKindOfClass:[Org class]])) {
         node = node.parent;
     }
     
     if (!node)
         return;
     
-    NewProjectController *pc = [[NewProjectController alloc] initWithRepo:node.representedObject];
+    NewProjectController *pc = nil;
+    if ([node.representedObject isKindOfClass:[Repo class]]) {
+        pc = [[NewProjectController alloc] initWithRepo:node.representedObject];
+    } else {
+        pc = [[NewProjectController alloc] initWithOrg:node.representedObject];
+    }
+    
     [pc beginInWindow:self.window completion:nil];
 }
 
