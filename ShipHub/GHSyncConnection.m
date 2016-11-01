@@ -472,7 +472,10 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
         
         [_pager fetchPaged:timelineRequest completion:^(NSArray *data, NSError *timelineErr) {
             if (!timelineErr) {
-                NSArray *eventsAndComments = [data arrayByMappingObjects:^id(id obj) {
+                NSArray *filteredData = [data filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable obj, NSDictionary<NSString *,id> * _Nullable bindings) {
+                    return [obj isKindOfClass:[NSDictionary class]];
+                }]];
+                NSArray *eventsAndComments = [filteredData arrayByMappingObjects:^id(id obj) {
                     NSMutableDictionary *d = [obj mutableCopy];
                     d[@"issue"] = issueID;
                     return d;
