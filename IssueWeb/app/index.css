@@ -186,10 +186,7 @@ div.activityList::before {
 div.commentBody hr {
   border: 1px solid #CCC;
 }
-div.commentBody table {
-  border-collapse: collapse;
-}
-div.commentBody table, th, td {
+div.commentBody th, td {
   border: 1px solid #CCC;
   margin-bottom: 1em;
   margin-top: 1em;
@@ -197,6 +194,15 @@ div.commentBody table, th, td {
   padding-left: 13px;
   padding-right: 13px;
   padding-top: 6px;
+}
+div.commentBody table {
+  margin-bottom: 1em;
+  margin-top: 1em;
+  border-collapse: collapse;
+  display: block;
+  overflow: auto;
+  border: 0;
+  padding: 1px;
 }
 div.commentBody code {
   background-color: #F7F7F7;
