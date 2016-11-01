@@ -82,7 +82,7 @@ class AttributedString {
     
     var active = [];
     var offset = 0;
-    for (var i = 0; i < this.string.length; i++) {
+    for (var i = 0; i <= this.string.length; i++) {
     
       var next = active.slice();
       next = next.filter((attr) => attr.range.contains(i));
@@ -92,7 +92,7 @@ class AttributedString {
       next = next.concat(more);
       var changedActive = changedActive || more.length > 0;
             
-      if (changedActive || i+1==this.string.length) {
+      if (changedActive) {
         if (offset != i) {
           var substr = this.string.slice(offset, i);
           var classNames = active.map((a) => a.attrs).reduce((p, c) => p.concat(c), []);
@@ -102,7 +102,7 @@ class AttributedString {
         active = next;
       }
     }
-    
+        
     return accum;
   }
   
@@ -114,6 +114,12 @@ class AttributedString {
       } else {
         return previousValue + htmlEscape(substr);
       }
+    }, "")
+  }
+  
+  toPlainText() {
+    return this.reduce((substr, classNames, previousValue) => {
+      return previousValue + substr;
     }, "")
   }
 }
