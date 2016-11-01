@@ -276,6 +276,7 @@ div.commentHeader {
 }
 div.commentHeader img {
   margin-right: 12px;
+  background-color: #F0F0F0;
   float: left;
 }
 span.commentAuthor {
@@ -386,6 +387,7 @@ div.eventContent {
 
 div.event img.avatar {
   border-radius: 4px;
+  background-color: #F0F0F0;
   width: 16px;
   height: 16px;
   margin-right: 4px;

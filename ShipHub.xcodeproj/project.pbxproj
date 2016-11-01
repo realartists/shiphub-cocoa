@@ -204,6 +204,7 @@
 		1AB038591D5D391B005093B9 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB038541D5D390E005093B9 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AB503E91D2471EF0097875C /* NSFileWrapper+ImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */; };
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
+		1AC01D951DC9087B00920C3F /* npm-shrinkwrap.json in Resources */ = {isa = PBXBuildFile; fileRef = 1AC01D941DC9087B00920C3F /* npm-shrinkwrap.json */; };
 		1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */; };
 		1AC619721D232E9A00FE1E76 /* LocalPriority.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC619701D232E9A00FE1E76 /* LocalPriority.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
@@ -694,6 +695,7 @@
 		1AB038541D5D390E005093B9 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = ext/Sparkle.framework; sourceTree = "<group>"; };
 		1AB503E71D2471EF0097875C /* NSFileWrapper+ImageExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileWrapper+ImageExtras.h"; sourceTree = "<group>"; };
 		1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileWrapper+ImageExtras.m"; sourceTree = "<group>"; };
+		1AC01D941DC9087B00920C3F /* npm-shrinkwrap.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "npm-shrinkwrap.json"; sourceTree = "<group>"; };
 		1AC6196D1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalPriority+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalPriority+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AC6196F1D232E9A00FE1E76 /* LocalPriority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPriority.h; sourceTree = "<group>"; };
@@ -1466,6 +1468,7 @@
 		1AFE21EE1CA5EC3F00B51CF6 /* IssueWeb */ = {
 			isa = PBXGroup;
 			children = (
+				1AC01D941DC9087B00920C3F /* npm-shrinkwrap.json */,
 				1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */,
 				1AFE21F01CA5EC3F00B51CF6 /* .gitignore */,
 				1AFE21F11CA5EC3F00B51CF6 /* app */,
@@ -1677,6 +1680,7 @@
 				1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */,
 				1A51A58C1DBE9C5400272822 /* TextViewController.xib in Resources */,
 				28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */,
+				1AC01D951DC9087B00920C3F /* npm-shrinkwrap.json in Resources */,
 				1A51A5841DBE95A300272822 /* Acknowledgements.rtf in Resources */,
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
 				1A22179B1C7E7B14006460E2 /* MainMenu.xib in Resources */,

@@ -8,9 +8,6 @@ import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
 import escape from 'html-escape'
 import hljs from 'highlight.js'
-import pnglib from 'pnglib'
-window.PNGlib = pnglib;
-import identicon from 'identicon.js'
 import linkify from 'html-linkify'
 import md5 from 'md5'
 import 'whatwg-fetch'
@@ -645,15 +642,7 @@ var AvatarIMG = React.createClass({
       size: 32
     };
   },
-  
-  getInitialState: function() {
-    return {
-      loading: true,
-      failed: false,
-      identicon: null,
-    }
-  },
-  
+    
   pointSize: function() {
     var s = 32;
     if (this.props.size) {
@@ -675,58 +664,16 @@ var AvatarIMG = React.createClass({
     return avatarURL;
   },
   
-  fail: function() {
-    this.setState(Object.assign({}, this.state, {failed:true}));
-  },
-  
-  loaded: function() {
-    this.setState(Object.assign({}, this.state, {loading:false}));
-  },
-  
   render: function() {    
     var s = this.pointSize();
-    if (this.state.failed || this.state.loading) {
-      return h('img',
-               Object.assign({},
-                             this.props,
-                             {
-                               className: "avatar",
-                               src:this.state.identicon,
-                               width:s,
-                               height:s,
-                             }));
-    } else {
-      return h('img',
-               Object.assign({},
-                             this.props,
-                             {
-                               className: "avatar",
-                               src:this.avatarURL(),
-                               width:s,
-                               height:s,
-                               onerror:this.fail,
-                             }));
-    }
-  },
-  
-  componentWillMount: function() {
-    var url = this.avatarURL();
-    var cacheKey = url;
-    if (!window.identiconCache) {
-      window.identiconCache = {};
-    }
-    var myIdenticon = window.identiconCache[cacheKey];
-    if (myIdenticon == null) {
-      var hash = md5(this.props.user.login);
-      myIdenticon = "data:image/png;base64," + new Identicon(hash, { size: this.pixelSize(), margin: 0.05 }).toString();
-      window.identiconCache[cacheKey] = myIdenticon;
-    }
-    
-    this.setState(Object.assign({}, this.state, {identicon: myIdenticon}));
-    
-    var img = document.createElement('img');
-    img.onload = () => { this.loaded(); };
-    img.src = url;
+    var imgProps = {
+      className: "avatar",
+      src: this.avatarURL(),
+      width: s,
+      height: s
+    };
+    imgProps = Object.assign({}, this.props, imgProps);
+    return h('img', imgProps);
   }
 });
 
