@@ -11,6 +11,7 @@
 #import "DataStoreInternal.h"
 #import "LocalBilling.h"
 #import "Extras.h"
+#import "SubscriptionController.h"
 
 #import <notify.h>
 
@@ -20,6 +21,7 @@
 
 @property NSTimer *expirationTimer;
 @property int notifyToken;
+@property NSString *refreshHash;
 
 @end
 
@@ -144,6 +146,13 @@
             }];
             [self checkForBillingExpiration];
             [self notifyStateChange];
+        }
+
+        NSString *newRefreshHash = record[@"manageSubscriptionsRefreshHash"];
+        if (![NSObject object:_refreshHash isEqual:newRefreshHash])
+        {
+            _refreshHash = newRefreshHash;
+            [_store postNotification:SubscriptionControllerShouldRefreshNotification userInfo:nil];
         }
     });
 }

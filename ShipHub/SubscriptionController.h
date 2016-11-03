@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+extern NSString *const SubscriptionControllerShouldRefreshNotification;
+
 @interface SubscriptionController : NSWindowController
 
 @end
