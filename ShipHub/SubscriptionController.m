@@ -15,6 +15,8 @@
 #import "Billing.h"
 #import "TimeRemainingFormatter.h"
 
+NSString *const SubscriptionControllerShouldRefreshNotification = @"SubscriptionControllerShouldRefreshNotification";
+
 @interface SubscriptionCellView : NSTableCellView
 
 @property NSDictionary *account;
@@ -61,7 +63,7 @@
 - (void)windowDidLoad {
     [super windowDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refresh) name:DataStoreBillingStateDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refresh) name:SubscriptionControllerShouldRefreshNotification object:nil];
 }
 
 - (void)dealloc {
