@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11201" systemVersion="15G1004" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1108" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11201"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -15,7 +15,6 @@
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
                 <outlet property="accountMenu" destination="Qjt-qC-mZs" id="DKC-Vv-5H3"/>
-                <outlet property="accountMenuSeparator" destination="03E-Ds-Lul" id="JHp-CW-b2o"/>
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
@@ -54,23 +53,7 @@
                             <menuItem title="Preferences…" hidden="YES" keyEquivalent="," id="BOF-NM-1cW"/>
                             <menuItem title="Account" id="Bd0-Fb-PTl">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Account" id="Qjt-qC-mZs">
-                                    <items>
-                                        <menuItem title="Item 1" id="yOn-EA-YP7">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                        </menuItem>
-                                        <menuItem title="Item 2" id="aS5-zM-CNg">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                        </menuItem>
-                                        <menuItem isSeparatorItem="YES" id="03E-Ds-Lul"/>
-                                        <menuItem title="Logout" id="5bB-Co-GJk">
-                                            <modifierMask key="keyEquivalentModifierMask"/>
-                                            <connections>
-                                                <action selector="logout:" target="Voe-Tx-rLC" id="j7a-Du-3aD"/>
-                                            </connections>
-                                        </menuItem>
-                                    </items>
-                                </menu>
+                                <menu key="submenu" title="Account" id="Qjt-qC-mZs"/>
                             </menuItem>
                             <menuItem title="Manage Subscription…" id="vBb-Yq-3ef">
                                 <modifierMask key="keyEquivalentModifierMask"/>

@@ -22,6 +22,11 @@
 #import <HockeySDK/HockeySDK.h>
 #import <Sparkle/Sparkle.h>
 
+typedef NS_ENUM(NSInteger, AccountMenuAction) {
+    AccountMenuActionLogout = 1,
+    AccountMenuActionNewAccount = 2
+};
+
 @interface AppDelegate () <AuthControllerDelegate, BITHockeyManagerDelegate> {
     BOOL _authConfigured;
     BOOL _notificationsRegistered;
@@ -38,7 +43,6 @@
 @property (strong) NSWindowController *acknowledgementsController;
 
 @property IBOutlet NSMenu *accountMenu;
-@property IBOutlet NSMenuItem *accountMenuSeparator;
 
 @property (strong) IBOutlet NSMutableArray *overviewControllers;
 
@@ -278,9 +282,7 @@
 }
 
 - (void)rebuildAccountMenu {
-    while ([_accountMenu itemAtIndex:0] != _accountMenuSeparator) {
-        [_accountMenu removeItemAtIndex:0];
-    }
+    [_accountMenu removeAllItems];
     
     NSInteger added = 0;
     
@@ -305,17 +307,25 @@
         added++;
         NSMenuItem *item = [_accountMenu insertItemWithTitle:NSLocalizedString(@"Add new account", nil) action:@selector(changeAccount:) keyEquivalent:@"" atIndex:added];
         item.target = self;
+        item.tag = AccountMenuActionNewAccount;
         item.representedObject = nil;
         added++;
     }
     
     if ([_auth.account.login length] && _auth.authState == AuthStateValid) {
         _accountMenu.title = _auth.account.login;
+        
+        [_accountMenu insertItem:[NSMenuItem separatorItem] atIndex:added];
+        added++;
+        NSMenuItem *item = [_accountMenu insertItemWithTitle:NSLocalizedString(@"Logout", nil) action:@selector(logout:) keyEquivalent:@"" atIndex:added];
+        item.target = self;
+        item.tag = AccountMenuActionLogout;
+        item.representedObject = nil;
+        added++;
+        
     } else {
         _accountMenu.title = NSLocalizedString(@"Account", nil);
     }
-    
-    _accountMenuSeparator.hidden = added == 0;
 }
 
 - (void)documentController:(NSDocumentController *)documentController
@@ -342,11 +352,16 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
         return;
     }
     
+    BOOL logout = login == nil && [sender tag] == AccountMenuActionLogout;
+    BOOL addNew = login == nil && [sender tag] == AccountMenuActionNewAccount;
+    
     dispatch_block_t changeBlock = ^{
         if (login) {
             _nextAuth = [Auth authWithAccountPair:login];
-        } else {
+        } else if (logout) {
             [_auth logout];
+            _nextAuth = nil;
+        } else if (addNew) {
             _nextAuth = nil;
         }
         
@@ -371,10 +386,15 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
             alert.informativeText = NSLocalizedString(@"Changing accounts will close all open issues.", nil);
             [alert addButtonWithTitle:NSLocalizedString(@"Change Account", nil)];
             [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
-        } else {
+        } else if (logout) {
             alert.messageText = NSLocalizedString(@"Are you sure you want to logout?", nil);
             alert.informativeText = NSLocalizedString(@"Logging out will deauthorize your access on this computer only.", nil);
             [alert addButtonWithTitle:NSLocalizedString(@"Logout", nil)];
+            [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+        } else /* addNew */ {
+            alert.messageText = NSLocalizedString(@"Are you sure you want to change to a new account?", nil);
+            alert.informativeText = NSLocalizedString(@"Changing accounts will close all open issues.", nil);
+            [alert addButtonWithTitle:NSLocalizedString(@"Change Account", nil)];
             [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
         }
         
