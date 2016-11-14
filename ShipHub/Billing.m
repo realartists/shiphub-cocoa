@@ -16,10 +16,13 @@
 
 #define TEST_BILLING_STATE 0
 
+NSString *const BillingSubscriptionRefreshHashDidChangeNotification = @"BillingSubscriptionRefreshHashDidChange";
+
 @interface Billing ()
 
 @property NSTimer *expirationTimer;
 @property int notifyToken;
+@property NSString *subscriptionRefreshHash;
 
 @end
 
@@ -144,6 +147,12 @@
             }];
             [self checkForBillingExpiration];
             [self notifyStateChange];
+        }
+        
+        NSString *subscriptionRefreshHash = record[@"manageSubscriptionsRefreshHash"];
+        if (![NSObject object:subscriptionRefreshHash isEqual:_subscriptionRefreshHash]) {
+            self.subscriptionRefreshHash = subscriptionRefreshHash;
+            [[NSNotificationCenter defaultCenter] postNotificationName:BillingSubscriptionRefreshHashDidChangeNotification object:self];
         }
     });
 }

@@ -61,7 +61,7 @@
 - (void)windowDidLoad {
     [super windowDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refresh) name:DataStoreBillingStateDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refresh) name:BillingSubscriptionRefreshHashDidChangeNotification object:nil];
 }
 
 - (void)dealloc {

@@ -19,6 +19,7 @@
 #import "LocalMetadata.h"
 #import "LocalHidden.h"
 #import "LocalProject.h"
+#import "LocalBilling.h"
 
 @interface MetadataStore () {
     BOOL _allAssigneesNeedsSort;
@@ -58,7 +59,9 @@
 @implementation MetadataStore
 
 static BOOL IsMetadataObject(id obj) {
-    return [obj conformsToProtocol:@protocol(LocalMetadata)] || [obj isKindOfClass:[LocalHidden class]];
+    return [obj conformsToProtocol:@protocol(LocalMetadata)]
+        || [obj isKindOfClass:[LocalHidden class]]
+        || [obj isKindOfClass:[LocalBilling class]];
 }
 
 static BOOL IsImportantUserChange(LocalUser *lu) {

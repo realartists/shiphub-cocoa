@@ -31,3 +31,5 @@ typedef NS_ENUM(NSInteger, BillingState) {
 - (void)updateWithRecord:(NSDictionary *)record;
 
 @end
+
+extern NSString *const BillingSubscriptionRefreshHashDidChangeNotification; // sent when the billing subscription state has changed, possibly without having changed the overall BillingState
