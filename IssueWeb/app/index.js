@@ -154,6 +154,18 @@ function apiCallback(handle, result, err) {
   }
 };
 
+function mergeIssueChanges(owner, repo, num, mergeFun, failFun) {
+  var nowOwner = getIvars().issue._bare_owner;
+  var nowRepo = getIvars().issue._bare_repo;
+  var nowNum = getIvars().issue.number;
+  
+  if (num == null || (nowOwner == owner && nowRepo == repo && nowNum == num)) {
+    mergeFun();
+  } else {
+    if (failFun) failFun();
+  }
+}
+
 function applyPatch(patch) {
   var ghPatch = Object.assign({}, patch);
 
@@ -282,13 +294,15 @@ function applyComment(commentBody) {
       });
       return new Promise((resolve, reject) => {
         request.then(function(body) {
-          var id = body.id;
-          window.ivars.issue.allComments.forEach((m) => {
-            if (m.id === 'new') {
-              m.id = id;
-            }
+          mergeIssueChanges(owner, repo, num, () => {
+            var id = body.id;
+            window.ivars.issue.allComments.forEach((m) => {
+              if (m.id === 'new') {
+                m.id = id;
+              }
+            });
+            applyIssueState(window.ivars);
           });
-          applyIssueState(window.ivars);
           resolve();
         }).catch(function(err) {
           console.log(err);
@@ -464,8 +478,10 @@ function addReaction(commentIdx, reactionContent) {
   });
   return new Promise((resolve, reject) => {
     request.then(function(body) {
-      reaction.id = body.id;
-      applyIssueState(window.ivars);
+      mergeIssueChanges(owner, repo, num, () => {
+        reaction.id = body.id;
+        applyIssueState(window.ivars);
+      });
       resolve();
     }).catch(function(err) {
       console.error("Add reaction failed", err);

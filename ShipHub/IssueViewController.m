@@ -721,9 +721,11 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
         }
     }];
     [proxy setUpdatedIssueHandler:^(Issue *updatedIssue) {
-        _issue = updatedIssue;
-        [self updateTitle];
-        [self scheduleNeedsSaveTimer];
+        if (_issue.fullIdentifier == nil || [_issue.fullIdentifier isEqualToString:updatedIssue.fullIdentifier]) {
+            _issue = updatedIssue;
+            [self updateTitle];
+            [self scheduleNeedsSaveTimer];
+        }
     }];
     [proxy resume];
 }
