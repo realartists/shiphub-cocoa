@@ -46,6 +46,7 @@ import { TimeAgo, TimeAgoString } from './time-ago'
 import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from './cm-util.js'
 import { promiseQueue } from './promise-queue.js'
 import { rewriteTaskList } from './rewrite-task-list.js'
+import { storeCommentDraft, clearCommentDraft, getCommentDraft } from './draft-storage.js'
 
 var debugToken = "";
 
@@ -2075,6 +2076,38 @@ var Comment = React.createClass({
     }
   },
   
+  saveDraftState: function() {
+    var issue = getIvars().issue;
+    var isNewIssue = !(issue.number);
+    
+    if (!isNewIssue) {
+      if (this.state.editing && this.state.code.trim().length > 0) {
+        storeCommentDraft(issue._bare_owner, issue._bare_repo, issue.number, keypath(this.props, "comment.id"), this.state.code);
+      } else {
+        clearCommentDraft(issue._bare_owner, issue._bare_repo, issue.number, keypath(this.props, "comment.id"));
+      }
+    }
+  },
+  
+  restoreDraftState: function() {
+    var issue = getIvars().issue;
+    var isNewIssue = !(issue.number);
+    
+    if (!isNewIssue) {
+      var draft = getCommentDraft(issue._bare_owner, issue._bare_repo, issue.number, keypath(this.props, "comment.id"));
+      if (draft && draft.trim().length > 0) {
+        this.beginEditing();
+        this.updateCode(draft);
+      } else if (this.state.code.length > 0) {
+        if (this.props.comment && this.state.editing) {
+          this.cancelEditing();
+        } else {
+          this.updateCode("");
+        }
+      }
+    }
+  },
+  
   _save: function() {
     var issue = getIvars().issue;
     var isNewIssue = !(issue.number);
@@ -2083,6 +2116,9 @@ var Comment = React.createClass({
     
     var resetState = () => {
       this.setState(Object.assign({}, this.state, {code: "", previewing: false, editing: isAddNew}));
+      if (!isNewIssue) {
+        clearCommentDraft(issue._bare_owner, issue._bare_repo, issue.number, keypath(this.props, "comment.id"));
+      }
     };
     
     if (isNewIssue) {
@@ -3740,6 +3776,23 @@ var App = React.createClass({
     }
   },
   
+  allComments: function() {
+    if (this.refs.addComment && this.refs.activity) {
+      var comments = this.refs.activity.allComments().concat([this.refs.addComment]);
+      return comments;
+    } else {
+      return [];
+    }
+  },
+  
+  restoreCommentDrafts: function() {
+    this.allComments().forEach((c) => c.restoreDraftState());
+  },
+  
+  saveCommentDrafts: function() {
+    this.allComments().forEach((c) => c.saveDraftState());
+  },
+  
   componentDidMount: function() {
     this.registerGlobalEventHandlers();
     
@@ -3838,6 +3891,15 @@ var App = React.createClass({
 });
 
 function applyIssueState(state, scrollToCommentIdentifier) {
+  var oldOwner, oldRepo, oldNum;
+  oldOwner = keypath(getIvars(), "issue._bare_owner");
+  oldRepo = keypath(getIvars(), "issue._bare_repo");
+  oldNum = keypath(getIvars(), "issue.number");
+  
+  if (oldOwner && oldRepo && oldNum && window.topLevelComponent && !window.lastErr) {
+    window.topLevelComponent.saveCommentDrafts();
+  }
+
   console.log("rendering:", state);
   
   var issue = state.issue;
@@ -3869,6 +3931,13 @@ function applyIssueState(state, scrollToCommentIdentifier) {
   
   setIvars(state);
   
+  var newOwner, newRepo, newNum;
+  newOwner = keypath(getIvars(), "issue._bare_owner");
+  newRepo = keypath(getIvars(), "issue._bare_repo");
+  newNum = keypath(getIvars(), "issue.number");
+  
+  var shouldRestoreDrafts = (newOwner != oldOwner || newRepo != oldRepo || newNum != oldNum);
+  
   if (window.lastErr) {
     console.log("Rerendering everything");
     delete window.lastErr;
@@ -3891,6 +3960,13 @@ function applyIssueState(state, scrollToCommentIdentifier) {
       if (scrollToCommentIdentifier) {
         setTimeout(function() {        
           window.scrollToCommentWithIdentifier(scrollToCommentIdentifier);
+        }, 0);
+      }
+      if (shouldRestoreDrafts) {
+        setTimeout(function() {
+          if (window.topLevelComponent) {
+            window.topLevelComponent.restoreCommentDrafts();
+          }
         }, 0);
       }
     }

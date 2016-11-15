@@ -107,6 +107,7 @@
 		1A3AB3641D919F5E004BB768 /* AvatarManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3631D919F5E004BB768 /* AvatarManager.m */; };
 		1A3AB36A1D91BDA7004BB768 /* UnsubscribedRepoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3681D91BDA7004BB768 /* UnsubscribedRepoController.m */; };
 		1A3AB36B1D91BDA7004BB768 /* UnsubscribedRepoController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A3AB3691D91BDA7004BB768 /* UnsubscribedRepoController.xib */; };
+		1A3C5B1B1DDB9C8A005F9A01 /* draft-storage.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A3C5B1A1DDB9C8A005F9A01 /* draft-storage.js */; };
 		1A48BB4D1D80D8BF001E761E /* UserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */; };
 		1A48BB531D80DED6001E761E /* IssueNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB521D80DED6001E761E /* IssueNotification.m */; };
 		1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
@@ -546,6 +547,7 @@
 		1A3AB3671D91BDA7004BB768 /* UnsubscribedRepoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnsubscribedRepoController.h; sourceTree = "<group>"; };
 		1A3AB3681D91BDA7004BB768 /* UnsubscribedRepoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnsubscribedRepoController.m; sourceTree = "<group>"; };
 		1A3AB3691D91BDA7004BB768 /* UnsubscribedRepoController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UnsubscribedRepoController.xib; sourceTree = "<group>"; };
+		1A3C5B1A1DDB9C8A005F9A01 /* draft-storage.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "draft-storage.js"; sourceTree = "<group>"; };
 		1A48BB4B1D80D8BF001E761E /* UserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserNotificationManager.h; sourceTree = "<group>"; };
 		1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserNotificationManager.m; sourceTree = "<group>"; };
 		1A48BB511D80DED6001E761E /* IssueNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueNotification.h; sourceTree = "<group>"; };
@@ -1483,6 +1485,7 @@
 		1AFE21F11CA5EC3F00B51CF6 /* app */ = {
 			isa = PBXGroup;
 			children = (
+				1A3C5B1A1DDB9C8A005F9A01 /* draft-storage.js */,
 				1A1584D71D6E7E070050DCC6 /* rewrite-task-list.js */,
 				1AB0383F1D5AA0CF005093B9 /* promise-queue.js */,
 				1A20CFC41D5152C800F412DE /* assignees-picker.js */,
@@ -1654,6 +1657,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1A3C5B1B1DDB9C8A005F9A01 /* draft-storage.js in Resources */,
 				1A7FD77A1D493B0400B585E2 /* ProgressSheet.xib in Resources */,
 				1AF5673D1D627C2E00611DBB /* OAuthController.xib in Resources */,
 				1A38CA121D9363DE00655891 /* NewProjectController.xib in Resources */,
