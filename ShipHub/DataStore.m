@@ -92,6 +92,10 @@ NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification = @"DataStoreN
 
 NSString *const DataStoreBillingStateDidChangeNotification = @"DataStoreBillingStateDidChangeNotification";
 
+NSString *const DataStoreRateLimitedDidChangeNotification = @"DataStoreRateLimitedDidChangeNotification";
+NSString *const DataStoreRateLimitPreviousEndDateKey = @"DataStoreRateLimitPreviousEndDateKey";
+NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdatedEndDateKey";
+
 @interface SyncCacheKey : NSObject <NSCopying>
 
 + (SyncCacheKey *)keyWithEntity:(NSString *)entity identifier:(NSNumber *)identifier;
@@ -144,6 +148,8 @@ static const NSInteger CurrentLocalModelVersion = 6;
     dispatch_semaphore_t _readSema;
     
     NSUInteger _writeGeneration;
+    
+    NSTimer *_rateLimitTimer;
 }
 
 @property (strong) Auth *auth;
@@ -2709,6 +2715,42 @@ static NSString *const LastUpdated = @"LastUpdated";
 
 - (void)syncConnection:(SyncConnection *)sync didReceiveBillingUpdate:(NSDictionary *)update {
     [_billing updateWithRecord:update];
+}
+
+#pragma mark - SyncConnection rate limit
+
+- (void)syncConnection:(SyncConnection *)sync didReceiveRateLimit:(NSDate *)limitedUntil {
+    RunOnMain(^{
+        NSDate *prev = _rateLimitedUntil;
+        NSDate *next = limitedUntil;
+        if ([next timeIntervalSinceNow] < 1.0) {
+            next = nil;
+        }
+        if ((prev && !next) || (!prev && next) || [prev compare:next] == NSOrderedAscending) {
+            _rateLimitedUntil = next;
+            [_rateLimitTimer invalidate];
+            _rateLimitTimer = nil;
+            if (next) {
+                _rateLimitTimer = [NSTimer scheduledTimerWithTimeInterval:[next timeIntervalSinceNow] weakTarget:self selector:@selector(rateLimitLifted:) userInfo:prev repeats:NO];
+            }
+            
+            NSMutableDictionary *noteInfo = [NSMutableDictionary new];
+            if (prev) noteInfo[DataStoreRateLimitPreviousEndDateKey] = prev;
+            if (next) noteInfo[DataStoreRateLimitUpdatedEndDateKey] = next;
+            
+            [self postNotification:DataStoreRateLimitedDidChangeNotification userInfo:noteInfo];
+        }
+    });
+}
+
+- (void)rateLimitLifted:(NSTimer *)timer {
+    _rateLimitedUntil = nil;
+    _rateLimitTimer = nil;
+    NSDate *prev = timer.userInfo;
+    NSMutableDictionary *noteInfo = [NSMutableDictionary new];
+    if (prev) noteInfo[DataStoreRateLimitPreviousEndDateKey] = prev;
+    
+    [self postNotification:DataStoreRateLimitedDidChangeNotification userInfo:noteInfo];
 }
 
 @end

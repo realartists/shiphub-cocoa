@@ -43,6 +43,8 @@
 
 - (void)syncConnection:(SyncConnection *)sync didReceiveBillingUpdate:(NSDictionary *)update;
 
+- (void)syncConnection:(SyncConnection *)sync didReceiveRateLimit:(NSDate *)limitedUntil;
+
 @end
 
 typedef NS_ENUM(NSInteger, SyncEntryAction) {

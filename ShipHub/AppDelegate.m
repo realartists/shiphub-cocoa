@@ -11,6 +11,7 @@
 #import "Auth.h"
 #import "AuthController.h"
 #import "DataStore.h"
+#import "Extras.h"
 #import "IssueIdentifier.h"
 #import "IssueDocumentController.h"
 #import "OverviewController.h"
@@ -86,6 +87,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(authChanged:) name:AuthStateChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(databaseIncompatible:) name:DataStoreCannotOpenDatabaseNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(protocolIncompatible:) name:DataStoreNeedsMandatorySoftwareUpdateNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rateLimitChanged:) name:DataStoreRateLimitedDidChangeNotification object:nil];
     
     _notificationsRegistered = YES;
 }
@@ -538,6 +540,20 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
             }
             [_welcomeController loadThenShow:self];
         }
+    }
+}
+
+- (void)rateLimitChanged:(NSNotification *)note {
+    NSDate *prev = note.userInfo[DataStoreRateLimitPreviousEndDateKey];
+    NSDate *next = note.userInfo[DataStoreRateLimitUpdatedEndDateKey];
+    
+    if (!prev && next) {
+        NSAlert *alert = [NSAlert new];
+        alert.alertStyle = NSAlertStyleWarning;
+        alert.messageText = NSLocalizedString(@"GitHub Rate Limit Reached", nil);
+        alert.informativeText = [NSString stringWithFormat:NSLocalizedString(@"Unfortunately, due to GitHub limitations, not all of your data can be loaded at this time. Ship will resume syncing by %@.", nil), [next shortUserInterfaceString]];
+        [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+        [alert runModal];
     }
 }
 

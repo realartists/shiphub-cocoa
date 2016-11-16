@@ -31,6 +31,7 @@ static NSString *const MessageViewing = @"viewing";
 static NSString *const MessageSync = @"sync";
 static NSString *const MessagePurge = @"purge";
 static NSString *const MessageBilling = @"subscription";
+static NSString *const MessageRateLimit = @"ratelimit";
 
 // Shared Message fields
 static NSString *const MessageFieldVersions = @"versions";
@@ -56,6 +57,9 @@ static NSString *const MessageFieldRequired = @"required";
 // Billing Message fields
 static NSString *const MessageFieldBillingMode = @"mode";
 static NSString *const MessageFieldBillingTrialEndDate = @"trialEndDate";
+
+// Rate Limit Message fields
+static NSString *const MessageFieldRateLimitedUntil = @"until";
 
 typedef NS_ENUM(uint8_t, MessageHeader) {
     MessageHeaderPlainText = 0,
@@ -314,6 +318,8 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
         [self.delegate syncConnection:self receivedEntries:entries versions:_syncVersions progress:progress];
     } else if ([type isEqualToString:MessageBilling]) {
         [self.delegate syncConnection:self didReceiveBillingUpdate:msg];
+    } else if ([type isEqualToString:MessageRateLimit]) {
+        [self.delegate syncConnection:self didReceiveRateLimit:[NSDate dateWithJSONString:msg[MessageFieldRateLimitedUntil]]];
     } else {
         DebugLog(@"Unknown message: %@", type);
     }

@@ -45,6 +45,7 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:DataStoreDidEndNetworkActivityNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:ReachabilityDidChangeNotification object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:DataStoreDidUpdateProgressNotification object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(update:) name:DataStoreRateLimitedDidChangeNotification object:nil];
         
         [self update:nil];
     }
@@ -58,9 +59,9 @@
     BOOL online = [[Reachability sharedInstance] isReachable];
     BOOL reachabilityInited = [[Reachability sharedInstance] receivedFirstUpdate];
     
-    // FIXME: Hook this stuff back up
     BOOL offline = !online && reachabilityInited;
     NSDate *lastUpdated = [[DataStore activeStore] lastUpdated];
+    NSDate *rateLimited = [[DataStore activeStore] rateLimitedUntil];
     NSString *since = [lastUpdated shortUserInterfaceString];
     double progress = [[DataStore activeStore] issueSyncProgress];
     
@@ -72,6 +73,8 @@
         } else {
             self.stringValue = NSLocalizedString(@"Offline", nil);
         }
+    } else if (rateLimited) {
+        self.stringValue = [NSString stringWithFormat:NSLocalizedString(@"Limited Until %@", nil), [rateLimited shortUserInterfaceString]];
     } else if (progress == 0.0) {
         if (since) {
             self.stringValue = [NSString stringWithFormat:NSLocalizedString(@"Last Updated %@", nil), since];

@@ -41,6 +41,7 @@
 
 @property (readonly) NSDate *lastUpdated;
 @property (readonly) double issueSyncProgress;
+@property (readonly) NSDate *rateLimitedUntil;
 
 @property (nonatomic, readonly, getter=isMigrating) BOOL migrating;
 @property (nonatomic, readonly, getter=isPerformingInitialSync) BOOL performingInitialSync;
@@ -163,6 +164,10 @@ extern NSString *const DataStoreDidUpdateProgressNotification;
 extern NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification;
 
 extern NSString *const DataStoreBillingStateDidChangeNotification;
+
+extern NSString *const DataStoreRateLimitedDidChangeNotification;
+extern NSString *const DataStoreRateLimitPreviousEndDateKey; // => NSDate (omitted if we previously weren't rate limited)
+extern NSString *const DataStoreRateLimitUpdatedEndDateKey;  // => NSDate (omitted if the rate limit is now being removed)
 
 typedef NS_ENUM (NSInteger, DataStoreProblemUpdateSource) {
     DataStoreProblemUpdateSourceSync = 1,
