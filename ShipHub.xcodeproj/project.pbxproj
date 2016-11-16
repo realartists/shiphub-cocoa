@@ -108,6 +108,8 @@
 		1A3AB36A1D91BDA7004BB768 /* UnsubscribedRepoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3AB3681D91BDA7004BB768 /* UnsubscribedRepoController.m */; };
 		1A3AB36B1D91BDA7004BB768 /* UnsubscribedRepoController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A3AB3691D91BDA7004BB768 /* UnsubscribedRepoController.xib */; };
 		1A3C5B1B1DDB9C8A005F9A01 /* draft-storage.js in Resources */ = {isa = PBXBuildFile; fileRef = 1A3C5B1A1DDB9C8A005F9A01 /* draft-storage.js */; };
+		1A3C5B241DDCE241005F9A01 /* WelcomeHelpController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3C5B221DDCE241005F9A01 /* WelcomeHelpController.m */; };
+		1A3C5B251DDCE241005F9A01 /* WelcomeHelpController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A3C5B231DDCE241005F9A01 /* WelcomeHelpController.xib */; };
 		1A48BB4D1D80D8BF001E761E /* UserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */; };
 		1A48BB531D80DED6001E761E /* IssueNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB521D80DED6001E761E /* IssueNotification.m */; };
 		1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
@@ -548,6 +550,9 @@
 		1A3AB3681D91BDA7004BB768 /* UnsubscribedRepoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnsubscribedRepoController.m; sourceTree = "<group>"; };
 		1A3AB3691D91BDA7004BB768 /* UnsubscribedRepoController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = UnsubscribedRepoController.xib; sourceTree = "<group>"; };
 		1A3C5B1A1DDB9C8A005F9A01 /* draft-storage.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "draft-storage.js"; sourceTree = "<group>"; };
+		1A3C5B211DDCE241005F9A01 /* WelcomeHelpController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WelcomeHelpController.h; sourceTree = "<group>"; };
+		1A3C5B221DDCE241005F9A01 /* WelcomeHelpController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeHelpController.m; sourceTree = "<group>"; };
+		1A3C5B231DDCE241005F9A01 /* WelcomeHelpController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WelcomeHelpController.xib; sourceTree = "<group>"; };
 		1A48BB4B1D80D8BF001E761E /* UserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserNotificationManager.h; sourceTree = "<group>"; };
 		1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserNotificationManager.m; sourceTree = "<group>"; };
 		1A48BB511D80DED6001E761E /* IssueNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueNotification.h; sourceTree = "<group>"; };
@@ -1031,6 +1036,9 @@
 				1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */,
 				1A48BB4B1D80D8BF001E761E /* UserNotificationManager.h */,
 				1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */,
+				1A3C5B211DDCE241005F9A01 /* WelcomeHelpController.h */,
+				1A3C5B221DDCE241005F9A01 /* WelcomeHelpController.m */,
+				1A3C5B231DDCE241005F9A01 /* WelcomeHelpController.xib */,
 			);
 			name = App;
 			sourceTree = "<group>";
@@ -1692,6 +1700,7 @@
 				1A012E811D3EAC0E006CE5DF /* SaveSearchController.xib in Resources */,
 				1A7FD77F1D494A5C00B585E2 /* LabelModifyController.xib in Resources */,
 				1A012E9F1D3EE111006CE5DF /* SearchSheet.xib in Resources */,
+				1A3C5B251DDCE241005F9A01 /* WelcomeHelpController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1806,6 +1815,7 @@
 				1A3AB3521D9095BA004BB768 /* LocalBilling+CoreDataProperties.m in Sources */,
 				1A012E7C1D3EAC0E006CE5DF /* SearchEditor.m in Sources */,
 				1A3AB3611D90AF54004BB768 /* TimeRemainingFormatter.m in Sources */,
+				1A3C5B241DDCE241005F9A01 /* WelcomeHelpController.m in Sources */,
 				1A3AB3481D907712004BB768 /* Billing.m in Sources */,
 				1A694B311CA342D500F73608 /* SearchResultsController.m in Sources */,
 				1A38CA071D934EF800655891 /* LocalProject.m in Sources */,

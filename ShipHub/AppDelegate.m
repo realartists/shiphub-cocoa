@@ -18,6 +18,7 @@
 #import "UserNotificationManager.h"
 #import "SubscriptionController.h"
 #import "TextViewController.h"
+#import "WelcomeHelpController.h"
 
 #import <HockeySDK/HockeySDK.h>
 #import <Sparkle/Sparkle.h>
@@ -45,6 +46,8 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 @property IBOutlet NSMenu *accountMenu;
 
 @property (strong) IBOutlet NSMutableArray *overviewControllers;
+
+@property (strong) WelcomeHelpController *welcomeController;
 
 @end
 
@@ -266,6 +269,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     
     [self configureDataStoreAndShowUI];
     [self rebuildAccountMenu];
+    [self showWelcomeIfNeeded];
 }
 
 - (void)configureDataStoreAndShowUI {
@@ -520,6 +524,20 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
         [_acknowledgementsController.window setContentSize:CGSizeMake(600, 501)];
     } else {
         [_acknowledgementsController showWindow:sender];
+    }
+}
+
+- (void)showWelcomeIfNeeded {
+    Auth *auth = _auth;
+    if (auth.authState == AuthStateValid) {
+        BOOL shown = [[NSUserDefaults standardUserDefaults] boolForKey:@"WelcomeShown"];
+        if (!shown) {
+            DebugLog(@"Showing welcome");
+            if (!_welcomeController) {
+                _welcomeController = [WelcomeHelpController new];
+            }
+            [_welcomeController loadThenShow:self];
+        }
     }
 }
 

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1108" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11542"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="WelcomeHelpController">
+            <connections>
+                <outlet property="back" destination="ZeB-kX-mz4" id="RBz-6w-jaH"/>
+                <outlet property="forward" destination="D6O-bp-dip" id="HEg-gE-Jpr"/>
+                <outlet property="reload" destination="0Jp-LF-I8G" id="mLm-hD-6eK"/>
+                <outlet property="web" destination="5cf-cX-tJA" id="mms-l6-C9i"/>
+                <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" animationBehavior="default" id="F0z-JX-Cv5">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <rect key="contentRect" x="0.0" y="0.0" width="800" height="700"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <view key="contentView" id="se5-gp-TjO">
+                <rect key="frame" x="0.0" y="0.0" width="800" height="700"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="5cf-cX-tJA" customClass="WKWebView">
+                        <rect key="frame" x="0.0" y="0.0" width="800" height="700"/>
+                    </customView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="5cf-cX-tJA" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" id="9Qa-oG-ufJ"/>
+                    <constraint firstAttribute="bottom" secondItem="5cf-cX-tJA" secondAttribute="bottom" id="l71-In-YfQ"/>
+                    <constraint firstItem="5cf-cX-tJA" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" id="sbD-pU-Pw9"/>
+                    <constraint firstAttribute="trailing" secondItem="5cf-cX-tJA" secondAttribute="trailing" id="szq-Z8-oMU"/>
+                </constraints>
+            </view>
+            <toolbar key="toolbar" implicitIdentifier="A7ED7637-FD40-40DE-876E-9B0439351EAA" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="regular" id="zJX-ht-cKQ">
+                <allowedToolbarItems>
+                    <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="286-bf-5MW"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="Sfw-Se-Wav"/>
+                    <toolbarItem implicitItemIdentifier="E5B9BE82-DD93-46D6-848E-2216A7979B0D" label="Back" paletteLabel="Back" tag="-1" image="NSLeftFacingTriangleTemplate" id="ZeB-kX-mz4" customClass="ButtonToolbarItem">
+                        <connections>
+                            <action selector="back:" target="-2" id="MBS-9y-tXw"/>
+                        </connections>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="2BE9692B-2A2D-4CD4-8E2F-F39CB69AE68A" label="Forward" paletteLabel="Forward" tag="-1" image="NSGoRightTemplate" id="D6O-bp-dip" customClass="ButtonToolbarItem">
+                        <connections>
+                            <action selector="forward:" target="-2" id="Amx-ZX-OfL"/>
+                        </connections>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="A2456940-1EFF-49A5-9620-8D77AF7305EC" label="Reload" paletteLabel="Reload" tag="-1" image="NSRefreshFreestandingTemplate" id="0Jp-LF-I8G" customClass="ButtonToolbarItem">
+                        <connections>
+                            <action selector="reload:" target="-2" id="eOh-ng-qHE"/>
+                        </connections>
+                    </toolbarItem>
+                </allowedToolbarItems>
+                <defaultToolbarItems>
+                    <toolbarItem reference="ZeB-kX-mz4"/>
+                    <toolbarItem reference="D6O-bp-dip"/>
+                    <toolbarItem reference="Sfw-Se-Wav"/>
+                    <toolbarItem reference="0Jp-LF-I8G"/>
+                </defaultToolbarItems>
+            </toolbar>
+            <connections>
+                <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
+            </connections>
+            <point key="canvasLocation" x="380" y="188"/>
+        </window>
+    </objects>
+    <resources>
+        <image name="NSGoRightTemplate" width="9" height="12"/>
+        <image name="NSLeftFacingTriangleTemplate" width="9" height="12"/>
+        <image name="NSRefreshFreestandingTemplate" width="14" height="14"/>
+    </resources>
+</document>
