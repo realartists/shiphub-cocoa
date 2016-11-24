@@ -58,6 +58,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     NSDictionary *_spellcheckContextTarget;
     
     CFAbsoluteTime _lastCheckedForUpdates;
+    NSString *_lastStateJSON;
 }
 
 // Why legacy WebView?
@@ -88,6 +89,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 - (void)loadView {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:DataStoreDidUpdateProblemsNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyWindowDidChange:) name:NSWindowDidBecomeKeyNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(metadataDidUpdate:) name:DataStoreDidUpdateMetadataNotification object:nil];
     
     NSView *container = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewDidChangeFrame:) name:NSViewFrameDidChangeNotification object:container];
@@ -203,6 +205,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     _issue = issue;
     if (issue) {
         NSString *issueJSON = [self issueStateJSON:issue];
+        _lastStateJSON = issueJSON;
         NSString *js = [NSString stringWithFormat:@"applyIssueState(%@, %@)", issueJSON, commentIdentifier];
         //DebugLog(@"%@", js);
         [self evaluateJavaScript:js];
@@ -285,6 +288,20 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
                 if (issue) {
                     self.issue = issue;
                     [self scheduleMarkAsReadTimerIfNeeded];
+                }
+            }];
+        }
+    }
+}
+
+- (void)metadataDidUpdate:(NSNotification *)note {
+    if (_issue.fullIdentifier && [note object] == [DataStore activeStore]) {
+        NSString *json = [self issueStateJSON:_issue];
+        if (![json isEqualToString:_lastStateJSON]) {
+            DebugLog(@"issueStateJSON changed, reloading");
+            [[DataStore activeStore] loadFullIssue:_issue.fullIdentifier completion:^(Issue *issue, NSError *error) {
+                if ([issue.fullIdentifier isEqualToString:_issue.fullIdentifier]) {
+                    self.issue = issue;
                 }
             }];
         }

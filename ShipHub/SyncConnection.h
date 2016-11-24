@@ -44,6 +44,7 @@
 - (void)syncConnection:(SyncConnection *)sync didReceiveBillingUpdate:(NSDictionary *)update;
 
 - (void)syncConnection:(SyncConnection *)sync didReceiveRateLimit:(NSDate *)limitedUntil;
+- (void)syncConnectionRequiresUpdatedServer:(SyncConnection *)sync;
 
 @end
 

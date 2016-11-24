@@ -15,6 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalLabel (CoreDataProperties)
 
+@property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSString *color;
 @property (nullable, nonatomic, retain) NSString *name;
 @property (nullable, nonatomic, retain) NSSet<LocalIssue *> *issues;

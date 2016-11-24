@@ -13,6 +13,7 @@
 
 @implementation LocalLabel (CoreDataProperties)
 
+@dynamic identifier;
 @dynamic color;
 @dynamic name;
 @dynamic issues;

@@ -89,6 +89,7 @@ NSString *const DataStoreDidEndNetworkActivityNotification = @"DataStoreDidEndNe
 NSString *const DataStoreDidUpdateProgressNotification = @"DataStoreDidUpdateProgressNotification";
 
 NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification = @"DataStoreNeedsMandatorySoftwareUpdateNotification";
+NSString *const DataStoreNeedsUpdatedServerNotification = @"DataStoreNeedsUpdatedServerNotification";
 
 NSString *const DataStoreBillingStateDidChangeNotification = @"DataStoreBillingStateDidChangeNotification";
 
@@ -120,8 +121,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  4: realartists/shiphub-cocoa#76 Support multiple assignees
  5: Milestone and repo hiding (realartists/shiphub-cocoa#157 realartists/shiphub-cocoa#145)
  6: realartists/shiphub-cocoa#217 User.queries needs to be modeled as to-many relationship
+ 7: realartists/shiphub-cocoa#288 Switch to labels with identifiers
  */
-static const NSInteger CurrentLocalModelVersion = 6;
+static const NSInteger CurrentLocalModelVersion = 7;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
@@ -333,7 +335,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         return NO;
     }
     
-    if (previousStoreVersion < 6) {
+    if (previousStoreVersion < 7) {
         DebugLog(@"Updating to version %td database from %td. Forcing database re-creation.", CurrentLocalModelVersion, previousStoreVersion);
         forceRecreate = YES;
     }
@@ -689,42 +691,6 @@ static NSString *const LastUpdated = @"LastUpdated";
     return obj;
 }
 
-// Must be called on _writeMoc.
-// Does not call save:
-- (void)updateLabelsOn:(NSManagedObject *)owner fromDicts:(NSArray *)lDicts relationship:(NSRelationshipDescription *)relationship {
-    NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalLabel"];
-    fetch.predicate = [NSPredicate predicateWithFormat:@"%K = %@", relationship.inverseRelationship.name, owner];
-    NSError *error = nil;
-    NSArray *existingLabels = [_writeMoc executeFetchRequest:fetch error:&error];
-    if (error) ErrLog("%@", error);
-    
-    NSDictionary *existingLookup = [NSDictionary lookupWithObjects:existingLabels keyPath:@"name"];
-    NSDictionary *lDictLookup = [NSDictionary lookupWithObjects:lDicts keyPath:@"name"];
-    
-    NSMutableSet *allNames = [NSMutableSet setWithArray:[existingLookup allKeys]];
-    [allNames addObjectsFromArray:[lDictLookup allKeys]];
-    
-    NSMutableArray *relatedLabels = [[NSMutableArray alloc] initWithCapacity:lDicts.count];
-    
-    for (NSString *name in allNames) {
-        NSDictionary *d = lDictLookup[name];
-        LocalLabel *ll = existingLookup[name];
-        
-        if (ll && d) {
-            [ll mergeAttributesFromDictionary:d];
-            [relatedLabels addObject:ll];
-        } else if (ll && !d) {
-            [_writeMoc deleteObject:ll];
-        } else if (!ll && d) {
-            ll = [NSEntityDescription insertNewObjectForEntityForName:@"LocalLabel" inManagedObjectContext:_writeMoc];
-            [ll mergeAttributesFromDictionary:d];
-            [relatedLabels addObject:ll];
-        }
-    }
-    
-    [owner setValue:[NSSet setWithArray:relatedLabels] forKey:@"labels" onlyIfChanged:YES];
-}
-
 // Must be called on _moc.
 // Does not call save:
 - (void)updateRelationshipsOn:(NSManagedObject *)obj fromSyncDict:(NSDictionary *)syncDict {
@@ -734,12 +700,6 @@ static NSString *const LastUpdated = @"LastUpdated";
     for (NSString *key in [relationships allKeys]) {
         NSRelationshipDescription *rel = relationships[key];
         BOOL noPopulate = [rel.userInfo[@"noPopulate"] boolValue];
-        
-        if ([key isEqualToString:@"labels"]) {
-            // labels are ... *sigh* ... special
-            [self updateLabelsOn:(LocalRepo *)obj fromDicts:syncDict[@"labels"] relationship:rel];
-            continue;
-        }
         
         NSString *syncDictKey = rel.userInfo[@"jsonKey"];
         if (!syncDictKey) syncDictKey = key;
@@ -2499,9 +2459,11 @@ static NSString *const LastUpdated = @"LastUpdated";
             [_serverConnection perform:@"PATCH" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
                 if (!error) {
                     [self performWrite:^(NSManagedObjectContext *write) {
-                        LocalNotification *writeNote = [write objectWithID:noteID];
-                        writeNote.unread = NO;
-                        [write save:NULL];
+                        LocalNotification *writeNote = [write existingObjectWithID:noteID error:NULL];
+                        if (writeNote) {
+                            writeNote.unread = NO;
+                            [write save:NULL];
+                        }
                     }];
                 } else {
                     ErrLog(@"%@", error);
@@ -2709,6 +2671,10 @@ static NSString *const LastUpdated = @"LastUpdated";
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreNeedsMandatorySoftwareUpdateNotification object:self];
     });
+}
+
+- (void)syncConnectionRequiresUpdatedServer:(SyncConnection *)sync {
+    [self postNotification:DataStoreNeedsUpdatedServerNotification userInfo:nil];
 }
 
 #pragma mark - SyncConnection billing update

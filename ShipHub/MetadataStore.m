@@ -68,7 +68,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
     static NSSet *ignoredKeys;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        ignoredKeys = [NSSet setWithObjects:@"actedEvents", @"assignedEvents", @"assignedIssues", @"closedIssues", @"comments", @"originatedIssues", @"reactions", nil];
+        ignoredKeys = [NSSet setWithObjects:@"actedEvents", @"assignedEvents", @"assignedIssues", @"closedIssues", @"comments", @"originatedIssues", @"reactions", @"issues", nil];
     });
     for (NSString *key in lu.changedValues) {
         return ![ignoredKeys containsObject:key];
@@ -151,8 +151,10 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
             labelsByRepoID[r.identifier] = labels = [NSMutableArray new];
             
             for (LocalLabel *ll in r.labels) {
-                Label *l = [[Label alloc] initWithLocalItem:ll];
-                [labels addObject:l];
+                if (ll.name && ll.color) {
+                    Label *l = [[Label alloc] initWithLocalItem:ll];
+                    [labels addObject:l];
+                }
             }
             
             LocalAccount *localOwner = r.owner;

@@ -53,6 +53,7 @@ static NSString *const MessageFieldNewVersion = @"newVersion";
 static NSString *const MessageFieldReleaseNotes = @"releaseNotes";
 static NSString *const MessageFieldURL = @"url";
 static NSString *const MessageFieldRequired = @"required";
+static NSString *const MessageFieldHelloVersion = @"version";
 
 // Billing Message fields
 static NSString *const MessageFieldBillingMode = @"mode";
@@ -65,6 +66,8 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
     MessageHeaderPlainText = 0,
     MessageHeaderDeflate = 1,
 };
+
+static uint64_t ServerHelloMinimumVersion = 2;
 
 @interface WSSyncConnection () <SRWebSocketDelegate> {
     dispatch_queue_t _q;
@@ -281,6 +284,14 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
     NSString *type = msg[MessageFieldType];
     
     if ([type isEqualToString:MessageHello]) {
+        uint64_t serverVersion = [msg[MessageFieldHelloVersion] unsignedLongLongValue];
+        if (serverVersion < ServerHelloMinimumVersion) {
+            ErrLog(@"Server version is too low");
+            [self.delegate syncConnectionRequiresUpdatedServer:self];
+            [self disconnect];
+            return;
+        }
+        
         NSString *purgeIdentifier = msg[MessageFieldPurgeIdentifier];
         NSDictionary *upgrade = msg[MessageFieldUpgrade];
         

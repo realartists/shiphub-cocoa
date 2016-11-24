@@ -2369,6 +2369,7 @@
 				1A3C5B5E1DDD012F005F9A01 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		1AD956C41D0BCFBA002B1259 /* Build configuration list for PBXLegacyTarget "IssueWeb" */ = {
 			isa = XCConfigurationList;

@@ -59,7 +59,7 @@
         <relationship name="closedBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="closedIssues" inverseEntity="LocalUser" syncable="YES"/>
         <relationship name="comments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalComment" inverseName="issue" inverseEntity="LocalComment" syncable="YES"/>
         <relationship name="events" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalEvent" inverseName="issue" inverseEntity="LocalEvent" syncable="YES"/>
-        <relationship name="labels" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalLabel" inverseName="issue" inverseEntity="LocalLabel" syncable="YES"/>
+        <relationship name="labels" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalLabel" inverseName="issues" inverseEntity="LocalLabel" syncable="YES"/>
         <relationship name="milestone" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalMilestone" inverseName="issues" inverseEntity="LocalMilestone" syncable="YES"/>
         <relationship name="notification" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalNotification" inverseName="issue" inverseEntity="LocalNotification" syncable="YES"/>
         <relationship name="originator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalUser" inverseName="originatedIssues" inverseEntity="LocalUser" syncable="YES">
@@ -73,9 +73,14 @@
     </entity>
     <entity name="LocalLabel" representedClassName="LocalLabel" syncable="YES">
         <attribute name="color" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="identifier" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="labels" inverseEntity="LocalIssue" syncable="YES"/>
-        <relationship name="repo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="labels" inverseEntity="LocalRepo" syncable="YES"/>
+        <relationship name="issues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="labels" inverseEntity="LocalIssue" syncable="YES"/>
+        <relationship name="repo" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="labels" inverseEntity="LocalRepo" syncable="YES">
+            <userInfo>
+                <entry key="jsonKey" value="repository"/>
+            </userInfo>
+        </relationship>
     </entity>
     <entity name="LocalMilestone" representedClassName="LocalMilestone" syncable="YES">
         <attribute name="closedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -179,7 +184,7 @@
         <element name="LocalEvent" positionX="0" positionY="0" width="128" height="180"/>
         <element name="LocalHidden" positionX="9" positionY="153" width="128" height="75"/>
         <element name="LocalIssue" positionX="0" positionY="0" width="128" height="390"/>
-        <element name="LocalLabel" positionX="0" positionY="0" width="128" height="105"/>
+        <element name="LocalLabel" positionX="0" positionY="0" width="128" height="120"/>
         <element name="LocalMilestone" positionX="0" positionY="0" width="128" height="225"/>
         <element name="LocalNotification" positionX="9" positionY="153" width="128" height="165"/>
         <element name="LocalOrg" positionX="0" positionY="0" width="128" height="90"/>

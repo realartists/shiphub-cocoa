@@ -53,7 +53,8 @@
         }];
         _originator = [ms userWithIdentifier:li.originator.identifier];
         _closedBy = [ms userWithIdentifier:li.closedBy.identifier];
-        _labels = [[[li.labels allObjects] arrayByMappingObjects:^id(id obj) {
+        NSArray *loadedLabels = [[li.labels allObjects] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"name != nil && color != nil"]];
+        _labels = [[loadedLabels arrayByMappingObjects:^id(id obj) {
             return [[Label alloc] initWithLocalItem:obj];
         }] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
         _milestone = [ms milestoneWithIdentifier:li.milestone.identifier];

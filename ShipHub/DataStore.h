@@ -162,6 +162,7 @@ extern NSString *const DataStoreDidEndNetworkActivityNotification;
 extern NSString *const DataStoreDidUpdateProgressNotification;
 
 extern NSString *const DataStoreNeedsMandatorySoftwareUpdateNotification;
+extern NSString *const DataStoreNeedsUpdatedServerNotification;
 
 extern NSString *const DataStoreBillingStateDidChangeNotification;
 
