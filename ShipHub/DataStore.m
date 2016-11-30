@@ -1276,18 +1276,29 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSString *fullNameKeyPath = @"repository.fullName";
     NSString *numberKeyPath = @"number";
     
+    // partition issueIdentifiers by repository
+    NSMutableDictionary *byRepo = [NSMutableDictionary new];
+    for (NSString *issueIdentifier in issueIdentifiers) {
+        NSString *key = [issueIdentifier issueRepoFullName];
+        NSMutableArray *list = byRepo[key];
+        if (!list) {
+            list = [NSMutableArray new];
+            byRepo[key] = list;
+        }
+        [list addObject:[issueIdentifier issueNumber]];
+    }
+    
     if ([prefix length]) {
         fullNameKeyPath = [NSString stringWithFormat:@"%@.repository.fullName", prefix];
         numberKeyPath = [NSString stringWithFormat:@"%@.number", prefix];
     }
     
     NSMutableArray *subp = [NSMutableArray new];
-    for (NSString *issueIdentifier in issueIdentifiers) {
-        NSString *repoFullName = [issueIdentifier issueRepoFullName];
-        NSNumber *issueNumber = [issueIdentifier issueNumber];
-        
-        [subp addObject:[NSPredicate predicateWithFormat:@"%K = %@ AND %K = %@", fullNameKeyPath, repoFullName, numberKeyPath, issueNumber]];
+    for (NSString *repoFullName in byRepo) {
+        NSArray *issueNumbers = byRepo[repoFullName];
+        [subp addObject:[NSPredicate predicateWithFormat:@"%K = %@ AND %K IN %@", fullNameKeyPath, repoFullName, numberKeyPath, issueNumbers]];
     }
+    
     if (subp.count == 1) {
         return [subp firstObject];
     } else {
