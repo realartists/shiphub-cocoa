@@ -383,6 +383,8 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
     
     for (NSMenuItem *i in menuItems) {
         switch (i.tag) {
+            case 2000: /* WebMenuItemTagOpenLink */
+                i.hidden = YES;
             case WebMenuItemTagOpenLinkInNewWindow:
                 i.target = self;
                 i.action = @selector(openLinkInNewWindow:);
