@@ -1377,10 +1377,11 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     // PATCH /repos/:owner/:repo/issues/:number
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/issues/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
+    NSDictionary *headers = @{ @"Accept" : @"application/vnd.github.squirrel-girl-preview+json" };
     
     DebugLog(@"Patching %@: %@", issueIdentifier, patch);
     
-    [self.serverConnection perform:@"PATCH" on:endpoint body:patch completion:^(id jsonResponse, NSError *error) {
+    [self.serverConnection perform:@"PATCH" on:endpoint headers:headers body:patch completion:^(id jsonResponse, NSError *error) {
         
         if (!error) {
             id myJSON = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
@@ -1409,7 +1410,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     // POST /repos/:owner/:repo/issues
     
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues", r.fullName];
-    [self.serverConnection perform:@"POST" on:endpoint body:issueJSON completion:^(id jsonResponse, NSError *error) {
+    NSDictionary *headers = @{ @"Accept" : @"application/vnd.github.squirrel-girl-preview+json" };
+    [self.serverConnection perform:@"POST" on:endpoint headers:headers body:issueJSON completion:^(id jsonResponse, NSError *error) {
     
         if (!error) {
             NSMutableDictionary *myJSON = [[JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
