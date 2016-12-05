@@ -266,6 +266,9 @@ static NSUInteger pathDepth(NSString *path) {
     f.newOid = delta->new_file.id;
     f.oldOid = delta->old_file.id;
     f.mode = (DiffFileMode)delta->new_file.mode;
+    if (f.mode == DiffFileModeUnreadable) { /* deleted in new */
+        f.mode = (DiffFileMode)delta->old_file.mode;
+    }
     f.operation = (DiffFileOperation)delta->status;
     f.name = [f.path lastPathComponent];
     
