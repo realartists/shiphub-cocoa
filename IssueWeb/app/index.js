@@ -639,7 +639,7 @@ var markdownOpts = {
   smartypants: false,
   highlight: function (code, lang) {
     if (lang) {
-      lang = langMapping[lang] || lang;
+      lang = langMapping[lang.toLowerCase()] || lang;
       return hljs.highlightAuto(code, [lang]).value;
     } else {
       return code;
