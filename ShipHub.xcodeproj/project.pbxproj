@@ -1409,6 +1409,8 @@
 				1A3C5B551DDD012F005F9A01 /* main.m */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		1A3D34531DAEF74E00CDF167 /* Git */ = {
 			isa = PBXGroup;
 			children = (
@@ -2487,6 +2489,10 @@
 				INFOPLIST_FILE = AccountTool/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.AccountTool;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};	
 		1A3D346C1DB167ED00CDF167 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2513,6 +2519,10 @@
 				INFOPLIST_FILE = AccountTool/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.AccountTool;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		1A3D346D1DB167ED00CDF167 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2584,6 +2594,10 @@
 			buildConfigurations = (
 				1A3C5B5D1DDD012F005F9A01 /* Debug */,
 				1A3C5B5E1DDD012F005F9A01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		1A3D346B1DB167ED00CDF167 /* Build configuration list for PBXLegacyTarget "DiffWeb" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
