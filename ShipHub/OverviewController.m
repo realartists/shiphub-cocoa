@@ -56,6 +56,7 @@
 
 static NSString *const LastSelectedNodeDefaultsKey = @"OverviewLastSelectedNode";
 static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode";
+static NSString *const OverviewNodeReorderPasteboardKey = @"ShipOverviewNodeReorderPasteboardKey";
 
 @interface OverviewWindow : NetworkStateWindow
 
@@ -122,7 +123,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 @property (strong) IBOutlet NSPopUpButton *addButton;
 
-@property NSArray *outlineRoots;
+@property NSMutableArray *outlineRoots;
 
 @property OverviewNode *allProblemsNode;
 @property OverviewNode *upNextNode;
@@ -223,7 +224,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     [_splitView setPosition:240.0 ofDividerAtIndex:0];
     
     _outlineView.floatsGroupRows = NO;
-    [_outlineView registerForDraggedTypes:@[(__bridge NSString *)kUTTypeURL, (__bridge NSString *)kUTTypeRTF, (__bridge NSString *)kUTTypePlainText]];
+    [_outlineView registerForDraggedTypes:@[(__bridge NSString *)kUTTypeURL, (__bridge NSString *)kUTTypeRTF, (__bridge NSString *)kUTTypePlainText, OverviewNodeReorderPasteboardKey]];
     
     self.window.frameAutosaveName = @"Overview";
     _splitView.autosaveName = @"OverviewSplit";
@@ -393,6 +394,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     OverviewNode *topNode = [OverviewNode new];
     topNode.title = NSLocalizedString(@"Overview", nil);
     topNode.cellIdentifier = @"GroupCell";
+    topNode.identifier = @"Overview";
+    topNode.defaultOrderKey = 0;
     [roots addObject:topNode];
     
     _allProblemsNode = [OverviewNode new];
@@ -433,7 +436,9 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     
     OverviewNode *milestonesRoot = [OverviewNode new];
     milestonesRoot.title = NSLocalizedString(@"Milestones", nil);
+    milestonesRoot.identifier = @"Milestones";
     milestonesRoot.cellIdentifier = @"GroupCell";
+    milestonesRoot.defaultOrderKey = 2;
     [roots addObject:milestonesRoot];
     
     MetadataStore *metadata = [[DataStore activeStore] metadataStore];
@@ -479,6 +484,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         OverviewNode *myQueriesRoot = [OverviewNode new];
         myQueriesRoot.cellIdentifier = @"GroupCell";
         myQueriesRoot.title = NSLocalizedString(@"Smart Queries", nil);
+        myQueriesRoot.identifier = @"Smart Queries";
+        myQueriesRoot.defaultOrderKey = 1;
         [roots addObject:myQueriesRoot];
         
         for (CustomQuery *query in myQueries) {
@@ -500,6 +507,8 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     OverviewNode *reposNode = [OverviewNode new];
     reposNode.title = NSLocalizedString(@"Repos", nil);
     reposNode.cellIdentifier = @"GroupCell";
+    reposNode.identifier = @"Repos";
+    reposNode.defaultOrderKey = 3;
     [roots addObject:reposNode];
     
     BOOL multipleOwners = [[metadata repoOwners] count] > 1;
@@ -598,6 +607,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
         hiddenRoot.cellIdentifier = @"GroupCell";
         hiddenRoot.defaultCollapsed = YES;
         hiddenRoot.identifier = @"Hidden";
+        hiddenRoot.defaultOrderKey = 4;
         [roots addObject:hiddenRoot];
         
         if (hiddenRepos.count > 0) {
@@ -704,6 +714,7 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     }
 #endif
     
+    [OverviewNode sortRootNodesWithDefaults:roots];
     _outlineRoots = roots;
     
     if (oldCounts) {
@@ -1013,6 +1024,19 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
     [self walkNodes:_outlineRoots expandedOnly:NO visitor:visitor];
 }
 
+- (OverviewNode *)nodeWithIdentifier:(NSString *)identifier {
+    __block OverviewNode *n = nil;
+    [self walkNodes:^(OverviewNode *node) {
+        if (n) return;
+        
+        if ([node.identifier isEqualToString:identifier]) {
+            n = node;
+        }
+    }];
+    
+    return n;
+}
+
 #pragma mark - NSOutlineViewDataSource & NSOutlineViewDelegate
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
@@ -1235,32 +1259,114 @@ static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode"
 
 - (NSDragOperation)outlineView:(NSOutlineView *)outlineView validateDrop:(id <NSDraggingInfo>)info proposedItem:(nullable id)item proposedChildIndex:(NSInteger)index
 {
-    NSPasteboard *pb = [info draggingPasteboard];
-    if (![NSString canReadIssueIdentifiersFromPasteboard:pb]) {
-        return NSDragOperationNone;
-    }
-    
-    OverviewNode *node = item;
-    if (node.dropHandler) {
-        return NSDragOperationCopy;
+    if ([info draggingSource] == _outlineView) {
+        // reorder within the outline
+        OverviewNode *parent = item;
+        NSPasteboard *pb = [info draggingPasteboard];
+        NSString *childIdentifier = [pb stringForType:OverviewNodeReorderPasteboardKey];
+        OverviewNode *child = [self nodeWithIdentifier:childIdentifier];
+        
+        if (!child) {
+            return NSDragOperationNone;
+        } else if (child.parent == parent) {
+            NSArray *proposals = child.parent.children ?: _outlineRoots;
+            return index >= 0 && index <= proposals.count && proposals.count > 1 ? NSDragOperationGeneric : NSDragOperationNone;
+        } else {
+            // try to find the best place
+            NSArray *proposals = child.parent.children ?: _outlineRoots;
+            if (proposals.count < 2) return NSDragOperationNone;
+            
+            CGPoint p = [_outlineView convertPoint:[info draggingLocation] fromView:nil];
+            NSUInteger i = 0;
+            BOOL posSet = NO;
+            for (OverviewNode *n in proposals) {
+                NSInteger row = [_outlineView rowForItem:n];
+                if (row != NSNotFound) {
+                    CGRect r = [_outlineView rectOfRow:row];
+                    if (p.y < CGRectGetMidY(r)) {
+                        [_outlineView setDropItem:child.parent dropChildIndex:i];
+                        posSet = YES;
+                        break;
+                    }
+                }
+                i++;
+            }
+            if (!posSet) {
+                [_outlineView setDropItem:child.parent dropChildIndex:proposals.count];
+            }
+            return NSDragOperationGeneric;
+        }
     } else {
-        return NSDragOperationNone;
+        // drag of issues from elsewhere
+        NSPasteboard *pb = [info draggingPasteboard];
+        if (![NSString canReadIssueIdentifiersFromPasteboard:pb]) {
+            return NSDragOperationNone;
+        }
+        
+        OverviewNode *node = item;
+        if (node.dropHandler) {
+            return NSDragOperationCopy;
+        } else {
+            return NSDragOperationNone;
+        }
     }
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView acceptDrop:(id <NSDraggingInfo>)info item:(nullable id)item childIndex:(NSInteger)index
 {
-    NSPasteboard *pb = [info draggingPasteboard];
-    NSArray *identifiers = [NSString readIssueIdentifiersFromPasteboard:pb];
-    
-    OverviewNode *node = item;
-    
-    if (node.dropHandler && identifiers.count > 0) {
-        node.dropHandler(identifiers);
-        return YES;
+    if ([info draggingSource] == _outlineView) {
+        OverviewNode *parent = item;
+        NSPasteboard *pb = [info draggingPasteboard];
+        NSString *childIdentifier = [pb stringForType:OverviewNodeReorderPasteboardKey];
+        if (parent) {
+            NSUInteger oldIndex = [parent.children indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                return [[obj identifier] isEqualToString:childIdentifier];
+            }];
+            if (oldIndex != NSNotFound) {
+                OverviewNode *child = parent.children[oldIndex];
+                [parent moveChildWithIdentifier:childIdentifier toIndex:index];
+                NSUInteger newIndex = [parent.children indexOfObjectIdenticalTo:child];
+                [outlineView moveItemAtIndex:oldIndex inParent:item toIndex:newIndex inParent:item];
+                return YES;
+            }
+        } else {
+            NSUInteger oldIndex = [_outlineRoots indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                return [[obj identifier] isEqualToString:childIdentifier];
+            }];
+            if (oldIndex != NSNotFound) {
+                OverviewNode *child = _outlineRoots[oldIndex];
+                [_outlineRoots moveItemsAtIndexes:[NSIndexSet indexSetWithIndex:oldIndex] toIndex:index];
+                NSUInteger newIndex = [_outlineRoots indexOfObjectIdenticalTo:child];
+                [outlineView moveItemAtIndex:oldIndex inParent:item toIndex:newIndex inParent:item];
+                [OverviewNode saveRootNodeOrder:_outlineRoots];
+                return YES;
+            }
+        }
+        return NO;
+    } else {
+        // drag of issues from elsewhere
+        NSPasteboard *pb = [info draggingPasteboard];
+        NSArray *identifiers = [NSString readIssueIdentifiersFromPasteboard:pb];
+        
+        OverviewNode *node = item;
+        
+        if (node.dropHandler && identifiers.count > 0) {
+            node.dropHandler(identifiers);
+            return YES;
+        }
+        
+        return NO;
     }
+}
+
+- (BOOL)outlineView:(NSOutlineView *)outlineView writeItems:(NSArray *)items toPasteboard:(NSPasteboard *)pboard
+{
+    if (items.count != 1) return NO;
     
-    return NO;
+    [pboard clearContents];
+    [pboard setString:[[items lastObject] identifier] forType:OverviewNodeReorderPasteboardKey];
+    
+    return YES;
 }
 
 #pragma mark -

@@ -50,6 +50,70 @@
     [_children removeObject:node];
 }
 
+- (NSString *)childOrderKey {
+    return [NSString stringWithFormat:@"OverviewNode.%@.ChildOrder", self.identifier];
+}
+
++ (void)sortNodes:(NSMutableArray *)nodes withOrderKey:(NSString *)orderKey
+{
+    NSArray *savedOrder = [[NSUserDefaults standardUserDefaults] arrayForKey:orderKey];
+    NSMutableDictionary *idToPos = [NSMutableDictionary new];
+    for (NSUInteger i = 0; i < savedOrder.count; i++) {
+        idToPos[savedOrder[i]] = @(i);
+    }
+    
+    [nodes sortUsingComparator:^NSComparisonResult(OverviewNode *n1, OverviewNode *n2) {
+        NSNumber *p1 = idToPos[n1.identifier];
+        NSNumber *p2 = idToPos[n2.identifier];
+        if (p1 && p2) {
+            return [p1 compare:p2];
+        } else {
+            if (n1.defaultOrderKey < n2.defaultOrderKey) {
+                return NSOrderedAscending;
+            } else if (n1.defaultOrderKey > n2.defaultOrderKey) {
+                return NSOrderedDescending;
+            } else {
+                return [n1.title localizedStandardCompare:n2.title];
+            }
+        }
+    }];
+    
+    [nodes makeObjectsPerformSelector:@selector(sortChildrenWithDefaults)];
+}
+
+- (void)sortChildrenWithDefaults {
+    [[self class] sortNodes:_children withOrderKey:[self childOrderKey]];
+}
+
++ (NSString *)rootNodeOrderKey {
+    return @"OverviewNode.Root.ChildOrder";
+}
+
++ (void)sortRootNodesWithDefaults:(NSMutableArray *)rootNodes {
+    [self sortNodes:rootNodes withOrderKey:[self rootNodeOrderKey]];
+}
+
++ (void)saveRootNodeOrder:(NSArray *)rootNodes {
+    NSArray *savedOrder = [rootNodes arrayByMappingObjects:^id(id obj) {
+        return [obj identifier];
+    }];
+    [[NSUserDefaults standardUserDefaults] setObject:savedOrder forKey:[self rootNodeOrderKey]];
+}
+
+- (BOOL)moveChildWithIdentifier:(NSString *)identifier toIndex:(NSInteger)idx {
+    NSUInteger pos = [_children indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger j, BOOL * _Nonnull stop) {
+        return [identifier isEqualToString:[obj identifier]];
+    }];
+    
+    if (pos == NSNotFound) return NO;
+    [_children moveItemsAtIndexes:[NSIndexSet indexSetWithIndex:pos] toIndex:idx];
+    NSArray *savedOrder = [_children arrayByMappingObjects:^id(id obj) {
+        return [obj identifier];
+    }];
+    [[NSUserDefaults standardUserDefaults] setObject:savedOrder forKey:[self childOrderKey]];
+    return YES;
+}
+
 - (void)addKnob:(OverviewKnob *)knob {
     if (!_knobs) {
         _knobs = [NSMutableArray array];

@@ -67,6 +67,14 @@ typedef void (^OverviewNodeDropHandler)(NSArray<NSString *> *issueIdentifiers);
 
 @property NSString *cellIdentifier;
 
+@property NSInteger defaultOrderKey;
+// recursively sort children according to saved defaults
+- (void)sortChildrenWithDefaults;
+- (BOOL)moveChildWithIdentifier:(NSString *)identifier toIndex:(NSInteger)idx;
+
++ (void)sortRootNodesWithDefaults:(NSMutableArray *)rootNodes;
++ (void)saveRootNodeOrder:(NSArray *)rootNodes;
+
 @end
 
 @interface OverviewKnob : NSViewController
