@@ -475,6 +475,7 @@ static NSString *const OverviewNodeReorderPasteboardKey = @"ShipOverviewNodeReor
     backlog.cellIdentifier = @"CountCell";
     backlog.toolTip = NSLocalizedString(@"The backlog contains all issues not assigned to a milestone", nil);
     backlog.icon = [NSImage overviewIconNamed:@"Backlog"];
+    backlog.defaultOrderKey = NSIntegerMax;
     [milestonesRoot addChild:backlog];
     
     NSArray *queries = [[DataStore activeStore] myQueries];
