@@ -16,7 +16,7 @@ typedef void (^APIProxyUpdatedIssue)(Issue *issue);
 
 @interface APIProxy : NSObject
 
-+ (instancetype)proxyWithRequest:(NSDictionary *)request existingIssue:(Issue *)existingIssue completion:(APIProxyCompletion)completion;
++ (instancetype)proxyWithRequest:(NSDictionary *)request completion:(APIProxyCompletion)completion;
 
 @property (copy) APIProxyUpdatedIssue updatedIssueHandler;
 

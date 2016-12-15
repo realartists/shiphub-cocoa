@@ -1431,15 +1431,15 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
-- (void)deleteComment:(NSNumber *)commentIdentifier inIssue:(id)issueIdentifier completion:(void (^)(NSError *error))completion
+- (void)deleteComment:(NSNumber *)commentIdentifier inRepoFullName:(NSString *)repoFullName completion:(void (^)(NSError *error))completion
 {
     NSParameterAssert(commentIdentifier);
-    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(repoFullName);
     NSParameterAssert(completion);
     
     // DELETE /repos/:owner/:repo/issues/comments/:commentIdentifier
     
-    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/issues/comments/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], commentIdentifier];
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/comments/%@", repoFullName, commentIdentifier];
     [self.serverConnection perform:@"DELETE" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
         if (!error) {
             
@@ -1536,16 +1536,16 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
-- (void)editComment:(NSNumber *)commentIdentifier body:(NSString *)newCommentBody inIssue:(NSString *)issueIdentifier completion:(void (^)(IssueComment *comment, NSError *error))completion
+- (void)editComment:(NSNumber *)commentIdentifier body:(NSString *)newCommentBody inRepoFullName:(NSString *)repoFullName completion:(void (^)(IssueComment *comment, NSError *error))completion
 {
     NSParameterAssert(commentIdentifier);
     NSParameterAssert(newCommentBody);
-    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(repoFullName);
     NSParameterAssert(completion);
     
     // PATCH /repos/:owner/:repo/issues/comments/:commentIdentifier
     
-    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/issues/comments/%@", [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], commentIdentifier];
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/comments/%@", repoFullName, commentIdentifier];
     
     [self.serverConnection perform:@"PATCH" on:endpoint body:@{ @"body" : newCommentBody } completion:^(id jsonResponse, NSError *error)
     {
@@ -1657,14 +1657,14 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
-- (void)postCommentReaction:(NSString *)reactionContent inIssue:(id)issueFullIdentifier inComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
+- (void)postCommentReaction:(NSString *)reactionContent inRepoFullName:(NSString *)repoFullName inComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
 {
     NSParameterAssert(reactionContent);
     NSParameterAssert(commentIdentifier);
     NSParameterAssert(completion);
     
     // POST /repos/:owner/:repo/issues/comments/:id/reactions
-    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/comments/%@/reactions", [issueFullIdentifier issueRepoFullName], commentIdentifier];
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/comments/%@/reactions", repoFullName, commentIdentifier];
     [self.serverConnection perform:@"POST" on:endpoint headers:@{@"Accept":@"application/vnd.github.squirrel-girl-preview"} body:@{@"content": reactionContent} completion:^(id jsonResponse, NSError *error) {
         void (^fail)(NSError *) = ^(NSError *reason) {
             RunOnMain(^{

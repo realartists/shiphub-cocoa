@@ -28,7 +28,6 @@
 @interface APIProxy ()
 
 @property (strong) NSDictionary *request;
-@property (strong) Issue *existingIssue;
 @property (copy) APIProxyCompletion completion;
 
 @end
@@ -38,10 +37,9 @@
 #define BIND(request, boundSelector) \
     request : NSStringFromSelector(@selector(boundSelector))
 
-+ (instancetype)proxyWithRequest:(NSDictionary *)request existingIssue:(Issue *)existingIssue completion:(APIProxyCompletion)completion {
++ (instancetype)proxyWithRequest:(NSDictionary *)request completion:(APIProxyCompletion)completion {
     
     APIProxy *p = [[[self class] alloc] init];
-    p.existingIssue = existingIssue;
     p.completion = completion;
     p.request = request;
     
@@ -265,7 +263,7 @@
 - (void)editComment:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo commentIdentifier:(id)commentIdentifier
 {
     NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
-    [[DataStore activeStore] editComment:commentNumber body:request.bodyJSON[@"body"] inIssue:_existingIssue.fullIdentifier completion:^(IssueComment *comment, NSError *error) {
+    [[DataStore activeStore] editComment:commentNumber body:request.bodyJSON[@"body"] inRepoFullName:[NSString stringWithFormat:@"%@/%@", owner, repo] completion:^(IssueComment *comment, NSError *error) {
         [self yield:comment err:error];
     }];
 }
@@ -273,14 +271,15 @@
 - (void)deleteComment:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo commentIdentifier:(id)commentIdentifier
 {
     NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
-    [[DataStore activeStore] deleteComment:commentNumber inIssue:_existingIssue.fullIdentifier completion:^(NSError *error) {
+    [[DataStore activeStore] deleteComment:commentNumber inRepoFullName:[NSString stringWithFormat:@"%@/%@", owner, repo] completion:^(NSError *error) {
         [self yield:nil err:error];
     }];
 }
 
 - (void)postComment:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo number:(id)number
 {
-    [[DataStore activeStore] postComment:request.bodyJSON[@"body"] inIssue:_existingIssue.fullIdentifier completion:^(IssueComment *comment, NSError *error) {
+    NSString *identifier = [NSString issueIdentifierWithOwner:owner repo:repo number:number];
+    [[DataStore activeStore] postComment:request.bodyJSON[@"body"] inIssue:identifier completion:^(IssueComment *comment, NSError *error) {
         [self yield:comment err:error];
     }];
 }
@@ -301,7 +300,8 @@
 - (void)postIssueReaction:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo issueNumber:(id)number
 {
     NSString *content = request.bodyJSON[@"content"];
-    [[DataStore activeStore] postIssueReaction:content inIssue:_existingIssue.fullIdentifier completion:^(Reaction *reaction, NSError *error) {
+    NSString *identifier = [NSString issueIdentifierWithOwner:owner repo:repo number:number];
+    [[DataStore activeStore] postIssueReaction:content inIssue:identifier completion:^(Reaction *reaction, NSError *error) {
         [self yield:reaction err:error];
     }];
 }
@@ -310,7 +310,7 @@
 {
     NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
     NSString *content = request.bodyJSON[@"content"];
-    [[DataStore activeStore] postCommentReaction:content inIssue:_existingIssue.fullIdentifier inComment:commentNumber completion:^(Reaction *reaction, NSError *error) {
+    [[DataStore activeStore] postCommentReaction:content inRepoFullName:[NSString stringWithFormat:@"%@/%@", owner, repo] inComment:commentNumber completion:^(Reaction *reaction, NSError *error) {
         [self yield:reaction err:error];
     }];
 }

@@ -705,7 +705,7 @@ static NSString *const WebpackDevServerURL = @"http://localhost:8080/";
 - (void)proxyAPI:(NSDictionary *)msg {
     //DebugLog(@"%@", msg);
     
-    APIProxy *proxy = [APIProxy proxyWithRequest:msg existingIssue:_issue completion:^(NSString *jsonResult, NSError *err) {
+    APIProxy *proxy = [APIProxy proxyWithRequest:msg completion:^(NSString *jsonResult, NSError *err) {
         dispatch_assert_current_queue(dispatch_get_main_queue());
         
         if (err) {
