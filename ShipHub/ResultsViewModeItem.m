@@ -38,8 +38,8 @@
     [[_segmented cell] setToolTip:NSLocalizedString(@"Progress Chart", nil) forSegment:2];
     
     CGSize overallSize = size;
-    overallSize.width += 8.0;
-    overallSize.height += 4.0;
+    overallSize.width += 10.0;
+    overallSize.height += 2.0;
     self.minSize = overallSize;
     self.maxSize = overallSize;
     self.view = _segmented;
