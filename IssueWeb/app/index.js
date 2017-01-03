@@ -2070,9 +2070,18 @@ var Comment = React.createClass({
   },
   
   onBlur: function() {
+    if (window.inAppCommentFocus) {
+      window.inAppCommentFocus.postMessage({key:this.key, state:false});
+    }
     var isNewIssue = !(getIvars().issue.number);
     if (isNewIssue) {
       editComment(0, this.state.code);
+    }
+  },
+  
+  onFocus: function() {
+    if (window.inAppCommentFocus) {
+      window.inAppCommentFocus.postMessage({key:this.key, state:true});
     }
   },
   
@@ -2523,6 +2532,7 @@ var Comment = React.createClass({
       });
       
       cm.on('blur', () => { this.onBlur(); });
+      cm.on('focus', () => { this.onFocus(); });
     }
   },
   
@@ -3750,7 +3760,7 @@ var App = React.createClass({
 
     var header = h(Header, {ref:"header", issue: issue, onIssueTemplate:this.onIssueTemplate});
     var activity = h(ActivityList, {key:issue["id"], ref:"activity", issue:issue});
-    var addComment = h(Comment, {ref:"addComment"});
+    var addComment = h(Comment, {ref:"addComment", key:"addComment"});
     
     var issueElement = h('div', {},
       header,

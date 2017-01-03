@@ -58,6 +58,10 @@ static NSString *const LastSelectedNodeDefaultsKey = @"OverviewLastSelectedNode"
 static NSString *const LastSelectedModeDefaultsKey = @"OverviewLastSelectedMode";
 static NSString *const OverviewNodeReorderPasteboardKey = @"ShipOverviewNodeReorderPasteboardKey";
 
+static NSString *const TBComposeItemId = @"TBCompose";
+static NSString *const TBViewModeItemId = @"TBViewMode";
+static NSString *const TBSearchItemId = @"TBSearch";
+
 @interface OverviewWindow : NetworkStateWindow
 
 @end
@@ -103,7 +107,7 @@ static NSString *const OverviewNodeReorderPasteboardKey = @"ShipOverviewNodeReor
 
 @end
 
-@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate, NSTextFieldDelegate>
+@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate, NSTextFieldDelegate, NSTouchBarDelegate>
 
 @property SearchResultsController *searchResults;
 @property ThreePaneController *threePaneController;
@@ -118,6 +122,7 @@ static NSString *const OverviewNodeReorderPasteboardKey = @"ShipOverviewNodeReor
 @property (strong) IBOutlet ButtonToolbarItem *createNewItem;
 @property (strong) IBOutlet ButtonToolbarItem *sidebarItem;
 @property (strong) IBOutlet ResultsViewModeItem *modeItem;
+@property (strong) NSSegmentedControl *tbModeItem;
 
 @property (strong) FilterBarViewController *filterBar;
 
@@ -265,6 +270,50 @@ static NSString *const OverviewNodeReorderPasteboardKey = @"ShipOverviewNodeReor
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(initialSyncEnded:) name:DataStoreDidEndInitialMetadataSync object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(outboxChanged:) name:DataStoreDidUpdateOutboxNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(upNextChanged:) name:DataStoreDidUpdateMyUpNextNotification object:nil];
+}
+
+- (NSTouchBar *)makeTouchBar {
+    NSTouchBar *tb = [NSTouchBar new];
+    tb.customizationIdentifier = @"overview";
+    tb.delegate = self;
+    tb.defaultItemIdentifiers = @[TBComposeItemId, NSTouchBarItemIdentifierFlexibleSpace, TBViewModeItemId, NSTouchBarItemIdentifierFixedSpaceSmall, TBSearchItemId];
+    return tb;
+}
+
+- (NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier
+{
+    if ([identifier isEqualToString:TBComposeItemId]) {
+        NSImage *compose = [NSImage imageNamed:NSImageNameTouchBarComposeTemplate];
+        compose.template = YES;
+        
+        NSSegmentedControl *seg = [NSSegmentedControl segmentedControlWithImages:@[compose] trackingMode:NSSegmentSwitchTrackingMomentary target:self action:@selector(newDocument:)];
+        
+        NSCustomTouchBarItem *item = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
+        item.view = seg;
+        
+        return item;
+    } else if ([identifier isEqualToString:TBViewModeItemId]) {
+        NSSegmentedControl *seg = _tbModeItem = [NSSegmentedControl segmentedControlWithImages:@[[NSImage searchResultsIcon], [NSImage threePaneIcon], [NSImage chartingIcon]] trackingMode:NSSegmentSwitchTrackingMomentary target:self action:@selector(tbViewMode:)];
+        [_tbModeItem setEnabled:_modeItem.chartEnabled forSegment:2];
+        
+        NSCustomTouchBarItem *item = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
+        item.view = seg;
+        
+        return item;
+    } else if ([identifier isEqualToString:TBSearchItemId]) {
+        NSImage *search = [NSImage imageNamed:NSImageNameTouchBarSearchTemplate];
+        NSImage *filter = [NSImage imageNamed:@"OverviewTBFilter"];
+        filter.template = search.template = YES;
+        NSSegmentedControl *seg = [NSSegmentedControl segmentedControlWithImages:@[filter, search] trackingMode:NSSegmentSwitchTrackingMomentary target:self action:@selector(tbSearch:)];
+        seg.segmentStyle = NSSegmentStyleSeparated;
+        
+        NSCustomTouchBarItem *item = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
+        item.view = seg;
+        
+        return item;
+    }
+    
+    return nil;
 }
 
 - (IBAction)showWindow:(id)sender {
@@ -958,6 +1007,7 @@ static NSString *const OverviewNodeReorderPasteboardKey = @"ShipOverviewNodeReor
     }
     
     _modeItem.chartEnabled = (selectedItem == nil || [selectedItem allowChart]);
+    [_tbModeItem setEnabled:_modeItem.chartEnabled forSegment:2];
     
     [[self activeResultsController] setUpNextMode:selectedItem == _upNextNode];
     [[self activeResultsController] setPredicate:predicate];
@@ -1425,6 +1475,14 @@ static NSString *const OverviewNodeReorderPasteboardKey = @"ShipOverviewNodeReor
     [[self window] makeFirstResponder:_searchItem.searchField];
 }
 
+- (IBAction)tbSearch:(id)sender {
+    NSInteger seg = [sender selectedSegment];
+    switch (seg) {
+        case 0: [self performFindPanelAction:nil]; break;
+        case 1: [self searchAllProblems:nil]; break;
+    }
+}
+
 - (IBAction)markAllNotificationsAsRead:(id)sender {
     [[DataStore activeStore] markAllIssuesAsReadWithCompletion:^(NSError *error) {
         if (error) {
@@ -1665,6 +1723,15 @@ static NSString *const OverviewNodeReorderPasteboardKey = @"ShipOverviewNodeReor
 - (IBAction)showBrowser:(id)sender {
     _modeItem.mode = ResultsViewMode3Pane;
     [self changeResultsMode:sender];
+}
+
+- (IBAction)tbViewMode:(id)sender {
+    NSInteger seg = [sender selectedSegment];
+    switch (seg) {
+        case 0: [self showList:nil]; break;
+        case 1: [self showBrowser:nil]; break;
+        case 2: [self showChart:nil]; break;
+    }
 }
 
 - (IBAction)showChartOptions:(id)sender {
