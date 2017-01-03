@@ -50,7 +50,7 @@
     return image;
 }
 
-+ (NSImage *)searchResultsIcon {
++ (NSImage *)listIcon {
     return [NSImage imageNamed:NSImageNameListViewTemplate];
 }
 

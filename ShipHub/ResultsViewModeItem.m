@@ -28,7 +28,7 @@
     [_segmented setWidth:segmentWidth forSegment:2];
     [_segmented.cell setTrackingMode:NSSegmentSwitchTrackingSelectOne];
     
-    [_segmented setImage:[NSImage searchResultsIcon] forSegment:0];
+    [_segmented setImage:[NSImage listIcon] forSegment:0];
     [_segmented setImage:[NSImage threePaneIcon] forSegment:1];
     [_segmented setImage:[NSImage chartingIcon] forSegment:2];
     [_segmented setSelectedSegment:0];

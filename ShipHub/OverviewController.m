@@ -293,7 +293,7 @@ static NSString *const TBSearchItemId = @"TBSearch";
         
         return item;
     } else if ([identifier isEqualToString:TBViewModeItemId]) {
-        NSSegmentedControl *seg = _tbModeItem = [NSSegmentedControl segmentedControlWithImages:@[[NSImage searchResultsIcon], [NSImage threePaneIcon], [NSImage chartingIcon]] trackingMode:NSSegmentSwitchTrackingMomentary target:self action:@selector(tbViewMode:)];
+        NSSegmentedControl *seg = _tbModeItem = [NSSegmentedControl segmentedControlWithImages:@[[NSImage listIcon], [NSImage threePaneIcon], [NSImage chartingIcon]] trackingMode:NSSegmentSwitchTrackingMomentary target:self action:@selector(tbViewMode:)];
         [_tbModeItem setEnabled:_modeItem.chartEnabled forSegment:2];
         
         NSCustomTouchBarItem *item = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
