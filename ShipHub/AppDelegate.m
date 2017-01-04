@@ -198,6 +198,13 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
             [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:identifier waitForIt:atAppLaunch];
         } else if ([[URL host] isEqualToString:@"signup"]) {
             [_authController continueWithLaunchURL:URL];
+        } else if ([[URL host] isEqualToString:@"open"]) {
+            NSURLComponents *comps = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
+            NSString *signup = [comps queryItemsDictionary][@"signup"];
+            if ([signup isEqualToString:@"complete"]) {
+                [_subscriptionController close];
+                [self showOverviewController:nil];
+            }
         }
     } else if ([[URL scheme] isEqualToString:@"https"]) {
         if ([[URL host] isEqualToString:@"github.com"]) {
