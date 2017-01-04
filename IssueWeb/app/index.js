@@ -989,8 +989,9 @@ function getOwnerRepoTypeNumberFromURL(url) {
 var CrossReferencedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    var urlParts = getOwnerRepoTypeNumberFromURL(
-      this.props.event.source.url);
+    var url = keypath(this.props.event, "source.issue.url") || keypath(this.props.event, "source.url");
+  
+    var urlParts = getOwnerRepoTypeNumberFromURL(url);
 
     var referencedRepoName = `${urlParts.owner}/${urlParts.repo}`;
     var repoName = getIvars().issue._bare_owner + "/" + getIvars().issue._bare_repo;
@@ -1079,21 +1080,38 @@ var ClassForEventDescription = function(event) {
 var CrossReferencedEventBody = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    var issueStateLabel = (this.props.event.ship_issue_state === "open") ? "Open" : "Closed";
-    var issueStateClass = (this.props.event.ship_issue_state === "open") ? "issueStateOpen" : "issueStateClosed";
+    var sourceUrl, issueState, issueTitle, isPullRequest, isPullRequestMerged;
+    
+    var issue = keypath(this.props.event, "source.issue");
+    
+    if (issue) {
+      issueTitle = issue.title;
+      issueState = issue.state;
+      sourceUrl = issue.url;
+      isPullRequest = !!(issue.pull_request);
+      isPullRequestMerged = false;
+    } else {
+      issueTitle = this.props.event.ship_issue_title;
+      issueState = this.props.event.ship_issue_state;
+      sourceUrl = this.props.event.source.url;
+      isPullRequest = this.props.event.ship_is_pull_request;
+      isPullRequestMerged = this.props.event.ship_pull_request_merged;
+    }
+  
+    var issueStateLabel = (issueState === "open") ? "Open" : "Closed";
+    var issueStateClass = (issueState === "open") ? "issueStateOpen" : "issueStateClosed";
 
-    if (this.props.event.ship_is_pull_request) {
-      if (this.props.event.ship_issue_state === "closed" &&
-          this.props.event.ship_pull_request_merged) {
+    if (isPullRequest) {
+      if (thisissueState === "closed" && isPullRequestMerged) {
         issueStateLabel = "Merged";
         issueStateClass = "issueStateMerged";
       }
-    }
+    } 
 
-    var urlParts = getOwnerRepoTypeNumberFromURL(this.props.event.source.url);
+    var urlParts = getOwnerRepoTypeNumberFromURL(sourceUrl);
     var destURL =
       `https://github.com/${urlParts.owner}/${urlParts.repo}/` +
-      (this.props.event.ship_is_pull_request ? "pull" : "issues") +
+      (isPullRequest ? "pull" : "issues") +
       `/${urlParts.number}`;
 
     return h("div", {},
@@ -1103,7 +1121,7 @@ var CrossReferencedEventBody = React.createClass({
                  href: destURL,
                  target: "_blank"
                },
-               this.props.event.ship_issue_title,
+               issueTitle,
                " ",
                h("span",
                  {className: "issueNumber"},
@@ -1239,7 +1257,7 @@ var Event = React.createClass({
 
     var user;
     if (this.props.event.event === 'cross-referenced') {
-      user = this.props.event.source.actor;
+      user = this.props.event.actor || keypath(this.props.event, "source.actor");
     } else {
       user = this.props.event.actor;
     }
