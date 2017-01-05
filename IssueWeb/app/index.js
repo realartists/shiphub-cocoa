@@ -1102,7 +1102,7 @@ var CrossReferencedEventBody = React.createClass({
     var issueStateClass = (issueState === "open") ? "issueStateOpen" : "issueStateClosed";
 
     if (isPullRequest) {
-      if (thisissueState === "closed" && isPullRequestMerged) {
+      if (issueState === "closed" && isPullRequestMerged) {
         issueStateLabel = "Merged";
         issueStateClass = "issueStateMerged";
       }
