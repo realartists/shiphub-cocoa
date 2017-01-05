@@ -1,7 +1,7 @@
 var promiseQueues = {};
 
 function runQueue(queue) {
-  console.log("runQueue", queue);
+//   console.log("runQueue", queue);
   if (queue.length == 0) return;
   var job = queue[0];
   
