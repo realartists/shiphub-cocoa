@@ -70,6 +70,27 @@
 		1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
 		1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */; };
 		1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */; };
+		1A346CE81E2054B3001AC6AC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A346CE71E2054B3001AC6AC /* main.m */; };
+		1A346CF71E205530001AC6AC /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2217B91C7E7B92006460E2 /* SocketRocket.framework */; };
+		1A346CFA1E205725001AC6AC /* SqlUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A346CF91E205725001AC6AC /* SqlUtil.m */; };
+		1A346CFB1E205CF8001AC6AC /* Logging.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217D01C7E80CE006460E2 /* Logging.m */; };
+		1A346CFC1E205CFC001AC6AC /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
+		1A346CFD1E205D00001AC6AC /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
+		1A346CFE1E205D15001AC6AC /* JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.m */; };
+		1A346CFF1E205D1E001AC6AC /* Error.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305DC1C7F84D80034C871 /* Error.m */; };
+		1A346D001E205D2D001AC6AC /* FoundationExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F11C7FC2E10034C871 /* FoundationExtras.m */; };
+		1A346D011E205D2D001AC6AC /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
+		1A346D021E205D2D001AC6AC /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
+		1A346D031E205D2D001AC6AC /* CAExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A415A1C8F603E0043DAF0 /* CAExtras.m */; };
+		1A346D041E205D2D001AC6AC /* NSPredicate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */; };
+		1A346D051E205D89001AC6AC /* Auth.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217DA1C7E99A1006460E2 /* Auth.m */; };
+		1A346D061E205D8E001AC6AC /* Keychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217D71C7E981D006460E2 /* Keychain.m */; };
+		1A346D071E205D9A001AC6AC /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305D81C7F80EA0034C871 /* Defaults.m */; };
+		1A346D081E205DA0001AC6AC /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
+		1A346D091E205DA0001AC6AC /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EE1C8FC3DB008C11CB /* Reachability.m */; };
+		1A346D0C1E205DA6001AC6AC /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A346D0B1E205DA6001AC6AC /* libsqlite3.tbd */; };
+		1A346D0D1E205DB1001AC6AC /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
+		1A346D0E1E205DBA001AC6AC /* WebSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A38C9FB1D9339D400655891 /* WebSession.m */; };
 		1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
 		1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
 		1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
@@ -358,6 +379,13 @@
 			remoteGlobalIDString = F668C87F153E91210044DBAC;
 			remoteInfo = SocketRocketOSX;
 		};
+		1A346CF51E20552D001AC6AC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = F668C87F153E91210044DBAC;
+			remoteInfo = SocketRocketOSX;
+		};
 		1AD956C51D0BCFF6002B1259 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1A2217861C7E7B14006460E2 /* Project object */;
@@ -380,6 +408,15 @@
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A346CE31E2054B3001AC6AC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 		1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -506,6 +543,11 @@
 		1A2A8B5E1D55109200F24F32 /* NewMilestoneController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewMilestoneController.h; sourceTree = "<group>"; };
 		1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewMilestoneController.m; sourceTree = "<group>"; };
 		1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewMilestoneController.xib; sourceTree = "<group>"; };
+		1A346CE51E2054B3001AC6AC /* StressTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = StressTest; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A346CE71E2054B3001AC6AC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		1A346CF81E205725001AC6AC /* SqlUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SqlUtil.h; sourceTree = "<group>"; };
+		1A346CF91E205725001AC6AC /* SqlUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SqlUtil.m; sourceTree = "<group>"; };
+		1A346D0B1E205DA6001AC6AC /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		1A3618E11C8FBF96008C11CB /* DataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStore.h; sourceTree = "<group>"; };
 		1A3618E21C8FBF96008C11CB /* DataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataStore.m; sourceTree = "<group>"; };
 		1A3618E71C8FC25B008C11CB /* SyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncConnection.h; sourceTree = "<group>"; };
@@ -851,6 +893,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1A346CE21E2054B3001AC6AC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A346D0D1E205DB1001AC6AC /* libz.tbd in Frameworks */,
+				1A346D0C1E205DA6001AC6AC /* libsqlite3.tbd in Frameworks */,
+				1A346CF71E205530001AC6AC /* SocketRocket.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1A3618F71C9383CF008C11CB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -942,7 +994,9 @@
 				1A2217A21C7E7B78006460E2 /* ext */,
 				1AB038511D5D0E22005093B9 /* scripts */,
 				1A3C5B501DDD012F005F9A01 /* AccountTool */,
+				1A346CE61E2054B3001AC6AC /* StressTest */,
 				1A22178F1C7E7B14006460E2 /* Products */,
+				1A346D0A1E205DA6001AC6AC /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -952,6 +1006,7 @@
 				1A22178E1C7E7B14006460E2 /* Ship.app */,
 				1A3618FA1C9383CF008C11CB /* ShipHubTests.xctest */,
 				1A3C5B4F1DDD012F005F9A01 /* AccountTool.app */,
+				1A346CE51E2054B3001AC6AC /* StressTest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1144,6 +1199,24 @@
 				28BF03B71D187EFA00F22638 /* NewLabelController.xib */,
 			);
 			name = "New Label";
+			sourceTree = "<group>";
+		};
+		1A346CE61E2054B3001AC6AC /* StressTest */ = {
+			isa = PBXGroup;
+			children = (
+				1A346CE71E2054B3001AC6AC /* main.m */,
+				1A346CF81E205725001AC6AC /* SqlUtil.h */,
+				1A346CF91E205725001AC6AC /* SqlUtil.m */,
+			);
+			path = StressTest;
+			sourceTree = "<group>";
+		};
+		1A346D0A1E205DA6001AC6AC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1A346D0B1E205DA6001AC6AC /* libsqlite3.tbd */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		1A3618F11C90C7C2008C11CB /* Model */ = {
@@ -1616,6 +1689,24 @@
 			productReference = 1A22178E1C7E7B14006460E2 /* Ship.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1A346CE41E2054B3001AC6AC /* StressTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A346CEE1E2054B3001AC6AC /* Build configuration list for PBXNativeTarget "StressTest" */;
+			buildPhases = (
+				1A346CE11E2054B3001AC6AC /* Sources */,
+				1A346CE21E2054B3001AC6AC /* Frameworks */,
+				1A346CE31E2054B3001AC6AC /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1A346CF61E20552D001AC6AC /* PBXTargetDependency */,
+			);
+			name = StressTest;
+			productName = StressTest;
+			productReference = 1A346CE51E2054B3001AC6AC /* StressTest */;
+			productType = "com.apple.product-type.tool";
+		};
 		1A3618F91C9383CF008C11CB /* ShipHubTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 1A3618FF1C9383CF008C11CB /* Build configuration list for PBXNativeTarget "ShipHubTests" */;
@@ -1663,6 +1754,11 @@
 					1A22178D1C7E7B14006460E2 = {
 						CreatedOnToolsVersion = 7.2.1;
 					};
+					1A346CE41E2054B3001AC6AC = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = EL9BUK3ZCV;
+						ProvisioningStyle = Automatic;
+					};
 					1A3618F91C9383CF008C11CB = {
 						CreatedOnToolsVersion = 7.2.1;
 					};
@@ -1698,6 +1794,7 @@
 				1A3618F91C9383CF008C11CB /* ShipHubTests */,
 				1AD956BE1D0BCFBA002B1259 /* IssueWeb */,
 				1A3C5B4E1DDD012F005F9A01 /* AccountTool */,
+				1A346CE41E2054B3001AC6AC /* StressTest */,
 			);
 		};
 /* End PBXProject section */
@@ -1985,6 +2082,31 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1A346CE11E2054B3001AC6AC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A346D0E1E205DBA001AC6AC /* WebSession.m in Sources */,
+				1A346D081E205DA0001AC6AC /* KSReachability.m in Sources */,
+				1A346D091E205DA0001AC6AC /* Reachability.m in Sources */,
+				1A346D071E205D9A001AC6AC /* Defaults.m in Sources */,
+				1A346D061E205D8E001AC6AC /* Keychain.m in Sources */,
+				1A346D051E205D89001AC6AC /* Auth.m in Sources */,
+				1A346D001E205D2D001AC6AC /* FoundationExtras.m in Sources */,
+				1A346D011E205D2D001AC6AC /* AppKitExtras.m in Sources */,
+				1A346D021E205D2D001AC6AC /* WebKitExtras.m in Sources */,
+				1A346D031E205D2D001AC6AC /* CAExtras.m in Sources */,
+				1A346D041E205D2D001AC6AC /* NSPredicate+Extras.m in Sources */,
+				1A346CFF1E205D1E001AC6AC /* Error.m in Sources */,
+				1A346CFE1E205D15001AC6AC /* JSON.m in Sources */,
+				1A346CFD1E205D00001AC6AC /* SyncConnection.m in Sources */,
+				1A346CFC1E205CFC001AC6AC /* WSSyncConnection.m in Sources */,
+				1A346CFB1E205CF8001AC6AC /* Logging.m in Sources */,
+				1A346CFA1E205725001AC6AC /* SqlUtil.m in Sources */,
+				1A346CE81E2054B3001AC6AC /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		1A3618F61C9383CF008C11CB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2100,6 +2222,11 @@
 			isa = PBXTargetDependency;
 			name = SocketRocketOSX;
 			targetProxy = 1A2217BE1C7E7BAF006460E2 /* PBXContainerItemProxy */;
+		};
+		1A346CF61E20552D001AC6AC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SocketRocketOSX;
+			targetProxy = 1A346CF51E20552D001AC6AC /* PBXContainerItemProxy */;
 		};
 		1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2249,6 +2376,30 @@
 			};
 			name = Release;
 		};
+		1A346CE91E2054B3001AC6AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				DEVELOPMENT_TEAM = EL9BUK3ZCV;
+				GCC_PREFIX_HEADER = "$(PROJECT_DIR)/ShipHub/ShipHub-Prefix.pch";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		1A346CEA1E2054B3001AC6AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				DEVELOPMENT_TEAM = EL9BUK3ZCV;
+				GCC_PREFIX_HEADER = "$(PROJECT_DIR)/ShipHub/ShipHub-Prefix.pch";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		1A3619001C9383CF008C11CB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2349,6 +2500,15 @@
 			buildConfigurations = (
 				1A2217A01C7E7B14006460E2 /* Debug */,
 				1A2217A11C7E7B14006460E2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A346CEE1E2054B3001AC6AC /* Build configuration list for PBXNativeTarget "StressTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A346CE91E2054B3001AC6AC /* Debug */,
+				1A346CEA1E2054B3001AC6AC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
