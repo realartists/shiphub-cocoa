@@ -16,11 +16,9 @@
 
 static const NSInteger MAX_PARALLEL = 1;
 static NSString *const SHIP_HOST = @"shiphubjames.ngrok.io";
-static const NSTimeInterval MAX_LATENCY = 60.0; // maximum time to wait for initial sync
+static const NSTimeInterval MAX_LATENCY = 180.0; // maximum time to wait for initial sync
 
 @interface Test : NSObject
-
-@property NSString *dbPath;
 
 - (void)run;
 
@@ -28,13 +26,7 @@ static const NSTimeInterval MAX_LATENCY = 60.0; // maximum time to wait for init
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
-        if (argc != 2) {
-            fprintf(stderr, "Usage: %s fakehub.db\n", argv[0]);
-            exit(1);
-        }
-        
         Test *t = [Test new];
-        t.dbPath = [NSString stringWithUTF8String:argv[1]];
         [t run];
     }
     return 0;
@@ -54,52 +46,54 @@ int main(int argc, const char * argv[]) {
 @implementation Test
 
 - (void)run {
-    sqlite3 *db = NULL;
-    int result = SQLITE_OK;
-    if (SQLITE_OK != (result = sqlite3_open([_dbPath fileSystemRepresentation], &db))) {
-        NSLog(@"Couldn't open db at %@. %d: %s\n", _dbPath, result, sqlite3_errstr(result));
-        exit(1);
-    }
-    
-    // query all of the users that exist
-    NSString *sql =
-    @"SELECT account.login, token.value, account.id "
-    @"FROM account "
-    @"JOIN token ON (account.id = token.user_id) "
-    @"WHERE account.type = 'user'";
-    sqlite3_stmt *usersStmt = SqlPrepare(db, sql);
-    
     NSMutableArray *runs = [NSMutableArray new];
-    while (SQLITE_ROW == (result = sqlite3_step(usersStmt))) {
+    
+    {
         Run *run = [Run new];
-        run.login = SqlReadString(usersStmt, 0);
-        run.token = SqlReadString(usersStmt, 1);
-        run.identifier = sqlite3_column_int(usersStmt, 2);
+        run.login = @"fpotter-test";
+        run.token = @"";
+        run.identifier = 19828132;
+        run.expectedRepos = @[@"somerepo"];
         [runs addObject:run];
     }
     
-    sqlite3_finalize(usersStmt);
-    
-    sql =
-    @"SELECT name "
-    @"FROM repo "
-    @"WHERE owner_id = ? OR owner_id IN (SELECT org_id FROM orgmembership WHERE user_id = ?)";
-    sqlite3_stmt *reposStmt = SqlPrepare(db, sql);
-    
-    for (Run *run in runs) {
-        sqlite3_bind_int(reposStmt, 1, run.identifier);
-        sqlite3_bind_int(reposStmt, 2, run.identifier);
-        
-        NSMutableArray *repoNames = [NSMutableArray new];
-        while (SQLITE_ROW == (result = sqlite3_step(reposStmt))) {
-            [repoNames addObject:SqlReadString(reposStmt, 0)];
-        }
-        run.expectedRepos = repoNames;
-        
-        sqlite3_reset(reposStmt);
+    {
+        Run *run = [Run new];
+        run.login = @"fpotter-test2";
+        run.token = @"";
+        run.identifier = 24905538;
+        run.expectedRepos = @[@"somerepo"];
+        [runs addObject:run];
     }
     
-    sqlite3_finalize(reposStmt);
+    {
+        Run *run = [Run new];
+        run.login = @"fpotter";
+        run.token = @"";
+        run.identifier = 83509;
+        run.expectedRepos = @[@"shiphub-cocoa", @"shiphub-server"];
+        [runs addObject:run];
+    }
+    
+    
+    {
+        Run *run = [Run new];
+        run.login = @"kogir";
+        run.token = @"";
+        run.identifier = 87309;
+        run.expectedRepos = @[@"shiphub-cocoa", @"shiphub-server"];
+        [runs addObject:run];
+    }
+    
+    {
+        Run *run = [Run new];
+        run.login = @"james-howard";
+        run.token = @"";
+        run.identifier = 2006254;
+        run.expectedRepos = @[@"shiphub-cocoa", @"shiphub-server"];
+        [runs addObject:run];
+    }
+    
     
     NSLog(@"Loaded %td users to connect to %@ with MAX_PARALLEL = %td", runs.count, SHIP_HOST, MAX_PARALLEL);
     
