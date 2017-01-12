@@ -19,6 +19,8 @@
 
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
+#else
+#import <AppKit/AppKit.h>
 #endif
 
 static NSString *const MessageFieldType = @"msg";
@@ -77,6 +79,7 @@ static uint64_t ServerHelloMinimumVersion = 2;
     NSURL *_syncURL;
     
     BOOL _socketOpen;
+    BOOL _asleep;
 }
 
 @property SRWebSocket *socket;
@@ -109,6 +112,9 @@ static uint64_t ServerHelloMinimumVersion = 2;
         
 #if TARGET_OS_IPHONE
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(enterForeground:) name:UIApplicationWillEnterForegroundNotification object:nil];
+#else
+        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(beginSleep:) name:NSWorkspaceWillSleepNotification object:nil];
+        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self selector:@selector(endSleep:) name:NSWorkspaceDidWakeNotification object:nil];
 #endif
     }
     return self;
@@ -144,6 +150,7 @@ static uint64_t ServerHelloMinimumVersion = 2;
     dispatch_assert_current_queue(_q);
     
     if (!_socket && _syncVersions != nil && [[Reachability sharedInstance] isReachable] && self.auth.token) {
+        DebugLog(@"Opening socket");
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate syncConnectionWillConnect:self];
         });
@@ -162,6 +169,7 @@ static uint64_t ServerHelloMinimumVersion = 2;
     dispatch_assert_current_queue(_q);
     
     if (_socket) {
+        DebugLog(@"Closing socket");
         self.logEntryTotalRemaining = -1;
         _socket.delegate = nil;
         [_socket close];
@@ -376,7 +384,7 @@ static uint64_t ServerHelloMinimumVersion = 2;
 }
 
 - (void)heartbeat {
-    if (!_socket && [[Reachability sharedInstance] isReachable]) {
+    if (!_asleep && !_socket && [[Reachability sharedInstance] isReachable]) {
         [self connect];
     }
 }
@@ -397,6 +405,26 @@ static uint64_t ServerHelloMinimumVersion = 2;
     Trace();
     dispatch_async(_q, ^{
         if (!_socket) {
+            [self connect];
+        }
+    });
+}
+
+-  (void)beginSleep:(NSNotification *)note {
+    Trace();
+    dispatch_async(_q, ^{
+        _asleep = YES;
+        [self disconnect];
+    });
+}
+
+- (void)endSleep:(NSNotification *)note {
+    Trace();
+    dispatch_async(_q, ^{
+        _asleep = NO;
+        BOOL reachable = [[Reachability sharedInstance] isReachable];
+        DebugLog(@"reachable: %d _socket: %p", reachable, _socket);
+        if (reachable && !_socket) {
             [self connect];
         }
     });
