@@ -1141,9 +1141,9 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (NSPredicate *)issuesPredicate:(NSPredicate *)basePredicate {
     NSPredicate *extra = nil;
     if (_billing.limited) {
-        extra = [NSPredicate predicateWithFormat:@"repository.private = NO AND repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"];
+        extra = [NSPredicate predicateWithFormat:@"repository.private = NO AND repository.disabled = NO AND repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"];
     } else {
-        extra = [NSPredicate predicateWithFormat:@"repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"];
+        extra = [NSPredicate predicateWithFormat:@"repository.disabled = NO AND repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"];
     }
     
     return [[basePredicate coreDataPredicate] and:extra];

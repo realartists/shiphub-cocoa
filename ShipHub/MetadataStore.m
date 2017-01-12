@@ -100,7 +100,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
     
     if (self = [super init]) {
         NSFetchRequest *reposFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
-        reposFetch.predicate = [NSPredicate predicateWithFormat:@"name != nil && owner != nil"];
+        reposFetch.predicate = [NSPredicate predicateWithFormat:@"name != nil AND owner != nil AND disabled = NO"];
         
         NSArray *localRepos = [moc executeFetchRequest:reposFetch error:NULL];
         
