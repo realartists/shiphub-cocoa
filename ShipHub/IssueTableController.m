@@ -38,6 +38,7 @@ static NSString *reactionContentToEmoji(NSString *content);
 
 @property BOOL animationInProgress;
 @property NSInvocation *afterTableAnimation;
+@property BOOL appearedOnce;
 
 @end
 
@@ -126,11 +127,15 @@ static NSString *reactionContentToEmoji(NSString *content);
 - (void)viewDidAppear {
     [super viewDidAppear];
     
-    _table.autosaveTableColumns = YES;
-    _table.autosaveName = _autosaveName;
-    
-    [self _makeColumns];
-    [self _makeColumnHeaderMenu];
+    if (!_appearedOnce) {
+        _appearedOnce = YES;
+        
+        _table.autosaveTableColumns = YES;
+        _table.autosaveName = _autosaveName;
+        
+        [self _makeColumns];
+        [self _makeColumnHeaderMenu];
+    }
 }
 
 static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
