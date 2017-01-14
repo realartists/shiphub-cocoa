@@ -786,8 +786,9 @@ var EventUser = React.createClass({
 var AssignedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    var actor = this.props.event.assigner || this.props.event.actor;
-    if (this.props.event.assignee.id == actor.id) {
+    var actor = this.props.event.assigner || this.props.event.actor || ghost;
+    var assignee = this.props.event.assignee || ghost;
+    if (assignee.id == actor.id) {
       return h("span", {}, "self assigned this");
     } else {
       return h("span", {},
@@ -801,8 +802,9 @@ var AssignedEventDescription = React.createClass({
 var UnassignedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    var actor = this.props.event.assigner || this.props.event.actor;
-    if (this.props.event.assignee.id == actor.id) {
+    var actor = this.props.event.assigner || this.props.event.actor || ghost;
+    var assignee = this.props.event.assignee || ghost;
+    if (assignee.id == actor.id) {
       return h("span", {}, "is no longer assigned");
     } else {
       return h("span", {}, "removed assignee ", h(EventUser, {user:this.props.event.assignee}));
