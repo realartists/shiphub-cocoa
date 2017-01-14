@@ -115,7 +115,7 @@
     
     NSString *host = [[[[DataStore activeStore] auth] account] shipHost];
     NSNumber *port = @443;
-    alert.informativeText = [NSString stringWithFormat:NSLocalizedString(@"%@ on port %@ is not currently reachable from your machine.\n\nWhile offline you have full access to your database, as of the last time you were online.\n\nOnce connectivity to the server is re-establised, your database will be automatically synchronized with the server.", nil), host, port];
+    alert.informativeText = [NSString stringWithFormat:NSLocalizedString(@"%@ on port %@ is not currently reachable from your machine.\n\nWhile offline you have full access to your database, as of the last time you were online.\n\nOnce connectivity to the server is re-established, your database will be automatically synchronized with the server.", nil), host, port];
     [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
     [alert runModal];
 }
