@@ -508,7 +508,9 @@ static NSString *const TBSearchItemId = @"TBSearch";
         node.menu = milestoneObjs.count > 1 ? hideMilestonesMenu : hideMilestoneMenu;
         node.title = milestone;
         node.showProgress = YES;
-        node.predicate = [NSPredicate predicateWithFormat:@"milestone.title = %@", milestone];
+        node.predicate = [NSPredicate predicateWithFormat:@"milestone.identifier IN %@", [milestoneObjs arrayByMappingObjects:^id(Milestone * obj) {
+            return obj.identifier;
+        }]];
         node.icon = milestoneIcon;
         node.dropHandler = ^(NSArray *identifiers) {
             [[BulkModifyHelper sharedHelper] moveIssues:identifiers toMilestone:milestone window:weakSelf.window completion:nil];
