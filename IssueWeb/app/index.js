@@ -1956,15 +1956,16 @@ var Comment = React.createClass({
       code: "",
       previewing: false,
       uploadCount: 0,
+      pendingTaskBody: null
     };
   },
-  
+    
   componentWillReceiveProps: function(nextProps) {
     if (this.state.editing && nextProps.comment && this.props.comment && nextProps.comment.id != this.props.comment.id) {
-      this.setState(Object.assign({}, this.state, {editing: false}));
+      this.setState(Object.assign({}, this.state, {editing: false, pendingTaskBody: null}));
     }
   },
-  
+    
   commentIdentifier: function() {
     return keypath(this.props, "comment.id");
   },
@@ -2028,7 +2029,60 @@ var Comment = React.createClass({
     if (!this.props.comment || this.state.editing) {
       this.updateCode(newBody);
     } else {
-      editComment(this.props.commentIdx, newBody);
+      this.setState(Object.assign({}, this.state, {pendingTaskBody: newBody}));
+      
+      var owner = getIvars().issue._bare_owner;
+      var repo = getIvars().issue._bare_repo;
+      var num = getIvars().issue.number;
+      var patch = { body: newBody };
+      var q = null;
+      var url = null;
+      var initialId = this.props.comment.id;
+      
+      if (this.props.commentIdx == 0) {
+        q = "applyPatch";
+        url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}`;
+      } else {
+        q = "applyCommentEdit";
+        var commentIdentifier = this.props.comment.id;
+        url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
+      }
+      
+      promiseQueue(q, () => {
+        var currentId = keypath(this.props, "comment.id") || "";
+        if (currentId == initialId && newBody != this.state.pendingTaskBody) {
+          // let's just jump ahead to the next thing, we're already stale.
+          return Promise.resolve();
+        }
+        var request = api(url, { 
+          headers: { 
+            Authorization: "token " + getIvars().token,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }, 
+          method: "PATCH",
+          body: JSON.stringify(patch)
+        });
+        var end = () => {
+          if (this.state.pendingTaskBody == newBody) {
+            this.setState(Object.assign({}, this.state, {pendingTaskBody: null}));
+          }
+        };
+        return new Promise((resolve, reject) => {
+          // NB: The 1500ms delay is because GitHub only has 1s precision on updated_at
+          request.then(() => {
+            setTimeout(() => {
+              end();
+              resolve();            
+            }, 1500);
+          }).catch((err) => {
+            setTimeout(() => {
+              end();
+              reject(err);
+            }, 1500);
+          });
+        });
+      });
     }
   },
   
@@ -2308,7 +2362,7 @@ var Comment = React.createClass({
     }
   
     var showEditor = this.state.editing && !this.state.previewing;
-    var body = this.state.editing ? this.state.code : this.props.comment.body;
+    var body = this.state.editing ? this.state.code : (this.state.pendingTaskBody || this.props.comment.body);
     
     var outerClass = 'comment';
     

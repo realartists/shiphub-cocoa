@@ -67,6 +67,10 @@ function findTaskItems(body) {
 }
 
 export function rewriteTaskList(body, srcIdx, dstIdx) {
+  // normalize newlines
+  body = body.replace(/\r\n/g, '\n');
+  body = body.replace(/\r/g, '\n');
+
   var tasks = findTaskItems(body);
 
   function last(task) {
@@ -301,6 +305,31 @@ if (false) {
 "  - [ ] Delete old origin\n" +
 "- [ ] Disable beta.realartists.com",
   "Big nested list (c)"
+  );
+  
+  test(
+"- [x] A\r" +
+"- [x] B\r" + 
+"- [x] C\r" +
+"- [x] D\r" +
+"- [x] E\r" +
+"- [x] F\r" +
+"- [x] G\r" +
+"- [x] H\r" +
+"- [x] I\r" +
+"- [x] J",
+0, 9,
+"- [x] B\n" + 
+"- [x] C\n" +
+"- [x] D\n" +
+"- [x] E\n" +
+"- [x] F\n" +
+"- [x] G\n" +
+"- [x] H\n" +
+"- [x] I\n" +
+"- [x] J\n" +
+"- [x] A",
+  "Line Endings"
   );
 
   console.log("" +

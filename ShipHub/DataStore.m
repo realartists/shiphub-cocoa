@@ -851,8 +851,18 @@ static NSString *const LastUpdated = @"LastUpdated";
             }
             
             if ([data isKindOfClass:[NSDictionary class]]) {
-                [mObj mergeAttributesFromDictionary:data];
-                [self updateRelationshipsOn:mObj fromSyncDict:data];
+                NSDate *dbDate = nil;
+                NSDate *newDate = nil;
+                
+                if ([mObj respondsToSelector:@selector(updatedAt)]) {
+                    dbDate = [mObj valueForKey:@"updatedAt"];
+                    newDate = [NSDate dateWithJSONString:data[@"updatedAt"]];
+                }
+                
+                if (dbDate == nil || newDate == nil || [dbDate compare:newDate] != NSOrderedDescending) {
+                    [mObj mergeAttributesFromDictionary:data];
+                    [self updateRelationshipsOn:mObj fromSyncDict:data];
+                }
             }
         } else /*e.action == SyncEntryActionDelete*/ {
             if (mObj) {
