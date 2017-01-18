@@ -131,7 +131,7 @@
 }
 
 - (IBAction)showHelp:(id)sender {
-    NSURL *URL = [NSURL URLWithString:@"https://beta.realartists.com/pricing.html"];
+    NSURL *URL = [NSURL URLWithString:@"https://www.realartists.com/pricing.html"];
     [[NSWorkspace sharedWorkspace] openURL:URL];
 }
 

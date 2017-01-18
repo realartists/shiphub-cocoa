@@ -70,7 +70,7 @@
 }
 
 - (IBAction)moreInformation:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://beta.realartists.com"]];
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.realartists.com"]];
 }
 
 - (IBAction)showServerChooser:(id)sender {

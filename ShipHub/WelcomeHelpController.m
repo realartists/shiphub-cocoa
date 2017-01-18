@@ -47,7 +47,7 @@
 
 - (void)sendRequest {
     _needsReload = NO;
-    NSURL *URL = [NSURL URLWithString:@"https://beta.realartists.com/docs/2.0/welcome.html"];
+    NSURL *URL = [NSURL URLWithString:@"https://www.realartists.com/docs/2.0/welcome.html"];
     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
     [_web loadRequest:request];
 }

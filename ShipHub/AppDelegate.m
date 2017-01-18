@@ -490,7 +490,7 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
 }
 
 - (IBAction)showHelp:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://beta.realartists.com/docs/2.0/index.html"]];
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.realartists.com/docs/2.0/index.html"]];
 }
 
 - (void)protocolIncompatible:(NSNotification *)note {

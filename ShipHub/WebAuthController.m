@@ -130,7 +130,7 @@
 
 - (BOOL)handleCodeURL:(NSURL *)URL {
     NSURLComponents *comps = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
-    if ([@[@"realartists.com", @"beta.realartists.com"] containsObject:comps.host]) {
+    if ([@[@"realartists.com", @"beta.realartists.com", @"www.realartists.com"] containsObject:comps.host]) {
         if ([[comps path] isEqualToString:@"/signup/index.html"]) {
             NSString *code = [comps queryItemsDictionary][@"code"];
             if ([code length]) {
