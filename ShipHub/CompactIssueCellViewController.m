@@ -106,7 +106,7 @@
 static const CGFloat marginRight = 8.0;
 static const CGFloat marginLeft = 22.0;
 static const CGFloat marginTop = 8.0;
-static const CGFloat marginBottom = 8.0;
+static const CGFloat marginBottom = 7.0;
 
 - (void)drawBackgroundInRect:(NSRect)dirtyRect {
     [super drawBackgroundInRect:dirtyRect];
