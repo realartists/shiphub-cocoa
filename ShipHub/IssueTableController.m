@@ -744,24 +744,31 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)item {
+    NSInteger selectedCount = 0;
+    if (item.menu == _table.menu) {
+        selectedCount = [[self selectedItemsForMenu] count];
+    } else {
+        selectedCount = [[self selectedItems] count];
+    }
+    
     if (item.action == @selector(copyIssueNumber:)
         || item.action == @selector(copyIssueNumberWithTitle:)
         || item.action == @selector(openDocument:)) {
-        return [[self selectedItems] count] > 0;
+        return selectedCount > 0;
     }
     if (item.action == @selector(copyIssueGitHubURL:)) {
-        return [[self selectedItems] count] == 1;
+        return selectedCount == 1;
     }
     if (item.action == @selector(toggleUpNext:)) {
         item.title = _upNextMode ? NSLocalizedString(@"Remove from Up Next", nil) : NSLocalizedString(@"Add to Up Next", nil);
-        return [[self selectedItems] count] > 0;
+        return selectedCount > 0;
     }
     if (item.action == @selector(bulkModifyState:)
         || item.action == @selector(bulkModifyLabels:)
         || item.action == @selector(bulkModifyAssignee:)
         || item.action == @selector(bulkModifyMilestone:))
     {
-        return [[self selectedItems] count] > 0 || [[self selectedItemsForMenu] count] > 0;
+        return selectedCount > 0;
     }
     return YES;
 }
