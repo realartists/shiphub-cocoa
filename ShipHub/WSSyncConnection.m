@@ -121,10 +121,8 @@ static uint64_t ServerHelloMinimumVersion = 2;
 }
 
 - (void)dealloc {
-    dispatch_sync(_q, ^{
-        _socket.delegate = nil;
-        [_socket close];
-    });
+    _socket.delegate = nil;
+    [_socket close];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
