@@ -2149,8 +2149,11 @@ static NSString *const TBSearchItemId = @"TBSearch";
     NSInteger idx = [self rowAtPoint:pt];
     id item = [self itemAtRow:idx];
     if ([item isKindOfClass:[OverviewNode class]]) {
-        [self selectRowIndexes:[NSIndexSet indexSetWithIndex:idx] byExtendingSelection:NO];
-        return [item menu];
+        NSMenu *menu = [item menu];
+        if (menu) {
+            [self selectRowIndexes:[NSIndexSet indexSetWithIndex:idx] byExtendingSelection:NO];
+            return menu;
+        }
     }
     return nil;
 }
