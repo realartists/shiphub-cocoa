@@ -187,6 +187,8 @@ static DataStore *sActiveStore = nil;
 }
 
 - (void)activate {
+    dispatch_assert_current_queue(dispatch_get_main_queue());
+    
     sActiveStore = self;
     
     if (_auth.account) {
@@ -213,7 +215,11 @@ static DataStore *sActiveStore = nil;
 }
 
 - (void)deactivate {
-    sActiveStore = nil;
+    dispatch_assert_current_queue(dispatch_get_main_queue());
+    
+    if (self == sActiveStore) {
+        sActiveStore = nil;
+    }
 }
 
 - (BOOL)isActive {

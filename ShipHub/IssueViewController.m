@@ -100,7 +100,10 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
     _web.UIDelegate = nil;
     _web.frameLoadDelegate = nil;
     _web.policyDelegate = nil;
-    [_web close];
+    IssueWebView *web = _web;
+    RunOnMain(^{
+        [web close];
+    });
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 

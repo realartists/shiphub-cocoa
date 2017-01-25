@@ -96,7 +96,7 @@ static uint64_t ServerHelloMinimumVersion = 2;
         _syncURL = [[NSURL alloc] initWithString:[NSString stringWithFormat:@"https://%@/api/sync", auth.account.shipHost]];
         _q = dispatch_queue_create("WSSyncConnection", NULL);
         
-        _heartbeat = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _q);
+        dispatch_source_t heartbeat = _heartbeat = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _q);
         __weak __typeof(self) weakSelf = self;
         dispatch_source_set_timer(_heartbeat, DISPATCH_TIME_NOW, 60.0 * NSEC_PER_SEC, 10.0 * NSEC_PER_SEC);
         dispatch_source_set_event_handler(_heartbeat, ^{
@@ -104,7 +104,7 @@ static uint64_t ServerHelloMinimumVersion = 2;
             [strongSelf heartbeat];
         });
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            dispatch_resume(_heartbeat);
+            dispatch_resume(heartbeat);
         });
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:ReachabilityDidChangeNotification object:[Reachability sharedInstance]];
@@ -121,6 +121,10 @@ static uint64_t ServerHelloMinimumVersion = 2;
 }
 
 - (void)dealloc {
+    dispatch_sync(_q, ^{
+        _socket.delegate = nil;
+        [_socket close];
+    });
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
