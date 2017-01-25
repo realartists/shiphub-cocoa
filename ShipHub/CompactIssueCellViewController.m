@@ -139,6 +139,10 @@ static const CGFloat marginBottom = 7.0;
     NSRectFill(r);
 }
 
+- (NSMenu *)menuForEvent:(NSEvent *)event {
+    return [[self superview] menuForEvent:event];
+}
+
 - (void)drawRect:(NSRect)dirtyRect {
     BOOL emph = self.emphasized && self.selected;
     
