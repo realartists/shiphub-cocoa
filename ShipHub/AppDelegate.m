@@ -402,7 +402,7 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
             [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
         } else if (logout) {
             alert.messageText = NSLocalizedString(@"Are you sure you want to logout?", nil);
-            alert.informativeText = NSLocalizedString(@"Logging out will deauthorize your access on this computer only.", nil);
+            alert.informativeText = NSLocalizedString(@"Logging out will deauthorize your access to Ship on all of your computers.\n\nAdditionally, it will deactivate server integration for Ship, including removing any installed GitHub webhooks for your repositories, provided you are the only Ship user for the repositories.", nil);
             [alert addButtonWithTitle:NSLocalizedString(@"Logout", nil)];
             [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
         } else /* addNew */ {

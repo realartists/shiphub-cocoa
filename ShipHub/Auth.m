@@ -224,6 +224,13 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     pair.login = self.account.login;
     pair.shipHost = self.account.shipHost;
     
+    ServerConnection *conn = [[ServerConnection alloc] initWithAuth:self];
+    [conn perform:@"DELETE" on:@"login" body:nil completion:^(id jsonResponse, NSError *error) {
+        if (error) {
+            ErrLog(@"%@", error);
+        }
+    }];
+    
     NSError *err = nil;
     [keychain removeItemForAccount:self.account.login server:self.account.shipHost error:&err];
     if (err) {
