@@ -2596,6 +2596,7 @@ var Comment = React.createClass({
         'Cmd-B': cm.extraCommands.bold,
         'Cmd-I': cm.extraCommands.italic,
         'Cmd-S': () => { this.save(); },
+        'Cmd-Enter': () => { this.save(); },
         'Shift-Tab': shiftTab,
         'Tab': 'indentMore',
         // unbind cmd-u/shift-cmd-u to let app handle them
