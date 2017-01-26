@@ -1886,8 +1886,10 @@ static NSString *const TBSearchItemId = @"TBSearch";
             [[NSUserDefaults standardUserDefaults] setBool:YES forKey:defaultsKey];
             
             NSInteger row = [_outlineView rowForItem:node];
-            OverviewOwnerCellView *cell = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
-            cell.warningWidth.constant = 0.0;
+            if (row >= 0 && row < _outlineView.numberOfRows) {
+                OverviewOwnerCellView *cell = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
+                cell.warningWidth.constant = 0.0;
+            }
         }
     }];
 }
