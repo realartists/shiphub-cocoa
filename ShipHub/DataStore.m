@@ -122,8 +122,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  5: Milestone and repo hiding (realartists/shiphub-cocoa#157 realartists/shiphub-cocoa#145)
  6: realartists/shiphub-cocoa#217 User.queries needs to be modeled as to-many relationship
  7: realartists/shiphub-cocoa#288 Switch to labels with identifiers
+ 8: realartists/shiphub-cocoa#330 Creating a new label can cause a dupe
  */
-static const NSInteger CurrentLocalModelVersion = 7;
+static const NSInteger CurrentLocalModelVersion = 8;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
@@ -356,6 +357,12 @@ static NSString *const LastUpdated = @"LastUpdated";
         previousStoreVersion = CurrentLocalModelVersion;
     }
     
+    BOOL needsDuplicateLabelFix = NO;
+    if (previousStoreVersion < 8) {
+        // realartists/shiphub-cocoa#330 Creating a new label can cause a dupe
+        needsDuplicateLabelFix = YES;
+    }
+    
     NSPersistentStore *store = _persistentStore = [_persistentCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:@"Default" URL:storeURL options:options error:&err];
     if (!store) {
         ErrLog(@"Error adding persistent store: %@", err);
@@ -445,6 +452,14 @@ static NSString *const LastUpdated = @"LastUpdated";
             [self setLatestSequence:0 syncType:@"addressBook"];
 #endif
             [_writeMoc save:NULL];
+        }];
+    }
+    
+    if (needsDuplicateLabelFix) {
+        [_writeMoc performBlockAndWait:^{
+            NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalLabel"];
+            fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = nil OR identifier = 0"];
+            [_writeMoc batchDeleteEntitiesWithRequest:fetch error:NULL];
         }];
     }
     
@@ -1806,7 +1821,7 @@ static NSString *const LastUpdated = @"LastUpdated";
       completion:(void (^)(NSDictionary *label, NSError *error))completion {
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/%@/labels", repoOwner, repoName];
     [self.serverConnection perform:@"POST" on:endpoint body:label completion:^(id jsonResponse, NSError *error) {
-        if (jsonResponse) {
+        if ([jsonResponse isKindOfClass:[NSDictionary class]] && [jsonResponse objectForKey:@"id"] != nil) {
             [self performWrite:^(NSManagedObjectContext *moc) {
                 NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
                 fetch.predicate = [NSPredicate predicateWithFormat:@"fullName = %@",
@@ -1818,21 +1833,36 @@ static NSString *const LastUpdated = @"LastUpdated";
                 NSAssert(results != nil, @"Failed to fetch repo: %@", error);
                 LocalRepo *localRepo = (LocalRepo *)[results firstObject];
                 
-                LocalLabel *localLabel = [NSEntityDescription insertNewObjectForEntityForName:@"LocalLabel"
-                                                                       inManagedObjectContext:moc];
-                localLabel.name = label[@"name"];
-                localLabel.color = label[@"color"];
-                localLabel.repo = localRepo;
+                NSNumber *labelIdentifier = [jsonResponse objectForKey:@"id"];
                 
-                NSError *saveError;
-                if ([moc save:&saveError]) {
+                // check for race with sync protocol
+                fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalLabel"];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", labelIdentifier];
+                
+                BOOL existed = [moc countForFetchRequest:fetch error:NULL] != 0;
+                
+                if (!existed) {
+                    LocalLabel *localLabel = [NSEntityDescription insertNewObjectForEntityForName:@"LocalLabel"
+                                                                           inManagedObjectContext:moc];
+                    localLabel.name = label[@"name"];
+                    localLabel.color = label[@"color"];
+                    localLabel.identifier = labelIdentifier;
+                    localLabel.repo = localRepo;
+                    
+                    NSError *saveError;
+                    if ([moc save:&saveError]) {
+                        RunOnMain(^{
+                            completion(jsonResponse, nil);
+                        });
+                    } else {
+                        ErrLog(@"Failed to save: %@", saveError);
+                        RunOnMain(^{
+                            completion(nil, saveError);
+                        });
+                    }
+                } else {
                     RunOnMain(^{
                         completion(jsonResponse, nil);
-                    });
-                } else {
-                    ErrLog(@"Failed to save: %@", saveError);
-                    RunOnMain(^{
-                        completion(nil, saveError);
                     });
                 }
             }];
