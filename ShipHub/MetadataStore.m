@@ -183,7 +183,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
                 }
             }
             
-            if (!r.hidden) {
+            if (!r.hidden && owner) {
                 [repoOwners addObject:owner];
                 
                 NSMutableArray *ownersList = reposByOwnerID[localOwner.identifier];
