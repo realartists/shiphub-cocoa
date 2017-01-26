@@ -20,7 +20,7 @@
 
 @end
 
-@interface IssueTableController (Private) <NSTableViewDataSource, NSTableViewDelegate>
+@interface IssueTableController (Private) <NSTableViewDataSource, NSTableViewDelegate, ProblemTableViewDelegate>
 
 @property (strong) IBOutlet NSTableView *table;
 

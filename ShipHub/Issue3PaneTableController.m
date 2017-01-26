@@ -16,7 +16,13 @@
 
 #import <objc/runtime.h>
 
+@protocol CompactIssueTableDelegate <ProblemTableViewDelegate>
+
+@end
+
 @interface CompactIssueTable : ProblemTableView
+
+@property (weak) id<CompactIssueTableDelegate> delegate;
 
 @end
 
@@ -39,6 +45,8 @@
 @end
 
 @implementation Issue3PaneTableController
+
+@dynamic delegate;
 
 + (Class)tableClass {
     return [CompactIssueTable class];
@@ -284,9 +292,27 @@
     return [CompactIssueCellViewController cellHeight];
 }
 
+- (NSString *)tableView:(NSTableView *)tableView typeSelectStringForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+    return nil;
+}
+
+- (BOOL)tableView:(NSTableView *)tableView handleKeyPressEvent:(NSEvent *)event {
+    if ([event isSpace] && [event modifierFlagsAreExclusively:NSEventModifierFlagShift]) {
+        [self.delegate issueTableController:self pageAuxiliaryViewBy:-1];
+        return YES;
+    } else if ([event isSpace]) {
+        [self.delegate issueTableController:self pageAuxiliaryViewBy:1];
+        return YES;
+    } else {
+        return [super tableView:tableView handleKeyPressEvent:event];
+    }
+}
+
 @end
 
 @implementation CompactIssueTable
+
+@dynamic delegate;
 
 - (void)drawGridInClipRect:(NSRect)clipRect
 {

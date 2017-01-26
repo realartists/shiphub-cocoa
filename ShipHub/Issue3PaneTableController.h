@@ -8,6 +8,16 @@
 
 #import "IssueTableController.h"
 
+@class Issue3PaneTableController;
+
+@protocol Issue3PaneTableControllerDelegate <IssueTableControllerDelegate>
+
+- (void)issueTableController:(Issue3PaneTableController *)table pageAuxiliaryViewBy:(NSInteger)direction;
+
+@end
+
 @interface Issue3PaneTableController : IssueTableController
+
+@property (weak) IBOutlet id<Issue3PaneTableControllerDelegate> delegate;
 
 @end

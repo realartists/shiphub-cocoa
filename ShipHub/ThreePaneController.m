@@ -16,7 +16,7 @@
 #import "IssueViewController.h"
 #import "RateDampener.h"
 
-@interface ThreePaneController () <IssueTableControllerDelegate>
+@interface ThreePaneController () <Issue3PaneTableControllerDelegate>
 
 @property NSSplitViewController *splitController;
 @property Issue3PaneTableController *tableController;
@@ -123,6 +123,14 @@
 - (void)issueTableController:(IssueTableController *)controller didChangeSelection:(NSArray<Issue *> *)selectedIssues userInitiated:(BOOL)userInitiated {
     if (userInitiated || !self.displayedIssue || ![self.displayedPredicate isEqual:self.predicate]) {
         [self updateIssueViewController:selectedIssues];
+    }
+}
+
+- (void)issueTableController:(Issue3PaneTableController *)table pageAuxiliaryViewBy:(NSInteger)direction {
+    if (direction > 0) {
+        [_issueController scrollPageDown:nil];
+    } else {
+        [_issueController scrollPageUp:nil];
     }
 }
 

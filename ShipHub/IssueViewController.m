@@ -284,6 +284,14 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
     _nothingLabel.frame = _web.frame;
 }
 
+- (IBAction)scrollPageUp:(id)sender {
+    [_web.mainFrame.frameView scrollPageUp:sender];
+}
+
+- (IBAction)scrollPageDown:(id)sender {
+    [_web.mainFrame.frameView scrollPageDown:sender];
+}
+
 - (NSURL *)indexURL {
     static dispatch_once_t onceToken;
     static NSURL *URL;
