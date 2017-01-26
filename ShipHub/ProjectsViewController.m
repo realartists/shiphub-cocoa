@@ -152,6 +152,25 @@
     }
 }
 
+- (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler {
+    NSAlert *alert = [NSAlert new];
+    alert.messageText = message;
+    [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+        completionHandler();
+    }];
+}
+
+- (void)webView:(WKWebView *)webView runJavaScriptConfirmPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completionHandler {
+    NSAlert *alert = [NSAlert new];
+    alert.messageText = message;
+    [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+        completionHandler(returnCode == NSAlertFirstButtonReturn);
+    }];
+}
+
 - (void)hideExitFullscreen {
     NSString *nonFullscreen = [[[self projectURL] description] stringByReplacingOccurrencesOfString:@"?fullscreen=true" withString:@""];
     NSString *js =
