@@ -225,7 +225,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     pair.shipHost = self.account.shipHost;
     
     ServerConnection *conn = [[ServerConnection alloc] initWithAuth:self];
-    [conn perform:@"DELETE" on:@"login" body:nil completion:^(id jsonResponse, NSError *error) {
+    [conn perform:@"DELETE" on:@"/api/authentication/login" forGitHub:NO headers:nil body:nil completion:^(id jsonResponse, NSError *error) {
         if (error) {
             ErrLog(@"%@", error);
         }
