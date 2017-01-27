@@ -2485,7 +2485,7 @@ var Comment = React.createClass({
         
         if (change.text.length == 1 && change.text[0] === '@') {
           CodeMirror.showHint(cm, sentinelHint, {
-            words: getIvars().assignees.map((a) => '@' + a.login),
+            words: getIvars().allLoginCompletions.map((a) => '@' + a),
             sentinel: '@',
             completeSingle: false
           });
@@ -4013,6 +4013,17 @@ function applyIssueState(state, scrollToCommentIdentifier) {
   if (issue.originator) {
     issue.user = issue.originator;
   }
+  
+  var allPossibleAssignees = state.assignees.map((a) => a.login);
+  var allPossibleCommenters = (issue.allComments || []).filter((c) => !!keypath(c, "user.login")).map((c) => c.user.login)
+  if (keypath(issue, "user.login")) {
+    allPossibleCommenters.push(issue.user.login);
+  }
+  var allLogins = Array.from(new Set(allPossibleAssignees.concat(allPossibleCommenters)));
+  allLogins = allLogins.map((s) => ({ v:s, l:s }));
+  allLogins.sort((a, b) => a.l.localeCompare(b.l));
+  allLogins = allLogins.map((o) => o.v);
+  state.allLoginCompletions = allLogins;
   
   setIvars(state);
   
