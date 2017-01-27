@@ -53,9 +53,12 @@
 
 - (unichar)functionKey {
     NSString*   const   character   =   [self charactersIgnoringModifiers];
-    unichar     const   code        =   [character characterAtIndex:0];
-    
-    return code;
+    if ([character length]) {
+        unichar     const   code        =   [character characterAtIndex:0];
+        return code;
+    } else {
+        return 0;
+    }
 }
 
 - (BOOL)isArrowDown {
