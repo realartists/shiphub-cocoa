@@ -5,6 +5,10 @@ import { htmlEncode } from 'js-htmlencode'
 
 import 'typeahead.js'
 
+function escapeStringForRegex(s) {
+    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+}
+
 var Completer = React.createClass({
   propTypes: {
     value: React.PropTypes.string,
@@ -85,7 +89,7 @@ var Completer = React.createClass({
         this.opening = false;
         baseMatcher("", function(results) {
           // move text to front of results
-          var re = new RegExp("^" + text + "$", 'i');
+          var re = new RegExp("^" + escapeStringForRegex(text) + "$", 'i');
           var ft = results.filter((r) => {
             return !re.test(r);
           });
@@ -295,7 +299,7 @@ var Completer = React.createClass({
 
 Completer.SubstrMatcher = function(options) {
   return function(text, cb) {
-    var r = new RegExp(text, 'i');
+    var r = new RegExp(escapeStringForRegex(text), 'i');
     var x = options.filter((o) => (r.test(o)));
     x.sort((a, b) => a.localeCompare(b));
     cb(x);
