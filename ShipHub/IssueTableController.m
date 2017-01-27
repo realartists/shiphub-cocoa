@@ -572,7 +572,7 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
         return [[obj fullIdentifier] isEqualToString:[removeItem fullIdentifier]];
     }];
     
-    if (idx != NSNotFound) {
+    if (idx != NSNotFound && idx >= 0 && idx < _table.numberOfRows) {
         [_table beginUpdates];
         [_table removeRowsAtIndexes:[NSIndexSet indexSetWithIndex:idx] withAnimation:NSTableViewAnimationEffectFade];
         [_items removeObjectAtIndex:idx];
