@@ -135,14 +135,8 @@ static NSString *valueForOption(id option) {
 }
 
 - (void)setStringValue:(NSString *)stringValue {
-    // super implementation of setStringValue has a nasty tendency to clear the undo stack.
-    // don't let it do that.
     UndoManagerTextView *fieldEditor = (UndoManagerTextView *)[self currentEditor];
-    NSUndoManager *manager = fieldEditor.undoManager;
-    fieldEditor.undoManager = nil;
     [super setStringValue:stringValue];
-    fieldEditor.undoManager = manager;
-    [manager removeAllActionsWithTarget:fieldEditor.textStorage];
     [fieldEditor setSelectedRange:NSMakeRange([[fieldEditor string] length], 0)];
     [[CompletingTextController controllerForWindow:self.window] cancelForTextField:self];
 }
