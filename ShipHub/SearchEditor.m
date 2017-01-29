@@ -10,6 +10,7 @@
 
 #import "TimeLimitRowTemplate.h"
 #import "UserRowTemplate.h"
+#import "AssigneeNotContainsTemplate.h"
 #import "MilestoneRowTemplate.h"
 #import "RepoRowTemplate.h"
 #import "StateRowTemplate.h"
@@ -56,7 +57,7 @@
     
     NSExpression *assigneeExpr = [NSExpression expressionForKeyPath:@"assignees.login"];
     NSPredicateEditorRowTemplate *assigneeTemplate = [[UserRowTemplate alloc] initWithLeftExpressions:@[assigneeExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSAnyPredicateModifier operators:@[@(NSEqualToPredicateOperatorType)] options:0];
-    NSPredicateEditorRowTemplate *assigneeNotTemplate = [[UserRowTemplate alloc] initWithLeftExpressions:@[assigneeExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSAllPredicateModifier operators:@[@(NSNotEqualToPredicateOperatorType)] options:0];
+    NSPredicateEditorRowTemplate *assigneeNotTemplate = [AssigneeNotContainsTemplate new];
     
     NSExpression *originatorExpr = [NSExpression expressionForKeyPath:@"originator.login"];
     NSExpression *resolverExpr = [NSExpression expressionForKeyPath:@"closedBy.login"];

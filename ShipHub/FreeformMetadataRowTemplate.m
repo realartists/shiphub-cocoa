@@ -162,14 +162,15 @@ static BOOL operatorAllowsNil(NSPredicateOperatorType type) {
         NSComparisonPredicate *c0 = (id)p0;
         NSComparisonPredicate *c1 = (id)p1;
         
-        if ([super matchForPredicate:c0] == 1.0) {
+        double match = [super matchForPredicate:c0];
+        if (match > 0.0) {
             if ([c1 predicateOperatorType] == NSEqualToPredicateOperatorType) {
                 NSString *kp0 = [[c0 leftExpression] keyPath];
-                NSString *kp1 = [[c1 rightExpression] keyPath];
+                NSString *kp1 = [[c1 leftExpression] keyPath];
                 if ([kp0 isEqualToString:kp1]) {
                     NSExpression *r1 = [c1 rightExpression];
                     if ([r1 expressionType] == NSConstantValueExpressionType && [r1 constantValue] == nil) {
-                        return 1.0;
+                        return match;
                     }
                 }
             }

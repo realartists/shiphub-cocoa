@@ -70,6 +70,7 @@
 		1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
 		1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */; };
 		1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */; };
+		1A2C05C91E3BFAD100F993AF /* AssigneeNotContainsTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2C05C81E3BFAD100F993AF /* AssigneeNotContainsTemplate.m */; };
 		1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
 		1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
 		1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
@@ -506,6 +507,8 @@
 		1A2A8B5E1D55109200F24F32 /* NewMilestoneController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewMilestoneController.h; sourceTree = "<group>"; };
 		1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewMilestoneController.m; sourceTree = "<group>"; };
 		1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewMilestoneController.xib; sourceTree = "<group>"; };
+		1A2C05C71E3BFAD100F993AF /* AssigneeNotContainsTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssigneeNotContainsTemplate.h; sourceTree = "<group>"; };
+		1A2C05C81E3BFAD100F993AF /* AssigneeNotContainsTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssigneeNotContainsTemplate.m; sourceTree = "<group>"; };
 		1A3618E11C8FBF96008C11CB /* DataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStore.h; sourceTree = "<group>"; };
 		1A3618E21C8FBF96008C11CB /* DataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataStore.m; sourceTree = "<group>"; };
 		1A3618E71C8FC25B008C11CB /* SyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncConnection.h; sourceTree = "<group>"; };
@@ -900,6 +903,8 @@
 				1A012E861D3EAC47006CE5DF /* FreeformMetadataRowTemplate.m */,
 				1A012E871D3EAC47006CE5DF /* UserRowTemplate.h */,
 				1A012E881D3EAC47006CE5DF /* UserRowTemplate.m */,
+				1A2C05C71E3BFAD100F993AF /* AssigneeNotContainsTemplate.h */,
+				1A2C05C81E3BFAD100F993AF /* AssigneeNotContainsTemplate.m */,
 				1A012E891D3EAC47006CE5DF /* MilestoneRowTemplate.h */,
 				1A012E8A1D3EAC47006CE5DF /* MilestoneRowTemplate.m */,
 				1A012E8B1D3EAC47006CE5DF /* PopUpMetadataRowTemplate.h */,
@@ -1978,6 +1983,7 @@
 				1A2217D11C7E80CE006460E2 /* Logging.m in Sources */,
 				1A4A20A91CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m in Sources */,
 				1A012E921D3EAC47006CE5DF /* MilestoneRowTemplate.m in Sources */,
+				1A2C05C91E3BFAD100F993AF /* AssigneeNotContainsTemplate.m in Sources */,
 				1A0D59EB1CA4AA3A004F2578 /* IssueDocument.m in Sources */,
 				1AE09BF81C97687E00C5AC35 /* LocalRelationship.m in Sources */,
 				1A7FD77E1D494A5C00B585E2 /* LabelModifyController.m in Sources */,
