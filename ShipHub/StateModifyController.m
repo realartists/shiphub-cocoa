@@ -45,10 +45,17 @@
     if (_openIssues.count > 0 && _closedIssues.count > 0) {
         // use both buttons
         _infoLabel.stringValue = [NSString localizedStringWithFormat:NSLocalizedString(@"Modifying: Open Issues: %tu, Closed Issues: %tu", nil), _openIssues.count, _closedIssues.count];
+        if (_openIssues.count == 1) {
+            [_closeButton setTitle:NSLocalizedString(@"Close Issue", nil)];
+        }
+        if (_closedIssues.count == 1) {
+            [_openButton setTitle:NSLocalizedString(@"Reopen Issue", nil)];
+        }
     } else if (_openIssues.count > 0) {
         _openButton.hidden = YES;
         _closeButton.keyEquivalent = @"\r";
         if (_openIssues.count == 1) {
+            [_closeButton setTitle:NSLocalizedString(@"Close Issue", nil)];
             _infoLabel.stringValue = NSLocalizedString(@"Modifying 1 Open Issue", nil);
         } else {
             _infoLabel.stringValue = [NSString localizedStringWithFormat:NSLocalizedString(@"Modifying %tu Open Issues", nil), _openIssues.count];
@@ -59,6 +66,7 @@
         _openButton.keyEquivalent = @"\r";
         _closeButton.hidden = YES;
         if (_closedIssues.count == 1) {
+            [_openButton setTitle:NSLocalizedString(@"Reopen Issue", nil)];
             _infoLabel.stringValue = NSLocalizedString(@"Modifying 1 Closed Issue", nil);
         } else {
             _infoLabel.stringValue = [NSString localizedStringWithFormat:NSLocalizedString(@"Modifying %tu Closed Issues", nil), _closedIssues.count];
