@@ -395,6 +395,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
 }
 
 - (__kindof MetadataItem *)itemWithManagedID:(NSManagedObjectID *)mid {
+    if (!mid) return nil;
     return _managedIDToObject[mid];
 }
 
