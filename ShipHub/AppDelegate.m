@@ -35,6 +35,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     Auth *_nextAuth;
     BOOL _didFinishLaunching;
     NSMutableArray *_pendingURLs;
+    CFAbsoluteTime _lastRateLimitAlertShown;
 }
 
 @property (weak) IBOutlet NSWindow *window;
@@ -562,7 +563,12 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     NSDate *prev = note.userInfo[DataStoreRateLimitPreviousEndDateKey];
     NSDate *next = note.userInfo[DataStoreRateLimitUpdatedEndDateKey];
     
-    if (!prev && next) {
+    CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+    NSTimeInterval diff = now - _lastRateLimitAlertShown;
+    NSTimeInterval oneHour = 60.0 * 60.0;
+    
+    if (!prev && next && (diff >= oneHour)) {
+        _lastRateLimitAlertShown = now;
         NSAlert *alert = [NSAlert new];
         alert.alertStyle = NSAlertStyleWarning;
         alert.messageText = NSLocalizedString(@"GitHub Rate Limit Reached", nil);
