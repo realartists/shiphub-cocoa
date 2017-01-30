@@ -1195,10 +1195,12 @@ static NSString *const LastUpdated = @"LastUpdated";
         @try {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
             fetchRequest.predicate = [self issuesPredicate:predicate];
-            fetchRequest.relationshipKeyPathsForPrefetching = @[@"assignees.identifier", @"originator.identifier", @"closedBy.identifier", @"labels.name", @"labels.color", @"milestone.identifier", @"repository.identifier", @"notification.unread"];
             fetchRequest.sortDescriptors = sortDescriptors;
             
             NSError *err = nil;
+#if DEBUG
+            CFAbsoluteTime t0 = CFAbsoluteTimeGetCurrent();
+#endif
             NSArray *entities = [moc executeFetchRequest:fetchRequest error:&err];
             if (err) {
                 ErrLog(@"%@", err);
@@ -1207,6 +1209,10 @@ static NSString *const LastUpdated = @"LastUpdated";
             results = [entities arrayByMappingObjects:^id(LocalIssue *obj) {
                 return [[Issue alloc] initWithLocalIssue:obj metadataStore:ms options:options];
             }];
+#if DEBUG
+            CFAbsoluteTime t1 = CFAbsoluteTimeGetCurrent();
+            DebugLog(@"loaded %td issues in %.3fs", results.count, t1-t0);
+#endif
         } @catch (id exc) {
             error = [NSError shipErrorWithCode:ShipErrorCodeInvalidQuery];
             ErrLog(@"%@", exc);

@@ -48,4 +48,6 @@
 - (NSArray<Repo *> *)hiddenRepos;
 - (NSArray<Milestone *> *)hiddenMilestones;
 
+- (__kindof MetadataItem *)itemWithManagedID:(NSManagedObjectID *)mid;
+
 @end

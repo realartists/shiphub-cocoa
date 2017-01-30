@@ -985,6 +985,11 @@ static NSString *const TBSearchItemId = @"TBSearch";
 #pragma mark -
 
 - (void)updatePredicate {
+    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(_updatePredicate) object:nil];
+    [self performSelector:@selector(_updatePredicate) withObject:nil afterDelay:0];
+}
+
+- (void)_updatePredicate {
     NSPredicate *predicate = nil;
     id selectedItem = [_outlineView selectedItem];
     

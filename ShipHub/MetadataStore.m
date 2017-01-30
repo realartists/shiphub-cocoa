@@ -54,6 +54,8 @@
 
 @property (strong) NSDictionary *milestoneTitleToMilestones;
 
+@property (strong) NSDictionary *managedIDToObject;
+
 @end
 
 @implementation MetadataStore
@@ -110,11 +112,19 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
         
         NSMutableArray *repos = [NSMutableArray arrayWithCapacity:localRepos.count];
         
+        NSMutableDictionary *managedIDToObject = [NSMutableDictionary new];
+        
+        void (^noteManagedID)(NSManagedObject *, id) = ^(NSManagedObject *mo, id obj) {
+            managedIDToObject[mo.objectID] = obj;
+        };
+        
         NSMutableDictionary *accountsByID = [NSMutableDictionary new];
         NSMutableDictionary *orgsByID = [NSMutableDictionary new];
         NSMutableDictionary *localOrgsByID = [NSMutableDictionary new];
         NSDictionary *usersByID = [NSDictionary lookupWithObjects:[localUsers arrayByMappingObjects:^id(id obj) {
-            return [[User alloc] initWithLocalItem:obj];
+            User *u = [[User alloc] initWithLocalItem:obj];
+            noteManagedID(obj, u);
+            return u;
         }] keyPath:@"identifier"];
         [accountsByID addEntriesFromDictionary:usersByID];
         NSMutableDictionary *assigneesByRepoID = [NSMutableDictionary new];
@@ -143,6 +153,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
             for (LocalMilestone *lm in r.milestones) {
                 if (lm.title) {
                     Milestone *m = [[Milestone alloc] initWithLocalItem:lm];
+                    noteManagedID(lm, m);
                     [milestones addObject:m];
                 }
             }
@@ -153,6 +164,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
             for (LocalLabel *ll in r.labels) {
                 if (ll.name && ll.color) {
                     Label *l = [[Label alloc] initWithLocalItem:ll];
+                    noteManagedID(ll, l);
                     [labels addObject:l];
                 }
             }
@@ -163,6 +175,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
             if (!owner) {
                 if ([localOwner isKindOfClass:[LocalOrg class]]) {
                     owner = [[Org alloc] initWithLocalItem:localOwner];
+                    noteManagedID(localOwner, owner);
                     orgsByID[localOwner.identifier] = owner;
                     localOrgsByID[localOwner.identifier] = localOwner;
                 } else {
@@ -172,6 +185,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
             }
             
             Repo *repo = [[Repo alloc] initWithLocalItem:r owner:owner billingState:billingState];
+            noteManagedID(r, repo);
             [repos addObject:repo];
             
             NSMutableArray *projects;
@@ -293,6 +307,7 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
         
         _hiddenRepos = [[repos filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hidden = YES"]] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"fullName" ascending:YES selector:@selector(localizedStandardCompare:)]]];
         _hiddenMilestones = hiddenMilestones;
+        _managedIDToObject = managedIDToObject;
     }
     
     return self;
@@ -377,6 +392,10 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
         u = [[User alloc] initWithLocalItem:lu];
     }
     return u;
+}
+
+- (__kindof MetadataItem *)itemWithManagedID:(NSManagedObjectID *)mid {
+    return _managedIDToObject[mid];
 }
 
 @end

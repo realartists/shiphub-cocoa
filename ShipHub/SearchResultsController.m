@@ -119,8 +119,11 @@
 }
 
 - (void)setPredicate:(NSPredicate *)predicate {
-    [super setPredicate:predicate];
-    [self refresh:nil];
+    if (![self.predicate isEqual:predicate]) {
+        DebugLog(@"%@ refreshing with predicate %@ (prev:%@)", self, predicate, self.predicate);
+        [super setPredicate:predicate];
+        [self refresh:nil];
+    }
 }
 
 - (void)titleTimerFired:(NSTimer *)timer {
