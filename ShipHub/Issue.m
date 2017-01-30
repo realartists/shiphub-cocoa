@@ -49,23 +49,16 @@
         _closedAt = li.closedAt;
         _locked = [li.locked boolValue];
         _assignees = [[li.assignees array] arrayByMappingObjects:^id(LocalUser *obj) {
-            return [ms itemWithManagedID:obj.objectID];
+            return [ms userWithIdentifier:obj.identifier];
         }];
-        _originator = [ms itemWithManagedID:li.originator.objectID];
-        _closedBy = [ms itemWithManagedID:li.closedBy.objectID];
-        
-        NSMutableArray *labels = [NSMutableArray arrayWithCapacity:li.labels.count];
-        for (LocalLabel *ll in li.labels) {
-            Label *l = [ms itemWithManagedID:ll.objectID];
-            if (l) {
-                [labels addObject:l];
-            }
-        }
-        [labels sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
-        _labels = labels;
-        
-        _milestone = [ms itemWithManagedID:li.milestone.objectID];
-        _repository = [ms itemWithManagedID:li.repository.objectID];
+        _originator = [ms userWithIdentifier:li.originator.identifier];
+        _closedBy = [ms userWithIdentifier:li.closedBy.identifier];
+        NSArray *loadedLabels = [[li.labels allObjects] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"name != nil && color != nil"]];
+        _labels = [[loadedLabels arrayByMappingObjects:^id(id obj) {
+            return [[Label alloc] initWithLocalItem:obj];
+        }] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
+        _milestone = [ms milestoneWithIdentifier:li.milestone.identifier];
+        _repository = [ms repoWithIdentifier:li.repository.identifier];
         _reactionSummary = (id)(li.shipReactionSummary);
         
         for (NSNumber *v in _reactionSummary.allValues) {
