@@ -27,6 +27,7 @@
 
 @end
 
+NSString *const DefaultsAnalyticsIDKey = @"AnalyticsID";
 NSString *const DefaultsLocalStoragePathKey = @"LocalStorage";
 NSString *const DefaultsLastUsedAccountKey = @"LastLoginPair";
 NSString *const DefaultsDisableAutoWatchKey = @"DisableAutoWatch";

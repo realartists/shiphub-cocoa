@@ -8,6 +8,7 @@
 
 #import "OverviewController.h"
 
+#import "Analytics.h"
 #import "AppDelegate.h"
 #import "DataStore.h"
 #import "MetadataStore.h"
@@ -325,6 +326,8 @@ static NSString *const TBSearchItemId = @"TBSearch";
     if ([[DataStore activeStore] isPerformingInitialSync]) {
         [self initialSyncStarted:nil];
     }
+
+    [[Analytics sharedInstance] track:@"Overview Shown"];
 }
 
 - (void)initialSyncStarted:(NSNotification *)note {

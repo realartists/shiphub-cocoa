@@ -14,6 +14,8 @@
 
 @end
 
+extern NSString *const DefaultsAnalyticsIDKey;
+
 extern NSString *const DefaultsLastUsedAccountKey;
 
 extern NSString *const DefaultsLocalStoragePathKey;

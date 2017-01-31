@@ -8,6 +8,7 @@
 
 #import "Auth.h"
 
+#import "Analytics.h"
 #import "Extras.h"
 #import "Keychain.h"
 #import "JSONItem.h"
@@ -240,6 +241,8 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     [[[self class] accountsCache] removeObject:pair];
     [_webSession logout];
     [self changeAuthState:AuthStateInvalid];
+    [[Analytics sharedInstance] track:@"Logout"];
+    [[Analytics sharedInstance] flush];
 }
 
 @end

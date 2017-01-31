@@ -8,6 +8,7 @@
 
 #import "SubscriptionController.h"
 
+#import "Analytics.h"
 #import "DataStore.h"
 #import "ServerConnection.h"
 #import "Extras.h"
@@ -131,6 +132,7 @@
 }
 
 - (IBAction)showHelp:(id)sender {
+    [[Analytics sharedInstance] track:@"Subscription Help Shown"];
     NSURL *URL = [NSURL URLWithString:@"https://www.realartists.com/pricing.html"];
     [[NSWorkspace sharedWorkspace] openURL:URL];
 }
@@ -139,7 +141,18 @@
     NSInteger row = [_table rowForView:sender];
     NSDictionary *sub = _subscriptions[row];
     DebugLog(@"%@", sub);
-    
+
+    BOOL subscribed = [sub[@"subscribed"] boolValue];
+    NSDictionary *props = @{
+                            @"type" : sub[@"account"][@"type"],
+                            @"checkout_login" : sub[@"account"][@"login"],
+                            };
+    if (!subscribed) {
+        [[Analytics sharedInstance] track:@"Checkout Shown" properties:props];
+    } else {
+        [[Analytics sharedInstance] track:@"Manage Shown" properties:props];
+    }
+
     NSString *action = sub[@"actionUrl"];
     NSURL *URL = [NSURL URLWithString:action];
     

@@ -8,6 +8,7 @@
 
 #import "AppDelegate.h"
 
+#import "Analytics.h"
 #import "Auth.h"
 #import "AuthController.h"
 #import "DataStore.h"
@@ -76,6 +77,10 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
         if ([allAccounts count] > 0) {
             _auth = [Auth authWithAccountPair:[allAccounts firstObject]];
         }
+    }
+
+    if (_auth) {
+        [[Analytics sharedInstance] setShipHost:_auth.account.shipHost];
     }
     
     _authConfigured = YES;
@@ -156,6 +161,8 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
         [self handleURL:URL atAppLaunch:YES];
     }
     [_pendingURLs removeAllObjects];
+
+    [[Analytics sharedInstance] track:@"Application Launched"];
 }
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification {
@@ -261,6 +268,8 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 - (void)showAuthIfNeededAnimated:(BOOL)animated {
     if (_auth.authState != AuthStateValid) {
         [_authController showWindow:self];
+
+        [[Analytics sharedInstance] track:@"Welcome Shown"];
     }
 }
 
@@ -374,6 +383,10 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     BOOL addNew = login == nil && [sender tag] == AccountMenuActionNewAccount;
     
     dispatch_block_t changeBlock = ^{
+        if (addNew) {
+            [[Analytics sharedInstance] track:@"Add new account"];
+        }
+
         if (login) {
             _nextAuth = [Auth authWithAccountPair:login];
         } else if (logout) {
@@ -521,6 +534,8 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
         _subscriptionController = [SubscriptionController new];
     }
     [_subscriptionController showWindow:sender];
+
+    [[Analytics sharedInstance] track:@"Subscriptions Shown"];
 }
 
 - (IBAction)showAcknowledgements:(id)sender {

@@ -8,6 +8,7 @@
 
 #import "HelloController.h"
 
+#import "Analytics.h"
 #import "Auth.h"
 #import "AuthController.h"
 #import "Error.h"
@@ -139,6 +140,9 @@
     NSAssert([NSThread isMainThread], nil);
     
     [self resetUI];
+
+    [[Analytics sharedInstance] track:@"Login Succeeded"];
+    [[Analytics sharedInstance] flush];
     
     // FIXME: Do something with billing
     

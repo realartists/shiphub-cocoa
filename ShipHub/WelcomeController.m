@@ -8,6 +8,7 @@
 
 #import "WelcomeController.h"
 
+#import "Analytics.h"
 #import "AuthController.h"
 #import "BasicAuthController.h"
 #import "Extras.h"
@@ -91,6 +92,7 @@
 - (void)serverChooser:(ServerChooser *)chooser didChooseShipHost:(NSString *)shipHost ghHost:(NSString *)ghHost {
     _shipHost = shipHost;
     _ghHost = ghHost;
+    [[Analytics sharedInstance] setShipHost:_shipHost];
     
     [_popover performClose:nil];
     _popover = nil;

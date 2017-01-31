@@ -13,6 +13,8 @@
 
 @interface AppDelegate : NSObject <NSApplicationDelegate>
 
+@property (readonly) Auth *auth;
+
 + (instancetype)sharedDelegate;
 
 - (OverviewController *)defaultOverviewController;

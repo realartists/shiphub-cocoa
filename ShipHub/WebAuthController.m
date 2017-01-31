@@ -8,6 +8,7 @@
 
 #import "WebAuthController.h"
 
+#import "Analytics.h"
 #import "ABTesting.h"
 #import "Auth.h"
 #import "AuthController.h"
@@ -201,6 +202,12 @@
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {
+    NSString *URLPath = webView.URL.path;
+    if ([URLPath isEqualToString:@"/login"]) {
+        [[Analytics sharedInstance] track:@"Login Shown"];
+    } else if ([URLPath isEqualToString:@"/sessions/two-factor"]) {
+        [[Analytics sharedInstance] track:@"2FA Shown"];
+    }
     [self webWindow].secure = webView.hasOnlySecureContent;
 }
 

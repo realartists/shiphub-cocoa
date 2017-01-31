@@ -302,6 +302,7 @@
 		1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
 		1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
 		1AFE22071CA6069600B51CF6 /* IssueEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22011CA6053B00B51CF6 /* IssueEvent.m */; };
+		282710121E3E814F001F031E /* Analytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 282710111E3E814F001F031E /* Analytics.m */; };
 		28BF03B51D1873CA00F22638 /* NewLabelController.m in Sources */ = {isa = PBXBuildFile; fileRef = 28BF03B41D1873CA00F22638 /* NewLabelController.m */; };
 		28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 28BF03B71D187EFA00F22638 /* NewLabelController.xib */; };
 		28BF04131D2224BA00F22638 /* FontAwesome.otf in Copy Fonts */ = {isa = PBXBuildFile; fileRef = 28BF03C21D1C582E00F22638 /* FontAwesome.otf */; };
@@ -818,6 +819,8 @@
 		1AFE22011CA6053B00B51CF6 /* IssueEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueEvent.m; sourceTree = "<group>"; };
 		1AFE22031CA6069300B51CF6 /* IssueComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueComment.h; sourceTree = "<group>"; };
 		1AFE22041CA6069300B51CF6 /* IssueComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueComment.m; sourceTree = "<group>"; };
+		282710101E3E814F001F031E /* Analytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Analytics.h; sourceTree = "<group>"; };
+		282710111E3E814F001F031E /* Analytics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Analytics.m; sourceTree = "<group>"; };
 		28BF03B41D1873CA00F22638 /* NewLabelController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewLabelController.m; sourceTree = "<group>"; };
 		28BF03B61D1873DF00F22638 /* NewLabelController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewLabelController.h; sourceTree = "<group>"; };
 		28BF03B71D187EFA00F22638 /* NewLabelController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewLabelController.xib; sourceTree = "<group>"; };
@@ -1043,6 +1046,8 @@
 			children = (
 				1A2217911C7E7B14006460E2 /* AppDelegate.h */,
 				1A2217921C7E7B14006460E2 /* AppDelegate.m */,
+				282710101E3E814F001F031E /* Analytics.h */,
+				282710111E3E814F001F031E /* Analytics.m */,
 				1A2217991C7E7B14006460E2 /* MainMenu.xib */,
 				1A2305D71C7F80EA0034C871 /* Defaults.h */,
 				1A2305D81C7F80EA0034C871 /* Defaults.m */,
@@ -1885,6 +1890,8 @@
 				1A38CA071D934EF800655891 /* LocalProject.m in Sources */,
 				1A694AEA1CA09E6A00F73608 /* Repo.m in Sources */,
 				1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
+				1AE09C061C97687E00C5AC35 /* LocalUser+CoreDataProperties.m in Sources */,
+				282710121E3E814F001F031E /* Analytics.m in Sources */,
 				1AE09BF01C97687E00C5AC35 /* LocalRepo.m in Sources */,
 				1A2305D91C7F80EA0034C871 /* Defaults.m in Sources */,
 				1A694B421CA34B9000F73608 /* LabelButton.m in Sources */,
