@@ -41,6 +41,7 @@
 @property NSMutableArray *reuseQueue;
 @property CompactIssueTableHeaderView *header;
 @property CompactIssueTableCornerView *corner;
+@property (nonatomic, assign) CompactIssueDateType dateType;
 
 @end
 
@@ -71,6 +72,7 @@
     m.representedObject =
     @{ @"key": @"createdAt",
        @"dir": @"desc",
+       @"dateType" : @(CompactIssueDateTypeCreatedAt),
        @"asc": dateAsc,
        @"desc": dateDesc };
     
@@ -78,6 +80,7 @@
     m.representedObject =
     @{ @"key": @"updatedAt",
        @"dir": @"desc",
+       @"dateType" : @(CompactIssueDateTypeUpdatedAt),
        @"asc": dateAsc,
        @"desc": dateDesc };
     
@@ -85,6 +88,7 @@
     m.representedObject =
     @{ @"key": @"closedAt",
        @"dir": @"desc",
+       @"dateType" : @(CompactIssueDateTypeClosedAt),
        @"asc": dateAsc,
        @"desc": dateDesc };
     
@@ -93,6 +97,7 @@
     @{ @"key": @"assignee.login",
        @"dir": @"asc",
        @"compare": @"localizedStandardCompare:",
+       @"dateType" : @(CompactIssueDateTypeCreatedAt),
        @"asc": strAsc,
        @"desc": strDesc };
     
@@ -101,6 +106,7 @@
     @{ @"key": @"originator.login",
        @"dir": @"asc",
        @"compare": @"localizedStandardCompare:",
+       @"dateType" : @(CompactIssueDateTypeCreatedAt),
        @"asc": strAsc,
        @"desc": strDesc };
     
@@ -109,6 +115,7 @@
     @{ @"key": @"title",
        @"dir": @"asc",
        @"compare": @"localizedStandardCompare:",
+       @"dateType" : @(CompactIssueDateTypeCreatedAt),
        @"asc": strAsc,
        @"desc": strDesc };
     
@@ -118,12 +125,14 @@
        @"dir": @"desc",
        @"target": @"self",
        @"compare": @"labelsCompare:",
+       @"dateType" : @(CompactIssueDateTypeCreatedAt),
        @"asc": strAsc,
        @"desc": strDesc };
     
     m = [sortMenu addItemWithTitle:NSLocalizedString(@"Unread", nil) action:@selector(changeSort:) keyEquivalent:@""];
     m.representedObject =
     @{ @"key": @"unread",
+       @"dateType" : @(CompactIssueDateTypeUpdatedAt),
        @"dir" : @"desc" };
     
     [sortMenu addItem:[NSMenuItem separatorItem]];
@@ -207,6 +216,9 @@
         NSSortDescriptor *actual = [NSSortDescriptor sortDescriptorWithKey:[NSString stringWithFormat:@"%@", key] ascending:sortDesc.ascending selector:NSSelectorFromString(compare)];
         NSSortDescriptor *secondary = [NSSortDescriptor sortDescriptorWithKey:@"updatedAt" ascending:NO];
         [self.table setSortDescriptors:@[actual, secondary]];
+        
+        CompactIssueDateType dateType = [info[@"dateType"] integerValue];
+        self.dateType = dateType;
     }
 }
 
@@ -255,11 +267,19 @@
         if (mode) {
             self.table.headerView = nil;
             self.table.cornerView = nil;
+            self.dateType = CompactIssueDateTypeCreatedAt;
         } else {
             self.table.headerView = _header;
             self.table.cornerView = _corner;
             [self restoreSortFromDefaults];
         }
+    }
+}
+
+- (void)setDateType:(CompactIssueDateType)dateType {
+    if (_dateType != dateType) {
+        _dateType = dateType;
+        [self.table reloadData];
     }
 }
 
@@ -282,6 +302,7 @@
         vc = [CompactIssueCellViewController new];
     }
     vc.issue = self.items[row];
+    vc.dateType = _dateType;
     return (NSTableRowView *)vc.view;
 }
 

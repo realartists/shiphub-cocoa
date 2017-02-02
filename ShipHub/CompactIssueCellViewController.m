@@ -19,6 +19,7 @@
 @interface CompactIssueRowView ()
 
 @property (nonatomic, strong) Issue *issue;
+@property (nonatomic, assign) CompactIssueDateType dateType;
 
 @property (weak) CompactIssueCellViewController *controller;
 
@@ -63,6 +64,12 @@
     row.emphasized = NO;
     row.selected = NO;
     row.nextRowSelected = NO;
+}
+
+- (void)setDateType:(CompactIssueDateType)dateType {
+    _dateType = dateType;
+    CompactIssueRowView *row = (id)self.view;
+    row.dateType = dateType;
 }
 
 @end
@@ -177,10 +184,23 @@ static const CGFloat marginBottom = 7.0;
     [numStr drawInRect:numRect withAttributes:numAttrs];
     
     // Draw the date just under the number
+    NSDate *date = nil;
+    switch (_dateType) {
+        case CompactIssueDateTypeCreatedAt:
+            date = _issue.createdAt;
+            break;
+        case CompactIssueDateTypeUpdatedAt:
+            date = _issue.updatedAt ?: _issue.createdAt;
+            break;
+        case CompactIssueDateTypeClosedAt:
+            date = _issue.closedAt ?: _issue.updatedAt ?: _issue.createdAt;
+            break;
+    }
+    
     NSDictionary *dateAttrs =
     @{ NSFontAttributeName : [NSFont systemFontOfSize:11.0 weight:NSFontWeightRegular],
        NSForegroundColorAttributeName : sharedAttrs[NSForegroundColorAttributeName] };
-    NSString *dateStr = [[NSDateFormatter shortRelativeDateFormatter] stringFromDate:_issue.createdAt];
+    NSString *dateStr = [[NSDateFormatter shortRelativeDateFormatter] stringFromDate:date];
     CGSize dateSize = [dateStr sizeWithAttributes:dateAttrs];
     CGRect dateRect = CGRectMake(CGRectGetMaxX(b) - dateSize.width - marginRight,
                                  CGRectGetMinY(numRect) - 2.0 - dateSize.height,

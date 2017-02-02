@@ -8,6 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 
+typedef NS_ENUM(NSInteger, CompactIssueDateType) {
+    CompactIssueDateTypeCreatedAt = 0,
+    CompactIssueDateTypeUpdatedAt,
+    CompactIssueDateTypeClosedAt
+};
+
 @class Issue;
 
 @interface CompactIssueCellViewController : NSViewController
@@ -17,6 +23,8 @@
 + (CGFloat)cellHeight;
 
 - (void)prepareForReuse;
+
+@property (nonatomic, assign) CompactIssueDateType dateType;
 
 @end
 
