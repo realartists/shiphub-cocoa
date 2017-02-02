@@ -326,8 +326,6 @@ static NSString *const TBSearchItemId = @"TBSearch";
     if ([[DataStore activeStore] isPerformingInitialSync]) {
         [self initialSyncStarted:nil];
     }
-
-    [[Analytics sharedInstance] track:@"Overview Shown"];
 }
 
 - (void)initialSyncStarted:(NSNotification *)note {
@@ -1070,6 +1068,18 @@ static NSString *const TBSearchItemId = @"TBSearch";
     [self updatePredicate];
     [self updateTitle];
     [self adjustWindowToMinimumSize];
+
+    switch (_modeItem.mode) {
+        case ResultsViewModeList:
+            [[Analytics sharedInstance] track:@"Overview Shown" properties:@{@"view" : @"list"}];
+            break;
+        case ResultsViewMode3Pane:
+            [[Analytics sharedInstance] track:@"Overview Shown" properties:@{@"view" : @"three-pane"}];
+            break;
+        case ResultsViewModeChart:
+            [[Analytics sharedInstance] track:@"Overview Shown" properties:@{@"view" : @"chart"}];
+            break;
+    }
 }
 
 #pragma mark -

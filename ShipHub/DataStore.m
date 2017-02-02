@@ -8,6 +8,7 @@
 
 #import "DataStoreInternal.h"
 
+#import "Analytics.h"
 #import "Auth.h"
 #import "Extras.h"
 #import "Reachability.h"
@@ -1440,6 +1441,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             });
         }
     }];
+
+    [[Analytics sharedInstance] track:@"Issue Edited"];
 }
 
 - (void)saveNewIssue:(NSDictionary *)issueJSON inRepo:(Repo *)r completion:(void (^)(Issue *issue, NSError *error))completion
@@ -1470,6 +1473,8 @@ static NSString *const LastUpdated = @"LastUpdated";
         }
         
     }];
+
+    [[Analytics sharedInstance] track:@"Issue Created"];
 }
 
 - (void)deleteComment:(NSNumber *)commentIdentifier inRepoFullName:(NSString *)repoFullName completion:(void (^)(NSError *error))completion
@@ -1507,6 +1512,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             completion(error);
         });
     }];
+
+    [[Analytics sharedInstance] track:@"Delete Comment"];
 }
 
 - (void)postComment:(NSString *)body inIssue:(NSString *)issueIdentifier completion:(void (^)(IssueComment *comment, NSError *error))completion
@@ -1575,6 +1582,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             });
         }
     }];
+
+    [[Analytics sharedInstance] track:@"Post Comment"];
 }
 
 - (void)editComment:(NSNumber *)commentIdentifier body:(NSString *)newCommentBody inRepoFullName:(NSString *)repoFullName completion:(void (^)(IssueComment *comment, NSError *error))completion
@@ -1621,6 +1630,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             });
         }
     }];
+
+    [[Analytics sharedInstance] track:@"Edit Comment"];
 }
 
 - (void)postIssueReaction:(NSString *)reactionContent inIssue:(id)issueFullIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
@@ -1696,6 +1707,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             fail(error);
         }
     }];
+
+    [[Analytics sharedInstance] track:@"Post Issue Reaction"];
 }
 
 - (void)postCommentReaction:(NSString *)reactionContent inRepoFullName:(NSString *)repoFullName inComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
@@ -1771,6 +1784,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             fail(error);
         }
     }];
+
+    [[Analytics sharedInstance] track:@"Post Comment Reaction"];
 }
 
 - (void)deleteReaction:(NSNumber *)reactionIdentifier completion:(void (^)(NSError *error))completion
@@ -1821,6 +1836,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             fail(error);
         }
     }];
+
+    [[Analytics sharedInstance] track:@"Delete Reaction"];
 }
 
 #pragma mark - Metadata Mutation
@@ -1882,6 +1899,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             });
         }
     }];
+
+    [[Analytics sharedInstance] track:@"Label Created"];
 }
 
 - (void)addMilestone:(NSDictionary *)milestone inRepos:(NSArray<Repo *> *)repos completion:(void (^)(NSArray<Milestone *> *milestones, NSError *error))completion
@@ -2000,6 +2019,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             }];
         }
     });
+
+    [[Analytics sharedInstance] track:@"Milestone Added"];
 }
 
 - (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inRepo:(Repo *)repo completion:(void (^)(Project *proj, NSError *error))completion
@@ -2043,6 +2064,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             }];
         }
     }];
+
+    [[Analytics sharedInstance] track:@"Project Added" properties:@{@"type" : @"repo"}];
 }
 
 - (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inOrg:(Account *)org completion:(void (^)(Project *proj, NSError *error))completion
@@ -2087,6 +2110,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             }];
         }
     }];
+
+    [[Analytics sharedInstance] track:@"Project Added" properties:@{@"type" : @"org"}];
 }
 
 - (void)deleteProject:(Project *)proj completion:(void (^)(NSError *error))completion {
@@ -2119,6 +2144,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             });
         }
     }];
+
+    [[Analytics sharedInstance] track:@"Project Deleted"];
 }
 
 #pragma mark - Milestone and Repo Hiding
@@ -2333,6 +2360,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMyUpNextNotification object:self];
         });
     }];
+
+    [[Analytics sharedInstance] track:@"Up Next Addition"];
 }
 
 - (void)removeFromUpNext:(NSArray<NSString *> *)issueIdentifiers completion:(void (^)(NSError *error))completion {
@@ -2512,6 +2541,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMyUpNextNotification object:self];
         });
     }];
+
+    [[Analytics sharedInstance] track:@"Up Next Addition"];
 }
 
 # pragma mark - GitHub notifications handling
@@ -2651,6 +2682,8 @@ static NSString *const LastUpdated = @"LastUpdated";
             }
         });
     }];
+
+    [[Analytics sharedInstance] track:@"Query Added"];
 }
 
 - (void)deleteQuery:(CustomQuery *)query completion:(void (^)(NSArray *myQueries))completion {

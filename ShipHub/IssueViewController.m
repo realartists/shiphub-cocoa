@@ -8,6 +8,7 @@
 
 #import "IssueViewController.h"
 
+#import "Analytics.h"
 #import "APIProxy.h"
 #import "AttachmentManager.h"
 #import "Auth.h"
@@ -324,6 +325,8 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
     [self evaluateJavaScript:@"configureNewIssue();"];
     _web.hidden = NO;
     _nothingLabel.hidden = YES;
+
+    [[Analytics sharedInstance] track:@"New Issue"];
 }
 
 - (NSString *)issueStateJSON:(Issue *)issue {
@@ -376,6 +379,10 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
     BOOL hidden = _issue == nil;
     _web.hidden = hidden;
     _nothingLabel.hidden = !hidden;
+
+    if (issue && issueChanged) {
+        [[Analytics sharedInstance] track:@"View Issue"];
+    }
 }
 
 - (void)scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier {

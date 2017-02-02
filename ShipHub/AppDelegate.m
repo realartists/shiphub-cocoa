@@ -586,6 +586,7 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     NSTimeInterval oneHour = 60.0 * 60.0;
     
     if (!prev && next && (diff >= oneHour)) {
+        [[Analytics sharedInstance] track:@"Rate Alert Shown"];
         _lastRateLimitAlertShown = now;
         NSAlert *alert = [NSAlert new];
         alert.alertStyle = NSAlertStyleWarning;
