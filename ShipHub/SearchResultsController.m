@@ -179,7 +179,7 @@
 }
 
 - (NSString *)autosaveName {
-    return self.upNextMode ? @"UpNext" : @"SearchResults";
+    return @"SearchResults";
 }
 
 - (BOOL)issueTableController:(IssueTableController *)controller shouldAcceptDrop:(NSArray *)issueIdentifiers {
