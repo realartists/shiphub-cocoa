@@ -1,5 +1,7 @@
 #import "Analytics.h"
 
+#include <sys/sysctl.h>
+
 #import "AppDelegate.h"
 #import "Auth.h"
 #import "Logging.h"
@@ -8,6 +10,27 @@ static const double kMininumFlushDelay = 60.0;
 
 static NSString *AnalyticsEventsPath() {
     return [@"~/Library/RealArtists/Ship2/AnalyticsEvents.plist" stringByExpandingTildeInPath];
+}
+
+// Borrowed in part from: http://stackoverflow.com/a/13360637
+static NSString *MachineModel() {
+    static NSString *str = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        size_t length = 0;
+        sysctlbyname("hw.model", NULL, &length, NULL, 0);
+
+        char *model = malloc(length * sizeof(char));
+        sysctlbyname("hw.model", model, &length, NULL, 0);
+        str = [NSString stringWithUTF8String:model];
+        free(model);
+    });
+    return str;
+}
+
+static NSString *OperatingSystemMajorMinor() {
+    NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+    return [NSString stringWithFormat:@"%ld.%ld", version.majorVersion, version.minorVersion];
 }
 
 @implementation Analytics {
@@ -145,6 +168,9 @@ static NSString *AnalyticsEventsPath() {
     mutableProperties[@"time"] = @((NSInteger)([[NSDate date] timeIntervalSince1970]));
     mutableProperties[@"version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleVersion"];
     mutableProperties[@"distinct_id"] = _distinctID;
+    mutableProperties[@"machine"] = MachineModel();
+    mutableProperties[@"os"] = OperatingSystemMajorMinor();
+    mutableProperties[@"locale"] = [[NSLocale currentLocale] localeIdentifier];
 
     AppDelegate *delegate = [AppDelegate sharedDelegate];
     if (delegate.auth && delegate.auth.account) {
