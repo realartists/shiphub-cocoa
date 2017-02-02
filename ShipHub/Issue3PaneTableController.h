@@ -13,6 +13,8 @@
 @protocol Issue3PaneTableControllerDelegate <IssueTableControllerDelegate>
 
 - (void)issueTableController:(Issue3PaneTableController *)table pageAuxiliaryViewBy:(NSInteger)direction;
+- (void)issueTableControllerFocusNextView:(Issue3PaneTableController *)table;
+- (void)issueTableControllerFocusPreviousView:(Issue3PaneTableController *)table;
 
 @end
 

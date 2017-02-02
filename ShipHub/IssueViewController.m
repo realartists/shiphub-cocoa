@@ -1488,6 +1488,12 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
     [self evaluateJavaScript:@"toggleCommentPreview()"];
 }
 
+#pragma mark -
+
+- (void)takeFocus {
+    [self evaluateJavaScript:@"focusIssue()"];
+}
+
 @end
 
 @implementation IssueWebView

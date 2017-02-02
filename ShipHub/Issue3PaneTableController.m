@@ -303,6 +303,13 @@
     } else if ([event isSpace]) {
         [self.delegate issueTableController:self pageAuxiliaryViewBy:1];
         return YES;
+    } else if ([event isTabKey]) {
+        if ([event modifierFlagsAreExclusively:NSShiftKeyMask]) {
+            [self.delegate issueTableControllerFocusPreviousView:self];
+        } else {
+            [self.delegate issueTableControllerFocusNextView:self];
+        }
+        return YES;
     } else {
         return [super tableView:tableView handleKeyPressEvent:event];
     }

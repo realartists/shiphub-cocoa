@@ -30,6 +30,8 @@
 - (void)saveWithCompletion:(void (^)(NSError *err))completion;
 - (IBAction)saveDocument:(id)sender;
 
+- (void)takeFocus;
+
 @end
 
 extern NSString *const IssueViewControllerNeedsSaveDidChangeNotification;

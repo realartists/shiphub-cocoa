@@ -214,4 +214,8 @@
     return YES;
 }
 
+- (void)takeFocus {
+    [self.view.window makeFirstResponder:_table.view];
+}
+
 @end

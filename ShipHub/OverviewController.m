@@ -107,7 +107,7 @@ static NSString *const TBSearchItemId = @"TBSearch";
 
 @end
 
-@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate, NSTextFieldDelegate, NSTouchBarDelegate>
+@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate, NSTextFieldDelegate, NSTouchBarDelegate, ResultsControllerDelegate>
 
 @property SearchResultsController *searchResults;
 @property ThreePaneController *threePaneController;
@@ -211,15 +211,18 @@ static NSString *const TBSearchItemId = @"TBSearch";
     [[self window] addObserver:self forKeyPath:@"firstResponder" options:0 context:NULL];
     
     _searchResults = [[SearchResultsController alloc] init];
+    _searchResults.delegate = self;
     [_searchResults addObserver:self forKeyPath:@"title" options:0 context:NULL];
     
     _searchItem.searchField.nextKeyView = [_searchResults.view subviews][0];
     _searchItem.searchField.nextKeyView.nextKeyView = _searchItem.searchField;
     
     _threePaneController = [[ThreePaneController alloc] init];
+    _threePaneController.delegate = self;
     [_threePaneController addObserver:self forKeyPath:@"title" options:0 context:NULL];
 
     _chartController = [[ChartController alloc] init];
+    _chartController.delegate = self;
     [_chartController addObserver:self forKeyPath:@"title" options:0 context:NULL];
     
     ResultsViewMode initialMode = [[Defaults defaults] integerForKey:LastSelectedModeDefaultsKey fallback:ResultsViewMode3Pane];
@@ -1720,6 +1723,7 @@ static NSString *const TBSearchItemId = @"TBSearch";
 - (IBAction)showList:(id)sender {
     _modeItem.mode = ResultsViewModeList;
     [self changeResultsMode:sender];
+    [_searchResults takeFocus];
 }
 
 - (IBAction)showChart:(id)sender {
@@ -1730,6 +1734,7 @@ static NSString *const TBSearchItemId = @"TBSearch";
 - (IBAction)showBrowser:(id)sender {
     _modeItem.mode = ResultsViewMode3Pane;
     [self changeResultsMode:sender];
+    [_threePaneController takeFocus];
 }
 
 - (IBAction)tbViewMode:(id)sender {
@@ -2087,6 +2092,18 @@ static NSString *const TBSearchItemId = @"TBSearch";
     _sidebarItem.on = !collapsed;
 }
 
+- (void)resultsControllerFocusSidebar:(ResultsController *)controller {
+    [_outlineView.window makeFirstResponder:_outlineView];
+}
+
+- (void)makeSearchFirstResponder {
+    [[self window] makeFirstResponder:_searchItem.searchField];
+}
+
+- (void)makeResultsFirstResponder {
+    [[self activeResultsController] takeFocus];
+}
+
 @end
 
 @implementation OverviewOutlineView
@@ -2147,6 +2164,15 @@ static NSString *const TBSearchItemId = @"TBSearch";
                 }
             }
         }
+    }
+    if ([theEvent isTabKey]) {
+        OverviewController *oc = (id)self.delegate;
+        if ([theEvent modifierFlagsAreExclusively:NSShiftKeyMask]) {
+            [oc makeSearchFirstResponder];
+        } else if ([theEvent modifierFlagsAreExclusively:0]) {
+            [oc makeResultsFirstResponder];
+        }
+        return;
     }
     [super keyDown:theEvent];
 }

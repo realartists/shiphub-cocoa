@@ -18,4 +18,8 @@
     
 }
 
+- (void)takeFocus {
+    
+}
+
 @end

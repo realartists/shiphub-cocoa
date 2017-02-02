@@ -3600,6 +3600,10 @@ var Header = React.createClass({
     onIssueTemplate: React.PropTypes.func
   },
   
+  focus: function() {
+    this.focusField('title');
+  },
+  
   focussed: function() {
     if (this.queuedFocus) {
       return this.queuedFocus;
@@ -3972,6 +3976,13 @@ var App = React.createClass({
     if (activity) {
       activity.scrollToCommentWithIdentifier(commentID);
     }
+  },
+  
+  focus: function() {
+    var header = this.refs.header;
+    if (header) {
+      header.focus();
+    }
   }
 });
 
@@ -4193,6 +4204,13 @@ function toggleCommentPreview() {
   }
 }
 window.toggleCommentPreview = toggleCommentPreview;
+
+function focusIssue() {
+  if (window.topLevelComponent) {
+    window.topLevelComponent.focus();
+  }
+}
+window.focusIssue = focusIssue;
 
 if (__DEBUG__) {
   console.log("*** Debug build ***");

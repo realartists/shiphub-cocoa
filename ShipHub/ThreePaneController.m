@@ -134,6 +134,14 @@
     }
 }
 
+- (void)issueTableControllerFocusPreviousView:(Issue3PaneTableController *)table {
+    [self.delegate resultsControllerFocusSidebar:self];
+}
+
+- (void)issueTableControllerFocusNextView:(Issue3PaneTableController *)table {
+    [self.issueController takeFocus];
+}
+
 - (NSSize)preferredMinimumSize {
     NSSize s = NSMakeSize(0.0, 200.0);
     for (NSSplitViewItem *item in _splitController.splitViewItems) {
@@ -184,6 +192,10 @@
 
 - (NSString *)autosaveName {
     return nil;
+}
+
+- (void)takeFocus {
+    [self.view.window makeFirstResponder:self.table.view];
 }
 
 @end
