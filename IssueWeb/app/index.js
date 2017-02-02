@@ -1468,6 +1468,7 @@ var AddCommentFooter = React.createClass({
     if (this.props.canClose) {
       contents.push(h('div', {
         key:'close', 
+        title: '⌘⇧⏎',
         className:'Clickable addCommentButton addCommentCloseButton', 
         onClick:this.props.onClose}, 
         'Close Issue'
@@ -1484,6 +1485,7 @@ var AddCommentFooter = React.createClass({
     if (canSave) {
       contents.push(h('div', {
         key:'save', 
+        title: '⌘S',
         className:'Clickable addCommentButton addCommentSaveButton', 
         onClick:this.props.onSave}, 
         (this.props.editingExisting ? 'Update' : (isNewIssue ? 'Save' : 'Comment'))
@@ -2597,6 +2599,7 @@ var Comment = React.createClass({
         'Cmd-I': cm.extraCommands.italic,
         'Cmd-S': () => { this.save(); },
         'Cmd-Enter': () => { this.save(); },
+        'Shift-Cmd-Enter': () => { this.saveAndClose(); },
         'Shift-Tab': shiftTab,
         'Tab': 'indentMore',
         // unbind cmd-u/shift-cmd-u to let app handle them
