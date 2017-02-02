@@ -743,6 +743,16 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
     [[IssueDocumentController sharedDocumentController] openIssuesWithIdentifiers:identifiers];
 }
 
+- (IBAction)openDocumentInBrowser:(id)sender {
+    NSArray *selected = [self selectedItems];
+    NSArray *URLs = [selected arrayByMappingObjects:^id(id obj) {
+        return [[obj fullIdentifier] issueGitHubURL];
+    }];
+    NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
+    NSURL *browserURL = [workspace URLForApplicationToOpenURL:[NSURL URLWithString:@"https://github.com"]];
+    [[NSWorkspace sharedWorkspace] openURLs:URLs withApplicationAtURL:browserURL options:NSWorkspaceLaunchDefault configuration:@{} error:NULL];
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)item {
     NSInteger selectedCount = 0;
     if (item.menu == _table.menu) {
@@ -753,7 +763,8 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
     
     if (item.action == @selector(copyIssueNumber:)
         || item.action == @selector(copyIssueNumberWithTitle:)
-        || item.action == @selector(openDocument:)) {
+        || item.action == @selector(openDocument:)
+        || item.action == @selector(openDocumentInBrowser:)) {
         return selectedCount > 0;
     }
     if (item.action == @selector(copyIssueGitHubURL:)) {

@@ -42,6 +42,17 @@
     return [super respondsToSelector:aSelector];
 }
 
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    if (menuItem.action == @selector(openDocument:)) {
+        return NO;
+    }
+    return [super validateMenuItem:menuItem];
+}
+
+- (IBAction)openDocument:(id)sender {
+    // nop
+}
+
 - (IBAction)newDocument:(id)sender {
     if ([[DataStore activeStore] isValid]) {
         IssueDocument *doc = [self openUntitledDocumentAndDisplay:YES error:NULL];

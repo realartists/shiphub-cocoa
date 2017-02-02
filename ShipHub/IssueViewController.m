@@ -1327,6 +1327,11 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
     return _issue.fullIdentifier != nil;
 }
 
+- (IBAction)openDocumentInBrowser:(id)sender {
+    NSURL *URL = [[_issue fullIdentifier] issueGitHubURL];
+    [[NSWorkspace sharedWorkspace] openURL:URL];
+}
+
 - (BOOL)needsSave {
     JSValue *val = [_web.mainFrame.javaScriptContext evaluateScript:@"window.needsSave()"];
     return [val toBool];

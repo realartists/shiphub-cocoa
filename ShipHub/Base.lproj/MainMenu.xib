@@ -113,6 +113,11 @@
                                     <action selector="openDocument:" target="-1" id="vu3-Mh-30w"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Open with Browser" keyEquivalent="O" id="ZP0-qs-N3u">
+                                <connections>
+                                    <action selector="openDocumentInBrowser:" target="-1" id="ork-co-CMh"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Open Recent" id="T4O-t9-dIC">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <menu key="submenu" title="Open Recent" id="gvQ-aG-HWQ">
