@@ -91,6 +91,9 @@ NSString *const BillingSubscriptionRefreshHashDidChangeNotification = @"BillingS
 }
 
 - (void)notifyStateChange {
+    if (!_store) {
+        return;
+    }
     NSDictionary *userInfo = @{ DataStoreMetadataKey : _store.metadataStore };
     [_store postNotification:DataStoreDidUpdateMetadataNotification userInfo:userInfo];
     [_store postNotification:DataStoreBillingStateDidChangeNotification userInfo:nil];
@@ -115,7 +118,7 @@ NSString *const BillingSubscriptionRefreshHashDidChangeNotification = @"BillingS
         if (expires <= 0) {
             [self billingExpired:nil];
         } else {
-            _expirationTimer = [NSTimer scheduledTimerWithTimeInterval:expires target:self selector:@selector(billingExpired:) userInfo:nil repeats:NO];
+            _expirationTimer = [NSTimer scheduledTimerWithTimeInterval:expires weakTarget:self selector:@selector(billingExpired:) userInfo:nil repeats:NO];
         }
     }
 }
