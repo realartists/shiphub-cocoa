@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16C68" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
@@ -286,10 +286,10 @@
                                             <constraint firstAttribute="width" constant="12" id="29I-ao-FDz"/>
                                             <constraint firstAttribute="height" constant="12" id="eXs-hx-Hoe"/>
                                         </constraints>
-                                        <popUpButtonCell key="cell" type="square" title="Item" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" imageScaling="proportionallyDown" inset="2" pullsDown="YES" arrowPosition="noArrow" autoenablesItems="NO" altersStateOfSelectedItem="NO" selectedItem="0AE-Dc-g65" id="AFs-6i-m0Q">
+                                        <popUpButtonCell key="cell" type="square" title="Item" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" imageScaling="proportionallyDown" inset="2" pullsDown="YES" arrowPosition="noArrow" altersStateOfSelectedItem="NO" selectedItem="0AE-Dc-g65" id="AFs-6i-m0Q">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
-                                            <menu key="menu" autoenablesItems="NO" id="f8l-Dg-vDW">
+                                            <menu key="menu" id="f8l-Dg-vDW">
                                                 <items>
                                                     <menuItem title="Item" hidden="YES" id="fzl-RM-wJx">
                                                         <modifierMask key="keyEquivalentModifierMask"/>

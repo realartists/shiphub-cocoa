@@ -1779,11 +1779,11 @@ static NSString *const TBSearchItemId = @"TBSearch";
 
 - (BOOL)canAddNewProject {
     OverviewNode *node = [_outlineView selectedItem];
-    while (node && [node.representedObject isKindOfClass:[Project class]]) {
+    while (node && !([node.representedObject isKindOfClass:[Repo class]] || [node.representedObject isKindOfClass:[Org class]])) {
         node = node.parent;
     }
     
-    return [node isKindOfClass:[Org class]] || [node isKindOfClass:[Repo class]];
+    return node != nil;
 }
 
 - (BOOL)canDeleteProject {
