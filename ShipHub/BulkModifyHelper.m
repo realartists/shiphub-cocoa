@@ -107,7 +107,8 @@
     }
     
     NSView *bulkView = bulkController.view;
-    NSWindow *sheetWindow = [[NSWindow alloc] initWithContentRect:bulkView.bounds styleMask:NSTitledWindowMask backing:NSBackingStoreBuffered defer:YES];
+    NSWindow *sheetWindow = [[NSWindow alloc] initWithContentRect:bulkView.bounds styleMask:0 backing:NSBackingStoreBuffered defer:YES];
+    sheetWindow.hasShadow = YES;
     sheetWindow.contentViewController = bulkController;
     
     _bulkParentWindow = window;
