@@ -56,7 +56,7 @@
         NSArray *loadedLabels = [[li.labels allObjects] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"name != nil && color != nil"]];
         _labels = [[loadedLabels arrayByMappingObjects:^id(id obj) {
             return [[Label alloc] initWithLocalItem:obj];
-        }] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES]]];
+        }] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedStandardCompare:)]]];
         _milestone = [ms milestoneWithIdentifier:li.milestone.identifier];
         _repository = [ms repoWithIdentifier:li.repository.identifier];
         _reactionSummary = (id)(li.shipReactionSummary);
@@ -124,6 +124,35 @@
     i->_repository = self.repository;
     
     return i;
+}
+
+- (NSComparisonResult)labelsCompare:(Issue *)other {
+    NSArray *l1 = _labels;
+    NSArray *l2 = other.labels;
+    
+    NSUInteger c1 = l1.count;
+    NSUInteger c2 = l2.count;
+    
+    for (NSUInteger i = 0; i < c1 && i < c2; i++) {
+        Label *ll1 = l1[i];
+        Label *ll2 = l2[i];
+        
+        NSString *n1 = ll1.name;
+        NSString *n2 = ll2.name;
+        
+        NSComparisonResult cr = [n1 localizedStandardCompare:n2];
+        if (cr != NSOrderedSame) {
+            return cr;
+        }
+    }
+    
+    if (c1 < c2) {
+        return NSOrderedAscending;
+    } else if (c1 > c2) {
+        return NSOrderedDescending;
+    } else {
+        return NSOrderedSame;
+    }
 }
 
 @end

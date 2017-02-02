@@ -114,10 +114,12 @@
     
     m = [sortMenu addItemWithTitle:NSLocalizedString(@"Labels", nil) action:@selector(changeSort:) keyEquivalent:@""];
     m.representedObject =
-    @{ @"key": @"labels.@count",
+    @{ @"key": @"labels",
        @"dir": @"desc",
-       @"asc": NSLocalizedString(@"Fewer Labels", nil),
-       @"desc": NSLocalizedString(@"More Labels", nil) };
+       @"target": @"self",
+       @"compare": @"labelsCompare:",
+       @"asc": strAsc,
+       @"desc": strDesc };
     
     m = [sortMenu addItemWithTitle:NSLocalizedString(@"Unread", nil) action:@selector(changeSort:) keyEquivalent:@""];
     m.representedObject =
@@ -155,6 +157,10 @@
     NSString *savedKey = [[NSUserDefaults standardUserDefaults] stringForKey:@"Issue3PaneTableSortKey"];
     NSNumber *savedDir = [[NSUserDefaults standardUserDefaults] objectForKey:@"Issue3PaneTableSortDir"];
     
+    if ([savedKey isEqualToString:@"labels.@count"]) {
+        savedKey = @"labels";
+    }
+    
     NSSortDescriptor *sort = [NSSortDescriptor sortDescriptorWithKey:@"updatedAt" ascending:NO];
     if (savedKey && savedDir) {
         sort = [NSSortDescriptor sortDescriptorWithKey:savedKey ascending:[savedDir boolValue]];
@@ -171,7 +177,7 @@
         id r = item.representedObject;
         
         if ([r isKindOfClass:[NSDictionary class]]) {
-            if ([r[@"key"] isEqualToString:sortDesc.key]) {
+            if ([r[@"key"] isEqualToString:sortDesc.key] || [r[@"target"] isEqualToString:sortDesc.key]) {
                 info = r;
                 item.state = NSOnState;
                 selectedItem = item;
@@ -196,8 +202,9 @@
         [_header.sortButton sizeToFit];
         
         NSString *compare = info[@"compare"] ?: @"compare:";
+        NSString *key = info[@"target"] ?: sortDesc.key;
         
-        NSSortDescriptor *actual = [NSSortDescriptor sortDescriptorWithKey:[NSString stringWithFormat:@"%@", sortDesc.key] ascending:sortDesc.ascending selector:NSSelectorFromString(compare)];
+        NSSortDescriptor *actual = [NSSortDescriptor sortDescriptorWithKey:[NSString stringWithFormat:@"%@", key] ascending:sortDesc.ascending selector:NSSelectorFromString(compare)];
         NSSortDescriptor *secondary = [NSSortDescriptor sortDescriptorWithKey:@"updatedAt" ascending:NO];
         [self.table setSortDescriptors:@[actual, secondary]];
     }

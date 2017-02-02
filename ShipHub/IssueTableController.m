@@ -238,7 +238,7 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
                   @{ @"identifier" : @"labels",
                      @"title" : NSLocalizedString(@"Labels", nil),
                      @"cellClass" : @"LabelsCell",
-                     @"sortDescriptor" : [NSSortDescriptor sortDescriptorWithKey:@"labels.@count" ascending:YES],
+                     @"sortDescriptor" : [NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES selector:@selector(labelsCompare:)],
                      @"minWidth" : @100,
                      @"maxWidth" : @10000 },
                   

@@ -63,6 +63,8 @@
 
 - (Issue *)clone;
 
+- (NSComparisonResult)labelsCompare:(Issue *)other;
+
 @end
 
 extern NSString const* IssueOptionIncludeEventsAndComments;
