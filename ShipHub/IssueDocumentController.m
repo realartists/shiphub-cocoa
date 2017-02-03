@@ -63,8 +63,14 @@
 
 - (IBAction)newDocument:(id)sender {
     if ([[DataStore activeStore] isValid]) {
-        IssueDocument *doc = [self openUntitledDocumentAndDisplay:YES error:NULL];
-        [doc.issueViewController configureNewIssue];
+        OverviewController *activeOverview = [[AppDelegate sharedDelegate] activeOverviewController];
+        NSURL *templateURL = [activeOverview issueTemplateURLForSidebarSelection];
+        if (templateURL) {
+            [self newDocumentWithURL:templateURL];
+        } else {
+            IssueDocument *doc = [self openUntitledDocumentAndDisplay:YES error:NULL];
+            [doc.issueViewController configureNewIssue];
+        }
     }
 }
 

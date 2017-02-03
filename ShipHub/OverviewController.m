@@ -1432,6 +1432,33 @@ static NSString *const TBSearchItemId = @"TBSearch";
 
 #pragma mark -
 
+- (NSURL *)issueTemplateURLForSidebarSelection {
+    OverviewNode *node = [_outlineView selectedItem];
+    
+    if ([[node representedObject] isKindOfClass:[Repo class]]) {
+        Repo *r = node.representedObject;
+        NSURLComponents *comps = [NSURLComponents new];
+        comps.scheme = @"ship+github";
+        comps.host = @"newissue";
+        comps.path = [@"/" stringByAppendingString:r.fullName];
+        return comps.URL;
+    } else if ([node.cellIdentifier isEqualToString:@"MilestoneCell"]) {
+        NSArray<Milestone *> *ms = node.representedObject;
+        if ([ms count] == 1) {
+            Milestone *m = ms[0];
+            NSString *r = [m repoFullName];
+            NSURLComponents *comps = [NSURLComponents new];
+            comps.scheme = @"ship+github";
+            comps.host = @"newissue";
+            comps.path = [@"/" stringByAppendingString:r];
+            comps.queryItems = @[[NSURLQueryItem queryItemWithName:@"milestone" value:m.title]];
+            return comps.URL;
+        }
+    }
+
+    return nil;
+}
+
 - (IBAction)newDocument:(id)sender {
     [[IssueDocumentController sharedDocumentController] newDocument:sender];
 }

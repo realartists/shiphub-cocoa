@@ -21,6 +21,7 @@
 + (OverviewController *)defaultOverviewController; // Returns either the first open overview controller or opens a new one if there are none.
 
 - (NSArray<Issue *> *)selectedIssues;
+- (NSURL *)issueTemplateURLForSidebarSelection;
 
 - (IBAction)unhideItem:(id)sender;
 
