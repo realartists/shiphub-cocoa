@@ -372,6 +372,10 @@ static BOOL IsImportantUserChange(LocalUser *lu) {
     return _reposByOwnerID[owner.identifier];
 }
 
+- (Repo *)repoWithFullName:(NSString *)fullName {
+    return [[_repos filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"fullName = %@", fullName] limit:1] firstObject];
+}
+
 - (NSArray<Label *> *)labelsForRepo:(Repo *)repo {
     return _labelsByRepoID[repo.identifier];
 }

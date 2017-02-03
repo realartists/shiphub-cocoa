@@ -197,6 +197,8 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
             NSString *num = [URL fragment];
             NSString *identifier = [[path substringFromIndex:1] stringByAppendingFormat:@"#%@", num];
             [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:identifier waitForIt:atAppLaunch];
+        } else if ([[URL host] isEqualToString:@"newissue"]) {
+            [[IssueDocumentController sharedDocumentController] newDocumentWithURL:URL];
         } else if ([[URL host] isEqualToString:@"signup"]) {
             [_authController continueWithLaunchURL:URL];
         } else if ([[URL host] isEqualToString:@"open"]) {

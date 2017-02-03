@@ -42,6 +42,7 @@
 - (NSArray<Account *> *)repoOwners;
 
 - (NSArray<Repo *> *)reposForOwner:(Account *)owner;
+- (Repo *)repoWithFullName:(NSString *)fullName;
 
 - (NSArray<Project *> *)projectsForOrg:(Org *)org;
 

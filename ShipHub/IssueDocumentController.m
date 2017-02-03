@@ -10,6 +10,7 @@
 
 #import "DataStore.h"
 #import "Error.h"
+#import "Extras.h"
 #import "Issue.h"
 #import "IssueWaiter.h"
 #import "IssueDocument.h"
@@ -17,6 +18,11 @@
 #import "IssueViewController.h"
 #import "AppDelegate.h"
 #import "OverviewController.h"
+#import "MetadataStore.h"
+#import "User.h"
+#import "Milestone.h"
+#import "Repo.h"
+#import "Label.h"
 
 @interface IssueDocumentController () {
     NSMutableArray *_toRestore;
@@ -45,6 +51,8 @@
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     if (menuItem.action == @selector(openDocument:)) {
         return NO;
+    } else if (menuItem.action == @selector(cloneIssue:)) {
+        return [self keyOrSelectedProblem] != nil;
     }
     return [super validateMenuItem:menuItem];
 }
@@ -281,12 +289,79 @@
     }
 }
 
+- (void)newDocumentWithIssueTemplate:(Issue *)template {
+    IssueDocument *newDoc = [self openUntitledDocumentAndDisplay:YES error:NULL];
+    newDoc.issueViewController.issue = template;
+}
+
 - (IBAction)cloneIssue:(id)sender {
     Issue *src = [self keyOrSelectedProblem];
     
     Issue *clone = [src clone];
-    IssueDocument *newDoc = [self openUntitledDocumentAndDisplay:YES error:NULL];
-    newDoc.issueViewController.issue = clone;
+    if (clone) {
+        [self newDocumentWithIssueTemplate:clone];
+    }
+}
+
+- (void)newDocumentWithURL:(NSURL *)URL {
+    // ship+github://newissue/realartists/shiphub-cocoa?title=...&assignees
+    
+    NSURLComponents *comps = [[NSURLComponents alloc] initWithURL:URL resolvingAgainstBaseURL:YES];
+    NSDictionary *args = [comps queryItemsDictionary];
+    
+    MetadataStore *m = [[DataStore activeStore] metadataStore];
+    
+    Repo *repo = nil;
+    NSString *title = nil;
+    NSArray<User *> *assignees = @[];
+    NSArray<Label *> *labels = @[];
+    Milestone *milestone = nil;
+    NSString *body = nil;
+    
+    NSString *path = [comps.path substringFromIndex:1];
+    repo = [m repoWithFullName:path];
+    
+    title = args[@"title"];
+    
+    if (args[@"body"]) {
+        body = args[@"body"];
+    } else if (repo) {
+        body = repo.issueTemplate;
+    }
+    
+    if (repo && args[@"milestone"]) {
+        milestone = [m milestoneWithTitle:args[@"milestone"] inRepo:repo];
+    }
+    
+    if (repo && args[@"labels"]) {
+        NSMutableArray *ll = [NSMutableArray new];
+        NSArray *ls = [args[@"labels"] componentsSeparatedByString:@","];
+        NSDictionary *vals = [NSDictionary lookupWithObjects:[m labelsForRepo:repo] keyPath:@"name"];
+        for (NSString *ln in ls) {
+            Label *l = vals[ln];
+            if (l) [ll addObject:l];
+        }
+        labels = ll;
+    }
+    
+    if (repo && (args[@"assignees"] || args[@"assignee"])) {
+        NSMutableArray *aa = [NSMutableArray new];
+        NSArray *as = nil;
+        if (args[@"assignees"]) {
+            as = [args[@"assignees"] componentsSeparatedByString:@","];
+        } else {
+            as = @[args[@"assignee"]];
+        }
+        NSDictionary *vals = [NSDictionary lookupWithObjects:[m assigneesForRepo:repo] keyPath:@"login"];
+        for (NSString *al in as) {
+            User *a = vals[al];
+            if (a) [aa addObject:a];
+        }
+        assignees = aa;
+    }
+    
+    Issue *i = [[Issue alloc] initWithTitle:title repo:repo milestone:milestone assignees:assignees labels:labels body:body];
+    [self newDocumentWithIssueTemplate:i];
 }
 
 @end

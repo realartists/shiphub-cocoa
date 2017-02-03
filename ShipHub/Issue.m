@@ -116,6 +116,7 @@
 
 - (Issue *)clone {
     Issue *i = [Issue new];
+    i->_originator = [User me];
     i->_body = [self.body copy];
     i->_title = [self.title copy];
     i->_assignees = [self.assignees copy];
@@ -124,6 +125,21 @@
     i->_repository = self.repository;
     
     return i;
+}
+
+- (instancetype)initWithTitle:(NSString *)title repo:(Repo *)repo milestone:(Milestone *)mile assignees:(NSArray<User *> *)assignees labels:(NSArray<Label *> *)labels body:(NSString *)body
+{
+    if (self = [super init]) {
+        _originator = [User me];
+        _labels = [labels copy];
+        _body = [body copy];
+        _title = [title copy];
+        _assignees = [assignees copy];
+        _labels = [labels copy];
+        _milestone = mile;
+        _repository = repo;
+    }
+    return self;
 }
 
 - (NSComparisonResult)labelsCompare:(Issue *)other {

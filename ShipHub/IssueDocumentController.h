@@ -17,4 +17,6 @@
 - (void)openIssueWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier completion:(void (^)(IssueDocument *doc))completion;
 - (void)openIssuesWithIdentifiers:(NSArray *)issueIdentifiers;
 
+- (void)newDocumentWithURL:(NSURL *)URL;
+
 @end

@@ -61,6 +61,8 @@
 
 - (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms options:(NSDictionary *)options;
 
+- (instancetype)initWithTitle:(NSString *)title repo:(Repo *)repo milestone:(Milestone *)mile assignees:(NSArray<User *> *)assignees labels:(NSArray<Label *> *)labels body:(NSString *)body;
+
 - (Issue *)clone;
 
 - (NSComparisonResult)labelsCompare:(Issue *)other;
