@@ -353,6 +353,7 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
         _nextAuth = nil;
     } else {
         _auth = nil;
+        [[DataStore activeStore] deactivate];
         [self showAuthIfNeededAnimated:YES];
     }
     [self rebuildAccountMenu];
