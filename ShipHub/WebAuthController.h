@@ -15,6 +15,7 @@
 - (id)initWithAuthController:(AuthController *)authController;
 
 @property (copy) NSString *shipHost;
+@property BOOL publicReposOnly;
 
 - (void)show;
 

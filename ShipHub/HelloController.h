@@ -14,6 +14,7 @@
 
 @property (copy) NSString *ghHost;
 @property (copy) NSString *shipHost;
+@property BOOL publicReposOnly;
 
 @property (copy) NSArray<NSHTTPCookie *> *sessionCookies;
 
@@ -26,5 +27,8 @@
 // Subclassers to implement:
 - (void)resetUI;
 - (void)presentError:(NSError *)error;
+
++ (NSString *)privateRepoScopes;
++ (NSString *)publicRepoScopes;
 
 @end

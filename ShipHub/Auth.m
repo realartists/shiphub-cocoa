@@ -254,6 +254,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
         self.shipIdentifier = dict[@"identifier"];
         self.ghHost = dict[@"ghHost"];
         self.shipHost = dict[@"shipHost"];
+        self.publicReposOnly = [dict[@"publicReposOnly"] boolValue];
         self.extra = dict;
     }
     return self;
@@ -267,6 +268,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     d[@"shipIdentifier"] = self.shipIdentifier;
     d[@"ghHost"] = self.ghHost;
     d[@"shipHost"] = self.shipHost;
+    d[@"publicReposOnly"] = @(self.publicReposOnly);
     return d;
 }
 

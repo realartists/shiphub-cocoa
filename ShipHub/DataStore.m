@@ -298,8 +298,13 @@ static DataStore *sActiveStore = nil;
     
     NSString *dbname = @"ship.db";
     
+    NSString *identifier = [_auth.account.shipIdentifier description];
+    if (_auth.account.publicReposOnly) {
+        identifier = [identifier stringByAppendingString:@"-public"];
+    }
+    
     NSString *basePath = [[[Defaults defaults] stringForKey:DefaultsLocalStoragePathKey] stringByExpandingTildeInPath];
-    NSString *path = [basePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@/%@", _auth.account.shipHost, _auth.account.shipIdentifier, dbname]];
+    NSString *path = [basePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%@/%@/%@", _auth.account.shipHost, identifier, dbname]];
     
     [[NSFileManager defaultManager] createDirectoryAtPath:[path stringByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:NULL];
     return path;

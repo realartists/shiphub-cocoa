@@ -8,6 +8,7 @@
 
 #import "Billing.h"
 
+#import "Auth.h"
 #import "DataStoreInternal.h"
 #import "LocalBilling.h"
 #import "Extras.h"
@@ -18,7 +19,9 @@
 
 NSString *const BillingSubscriptionRefreshHashDidChangeNotification = @"BillingSubscriptionRefreshHashDidChange";
 
-@interface Billing ()
+@interface Billing () {
+    BillingState _state;
+}
 
 @property NSTimer *expirationTimer;
 @property int notifyToken;
@@ -161,7 +164,21 @@ NSString *const BillingSubscriptionRefreshHashDidChangeNotification = @"BillingS
 }
 
 - (BOOL)isLimited {
-    return _state == BillingStateFree;
+    Auth *auth = _store.auth;
+    if (auth.account.publicReposOnly) {
+        return YES;
+    } else {
+        return _state == BillingStateFree;
+    }
+}
+
+- (BillingState)state {
+    Auth *auth = _store.auth;
+    if (auth.account.publicReposOnly) {
+        return BillingStatePaid;
+    } else {
+        return _state;
+    }
 }
 
 @end

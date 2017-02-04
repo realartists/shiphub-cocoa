@@ -12,5 +12,6 @@
 
 @property (copy) NSString *shipHost;
 @property (copy) NSString *ghHost;
+@property BOOL publicReposOnly;
 
 @end

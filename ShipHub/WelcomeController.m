@@ -60,11 +60,13 @@
     if ([_ghHost isEqualToString:@"api.github.com"]) {
         WebAuthController *web = [[WebAuthController alloc] initWithAuthController:[AuthController authControllerForViewController:self]];
         web.shipHost = _shipHost;
+        web.publicReposOnly = _publicReposOnly;
         [web show];
     } else {
         BasicAuthController *basic = [BasicAuthController new];
         basic.shipHost = _shipHost;
         basic.ghHost = _ghHost;
+        basic.publicReposOnly = YES;
         [self.navigationController pushViewController:basic animated:YES];
     }
 }
@@ -78,6 +80,7 @@
     chooser.delegate = self;
     chooser.ghHostValue = _ghHost;
     chooser.shipHostValue = _shipHost;
+    chooser.publicReposOnly = _publicReposOnly;
     
     _popover = [[NSPopover alloc] init];
     _popover.delegate = self;
@@ -88,9 +91,11 @@
     [_popover showRelativeToRect:_serverButton.bounds ofView:_serverButton preferredEdge:NSMaxYEdge];
 }
 
-- (void)serverChooser:(ServerChooser *)chooser didChooseShipHost:(NSString *)shipHost ghHost:(NSString *)ghHost {
+- (void)serverChooser:(ServerChooser *)chooser didChooseShipHost:(NSString *)shipHost ghHost:(NSString *)ghHost publicReposOnly:(BOOL)publicReposOnly
+{
     _shipHost = shipHost;
     _ghHost = ghHost;
+    _publicReposOnly = publicReposOnly;
     
     [_popover performClose:nil];
     _popover = nil;

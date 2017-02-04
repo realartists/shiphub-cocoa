@@ -30,6 +30,8 @@
 @property (copy) NSString *ghHost;
 @property (copy) NSString *shipHost;
 
+@property BOOL publicReposOnly;
+
 @property (strong) NSDictionary *extra;
 
 - (AuthAccountPair *)pair;

@@ -229,7 +229,8 @@
     
     NSString *note = [NSString stringWithFormat:@"Ship (%@)", [[NSProcessInfo processInfo] hostName]];
     NSString *noteURL = @"https://www.realartists.com";
-    NSDictionary *bodyDict = @{ @"scopes": [@"user:email,repo,admin:repo_hook,read:org,admin:org_hook" componentsSeparatedByString:@","],
+    NSString *scopes = self.publicReposOnly ? [[self class] publicRepoScopes] : [[self class] privateRepoScopes];
+    NSDictionary *bodyDict = @{ @"scopes":  [scopes componentsSeparatedByString:@","],
                                 @"note": note,
                                 @"note_url" : noteURL };
     

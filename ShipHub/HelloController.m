@@ -140,11 +140,10 @@
     
     [self resetUI];
     
-    // FIXME: Do something with billing
-    
     NSMutableDictionary *accountDict = [user mutableCopy];
     accountDict[@"ghHost"] = [self ghHost];
     accountDict[@"shipHost"] = [self shipHost];
+    accountDict[@"publicReposOnly"] = @([self publicReposOnly]);
     
     AuthAccount *account = [[AuthAccount alloc] initWithDictionary:accountDict];
     Auth *auth = [Auth authWithAccount:account shipToken:shipToken ghToken:ghToken sessionCookies:self.sessionCookies];
@@ -164,5 +163,15 @@
 - (void)presentError:(NSError *)error {
     [self doesNotRecognizeSelector:_cmd];
 }
+
++ (NSString *)privateRepoScopes {
+    return @"user:email,repo,admin:repo_hook,read:org,admin:org_hook";
+}
+
++ (NSString *)publicRepoScopes {
+    return @"user:email,public_repo,admin:repo_hook,read:org,admin:org_hook,notifications";
+    
+}
+
 
 @end

@@ -236,10 +236,11 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     if (menuItem.action == @selector(logout:)
         || menuItem.action == @selector(showOverviewController:)
         || menuItem.action == @selector(newOverviewController:)
-        || menuItem.action == @selector(searchAllProblems:)
-        || menuItem.action == @selector(showBilling:))
+        || menuItem.action == @selector(searchAllProblems:))
     {
         return _auth != nil && _auth.authState == AuthStateValid;
+    } else if (menuItem.action == @selector(showBilling:)) {
+        return _auth != nil && _auth.authState == AuthStateValid && _auth.account.publicReposOnly == NO;
     }
     return YES;
 }
@@ -260,7 +261,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 
 - (void)showAuthIfNeededAnimated:(BOOL)animated {
     if (_auth.authState != AuthStateValid) {
-        [_authController showWindow:self];
+        [_authController showWindow:self lastAuth:_auth];
     }
 }
 
@@ -310,7 +311,12 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
             title = [NSString stringWithFormat:@"%@ [%@]", login.login, login.shipHost];
         }
         if (isMe) {
-            title = [NSString stringWithFormat:NSLocalizedString(@"Logged in as %@", nil), title];
+            BOOL publicOnly = _auth.account.publicReposOnly;
+            if (publicOnly) {
+                title = [NSString stringWithFormat:NSLocalizedString(@"Logged in as %@ - Public Repos Only", nil), title];
+            } else {
+                title = [NSString stringWithFormat:NSLocalizedString(@"Logged in as %@", nil), title];
+            }
         }
         NSMenuItem *item = [_accountMenu insertItemWithTitle:title action:isMe?nil:@selector(changeAccount:) keyEquivalent:@"" atIndex:0];
         item.target = isMe?nil:self;

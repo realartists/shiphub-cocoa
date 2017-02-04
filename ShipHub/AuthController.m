@@ -24,6 +24,7 @@
 @property IBOutlet NSView *container;
 
 @property IBOutlet NavigationController *nav;
+@property Auth *lastAuth;
 
 @end
 
@@ -58,6 +59,17 @@
 }
 
 - (IBAction)showWindow:(id)sender {
+    _lastAuth = nil;
+    
+    [self window];
+    [self start];
+    
+    [super showWindow:sender];
+}
+
+- (IBAction)showWindow:(id)sender lastAuth:(Auth *)lastAuth {
+    _lastAuth = lastAuth;
+    
     [self window];
     [self start];
     
@@ -66,6 +78,13 @@
 
 - (void)start {
     WelcomeController *welcome = [WelcomeController new];
+    
+    if (_lastAuth.account) {
+        welcome.shipHost = _lastAuth.account.shipHost;
+        welcome.ghHost = _lastAuth.account.ghHost;
+        welcome.publicReposOnly = _lastAuth.account.publicReposOnly;
+    }
+    
     _nav = [[NavigationController alloc] initWithRootViewController:welcome];
     
     [_container setContentView:_nav.view];

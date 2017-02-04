@@ -102,7 +102,11 @@
 }
 
 - (NSString *)scopes {
-    return @"user:email,repo,admin:repo_hook,read:org,admin:org_hook";
+    if (_publicReposOnly) {
+        return [HelloController publicRepoScopes];
+    } else {
+        return [HelloController privateRepoScopes];
+    }
 }
 
 - (NSURL *)startURL {
@@ -123,6 +127,7 @@
     
     OAuthController *oauth = [[OAuthController alloc] initWithAuthCode:authCode];
     oauth.shipHost = self.shipHost;
+    oauth.publicReposOnly = self.publicReposOnly;
     oauth.sessionCookies = self.sessionCookies;
     [_authController continueWithViewController:oauth];
     [self close];

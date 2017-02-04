@@ -22,6 +22,8 @@
 
 - (void)continueWithLaunchURL:(NSURL *)URL;
 
+- (IBAction)showWindow:(id)sender lastAuth:(Auth *)lastAuth;
+
 @end
 
 @protocol AuthControllerDelegate <NSObject>

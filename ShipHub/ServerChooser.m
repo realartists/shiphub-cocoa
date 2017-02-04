@@ -16,6 +16,8 @@
 @property IBOutlet NSTextField *ghHost;
 @property IBOutlet NSTextField *shipHost;
 
+@property IBOutlet NSButton *privateReposCheck;
+
 @property IBOutlet NSButton *okButton;
 
 @end
@@ -42,7 +44,9 @@
         shipHost = ghHost;
     }
     
-    [_delegate serverChooser:self didChooseShipHost:shipHost ghHost:ghHost];
+    BOOL publicOnly = _privateReposCheck.state == NSOffState;
+    
+    [_delegate serverChooser:self didChooseShipHost:shipHost ghHost:ghHost publicReposOnly:publicOnly];
 }
 
 - (IBAction)cancel:(id)sender {
@@ -50,10 +54,11 @@
 }
 
 - (IBAction)reset:(id)sender {
+    _privateReposCheck.state = NSOnState;
     _shipHost.stringValue = DefaultShipHost();
     _ghHost.stringValue = DefaultGHHost();
     
-    [_delegate serverChooser:self didChooseShipHost:DefaultShipHost() ghHost:DefaultGHHost()];
+    [_delegate serverChooser:self didChooseShipHost:DefaultShipHost() ghHost:DefaultGHHost() publicReposOnly:NO];
 }
 
 - (NSString *)shipHostValue {
@@ -74,6 +79,20 @@
     [self view];
     
     _ghHost.stringValue = ghHostValue ?: @"";
+}
+
+- (void)setPublicReposOnly:(BOOL)publicReposOnly {
+    [self view];
+    
+    _privateReposCheck.state = publicReposOnly ? NSOffState : NSOnState;
+}
+
+- (BOOL)publicReposOnly {
+    return _privateReposCheck.state == NSOffState;
+}
+
+- (IBAction)reposChanged:(id)sender {
+    
 }
 
 @end

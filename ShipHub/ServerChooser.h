@@ -17,11 +17,13 @@
 @property (nonatomic, copy) NSString *ghHostValue;
 @property (nonatomic, copy) NSString *shipHostValue;
 
+@property (nonatomic, assign) BOOL publicReposOnly;
+
 @end
 
 @protocol ServerChooserDelegate <NSObject>
 
-- (void)serverChooser:(ServerChooser *)chooser didChooseShipHost:(NSString *)shipHost ghHost:(NSString *)ghHost;
+- (void)serverChooser:(ServerChooser *)chooser didChooseShipHost:(NSString *)shipHost ghHost:(NSString *)ghHost publicReposOnly:(BOOL)publicReposOnly;
 - (void)serverChooserDidCancel:(ServerChooser *)chooser;
 
 @end
