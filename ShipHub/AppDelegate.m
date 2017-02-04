@@ -88,7 +88,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(authChanged:) name:AuthStateChangedNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(databaseIncompatible:) name:DataStoreCannotOpenDatabaseNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(protocolIncompatible:) name:DataStoreNeedsMandatorySoftwareUpdateNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverToOld:) name:DataStoreNeedsUpdatedServerNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(serverTooOld:) name:DataStoreNeedsUpdatedServerNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(rateLimitChanged:) name:DataStoreRateLimitedDidChangeNotification object:nil];
     
     _notificationsRegistered = YES;
@@ -509,7 +509,7 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     [updater checkForUpdates:self];
 }
 
-- (void)serverToOld:(NSNotification *)note {
+- (void)serverTooOld:(NSNotification *)note {
     NSAlert *alert = [[NSAlert alloc] init];
     alert.messageText = NSLocalizedString(@"Server out of date", nil);
     alert.informativeText = NSLocalizedString(@"This version of Ship is too new to access the server. Please update the server to continue using this account.", nil);
