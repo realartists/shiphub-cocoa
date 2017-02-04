@@ -133,7 +133,7 @@
         _originator = [User me];
         _labels = [labels copy];
         _body = [body copy];
-        _title = [title copy];
+        _title = [title copy] ?: @"";
         _assignees = [assignees copy];
         _labels = [labels copy];
         _milestone = mile;
