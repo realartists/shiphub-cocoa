@@ -79,10 +79,6 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
         }
     }
 
-    if (_auth) {
-        [[Analytics sharedInstance] setShipHost:_auth.account.shipHost];
-    }
-    
     _authConfigured = YES;
 }
 

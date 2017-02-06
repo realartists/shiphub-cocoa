@@ -4,6 +4,7 @@
 
 #import "AppDelegate.h"
 #import "Auth.h"
+#import "DataStore.h"
 #import "Logging.h"
 
 static const double kMininumFlushDelay = 60.0;
@@ -33,6 +34,23 @@ static NSString *OperatingSystemMajorMinor() {
     return [NSString stringWithFormat:@"%ld.%ld", version.majorVersion, version.minorVersion];
 }
 
+static NSString *AnalyticsHost() {
+    NSString *shipHost = [DataStore activeStore].auth.account.shipHost;
+
+    if ([shipHost isEqualToString:@"api.github.com"]) {
+        // This happens when using GHSyncConnection.
+        return nil;
+    } else if (shipHost) {
+        // User is authenticated.
+        return shipHost;
+    } else {
+        // Not yet authenticated.  Note that if you want to send pre-authenticated events to a server
+        // other than live, you should start Ship with the argument `-ShipHost yourhost` or run
+        // `defaults write -app Ship ShipHost yourhost`.
+        return DefaultShipHost();
+    }
+}
+
 @implementation Analytics {
     NSMutableArray *_queueItems;
     CFTimeInterval _skipSendUntilAfterTime;
@@ -59,7 +77,6 @@ static NSString *OperatingSystemMajorMinor() {
             _distinctID = [[NSUUID UUID] UUIDString];
             [[NSUserDefaults standardUserDefaults] setObject:_distinctID forKey:DefaultsAnalyticsIDKey];
         }
-        _shipHost = DefaultShipHost();
 
         NSString *path = AnalyticsEventsPath();
         NSArray *archivedEvents = [NSArray arrayWithContentsOfFile:path];
@@ -102,7 +119,8 @@ static NSString *OperatingSystemMajorMinor() {
 
     NSArray *batch = [_queueItems subarrayWithRange:NSMakeRange(0, MIN(50, _queueItems.count))];
 
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/analytics/track", self.shipHost]];
+    NSString *host = AnalyticsHost();
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/analytics/track", host]];
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url
                                                        cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData
                                                    timeoutInterval:30.0];
@@ -116,19 +134,22 @@ static NSString *OperatingSystemMajorMinor() {
     [req setHTTPBody:jsonData];
     [req setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
 
-    DebugLog(@"Flushing %ld events...", _queueItems.count);
+    DebugLog(@"Flushing %ld events to '%@' ...", _queueItems.count, host);
     [[[NSURLSession sharedSession] dataTaskWithRequest:req
                                      completionHandler:
       ^(NSData *data, NSURLResponse *response, NSError *error) {
           dispatch_async(dispatch_get_main_queue(), ^{
               NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-              if (error) {
-                  ErrLog(@"Flush failed with error: %@", error);
-              } else if (httpResponse.statusCode >= 500 && httpResponse.statusCode <= 599) {
-                  ErrLog(@"Flush failed with status (%ld)", httpResponse.statusCode);
-              } else {
-                  DebugLog(@"Flushed %ld events.", _queueItems.count);
+              NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+              BOOL succeeded = [dataString isEqualToString:@"1"];
+
+              if (succeeded) {
+                  DebugLog(@"Flushed %ld events to '%@'.", _queueItems.count, host);
                   [_queueItems removeObjectsInArray:batch];
+              } else if (error) {
+                  ErrLog(@"Flush failed to '%@' with error: %@", host, error);
+              } else {
+                  ErrLog(@"Flush failed to '%@' with status (%ld): %@", host, httpResponse.statusCode, dataString);
               }
 
               NSInteger retryAfterSeconds = [httpResponse.allHeaderFields[@"Retry-After"] integerValue];
@@ -159,8 +180,8 @@ static NSString *OperatingSystemMajorMinor() {
 
 - (void)track:(NSString *)event properties:(NSDictionary *)properties {
     NSAssert([NSThread isMainThread], @"Must run on main thread.");
-    if ([self.shipHost isEqualToString:@"api.github.com"]) {
-        // User is running against GHSyncConnection; no analytics for them.
+
+    if (AnalyticsHost() == nil) {
         return;
     }
 
