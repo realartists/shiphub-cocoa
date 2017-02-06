@@ -117,9 +117,15 @@ static NSString *AnalyticsHost() {
     NSAssert(_queueItems.count > 0, @"Should not be asked to flush empty queue.");
     _flushScheduled = NO;
 
+    NSString *host = AnalyticsHost();
+    if (host == nil) {
+        // GHSyncConnection must have been enabled, but apparently the queue is non-empty
+        // because we're here.  We don't do Analytics in GHSyncConnection mode, so bail.
+        return;
+    }
+
     NSArray *batch = [_queueItems subarrayWithRange:NSMakeRange(0, MIN(50, _queueItems.count))];
 
-    NSString *host = AnalyticsHost();
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/analytics/track", host]];
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url
                                                        cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData
