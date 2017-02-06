@@ -11,8 +11,8 @@
 #import "LocalComment.h"
 #import "MetadataStoreInternal.h"
 
-#import "LocalUser.h"
-#import "User.h"
+#import "LocalAccount.h"
+#import "Account.h"
 #import "Reaction.h"
 #import "Extras.h"
 
@@ -25,7 +25,7 @@
         _createdAt = lc.createdAt;
         _identifier = lc.identifier;
         _updatedAt = lc.updatedAt;
-        _user = [ms userWithLocalUser:lc.user];
+        _user = [ms accountWithLocalAccount:lc.user];
         _reactions = [[lc.reactions allObjects] arrayByMappingObjects:^id(id obj) {
             return [[Reaction alloc] initWithLocalReaction:obj metadataStore:ms];
         }];

@@ -9,17 +9,17 @@
 #import "Reaction.h"
 
 #import "MetadataStore.h"
-#import "User.h"
+#import "Account.h"
 
+#import "LocalAccount.h"
 #import "LocalReaction.h"
-#import "LocalUser.h"
 
 @implementation Reaction
 
 - (instancetype)initWithLocalReaction:(LocalReaction *)lr metadataStore:(MetadataStore *)ms
 {
     if (self = [super init]) {
-        _user = [ms userWithIdentifier:lr.user.identifier];
+        _user = [ms accountWithIdentifier:lr.user.identifier];
         _content = lr.content;
         _createdAt = lr.createdAt;
         _identifier = lr.identifier;

@@ -7,7 +7,6 @@
 //
 
 #import "LocalQuery.h"
-#import "LocalUser.h"
 
 @implementation LocalQuery
 

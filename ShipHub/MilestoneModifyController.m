@@ -15,7 +15,7 @@
 #import "Issue.h"
 #import "Milestone.h"
 #import "Repo.h"
-#import "User.h"
+#import "Account.h"
 
 @interface MilestoneCell : NSTableCellView
 

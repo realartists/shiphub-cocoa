@@ -14,14 +14,14 @@
 #import "MetadataStore.h"
 #import "Issue.h"
 #import "Repo.h"
-#import "User.h"
+#import "Account.h"
 
 @interface AssigneeModifyController () <NSTableViewDataSource, NSTableViewDelegate>
 
 @property IBOutlet NSTableView *table;
 @property IBOutlet NSButton *okButton;
 
-@property NSArray<User *> *assignees;
+@property NSArray<Account *> *assignees;
 
 @end
 
@@ -59,7 +59,7 @@
         NSSet *assignees = [NSSet setWithArray:[i.assignees arrayByMappingObjects:^id(id obj) {
             return [obj login];
         }]];
-        NSIndexSet *idxs = [_assignees indexesOfObjectsPassingTest:^BOOL(User * _Nonnull obj, NSUInteger k, BOOL * _Nonnull stop) {
+        NSIndexSet *idxs = [_assignees indexesOfObjectsPassingTest:^BOOL(Account * _Nonnull obj, NSUInteger k, BOOL * _Nonnull stop) {
             return [assignees containsObject:[obj login]];
         }];
         [selectMe addIndexes:idxs];

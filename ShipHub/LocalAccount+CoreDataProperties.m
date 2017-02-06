@@ -17,6 +17,23 @@
 @dynamic identifier;
 @dynamic login;
 @dynamic name;
+@dynamic type;
+
 @dynamic repos;
+
+@dynamic actedEvents;
+@dynamic assignable;
+@dynamic assignedEvents;
+@dynamic assignedIssues;
+@dynamic closedIssues;
+@dynamic comments;
+@dynamic orgs;
+@dynamic originatedIssues;
+@dynamic reactions;
+@dynamic createdProjects;
+
+@dynamic shipNeedsWebhookHelp;
+@dynamic users;
+@dynamic projects;
 
 @end

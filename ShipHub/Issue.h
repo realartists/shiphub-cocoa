@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class Repo;
-@class User;
+@class Account;
 @class Milestone;
 @class Label;
 @class IssueEvent;
@@ -33,10 +33,10 @@
 @property (readonly) NSDate *updatedAt;
 @property (readonly) NSDate *closedAt;
 @property (readonly) BOOL locked;
-@property (readonly) User *assignee;
-@property (readonly) NSArray<User*> *assignees;
-@property (readonly) User *originator;
-@property (readonly) User *closedBy;
+@property (readonly) Account *assignee;
+@property (readonly) NSArray<Account *> *assignees;
+@property (readonly) Account *originator;
+@property (readonly) Account *closedBy;
 @property (readonly) NSArray<Label*> *labels;
 @property (readonly) Milestone *milestone;
 @property (readonly) Repo *repository;
@@ -61,7 +61,7 @@
 
 - (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms options:(NSDictionary *)options;
 
-- (instancetype)initWithTitle:(NSString *)title repo:(Repo *)repo milestone:(Milestone *)mile assignees:(NSArray<User *> *)assignees labels:(NSArray<Label *> *)labels body:(NSString *)body;
+- (instancetype)initWithTitle:(NSString *)title repo:(Repo *)repo milestone:(Milestone *)mile assignees:(NSArray<Account *> *)assignees labels:(NSArray<Label *> *)labels body:(NSString *)body;
 
 - (Issue *)clone;
 

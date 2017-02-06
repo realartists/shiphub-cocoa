@@ -10,7 +10,7 @@
 
 #import "Extras.h"
 #import "FilterButton.h"
-#import "User.h"
+#import "Account.h"
 #import "MetadataStore.h"
 #import "DataStore.h"
 #import "NSPredicate+Extras.h"
@@ -145,7 +145,7 @@
         id identifier = [self valueInPredicate:predicate forKeyPath:[NSString stringWithFormat:@"%@.identifier", field]];
         if (identifier) {
             if (identifier == [NSNull null]) return identifier;
-            return [[[self metadata] userWithIdentifier:identifier] login];
+            return [[[self metadata] accountWithIdentifier:identifier] login];
         } else {
             id user = [self valueInPredicate:predicate forKeyPath:field];
             if (user == [NSNull null]) return user;
@@ -206,7 +206,7 @@
             return login;
         } else if (identifier) {
             if (identifier == [NSNull null]) return identifier;
-            return [[[self metadata] userWithIdentifier:identifier] login];
+            return [[[self metadata] accountWithIdentifier:identifier] login];
         }
     }
     

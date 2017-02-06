@@ -9,7 +9,6 @@
 #import "LocalReaction.h"
 #import "LocalComment.h"
 #import "LocalIssue.h"
-#import "LocalUser.h"
 
 @implementation LocalReaction
 

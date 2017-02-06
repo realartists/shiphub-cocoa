@@ -8,20 +8,19 @@
 
 #import <Foundation/Foundation.h>
 
+@class Account;
 @class Auth;
 @class Billing;
 @class MetadataStore;
 @class Issue;
 @class IssueComment;
 @class Repo;
-@class Org;
 @class TimeSeries;
 @class CustomQuery;
 @class Reaction;
 @class Milestone;
 @class Project;
 @class ServerConnection;
-
 
 @interface DataStore : NSObject
 
@@ -83,7 +82,7 @@
 - (void)addMilestone:(NSDictionary *)milestone inRepos:(NSArray<Repo *> *)repos completion:(void (^)(NSArray<Milestone *> *milestones, NSError *error))completion;
 
 - (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inRepo:(Repo *)repo completion:(void (^)(Project *proj, NSError *error))completion;
-- (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inOrg:(Org *)org completion:(void (^)(Project *proj, NSError *error))completion;
+- (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inOrg:(Account *)org completion:(void (^)(Project *proj, NSError *error))completion;
 
 - (void)deleteProject:(Project *)proj completion:(void (^)(NSError *error))completion;
 

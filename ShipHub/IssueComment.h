@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class User;
+@class Account;
 @class LocalComment;
 @class MetadataStore;
 @class Reaction;
@@ -19,7 +19,7 @@
 @property NSDate *createdAt;
 @property NSNumber *identifier;
 @property NSDate *updatedAt;
-@property User *user;
+@property Account *user;
 @property NSArray<Reaction *> *reactions;
 
 - (instancetype)initWithLocalComment:(LocalComment *)lc metadataStore:(MetadataStore *)ms;

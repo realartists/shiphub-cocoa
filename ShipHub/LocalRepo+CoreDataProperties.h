@@ -11,7 +11,7 @@
 
 #import "LocalRepo.h"
 
-@class LocalAccount, LocalUser, LocalIssue, LocalLabel, LocalMilestone, LocalHidden, LocalProject;
+@class LocalAccount, LocalIssue, LocalLabel, LocalMilestone, LocalHidden, LocalProject;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSNumber *disabled;
 @property (nullable, nonatomic, retain) NSString *repoDescription;
 @property (nullable, nonatomic, retain) NSNumber *shipNeedsWebhookHelp;
-@property (nullable, nonatomic, retain) NSSet<LocalUser *> *assignees;
+@property (nullable, nonatomic, retain) NSSet<LocalAccount *> *assignees;
 @property (nullable, nonatomic, retain) NSSet<LocalIssue *> *issues;
 @property (nullable, nonatomic, retain) NSSet<LocalLabel *> *labels;
 @property (nullable, nonatomic, retain) NSSet<LocalMilestone *> *milestones;
@@ -37,10 +37,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalRepo (CoreDataGeneratedAccessors)
 
-- (void)addAssigneesObject:(LocalUser *)value;
-- (void)removeAssigneesObject:(LocalUser *)value;
-- (void)addAssignees:(NSSet<LocalUser *> *)values;
-- (void)removeAssignees:(NSSet<LocalUser *> *)values;
+- (void)addAssigneesObject:(LocalAccount *)value;
+- (void)removeAssigneesObject:(LocalAccount *)value;
+- (void)addAssignees:(NSSet<LocalAccount *> *)values;
+- (void)removeAssignees:(NSSet<LocalAccount *> *)values;
 
 - (void)addIssuesObject:(LocalIssue *)value;
 - (void)removeIssuesObject:(LocalIssue *)value;

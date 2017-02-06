@@ -9,6 +9,7 @@
 #import "SyncConnection.h"
 
 #import "Auth.h"
+#import "Extras.h"
 
 @interface SyncConnection ()
 
@@ -42,6 +43,17 @@
     e.action = [dict[@"action"] isEqualToString:@"set"] ? SyncEntryActionSet : SyncEntryActionDelete;
     e.entityName = dict[@"entity"];
     e.data = dict[@"data"];
+    
+    // Handle legacy server protocol where user and org are distinct.
+    // See realartists/shiphub-cocoa#378 Support user => org transitions
+    if ([e.entityName isEqualToString:@"user"]) {
+        e.entityName = @"account";
+        e.data = [e.data dictionaryByAddingEntriesFromDictionary:@{@"type": @"User"}];
+    } else if ([e.entityName isEqualToString:@"org"]) {
+        e.entityName = @"account";
+        e.data = [e.data dictionaryByAddingEntriesFromDictionary:@{@"type": @"Account"}];
+    }
+    
     return e;
 }
 

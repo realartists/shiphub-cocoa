@@ -9,9 +9,9 @@
 #import "IssueEvent.h"
 
 #import "LocalEvent.h"
-#import "LocalUser.h"
+#import "LocalAccount.h"
 #import "MetadataStoreInternal.h"
-#import "User.h"
+#import "Account.h"
 #import "JSON.h"
 
 @implementation IssueEvent
@@ -24,8 +24,8 @@
         _createdAt = le.createdAt;
         _event = le.event;
         _identifier = le.identifier;
-        _actor = [ms userWithLocalUser:le.actor];
-        _assignee = [ms userWithLocalUser:le.assignee];
+        _actor = [ms accountWithLocalAccount:le.actor];
+        _assignee = [ms accountWithLocalAccount:le.assignee];
         if (le.rawJSON) {
             _extra = [NSJSONSerialization JSONObjectWithData:le.rawJSON options:0 error:NULL];
         }

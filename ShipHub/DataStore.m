@@ -23,8 +23,6 @@
 #import "Billing.h"
 
 #import "LocalAccount.h"
-#import "LocalUser.h"
-#import "LocalOrg.h"
 #import "LocalRepo.h"
 #import "LocalLabel.h"
 #import "LocalMilestone.h"
@@ -40,11 +38,11 @@
 #import "LocalHidden.h"
 #import "LocalProject.h"
 
+#import "Account.h"
 #import "Issue.h"
 #import "IssueComment.h"
 #import "IssueIdentifier.h"
 #import "Repo.h"
-#import "Org.h"
 #import "CustomQuery.h"
 #import "Reaction.h"
 #import "Milestone.h"
@@ -123,8 +121,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  6: realartists/shiphub-cocoa#217 User.queries needs to be modeled as to-many relationship
  7: realartists/shiphub-cocoa#288 Switch to labels with identifiers
  8: realartists/shiphub-cocoa#330 Creating a new label can cause a dupe
+ 9: realartists/shiphub-cocoa#378 Support user => org transitions (non-lightweight-migration 1to2)
  */
-static const NSInteger CurrentLocalModelVersion = 8;
+static const NSInteger CurrentLocalModelVersion = 9;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
@@ -327,10 +326,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSURL *storeURL = [NSURL fileURLWithPath:filename];
     NSError *err = nil;
     
-    NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @YES };
-    
     // Determine if a migration is needed
-    NSDictionary *sourceMetadata = [NSPersistentStoreCoordinator metadataForPersistentStoreOfType:NSSQLiteStoreType URL:storeURL options:options error:&err];
+    NSDictionary *sourceMetadata = [NSPersistentStoreCoordinator metadataForPersistentStoreOfType:NSSQLiteStoreType URL:storeURL options:nil error:&err];
     if (!_purgeVersion) {
         _purgeVersion = sourceMetadata[PurgeVersion];
     }
@@ -362,6 +359,13 @@ static NSString *const LastUpdated = @"LastUpdated";
         // realartists/shiphub-cocoa#330 Creating a new label can cause a dupe
         needsDuplicateLabelFix = YES;
     }
+    
+    BOOL needsHeavyweightMigration = NO;
+    if (previousStoreVersion < 9) {
+        needsHeavyweightMigration = YES;
+    }
+    
+    NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @(!needsHeavyweightMigration) };
     
     NSPersistentStore *store = _persistentStore = [_persistentCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:@"Default" URL:storeURL options:options error:&err];
     if (!store) {
@@ -2041,10 +2045,11 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
-- (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inOrg:(Org *)org completion:(void (^)(Project *proj, NSError *error))completion
+- (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inOrg:(Account *)org completion:(void (^)(Project *proj, NSError *error))completion
 {
     NSParameterAssert(projName);
     NSParameterAssert(org);
+    NSParameterAssert(org.accountType == AccountTypeOrg);
     NSParameterAssert(completion);
     
     NSMutableDictionary *contents = [NSMutableDictionary new];
@@ -2242,11 +2247,11 @@ static NSString *const LastUpdated = @"LastUpdated";
             });
         };
         
-        NSFetchRequest *meRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
-        meRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[User me] identifier]];
+        NSFetchRequest *meRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalAccount"];
+        meRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[Account me] identifier]];
         meRequest.fetchLimit = 1;
         
-        LocalUser *me = [[moc executeFetchRequest:meRequest error:&err] firstObject];
+        LocalAccount *me = [[moc executeFetchRequest:meRequest error:&err] firstObject];
         if (err) {
             ErrLog(@"%@", err);
             complete();
@@ -2343,7 +2348,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             });
         };
         
-        User *me = [User me];
+        Account *me = [Account me];
         
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPriority"];
         fetch.predicate = [[NSPredicate predicateWithFormat:@"user.identifier = %@", me.identifier] and:[self predicateForIssueIdentifiers:issueIdentifiers prefix:@"issue"]];
@@ -2380,11 +2385,11 @@ static NSString *const LastUpdated = @"LastUpdated";
             });
         };
         
-        NSFetchRequest *meRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
-        meRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[User me] identifier]];
+        NSFetchRequest *meRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalAccount"];
+        meRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[Account me] identifier]];
         meRequest.fetchLimit = 1;
         
-        LocalUser *me = [[moc executeFetchRequest:meRequest error:&err] firstObject];
+        LocalAccount *me = [[moc executeFetchRequest:meRequest error:&err] firstObject];
         if (err) {
             ErrLog(@"%@", err);
             complete();
@@ -2601,10 +2606,10 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(query.identifier);
     
     [self performWrite:^(NSManagedObjectContext *moc) {
-        NSFetchRequest *meFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalUser"];
-        meFetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[User me] identifier]];
+        NSFetchRequest *meFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalAccount"];
+        meFetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[Account me] identifier]];
         
-        LocalUser *me = [[moc executeFetchRequest:meFetch error:NULL] firstObject];
+        LocalAccount *me = [[moc executeFetchRequest:meFetch error:NULL] firstObject];
         if (!me) {
             ErrLog(@"Missing me");
             return;

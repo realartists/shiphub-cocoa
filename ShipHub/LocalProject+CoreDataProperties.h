@@ -11,6 +11,8 @@
 
 #import "LocalProject.h"
 
+@class LocalAccount;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalProject (CoreDataProperties)
@@ -22,8 +24,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSDate *updatedAt;
 @property (nullable, nonatomic, retain) NSString *body;
 @property (nullable, nonatomic, retain) LocalRepo *repository;
-@property (nullable, nonatomic, retain) LocalUser *creator;
-@property (nullable, nonatomic, retain) LocalOrg *organization;
+@property (nullable, nonatomic, retain) LocalAccount *creator;
+@property (nullable, nonatomic, retain) LocalAccount *organization;
 
 @end
 

@@ -19,7 +19,7 @@
 #import "AppDelegate.h"
 #import "OverviewController.h"
 #import "MetadataStore.h"
-#import "User.h"
+#import "Account.h"
 #import "Milestone.h"
 #import "Repo.h"
 #import "Label.h"
@@ -319,7 +319,7 @@
     
     Repo *repo = nil;
     NSString *title = nil;
-    NSArray<User *> *assignees = @[];
+    NSArray<Account *> *assignees = @[];
     NSArray<Label *> *labels = @[];
     Milestone *milestone = nil;
     NSString *body = nil;
@@ -360,7 +360,7 @@
         }
         NSDictionary *vals = [NSDictionary lookupWithObjects:[m assigneesForRepo:repo] keyPath:@"login"];
         for (NSString *al in as) {
-            User *a = vals[al];
+            Account *a = vals[al];
             if (a) [aa addObject:a];
         }
         assignees = aa;

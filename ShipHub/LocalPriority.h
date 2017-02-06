@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class LocalIssue, LocalUser;
+@class LocalIssue;
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -11,6 +11,8 @@
 
 #import "LocalReaction.h"
 
+@class LocalAccount;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalReaction (CoreDataProperties)
@@ -18,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSString *content;
 @property (nullable, nonatomic, retain) NSDate *createdAt;
-@property (nullable, nonatomic, retain) LocalUser *user;
+@property (nullable, nonatomic, retain) LocalAccount *user;
 @property (nullable, nonatomic, retain) LocalIssue *issue;
 @property (nullable, nonatomic, retain) LocalComment *comment;
 

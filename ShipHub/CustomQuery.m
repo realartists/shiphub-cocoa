@@ -8,8 +8,8 @@
 
 #import "CustomQuery.h"
 #import "Extras.h"
-#import "User.h"
-#import "LocalUser.h"
+#import "Account.h"
+#import "LocalAccount.h"
 #import "LocalQuery.h"
 
 #import "DataStore.h"
@@ -22,7 +22,7 @@
 
 - (id)init {
     if (self = [super init]) {
-        _authorIdentifier = [[User me] identifier];
+        _authorIdentifier = [[Account me] identifier];
         _identifier = [[[NSUUID UUID] UUIDString] lowercaseString];
     }
     return self;
@@ -97,7 +97,7 @@
 }
 
 - (NSString *)titleWithAuthor {
-    NSString *author = [[[[DataStore activeStore] metadataStore] userWithIdentifier:self.authorIdentifier] login];
+    NSString *author = [[[[DataStore activeStore] metadataStore] accountWithIdentifier:self.authorIdentifier] login];
     if (![self isMine] && author) {
         return [NSString stringWithFormat:NSLocalizedString(@"%@ Shared By %@", @"Custom Query title with author name"), self.title, author];
     } else {
@@ -106,7 +106,7 @@
 }
 
 - (BOOL)isMine {
-    return [self.authorIdentifier isEqual:[[User me] identifier]];
+    return [self.authorIdentifier isEqual:[[Account me] identifier]];
 }
 
 @end

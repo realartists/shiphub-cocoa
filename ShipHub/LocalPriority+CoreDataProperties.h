@@ -11,12 +11,14 @@
 
 #import "LocalPriority.h"
 
+@class LocalAccount;
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalPriority (CoreDataProperties)
 
 @property (nullable, nonatomic, retain) NSNumber *priority;
-@property (nullable, nonatomic, retain) LocalUser *user;
+@property (nullable, nonatomic, retain) LocalAccount *user;
 @property (nullable, nonatomic, retain) LocalIssue *issue;
 
 @end

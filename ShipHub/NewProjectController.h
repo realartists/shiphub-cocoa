@@ -9,16 +9,16 @@
 #import <Cocoa/Cocoa.h>
 
 @class Repo;
-@class Org;
+@class Account;
 @class Project;
 
 @interface NewProjectController : NSWindowController
 
 - (instancetype)initWithRepo:(Repo *)repo;
-- (instancetype)initWithOrg:(Org *)org;
+- (instancetype)initWithOrg:(Account *)org;
 
 @property (readonly) Repo *repo;
-@property (readonly) Org *org;
+@property (readonly) Account *org;
 
 - (void)beginInWindow:(NSWindow *)parentWindow completion:(void (^)(Project *createdProject, NSError *error))completion;
 

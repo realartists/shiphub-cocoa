@@ -8,9 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-#import "User.h"
+#import "Account.h"
 #import "Repo.h"
-#import "Org.h"
 #import "Milestone.h"
 #import "Label.h"
 #import "Project.h"
@@ -18,15 +17,12 @@
 @interface MetadataStore : NSObject
 
 - (NSArray<Repo *> *)activeRepos;
-- (NSArray<User *> *)assigneesForRepo:(Repo *)repo;
-- (NSArray<User *> *)allAssignees;
+- (NSArray<Account *> *)assigneesForRepo:(Repo *)repo;
+- (NSArray<Account *> *)allAssignees;
 
-- (User *)userWithIdentifier:(NSNumber *)identifier;
-- (Org *)orgWithIdentifier:(NSNumber *)identifier;
+- (Account *)accountWithIdentifier:(NSNumber *)identifier;
 - (Repo *)repoWithIdentifier:(NSNumber *)identifier;
 - (Milestone *)milestoneWithIdentifier:(NSNumber *)identifier;
-
-- (NSArray<User *> *)membersOfOrg:(Org *)org;
 
 /* Returns the names of active milestones across all repos */
 - (NSArray<NSString *> *)mergedMilestoneNames;
@@ -44,11 +40,9 @@
 - (NSArray<Repo *> *)reposForOwner:(Account *)owner;
 - (Repo *)repoWithFullName:(NSString *)fullName;
 
-- (NSArray<Project *> *)projectsForOrg:(Org *)org;
+- (NSArray<Project *> *)projectsForOrg:(Account *)org;
 
 - (NSArray<Repo *> *)hiddenRepos;
 - (NSArray<Milestone *> *)hiddenMilestones;
-
-- (__kindof MetadataItem *)itemWithManagedID:(NSManagedObjectID *)mid;
 
 @end

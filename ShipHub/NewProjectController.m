@@ -48,8 +48,9 @@
     return self;
 }
 
-- (id)initWithOrg:(Org *)org {
+- (id)initWithOrg:(Account *)org {
     NSParameterAssert(org);
+    NSParameterAssert(org.accountType == AccountTypeOrg);
     
     if (self = [super init]) {
         _org = org;

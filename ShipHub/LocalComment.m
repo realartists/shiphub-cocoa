@@ -7,7 +7,6 @@
 //
 
 #import "LocalComment.h"
-#import "LocalUser.h"
 
 @implementation LocalComment
 

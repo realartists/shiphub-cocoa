@@ -14,7 +14,7 @@
 #import "Label.h"
 #import "Milestone.h"
 #import "Repo.h"
-#import "User.h"
+#import "Account.h"
 
 @interface CompactIssueRowView ()
 
@@ -318,14 +318,14 @@ static const CGFloat marginBottom = 7.0;
     [infoStr appendAttributes:infoLabelAttrs format:NSLocalizedString(@"By ", nil)];
     [infoStr appendAttributes:infoItemAttrs format:@"%@", _issue.originator.login];
     if (_issue.assignees.count == 1) {
-        User *assignee = [_issue.assignees firstObject];
+        Account *assignee = [_issue.assignees firstObject];
         [infoStr appendAttributes:infoLabelAttrs format:@" • "];
         assignedToRange.location = infoStr.length;
         assignedToRange.length = assignedTo.length;
         [infoStr appendAttributes:infoItemAttrs format:@"%@", assignedTo];
         [infoStr appendAttributes:infoItemAttrs format:@"%@", assignee.login];
     } else if (_issue.assignees.count > 1) {
-        User *assignee = [_issue.assignees firstObject];
+        Account *assignee = [_issue.assignees firstObject];
         [infoStr appendAttributes:infoLabelAttrs format:@" • "];
         assignedToRange.location = infoStr.length;
         assignedToRange.length = assignedTo.length;

@@ -26,7 +26,7 @@
 #import "NewMilestoneController.h"
 #import "JSON.h"
 #import "UpNextHelper.h"
-#import "User.h"
+#import "Account.h"
 #import "WebKitExtras.h"
 
 #import <WebKit/WebKit.h>
@@ -332,7 +332,7 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
     NSMutableDictionary *state = [NSMutableDictionary new];
     state[@"issue"] = issue;
     
-    state[@"me"] = [User me];
+    state[@"me"] = [Account me];
     state[@"token"] = [[[DataStore activeStore] auth] ghToken];
     state[@"repos"] = [meta activeRepos];
     

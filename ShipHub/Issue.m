@@ -12,14 +12,14 @@
 
 #import "LocalIssue.h"
 #import "LocalRepo.h"
-#import "LocalUser.h"
+#import "LocalAccount.h"
 #import "LocalMilestone.h"
 #import "LocalLabel.h"
 #import "LocalPriority.h"
 #import "LocalNotification.h"
 
 #import "Repo.h"
-#import "User.h"
+#import "Account.h"
 #import "Milestone.h"
 #import "Label.h"
 #import "IssueEvent.h"
@@ -48,11 +48,11 @@
         _updatedAt = li.updatedAt;
         _closedAt = li.closedAt;
         _locked = [li.locked boolValue];
-        _assignees = [[li.assignees array] arrayByMappingObjects:^id(LocalUser *obj) {
-            return [ms userWithIdentifier:obj.identifier];
+        _assignees = [[li.assignees array] arrayByMappingObjects:^id(LocalAccount *obj) {
+            return [ms accountWithIdentifier:obj.identifier];
         }];
-        _originator = [ms userWithIdentifier:li.originator.identifier];
-        _closedBy = [ms userWithIdentifier:li.closedBy.identifier];
+        _originator = [ms accountWithIdentifier:li.originator.identifier];
+        _closedBy = [ms accountWithIdentifier:li.closedBy.identifier];
         NSArray *loadedLabels = [[li.labels allObjects] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"name != nil && color != nil"]];
         _labels = [[loadedLabels arrayByMappingObjects:^id(id obj) {
             return [[Label alloc] initWithLocalItem:obj];
@@ -89,7 +89,7 @@
         
         BOOL includePriority = [options[IssueOptionIncludeUpNextPriority] boolValue];
         if (includePriority) {
-            LocalPriority *upNext = [[li.upNext filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"user.identifier = %@", [[User me] identifier]]] anyObject];
+            LocalPriority *upNext = [[li.upNext filteredSetUsingPredicate:[NSPredicate predicateWithFormat:@"user.identifier = %@", [[Account me] identifier]]] anyObject];
             _upNextPriority = upNext.priority;
         }
         
@@ -106,7 +106,7 @@
     return [NSString stringWithFormat:@"<%@ %p> %@ %@\nlabels:%@\ncomments:%@\nevents:%@\nunread: %d", NSStringFromClass([self class]), self, self.fullIdentifier, self.title, self.labels, self.comments, self.events, self.unread];
 }
 
-- (User *)assignee {
+- (Account *)assignee {
     return [_assignees firstObject];
 }
 
@@ -116,7 +116,7 @@
 
 - (Issue *)clone {
     Issue *i = [Issue new];
-    i->_originator = [User me];
+    i->_originator = [Account me];
     i->_body = [self.body copy];
     i->_title = [self.title copy];
     i->_assignees = [self.assignees copy];
@@ -127,10 +127,10 @@
     return i;
 }
 
-- (instancetype)initWithTitle:(NSString *)title repo:(Repo *)repo milestone:(Milestone *)mile assignees:(NSArray<User *> *)assignees labels:(NSArray<Label *> *)labels body:(NSString *)body
+- (instancetype)initWithTitle:(NSString *)title repo:(Repo *)repo milestone:(Milestone *)mile assignees:(NSArray<Account *> *)assignees labels:(NSArray<Label *> *)labels body:(NSString *)body
 {
     if (self = [super init]) {
-        _originator = [User me];
+        _originator = [Account me];
         _labels = [labels copy];
         _body = [body copy];
         _title = [title copy] ?: @"";

@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
-@class LocalComment, LocalIssue, LocalUser;
+@class LocalComment, LocalIssue;
 
 NS_ASSUME_NONNULL_BEGIN
 

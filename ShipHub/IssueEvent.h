@@ -10,7 +10,7 @@
 
 @class LocalEvent;
 @class MetadataStore;
-@class User;
+@class Account;
 
 @interface IssueEvent : NSObject
 
@@ -19,8 +19,8 @@
 @property NSDate *createdAt;
 @property NSString *event;
 @property NSNumber *identifier;
-@property User *actor;
-@property User *assignee;
+@property Account *actor;
+@property Account *assignee;
 
 @property NSDictionary *extra;
 

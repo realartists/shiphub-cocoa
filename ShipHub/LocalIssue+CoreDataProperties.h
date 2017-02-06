@@ -12,7 +12,7 @@
 #import "LocalIssue.h"
 
 @class LocalRelationship;
-@class LocalUser;
+@class LocalAccount;
 @class LocalLabel;
 @class LocalRepo;
 @class LocalEvent;
@@ -37,12 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSDate *updatedAt;
 @property (nullable, nonatomic, retain) NSDate *closedAt;
 @property (nullable, nonatomic, retain) id<NSCoding> shipReactionSummary;
-@property (nullable, nonatomic, retain) NSOrderedSet<LocalUser *> *assignees;
+@property (nullable, nonatomic, retain) NSOrderedSet<LocalAccount *> *assignees;
 @property (nullable, nonatomic, retain) NSSet<LocalRelationship *> *childRelationships;
-@property (nullable, nonatomic, retain) LocalUser *closedBy;
+@property (nullable, nonatomic, retain) LocalAccount *closedBy;
 @property (nullable, nonatomic, retain) NSSet<LocalLabel *> *labels;
 @property (nullable, nonatomic, retain) LocalMilestone *milestone;
-@property (nullable, nonatomic, retain) LocalUser *originator;
+@property (nullable, nonatomic, retain) LocalAccount *originator;
 @property (nullable, nonatomic, retain) NSSet<LocalRelationship *> *relationships;
 @property (nullable, nonatomic, retain) LocalRepo *repository;
 @property (nullable, nonatomic, retain) NSSet<LocalEvent *> *events;
@@ -85,10 +85,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addUpNext:(NSSet<LocalPriority *> *)values;
 - (void)removeUpNext:(NSSet<LocalPriority *> *)values;
 
-- (void)addAssigneesObject:(LocalUser *)value;
-- (void)removeAssigneesObject:(LocalUser *)value;
-- (void)addAssignees:(NSOrderedSet<LocalUser *> *)values;
-- (void)removeAssignees:(NSOrderedSet<LocalUser *> *)values;
+- (void)addAssigneesObject:(LocalAccount *)value;
+- (void)removeAssigneesObject:(LocalAccount *)value;
+- (void)addAssignees:(NSOrderedSet<LocalAccount *> *)values;
+- (void)removeAssignees:(NSOrderedSet<LocalAccount *> *)values;
 
 - (void)addReactionObject:(LocalReaction *)value;
 - (void)removeReactionObject:(LocalReaction *)value;

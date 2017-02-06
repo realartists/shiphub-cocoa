@@ -11,6 +11,7 @@
 
 #import "LocalComment.h"
 
+@class LocalAccount;
 @class LocalIssue;
 @class LocalReaction;
 
@@ -22,7 +23,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSDate *createdAt;
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSDate *updatedAt;
-@property (nullable, nonatomic, retain) LocalUser *user;
+@property (nullable, nonatomic, retain) LocalAccount *user;
 @property (nullable, nonatomic, retain) LocalIssue *issue;
 @property (nullable, nonatomic, retain) NSSet<LocalReaction *> *reactions;
 

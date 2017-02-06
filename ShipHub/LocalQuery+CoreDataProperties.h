@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *predicate;
 @property (nullable, nonatomic, retain) NSString *title;
 @property (nullable, nonatomic, retain) NSString *identifier;
-@property (nullable, nonatomic, retain) LocalUser *author;
+@property (nullable, nonatomic, retain) LocalAccount *author;
 
 @end
 

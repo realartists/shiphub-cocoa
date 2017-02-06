@@ -17,7 +17,7 @@
 #import "Repo.h"
 #import "OverviewNode.h"
 #import "SearchResultsController.h"
-#import "User.h"
+#import "Account.h"
 #import "Auth.h"
 #import "SearchFieldToolbarItem.h"
 #import "ButtonToolbarItem.h"
@@ -349,7 +349,7 @@ static NSString *const TBSearchItemId = @"TBSearch";
 - (NSMenu *)menuForCustomQuery:(CustomQuery *)query {
     NSMenu *menu = [NSMenu new];
     menu.extras_representedObject = query;
-    if ([query.authorIdentifier isEqual:[[User me] identifier]]) {
+    if ([query.authorIdentifier isEqual:[[Account me] identifier]]) {
         [menu addItemWithTitle:NSLocalizedString(@"Edit Query", nil) action:@selector(editQuery:) keyEquivalent:@""];
         [menu addItemWithTitle:NSLocalizedString(@"Rename Query", nil) action:@selector(renameQuery:) keyEquivalent:@""];
     }
@@ -465,7 +465,7 @@ static NSString *const TBSearchItemId = @"TBSearch";
     _upNextNode.cellIdentifier = @"CountCell";
     _upNextNode.allowChart = NO;
     _upNextNode.title = NSLocalizedString(@"Up Next", nil);
-    _upNextNode.predicate = [NSPredicate predicateWithFormat:@"closed = NO AND ANY upNext.user.identifier = %@", [[User me] identifier]];
+    _upNextNode.predicate = [NSPredicate predicateWithFormat:@"closed = NO AND ANY upNext.user.identifier = %@", [[Account me] identifier]];
     _upNextNode.icon = [NSImage overviewIconNamed:@"Up Next"];
     __weak __typeof(self) weakSelf = self;
     _upNextNode.dropHandler = ^(NSArray *identifiers) {
@@ -579,14 +579,14 @@ static NSString *const TBSearchItemId = @"TBSearch";
             ownerNode.title = repoOwner.login;
             ownerNode.representedObject = repoOwner;
             ownerNode.predicate = [NSPredicate predicateWithFormat:@"repository.owner.login = %@", repoOwner.login];
-            ownerNode.icon = [repoOwner isKindOfClass:[Org class]] ? [NSImage overviewIconNamed:@"Org"] : [NSImage overviewIconNamed:@"User"];
+            ownerNode.icon = repoOwner.accountType == AccountTypeOrg ? [NSImage overviewIconNamed:@"Org"] : [NSImage overviewIconNamed:@"User"];
             [reposNode addChild:ownerNode];
             
             parent = ownerNode;
         }
         
-        if ([repoOwner isKindOfClass:[Org class]]) {
-            for (Project *proj in [metadata projectsForOrg:(Org *)repoOwner]) {
+        if (repoOwner.accountType == AccountTypeOrg) {
+            for (Project *proj in [metadata projectsForOrg:repoOwner]) {
                 OverviewNode *projNode = [OverviewNode new];
                 projNode.identifier = [NSString stringWithFormat:@"Project.%@", proj.identifier];
                 projNode.representedObject = proj;
@@ -1806,7 +1806,7 @@ static NSString *const TBSearchItemId = @"TBSearch";
 
 - (BOOL)canAddNewProject {
     OverviewNode *node = [_outlineView selectedItem];
-    while (node && !([node.representedObject isKindOfClass:[Repo class]] || [node.representedObject isKindOfClass:[Org class]])) {
+    while (node && !([node.representedObject isKindOfClass:[Repo class]] || ([node.representedObject isKindOfClass:[Account class]] && [node.representedObject accountType] == AccountTypeOrg))) {
         node = node.parent;
     }
     
@@ -1855,7 +1855,7 @@ static NSString *const TBSearchItemId = @"TBSearch";
 
 - (IBAction)addNewProject:(id)sender {
     OverviewNode *node = [_outlineView selectedItem];
-    while (node && !([node.representedObject isKindOfClass:[Repo class]] || [node.representedObject isKindOfClass:[Org class]])) {
+    while (node && !([node.representedObject isKindOfClass:[Repo class]] || ([node.representedObject isKindOfClass:[Account class]] && [node.representedObject accountType] == AccountTypeOrg))) {
         node = node.parent;
     }
     
@@ -1881,7 +1881,7 @@ static NSString *const TBSearchItemId = @"TBSearch";
     NSURL *viewURL = nil;
     Account *owner = node.representedObject;
     NSString *webhost = [[[[[DataStore activeStore] auth] account] ghHost] stringByReplacingOccurrencesOfString:@"api." withString:@""];
-    if ([owner isKindOfClass:[Org class]]) {
+    if (owner.accountType == AccountTypeOrg) {
         message = [NSString stringWithFormat:NSLocalizedString(@"Ship was unable to install webhooks in the %@ organization. Without webhooks installed, Ship may take longer to reflect changes made on github.com.\n\nTo fix this, please ask an owner of the %@ organization to sign in with Ship.", @"Org Webhook Error"), owner.login, owner.login];
         viewTitle = NSLocalizedString(@"View Owners", nil);
         
@@ -1893,7 +1893,7 @@ static NSString *const TBSearchItemId = @"TBSearch";
                                         @"query" : @"role:owner " };
         
         viewURL = comps.URL;
-    } else if (![owner.identifier isEqual:[[User me] identifier]]) {
+    } else if (![owner.identifier isEqual:[[Account me] identifier]]) {
         message = [NSString stringWithFormat:NSLocalizedString(@"Ship was unable to install webhooks for %@. Without webhooks installed, Ship may take longer to reflect changes made on github.com.\n\nTo fix this, please ask %@ to sign in with Ship.", @"Other User Webhook Error"), owner.login, owner.login];
         viewTitle = NSLocalizedString(@"View Owner", nil);
         viewURL = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", webhost, [owner.login stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]]];

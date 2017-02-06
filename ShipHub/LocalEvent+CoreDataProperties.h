@@ -11,7 +11,7 @@
 
 #import "LocalEvent.h"
 
-@class LocalUser;
+@class LocalAccount;
 @class LocalLabel;
 @class LocalIssue;
 
@@ -25,8 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *event;
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSData *rawJSON;
-@property (nullable, nonatomic, retain) LocalUser *actor;
-@property (nullable, nonatomic, retain) LocalUser *assignee;
+@property (nullable, nonatomic, retain) LocalAccount *actor;
+@property (nullable, nonatomic, retain) LocalAccount *assignee;
 @property (nullable, nonatomic, retain) LocalIssue *issue;
 
 @end

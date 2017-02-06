@@ -10,13 +10,13 @@
 
 #import "MetadataItem.h"
 
-@class Repo, Org, LocalProject;
+@class Repo, Account, LocalProject;
 
 @interface Project : MetadataItem
 
 - (id)initWithLocalItem:(LocalProject *)lp owningRepo:(Repo *)repository;
 
-- (id)initWithLocalItem:(LocalProject *)lp owningOrg:(Org *)organization;
+- (id)initWithLocalItem:(LocalProject *)lp owningOrg:(Account *)organization;
 
 @property (readonly) NSNumber *number;
 @property (readonly) NSString *name;
@@ -25,6 +25,6 @@
 @property (readonly) NSDate *createdAt;
 
 @property (weak, readonly) Repo *repository;
-@property (weak, readonly) Org *organization;
+@property (weak, readonly) Account *organization;
 
 @end

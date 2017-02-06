@@ -10,14 +10,14 @@
 
 @class LocalReaction;
 @class MetadataStore;
-@class User;
+@class Account;
 
 @interface Reaction : NSObject
 
 @property NSNumber *identifier;
 @property NSString *content;
 @property NSDate *createdAt;
-@property User *user;
+@property Account *user;
 
 - (instancetype)initWithLocalReaction:(LocalReaction *)lc metadataStore:(MetadataStore *)ms;
 

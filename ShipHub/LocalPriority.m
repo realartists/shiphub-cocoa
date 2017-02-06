@@ -8,7 +8,6 @@
 
 #import "LocalPriority.h"
 #import "LocalIssue.h"
-#import "LocalUser.h"
 
 @implementation LocalPriority
 

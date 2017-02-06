@@ -8,7 +8,6 @@
 
 #import "LocalProject.h"
 #import "LocalRepo.h"
-#import "LocalUser.h"
 
 @implementation LocalProject
 

@@ -10,7 +10,7 @@
 
 #import "LocalProject.h"
 #import "Repo.h"
-#import "Org.h"
+#import "Account.h"
 
 @implementation Project
 
@@ -23,7 +23,7 @@
     return self;
 }
 
-- (id)initWithLocalItem:(LocalProject *)lp owningOrg:(Org *)organization
+- (id)initWithLocalItem:(LocalProject *)lp owningOrg:(Account *)organization
 {
     if (self = [super initWithLocalItem:lp]) {
         [self commonInitWithLocalProject:lp];

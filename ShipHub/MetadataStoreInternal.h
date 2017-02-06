@@ -10,7 +10,7 @@
 
 #import "Billing.h"
 
-@class LocalUser;
+@class LocalAccount;
 
 @interface MetadataStore (Internal)
 
@@ -20,6 +20,6 @@
 // Must be called on ctx's private queue.
 - (instancetype)initWithMOC:(NSManagedObjectContext *)ctx billingState:(BillingState)state;
 
-- (User *)userWithLocalUser:(LocalUser *)lu;
+- (Account *)accountWithLocalAccount:(LocalAccount *)la;
 
 @end

@@ -11,7 +11,7 @@
 
 #import "DataStore.h"
 #import "MetadataStore.h"
-#import "User.h"
+#import "Account.h"
 
 #import "Extras.h"
 

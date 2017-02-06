@@ -14,7 +14,7 @@
 #import "Issue.h"
 #import "Milestone.h"
 #import "Repo.h"
-#import "User.h"
+#import "Account.h"
 
 #import "ProgressSheet.h"
 #import "BulkModifyController.h"

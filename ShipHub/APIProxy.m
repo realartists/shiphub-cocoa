@@ -17,7 +17,7 @@
 #import "JSON.h"
 #import "MetadataStore.h"
 #import "Repo.h"
-#import "User.h"
+#import "Account.h"
 
 @interface ProxyRequest : NSMutableURLRequest
 
@@ -396,7 +396,7 @@
 
 - (void)getUser:(ProxyRequest *)request
 {
-    [self yield:[User me] err:nil];
+    [self yield:[Account me] err:nil];
 }
 
 @end
