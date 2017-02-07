@@ -51,7 +51,7 @@
         e.data = [e.data dictionaryByAddingEntriesFromDictionary:@{@"type": @"User"}];
     } else if ([e.entityName isEqualToString:@"org"]) {
         e.entityName = @"account";
-        e.data = [e.data dictionaryByAddingEntriesFromDictionary:@{@"type": @"Account"}];
+        e.data = [e.data dictionaryByAddingEntriesFromDictionary:@{@"type": @"Organization"}];
     }
     
     return e;
