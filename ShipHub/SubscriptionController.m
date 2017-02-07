@@ -16,6 +16,19 @@
 #import "Billing.h"
 #import "TimeRemainingFormatter.h"
 
+static NSURL *URLWithAnalyticsID(NSURL *URL) {
+    NSString *analyticsID = [[NSUserDefaults standardUserDefaults] stringForKey:DefaultsAnalyticsIDKey];
+
+    NSURLComponents *components = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
+    NSMutableDictionary *queryItems = [components.queryItemsDictionary mutableCopy];
+    if (analyticsID) {
+        queryItems[@"analytics_id"] = analyticsID;
+    }
+    [components setQueryItemsDictionary:queryItems];
+
+    return [components URL];
+}
+
 @interface SubscriptionCellView : NSTableCellView
 
 @property NSDictionary *account;
@@ -154,7 +167,7 @@
     }
 
     NSString *action = sub[@"actionUrl"];
-    NSURL *URL = [NSURL URLWithString:action];
+    NSURL *URL = URLWithAnalyticsID([NSURL URLWithString:action]);
     
     [[NSWorkspace sharedWorkspace] openURL:URL];
 }
