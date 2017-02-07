@@ -201,7 +201,8 @@ static NSString *AnalyticsHost() {
 
     AppDelegate *delegate = [AppDelegate sharedDelegate];
     if (delegate.auth && delegate.auth.account) {
-        mutableProperties[@"login"] = delegate.auth.account.login;
+        mutableProperties[@"github_login"] = delegate.auth.account.login;
+        mutableProperties[@"github_id"] = delegate.auth.account.ghIdentifier;
     }
 
     [_queueItems addObject:@{@"event" : event,
