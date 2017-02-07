@@ -749,6 +749,9 @@ var EventIcon = React.createClass({
       case "cross-referenced":
         icon = "hand-o-right";
         break;
+      case "converted_note_to_issue":
+        icon = "trello";
+        break;
       default:
         console.log("unknown event", this.props.event);
         icon = "exclamation-circle";
@@ -1054,6 +1057,14 @@ var ClosedEventDescription = React.createClass({
     }
   }
 });
+
+var ConvertedNoteToIssueDescription = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+  render: function() {
+    console.log("event", this.props.event);
+    return h("span", {}, "created this issue from a note");
+  }
+});
       
 var UnknownEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
@@ -1075,6 +1086,7 @@ var ClassForEventDescription = function(event) {
     case "merged": return MergedEventDescription;
     case "closed": return ClosedEventDescription;
     case "cross-referenced": return CrossReferencedEventDescription;
+    case "converted_note_to_issue": return ConvertedNoteToIssueDescription;
     default: return UnknownEventDescription
   }
 }
