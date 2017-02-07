@@ -8,13 +8,32 @@
 
 #import "MapAccount1to2.h"
 
+#import "Extras.h"
+
 @implementation MapAccount1to2
+
+- (NSMutableDictionary *)doppelgangers:(NSMigrationManager *)manager {
+    static NSString *dgKey = @"LocalAccount_doppelgangers";
+    NSMutableDictionary *doppelgangers = nil;
+    if (nil == (doppelgangers = manager.userInfo[dgKey])) {
+        doppelgangers = [NSMutableDictionary new];
+        NSDictionary *mine = @{dgKey:doppelgangers};
+        if (manager.userInfo) {
+            manager.userInfo = [manager.userInfo dictionaryByAddingEntriesFromDictionary:mine];
+        } else {
+            manager.userInfo = mine;
+        }
+    }
+    return doppelgangers;
+}
 
 - (BOOL)beginEntityMapping:(NSEntityMapping *)mapping manager:(NSMigrationManager *)manager error:(NSError **)error
 {
+#if DEBUG
     NSArray *validSources = @[@"LocalOrg", @"LocalUser", @"LocalAccount"];
     NSAssert([validSources containsObject:[mapping sourceEntityName]], @"Must map from LocalAccount, LocalOrg, or LocalUser");
     NSAssert([[mapping destinationEntityName] isEqualToString:@"LocalAccount"], @"Must map to LocalAccount");
+#endif
     
     return YES;
 }
@@ -49,7 +68,11 @@
             [self mapSharedAttributesFrom:sInstance to:destAccount];
             [destAccount setValue:@"User" forKey:@"type"];
             
-        } // else collided with an org. nothing more to do here.
+        } else {
+            // collided with an org. save it as a doppelganger so we can assign its related objects to their rightful owner later.
+            NSMutableDictionary *doppelgangers = [self doppelgangers:manager];
+            doppelgangers[myIdentifier] = sInstance;
+        }
         
     } else if ([sInstance.entity.name isEqualToString:@"LocalOrg"]) {
         
@@ -59,6 +82,7 @@
         [destAccount setValue:[sInstance valueForKey:@"shipNeedsWebhookHelp"] forKey:@"shipNeedsWebhookHelp"];
         
     } else {
+        DebugLog(@"Saw abstract LocalAccount");
         // no-op. Any non-associated instances don't map.
     }
     
@@ -69,11 +93,15 @@
     return YES;
 }
 
+- (BOOL)endInstanceCreationForEntityMapping:(NSEntityMapping *)mapping manager:(NSMigrationManager *)manager error:(NSError **)error
+{
+    return YES;
+}
+
 - (void)mapToManyRelationship:(NSString *)relationshipKey from:(NSManagedObject *)src to:(NSManagedObject *)dst manager:(NSMigrationManager *)manager
 {
     NSRelationshipDescription *desc = src.entity.relationshipsByName[relationshipKey];
     NSAssert(desc != nil, @"Must find NSRelationshipDescription for relationship %@", relationshipKey);
-    
     
     NSString *entityMappingName = nil;
     for (NSEntityMapping *mapping in manager.mappingModel.entityMappings) {
@@ -84,8 +112,8 @@
     }
     
     NSAssert(entityMappingName != nil, @"Must find NSEntityMapping for relationship %@", relationshipKey);
-    
     NSSet *srcObjs = [src valueForKey:relationshipKey];
+    
     if (srcObjs) {
         NSArray *dstObjs = [manager destinationInstancesForEntityMappingNamed:entityMappingName sourceInstances:[srcObjs allObjects]];
         [dst setValue:[NSSet setWithArray:dstObjs] forKey:relationshipKey];
@@ -129,16 +157,35 @@
     NSManagedObject *src = [[manager sourceInstancesForEntityMappingNamed:mapping.name destinationInstances:@[dst]] firstObject];
     NSAssert(src != nil, @"Must have a source instance");
     
-    // map repos, the only old relationship in model1's LocalAccount:
-    [self mapToManyRelationship:@"repos" from:src to:dst manager:manager];
-    
     if ([src.entity.name isEqualToString:@"LocalUser"]) {
         
+        [self mapToManyRelationship:@"repos" from:src to:dst manager:manager];
         [self mapUserRelationshipsFrom:src to:dst manager:manager];
         
     } else if ([src.entity.name isEqualToString:@"LocalOrg"]) {
         
         [self mapOrgRelationshipsFrom:src to:dst manager:manager];
+        
+        NSManagedObject *doppelganger = [self doppelgangers:manager][[src valueForKey:@"identifier"]];
+        
+        if (doppelganger) {
+            // see if the doppelganger has (some of) our repos
+            id srcRepos = [src valueForKey:@"repos"];
+            id doppelRepos = [doppelganger valueForKey:@"repos"];
+            
+            if ([srcRepos isKindOfClass:[NSArray class]]) srcRepos = [NSSet setWithArray:srcRepos];
+            if ([doppelRepos isKindOfClass:[NSArray class]]) doppelRepos = [NSSet setWithArray:doppelRepos];
+            
+            NSMutableSet *allRepos = [NSMutableSet new];
+            
+            if ([srcRepos count]) [allRepos unionSet:srcRepos];
+            if ([doppelRepos count]) [allRepos unionSet:doppelRepos];
+            
+            NSArray *dstObjs = [manager destinationInstancesForEntityMappingNamed:@"LocalRepoToLocalRepo" sourceInstances:[allRepos allObjects]];
+            [dst setValue:[NSSet setWithArray:dstObjs] forKey:@"repos"];
+            
+            [self mapUserRelationshipsFrom:doppelganger to:dst manager:manager];
+        }
         
     } else {
         NSAssert(NO, @"Should not have a destination instance for a source abstract LocalAccount");
@@ -146,5 +193,20 @@
     
     return YES;
 }
+
+- (BOOL)endRelationshipCreationForEntityMapping:(NSEntityMapping *)mapping manager:(NSMigrationManager *)manager error:(NSError **)error
+{
+    return YES;
+}
+
+- (BOOL)performCustomValidationForEntityMapping:(NSEntityMapping *)mapping manager:(NSMigrationManager *)manager error:(NSError **)error
+{
+    return YES;
+}
+
+- (BOOL)endEntityMapping:(NSEntityMapping *)mapping manager:(NSMigrationManager *)manager error:(NSError **)error {
+    return YES;
+}
+
 
 @end
