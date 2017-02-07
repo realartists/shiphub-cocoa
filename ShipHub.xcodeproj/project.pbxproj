@@ -112,6 +112,7 @@
 		1A3BEBA61E490CBF00CBFBEF /* MapAccount1to2.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3BEBA41E490CBF00CBFBEF /* MapAccount1to2.m */; };
 		1A3BEBA91E492CD000CBFBEF /* MapLocalModel1to2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 1A3BEBA81E492CD000CBFBEF /* MapLocalModel1to2.xcmappingmodel */; };
 		1A3BEBAA1E492CD000CBFBEF /* MapLocalModel1to2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 1A3BEBA81E492CD000CBFBEF /* MapLocalModel1to2.xcmappingmodel */; };
+		1A3BEBB21E49478E00CBFBEF /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
 		1A3C5B241DDCE241005F9A01 /* WelcomeHelpController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3C5B221DDCE241005F9A01 /* WelcomeHelpController.m */; };
 		1A3C5B251DDCE241005F9A01 /* WelcomeHelpController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A3C5B231DDCE241005F9A01 /* WelcomeHelpController.xib */; };
 		1A3C5B531DDD012F005F9A01 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3C5B521DDD012F005F9A01 /* AppDelegate.m */; };
@@ -1890,7 +1891,6 @@
 				1A38CA071D934EF800655891 /* LocalProject.m in Sources */,
 				1A694AEA1CA09E6A00F73608 /* Repo.m in Sources */,
 				1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
-				1AE09C061C97687E00C5AC35 /* LocalUser+CoreDataProperties.m in Sources */,
 				282710121E3E814F001F031E /* Analytics.m in Sources */,
 				1AE09BF01C97687E00C5AC35 /* LocalRepo.m in Sources */,
 				1A2305D91C7F80EA0034C871 /* Defaults.m in Sources */,
@@ -2063,6 +2063,7 @@
 				1A3C5B6A1DDD0896005F9A01 /* Defaults.m in Sources */,
 				1A3C5B631DDD07E3005F9A01 /* Error.m in Sources */,
 				1A3C5B641DDD07E3005F9A01 /* Auth.m in Sources */,
+				1A3BEBB21E49478E00CBFBEF /* ServerConnection.m in Sources */,
 				1A3C5B651DDD07E3005F9A01 /* Keychain.m in Sources */,
 				1A3C5B661DDD07E3005F9A01 /* FoundationExtras.m in Sources */,
 				1A3C5B671DDD07E3005F9A01 /* AppKitExtras.m in Sources */,

@@ -387,6 +387,8 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
             _nextAuth = [Auth authWithAccountPair:login];
         } else if (logout) {
             [_auth logout];
+            [[Analytics sharedInstance] track:@"Logout"];
+            [[Analytics sharedInstance] flush];
             _nextAuth = nil;
         } else if (addNew) {
             _nextAuth = nil;
