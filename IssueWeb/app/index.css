@@ -207,7 +207,7 @@ div.commentBody table {
 div.commentBody code {
   background-color: #F7F7F7;
   border-radius: 2px;
-  font-size: 10pt;
+  font-size: 9pt;
   font-family: menlo, consolas, monaco, sans-serif;
   padding-top: 1px;
   padding-bottom: 1px;
@@ -218,7 +218,7 @@ div.commentBody pre {
   padding: 13px;
   background-color: #F7F7F7;
   border-radius: 6px; 
-  font-size: 10pt;
+  font-size: 9pt;
   font-family: menlo, consolas, monaco, sans-serif;
   line-height: 130%;
   overflow-x: auto;
