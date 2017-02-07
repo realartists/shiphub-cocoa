@@ -79,12 +79,15 @@
         NSString *rightStr = [right description];
         
         if ([rightStr containsString:@"dateByAddingDays:"]) {
-            NSRegularExpression *expr = [NSRegularExpression regularExpressionWithPattern:@".*FUNCTION\\(now\\(\\)\\s*,\\s*.dateByAddingDays:.\\s*,\\s*\\-(\\d+).*" options:0 error:NULL];
+            NSRegularExpression *expr = [NSRegularExpression regularExpressionWithPattern:@".*FUNCTION\\(now\\(\\)\\s*,\\s*.dateByAddingDays:.\\s*,\\s*(\\-?\\d+).*" options:0 error:NULL];
             NSTextCheckingResult *match = [expr firstMatchInString:rightStr options:0 range:NSMakeRange(0, [rightStr length])];
             if (match) {
                 NSRange range = [match rangeAtIndex:1];
                 NSString *daysStr = [rightStr substringWithRange:range];
                 double days = [daysStr doubleValue];
+                if (days < 0) {
+                    days = -days;
+                }
                 
                 NSPredicateOperatorType op = [comparison predicateOperatorType];
                 
