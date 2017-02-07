@@ -193,16 +193,16 @@ static NSString *AnalyticsHost() {
 
     NSMutableDictionary *mutableProperties = [properties mutableCopy];
     mutableProperties[@"time"] = @((NSInteger)([[NSDate date] timeIntervalSince1970]));
-    mutableProperties[@"version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleVersion"];
     mutableProperties[@"distinct_id"] = _distinctID;
-    mutableProperties[@"machine"] = MachineModel();
-    mutableProperties[@"os"] = OperatingSystemMajorMinor();
-    mutableProperties[@"locale"] = [[NSLocale currentLocale] localeIdentifier];
+    mutableProperties[@"_version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleVersion"];
+    mutableProperties[@"_machine"] = MachineModel();
+    mutableProperties[@"_os"] = OperatingSystemMajorMinor();
+    mutableProperties[@"_locale"] = [[NSLocale currentLocale] localeIdentifier];
 
     AppDelegate *delegate = [AppDelegate sharedDelegate];
     if (delegate.auth && delegate.auth.account) {
-        mutableProperties[@"github_login"] = delegate.auth.account.login;
-        mutableProperties[@"github_id"] = delegate.auth.account.ghIdentifier;
+        mutableProperties[@"_github_login"] = delegate.auth.account.login;
+        mutableProperties[@"_github_id"] = delegate.auth.account.ghIdentifier;
     }
 
     [_queueItems addObject:@{@"event" : event,
