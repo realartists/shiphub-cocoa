@@ -59,9 +59,12 @@
 }
 
 - (void)dealloc {
-    _web.UIDelegate = nil;
-    _web.navigationDelegate = nil;
-    [_web stopLoading];
+    IssueWeb2View *web = _web;
+    web.UIDelegate = nil;
+    web.navigationDelegate = nil;
+    RunOnMain(^{
+        [web stopLoading];
+    });
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 

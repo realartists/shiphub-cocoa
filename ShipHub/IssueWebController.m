@@ -62,10 +62,13 @@
 }
 
 - (void)dealloc {
-    _web.UIDelegate = nil;
-    _web.frameLoadDelegate = nil;
-    _web.policyDelegate = nil;
-    [_web close];
+    IssueWebView *web = _web;
+    web.UIDelegate = nil;
+    web.frameLoadDelegate = nil;
+    web.policyDelegate = nil;
+    RunOnMain(^{
+        [web close];
+    });
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
