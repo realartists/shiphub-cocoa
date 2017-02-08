@@ -91,12 +91,14 @@ NSString *const BillingSubscriptionRefreshHashDidChangeNotification = @"BillingS
 }
 
 - (void)notifyStateChange {
-    if (!_store) {
+    DataStore *store = _store; // this can be nil iff we've outlived the store
+    MetadataStore *ms = store.metadataStore; // this can be nil iff we're initializing or the store is nil
+    if (!store || !ms) {
         return;
     }
-    NSDictionary *userInfo = @{ DataStoreMetadataKey : _store.metadataStore };
-    [_store postNotification:DataStoreDidUpdateMetadataNotification userInfo:userInfo];
-    [_store postNotification:DataStoreBillingStateDidChangeNotification userInfo:nil];
+    NSDictionary *userInfo = @{ DataStoreMetadataKey : ms };
+    [store postNotification:DataStoreDidUpdateMetadataNotification userInfo:userInfo];
+    [store postNotification:DataStoreBillingStateDidChangeNotification userInfo:nil];
 }
 
 - (void)billingExpired:(NSTimer *)timer {
