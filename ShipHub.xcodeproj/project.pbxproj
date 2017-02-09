@@ -129,7 +129,6 @@
 		1A3C5B6A1DDD0896005F9A01 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305D81C7F80EA0034C871 /* Defaults.m */; };
 		1A3C5B6B1DDD089E005F9A01 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
 		1A3C5B6C1DDD08BC005F9A01 /* WebSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A38C9FB1D9339D400655891 /* WebSession.m */; };
-		1A3D34451DAEC9DF00CDF167 /* PartialClone.sh in Copy Git Support */ = {isa = PBXBuildFile; fileRef = 1ADED9ED1DADA2D30093A098 /* PartialClone.sh */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1A3D34481DAEE73E00CDF167 /* libgit2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A3D34471DAEE73E00CDF167 /* libgit2.dylib */; };
 		1A3D34491DAEE75500CDF167 /* libgit2.dylib in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1A3D34471DAEE73E00CDF167 /* libgit2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		1A3D344C1DAEF0A800CDF167 /* GitDiff.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D344B1DAEF0A800CDF167 /* GitDiff.m */; };
@@ -234,7 +233,6 @@
 		1AB038591D5D391B005093B9 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB038541D5D390E005093B9 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AB503E91D2471EF0097875C /* NSFileWrapper+ImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */; };
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
-		1AC01D951DC9087B00920C3F /* npm-shrinkwrap.json in Resources */ = {isa = PBXBuildFile; fileRef = 1AC01D941DC9087B00920C3F /* npm-shrinkwrap.json */; };
 		1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */; };
 		1AC619721D232E9A00FE1E76 /* LocalPriority.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC619701D232E9A00FE1E76 /* LocalPriority.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
@@ -1929,7 +1927,6 @@
 				1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */,
 				1A51A58C1DBE9C5400272822 /* TextViewController.xib in Resources */,
 				28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */,
-				1AC01D951DC9087B00920C3F /* npm-shrinkwrap.json in Resources */,
 				1A51A5841DBE95A300272822 /* Acknowledgements.rtf in Resources */,
 				1ADED9EB1DAC4A220093A098 /* PRDocument.xib in Resources */,
 				1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */,
@@ -2492,20 +2489,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
-		};	
-		1A3D346C1DB167ED00CDF167 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				DEBUGGING_SYMBOLS = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
 		};
 		1A3C5B5E1DDD012F005F9A01 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -2522,6 +2505,20 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
+		};
+		1A3D346C1DB167ED00CDF167 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
 		};
 		1A3D346D1DB167ED00CDF167 /* Release */ = {
 			isa = XCBuildConfiguration;
