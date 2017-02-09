@@ -2,118 +2,53 @@ import './xcode7.css'
 import './index.css'
 
 import h from 'hyperscript'
-import diff_match_patch from 'diff-match-patch'
-import htmlEscape from 'html-escape';
-
 import filterSelection from './filter-selection.js'
 import MiniMap from './minimap.js'
 import AttributedString from './attributed-string.js'
+import DiffRow from './diff-row.js'
+import SplitRow from './split-row.js'
+import UnifiedRow from './unified-row.js'
 var HighlightWorker = require('worker!./highlight-worker.js');
 
 function splitLines(text) {
   return text.split(/\r\n|\r|\n/);
 }
 
-function codeColContents(code) {
-  if (!code || code.length == 0) return "<pre>\xA0\n</pre>";
-  return "<pre>"+code+"\n</pre>";
-} 
-
-class Row {
-  constructor(leftLine, leftLineNum, rightLine, rightLineNum, diffLine, changed) {
-    this.leftLineNum = leftLineNum;
-    this.rightLineNum = rightLineNum;
-    this.diffLine = diffLine;  
-    this.changed = changed;
-    
-    var leftClasses = 'left codecol';
-    var rightClasses = 'right codecol';
-    
-    var gutterLeft = h('td', { className:'gutter gutter-left' });
-    var gutterRight = h('td', { className:'gutter gutter-right' });
-
-    if (leftLineNum !== undefined) {
-      gutterLeft.innerHTML = "" + (1+leftLineNum);
-    }
-    if (rightLineNum !== undefined) {
-      gutterRight.innerHTML = "" + (1+rightLineNum);
-    }
-    
-    if (leftLine === undefined) {
-      leftClasses += ' spacer';
-      rightClasses += ' inserted-new';
-    } else if (rightLine === undefined) {
-      leftClasses += ' deleted-original';
-      rightClasses += ' spacer';
-    } else if (changed) {
-      leftClasses += ' changed-original';
-      rightClasses += ' changed-new';
-    }
-    
-    var left = this.left = h('td', {className:leftClasses});
-    left.innerHTML = codeColContents(htmlEscape(leftLine||""));
-    
-    var right = this.right = h('td', {className:rightClasses});
-    right.innerHTML = codeColContents(htmlEscape(rightLine||""));
-    
-    var row = h('tr', {}, gutterLeft, left, gutterRight, right);
-    this.node = row;
-    
-    if (leftLine === undefined) {
-      this.miniMapRegions = [new MiniMap.Region(right, 'green')];
-    } else if (rightLine == undefined) {
-      this.miniMapRegions = [new MiniMap.Region(left, 'red')];
-    } else if (changed) {
-      this.miniMapRegions = [
-        new MiniMap.Region(row, "blue")
-      ];
-    }
+function parseDiffLine(diffLine) {
+  var m = diffLine.match(/@@ \-(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/);
+  if (!m) {
+    throw "Invalid diff line " + diffLine;
   }
-  
-  updateHighlight(leftLineHighlighted, rightLineHighlighted) {
-    if (this.changed) {
-      var leftAstr = AttributedString.fromHTML(leftLineHighlighted);
-      var rightAstr = AttributedString.fromHTML(rightLineHighlighted);
-      
-      var dmp = new diff_match_patch();
-      var diff = dmp.diff_main(leftAstr.string, rightAstr.string);
-      dmp.diff_cleanupSemantic(diff);
-      
-      if (diff.length > 1) {      
-        var leftIdx = 0, rightIdx = 0;
-        for (var i = 0; i < diff.length; i++) {
-          var change = diff[i];
-          var length = change[1].length;
-          if (change[0] == -1) {
-            leftAstr.addAttributes(new AttributedString.Range(leftIdx, length), ["char-changed"]);
-            leftIdx += length;
-          } else if (change[0] == 1) {
-            rightAstr.addAttributes(new AttributedString.Range(rightIdx, length), ["char-changed"]);
-            rightIdx += length;
-          } else {
-            leftIdx += length;
-            rightIdx += length;
-          }
-        }
-      }
-      
-      leftLineHighlighted = leftAstr.toHTML();
-      rightLineHighlighted = rightAstr.toHTML();
-    }
-    
-    this.left.innerHTML = codeColContents(leftLineHighlighted);
-    this.right.innerHTML = codeColContents(rightLineHighlighted);
+  var leftStartLine, leftRun, rightStartLine, rightRun;
+  if (m.length == 3) {
+    leftStartLine = parseInt(m[1]);
+    leftRun = 1;
+    rightStartLine = parseInt(m[2]);
+    rightRun = 1;
+  } else {
+    leftStartLine = parseInt(m[1]);
+    leftRun = parseInt(m[2]);
+    rightStartLine = parseInt(m[3]);
+    rightRun = parseInt(m[4]);
   }
+  return {leftStartLine, leftRun, rightStartLine, rightRun};
 }
 
-class TrailerRow {
-  constructor() {
+class TrailerRow extends DiffRow {
+  constructor(mode) {
+    super();
+    
     var gutterLeft = h('td', { className:'gutter gutter-left' });
     var gutterRight = h('td', { className:'gutter gutter-right' });
-    var left = this.left = h('td', {style:{height:'100%'}});
-    var right = this.right = h('td', {style:{height:'100%'}});
     
-    var row = h('tr', {style:{height:'100%'}}, gutterLeft, left, gutterRight, right);
+    if (mode === 'unified') {
+      var blank = h('td', {style:{height:'100%'}});
+      var row = h('tr', {style:{height:'100%'}}, gutterLeft, gutterRight, blank);
+    } else {
+      var left = h('td', {style:{height:'100%'}});
+      var right = h('td', {style:{height:'100%'}});
+      var row = h('tr', {style:{height:'100%'}}, gutterLeft, left, gutterRight, right);
+    }
     this.node = row;
   }
   updateHighlight() { }
@@ -128,6 +63,8 @@ class App {
       'max-width': '100%'
     };
     this.table = h('table', {className:"diff", style:style});
+    
+    this.diffMode = "unified";
     
     this.table.addEventListener('mousedown', (event) => {
       this.updateSelectability(event);
@@ -155,15 +92,24 @@ class App {
     this.table.style.minHeight = window.innerHeight + 'px';
   }
   
-  updateDiff(filename, leftText, rightText, uDiff) {
-    // note: the left is considered the 'original' (what's in master)
-    // and the right is considered the 'modified' (result of original + patch)
+  setDiffMode(newMode) {
+    if (newMode != "split" || newMode != "unified") {
+      throw "unknown mode " + newMode;
+    }
+    if (this.diffMode != newMode) {
+      this.diffMode = newMode;
+      if (this.filename) {
+        this.updateDiff(this.filename, this.leftText, this.rightText, this.uDiff);
+      }
+    }
+  }
   
-    var leftLines = splitLines(leftText);
-    var rightLines = splitLines(rightText);
-    var diffLines = splitLines(uDiff);
+  buildSplitDiff() {
+    var leftLines = splitLines(this.leftText);
+    var rightLines = splitLines(this.rightText);
+    var diffLines = splitLines(this.uDiff);
     
-    // contain information needed to build Row objects (indexes into left, right, and diff)
+    // contain information needed to build SplitRow objects (indexes into left, right, and diff)
     var rowInfos = [];
     
     var leftIdx = 0;    // into leftLines
@@ -178,22 +124,7 @@ class App {
     while (diffIdx < diffLines.length) {
       var diffLine = diffLines[diffIdx];
       if (diffLine.startsWith("@@")) {
-        var m = diffLine.match(/@@ \-(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/);
-        if (!m) {
-          throw "Invalid diff line " + diffLine;
-        }
-        var leftStartLine, leftRun, rightStartLine, rightRun;
-        if (m.length == 3) {
-          leftStartLine = parseInt(m[1]);
-          leftRun = 1;
-          rightStartLine = parseInt(m[2]);
-          rightRun = 1;
-        } else {
-          leftStartLine = parseInt(m[1]);
-          leftRun = parseInt(m[2]);
-          rightStartLine = parseInt(m[3]);
-          rightRun = parseInt(m[4]);
-        }
+        var {leftStartLine, leftRun, rightStartLine, rightRun} = parseDiffLine(diffLine);
         
         hunkQueue = 0; // reset +/- queue
         
@@ -247,7 +178,7 @@ class App {
     
     // create the actual row objects from the rowInfos
     var rows = rowInfos.map((ri) => {
-      return new Row(
+      return new SplitRow(
         ri.leftIdx===undefined?undefined:leftLines[ri.leftIdx],
         ri.leftIdx,
         ri.rightIdx==undefined?undefined:rightLines[ri.rightIdx],
@@ -258,7 +189,7 @@ class App {
     });
     
     // add a trailing row to take up space for short diffs
-    var trailer = new TrailerRow();
+    var trailer = new TrailerRow("split");
     rows.push(trailer);
     
     var rowNodes = rows.map((r) => r.node);
@@ -288,7 +219,183 @@ class App {
         row.updateHighlight(left, right);
       });
     };
-    hw.postMessage({filename, leftText, rightText});
+    hw.postMessage({filename:this.filename, leftText:this.leftText, rightText:this.rightText});
+  }
+  
+  buildUnifiedDiff() {
+    // note: this code is very similar to buildSplitDiff, but it's not identical!
+  
+    var leftLines = splitLines(this.leftText);
+    var rightLines = splitLines(this.rightText);
+    var diffLines = splitLines(this.uDiff);
+    
+    // info needed to build UnifiedRow objects
+    // pointers into leftLines, rightLines, and diffLines
+    var rowInfos = [];
+    
+    var leftIdx = 0;    // into leftLines
+    var rightIdx = 0;   // into rightLines
+    var diffIdx = 0;    // into diffLines
+    var hunkQueue = 0;  // offset from end of rowInfos. implements a queue for lining up corresponding deletions and insertions
+    
+    // walk to the first hunk of the diff
+    while (diffIdx < diffLines.length && !diffLines[diffIdx].startsWith("@@")) diffIdx++;
+    
+    // process the diff line at a time, building up rowInfos as we go.
+    while (diffIdx < diffLines.length) {
+      var diffLine = diffLines[diffIdx];
+      if (diffLine.startsWith("@@")) {
+        var {leftStartLine, leftRun, rightStartLine, rightRun} = parseDiffLine(diffLine);
+        
+        hunkQueue = 0; // reset +/- queue
+        
+        // include all lines up to the hunk as non-edited lines
+        while (leftIdx+1 < leftStartLine && rightIdx+1 < rightStartLine) {
+          rowInfos.push({leftIdx, rightIdx});
+          leftIdx++; rightIdx++;
+        }
+      } else if (diffLine.startsWith(" ")) {
+        // it's a context line
+        hunkQueue = 0; // reset +/- queue
+        rowInfos.push({leftIdx, rightIdx, diffIdx});
+        leftIdx++;
+        rightIdx++;
+      } else if (diffLine.startsWith("-")) {
+        // the line exists in left, but no longer in right
+        rowInfos.push({leftIdx, diffIdx});
+        leftIdx++;
+        hunkQueue++;
+      } else if (diffLine.startsWith("+")) {
+        var nextRow = {rightIdx, diffIdx};
+        // note: this is the main thing that differs from buildSplitDiff.
+        // we push this row unconditionally here, whereas in buildSplitDiff we're
+        // potentially just adding information to an existing row depending on hunkQueue
+        if (hunkQueue) {
+          // if we have an active hunk queue, note the context for intraline changes
+          var hunkIdx = rowInfos.length - hunkQueue;
+          rowInfos[hunkIdx].ctxRightIdx = rightIdx;
+          nextRow.ctxLeftIdx = rowInfos[hunkIdx].leftIdx;
+        }
+        rowInfos.push(nextRow);
+        rightIdx++;
+      } 
+      
+      diffIdx++;
+    }
+    
+    while (leftIdx < leftLines.length && rightIdx < rightLines.length) {
+      rowInfos.push({leftIdx, rightIdx});
+      leftIdx++;
+      rightIdx++;
+    }
+    while (leftIdx < leftLines.length) {
+      rowInfos.push({leftIdx});
+      leftIdx++;
+    }
+    while (rightIdx < rightLines.length) {
+      rowInfos.push({rightIdx});
+      rightIdx++;
+    }
+    
+    var rows = rowInfos.map((ri) => {
+      var text = "";
+      var oldText = undefined;
+      var mode = "";
+      if (ri.leftIdx!==undefined && ri.rightIdx!==undefined) {
+        // context line
+        text = leftLines[ri.leftIdx];
+      } else if (ri.leftIdx!==undefined) {
+        text = leftLines[ri.leftIdx];
+        mode = "-";
+        if (ri.ctxRightIdx!==undefined) {
+          oldText = rightLines[ri.ctxRightIdx];
+        }
+      } else if (ri.rightIdx!==undefined) {
+        text = rightLines[ri.rightIdx];
+        mode = "+";
+        if (ri.ctxLeftIdx!==undefined) {
+          oldText = leftLines[ri.ctxLeftIdx];
+        }
+      }
+      
+      return new UnifiedRow(
+        mode,
+        text,
+        oldText,
+        ri.leftIdx,
+        ri.rightIdx,
+        diffIdx
+      );
+    });
+    
+    // add a trailing row to take up space for short diffs
+    var trailer = new TrailerRow("unified");
+    rows.push(trailer);
+    
+    var rowNodes = rows.map((r) => r.node);
+    
+    this.table.innerHTML = '';
+    rowNodes.forEach((rn) => {
+      this.table.appendChild(rn);
+    });
+    
+    var miniMapRegions = rows.reduce((accum, row) => {
+      if (row.miniMapRegions) {
+        accum = accum.concat(row.miniMapRegions);
+      }
+      return accum;
+    }, []);
+    this.miniMap.setRegions(miniMapRegions);
+    
+    var hw = new HighlightWorker;
+    hw.onmessage = function(result) {
+      var leftHighlighted = result.data.leftHighlighted;
+      var rightHighlighted = result.data.rightHighlighted;
+      
+      rowInfos.forEach((ri, i) => {
+        var row = rows[i];
+        
+        var code = "";
+        var ctx = undefined;
+        
+        if (ri.leftIdx!==undefined) {
+          code = leftHighlighted[ri.leftIdx];
+          if (ri.ctxRightIdx) {
+            ctx = rightHighlighted[ri.ctxRightIdx];
+          }
+        } else if (ri.rightIdx!==undefined) {
+          code = rightHighlighted[ri.rightIdx];
+          if (ri.ctxLeftIdx) {
+            ctx = leftHighlighted[ri.ctxLeftIdx];
+          }
+        }
+        
+        row.updateHighlight(code, ctx);
+      });
+    };
+    hw.postMessage({filename:this.filename, leftText:this.leftText, rightText:this.rightText});
+  }
+  
+  updateDiff(filename, leftText, rightText, uDiff) {
+    // note: the left is considered the 'original' (what's in master)
+    // and the right is considered the 'modified' (result of original + patch)
+    
+    var displayedDiffMode = this.diffMode;
+    if (leftText.length == 0 || rightText.length == 0) {
+      displayedDiffMode = "unified";
+    }
+    
+    this.displayedDiffMode = displayedDiffMode;
+    
+    this.filename = filename;
+    this.leftText = leftText;
+    this.rightText = rightText;
+    this.uDiff = uDiff;
+  
+    switch (displayedDiffMode) {
+      case "split": this.buildSplitDiff(); break;
+      case "unified": this.buildUnifiedDiff(); break;
+    }
   }
   
   updateSelectability(e) {
@@ -353,6 +460,8 @@ class App {
     e.dataTransfer.setData('text', text);
   }
 }
+
+console.log("Hello world");
 
 var app = new App(document.getElementById('app'));
 

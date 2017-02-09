@@ -75,6 +75,12 @@ table.diff {
   width: 50%;
 }
 
+.diff .unified-codecol {
+  padding-left: 8px;
+  padding-right: 8px;
+  width: 100%;
+}
+
 .diff .inserted-new {
   background-color: #E0FFDF;
 }
