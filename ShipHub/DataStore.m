@@ -123,6 +123,7 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  7: realartists/shiphub-cocoa#288 Switch to labels with identifiers
  8: realartists/shiphub-cocoa#330 Creating a new label can cause a dupe
  9: realartists/shiphub-cocoa#378 Support user => org transitions (non-lightweight-migration 1to2)
+ 10: Migration in step 9 could disassociate repos from their owners.
  */
 static const NSInteger CurrentLocalModelVersion = 9;
 
@@ -366,6 +367,11 @@ static NSString *const LastUpdated = @"LastUpdated";
         needsHeavyweightMigration = YES;
     }
     
+    BOOL needsRepoOwnerFix = NO;
+    if (previousStoreVersion < 10) {
+        needsRepoOwnerFix = YES;
+    }
+    
     NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @(!needsHeavyweightMigration) };
     
     NSPersistentStore *store = _persistentStore = [_persistentCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:@"Default" URL:storeURL options:options error:&err];
@@ -465,6 +471,35 @@ static NSString *const LastUpdated = @"LastUpdated";
             NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalLabel"];
             fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = nil OR identifier = 0"];
             [_writeMoc batchDeleteEntitiesWithRequest:fetch error:NULL];
+            [_writeMoc save:NULL];
+        }];
+    }
+    
+    if (needsRepoOwnerFix) {
+        [_writeMoc performBlockAndWait:^{
+            NSFetchRequest *ownerlessReposFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
+            ownerlessReposFetch.predicate = [NSPredicate predicateWithFormat:@"owner = nil AND fullName != nil"];
+            
+            NSArray *ownerlessRepos = [_writeMoc executeFetchRequest:ownerlessReposFetch error:NULL];
+            if ([ownerlessRepos count]) {
+                NSSet *ownerLogins = [NSSet setWithArray:[ownerlessRepos arrayByMappingObjects:^id(id obj) {
+                    return [[[obj fullName] componentsSeparatedByString:@"/"] firstObject];
+                }]];
+                
+                NSFetchRequest *ownersFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalAccount"];
+                ownersFetch.predicate = [NSPredicate predicateWithFormat:@"login IN %@", ownerLogins];
+                
+                NSArray *ownersArray = [_writeMoc executeFetchRequest:ownersFetch error:NULL];
+                NSDictionary *ownerLookup = [NSDictionary lookupWithObjects:ownersArray keyPath:@"login"];
+                
+                for (LocalRepo *repo in ownerlessRepos) {
+                    NSString *ownerLogin = [[[repo fullName] componentsSeparatedByString:@"/"] firstObject];
+                    LocalAccount *owner = ownerLookup[ownerLogin];
+                    repo.owner = owner;
+                }
+                
+                [_writeMoc save:NULL];
+            }
         }];
     }
     
