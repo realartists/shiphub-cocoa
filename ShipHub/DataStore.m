@@ -125,7 +125,7 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  9: realartists/shiphub-cocoa#378 Support user => org transitions (non-lightweight-migration 1to2)
  10: Migration in step 9 could disassociate repos from their owners.
  */
-static const NSInteger CurrentLocalModelVersion = 9;
+static const NSInteger CurrentLocalModelVersion = 10;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
