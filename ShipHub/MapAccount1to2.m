@@ -185,6 +185,8 @@
             [dst setValue:[NSSet setWithArray:dstObjs] forKey:@"repos"];
             
             [self mapUserRelationshipsFrom:doppelganger to:dst manager:manager];
+        } else {
+            [self mapToManyRelationship:@"repos" from:src to:dst manager:manager];
         }
         
     } else {
