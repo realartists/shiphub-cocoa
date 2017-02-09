@@ -16,11 +16,7 @@ class UnifiedRow extends DiffRow {
     this.leftLineNum = leftLineNum;
     this.rightLineNum = rightLineNum;
     this.diffLine = diffLine;
-    
-    if ((mode||"").length > 0) {
-      console.log("mode, text, oldText", mode, text, oldText);
-    }
-        
+            
     var gutterLeft = h('td', { className:'gutter gutter-left' });
     var gutterRight = h('td', { className:'gutter gutter-right' });
     

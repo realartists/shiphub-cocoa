@@ -461,8 +461,6 @@ class App {
   }
 }
 
-console.log("Hello world");
-
 var app = new App(document.getElementById('app'));
 
 window.updateDiff = function(filename, oldFile, newFile, patch) {
