@@ -33,6 +33,7 @@ NSString *const DefaultsLastUsedAccountKey = @"LastLoginPair";
 NSString *const DefaultsDisableAutoWatchKey = @"DisableAutoWatch";
 NSString *const DefaultsShipHostKey = @"ShipHost";
 NSString *const DefaultsGHHostKey = @"GHHost";
+NSString *const DefaultsPullRequestsEnabledKey = @"EnablePR";
 
 NSString *const DefaultsSimulateConflictsKey = @"SimulateConflicts";
 
@@ -67,4 +68,8 @@ NSString *DefaultGHHost() {
 
 BOOL DefaultsHasCustomShipHost() {
     return [[Defaults defaults] stringForKey:DefaultsShipHostKey] != nil;
+}
+
+extern BOOL DefaultsPullRequestsEnabled() {
+    return [[Defaults defaults] boolForKey:DefaultsPullRequestsEnabledKey];
 }

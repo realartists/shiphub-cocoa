@@ -1121,7 +1121,7 @@ static BOOL representedObjectEquals(id repr, id val) {
     _state.hidden = [self closedInPredicate:basePredicate] != nil;
     _label.hidden = [self hasLabelsInPredicate:basePredicate];
     _milestone.hidden = [self milestoneTitleInPredicate:basePredicate] != nil;
-    _pullRequest.hidden = [self pullRequestInPredicate:basePredicate] != nil;
+    _pullRequest.hidden = !DefaultsPullRequestsEnabled() || [self pullRequestInPredicate:basePredicate] != nil;
     
     [self rebuildMenus];
     [self updatePredicateFromFilterButtons];
