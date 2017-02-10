@@ -242,6 +242,20 @@
 		1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD956B61D0B75AD002B1259 /* MultiDownloadProgress.m */; };
 		1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */; };
 		1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC81D188E6800E9FAFC /* FilterButton.m */; };
+		1ADEA36D1E4E54F30033F51A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADEA36C1E4E54F30033F51A /* AppDelegate.m */; };
+		1ADEA3701E4E54F30033F51A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADEA36F1E4E54F30033F51A /* main.m */; };
+		1ADEA3721E4E54F30033F51A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1ADEA3711E4E54F30033F51A /* Assets.xcassets */; };
+		1ADEA3751E4E54F30033F51A /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1ADEA3731E4E54F30033F51A /* MainMenu.xib */; };
+		1ADEA37D1E4E5BB60033F51A /* WebSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A38C9FB1D9339D400655891 /* WebSession.m */; };
+		1ADEA37E1E4E5BBB0033F51A /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305D81C7F80EA0034C871 /* Defaults.m */; };
+		1ADEA37F1E4E5BC00033F51A /* Error.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305DC1C7F84D80034C871 /* Error.m */; };
+		1ADEA3801E4E5BC50033F51A /* Auth.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217DA1C7E99A1006460E2 /* Auth.m */; };
+		1ADEA3811E4E5BC90033F51A /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
+		1ADEA3821E4E5BCE0033F51A /* Keychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217D71C7E981D006460E2 /* Keychain.m */; };
+		1ADEA3831E4E5BD30033F51A /* FoundationExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F11C7FC2E10034C871 /* FoundationExtras.m */; };
+		1ADEA3841E4E5BD70033F51A /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
+		1ADEA3851E4E5BDC0033F51A /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
+		1ADEA3861E4E5BE60033F51A /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
 		1ADED9D01D95AA590093A098 /* RateDampener.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9CF1D95AA590093A098 /* RateDampener.m */; };
 		1ADED9E21DAC47310093A098 /* PRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9E01DAC47310093A098 /* PRViewController.m */; };
 		1ADED9E61DAC47CF0093A098 /* PullRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9E51DAC47CF0093A098 /* PullRequest.m */; };
@@ -799,6 +813,13 @@
 		1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterBarViewController.m; sourceTree = "<group>"; };
 		1AD9ECC71D188E6800E9FAFC /* FilterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterButton.h; sourceTree = "<group>"; };
 		1AD9ECC81D188E6800E9FAFC /* FilterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterButton.m; sourceTree = "<group>"; };
+		1ADEA3691E4E54F30033F51A /* ShipLoginTester.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShipLoginTester.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1ADEA36B1E4E54F30033F51A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		1ADEA36C1E4E54F30033F51A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		1ADEA36F1E4E54F30033F51A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		1ADEA3711E4E54F30033F51A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1ADEA3741E4E54F30033F51A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		1ADEA3761E4E54F30033F51A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1ADED9CE1D95AA590093A098 /* RateDampener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RateDampener.h; sourceTree = "<group>"; };
 		1ADED9CF1D95AA590093A098 /* RateDampener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RateDampener.m; sourceTree = "<group>"; };
 		1ADED9D51DA71EE20093A098 /* git */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = git; path = ext/git; sourceTree = "<group>"; };
@@ -926,6 +947,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1ADEA3661E4E54F30033F51A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1ADEA3861E4E5BE60033F51A /* libz.tbd in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -1015,6 +1044,7 @@
 				1A2217A21C7E7B78006460E2 /* ext */,
 				1AB038511D5D0E22005093B9 /* scripts */,
 				1A3C5B501DDD012F005F9A01 /* AccountTool */,
+				1ADEA36A1E4E54F30033F51A /* ShipLoginTester */,
 				1A22178F1C7E7B14006460E2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -1025,6 +1055,7 @@
 				1A22178E1C7E7B14006460E2 /* Ship.app */,
 				1A3618FA1C9383CF008C11CB /* ShipHubTests.xctest */,
 				1A3C5B4F1DDD012F005F9A01 /* AccountTool.app */,
+				1ADEA3691E4E54F30033F51A /* ShipLoginTester.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1622,6 +1653,27 @@
 			name = DataStore;
 			sourceTree = "<group>";
 		};
+		1ADEA36A1E4E54F30033F51A /* ShipLoginTester */ = {
+			isa = PBXGroup;
+			children = (
+				1ADEA36B1E4E54F30033F51A /* AppDelegate.h */,
+				1ADEA36C1E4E54F30033F51A /* AppDelegate.m */,
+				1ADEA3711E4E54F30033F51A /* Assets.xcassets */,
+				1ADEA3731E4E54F30033F51A /* MainMenu.xib */,
+				1ADEA3761E4E54F30033F51A /* Info.plist */,
+				1ADEA36E1E4E54F30033F51A /* Supporting Files */,
+			);
+			path = ShipLoginTester;
+			sourceTree = "<group>";
+		};
+		1ADEA36E1E4E54F30033F51A /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				1ADEA36F1E4E54F30033F51A /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		1ADED9D91DAC46EB0093A098 /* Pull Request */ = {
 			isa = PBXGroup;
 			children = (
@@ -1812,6 +1864,23 @@
 			productReference = 1A3C5B4F1DDD012F005F9A01 /* AccountTool.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1ADEA3681E4E54F30033F51A /* ShipLoginTester */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1ADEA37C1E4E54F30033F51A /* Build configuration list for PBXNativeTarget "ShipLoginTester" */;
+			buildPhases = (
+				1ADEA3651E4E54F30033F51A /* Sources */,
+				1ADEA3661E4E54F30033F51A /* Frameworks */,
+				1ADEA3671E4E54F30033F51A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ShipLoginTester;
+			productName = ShipLoginTester;
+			productReference = 1ADEA3691E4E54F30033F51A /* ShipLoginTester.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1833,6 +1902,11 @@
 					};
 					1AD956BE1D0BCFBA002B1259 = {
 						CreatedOnToolsVersion = 7.3.1;
+					};
+					1ADEA3681E4E54F30033F51A = {
+						CreatedOnToolsVersion = 8.2.1;
+						DevelopmentTeam = EL9BUK3ZCV;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -1860,6 +1934,7 @@
 				1AD956BE1D0BCFBA002B1259 /* IssueWeb */,
 				1A3C5B4E1DDD012F005F9A01 /* AccountTool */,
 				1A3D346A1DB167ED00CDF167 /* DiffWeb */,
+				1ADEA3681E4E54F30033F51A /* ShipLoginTester */,
 			);
 		};
 /* End PBXProject section */
@@ -1952,6 +2027,15 @@
 			files = (
 				1A3C5B581DDD012F005F9A01 /* Assets.xcassets in Resources */,
 				1A3C5B5B1DDD012F005F9A01 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1ADEA3671E4E54F30033F51A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1ADEA3721E4E54F30033F51A /* Assets.xcassets in Resources */,
+				1ADEA3751E4E54F30033F51A /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2271,6 +2355,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1ADEA3651E4E54F30033F51A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1ADEA3851E4E5BDC0033F51A /* WebKitExtras.m in Sources */,
+				1ADEA3841E4E5BD70033F51A /* AppKitExtras.m in Sources */,
+				1ADEA3831E4E5BD30033F51A /* FoundationExtras.m in Sources */,
+				1ADEA3821E4E5BCE0033F51A /* Keychain.m in Sources */,
+				1ADEA3811E4E5BC90033F51A /* ServerConnection.m in Sources */,
+				1ADEA3801E4E5BC50033F51A /* Auth.m in Sources */,
+				1ADEA37F1E4E5BC00033F51A /* Error.m in Sources */,
+				1ADEA37E1E4E5BBB0033F51A /* Defaults.m in Sources */,
+				1ADEA37D1E4E5BB60033F51A /* WebSession.m in Sources */,
+				1ADEA3701E4E54F30033F51A /* main.m in Sources */,
+				1ADEA36D1E4E54F30033F51A /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -2309,6 +2411,14 @@
 			isa = PBXVariantGroup;
 			children = (
 				1A3C5B5A1DDD012F005F9A01 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		1ADEA3731E4E54F30033F51A /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				1ADEA3741E4E54F30033F51A /* Base */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -2556,6 +2666,40 @@
 			};
 			name = Release;
 		};
+		1ADEA3771E4E54F30033F51A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = EL9BUK3ZCV;
+				GCC_PREFIX_HEADER = "$(PROJECT_DIR)/ShipHub/ShipHub-Prefix.pch";
+				INFOPLIST_FILE = ShipLoginTester/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipLoginTester;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		1ADEA3781E4E54F30033F51A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = EL9BUK3ZCV;
+				GCC_PREFIX_HEADER = "$(PROJECT_DIR)/ShipHub/ShipHub-Prefix.pch";
+				INFOPLIST_FILE = ShipLoginTester/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipLoginTester;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2612,6 +2756,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		1ADEA37C1E4E54F30033F51A /* Build configuration list for PBXNativeTarget "ShipLoginTester" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1ADEA3771E4E54F30033F51A /* Debug */,
+				1ADEA3781E4E54F30033F51A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 
