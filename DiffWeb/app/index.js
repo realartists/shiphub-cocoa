@@ -297,7 +297,7 @@ class App {
       rightIdx++;
     }
     
-    var rows = rowInfos.map((ri) => {
+    var rows = this.rows = rowInfos.map((ri) => {
       var text = "";
       var oldText = undefined;
       var mode = "";
@@ -399,6 +399,9 @@ class App {
   }
   
   updateSelectability(e) {
+    if (this.displayedDiffMode != 'split')
+      return;
+  
     var t = this.table;
     
     var x = e.target;
@@ -426,22 +429,62 @@ class App {
     }
   }
   
-  
   getSelectedText() {
-    var col = this.selectedColumn || 'left';
-    var text = filterSelection(this.table, (node) => {
-      if (node.tagName == 'TR' || node.tagName == 'TABLE') {
-        return filterSelection.FILTER;
-      } else if (node.tagName == 'TD') {
-        if (node.classList.contains(col) && !node.classList.contains('spacer')) {
-          return filterSelection.ACCEPT;
+    var text = "";
+    if (this.displayedDiffMode == 'split') {
+      var col = this.selectedColumn || 'left';
+      text = filterSelection(this.table, (node) => {
+        if (node.tagName == 'TR' || node.tagName == 'TABLE') {
+          return filterSelection.FILTER;
+        } else if (node.tagName == 'TD') {
+          if (node.classList.contains(col) && !node.classList.contains('spacer')) {
+            return filterSelection.ACCEPT;
+          } else {
+            return filterSelection.PRUNE;
+          }
         } else {
-          return filterSelection.PRUNE;
+          return filterSelection.ACCEPT;
         }
+      });
+    } else /*unified mode*/ {
+      var col = 'unified-codecol';
+      
+      // two cases:
+      
+      // 1. if it's just a single line snippet, just return that bare.
+      
+      // 2. if it's a multiline selection, return the whole line contents for each line 
+      // that intersects the selection, including prefix " ", "+", "-"
+      
+      var sel = window.getSelection();
+      
+      var selectedRows = this.rows.filter((r) => sel.containsNode(r.node, true /* allow partial containment */));
+      if (selectedRows <= 1) {
+        var col = 'unified-codecol';
+        text = filterSelection(this.table, (node) => {
+          if (node.tagName == 'TR' || node.tagName == 'TABLE') {
+            return filterSelection.FILTER;
+          } else if (node.tagName == 'TD') {
+            if (node.classList.contains(col) && !node.classList.contains('spacer')) {
+              return filterSelection.ACCEPT;
+            } else {
+              return filterSelection.PRUNE;
+            }
+          } else {
+            return filterSelection.ACCEPT;
+          }
+        });
       } else {
-        return filterSelection.ACCEPT;
+        text = selectedRows.reduce((t, row) => {
+          var line = row.text;
+          if (row.mode.length == 0) {
+            return t + "  " + line + "\n";
+          } else {
+            return t + row.mode + " " + line + "\n";
+          }
+        }, "");
       }
-    });
+    }
     
     // strip non-breaking spaces out of text
     text = text.replace(/\xA0/, '');
