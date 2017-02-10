@@ -363,9 +363,11 @@
 }
 
 - (Issue *)keyOrSelectedProblem {
-    IssueDocument *doc = [self currentDocument];
-    if (doc) {
-        return doc.issueViewController.issue;
+    id doc = [self currentDocument];
+    if ([doc isKindOfClass:[IssueDocument class]]) {
+        return [[doc issueViewController] issue];
+    } else if ([doc isKindOfClass:[PRDocument class]]) {
+        return [[[doc prViewController] pr] issue];
     } else {
         OverviewController *activeOverview = [[AppDelegate sharedDelegate] activeOverviewController];
         NSArray *snaps = [activeOverview selectedIssues];
