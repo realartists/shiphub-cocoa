@@ -26,6 +26,13 @@
     return @"PRDocument";
 }
 
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    if (menuItem.action == @selector(saveDocument:)) {
+        return NO; // you can't save a PRDocument.
+    }
+    return YES;
+}
+
 - (void)windowControllerDidLoadNib:(NSWindowController *)aController {
     [super windowControllerDidLoadNib:aController];
     NSWindow *window = aController.window;
@@ -50,6 +57,10 @@
 
 - (void)needsSaveChanged:(NSNotification *)note {
     //[[self documentWindow] setDocumentEdited:[note.userInfo[IssueViewControllerNeedsSaveKey] boolValue]];
+}
+
+- (IBAction)saveDocument:(id)sender {
+    // no-op
 }
 
 - (void)updateDocumentName {
