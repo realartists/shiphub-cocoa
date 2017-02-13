@@ -363,7 +363,8 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
 - (void)setIssue:(Issue *)issue scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier {
     dispatch_assert_current_queue(dispatch_get_main_queue());
     //DebugLog(@"%@", issue);
-    BOOL issueChanged = issue != nil && _issue != nil && ![_issue.fullIdentifier isEqualToString:issue.fullIdentifier];
+    BOOL identifierChanged = ![NSObject object:_issue.fullIdentifier isEqual:issue.fullIdentifier];
+    BOOL shouldScrollToTop = issue != nil && _issue != nil && identifierChanged;
     _issue = issue;
     if (issue) {
         NSString *issueJSON = [self issueStateJSON:issue];
@@ -371,7 +372,7 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
         NSString *js = [NSString stringWithFormat:@"applyIssueState(%@, %@)", issueJSON, commentIdentifier];
         //DebugLog(@"%@", js);
         [self evaluateJavaScript:js];
-        if (issueChanged && !commentIdentifier) {
+        if (shouldScrollToTop && !commentIdentifier) {
             [self evaluateJavaScript:@"window.scroll(0, 0)"];
         }
     }
@@ -380,7 +381,7 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
     _web.hidden = hidden;
     _nothingLabel.hidden = !hidden;
 
-    if (issue && issueChanged) {
+    if (issue && identifierChanged) {
         [[Analytics sharedInstance] track:@"View Issue"];
     }
 }
