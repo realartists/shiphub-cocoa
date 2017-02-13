@@ -2677,7 +2677,7 @@
 				GCC_PREFIX_HEADER = "$(PROJECT_DIR)/ShipHub/ShipHub-Prefix.pch";
 				INFOPLIST_FILE = ShipLoginTester/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipLoginTester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2694,7 +2694,7 @@
 				GCC_PREFIX_HEADER = "$(PROJECT_DIR)/ShipHub/ShipHub-Prefix.pch";
 				INFOPLIST_FILE = ShipLoginTester/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 10.12;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipLoginTester;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -2764,6 +2764,7 @@
 				1ADEA3781E4E54F30033F51A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
