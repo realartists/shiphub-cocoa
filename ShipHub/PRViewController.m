@@ -14,8 +14,15 @@
 #import "ProgressSheet.h"
 #import "PRSidebarViewController.h"
 #import "PRDiffViewController.h"
+#import "DiffViewModeItem.h"
 
-@interface PRViewController () <PRSidebarViewControllerDelegate>
+static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
+
+@interface PRViewController () <PRSidebarViewControllerDelegate, NSToolbarDelegate> {
+    NSToolbar *_toolbar;
+    
+    DiffViewModeItem *_diffViewModeItem;
+}
 
 @property NSSplitViewController *splitController;
 @property NSSplitViewItem *sidebarItem;
@@ -27,12 +34,20 @@
 
 @implementation PRViewController
 
+- (NSToolbar *)toolbar {
+    [self view];
+    return _toolbar;
+}
+
 - (void)loadView {
     NSView *view = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
+    
+    NSInteger defaultDiffMode = [[Defaults defaults] integerForKey:PRDiffViewModeKey fallback:DiffViewModeSplit];
     
     _sidebarController = [PRSidebarViewController new];
     _sidebarController.delegate = self;
     _diffController = [PRDiffViewController new];
+    _diffController.mode = defaultDiffMode;
     
     if ([[NSSplitViewItem class] respondsToSelector:@selector(contentListWithViewController:)]) {
         _sidebarItem = [NSSplitViewItem contentListWithViewController:_sidebarController];
@@ -48,8 +63,42 @@
     _splitController.splitViewItems = @[_sidebarItem, _diffItem];
     [view setContentView:_splitController.view];
     
+    _toolbar = [[NSToolbar alloc] initWithIdentifier:@"PRViewController"];
+    _toolbar.delegate = self;
+    
+    DiffViewModeItem *diffItem = _diffViewModeItem = [[DiffViewModeItem alloc] initWithItemIdentifier:@"DiffViewMode"];
+    diffItem.mode = defaultDiffMode;
+    diffItem.target = self;
+    diffItem.action = @selector(changeDiffViewMode:);
+    
     self.view = view;
 }
+
+#pragma mark - Toolbar
+
+- (IBAction)changeDiffViewMode:(id)sender {
+    DiffViewMode mode = _diffViewModeItem.mode;
+    [[Defaults defaults] setInteger:mode forKey:PRDiffViewModeKey];
+    self.diffController.mode = _diffViewModeItem.mode;
+}
+
+- (nullable NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag {
+    if ([itemIdentifier isEqualToString:@"DiffViewMode"]) {
+        return _diffViewModeItem;
+    } else {
+        return [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
+    }
+}
+
+- (NSArray<NSString *> *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
+    return @[NSToolbarFlexibleSpaceItemIdentifier, _diffViewModeItem.itemIdentifier];
+}
+
+- (NSArray<NSString *> *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar {
+    return [self toolbarDefaultItemIdentifiers:toolbar];
+}
+
+#pragma mark -
 
 - (void)loadForIssue:(Issue *)issue {
     self.pr = [[PullRequest alloc] initWithIssue:issue];
@@ -77,6 +126,7 @@
 }
 
 - (void)prSidebar:(PRSidebarViewController *)sidebar didSelectGitDiffFile:(GitDiffFile *)file {
+    _diffViewModeItem.enabled = !(file.operation == DiffFileOperationAdded || file.operation == DiffFileOperationDeleted);
     _diffController.diffFile = file;
 }
 

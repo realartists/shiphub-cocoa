@@ -19,4 +19,6 @@
 
 - (void)scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier;
 
+@property (readonly) NSToolbar *toolbar; // toolbar for the window we're in
+
 @end

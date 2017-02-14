@@ -48,6 +48,17 @@
 
 - (void)reconfigureForReload {
     [self setDiffFile:_diffFile];
+    [self setMode:_mode];
+}
+
+- (void)setMode:(DiffViewMode)mode {
+    _mode = mode;
+    const char *modeStr = NULL;
+    switch (mode) {
+        case DiffViewModeUnified: modeStr = "unified"; break;
+        case DiffViewModeSplit: modeStr = "split"; break;
+    }
+    [self evaluateJavaScript:[NSString stringWithFormat:@"window.setDiffMode('%s');", modeStr]];
 }
 
 @end

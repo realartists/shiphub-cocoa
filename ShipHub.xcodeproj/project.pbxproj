@@ -242,6 +242,7 @@
 		1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD956B61D0B75AD002B1259 /* MultiDownloadProgress.m */; };
 		1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */; };
 		1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC81D188E6800E9FAFC /* FilterButton.m */; };
+		1ADEA38A1E4E86C30033F51A /* DiffViewModeItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADEA3891E4E86C30033F51A /* DiffViewModeItem.m */; };
 		1ADED9D01D95AA590093A098 /* RateDampener.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9CF1D95AA590093A098 /* RateDampener.m */; };
 		1ADED9E21DAC47310093A098 /* PRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9E01DAC47310093A098 /* PRViewController.m */; };
 		1ADED9E61DAC47CF0093A098 /* PullRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9E51DAC47CF0093A098 /* PullRequest.m */; };
@@ -799,6 +800,8 @@
 		1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterBarViewController.m; sourceTree = "<group>"; };
 		1AD9ECC71D188E6800E9FAFC /* FilterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterButton.h; sourceTree = "<group>"; };
 		1AD9ECC81D188E6800E9FAFC /* FilterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterButton.m; sourceTree = "<group>"; };
+		1ADEA3881E4E86C30033F51A /* DiffViewModeItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiffViewModeItem.h; sourceTree = "<group>"; };
+		1ADEA3891E4E86C30033F51A /* DiffViewModeItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DiffViewModeItem.m; sourceTree = "<group>"; };
 		1ADED9CE1D95AA590093A098 /* RateDampener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RateDampener.h; sourceTree = "<group>"; };
 		1ADED9CF1D95AA590093A098 /* RateDampener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RateDampener.m; sourceTree = "<group>"; };
 		1ADED9D51DA71EE20093A098 /* git */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = git; path = ext/git; sourceTree = "<group>"; };
@@ -841,6 +844,7 @@
 		1AE09BE71C97687E00C5AC35 /* LocalComment+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalComment+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BE81C97687E00C5AC35 /* LocalComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalComment.h; sourceTree = "<group>"; };
 		1AE09BE91C97687E00C5AC35 /* LocalComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalComment.m; sourceTree = "<group>"; };
+		1AE6F1161E527B23008FD8AC /* DiffViewMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DiffViewMode.h; sourceTree = "<group>"; };
 		1AF3494E1CDA95F000A5BEB0 /* TimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeries.h; sourceTree = "<group>"; };
 		1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeSeries.m; sourceTree = "<group>"; };
 		1AF3496E1CDAC1E900A5BEB0 /* ChartController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChartController.h; sourceTree = "<group>"; };
@@ -1638,6 +1642,9 @@
 				1A3D345D1DB0380300CDF167 /* PRSidebarViewController.xib */,
 				1A3D34601DB0528200CDF167 /* PRDiffViewController.h */,
 				1A3D34611DB0528200CDF167 /* PRDiffViewController.m */,
+				1AE6F1161E527B23008FD8AC /* DiffViewMode.h */,
+				1ADEA3881E4E86C30033F51A /* DiffViewModeItem.h */,
+				1ADEA3891E4E86C30033F51A /* DiffViewModeItem.m */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request";
@@ -2067,6 +2074,7 @@
 				1A3AB3541D9095BA004BB768 /* LocalBilling.m in Sources */,
 				1A3AB3591D909F80004BB768 /* BillingToolbarItem.m in Sources */,
 				1A012E901D3EAC47006CE5DF /* FreeformMetadataRowTemplate.m in Sources */,
+				1ADEA38A1E4E86C30033F51A /* DiffViewModeItem.m in Sources */,
 				1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */,
 				1A3D344C1DAEF0A800CDF167 /* GitDiff.m in Sources */,
 				1A694B0C1CA3413700F73608 /* OverviewController.m in Sources */,

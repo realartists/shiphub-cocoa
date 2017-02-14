@@ -93,7 +93,7 @@ class App {
   }
   
   setDiffMode(newMode) {
-    if (newMode != "split" || newMode != "unified") {
+    if (!(newMode == "split" || newMode == "unified")) {
       throw "unknown mode " + newMode;
     }
     if (this.diffMode != newMode) {
@@ -508,6 +508,10 @@ var app = new App(document.getElementById('app'));
 
 window.updateDiff = function(filename, oldFile, newFile, patch) {
   app.updateDiff(filename||"", oldFile||"", newFile||"", patch||"");
+};
+
+window.setDiffMode = function(newDiffMode) {
+  app.setDiffMode(newDiffMode);
 };
 
 window.loadComplete.postMessage({});

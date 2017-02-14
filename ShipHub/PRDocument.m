@@ -39,6 +39,7 @@
     NSScreen *screen = window.screen ?: [NSScreen mainScreen];
     aController.contentViewController = self.prViewController;
     [window setFrame:screen.visibleFrame display:NO];
+    [window setToolbar:self.prViewController.toolbar];
 }
 
 - (void)awakeFromNib {
