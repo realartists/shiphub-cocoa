@@ -1,4 +1,5 @@
 var webpack = require('webpack');
+var path = require('path');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
   template: __dirname + "/app/index.html",
@@ -25,6 +26,7 @@ module.exports = {
         { test: /\.json$/, loader: 'json'},
     ],
     loaders: [
+      { test: /.*?IssueWeb.*?\.js$/, include: path.join(__dirname, "../IssueWeb/app"), loader: "babel-loader", query: {compact: !debugMode} },
       { test: /\.js$/, include: __dirname + "/app", loader: "babel-loader", query: {compact: !debugMode} },
       { test: /\.jpe?g$|\.gif$|\.png$/, loader: "file" },
       { test: /\.css$/, loader: 'style!css?sourceMap' },

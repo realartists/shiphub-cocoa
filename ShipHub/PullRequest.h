@@ -10,6 +10,7 @@
 
 @class Issue;
 @class GitDiff;
+@class PRComment;
 
 @interface PullRequest : NSObject
 
@@ -19,6 +20,7 @@
 
 - (NSProgress *)checkout:(void (^)(NSError *error))completion;
 
+@property (readonly) NSArray<PRComment *> *prComments; // available after checkout is completed
 @property (readonly) GitDiff *spanDiff; // available after checkout is completed
 
 + (BOOL)isGitHubFilesURL:(NSURL *)URL;

@@ -293,6 +293,7 @@
 		1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
 		1AE09C231C9779E400C5AC35 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EE1C8FC3DB008C11CB /* Reachability.m */; };
 		1AE09C241C977A3400C5AC35 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
+		1AE6F11C1E53BDB7008FD8AC /* PRComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE6F11B1E53BDB7008FD8AC /* PRComment.m */; };
 		1AF349501CDA95F000A5BEB0 /* TimeSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */; };
 		1AF349511CDA95F000A5BEB0 /* TimeSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */; };
 		1AF349751CDAC1E900A5BEB0 /* ChartController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3496F1CDAC1E900A5BEB0 /* ChartController.m */; };
@@ -845,6 +846,8 @@
 		1AE09BE81C97687E00C5AC35 /* LocalComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalComment.h; sourceTree = "<group>"; };
 		1AE09BE91C97687E00C5AC35 /* LocalComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalComment.m; sourceTree = "<group>"; };
 		1AE6F1161E527B23008FD8AC /* DiffViewMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DiffViewMode.h; sourceTree = "<group>"; };
+		1AE6F11A1E53BDB7008FD8AC /* PRComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRComment.h; sourceTree = "<group>"; };
+		1AE6F11B1E53BDB7008FD8AC /* PRComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRComment.m; sourceTree = "<group>"; };
 		1AF3494E1CDA95F000A5BEB0 /* TimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeries.h; sourceTree = "<group>"; };
 		1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeSeries.m; sourceTree = "<group>"; };
 		1AF3496E1CDAC1E900A5BEB0 /* ChartController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChartController.h; sourceTree = "<group>"; };
@@ -1645,6 +1648,8 @@
 				1AE6F1161E527B23008FD8AC /* DiffViewMode.h */,
 				1ADEA3881E4E86C30033F51A /* DiffViewModeItem.h */,
 				1ADEA3891E4E86C30033F51A /* DiffViewModeItem.m */,
+				1AE6F11A1E53BDB7008FD8AC /* PRComment.h */,
+				1AE6F11B1E53BDB7008FD8AC /* PRComment.m */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request";
@@ -2012,6 +2017,7 @@
 				1A5108461D2CC52A00905D4D /* EmptyUpNextViewController.m in Sources */,
 				1A2217961C7E7B14006460E2 /* main.m in Sources */,
 				1AE09BF61C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
+				1AE6F11C1E53BDB7008FD8AC /* PRComment.m in Sources */,
 				1A3618F51C90C7F6008C11CB /* LocalModel.xcdatamodeld in Sources */,
 				1A7FD7741D492FE000B585E2 /* MilestoneModifyController.m in Sources */,
 				1A694B2A1CA341D500F73608 /* NetworkStateWindow.m in Sources */,

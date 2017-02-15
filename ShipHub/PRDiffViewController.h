@@ -12,10 +12,16 @@
 #import "DiffViewMode.h"
 
 @class GitDiffFile;
+@class PRComment;
+@class PullRequest;
 
 @interface PRDiffViewController : IssueWeb2Controller
 
-@property (nonatomic, strong) GitDiffFile *diffFile;
+- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile comments:(NSArray<PRComment *> *)comments;
+
+@property (nonatomic, readonly) PullRequest *pr;
+@property (nonatomic, readonly) GitDiffFile *diffFile;
+@property (nonatomic, readonly) NSArray<PRComment *> *comments;
 
 @property (nonatomic, assign) DiffViewMode mode;
 

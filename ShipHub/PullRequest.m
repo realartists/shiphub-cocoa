@@ -16,6 +16,7 @@
 #import "Repo.h"
 #import "IssueIdentifier.h"
 #import "ServerConnection.h"
+#import "PRComment.h"
 
 #import "GitDiff.h"
 #import "GitRepo.h"
@@ -120,10 +121,15 @@
 - (NSError *)checkoutWithProgress:(NSProgress *)progress {
     NSString *endpoint;
     ServerConnection *conn = [[DataStore activeStore] serverConnection];
+    MetadataStore *ms = [[DataStore activeStore] metadataStore];
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     
     __block NSDictionary *prInfo = nil;
+    __block NSArray<PRComment *> *comments = nil;
     __block NSError *prError = nil;
+    __block NSError *commentsError = nil;
+    
+    NSInteger operations = 0;
     
     endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@", _issue.repository.fullName, _issue.number];
     [conn perform:@"GET" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
@@ -137,13 +143,35 @@
         }
         dispatch_semaphore_signal(sema);
     }];
+    operations++;
     
-    // wait for pr response
-    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/comments", _issue.repository.fullName, _issue.number];
+    [conn perform:@"GET" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
+        if ([jsonResponse isKindOfClass:[NSArray class]]) {
+            comments = [jsonResponse arrayByMappingObjects:^id(id obj) {
+                return [[PRComment alloc] initWithDictionary:obj metadataStore:ms];
+            }];
+        } else {
+            commentsError = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+        }
+        if (!commentsError) {
+            commentsError = error;
+        }
+        dispatch_semaphore_signal(sema);
+    }];
+    operations++;
+    
+    // wait for responses
+    while (operations != 0) {
+        dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+        operations--;
+    }
     
     if (prError) return prError;
+    if (commentsError) return commentsError;
     
     _info = prInfo;
+    _prComments = comments;
     
     return [self cloneWithProgress:progress];
 }

@@ -9,6 +9,9 @@
 #import "PRDiffViewController.h"
 #import "IssueWeb2ControllerInternal.h"
 
+#import "PullRequest.h"
+#import "Issue.h"
+#import "PRComment.h"
 #import "GitDiff.h"
 #import "JSON.h"
 
@@ -35,19 +38,21 @@
     [super viewDidLoad];
 }
 
-- (void)setDiffFile:(GitDiffFile *)diffFile {
+- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile comments:(NSArray<PRComment *> *)comments {
+    _pr = pr;
     _diffFile = diffFile;
+    _comments = comments;
     NSInteger count = ++_loadCount;
     [diffFile loadTextContents:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
         if (_loadCount != count) return;
         
-        NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@, %@, %@, %@);", [JSON stringifyObject:diffFile.name], [JSON stringifyObject:oldFile], [JSON stringifyObject:newFile], [JSON stringifyObject:patch]];
+        NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@, %@, %@, %@, %@, %@);", [JSON stringifyObject:diffFile.name], [JSON stringifyObject:oldFile], [JSON stringifyObject:newFile], [JSON stringifyObject:patch], [JSON stringifyObject:pr.issue.fullIdentifier], [JSON stringifyObject:comments]];
         [self evaluateJavaScript:js];
     }];
 }
 
 - (void)reconfigureForReload {
-    [self setDiffFile:_diffFile];
+    [self setPR:_pr diffFile:_diffFile comments:_comments];
     [self setMode:_mode];
 }
 

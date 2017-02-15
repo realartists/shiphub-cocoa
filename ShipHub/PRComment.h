@@ -1,0 +1,25 @@
+//
+//  PRComment.h
+//  ShipHub
+//
+//  Created by James Howard on 2/14/17.
+//  Copyright © 2017 Real Artists, Inc. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+#import "IssueComment.h"
+
+@interface PRComment : IssueComment
+
+@property NSNumber *pullRequestReviewId;
+@property NSString *diffHunk;
+@property NSString *path;
+@property NSNumber *position;
+@property NSNumber *originalPosition;
+@property NSString *commitId;
+@property NSString *originalCommitId;
+
+- (id)initWithDictionary:(NSDictionary *)d metadataStore:(MetadataStore *)store;
+
+@end
