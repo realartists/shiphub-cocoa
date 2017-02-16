@@ -1,4 +1,5 @@
 import hljs from 'highlight.js'
+import htmlEscape from 'html-escape';
 
 var langMapping = {
   m: 'objc'
@@ -9,6 +10,7 @@ function languageForFilename(filename) {
   var ext = "";
   if (a.length > 1) ext = a[a.length-1];
   var lang = ext;
+  if (ext.length == 0 || ext.toLowerCase() == 'txt' || ext.toLowerCase() == 'text') return 'text';
   if (lang in langMapping) lang = langMapping[lang];
   if (hljs.getLanguage(lang)) return lang;
   return null;
@@ -51,7 +53,10 @@ onmessage = function(event) {
   
   var leftHighlighted = "";
   var rightHighlighted = "";
-  if (language) {
+  if (language == 'text') {
+    leftHighlighted = splitHighlight(htmlEscape(leftText));
+    rightHighlighted = splitHighlight(htmlEscape(rightText));
+  } else if (language) {
     leftHighlighted = splitHighlight(hljs.highlight(language, leftText, true).value);
     rightHighlighted = splitHighlight(hljs.highlight(language, rightText, true).value);
   } else {

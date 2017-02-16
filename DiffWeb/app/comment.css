@@ -1,3 +1,30 @@
+div.commentShadowTop {
+  height: 13px;
+  margin-top: -13px;
+  z-index: -1;
+  width: 100%;
+  box-shadow: 0px 5px 8px #CCC;
+}
+div.commentBlock {
+  border-top: 1px solid #CCC;
+  border-bottom: 1px solid #CCC;
+  padding-bottom: 16px;
+  background-color: #F0EFEF;
+}
+div.comment {
+  background-color: white;
+  border: 1px solid #D6D5D5;
+  padding-left: 10px;
+  padding-right: 10px;
+  overflow: hidden;
+  margin-top: 16px;
+  margin-left: 16px;
+  margin-right: 16px;
+  font-family: -apple-system, Helvetica, Arial, Sans-Serif; 
+  font-size: 10pt;
+  line-height: 150%;
+  box-shadow: 0px 5px 8px #CCC;
+}
 div.commentBody hr {
   border: 1px solid #CCC;
 }
@@ -44,19 +71,6 @@ div.commentBody pre > code {
   background-color: inherit;
   border-radius: 0;
 }
-div.comment {
-  background-color: white;
-  border: 1px solid #D6D5D5;
-  border-left: 0px;
-  border-right: 0px;
-  padding-left: 10px;
-  padding-right: 10px;
-  overflow: hidden;
-  margin-top: 16px;
-  margin-left: 0px;
-  margin-right: 0px;
-  box-shadow: 0px 5px 8px #CCC;
-}
 div.commentEmptyFooter {
   height: 2px;
   background-color: white;
@@ -80,8 +94,7 @@ div.commentBody blockquote {
 div.commentBody a {
   overflow-wrap: break-word;
 }
-div.commentBody img, 
-div.commentBody video {
+div.commentBody img, video {
   display: block;
   max-width: 100%;
   height: auto;

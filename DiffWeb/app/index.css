@@ -16,6 +16,10 @@ table.diff {
   border-collapse: collapse;
 }
 
+.diff tr {
+  background-color: white;
+}
+
 .diff tr:first-child > td {
   padding-top: 4px;
 }

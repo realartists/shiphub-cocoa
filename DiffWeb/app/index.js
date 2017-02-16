@@ -131,7 +131,7 @@ class App {
         leftIdx++;
         hunkQueue++;
       } else if (diffLine.startsWith("+")) {
-        if (this.mode == 'split') {      
+        if (this.displayedDiffMode == 'split') {      
           if (hunkQueue) {
             // if we have an active hunk queue, hook this line in right up with the corresponding deleted line in left.
             var hunkIdx = rowInfos.length - hunkQueue;
@@ -174,7 +174,7 @@ class App {
     
     // create the actual row objects from the rowInfos
     var codeRows = null;
-    if (this.mode == 'split') {    
+    if (this.displayedDiffMode == 'split') {    
       codeRows = rowInfos.map((ri) => {
         return new SplitRow(
           ri.leftIdx===undefined?undefined:leftLines[ri.leftIdx],
@@ -240,13 +240,13 @@ class App {
     });
     
     var codeAndComments = [];
-    var commentCols = this.mode == 'split' ? 4 : 3;
+    var commentCols = this.displayedDiffMode == 'split' ? 4 : 3;
     codeRows.forEach((code) => {
       codeAndComments.push(code);
       if (code.diffLine!==undefined) {
         var comments = commentsLookup[code.diffLine];
         if (comments) {
-          codeAndComments.push(...comments.map((c) => new CommentRow(c, this.issueIdentifier, commentCols)));
+          codeAndComments.push(new CommentRow(comments, this.issueIdentifier, commentCols));
         }
       }
     });
@@ -254,7 +254,7 @@ class App {
     var rows = Array.from(codeAndComments);
     
     // add a trailing row to take up space for short diffs
-    var trailer = new TrailerRow(this.mode);
+    var trailer = new TrailerRow(this.displayedDiffMode);
     rows.push(trailer);
     
     var rowNodes = rows.map((r) => r.node);
@@ -276,11 +276,11 @@ class App {
     
     // Highlighting
     var hw = new HighlightWorker;
-    if (this.mode == 'split') {
+    if (this.displayedDiffMode == 'split') {
       hw.onmessage = function(result) {
         var leftHighlighted = result.data.leftHighlighted;
         var rightHighlighted = result.data.rightHighlighted;
-      
+    
         rowInfos.forEach((ri, i) => {
           var row = codeRows[i];
           var left = ri.leftIdx===undefined?undefined:leftHighlighted[ri.leftIdx];
@@ -292,13 +292,13 @@ class App {
       hw.onmessage = function(result) {
         var leftHighlighted = result.data.leftHighlighted;
         var rightHighlighted = result.data.rightHighlighted;
-      
+    
         rowInfos.forEach((ri, i) => {
           var row = codeRows[i];
-        
+      
           var code = "";
           var ctx = undefined;
-        
+      
           if (ri.leftIdx!==undefined) {
             code = leftHighlighted[ri.leftIdx];
             if (ri.ctxRightIdx) {
@@ -310,12 +310,12 @@ class App {
               ctx = leftHighlighted[ri.ctxLeftIdx];
             }
           }
-        
+      
           row.updateHighlight(code, ctx);
         });
       };
+      hw.postMessage({filename:this.filename, leftText:this.leftText, rightText:this.rightText});
     }
-    hw.postMessage({filename:this.filename, leftText:this.leftText, rightText:this.rightText});
   }
   
   updateDiff(filename, leftText, rightText, uDiff, issueIdentifier, comments) {

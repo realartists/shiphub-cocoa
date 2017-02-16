@@ -76,12 +76,9 @@ var markdownOpts = {
   }
 };
 
-class CommentRow extends DiffRow {
-  constructor(comment, issueIdentifier, colspan) {
-    super();
-  
+class Comment {
+  constructor(comment, issueIdentifier) {
     this.comment = comment;
-    this.colspan = colspan;
     this.issueIdentifier = issueIdentifier;
     
     var parts = issueIdentifier.split('/#');
@@ -89,11 +86,27 @@ class CommentRow extends DiffRow {
     markedRenderer.text = function(text) {
       return emojify(githubLinkify(parts[0], parts[1], text));
     }
-    
     var commentBody = h('div', {className:'commentBody'});
     commentBody.innerHTML = marked(comment.body, markdownOpts);
     var commentDiv = h('div', {className:'comment'}, commentBody);
-    var td = h('td', {colSpan:""+colspan, className:'comment-cell'}, commentDiv);
+    
+    this.node = commentDiv;
+  }
+}
+
+class CommentRow extends DiffRow {
+  constructor(comments, issueIdentifier, colspan) {
+    super();
+      
+    this.comments = comments.map((c) => new Comment(c, issueIdentifier));
+    this.colspan = colspan;
+    this.issueIdentifier = issueIdentifier;
+    
+    var commentBlock = h('div', {className:'commentBlock'}, 
+      h('div', {className:'commentShadowTop'}),
+      ...this.comments.map((c) => c.node)
+    );
+    var td = h('td', {colSpan:""+colspan, className:'comment-cell'}, commentBlock);
     
     var row = h('tr', {}, td);
     this.node = row;
