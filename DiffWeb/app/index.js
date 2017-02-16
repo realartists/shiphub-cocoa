@@ -1,5 +1,7 @@
 
-import h from 'hyperscript'
+import React, { createElement as h } from 'react'
+import ReactDOM from 'react-dom'
+
 import filterSelection from './filter-selection.js'
 import MiniMap from './minimap.js'
 import AttributedString from './attributed-string.js'
@@ -38,27 +40,30 @@ function parseDiffLine(diffLine) {
   return {leftStartLine, leftRun, rightStartLine, rightRun};
 }
 
-class App {
-  constructor(root) {  
-    var minimapWidth = 32;
+class App extends React.Component {
+  constructor() {
+    super();
     
-    var style = {
-      'width': '100%',
-      'max-width': '100%'
+    this.state = {
+      diffMode: "unified",
+      displayedDiffMode: "unified",
+      leftHighlighted: null,
+      rightHighlighted: null
     };
-    this.table = h('table', {className:"diff", style:style});
+  }
+  
+  componentDidMount() {
+    var table = this.table;
     
-    this.diffMode = "unified";
-    
-    this.table.addEventListener('mousedown', (event) => {
+    table.addEventListener('mousedown', (event) => {
       this.updateSelectability(event);
     });
     
-    this.table.addEventListener('copy', (event) => {
+    table.addEventListener('copy', (event) => {
       this.copyCode(event);
     });
     
-    this.table.addEventListener('dragstart', (event) => {
+    table.addEventListener('dragstart', (event) => {
       this.dragCode(event);
     });
     
@@ -66,32 +71,30 @@ class App {
       this.sizeTable();
     });
     
-    root.appendChild(this.table);
-    
-    this.miniMap = new MiniMap(root, this.table, minimapWidth);
     this.sizeTable();
   }
   
+  componentDidUpdate() {
+    // Update the minimap
+    var codeAndComments = this.codeRows.concat(this.commentRows);
+    var miniMapRegions = codeAndComments.reduce((accum, row) => {
+      var regions = row.miniMapRegions;
+      if (regions) {
+        accum = accum.concat(regions);
+      }
+      return accum;
+    }, []);
+    this.props.miniMap.setRegions(miniMapRegions);
+  }
+      
   sizeTable() {
     this.table.style.minHeight = window.innerHeight + 'px';
   }
   
-  setDiffMode(newMode) {
-    if (!(newMode == "split" || newMode == "unified")) {
-      throw "unknown mode " + newMode;
-    }
-    if (this.diffMode != newMode) {
-      this.diffMode = newMode;
-      if (this.filename) {
-        this.updateDiff(this.filename, this.leftText, this.rightText, this.uDiff);
-      }
-    }
-  }
-  
-  build() {
-    var leftLines = splitLines(this.leftText);
-    var rightLines = splitLines(this.rightText);
-    var diffLines = splitLines(this.uDiff);
+  calculateRowInfo(data, displayedDiffMode) {
+    var leftLines = data.leftLines;
+    var rightLines = data.rightLines;
+    var diffLines = data.diffLines;
     
     // contain information needed to build SplitRow objects (indexes into left, right, and diff)
     var rowInfos = [];
@@ -131,7 +134,7 @@ class App {
         leftIdx++;
         hunkQueue++;
       } else if (diffLine.startsWith("+")) {
-        if (this.displayedDiffMode == 'split') {      
+        if (displayedDiffMode == 'split') {      
           if (hunkQueue) {
             // if we have an active hunk queue, hook this line in right up with the corresponding deleted line in left.
             var hunkIdx = rowInfos.length - hunkQueue;
@@ -172,56 +175,142 @@ class App {
       rightIdx++;
     }
     
+    return {rowInfos, firstHunkIdx};
+  }
+  
+  updateDiff(filename, oldFile, newFile, diff, issueIdentifier, comments) {
+    var stateUpdate = {};
+    stateUpdate.filename = filename;
+    stateUpdate.oldFile = oldFile;
+    stateUpdate.newFile = newFile;
+    stateUpdate.diff = diff;
+    stateUpdate.comments = comments;
+    stateUpdate.leftLines = splitLines(oldFile);
+    stateUpdate.rightLines = splitLines(newFile);
+    stateUpdate.diffLines = splitLines(diff);
+  
+    var displayedDiffMode = this.state.diffMode;
+    if (oldFile.length == 0 || newFile.length == 0) {
+      displayedDiffMode = "unified";
+    }
+    
+    stateUpdate.displayedDiffMode = displayedDiffMode;
+  
+    // recalculate row text pointers
+    stateUpdate = Object.assign({}, stateUpdate, this.calculateRowInfo(stateUpdate, displayedDiffMode));
+    
+    // recalculate syntax highlighting
+    stateUpdate.leftHighlighted = null;
+    stateUpdate.rightHighlighted = null;
+    
+    if (this.highlighter) {
+      // clear old callback. we don't care anymore.
+      delete this.highlighter.onmessage;
+    }
+    var hw = this.highlighter = new HighlightWorker;
+    hw.onmessage = () => {
+      var leftHighlighted = result.data.leftHighlighted;
+      var rightHighlighted = result.data.rightHighlighted;
+      
+      delete this.highlighter;
+      
+      highlightFinished(leftHighlighted, rightHighlighted);
+    };
+    
+    this.setState(Object.assign({}, this.state, stateUpdate));
+  }
+  
+  highlightFinished(leftHighlighted, rightHighlighted) {
+    this.setState(Object.assign({}, this.state, {
+      leftHighlighted: leftHighlighted.map((l) => AttributedString.fromHTML(leftHighlighted)), 
+      rightHighlighted: rightHighlighted.map((l) => AttributedString.fromHTML(rightHighlighted))
+    }));
+  }
+  
+  setDiffMode(newDiffMode) {
+    if (!(newDiffMode == "split" || newDiffMode == "unified")) {
+      throw "unknown mode " + newDiffMode;
+    }
+    if (newDiffMode != this.state.diffMode) {
+      var stateUpdate = {};
+      
+      var displayedDiffMode = this.state.diffMode;
+      if ((this.state.leftText||"").length == 0 || (this.state.rightText||"").length == 0) {
+        displayedDiffMode = "unified";
+      }    
+      stateUpdate.displayedDiffMode = displayedDiffMode;
+      
+      if (displayedDiffMode != this.state.displayedDiffMode) {
+        stateUpdate = Object.assign({}, stateUpdate, this.calculateRowInfo(this.state, displayedDiffMode));
+      }
+      
+      this.setState(Object.assign({}, this.state, stateUpdate));
+    }
+  }
+  
+  render() {
+    var leftLines = this.state.leftLines;
+    var rightLines = this.state.rightLines;
+    var diffLines = this.state.diffLines;
+    var rowInfos = this.state.rowInfos || [];
+    var leftHighlighted = this.state.leftHighlighted || [];
+    var rightHighlighted = this.state.rightHighlighted || [];
+    
     // create the actual row objects from the rowInfos
+    this.codeRows = [];
     var codeRows = null;
-    if (this.displayedDiffMode == 'split') {    
+    if (this.state.displayedDiffMode == 'split') {    
       codeRows = rowInfos.map((ri) => {
-        return new SplitRow(
-          ri.leftIdx===undefined?undefined:leftLines[ri.leftIdx],
-          ri.leftIdx,
-          ri.rightIdx==undefined?undefined:rightLines[ri.rightIdx],
-          ri.rightIdx,
-          ri.diffIdx,
-          ri.changed===true
-        );
+        return h(SplitRow, {
+          ref: (e) => { if (e) { this.codeRows[i] = e; } },
+          key: `SplitRow.${ri.leftIdx||-1}.${ri.rightIdx||-1}.${ri.diffIdx||-1}`,
+          leftLine: ri.leftIdx===undefined?undefined:(leftHighlighted[ri.leftIdx]||leftLines[ri.leftIdx]),
+          leftLineNum: ri.leftIdx,
+          rightLine: ri.rightIdx==undefined?undefined:(rightHighlighted[ri.rightIdx]||rightLines[ri.rightIdx]),
+          rightLineNum: ri.rightIdx,
+          diffLineNum: ri.diffIdx,
+          changed: ri.changed===true,
+        });
       });
     } else /* unified */ {
-      codeRows = rowInfos.map((ri) => {
+      codeRows = rowInfos.map((ri, i) => {
         var text = "";
         var oldText = undefined;
         var mode = "";
         if (ri.leftIdx!==undefined && ri.rightIdx!==undefined) {
           // context line
-          text = leftLines[ri.leftIdx];
+          text = leftHighlighted[ri.leftIdx] || leftLines[ri.leftIdx];
         } else if (ri.leftIdx!==undefined) {
-          text = leftLines[ri.leftIdx];
+          text = leftHighlighted[ri.leftIdx] || leftLines[ri.leftIdx];
           mode = "-";
           if (ri.ctxRightIdx!==undefined) {
             oldText = rightLines[ri.ctxRightIdx];
           }
         } else if (ri.rightIdx!==undefined) {
-          text = rightLines[ri.rightIdx];
+          text = rightHighlighted[ri.rightIdx] || rightLines[ri.rightIdx];
           mode = "+";
           if (ri.ctxLeftIdx!==undefined) {
             oldText = leftLines[ri.ctxLeftIdx];
           }
         }
-      
-        return new UnifiedRow(
+        
+        return h(UnifiedRow, {
+          ref: (e) => { if (e) { this.codeRows[i] = e; } },
+          key: `UnifiedRow.${ri.leftIdx||-1}.${ri.rightIdx||-1}.${ri.diffIdx||-1}`,
           mode,
           text,
           oldText,
-          ri.leftIdx,
-          ri.rightIdx,
-          ri.diffIdx
-        );
+          leftLineNum:ri.leftIdx,
+          rightLineNum:ri.rightIdx,
+          diffLine:ri.diffIdx
+        });
       });
     }
-    this.codeRows = codeRows;
     
     // merge in comments
     var commentsLookup = []; // sparse array of diffIdx => [comments]
-    this.comments.sort((a, b) => {
+    var sortedComments = Array.from(this.state.comments||[]);
+    sortedComments.sort((a, b) => {
       var d1 = new Date(a.created_at);
       var d2 = new Date(b.created_at);
       if (d1 < d2) {
@@ -232,21 +321,34 @@ class App {
         return 1;
       }
     });
-    this.comments.forEach((c) => {
+    var firstHunkIdx = this.state.firstHunkIdx;
+    sortedComments.forEach((c) => {
       var i = c.position + firstHunkIdx;
       var a = commentsLookup[i];
       if (!a) a = commentsLookup[i] = [];
       a.push(c);
     });
     
+    this.commentRows = [];
     var codeAndComments = [];
-    var commentCols = this.displayedDiffMode == 'split' ? 4 : 3;
+    var commentCols = this.state.displayedDiffMode == 'split' ? 4 : 3;
+    var counter = { i: 0 };
     codeRows.forEach((code) => {
       codeAndComments.push(code);
       if (code.diffLine!==undefined) {
         var comments = commentsLookup[code.diffLine];
         if (comments) {
-          codeAndComments.push(new CommentRow(comments, this.issueIdentifier, commentCols));
+          var j = counter.i;
+          codeAndComments.push(
+            h(CommentRow, {
+              ref: (e) => { if (e) { this.commentRows[j] = e; } },
+              key:`CommentRow.${code.diffLine}`,
+              comments, 
+              issueIdentifier:this.state.issueIdentifier, 
+              commentCols
+            })
+          );
+          counter.i++;
         }
       }
     });
@@ -254,93 +356,22 @@ class App {
     var rows = Array.from(codeAndComments);
     
     // add a trailing row to take up space for short diffs
-    var trailer = new TrailerRow(this.displayedDiffMode);
+    var trailer = h(TrailerRow, {key:'trailer', mode:this.displayedDiffMode});
     rows.push(trailer);
-    
-    var rowNodes = rows.map((r) => r.node);
-    
-    // Write out DOM
-    this.table.innerHTML = '';
-    rowNodes.forEach((rn) => {
-      this.table.appendChild(rn);
-    });
-    
-    // Update the minimap
-    var miniMapRegions = codeAndComments.reduce((accum, row) => {
-      if (row.miniMapRegions) {
-        accum = accum.concat(row.miniMapRegions);
-      }
-      return accum;
-    }, []);
-    this.miniMap.setRegions(miniMapRegions);
-    
-    // Highlighting
-    var hw = new HighlightWorker;
-    if (this.displayedDiffMode == 'split') {
-      hw.onmessage = function(result) {
-        var leftHighlighted = result.data.leftHighlighted;
-        var rightHighlighted = result.data.rightHighlighted;
-    
-        rowInfos.forEach((ri, i) => {
-          var row = codeRows[i];
-          var left = ri.leftIdx===undefined?undefined:leftHighlighted[ri.leftIdx];
-          var right = ri.rightIdx===undefined?undefined:rightHighlighted[ri.rightIdx];
-          row.updateHighlight(left, right);
-        });
-      };
-    } else /* unified */ {
-      hw.onmessage = function(result) {
-        var leftHighlighted = result.data.leftHighlighted;
-        var rightHighlighted = result.data.rightHighlighted;
-    
-        rowInfos.forEach((ri, i) => {
-          var row = codeRows[i];
-      
-          var code = "";
-          var ctx = undefined;
-      
-          if (ri.leftIdx!==undefined) {
-            code = leftHighlighted[ri.leftIdx];
-            if (ri.ctxRightIdx) {
-              ctx = rightHighlighted[ri.ctxRightIdx];
-            }
-          } else if (ri.rightIdx!==undefined) {
-            code = rightHighlighted[ri.rightIdx];
-            if (ri.ctxLeftIdx) {
-              ctx = leftHighlighted[ri.ctxLeftIdx];
-            }
-          }
-      
-          row.updateHighlight(code, ctx);
-        });
-      };
-      hw.postMessage({filename:this.filename, leftText:this.leftText, rightText:this.rightText});
-    }
-  }
   
-  updateDiff(filename, leftText, rightText, uDiff, issueIdentifier, comments) {
-    // note: the left is considered the 'original' (what's in master)
-    // and the right is considered the 'modified' (result of original + patch)
+    var tableStyle = {
+      'width': '100%',
+      'maxWidth': '100%'
+    };
+    var table = h('table', {ref:(t)=>{this.table=t}, className:'diff', style:tableStyle}, 
+      h('tbody', {}, rows)
+    );
     
-    var displayedDiffMode = this.diffMode;
-    if (leftText.length == 0 || rightText.length == 0) {
-      displayedDiffMode = "unified";
-    }
-    
-    this.displayedDiffMode = displayedDiffMode;
-    
-    this.filename = filename;
-    this.leftText = leftText;
-    this.rightText = rightText;
-    this.uDiff = uDiff;
-    this.issueIdentifier = issueIdentifier;
-    this.comments = comments;
-  
-    this.build();
+    return table;
   }
   
   updateSelectability(e) {
-    if (this.displayedDiffMode != 'split')
+    if (this.state.displayedDiffMode != 'split')
       return;
   
     var t = this.table;
@@ -369,10 +400,10 @@ class App {
       this.selectedColumn = 'right';
     }
   }
-  
+    
   getSelectedText() {
     var text = "";
-    if (this.displayedDiffMode == 'split') {
+    if (this.state.displayedDiffMode == 'split') {
       var col = this.selectedColumn || 'left';
       text = filterSelection(this.table, (node) => {
         if (node.tagName == 'TR' || node.tagName == 'TABLE') {
@@ -445,9 +476,13 @@ class App {
   }
 }
 
-var app = new App(document.getElementById('app'));
+var miniMapWidth = 32;
+var miniMap = new MiniMap(document.getElementById("body"), document.getElementById('app'), miniMapWidth);
+
+var app = null;
 
 window.updateDiff = function(filename, oldFile, newFile, patch, issueIdentifier, comments) {
+  console.log("updateDiff", app);
   app.updateDiff(filename||"", oldFile||"", newFile||"", patch||"", issueIdentifier, comments||[]);
 };
 
@@ -455,5 +490,10 @@ window.setDiffMode = function(newDiffMode) {
   app.setDiffMode(newDiffMode);
 };
 
-window.loadComplete.postMessage({});
-
+app = ReactDOM.render(
+  h(App, {miniMap: miniMap}),
+  document.getElementById('app'),
+  function() { 
+    window.loadComplete.postMessage({});
+  }
+);

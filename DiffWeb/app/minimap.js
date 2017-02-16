@@ -1,5 +1,3 @@
-import h from 'hyperscript'
-
 class Region {
   constructor(node /* DOM node */, color /* string, e.g. red or #F00 */) {
     this.node = node;
@@ -20,8 +18,12 @@ class MiniMap {
       'background-color': this.backgroundColor()
     };
     this.regions = [];
-    this.canvas = h('canvas', {style:style});
+    this.canvas = document.createElement('canvas');
+    for (var k in style) {
+      this.canvas.style[k] = style[k];
+    }
     this.scrollable = scrollable;
+    this.width = width;
     container.appendChild(this.canvas);
     
     window.addEventListener('scroll', () => this.setNeedsDisplay());

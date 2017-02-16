@@ -30,8 +30,13 @@ function reduceText(root, accum, visitor) {
 
 class AttributedString {
   constructor(str) {
-    this.string = str;
-    this.attrs = [];
+    if (str instanceof AttributedString) {
+      this.string = str.string;
+      this.attrs = Array.from(str.attrs);
+    } else {
+      this.string = str;
+      this.attrs = [];
+    }
   }
   
   static fromHTML(html) {

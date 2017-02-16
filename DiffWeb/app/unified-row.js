@@ -2,58 +2,65 @@ import DiffRow from './diff-row.js'
 import MiniMap from './minimap.js'
 import AttributedString from './attributed-string.js'
 
-import h from 'hyperscript'
+import React, { createElement as h } from 'react'
 import diff_match_patch from 'diff-match-patch'
 import htmlEscape from 'html-escape';
 
 class UnifiedRow extends DiffRow {
-  constructor(mode, text, oldText, leftLineNum, rightLineNum, diffLine) {
-    super();
-    
-    this.mode = mode;
-    this.text = text;
-    this.oldText = oldText;
-    this.leftLineNum = leftLineNum;
-    this.rightLineNum = rightLineNum;
-    this.diffLine = diffLine;
-            
-    var gutterLeft = h('td', { className:'gutter gutter-left' });
-    var gutterRight = h('td', { className:'gutter gutter-right' });
-    
-    if (leftLineNum !== undefined) {
-      gutterLeft.innerHTML = "" + (1+leftLineNum);
-    }
-    if (rightLineNum !== undefined) {
-      gutterRight.innerHTML = "" + (1+rightLineNum);
+  constructor(props) {
+    super(props);
+    this.state = this.computeHTML(props);
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    // compare props in order of the cost of the comparison
+  
+    if (this.props.leftLineNum !== nextProps.leftLineNum) {
+      return true;
     }
     
-    var codeClasses = 'unified unified-codecol';
-    if (mode === '-') {
-      codeClasses += ' deleted-original';
-    } else if (mode === '+') {
-      codeClasses += ' inserted-new';
+    if (this.props.rightLineNum !== nextProps.rightLineNum) {
+      return true;
     }
-    var codeCell = this.codeCell = h('td', { className: codeClasses });
     
-    codeCell.innerHTML = this.codeColContents(htmlEscape(text||""));
-    
-    var row = h('tr', {}, gutterLeft, gutterRight, codeCell);
-    this.node = row;
-    
-    if (mode === '-') {
-      this.miniMapRegions = [new MiniMap.Region(codeCell, 'red')];
-    } else if (mode === '+') {
-      this.miniMapRegions = [new MiniMap.Region(codeCell, 'green')];
+    if (this.props.diffLineNum !== nextProps.diffLineNum) {
+      return true;
     }
+    
+    var wasHighlighted = this.props.text instanceof AttributedString;
+    var isHighlighted = nextProps.text instanceof AttributedString;
+    
+    if (wasHighlighted != isHighlighted) {
+      return true;
+    }
+    
+    if (this.props.text != nextProps.text) {
+      return true;
+    }
+    
+    if (this.props.oldText != nextProps.oldText) {
+      return true;
+    }
+    
+    return true;
   }
   
-  updateHighlight(highlighted, ctxHighlighted) {
-    if (ctxHighlighted) {
-      var myAstr = AttributedString.fromHTML(highlighted);
-      var ctxAstr = AttributedString.fromHTML(ctxHighlighted);
-      
+  componentWillReceiveProps(nextProps) {
+    this.setState(Object.assign({}, this.state, this.computeHTML(nextProps)));
+  }
+  
+  computeHTML(nextProps) {
+    var html;
+    var text = nextProps.text;
+    var oldText = htmlEscape(nextProps.oldText||"");
+    if (!(text instanceof AttributedString)) {
+      text = html = htmlEscape(nextProps.text||"");
+    }
+    var myAstr = new AttributedString(text);
+    
+    if (nextProps.oldText) {
       var dmp = new diff_match_patch();
-      var diff = dmp.diff_main(myAstr.string, ctxAstr.string);
+      var diff = dmp.diff_main(myAstr.string, oldText);
       dmp.diff_cleanupSemantic(diff);
       
       if (diff.length > 1) {
@@ -68,10 +75,48 @@ class UnifiedRow extends DiffRow {
         }
       }
       
-      highlighted = myAstr.toHTML();
+      html = myAstr.toHTML();
     }
     
-    this.codeCell.innerHTML = this.codeColContents(highlighted);
+    if (!html) {
+      html = text?text.toHTML():"";
+    }
+    
+    return {html};
+  }
+
+  render() {
+    var gutterLeft = h('td', { className:'gutter gutter-left' }, 
+      this.props.leftLineNum===undefined?"":(1+this.props.leftLineNum)
+    );
+    var gutterRight = h('td', { className:'gutter gutter-right' },
+      this.props.rightLineNum===undefined?"":(1+this.props.rightLineNum)
+    );
+    
+    var codeClasses = 'unified unified-codecol';
+    if (this.props.mode === '-') {
+      codeClasses += ' deleted-original';
+    } else if (this.props.mode === '+') {
+      codeClasses += ' inserted-new';
+    }
+    var codeCell = this.codeCell = h('td', { 
+      ref: (td) => { this.codeCell = td },
+      className: codeClasses,
+      dangerouslySetInnerHTML:{__html:this.codeColContents(this.state.html)} 
+    });
+    
+    var row = h('tr', {}, gutterLeft, gutterRight, codeCell);
+    return row;
+  }
+  
+  componentDidUpdate() {
+    if (this.props.mode === '-') {
+      this.miniMapRegions = [new MiniMap.Region(this.codeCell, 'red')];
+    } else if (this.props.mode === '+') {
+      this.miniMapRegions = [new MiniMap.Region(this.codeCell, 'green')];
+    } else {
+      this.miniMapRegions = [];
+    }
   }
 }
 

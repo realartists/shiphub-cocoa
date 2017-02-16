@@ -3,7 +3,7 @@ import './comment.css'
 import DiffRow from './diff-row.js'
 import MiniMap from './minimap.js'
 
-import h from 'hyperscript'
+import React, { createElement as h } from 'react'
 import hljs from 'highlight.js'
 
 import { emojify, emojifyReaction } from '../../IssueWeb/app/emojify.js'
@@ -76,40 +76,32 @@ var markdownOpts = {
   }
 };
 
-class Comment {
-  constructor(comment, issueIdentifier) {
-    this.comment = comment;
-    this.issueIdentifier = issueIdentifier;
-    
+class Comment extends React.Component {
+  render() {
     var parts = issueIdentifier.split('/#');
-    
     markedRenderer.text = function(text) {
       return emojify(githubLinkify(parts[0], parts[1], text));
     }
-    var commentBody = h('div', {className:'commentBody'});
-    commentBody.innerHTML = marked(comment.body, markdownOpts);
+    var commentBody = h('div', {
+      className:'commentBody',
+      dangerouslySetInnerHTML: marked(this.props.comment.body, markdownOpts)
+    });
     var commentDiv = h('div', {className:'comment'}, commentBody);
-    
-    this.node = commentDiv;
+    return commentDiv;
   }
 }
 
 class CommentRow extends DiffRow {
-  constructor(comments, issueIdentifier, colspan) {
-    super();
-      
-    this.comments = comments.map((c) => new Comment(c, issueIdentifier));
-    this.colspan = colspan;
-    this.issueIdentifier = issueIdentifier;
-    
+  render() {
+    var comments = this.props.comments.map((c) => h(Comment, {comment:c, issueIdentifier:this.props.issueIdentifier}));
     var commentBlock = h('div', {className:'commentBlock'}, 
       h('div', {className:'commentShadowTop'}),
-      ...this.comments.map((c) => c.node)
+      ...comments
     );
     var td = h('td', {colSpan:""+colspan, className:'comment-cell'}, commentBlock);
-    
     var row = h('tr', {}, td);
-    this.node = row;
+    
+    return row;
   }
 }
 
