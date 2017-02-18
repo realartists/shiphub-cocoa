@@ -7,7 +7,7 @@ import diff_match_patch from 'diff-match-patch'
 import htmlEscape from 'html-escape';
 
 class UnifiedRow extends DiffRow {
-  constructor(mode, text, oldText, leftLineNum, rightLineNum, diffLine) {
+  constructor(mode, text, oldText, leftLineNum, rightLineNum, diffIdx) {
     super();
     
     this.mode = mode;
@@ -15,7 +15,7 @@ class UnifiedRow extends DiffRow {
     this.oldText = oldText;
     this.leftLineNum = leftLineNum;
     this.rightLineNum = rightLineNum;
-    this.diffLine = diffLine;
+    this.diffIdx = diffIdx;
             
     var gutterLeft = h('td', { className:'gutter gutter-left' });
     var gutterRight = h('td', { className:'gutter gutter-right' });

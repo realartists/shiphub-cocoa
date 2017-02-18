@@ -1,14 +1,21 @@
-div.commentShadowTop {
-  height: 13px;
-  margin-top: -13px;
-  z-index: -1;
+div.commentShadowTop
+{
+  height: 16px;
+  margin-bottom: -16px;
+  background-image: url("../image/comment_top_shadow.png");
+  background-repeat: repeat-x;
   width: 100%;
-  box-shadow: 0px 5px 8px #CCC;
+}
+div.commentShadowBottom
+{
+  height: 16px;
+  background-image: url("../image/comment_bottom_shadow.png");
+  background-repeat: repeat-x;
+  width: 100%;
 }
 div.commentBlock {
   border-top: 1px solid #CCC;
   border-bottom: 1px solid #CCC;
-  padding-bottom: 16px;
   background-color: #F0EFEF;
 }
 div.comment {

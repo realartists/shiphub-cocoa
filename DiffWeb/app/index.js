@@ -40,7 +40,22 @@ function parseDiffLine(diffLine) {
 
 class App {
   constructor(root) {  
-    var minimapWidth = 32;
+    // Model state
+    this.filename = ""; // used primarily for syntax highlighting
+    this.leftText = ""; // the full left file as a string
+    this.rightText = ""; // the full right file as a string
+    this.diff = ""; // the text of the patch as a unified diff
+    this.leftLines = []; // lines in leftText
+    this.rightLines = []; // lines in rightText
+    this.diffLines = []; // lines in diff
+    this.comments = []; // Array of PRComments
+    this.leftHighlight = null; // syntax highlighting
+    this.rightHighlight = null;
+    this.rowInfos = []; // Array of pointers into left, right, and diff, plus context info
+    
+    // View state
+    this.codeRows = []; // Array of SplitRow|UnifiedRow
+    this.commentRows = []; // Array of CommentRow
     
     var style = {
       'width': '100%',
@@ -68,6 +83,7 @@ class App {
     
     root.appendChild(this.table);
     
+    var minimapWidth = 32;
     this.miniMap = new MiniMap(root, this.table, minimapWidth);
     this.sizeTable();
   }
@@ -82,20 +98,25 @@ class App {
     }
     if (this.diffMode != newMode) {
       this.diffMode = newMode;
-      if (this.filename) {
-        this.updateDiff(this.filename, this.leftText, this.rightText, this.uDiff);
-      }
+      this.recreateCodeRows();
     }
   }
   
-  build() {
-    var leftLines = splitLines(this.leftText);
-    var rightLines = splitLines(this.rightText);
-    var diffLines = splitLines(this.uDiff);
+  recreateCodeRows() {
+    var displayedDiffMode = this.diffMode;
+    if (this.leftText.length == 0 || this.rightText.length == 0) {
+      displayedDiffMode = "unified";
+    }
     
-    // contain information needed to build SplitRow objects (indexes into left, right, and diff)
-    var rowInfos = [];
+    this.displayedDiffMode = displayedDiffMode;
     
+    var leftLines = this.leftLines;
+    var rightLines = this.rightLines;    
+    var diffLines = this.diffLines;
+  
+    // contain indexes into left, right, and diff, as well as some additional context
+    var rowInfos = this.rowInfos = [];
+
     var leftIdx = 0;    // into leftLines
     var rightIdx = 0;   // into rightLines
     var diffIdx = 0;    // into diffLines
@@ -136,6 +157,7 @@ class App {
             // if we have an active hunk queue, hook this line in right up with the corresponding deleted line in left.
             var hunkIdx = rowInfos.length - hunkQueue;
             rowInfos[hunkIdx].rightIdx = rightIdx;
+            rowInfos[hunkIdx].rightDiffIdx = diffIdx;
             rowInfos[hunkIdx].changed = true;
             hunkQueue--;
           } else {
@@ -182,6 +204,7 @@ class App {
           ri.rightIdx==undefined?undefined:rightLines[ri.rightIdx],
           ri.rightIdx,
           ri.diffIdx,
+          ri.rightDiffIdx,
           ri.changed===true
         );
       });
@@ -219,42 +242,15 @@ class App {
     }
     this.codeRows = codeRows;
     
-    // merge in comments
-    var commentsLookup = []; // sparse array of diffIdx => [comments]
-    this.comments.sort((a, b) => {
-      var d1 = new Date(a.created_at);
-      var d2 = new Date(b.created_at);
-      if (d1 < d2) {
-        return -1;
-      } else if (d1 == d2) {
-        return 0;
-      } else {
-        return 1;
-      }
-    });
-    this.comments.forEach((c) => {
-      var i = c.position + firstHunkIdx;
-      var a = commentsLookup[i];
-      if (!a) a = commentsLookup[i] = [];
-      a.push(c);
-    });
+    // mix in highlighting if we already have it computed
+    if (this.leftHighlighted || this.rightHighlighted) {
+      this.applyHighlightingToCodeRows();
+    }
     
-    var codeAndComments = [];
-    var commentCols = this.displayedDiffMode == 'split' ? 4 : 3;
-    codeRows.forEach((code) => {
-      codeAndComments.push(code);
-      if (code.diffLine!==undefined) {
-        var comments = commentsLookup[code.diffLine];
-        if (comments) {
-          codeAndComments.push(new CommentRow(comments, this.issueIdentifier, commentCols));
-        }
-      }
-    });
-    
-    var rows = Array.from(codeAndComments);
+    var rows = Array.from(codeRows);
     
     // add a trailing row to take up space for short diffs
-    var trailer = new TrailerRow(this.displayedDiffMode);
+    var trailer = new TrailerRow(this.displayedDiffMode);    
     rows.push(trailer);
     
     var rowNodes = rows.map((r) => r.node);
@@ -265,78 +261,212 @@ class App {
       this.table.appendChild(rn);
     });
     
+    this.positionComments();
+    
+    this.updateMiniMapRegions();
+  }
+  
+  updateMiniMapRegions() {
     // Update the minimap
-    var miniMapRegions = codeAndComments.reduce((accum, row) => {
+    var allRows = this.codeRows.concat(this.commentRows);
+    var miniMapRegions = allRows.reduce((accum, row) => {
       if (row.miniMapRegions) {
         accum = accum.concat(row.miniMapRegions);
       }
       return accum;
     }, []);
     this.miniMap.setRegions(miniMapRegions);
+  }
     
-    // Highlighting
-    var hw = new HighlightWorker;
+  highlightDidFinish(leftHighlighted, rightHighlighted) {
+    this.leftHighlighted = leftHighlighted;
+    this.rightHighlighted = rightHighlighted;
+    
+    this.applyHighlightingToCodeRows();
+  }
+  
+  applyHighlightingToCodeRows() {
+    var codeRows = this.codeRows;
+    var leftHighlighted = this.leftHighlighted;
+    var rightHighlighted = this.rightHighlighted;
+    
     if (this.displayedDiffMode == 'split') {
-      hw.onmessage = function(result) {
-        var leftHighlighted = result.data.leftHighlighted;
-        var rightHighlighted = result.data.rightHighlighted;
-    
-        rowInfos.forEach((ri, i) => {
-          var row = codeRows[i];
-          var left = ri.leftIdx===undefined?undefined:leftHighlighted[ri.leftIdx];
-          var right = ri.rightIdx===undefined?undefined:rightHighlighted[ri.rightIdx];
-          row.updateHighlight(left, right);
-        });
-      };
+      this.rowInfos.forEach((ri, i) => {
+        var row = codeRows[i];
+        var left = ri.leftIdx===undefined?undefined:leftHighlighted[ri.leftIdx];
+        var right = ri.rightIdx===undefined?undefined:rightHighlighted[ri.rightIdx];
+        row.updateHighlight(left, right);
+      });
     } else /* unified */ {
-      hw.onmessage = function(result) {
-        var leftHighlighted = result.data.leftHighlighted;
-        var rightHighlighted = result.data.rightHighlighted;
+      this.rowInfos.forEach((ri, i) => {
+        var row = codeRows[i];
     
-        rowInfos.forEach((ri, i) => {
-          var row = codeRows[i];
-      
-          var code = "";
-          var ctx = undefined;
-      
-          if (ri.leftIdx!==undefined) {
-            code = leftHighlighted[ri.leftIdx];
-            if (ri.ctxRightIdx) {
-              ctx = rightHighlighted[ri.ctxRightIdx];
-            }
-          } else if (ri.rightIdx!==undefined) {
-            code = rightHighlighted[ri.rightIdx];
-            if (ri.ctxLeftIdx) {
-              ctx = leftHighlighted[ri.ctxLeftIdx];
-            }
+        var code = "";
+        var ctx = undefined;
+    
+        if (ri.leftIdx!==undefined) {
+          code = leftHighlighted[ri.leftIdx];
+          if (ri.ctxRightIdx) {
+            ctx = rightHighlighted[ri.ctxRightIdx];
           }
-      
-          row.updateHighlight(code, ctx);
-        });
-      };
-      hw.postMessage({filename:this.filename, leftText:this.leftText, rightText:this.rightText});
+        } else if (ri.rightIdx!==undefined) {
+          code = rightHighlighted[ri.rightIdx];
+          if (ri.ctxLeftIdx) {
+            ctx = leftHighlighted[ri.ctxLeftIdx];
+          }
+        }
+    
+        row.updateHighlight(code, ctx);
+      });
     }
   }
   
-  updateDiff(filename, leftText, rightText, uDiff, issueIdentifier, comments) {
-    // note: the left is considered the 'original' (what's in master)
-    // and the right is considered the 'modified' (result of original + patch)
-    
-    var displayedDiffMode = this.diffMode;
-    if (leftText.length == 0 || rightText.length == 0) {
-      displayedDiffMode = "unified";
+  doHighlight() {
+    // Highlighting
+    if (this.highlightWorker) {
+      // cancel existing highlightWorker
+      this.highlightWorker.onmessage = null;
+      delete this.highlightWorker;
     }
-    
-    this.displayedDiffMode = displayedDiffMode;
-    
+    var hw = this.highlightWorker = new HighlightWorker;
+    hw.onmessage = (result) => {
+      this.leftHighlighted = result.data.leftHighlighted;
+      this.rightHighlighted = result.data.rightHighlighted;
+      
+      this.applyHighlightingToCodeRows();
+    };
+    hw.postMessage({
+      filename:this.filename, 
+      leftText:this.leftText, 
+      rightText:this.rightText
+    });
+  }
+  
+  updateDiff(filename, leftText, rightText, diff, issueIdentifier) {
     this.filename = filename;
     this.leftText = leftText;
     this.rightText = rightText;
-    this.uDiff = uDiff;
+    this.diff = diff;
     this.issueIdentifier = issueIdentifier;
-    this.comments = comments;
+    
+    this.leftLines = splitLines(this.leftText);
+    this.rightLines = splitLines(this.rightText);
+    this.diffLines = splitLines(this.diff);
+    
+    this.leftHighlighted = null;
+    this.rightHighlighted = null;
+    this.recreateCodeRows();
+    this.doHighlight();
+  }
   
-    this.build();
+  positionComments() {
+    if (this.commentRows.length == 0) return;
+  
+    // for every row in commentRows, calculate the item in codeRows that should precede it
+    var diffIdxToRow = this.codeRows.reduce((accum, row) => {
+      if (row.diffIdx !== undefined) {
+        accum[row.diffIdx] = row;
+      }
+      if (row.rightDiffIdx !== undefined) {
+        accum[row.rightDiffIdx] = row;
+      }
+      return accum;
+    }, {});
+    
+    // manipulate the DOM to reflect the ordering computed above
+    var colspan = this.displayedDiffMode == 'split' ? 4 : 3;
+    this.commentRows.forEach((cr) => {
+      var node = cr.node;
+      var currentPrev = node.previousSibling;
+      var desiredPrev = diffIdxToRow[cr.diffIdx];
+      if (!desiredPrev) {
+        throw "Could not find code row for diff index " + cr.diffIdx;
+      }
+      desiredPrev = desiredPrev.node;
+      if (currentPrev != desiredPrev) {
+        this.table.insertBefore(node, desiredPrev.nextSibling);
+      }
+      
+      cr.colspan = colspan;
+    });
+  }
+  
+  saveDraftComments() {
+    // TODO: Implement
+  }
+  
+  clearComments() {
+    this.commentRows.forEach((c) => {
+      c.node.remove();
+    });
+    this.commentRows = [];
+  }
+  
+  updateComments(comments) {
+    this.comments = comments;
+    
+    // augment each comment with its diffIdx (position offset by first hunk in diffLines)
+    
+    // find the first hunk in our diff
+    var diffIdx = 0;
+    var diffLines = this.diffLines;
+    while (diffIdx < diffLines.length && !diffLines[diffIdx].startsWith("@@")) diffIdx++;
+    
+    comments.forEach((c) => {
+      c.diffIdx = diffIdx + c.position; // position is relative to the first hunk in diffLines
+    });
+    
+    // take stock of existing commentRows
+    var diffIdxToCommentRow = this.commentRows.reduce((accum, row) => {
+      accum[row.diffIdx] = row;
+      return accum;
+    }, {});
+    
+    // group new comments by diffIdx
+    var cmpDiffIdx = (a, b) => {
+      if (a.diffIdx < b.diffIdx) return -1;
+      else if (a.diffIdx == b.diffIdx) return 0;
+      else return 1;
+    };
+    
+    comments.sort(cmpDiffIdx);
+    
+    var commentGroups = [];
+    comments.forEach((c, i) => {
+      if (commentGroups.length == 0 || commentGroups[commentGroups.length-1][0].diffIdx != c.diffIdx) {
+        commentGroups.push([c]);
+      } else {
+        commentGroups[commentGroups.length-1].push(c);
+      }
+    });
+    
+    // update existing CommentRows and create new CommentRows as needed
+    var nextRows = new Set();
+    commentGroups.forEach((cg) => {
+      var diffIdx = cg[0].diffIdx;
+      var commentRow = diffIdxToCommentRow[diffIdx];
+      if (!commentRow) {
+        commentRow = new CommentRow(this.issueIdentifier);
+        diffIdxToCommentRow[diffIdx] = commentRow;
+      }
+      commentRow.comments = cg;
+      nextRows.add(commentRow);
+    });
+    
+    // remove any CommentRows from the DOM that aren't in nextRows
+    this.commentRows.forEach((cr) => {
+      if (!nextRows.has(cr)) {
+        cr.node.remove();
+      }
+    });
+    
+    var commentRows = Array.from(nextRows);
+    commentRows.sort(cmpDiffIdx);
+    
+    this.commentRows = commentRows;
+
+    this.positionComments();
+    this.updateMiniMapRegions();
   }
   
   updateSelectability(e) {
@@ -447,8 +577,11 @@ class App {
 
 var app = new App(document.getElementById('app'));
 
-window.updateDiff = function(filename, oldFile, newFile, patch, issueIdentifier, comments) {
-  app.updateDiff(filename||"", oldFile||"", newFile||"", patch||"", issueIdentifier, comments||[]);
+window.updateDiff = function(filename, oldFile, newFile, diff, issueIdentifier, comments) {
+  app.saveDraftComments();
+  app.clearComments();
+  app.updateDiff(filename||"", oldFile||"", newFile||"", diff||"", issueIdentifier);
+  app.updateComments(comments);
 };
 
 window.setDiffMode = function(newDiffMode) {

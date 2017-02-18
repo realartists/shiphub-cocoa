@@ -66,17 +66,19 @@
 }
 
 - (void)setEnabled:(BOOL)enabled {
-    [super setEnabled:enabled];
-    id target = _segmented.target;
-    _segmented.target = nil;
-    if (!enabled) {
-        _savedMode = [self mode];
-        [_segmented setSelectedSegment:(NSInteger)DiffViewModeUnified];
-    } else {
-        [_segmented setSelectedSegment:_savedMode];
+    if (self.enabled != enabled) {
+        id target = _segmented.target;
+        _segmented.target = nil;
+        if (!enabled) {
+            _savedMode = [self mode];
+            [_segmented setSelectedSegment:(NSInteger)DiffViewModeUnified];
+        } else {
+            [_segmented setSelectedSegment:_savedMode];
+        }
+        _segmented.target = target;
+        _segmented.enabled = enabled;
+        [super setEnabled:enabled];
     }
-    _segmented.target = target;
-    _segmented.enabled = enabled;
 }
 
 @end

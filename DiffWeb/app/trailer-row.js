@@ -7,8 +7,6 @@ class TrailerRow extends DiffRow {
   constructor(mode) {
     super();
     
-    console.log("TrailerRow: ", mode);
-    
     var gutterLeft = h('td', { className:'gutter gutter-left' });
     var gutterRight = h('td', { className:'gutter gutter-right' });
     

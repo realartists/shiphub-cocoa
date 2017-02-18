@@ -127,7 +127,7 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
 
 - (void)prSidebar:(PRSidebarViewController *)sidebar didSelectGitDiffFile:(GitDiffFile *)file {
     _diffViewModeItem.enabled = !(file.operation == DiffFileOperationAdded || file.operation == DiffFileOperationDeleted);
-    [_diffController setPR:_pr diffFile:file comments:[_pr.prComments filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"path = %@", file.path]]];
+    [_diffController setPR:_pr diffFile:file comments:[_pr.prComments filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"path = %@ AND position != nil", file.path]]];
 }
 
 @end
