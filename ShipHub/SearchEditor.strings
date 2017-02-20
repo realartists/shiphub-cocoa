@@ -57,7 +57,7 @@
 "%[notification.unread]@ %[is]@ %[1]@" = "%1$[Notification]@ %2$[is]@ %3$[unread]@";
 "%[notification.unread]@ %[is]@ %[0]@" = "%1$[Notification]@ %2$[is]@ %3$[read]@";
 
-"%[notification.reason]@ %[is]@ %[mentioned]@" = "%1$[I'm mentioned]@ %2$[is]@ %3$[true]@";
+"%[notification.reason]@ %[is]@ %[mention]@" = "%1$[I'm mentioned]@ %2$[is]@ %3$[true]@";
 
 
 

@@ -79,7 +79,7 @@
                                                    ;
     NSPredicateEditorRowTemplate *readTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[[NSExpression expressionForKeyPath:@"notification.unread"]] rightExpressions:@[[NSExpression expressionForConstantValue:@YES], [NSExpression expressionForConstantValue:@NO]] modifier:NSDirectPredicateModifier operators:@[@(NSEqualToPredicateOperatorType)] options:0];
     
-    NSPredicateEditorRowTemplate *mentionTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[[NSExpression expressionForKeyPath:@"notification.reason"]] rightExpressions:@[[NSExpression expressionForConstantValue:@"mentioned"]] modifier:NSDirectPredicateModifier operators:@[@(NSEqualToPredicateOperatorType)] options:0];
+    NSPredicateEditorRowTemplate *mentionTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[[NSExpression expressionForKeyPath:@"notification.reason"]] rightExpressions:@[[NSExpression expressionForConstantValue:@"mention"]] modifier:NSDirectPredicateModifier operators:@[@(NSEqualToPredicateOperatorType)] options:0];
     
     [self setRowTemplates:@[compounds, assigneeTemplate, assigneeNotTemplate, userTemplate, dateTemplate, repoTemplate, hasLabelTemplate, hasNotLabelTemplate, labeledTemplate, milestoneTemplate, stateTemplate, titleTemplate, bodyTemplate, commentsTemplate, readTemplate, mentionTemplate]];
 
