@@ -56,9 +56,20 @@
 
 - (id)init {
     if (self = [super init]) {
-        _useWebpackDevServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseWebpackDevServer"];
+        [self commonInit];
     }
     return self;
+}
+
+- (id)initWithCoder:(NSCoder *)coder {
+    if (self = [super initWithCoder:coder]) {
+        [self commonInit];
+    }
+    return self;
+}
+
+- (void)commonInit {
+    _useWebpackDevServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseWebpackDevServer"];
 }
 
 - (void)dealloc {
