@@ -10,11 +10,11 @@
 		</data>
 		<key>Resources/BITFeedbackWindowController.nib</key>
 		<data>
-		5LBqm1bPmqxg7ivALqqM3tWwB2w=
+		zE+p4Yn2sd/zFp3wD9N4qiq2PyI=
 		</data>
 		<key>Resources/Info.plist</key>
 		<data>
-		HTtabLjXrUAm6MJkqUjiml+SCOM=
+		q2ouI5ttlNmZnJinmuswNfWl8og=
 		</data>
 		<key>Resources/de.lproj/HockeySDK.strings</key>
 		<dict>
@@ -95,11 +95,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			YOcbdJ3pd5Lsw0NfuA71JsNR7yg=
+			HXo9/SI27jhwjRP5yxqtpb1piV4=
 			</data>
 			<key>hash2</key>
 			<data>
-			j36ol5UYbZllrV3WcyZO5T6jHF0pQnruHkbrkE2SlSw=
+			X7x8uTZE73tZ/jwS1VSPCI8bsvd1i73vxCbK1ltEOes=
 			</data>
 		</dict>
 		<key>Headers/BITCrashExceptionApplication.h</key>
@@ -117,11 +117,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			0KfyVaOP9IwcRfVtDOedGtjJVwQ=
+			ns2xwXIeh5E0NUYv1LRzY19UwFM=
 			</data>
 			<key>hash2</key>
 			<data>
-			Q8Cr16REmwmqXEgO6pW1dFVmsa2P78AK0fejEXjiyv8=
+			qvp6ae+k7RNYX9TWdExICzGKCM03Iy2/KAcYrMnnmtQ=
 			</data>
 		</dict>
 		<key>Headers/BITCrashManagerDelegate.h</key>
@@ -194,11 +194,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			44fP//0ORGd1xtGrfX+hRsyZ9Ds=
+			TWfmczPR37maOXZ5QefUVmyeGVk=
 			</data>
 			<key>hash2</key>
 			<data>
-			fWpbKaEaIajHWejOTIMDe8hcHdFkjYQyYVQ48e5Vy4k=
+			hI2D4GiPLeUCd72544dwoW6j++oYqPwwJGBEYcsgFyk=
 			</data>
 		</dict>
 		<key>Headers/BITHockeyManagerDelegate.h</key>
@@ -216,11 +216,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			G+nsYcOylalyf+2u+NdOl5jVyk0=
+			qWhXB7JYsqsqvTC851q5UFEUTzI=
 			</data>
 			<key>hash2</key>
 			<data>
-			ijZwrgxZL0fXJLzLvXrKcqNoQZ4/CGjusq5wE+mHMXY=
+			gQhOEtypxjLjjrUytWttK/lpEl/BswFjnRx5OHTBLt8=
 			</data>
 		</dict>
 		<key>Headers/BITSystemProfile.h</key>
@@ -238,11 +238,33 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			0pMjZUOPeem9g2j2zp51lNSqtAA=
+			RmN2WcA8sobCErRDhVLxc1WEL54=
 			</data>
 			<key>hash2</key>
 			<data>
-			7jFktpFdD3vh2Tq8VcPCP8BhGcpVh7U+6MuPJoZ9f3A=
+			O9nRO+V6fI9Z60sB6VwfjRRm7uIBkSDuqyTsHhDknc4=
+			</data>
+		</dict>
+		<key>Headers/HockeySDKEnums.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			7ELC6eqCDz4yjv1UCiciRNIY6RQ=
+			</data>
+			<key>hash2</key>
+			<data>
+			jqvsQwd0m+ipBHmrgGkruOiV0qjHXJdSywNcsLJG2Bc=
+			</data>
+		</dict>
+		<key>Headers/HockeySDKNullability.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			+iyPYq4RIO6vV67WYzO4PyQkNS0=
+			</data>
+			<key>hash2</key>
+			<data>
+			8+bfuR2FtE3P7o+D1jEB4W5xVehtqZW2bV9Z1lEh8GA=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -254,6 +276,17 @@
 			<key>hash2</key>
 			<data>
 			1MjRn+z/i5P2zT/JGA+OlkSGE/Hr63Rrfp4loNHpZTc=
+			</data>
+		</dict>
+		<key>PrivateHeaders/BITHockeyLoggerPrivate.h</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			41vaag/XwWLo0GpB7j3xsdbdG6k=
+			</data>
+			<key>hash2</key>
+			<data>
+			e42bIPN/Hp+jC6G7GbZHYPK9GwzixGOaEhfLixGwSvk=
 			</data>
 		</dict>
 		<key>Resources/BITCrashReportUI.nib</key>
@@ -271,22 +304,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			5LBqm1bPmqxg7ivALqqM3tWwB2w=
+			zE+p4Yn2sd/zFp3wD9N4qiq2PyI=
 			</data>
 			<key>hash2</key>
 			<data>
-			lghlS4VpsZ7UV9tqFr7GS86pcfD8tkVd6oQ1XHUqNuo=
+			Fb2w2SOTtHA7UKogAcQxT9lN0cXPaCeKI3a30I9Q4w4=
 			</data>
 		</dict>
 		<key>Resources/Info.plist</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			HTtabLjXrUAm6MJkqUjiml+SCOM=
+			q2ouI5ttlNmZnJinmuswNfWl8og=
 			</data>
 			<key>hash2</key>
 			<data>
-			vw5tZ9fp6JGnZ27MVHpTGC4acVh5ODWHFj9sPbn7jW0=
+			t32upIMdIAMxAPG50yw48SCuplqKE0yShs0Dc0Ia1Rg=
 			</data>
 		</dict>
 		<key>Resources/de.lproj/HockeySDK.strings</key>
