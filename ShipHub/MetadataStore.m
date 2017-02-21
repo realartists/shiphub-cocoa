@@ -49,6 +49,8 @@
 
 @property (strong) NSDictionary *milestoneTitleToMilestones;
 
+@property (strong) NSDictionary *managedIDToObject;
+
 @end
 
 @implementation MetadataStore
@@ -89,11 +91,30 @@ static BOOL IsImportantUserChange(LocalAccount *lu) {
     return result;
 }
 
+static id<NSCopying> UniqueIDForManagedObject(NSManagedObject *obj) {
+    static BOOL hasPersistentStoreConnectionPool;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        hasPersistentStoreConnectionPool = &NSPersistentStoreConnectionPoolMaxSizeKey != NULL;
+    });
+    
+    if (hasPersistentStoreConnectionPool) {
+        return obj.objectID;
+    } else {
+        return obj.objectID.URIRepresentation;
+    }
+}
+
 // Read data out of ctx and store in immutable data objects accessible from any thread.
 - (instancetype)initWithMOC:(NSManagedObjectContext *)moc billingState:(BillingState)billingState {
     NSParameterAssert(moc);
     
     if (self = [super init]) {
+        NSMutableDictionary *managedIDToObject = [NSMutableDictionary new];
+        void (^noteManagedObject)(NSManagedObject *, id) = ^(NSManagedObject *mObj, id obj){
+            managedIDToObject[UniqueIDForManagedObject(mObj)] = obj;
+        };
+        
         NSFetchRequest *reposFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalRepo"];
         reposFetch.predicate = [NSPredicate predicateWithFormat:@"name != nil AND owner.login != nil AND disabled = NO"];
         
@@ -107,6 +128,7 @@ static BOOL IsImportantUserChange(LocalAccount *lu) {
         
         NSDictionary *accountsByID = [NSDictionary lookupWithObjects:[localAccounts arrayByMappingObjects:^id(id obj) {
             Account *u = [[Account alloc] initWithLocalItem:obj];
+            noteManagedObject(obj, u);
             return u;
         }] keyPath:@"identifier"];
         
@@ -136,6 +158,7 @@ static BOOL IsImportantUserChange(LocalAccount *lu) {
             for (LocalMilestone *lm in r.milestones) {
                 if (lm.title) {
                     Milestone *m = [[Milestone alloc] initWithLocalItem:lm];
+                    noteManagedObject(lm, m);
                     [milestones addObject:m];
                 }
             }
@@ -146,6 +169,7 @@ static BOOL IsImportantUserChange(LocalAccount *lu) {
             for (LocalLabel *ll in r.labels) {
                 if (ll.name && ll.color) {
                     Label *l = [[Label alloc] initWithLocalItem:ll];
+                    noteManagedObject(ll, l);
                     [labels addObject:l];
                 }
             }
@@ -155,6 +179,7 @@ static BOOL IsImportantUserChange(LocalAccount *lu) {
             Account *owner = accountsByID[localOwner.identifier];
             
             Repo *repo = [[Repo alloc] initWithLocalItem:r owner:owner billingState:billingState];
+            noteManagedObject(r, repo);
             [repos addObject:repo];
             
             NSMutableArray *projects;
@@ -162,6 +187,7 @@ static BOOL IsImportantUserChange(LocalAccount *lu) {
             for (LocalProject *lp in r.projects) {
                 if (lp.name && lp.number) {
                     Project *p = [[Project alloc] initWithLocalItem:lp owningRepo:repo];
+                    noteManagedObject(lp, p);
                     [projects addObject:p];
                 }
             }
@@ -259,6 +285,8 @@ static BOOL IsImportantUserChange(LocalAccount *lu) {
         
         _hiddenRepos = [[repos filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"hidden = YES"]] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"fullName" ascending:YES selector:@selector(localizedStandardCompare:)]]];
         _hiddenMilestones = hiddenMilestones;
+        
+        _managedIDToObject = managedIDToObject;
     }
     
     return self;
@@ -339,6 +367,12 @@ static BOOL IsImportantUserChange(LocalAccount *lu) {
         a = [[Account alloc] initWithLocalItem:la];
     }
     return a;
+}
+
+- (id)objectWithManagedObject:(NSManagedObject *)obj {
+    id<NSCopying> uid = UniqueIDForManagedObject(obj);
+    
+    return _managedIDToObject[uid];
 }
 
 @end

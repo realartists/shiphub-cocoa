@@ -24,6 +24,7 @@
 #import "Label.h"
 #import "IssueEvent.h"
 #import "IssueComment.h"
+#import "IssueIdentifier.h"
 #import "IssueNotification.h"
 #import "Reaction.h"
 
@@ -39,7 +40,6 @@
 {
     if (self = [super init]) {
         _number = li.number;
-        _fullIdentifier = li.fullIdentifier;
         _identifier = li.identifier;
         _body = li.body;
         _title = li.title;
@@ -48,6 +48,42 @@
         _updatedAt = li.updatedAt;
         _closedAt = li.closedAt;
         _locked = [li.locked boolValue];
+#define GO_FAST 1
+#if GO_FAST
+        static NSArray *assigneesSort = nil;
+        static NSArray *labelsSort = nil;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            assigneesSort = @[[NSSortDescriptor sortDescriptorWithKey:@"login" ascending:YES selector:@selector(localizedStandardCompare:)]];
+            labelsSort = @[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedStandardCompare:)]];
+        });
+        
+        NSMutableArray *assignees = [NSMutableArray arrayWithCapacity:li.assignees.count];
+        for (LocalAccount *la in li.assignees) {
+            Account *a = [ms objectWithManagedObject:la];
+            if (a) {
+                [assignees addObject:a];
+            }
+        }
+        [assignees sortUsingDescriptors:assigneesSort];
+        _assignees = assignees;
+        
+        _originator = [ms objectWithManagedObject:li.originator];
+        _closedBy = [ms objectWithManagedObject:li.closedBy];
+        
+        NSMutableArray *labels = [NSMutableArray arrayWithCapacity:li.labels.count];
+        for (LocalLabel *ll in li.labels) {
+            Label *l = [ms objectWithManagedObject:ll];
+            if (l) {
+                [labels addObject:l];
+            }
+        }
+        [labels sortUsingDescriptors:labelsSort];
+        _labels = labels;
+        
+        _milestone = [ms objectWithManagedObject:li.milestone];
+        _repository = [ms objectWithManagedObject:li.repository];
+#else
         _assignees = [[li.assignees array] arrayByMappingObjects:^id(LocalAccount *obj) {
             return [ms accountWithIdentifier:obj.identifier];
         }];
@@ -59,6 +95,7 @@
         }] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedStandardCompare:)]]];
         _milestone = [ms milestoneWithIdentifier:li.milestone.identifier];
         _repository = [ms repoWithIdentifier:li.repository.identifier];
+#endif
         _reactionSummary = (id)(li.shipReactionSummary);
         _pullRequest = [li.pullRequest boolValue];
         
@@ -67,6 +104,8 @@
         }
         
         _unread = [li.notification.unread boolValue];
+        
+        _fullIdentifier = [NSString issueIdentifierWithOwner:_repository.owner.login repo:_repository.name number:li.number];
         
         BOOL includeECs = [options[IssueOptionIncludeEventsAndComments] boolValue];
         if (includeECs) {

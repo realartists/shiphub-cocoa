@@ -45,4 +45,6 @@
 - (NSArray<Repo *> *)hiddenRepos;
 - (NSArray<Milestone *> *)hiddenMilestones;
 
+- (id)objectWithManagedObject:(NSManagedObject *)obj;
+
 @end

@@ -1243,6 +1243,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         @try {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
             fetchRequest.predicate = [self issuesPredicate:predicate];
+            fetchRequest.relationshipKeyPathsForPrefetching = @[@"assignees", @"labels", @"notification.unread"];
             fetchRequest.sortDescriptors = sortDescriptors;
             
             NSError *err = nil;

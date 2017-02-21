@@ -55,7 +55,7 @@
 
 + (NSString *)issueIdentifierWithOwner:(NSString *)ownerLogin repo:(NSString *)repoName number:(NSNumber *)number
 {
-    return [NSString stringWithFormat:@"%@/%@#%@", ownerLogin, repoName, number];
+    return [NSString stringWithFormat:@"%@/%@#%lld", ownerLogin, repoName, number.longLongValue];
 }
 
 + (NSRegularExpression *)issueIdentifierRE {
