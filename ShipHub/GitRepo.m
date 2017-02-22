@@ -75,8 +75,8 @@ static void initGit2() {
 - (NSError *)fetchRemote:(NSURL *)remoteURL refs:(NSArray *)refs {
     [self writeLock];
     
-    git_remote *remote = NULL;
-    git_strarray refspecs = {0};
+    __block git_remote *remote = NULL;
+    __block git_strarray refspecs = {0};
     
     dispatch_block_t cleanup = ^{
         if (remote) git_remote_free(remote);

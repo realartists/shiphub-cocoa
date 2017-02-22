@@ -71,7 +71,7 @@
     } else if ([item isKindOfClass:[GitFileTree class]]) {
         return [item children][index];
     } else {
-        return nil;
+        return [NSNull null];
     }
 }
 
