@@ -59,5 +59,7 @@
 
 "%[notification.reason]@ %[is]@ %[mention]@" = "%1$[I'm mentioned]@ %2$[is]@ %3$[true]@";
 
+"%[pullRequest]@ %[is]@ %[1]@" = "%1$[Issue type]@ %2$[is]@ %3$[pull request]@";
+"%[pullRequest]@ %[is]@ %[0]@" = "%1$[Issue type]@ %2$[is]@ %3$[issue]@";
 
 
