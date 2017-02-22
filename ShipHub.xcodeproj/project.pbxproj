@@ -861,6 +861,11 @@
 		1AF3497F1CDAC25900A5BEB0 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		1AF349801CDAC25900A5BEB0 /* nv.d3.min.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = nv.d3.min.css; sourceTree = "<group>"; };
 		1AF349811CDAC25900A5BEB0 /* nv.d3.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = nv.d3.min.js; sourceTree = "<group>"; };
+		1AF445991E5DE5A100E14640 /* issue-state.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "issue-state.js"; sourceTree = "<group>"; };
+		1AF4459A1E5DE5A100E14640 /* keypath.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = keypath.js; sourceTree = "<group>"; };
+		1AF4459B1E5DE5A100E14640 /* ghost.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ghost.js; sourceTree = "<group>"; };
+		1AF4459C1E5DE5A100E14640 /* api-proxy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "api-proxy.js"; sourceTree = "<group>"; };
+		1AF4459D1E5DE5A100E14640 /* markdown-render.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "markdown-render.js"; sourceTree = "<group>"; };
 		1AF567291D62427100611DBB /* WelcomeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WelcomeController.h; sourceTree = "<group>"; };
 		1AF5672A1D62427100611DBB /* WelcomeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeController.m; sourceTree = "<group>"; };
 		1AF5672B1D62427100611DBB /* WelcomeController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WelcomeController.xib; sourceTree = "<group>"; };
@@ -1701,6 +1706,11 @@
 		1AFE21F11CA5EC3F00B51CF6 /* app */ = {
 			isa = PBXGroup;
 			children = (
+				1AF445991E5DE5A100E14640 /* issue-state.js */,
+				1AF4459A1E5DE5A100E14640 /* keypath.js */,
+				1AF4459B1E5DE5A100E14640 /* ghost.js */,
+				1AF4459C1E5DE5A100E14640 /* api-proxy.js */,
+				1AF4459D1E5DE5A100E14640 /* markdown-render.js */,
 				1A3C5B1A1DDB9C8A005F9A01 /* draft-storage.js */,
 				1A1584D71D6E7E070050DCC6 /* rewrite-task-list.js */,
 				1AB0383F1D5AA0CF005093B9 /* promise-queue.js */,

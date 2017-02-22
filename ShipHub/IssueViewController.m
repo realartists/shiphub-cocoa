@@ -563,7 +563,7 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
 #pragma mark -
 
 - (IBAction)reload:(id)sender {
-    if (_issue) {
+    if (_issue.fullIdentifier) {
         [[DataStore activeStore] checkForIssueUpdates:_issue.fullIdentifier];
     }
 }

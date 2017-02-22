@@ -38,43 +38,19 @@ window.jquery = $;
 import Completer from './completer.js'
 import SmartInput from './smart-input.js'
 import { emojify, emojifyReaction } from './emojify.js'
-import marked from './marked.min.js'
+import { markdownRender } from './markdown-render.js'
 import { githubLinkify } from './github_linkify.js'
 import LabelPicker from './label-picker.js'
 import AssigneesPicker from './assignees-picker.js'
 import { TimeAgo, TimeAgoString } from './time-ago'
 import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from './cm-util.js'
+import { api } from './api-proxy.js'
 import { promiseQueue } from './promise-queue.js'
 import { rewriteTaskList } from './rewrite-task-list.js'
 import { storeCommentDraft, clearCommentDraft, getCommentDraft } from './draft-storage.js'
-
-var debugToken = "";
-
-/*
-Issue State Storage
-*/
-var ivars = {
-  issue: {},
-  repos: [],
-  assignees: [],
-  milestones: [],
-  labels: [],
-  me: null,
-  token: debugToken
-};
-window.ivars = ivars;
-
-function getIvars() {
-  return window.ivars;
-}
-
-function setIvars(iv) {
-  window.ivars = iv;
-}
-
-window.setAPIToken = function(token) {
-  window.ivars.token = token;
-}
+import ghost from './ghost.js'
+import IssueState from './issue-state.js'
+import { keypath, setKeypath } from './keypath.js'
 
 var pendingPasteHandlers = [];
 var pasteHandle = 0;
@@ -108,544 +84,6 @@ function pasteCallback(handle, type, data) {
       break;
   }
 }
-
-var pendingAPIHandlers = [];
-var apiHandle = 0;
-
-// either performs the request directly or proxies it through the app
-function api(url, opts) {
-  if (window.inApp) {
-    var handle = ++apiHandle;
-    console.log("Making api call", handle, url, opts);
-    return new Promise((resolve, reject) => {
-      try {
-        pendingAPIHandlers[handle] = {resolve, reject};
-        window.postAppMessage({handle, url, opts});
-      } catch (exc) {
-        console.log(exc);
-        reject(exc);
-      }
-    });
-  } else {
-    return fetch(url, opts).then(function(resp) {
-      if (resp.status == 204) {
-        return Promise.resolve(null); // no content
-      } else {
-        return resp.json();
-      }
-    });
-  }
-}
-
-// used by the app to return an api call result
-function apiCallback(handle, result, err) {
-  console.log("Received apiCallback", handle, result, err);
-  if (!(handle in pendingAPIHandlers)) {
-    console.log("Received unknown apiCallback", handle, result, err);
-    return;
-  }
-  
-  var callbacks = pendingAPIHandlers[handle];
-  delete pendingAPIHandlers[handle];
-  
-  if (err) {
-    callbacks.reject(err);
-  } else {
-    callbacks.resolve(result);
-  }
-};
-
-function mergeIssueChanges(owner, repo, num, mergeFun, failFun) {
-  var nowOwner = getIvars().issue._bare_owner;
-  var nowRepo = getIvars().issue._bare_repo;
-  var nowNum = getIvars().issue.number;
-  
-  if (num == null || (nowOwner == owner && nowRepo == repo && nowNum == num)) {
-    mergeFun();
-  } else {
-    if (failFun) failFun();
-  }
-}
-
-function applyPatch(patch) {
-  var ghPatch = Object.assign({}, patch);
-
-  if (patch.milestone != null) {
-    ghPatch.milestone = patch.milestone.number;
-  }
-
-  if (patch.assignees != null) {
-    ghPatch.assignees = patch.assignees.map((u) => u.login);
-  }
-
-  console.log("patching", patch, ghPatch);
-  
-  // PATCH /repos/:owner/:repo/issues/:number
-  var owner = getIvars().issue._bare_owner;
-  var repo = getIvars().issue._bare_repo;
-  var num = getIvars().issue.number;
-  
-  if (num != null) {
-    return promiseQueue("applyPatch", () => {
-      var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}`
-      var request = api(url, { 
-        headers: { 
-          Authorization: "token " + getIvars().token,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }, 
-        method: "PATCH",
-        body: JSON.stringify(ghPatch)
-      });
-      return new Promise((resolve, reject) => {
-        request.then(function(body) {
-          console.log(body);
-          resolve();
-          if (window.documentEditedHelper) {
-            window.documentEditedHelper.postMessage({});
-          }
-        }).catch(function(err) {
-          console.log(err);
-          reject(err);
-        });
-      });
-    });
-  } else {
-    return Promise.resolve();
-  }
-}
-
-function applyCommentEdit(commentIdentifier, newBody) {
-  // PATCH /repos/:owner/:repo/issues/comments/:id
-  var owner = getIvars().issue._bare_owner;
-  var repo = getIvars().issue._bare_repo;
-  var num = getIvars().issue.number;
-  
-  if (num != null) {
-    return promiseQueue("applyCommentEdit", () => {
-      var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
-      var request = api(url, { 
-        headers: { 
-          Authorization: "token " + getIvars().token,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }, 
-        method: "PATCH",
-        body: JSON.stringify({body: newBody})
-      });
-      return new Promise((resolve, reject) => {
-        request.then(function(body) {
-          console.log(body);
-          resolve();
-          if (window.documentEditedHelper) {
-            window.documentEditedHelper.postMessage({});
-          }
-        }).catch(function(err) {
-          console.log(err);
-          reject(err);
-        });
-      });
-    });
-  } else {
-    return Promise.reject("Issue does not exist.");
-  }
-}
-
-function applyCommentDelete(commentIdentifier) {
-  // DELETE /repos/:owner/:repo/issues/comments/:id
-  
-  var owner = getIvars().issue._bare_owner;
-  var repo = getIvars().issue._bare_repo;
-  var num = getIvars().issue.number;
-  
-  if (num != null) {
-    var url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${commentIdentifier}`
-    var request = api(url, { 
-      headers: { 
-        Authorization: "token " + getIvars().token,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }, 
-      method: "DELETE"
-    });
-    return request;
-  } else {
-    return Promise.reject("Issue does not exist.");
-  }
-}
-
-function applyComment(commentBody) {
-  // POST /repos/:owner/:repo/issues/:number/comments
-  
-  var owner = getIvars().issue._bare_owner;
-  var repo = getIvars().issue._bare_repo;
-  var num = getIvars().issue.number;
-  
-  if (num != null) {
-    return promiseQueue("applyComment", () => {
-      var url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}/comments`
-      var request = api(url, { 
-        headers: { 
-          Authorization: "token " + getIvars().token,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }, 
-        method: "POST",
-        body: JSON.stringify({body: commentBody})
-      });
-      return new Promise((resolve, reject) => {
-        request.then(function(body) {
-          mergeIssueChanges(owner, repo, num, () => {
-            var id = body.id;
-            window.ivars.issue.allComments.forEach((m) => {
-              if (m.id === 'new') {
-                m.id = id;
-              }
-            });
-            applyIssueState(window.ivars);
-          });
-          resolve();
-        }).catch(function(err) {
-          console.log(err);
-          reject(err);
-        });
-      });
-    });
-  } else {
-    return Promise.reject("Issue does not exist.");
-  }
-}
-
-function saveNewIssue() {
-  // POST /repos/:owner/:repo/issues
-  
-  console.log("saveNewIssue");
-  
-  var issue = getIvars().issue;
-  
-  if (issue.number) {
-    console.log("already have a number");
-    return;
-  }
-  
-  if (!issue.title || issue.title.trim().length == 0) {
-    return;
-  }
-  
-  var owner = issue._bare_owner;
-  var repo = issue._bare_repo;
-  
-  if (!owner || !repo) {
-    return;
-  }
-  
-  if (window.ivars.issue.savePending) {
-    console.log("Queueing save ...");
-    if (!window.ivars.issue.savePendingQueue) {
-      window.ivars.issue.savePendingQueue = [];
-    }
-    var q = window.ivars.issue.savePendingQueue;
-    var p = new Promise((resolve, reject) => {
-      q.append({resolve, reject});
-    });
-    return p;
-  }
-  
-  window.ivars.issue.savePending = true;
-  applyIssueState(window.ivars);
-  
-  var assignees = issue.assignees.map((u) => u.login);
-  
-  var url = `https://api.github.com/repos/${owner}/${repo}/issues`;
-  var request = api(url, {
-    headers: { 
-      Authorization: "token " + getIvars().token,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    }, 
-    method: "POST",
-    body: JSON.stringify({
-      title: issue.title,
-      body: issue.body,
-      assignees: assignees,
-      milestone: keypath(issue, "milestone.number"),
-      labels: issue.labels.map((l) => l.name)
-    })
-  });
-  
-  return new Promise((resolve, reject) => {
-    request.then(function(body) {
-      window.ivars.issue = body;
-      var q = window.ivars.issue.savePendingQueue;
-      window.ivars.issue.savePending = false;
-      if (q) {
-        delete window.ivars.issue.savePendingQueue;
-      }
-      applyIssueState(window.ivars);
-      resolve();
-      if (q) {
-        q.forEach((p) => {
-          p.resolve();
-        });
-      }
-    }).catch(function(err) {
-      var q = window.ivars.issue.savePendingQueue;
-      window.ivars.issue.savePending = false;
-      if (q) {
-        delete window.ivars.issue.savePendingQueue;
-      }
-      console.log(err);
-      reject(err);
-      if (q) {
-        q.forEach((p) => {
-          p.reject(err);
-        });
-      }
-    });
-  });
-  
-}
-
-function patchIssue(patch) {
-  window.ivars.issue = Object.assign({}, window.ivars.issue, patch);
-  applyIssueState(window.ivars);
-  return applyPatch(patch);
-}
-
-function editComment(commentIdx, newBody) {
-  if (commentIdx == 0) {
-    return patchIssue({body: newBody});
-  } else {
-    commentIdx--;
-    window.ivars.issue.allComments[commentIdx].body = newBody;
-    applyIssueState(window.ivars);
-    return applyCommentEdit(window.ivars.issue.allComments[commentIdx].id, newBody);
-  }
-}
-
-function deleteComment(commentIdx) {
-  if (commentIdx == 0) return; // cannot delete first comment
-  commentIdx--;
-  var c = window.ivars.issue.allComments[commentIdx];
-  window.ivars.issue.allComments = window.ivars.issue.allComments.splice(commentIdx+1, 1);
-  applyIssueState(window.ivars);
-  return applyCommentDelete(c.id);
-}
-
-function addComment(body) {
-  var now = new Date().toISOString();
-  window.ivars.issue.allComments.push({
-    body: body,
-    user: getIvars().me,
-    id: "new",
-    updated_at: now,
-    created_at: now
-  });
-  applyIssueState(window.ivars);
-  return applyComment(body);
-}
-
-function addReaction(commentIdx, reactionContent) {
-  var reaction = {
-    id: "new",
-    user: getIvars().me,
-    content: reactionContent,
-    created_at: new Date().toISOString()
-  };
-  var owner = getIvars().issue._bare_owner;
-  var repo = getIvars().issue._bare_repo;
-  var num = getIvars().issue.number;
-  
-  var url;
-  if (commentIdx == 0) {
-    window.ivars.issue.reactions.push(reaction);
-    url = `https://api.github.com/repos/${owner}/${repo}/issues/${num}/reactions`
-  } else {
-    commentIdx--;
-    var c = window.ivars.issue.allComments[commentIdx];
-    c.reactions.push(reaction);
-    url = `https://api.github.com/repos/${owner}/${repo}/issues/comments/${c.id}/reactions`
-  }
-  
-  applyIssueState(window.ivars);  
-  var request = api(url, {
-    headers: {
-      Authorization: "token " + getIvars().token,
-      'Content-Type': 'application/json',
-      'Accept': 'application/vnd.github.squirrel-girl-preview'
-    },
-    method: 'POST',
-    body: JSON.stringify({content: reactionContent})
-  });
-  return new Promise((resolve, reject) => {
-    request.then(function(body) {
-      mergeIssueChanges(owner, repo, num, () => {
-        reaction.id = body.id;
-        applyIssueState(window.ivars);
-      });
-      resolve();
-    }).catch(function(err) {
-      console.error("Add reaction failed", err);
-      reject(err);
-    });
-  });
-}
-
-function deleteReaction(commentIdx, reactionID) {
-  if (reactionID === "new") {
-    console.log("Cannot delete pending reaction");
-    return;
-  }
-
-  if (commentIdx == 0) {
-    window.ivars.issue.reactions = window.ivars.issue.reactions.filter((r) => r.id !== reactionID);
-  } else {
-    commentIdx--;
-    var c = window.ivars.issue.allComments[commentIdx];
-    c.reactions = c.reactions.filter((r) => r.id !== reactionID);
-  }
-  
-  var url = `https://api.github.com/reactions/${reactionID}`
-  applyIssueState(window.ivars);  
-  var request = api(url, {
-    headers: {
-      Authorization: "token " + getIvars().token,
-      'Content-Type': 'application/json',
-      'Accept': 'application/vnd.github.squirrel-girl-preview'
-    },
-    method: 'DELETE'
-  });
-  return new Promise((resolve, reject) => {
-    request.then(function(body) {
-      resolve();
-    }).catch(function(err) {
-      console.error("Add reaction failed", err);
-      reject(err);
-    });
-  });
-}
-
-var keypath = function(obj, path) {
-  if (!obj) return null;
-  if (!path) return obj;
-  var pattern = /(\w[\w\d]+)\[(\d+)\]/;
-  path = path.split('.')
-  for (var i = 0; i < path.length; i++) {
-    var prop = path[i];
-    var match = prop.match(pattern);
-    var idx = null;
-    if (match) {
-      prop = match[1];
-      idx = parseInt(match[2]);
-    }
-    if (obj != null && typeof(obj) === 'object' && prop in obj) {
-      obj = obj[prop];
-      if (idx !== null) {
-        if (Array.isArray(obj)) {
-          obj = obj[idx];
-        } else {
-          return null;
-        }
-      }
-    } else {
-      return null;
-    }
-  }
-  return obj;
-}
-
-var setKeypath = function(obj, path, value) {
-  if (!obj) return;
-  if (!path) return;
-  path = path.split('.')
-  for (var i = 0; i < path.length - 1; i++) {
-    var prop = path[i];
-    if (obj != null && prop in obj) {
-      obj = obj[prop];
-    } else {
-      return;
-    }
-  }
-  
-  var prop = path[path.length-1];
-  obj[prop] = value;
-}
-
-var markedRenderer = new marked.Renderer();
-
-markedRenderer.defaultListItem = markedRenderer.listitem;
-markedRenderer.listitem = function(text) {
-  if (/\[[ x]\]/.test(text)) {
-    text = text.replace(/\[ \]/, '<input type="checkbox">');
-    text = text.replace(/\[x\]/, '<input type="checkbox" checked>');
-    return "<li class='taskItem'>" + text + "</li>";
-  } else {
-    return this.defaultListItem(text);
-  }
-  return result;
-}
-
-markedRenderer.list = function(body, ordered) {
-  if (body.indexOf('<input type="checkbox"') != -1) {
-    return "<ul class='taskList'>" + body + "</ul>";
-  } else {
-    if (ordered) {
-      return "<ol>" + body + "</ol>";
-    } else {
-      return "<ul>" + body + "</ul>";
-    }
-  }
-}
-
-markedRenderer.defaultLink = markedRenderer.link;
-markedRenderer.link = function(href, title, text) {
-  var lowerHref = href.toLowerCase();
-  if (lowerHref.indexOf("?") != -1) {
-    lowerHref = lowerHref.substring(0, lowerHref.indexOf("?"));
-  }
-  if (lowerHref.endsWith('.mov') || lowerHref.endsWith('.mp4')) {
-    if (href.indexOf("://www.dropbox.com") != -1 && href.endsWith("?dl=0")) {
-      href = href.replace("?dl=0", "?dl=1");
-    }
-    return `<video src="${href}" title="${title}" controls></video>`;
-  } else {
-    return markedRenderer.defaultLink(href, title, text);
-  }
-};
-
-markedRenderer.text = function(text) {
-  return emojify(githubLinkify(getIvars().issue._bare_owner, getIvars().issue._bare_repo, text));
-}
-
-var ghost = {
-  login: "ghost",
-  id: 10137,
-  avatar_url: "https://avatars1.githubusercontent.com/u/10137?v=3"
-};
-
-var langMapping = {
-  'objective-c': 'objc',
-  'c#' : 'cs'
-}
-
-var markdownOpts = {
-  renderer: markedRenderer,
-  gfm: true,
-  tables: true,
-  breaks: true,
-  pedantic: false,
-  sanitize: false,
-  smartLists: true,
-  smartypants: false,
-  highlight: function (code, lang) {
-    if (lang) {
-      lang = langMapping[lang.toLowerCase()] || lang;
-      return hljs.highlightAuto(code, [lang]).value;
-    } else {
-      return code;
-    }
-  }
-};
 
 var AvatarIMG = React.createClass({
   propTypes: {
@@ -920,15 +358,15 @@ var ReferencedEventDescription = React.createClass({
   
   willCloseIssueOnMerge: function() {
     var info = getOwnerRepoTypeNumberFromURL(this.props.event.commit_url);
-    var issue = getIvars().issue;
+    var issue = IssueState.current.issue;
     
     if (issue.state != "open") {
       // if the issue is already closed, this commit won't close it further.
       return false;
     }
     
-    if (info.owner != issue._bare_owner ||
-        info.repo != issue._bare_repo)
+    if (info.owner != IssueState.current.repoOwner ||
+        info.repo != IssueState.current.repoName)
     {
       // commit is in a different repo. it won't close it.
       return false;
@@ -938,7 +376,7 @@ var ReferencedEventDescription = React.createClass({
     var fixes = /(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved)\s+((?:[\w\d\-_]+\/[\w\d\-_]+)#\d+)/gi;
     var allFixes = matchAll(fixes, msg);
     var issueNum = "#" + (issue.number || "");
-    var fullIssueNum = issue.full_identifier || (issue._bare_owner + "/" + issue._bare_repo + issueNum);
+    var fullIssueNum = issue.full_identifier || (IssueState.current.repoOwner + "/" + IssueState.current.repoName + issueNum);
     var fixes = allFixes.map((x) => x[1]).filter((x) => x == issueNum || x == fullIssueNum);
     return fixes.length > 0;
   },
@@ -999,7 +437,7 @@ var CrossReferencedEventDescription = React.createClass({
     var urlParts = getOwnerRepoTypeNumberFromURL(url);
 
     var referencedRepoName = `${urlParts.owner}/${urlParts.repo}`;
-    var repoName = getIvars().issue._bare_owner + "/" + getIvars().issue._bare_repo;
+    var repoName = IssueState.current.repoOwner + "/" + IssueState.current.repoName;
 
     if (repoName === referencedRepoName) {
       return h("span", {}, "referenced this issue");
@@ -1196,8 +634,8 @@ var CommitInfoEventBody = React.createClass({
     var bodyContent = null;
     if (this.state.showBody && body) {
       const linkifiedBody = githubLinkify(
-        getIvars().issue._bare_owner,
-        getIvars().issue._bare_repo,
+        IssueState.current.repoOwner,
+        IssueState.current.repoName,
         linkify(escape(body), {escape: false}));
       bodyContent = h("pre",
                       {
@@ -1345,8 +783,8 @@ var ActivityList = React.createClass({
     // need to merge events and comments together into one array, ordered by date
     var eventsAndComments = (!!(firstComment.id) || this.props.issue.savePending) ? [firstComment] : [];
     
-    eventsAndComments = eventsAndComments.concat(this.props.issue.allEvents || []);
-    eventsAndComments = eventsAndComments.concat(this.props.issue.allComments || []);
+    eventsAndComments = eventsAndComments.concat(this.props.issue.events || []);
+    eventsAndComments = eventsAndComments.concat(this.props.issue.comments || []);
     
     eventsAndComments = eventsAndComments.sort(function(a, b) {
       if (a == firstComment && b == firstComment) {
@@ -1454,7 +892,7 @@ var AddCommentHeader = React.createClass({
     }
   
     return h('div', {className:'commentHeader'},
-      h(AvatarIMG, {user:getIvars().me, size:32}),
+      h(AvatarIMG, {user:IssueState.current.me, size:32}),
       h('span', {className:'addCommentLabel'}, 'Add Comment'),
       h('div', {className:'commentControls'}, buttons)
     );
@@ -1463,12 +901,12 @@ var AddCommentHeader = React.createClass({
 
 var AddCommentFooter = React.createClass({
   render: function() {
-    var issue = getIvars().issue;
+    var issue = IssueState.current.issue;
     var isNewIssue = !(issue.number);
     var canSave = false;
     
     if (isNewIssue) {
-      canSave = (issue.title || "").trim().length > 0 && !!(issue._bare_owner) && !!(issue._bare_repo);
+      canSave = (issue.title || "").trim().length > 0 && !!(IssueState.current.repoOwner) && !!(IssueState.current.repoName);
     } else {
       canSave = this.props.hasContents;
     }
@@ -1718,7 +1156,7 @@ var CommentReaction = React.createClass({
     } else {
       title = r0.user.login + " and " + (this.props.reactions.length-1) + " others";
     }
-    var me = getIvars().me.login;
+    var me = IssueState.current.me.login;
     var mine = this.props.reactions.filter((r) => r.user.login === me).length > 0;
     return h("div", {className:"CommentReaction Clickable", title: title, key:r0.content, onClick:this.onClick}, 
       h("span", {className:"CommentReactionEmoji"}, emojifyReaction(r0.content)),
@@ -1770,8 +1208,6 @@ var CommentReactions = React.createClass({
       }
     });
     
-    console.log(partitions);
-    
     var contents = partitions.map((r, i) => h(CommentReaction, {key:r[0].content + "-" + i, reactions:r, onToggle:this.props.onToggle}));
     if (this.props.children) {
       if (Array.isArray(this.props.children)) {
@@ -1780,8 +1216,6 @@ var CommentReactions = React.createClass({
         contents.push(this.props.children);
       }
     }
-    
-    console.log(contents);
     
     return h("div", {className:"ReactionsBar"}, contents);
   }
@@ -1800,7 +1234,7 @@ var PullRequest = React.createClass({
   
   render: function() {
     var issue = this.props.issue;
-    var href = `https://github.com/${issue._bare_owner}/${issue._bare_repo}/pulls/${issue.number}/files`;
+    var href = `https://github.com/${IssueState.current.repoOwner}/${IssueState.current.repoName}/pulls/${issue.number}/files`;
     return h('div', {className:'ReactionsBarWithPR'},
       h(CommentReactions, {reactions:this.props.comment.reactions, onToggle:this.props.onToggleReaction}, 
         h('a', 
@@ -1864,7 +1298,13 @@ var CommentBody = React.createClass({
       return h('div', { 
         className:'commentBody', 
         ref: 'commentBody',
-        dangerouslySetInnerHTML: {__html:marked(body, markdownOpts)}
+        dangerouslySetInnerHTML: {
+          __html:markdownRender(
+            body, 
+            IssueState.current.repoOwner, 
+            IssueState.current.repoName
+          )
+        }
       });
     }
   },
@@ -2076,7 +1516,7 @@ var Comment = React.createClass({
   },
   
   deleteComment: function() {
-    deleteComment(this.props.commentIdx);
+    IssueState.current.deleteComment(this.props.commentIdx);
   },
   
   /* Called for task list edits that occur 
@@ -2088,9 +1528,9 @@ var Comment = React.createClass({
     } else {
       this.setState(Object.assign({}, this.state, {pendingTaskBody: newBody}));
       
-      var owner = getIvars().issue._bare_owner;
-      var repo = getIvars().issue._bare_repo;
-      var num = getIvars().issue.number;
+      var owner = IssueState.current.repoOwner;
+      var repo = IssueState.current.repoName;
+      var num = IssueState.current.issue.number;
       var patch = { body: newBody };
       var q = null;
       var url = null;
@@ -2113,7 +1553,7 @@ var Comment = React.createClass({
         }
         var request = api(url, { 
           headers: { 
-            Authorization: "token " + getIvars().token,
+            Authorization: "token " + IssueState.current.token,
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           }, 
@@ -2144,7 +1584,7 @@ var Comment = React.createClass({
   },
   
   findReaction: function(reaction) {
-    var me = getIvars().me;
+    var me = IssueState.current.me;
     var existing = this.props.comment.reactions.filter((r) => r.content === reaction && r.user.login === me.login);
     return existing.length > 0 ? existing[0] : null;
   },
@@ -2152,16 +1592,16 @@ var Comment = React.createClass({
   addReaction: function(reaction) {
     var existing = this.findReaction(reaction);
     if (!existing) {
-      addReaction(this.props.commentIdx, reaction);
+      IssueState.current.addReaction(this.props.commentIdx, reaction);
     }
   },
 
   toggleReaction: function(reaction) {
     var existing = this.findReaction(reaction);
     if (existing) {
-      deleteReaction(this.props.commentIdx, existing.id);
+      IssueState.current.deleteReaction(this.props.commentIdx, existing.id);
     } else {
-      addReaction(this.props.commentIdx, reaction);
+      IssueState.current.addReaction(this.props.commentIdx, reaction);
     }
   },
   
@@ -2204,9 +1644,9 @@ var Comment = React.createClass({
     if (window.inAppCommentFocus) {
       window.inAppCommentFocus.postMessage({key:this.key, state:false});
     }
-    var isNewIssue = !(getIvars().issue.number);
+    var isNewIssue = !(IssueState.current.issue.number);
     if (isNewIssue) {
-      editComment(0, this.state.code);
+      IssueState.current.editComment(0, this.state.code);
     }
   },
   
@@ -2217,24 +1657,24 @@ var Comment = React.createClass({
   },
   
   saveDraftState: function() {
-    var issue = getIvars().issue;
+    var issue = IssueState.current.issue;
     var isNewIssue = !(issue.number);
     
     if (!isNewIssue) {
       if (this.state.editing && this.state.code.trim().length > 0) {
-        storeCommentDraft(issue._bare_owner, issue._bare_repo, issue.number, keypath(this.props, "comment.id"), this.state.code);
+        storeCommentDraft(IssueState.current.repoOwner, IssueState.current.repoName, issue.number, keypath(this.props, "comment.id"), this.state.code);
       } else {
-        clearCommentDraft(issue._bare_owner, issue._bare_repo, issue.number, keypath(this.props, "comment.id"));
+        clearCommentDraft(IssueState.current.repoOwner, IssueState.current.repoName, issue.number, keypath(this.props, "comment.id"));
       }
     }
   },
   
   restoreDraftState: function() {
-    var issue = getIvars().issue;
+    var issue = IssueState.current.issue;
     var isNewIssue = !(issue.number);
     
     if (!isNewIssue) {
-      var draft = getCommentDraft(issue._bare_owner, issue._bare_repo, issue.number, keypath(this.props, "comment.id"));
+      var draft = getCommentDraft(IssueState.current.repoOwner, IssueState.current.repoName, issue.number, keypath(this.props, "comment.id"));
       if (draft && draft.trim().length > 0) {
         this.beginEditing();
         this.updateCode(draft);
@@ -2249,7 +1689,7 @@ var Comment = React.createClass({
   },
   
   _save: function() {
-    var issue = getIvars().issue;
+    var issue = IssueState.current.issue;
     var isNewIssue = !(issue.number);
     var isAddNew = !(this.props.comment);
     var body = this.state.code;
@@ -2257,26 +1697,26 @@ var Comment = React.createClass({
     var resetState = () => {
       this.setState(Object.assign({}, this.state, {code: "", previewing: false, editing: isAddNew}));
       if (!isNewIssue) {
-        clearCommentDraft(issue._bare_owner, issue._bare_repo, issue.number, keypath(this.props, "comment.id"));
+        clearCommentDraft(IssueState.current.repoOwner, IssueState.current.repoName, issue.number, keypath(this.props, "comment.id"));
       }
     };
     
     if (isNewIssue) {
-      var canSave = (issue.title || "").trim().length > 0 && !!(issue._bare_owner) && !!(issue._bare_repo);
+      var canSave = (issue.title || "").trim().length > 0 && !!(IssueState.current.repoOwner) && !!(IssueState.current.repoName);
       if (canSave) {
         resetState();
-        editComment(0, body);
-        return saveNewIssue();
+        IssueState.current.editComment(0, body);
+        return IssueState.current.saveNewIssue();
       }
     } else {
       resetState();
       if (body.trim().length > 0) {
         if (this.props.comment) {
           if (this.props.comment.body != body) {
-            return editComment(this.props.commentIdx, body);
+            return IssueState.current.editComment(this.props.commentIdx, body);
           }
         } else {
-          return addComment(body);
+          return IssueState.current.addComment(body);
         }
       }
     }
@@ -2306,18 +1746,18 @@ var Comment = React.createClass({
   },
   
   saveAndClose: function() {
-    patchIssue({state: "closed"});
+    IssueState.current.patchIssue({state: "closed"});
     this.save();    
   },
   
   needsSave: function() {
-    var issue = getIvars().issue;
+    var issue = IssueState.current.issue;
     var isNewIssue = !(issue.number);
     var isAddNew = !(this.props.comment);
     var body = this.state.code;
     
     if (isNewIssue) {
-      var canSave = (issue.title || "").trim().length > 0 && !!(issue._bare_owner) && !!(issue._bare_repo);
+      var canSave = (issue.title || "").trim().length > 0 && !!(IssueState.current.repoOwner) && !!(IssueState.current.repoName);
       return canSave;
     } else {
       if (this.props.comment && !this.state.editing) {
@@ -2337,7 +1777,7 @@ var Comment = React.createClass({
   },
 
   renderCodemirror: function() {
-    var isNewIssue = !(getIvars().issue.number);
+    var isNewIssue = !(IssueState.current.issue.number);
   
     return h('div', {className: 'CodeMirrorContainer', onClick:this.focusCodemirror},
       h(Codemirror, {
@@ -2394,7 +1834,7 @@ var Comment = React.createClass({
         return h(AddCommentUploadProgress, {ref:'uploadProgress'});
       } else {
         var editingExisting = !!(this.props.comment);
-        var canClose = !editingExisting && getIvars().issue.number > 0 && getIvars().issue.state === "open";
+        var canClose = !editingExisting && IssueState.current.issue.number > 0 && IssueState.current.issue.state === "open";
         return h(AddCommentFooter, {
           ref:'footer', 
           canClose: canClose,
@@ -2406,8 +1846,8 @@ var Comment = React.createClass({
           editingExisting: !!(this.props.comment)
         })
       }
-    } else if (this.props.first && getIvars().issue.pull_request) {
-      return h(PullRequest, {key:"pr", comment:this.props.comment, issue:getIvars().issue, onToggleReaction:this.toggleReaction});
+    } else if (this.props.first && IssueState.current.issue.pull_request) {
+      return h(PullRequest, {key:"pr", comment:this.props.comment, issue:IssueState.current.issue, onToggleReaction:this.toggleReaction});
     } else if ((keypath(this.props, "comment.reactions")||[]).length > 0) {
       return h(CommentReactions, {reactions:this.props.comment.reactions, onToggle:this.toggleReaction});
     } else {
@@ -2544,7 +1984,7 @@ var Comment = React.createClass({
         
         if (change.text.length == 1 && change.text[0] === '@') {
           CodeMirror.showHint(cm, sentinelHint, {
-            words: getIvars().allLoginCompletions.map((a) => '@' + a),
+            words: IssueState.current.allLoginCompletions.map((a) => '@' + a),
             sentinel: '@',
             completeSingle: false
           });
@@ -2754,7 +2194,7 @@ var IssueTitle = React.createClass({
     var promise = null;
     if (this.state.edited) {
       this.setState({edited: false});
-      promise = patchIssue({title: newTitle});
+      promise = IssueState.current.patchIssue({title: newTitle});
     }
     if (goNext) {
       this.props.focusNext("title");
@@ -2869,14 +2309,14 @@ var RepoField = React.createClass({
     
     var [owner, repo] = newRepo.split("/");
     
-    var repoInfo = getIvars().repos.find((x) => x.full_name == newRepo);
+    var repoInfo = IssueState.current.repos.find((x) => x.full_name == newRepo);
     
     if (!repoInfo) {
       fail();
       return Promise.reject("Invalid repo");
     }
     
-    var state = getIvars();
+    var state = IssueState.current.state;
     state = Object.assign({}, state);
     state.issue = Object.assign({}, state.issue, { 
       _bare_repo: repo, 
@@ -2891,7 +2331,7 @@ var RepoField = React.createClass({
     return new Promise((resolve, reject) => {
       // fetch new metadata and merge it in
       loadMetadata(newRepo).then((meta) => {
-        var state = getIvars();
+        var state = IssueState.current.state;
         state = Object.assign({}, state, meta);
         var nextIssueState = { 
           _bare_repo: repo, 
@@ -2976,7 +2416,7 @@ var RepoField = React.createClass({
   },
   
   render: function() {  
-    var opts = getIvars().repos.map((r) => r.full_name);
+    var opts = IssueState.current.repos.map((r) => r.full_name);
     var matcher = Completer.SubstrMatcher(opts);
     
     var canEdit = this.props.issue.number == null;
@@ -2999,7 +2439,7 @@ var MilestoneField = React.createClass({
   },
   
   lookupMilestone: function(value) {
-    var ms = getIvars().milestones.filter((m) => m.title === value);
+    var ms = IssueState.current.milestones.filter((m) => m.title === value);
     if (ms.length == 0) {
       return null;
     } else {
@@ -3014,7 +2454,7 @@ var MilestoneField = React.createClass({
         value = null;
       }
       
-      return patchIssue({milestone: this.lookupMilestone(value)});
+      return IssueState.current.patchIssue({milestone: this.lookupMilestone(value)});
     } else {
       return Promise.resolve();
     }
@@ -3050,7 +2490,7 @@ var MilestoneField = React.createClass({
         } else {
           // success
           var m = newMilestones[0];
-          getIvars().milestones.push(m);
+          IssueState.current.milestones.push(m);
           this.props.issue.milestone = m;
           this.forceUpdate();
           return this.milestoneChanged(m.title).then(resolve, reject);
@@ -3105,7 +2545,7 @@ var MilestoneField = React.createClass({
   
   render: function() {
     var canAddNew = !!this.props.issue._bare_repo;
-    var opts = getIvars().milestones.map((m) => m.title);
+    var opts = IssueState.current.milestones.map((m) => m.title);
     var matcher = Completer.SubstrMatcher(opts);
     
     return h('div', {className: 'IssueInput MilestoneField'},
@@ -3130,7 +2570,7 @@ var StateField = React.createClass({
   },
   
   stateChanged: function(evt) {
-    patchIssue({state: evt.target.value});
+    IssueState.current.patchIssue({state: evt.target.value});
   },
   
   needsSave: function() {
@@ -3161,7 +2601,7 @@ var AssigneeInput = React.createClass({
   },
   
   lookupAssignee: function(value) {
-    var us = getIvars().assignees.filter((a) => a.login === value);
+    var us = IssueState.current.assignees.filter((a) => a.login === value);
     if (us.length == 0) {
       return null;
     } else {
@@ -3177,9 +2617,9 @@ var AssigneeInput = React.createClass({
       }
       var assignee = this.lookupAssignee(value);
       if (assignee) {
-        return patchIssue({assignees: [assignee]});
+        return IssueState.current.patchIssue({assignees: [assignee]});
       } else {
-        return patchIssue({assignees: []});
+        return IssueState.current.patchIssue({assignees: []});
       }
     } else {
       return Promise.resolve();
@@ -3244,7 +2684,7 @@ var AssigneeInput = React.createClass({
   },
     
   render: function() {
-    var ls = getIvars().assignees.map((a) => {
+    var ls = IssueState.current.assignees.map((a) => {
       var lowerLogin = a.login.toLowerCase();
       var lowerName = null;
       if (a.name != null) {
@@ -3296,11 +2736,11 @@ var AddAssignee = React.createClass({
   
   addAssignee: function(login) {
     var user = null;
-    var matches = getIvars().assignees.filter((u) => u.login == login);
+    var matches = IssueState.current.assignees.filter((u) => u.login == login);
     if (matches.length > 0) {
       user = matches[0];
       var assignees = [user, ...this.props.issue.assignees];
-      return patchIssue({assignees});
+      return IssueState.current.patchIssue({assignees});
     }
   },
   
@@ -3335,7 +2775,7 @@ var AddAssignee = React.createClass({
   },
   
   render: function() {
-    var allAssignees = getIvars().assignees;
+    var allAssignees = IssueState.current.assignees;
     var chosenAssignees = keypath(this.props.issue, "assignees") || [];
     
     var chosenAssigneesLookup = chosenAssignees.reduce((o, l) => { o[l.login] = l; return o; }, {});
@@ -3383,7 +2823,7 @@ var MultipleAssignees = React.createClass({
   
   deleteAssignee: function(user) {
     var assignees = this.props.issue.assignees.filter((u) => (u != user));
-    patchIssue({assignees});
+    IssueState.current.patchIssue({assignees});
   },
   
   focus: function() {
@@ -3523,26 +2963,25 @@ var AddLabel = React.createClass({
   
   addExistingLabel: function(label) {
     var labels = [label, ...this.props.issue.labels];
-    return patchIssue({labels: labels});
+    return IssueState.current.patchIssue({labels: labels});
   },
 
   newLabel: function(prefillName) {
-    var _this = this;
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       window.newLabel(prefillName ? prefillName : "",
-                      getIvars().labels,
-                      _this.props.issue._bare_owner,
-                      _this.props.issue._bare_repo,
-                      function(succeeded, label) {
-                        _this.focus();
+                      IssueState.current.labels,
+                      this.props.issue._bare_owner,
+                      this.props.issue._bare_repo,
+                      (succeeded, label) => {
+                        this.focus();
                         if (succeeded) {
-                          getIvars().labels.push({
+                          IssueState.current.labels.push({
                             name: label.name,
                             color: label.color,
                           });
-                          _this.forceUpdate();
+                          this.forceUpdate();
 
-                          return _this.addExistingLabel(label).then(resolve, reject);
+                          return this.addExistingLabel(label).then(resolve, reject);
                         }
                         resolve();
                       });
@@ -3580,7 +3019,7 @@ var AddLabel = React.createClass({
   },
     
   render: function() {
-    var allLabels = getIvars().labels;
+    var allLabels = IssueState.current.labels;
     var chosenLabels = keypath(this.props.issue, "labels") || [];
     
     chosenLabels = [...chosenLabels].sort((a, b) => {
@@ -3610,7 +3049,7 @@ var IssueLabels = React.createClass({
   
   deleteLabel: function(label) {
     var labels = this.props.issue.labels.filter((l) => (l.name != label.name));
-    patchIssue({labels: labels});
+    IssueState.current.patchIssue({labels: labels});
   },
   
   focus: function() {
@@ -3768,30 +3207,8 @@ var Header = React.createClass({
   }
 });
 
-var DebugLoader = React.createClass({
-  propTypes: { issue: React.PropTypes.object },
-  render: function() {
-    var ghURL = "https://github.com/" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo + "/issues/" + this.props.issue.number;
-    var val = "" + this.props.issue._bare_owner + "/" + this.props.issue._bare_repo + "#" + this.props.issue.number;
-    
-    return h("div", {className:"debugLoader"},
-      h("span", {}, "Load Problem: "),
-      h(SmartInput, {type:"text", size:40, value:val, onChange:this.loadProblem}),
-      h("a", {href:ghURL, target:"_blank"}, "source"),
-      h("input", {type:"button", onClick:this.rerender, value:"Rerender"})
-    );
-  },
-  loadProblem: function(problemRef) {
-    var [owner, repo, number] = problemRef.split(/[\/#]/);
-    updateIssue(...problemRef.split(/[\/#]/));          
-  },
-  rerender: function() {
-    applyIssueState(getIvars());
-  }
-});
-      
 function simpleFetch(url) {
-  return api(url, { headers: { Authorization: "token " + getIvars().token }, method: "GET" });
+  return api(url, { headers: { Authorization: "token " + IssueState.current.token }, method: "GET" });
 }
       
 function pagedFetch(url) /* => Promise */ {
@@ -3799,7 +3216,7 @@ function pagedFetch(url) /* => Promise */ {
     return simpleFetch(url);
   }
 
-  var opts = { headers: { Authorization: "token " + getIvars().token }, method: "GET" };
+  var opts = { headers: { Authorization: "token " + IssueState.current.token }, method: "GET" };
   var initial = fetch(url, opts);
   return initial.then(function(resp) {
     var pages = []
@@ -3820,39 +3237,6 @@ function pagedFetch(url) /* => Promise */ {
     return Promise.all([resp.json()].concat(pages));
   }).then(function(pages) {
     return pages.reduce(function(a, b) { return a.concat(b); });
-  });
-}
-
-function updateIssue(owner, repo, number) {
-  var reqs = [simpleFetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number),
-              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/events"),
-              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/issues/" + number + "/comments"),
-              pagedFetch("https://api.github.com/user/repos"),
-              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/assignees"),
-              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/milestones"),
-              pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/labels"),
-              simpleFetch("https://api.github.com/user")];
-  
-  Promise.all(reqs).then(function(parts) {
-    var issue = parts[0];
-    issue.allEvents = parts[1];
-    issue.allComments = parts[2];
-    
-    var state = { 
-      issue: issue,
-      repos: parts[3].filter((r) => r.has_issues),
-      assignees: parts[4],
-      milestones: parts[5],
-      labels: parts[6],
-      me: parts[7],
-      token: getIvars().token
-    }
-    
-    if (issue.id) {
-      applyIssueState(state);
-    }
-  }).catch(function(err) {
-    console.log(err);
   });
 }
 
@@ -3880,7 +3264,7 @@ function loadMetadata(repoFullName) {
       assignees: (parts.length > 2 ? parts[2] : []),
       milestones: (parts.length > 3 ? parts[3] : []),
       labels: (parts.length > 4 ? parts[4] : []),
-      token: getIvars().token,
+      token: IssueState.current.token,
     };
     
     return new Promise((resolve, reject) => {
@@ -3906,16 +3290,8 @@ var App = React.createClass({
       activity,
       addComment
     );
-    
-    var outerElement = issueElement;
-    if (debugToken && !window.inApp) {
-      outerElement = h("div", {},
-        h(DebugLoader, {issue:issue}),
-        issueElement
-      );
-    }
-    
-    return outerElement;
+        
+    return issueElement;
   },
   
   onIssueTemplate: function(template) {
@@ -3947,7 +3323,7 @@ var App = React.createClass({
     
     // If we're doing New Clone in the app, we have an issue body already.
     // Set it, but don't dirty the save state
-    var isNewIssue = !(getIvars().issue.number);
+    var isNewIssue = !(IssueState.current.issue.number);
     var addComment = this.refs.addComment;
     if (isNewIssue && this.props.issue && this.props.issue.body && this.props.issue.body.length > 0) {
       addComment.setInitialContents(this.props.issue.body);
@@ -3961,8 +3337,8 @@ var App = React.createClass({
   needsSave: function() {
     var l = [this.refs.header, this.refs.activity, this.refs.addComment];
     var edited = l.reduce((a, x) => a || x.needsSave(), false)
-    var isNewIssue = !(getIvars().issue.number);
-    var isEmptyNewIssue = getIvars().issue.title == null || getIvars().issue.title == "";
+    var isNewIssue = !(IssueState.current.issue.number);
+    var isEmptyNewIssue = IssueState.current.issue.title == null || IssueState.current.issue.title == "";
     return edited || (isNewIssue && !isEmptyNewIssue);
   },
   
@@ -3970,8 +3346,8 @@ var App = React.createClass({
     var isNewIssue = !(this.props.issue.number);
     if (isNewIssue) {
       this.refs.header.save(); // commit any pending changes      
-      var title = getIvars().issue.title;
-      var repo = getIvars().issue._bare_repo;
+      var title = IssueState.current.issue.title;
+      var repo = IssueState.current.repoName;
       
       if (!title || title.trim().length == 0) {
         var reason = "Cannot save issue. Title is required.";
@@ -4048,9 +3424,9 @@ var App = React.createClass({
 
 function applyIssueState(state, scrollToCommentIdentifier) {
   var oldOwner, oldRepo, oldNum;
-  oldOwner = keypath(getIvars(), "issue._bare_owner");
-  oldRepo = keypath(getIvars(), "issue._bare_repo");
-  oldNum = keypath(getIvars(), "issue.number");
+  oldOwner = IssueState.current.repoOwner;
+  oldRepo = IssueState.current.repoName;
+  oldNum = IssueState.current.issueNumber;
   
   if (oldOwner && oldRepo && oldNum && window.topLevelComponent && !window.lastErr) {
     window.topLevelComponent.saveCommentDrafts();
@@ -4073,20 +3449,13 @@ function applyIssueState(state, scrollToCommentIdentifier) {
       issue._bare_repo = comps[1];
     }
   }
-  
-  if (Array.isArray(issue.events)) {
-    issue.allEvents = issue.events;
-  }
-  if (Array.isArray(issue.comments)) {
-    issue.allComments = issue.comments;
-  }
-  
+    
   if (issue.originator) {
     issue.user = issue.originator;
   }
   
   var allPossibleAssignees = state.assignees.map((a) => a.login);
-  var allPossibleCommenters = (issue.allComments || []).filter((c) => !!keypath(c, "user.login")).map((c) => c.user.login)
+  var allPossibleCommenters = (issue.comments || []).filter((c) => !!keypath(c, "user.login")).map((c) => c.user.login)
   if (keypath(issue, "user.login")) {
     allPossibleCommenters.push(issue.user.login);
   }
@@ -4096,12 +3465,12 @@ function applyIssueState(state, scrollToCommentIdentifier) {
   allLogins = allLogins.map((o) => o.v);
   state.allLoginCompletions = allLogins;
   
-  setIvars(state);
+  IssueState.current.state = state;
   
   var newOwner, newRepo, newNum;
-  newOwner = keypath(getIvars(), "issue._bare_owner");
-  newRepo = keypath(getIvars(), "issue._bare_repo");
-  newNum = keypath(getIvars(), "issue.number");
+  newOwner = IssueState.current.repoOwner;
+  newRepo = IssueState.current.repoName;
+  newNum = IssueState.current.issueNumber;
   
   var shouldRestoreDrafts = (newOwner != oldOwner || newRepo != oldRepo || newNum != oldNum);
   
@@ -4139,6 +3508,7 @@ function applyIssueState(state, scrollToCommentIdentifier) {
     }
   )
 }
+IssueState.current.applyIssueState = applyIssueState;
 
 function scrollToCommentWithIdentifier(scrollToCommentIdentifier) {
   if (window.topLevelComponent) {
@@ -4182,14 +3552,9 @@ function configureNewIssue(initialRepo, meta) {
   applyIssueState(state);
 }
 
-window.apiCallback = apiCallback;
-window.updateIssue = updateIssue;
 window.applyIssueState = applyIssueState;
 window.scrollToCommentWithIdentifier = scrollToCommentWithIdentifier;
 window.configureNewIssue = configureNewIssue;
-window.renderIssue = function(issue) {
-  applyIssueState({issue: issue});
-};
 
 window.needsSave = function() {
   return window.topLevelComponent && window.topLevelComponent.needsSave();
@@ -4213,11 +3578,6 @@ window.save = function(token) {
 }
 
 window.pasteCallback = pasteCallback;
-
-if (!window.inApp) {
-  //updateIssue("realartists", "shiphub-server", "10")
-  configureNewIssue();
-}
 
 function findCSSRule(selector) {
   var sheets = document.styleSheets;
