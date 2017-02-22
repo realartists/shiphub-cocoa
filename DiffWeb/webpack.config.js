@@ -26,8 +26,8 @@ module.exports = {
         { test: /\.json$/, loader: 'json'},
     ],
     loaders: [
-      { test: /.*?IssueWeb.*?\.js$/, include: path.join(__dirname, "../IssueWeb/app"), loader: "babel-loader", query: {compact: !debugMode} },
-      { test: /\.js$/, include: __dirname + "/app", loader: "babel-loader", query: {compact: !debugMode} },
+      { test: /.*?IssueWeb.*?\.js$/, include: path.join(__dirname, "../IssueWeb/app"), loader: "babel", query: {compact: !debugMode} },
+      { test: /\.js$/, include: __dirname + "/app", loader: "babel", query: {compact: !debugMode} },
       { test: /\.jpe?g$|\.gif$|\.png$/, loader: "file" },
       { test: /\.css$/, loader: 'style!css?sourceMap' },
       { test: /\.woff(\?v=\d+\.\d+\.\d+)?$/, loader: "url?limit=10000&mimetype=application/font-woff" }, 

@@ -1,6 +1,6 @@
 import { emojify, emojifyReaction } from './emojify.js'
 import marked from './marked.min.js'
-import { githubLinkify } from './github_linkify.js'
+import { githubLinkify } from './github-linkify.js'
 
 var markedRenderer = new marked.Renderer();
 
