@@ -76,6 +76,41 @@ var markdownOpts = {
   }
 };
 
+var ghost = {
+  login: "ghost",
+  id: 10137,
+  avatar_url: "https://avatars1.githubusercontent.com/u/10137?v=3"
+};
+
+class Avatar {
+  constructor(user, size) {
+    this.user = user || ghost;
+    this.pointSize = size || 32;
+    
+    var img = h('img', {
+      className: "avatar",
+      src: this.avatarURL(),
+      width: this.pointSize
+      height: this.pointSize
+    }
+    
+    this.node = img;
+  }
+  
+  avatarURL() {
+    var avatarURL = this.user.avatar_url;
+    if (avatarURL == null) {
+      avatarURL = "https://avatars.githubusercontent.com/u/" + this.props.user.id + "?v=3";
+    }
+    avatarURL += "&s=" + this.pixelSize();
+    return avatarURL;
+  }
+  
+  pixelSize: function() {
+    return this.pointSize * 2;
+  }
+}
+
 class Comment {
   constructor(prComment, issueIdentifier) {
     this.issueIdentifier = issueIdentifier;
@@ -85,18 +120,29 @@ class Comment {
     
     this.node = commentDiv;
     
+    this._code = "";
+    this._editing = false;
     this.comment = prComment;
   }
   
-  set comment(prComment) {
-    var bodyChanged = !this.prComment || prComment.body != this.prComment.body;
-    this.prComment = prComment;
-    if (bodyChanged) {
+  get editing() { return this._editing; }
+  
+  set code(newCode) {
+    if (this._code !== newCode) {
       var parts = this.issueIdentifier.split('/#');
       markedRenderer.text = function(text) {
         return emojify(githubLinkify(parts[0], parts[1], text));
       }
       this.commentBody.innerHTML = marked(prComment.body, markdownOpts);
+    }
+  }
+  
+  get code() { return _code; }
+  
+  set comment(prComment) {
+    this.prComment = prComment;
+    if (!this.editing) {
+      this.code = prComment.body;
     }
   }
   
