@@ -1,0 +1,25 @@
+import React, { createElement as h } from 'react'
+import ghost from '../../ghost.js'
+import { TimeAgo, TimeAgoString } from '../../time-ago.js'
+import CommentControls from './CommentControls.js'
+import AvatarIMG from '../AvatarIMG'
+
+var CommentHeader = React.createClass({  
+  render: function() {
+    var user = this.props.comment.user||this.props.comment.author;
+    if (!user) user = ghost;
+    var desc = " commented ";
+    if (this.props.first) {
+      desc = " filed ";
+    }
+    return h('div', {className:'commentHeader'},
+      h(AvatarIMG, {user:user, size:32}),
+      h('span', {className:'commentAuthor'}, user.login),
+      h('span', {className:'commentTimeAgo'}, desc),
+      h(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
+      h(CommentControls, this.props)
+    );
+  }
+});
+
+export default CommentHeader;
