@@ -7,7 +7,6 @@ import './index.css'
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
 import escape from 'html-escape'
-import hljs from 'highlight.js'
 import linkify from 'html-linkify'
 import md5 from 'md5'
 import 'whatwg-fetch'
@@ -21,22 +20,18 @@ window.jquery = $;
 import Completer from './completer.js'
 import SmartInput from './smart-input.js'
 import { emojify, emojifyReaction } from './emojify.js'
-import { markdownRender } from './markdown-render.js'
 import { githubLinkify } from './github-linkify.js'
 import LabelPicker from './label-picker.js'
 import AssigneesPicker from './assignees-picker.js'
 import { TimeAgo, TimeAgoString } from './time-ago'
-import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from './cm-util.js'
 import { api } from './api-proxy.js'
 import { promiseQueue } from './promise-queue.js'
 import ghost from './ghost.js'
 import IssueState from './issue-state.js'
 import { keypath, setKeypath } from './keypath.js'
-import { pasteHelper } from './paste-helper.js'
 
 import AvatarIMG from './components/AvatarIMG.js'
 import Comment from './components/comment/Comment.js'
-
 
 var EventIcon = React.createClass({
   propTypes: {

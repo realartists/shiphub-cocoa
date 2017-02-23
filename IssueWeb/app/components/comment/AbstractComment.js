@@ -1,5 +1,7 @@
 /* This is the shared Comment component between IssueWeb and DiffWeb */
 
+import './comment.css'
+
 import Sortable from 'sortablejs'
 import CodeMirror from 'codemirror'
 import Codemirror from 'react-codemirror'

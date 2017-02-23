@@ -1,0 +1,361 @@
+div.comment {
+  background-color: white;
+  border: 1px solid #D6D5D5;
+  border-left: 0px;
+  border-right: 0px;
+  padding-left: 10px;
+  padding-right: 10px;
+  overflow: hidden;
+  margin-top: 16px;
+  font-family: -apple-system, Helvetica, Arial, Sans-Serif; 
+  font-size: 10pt;
+  line-height: 150%;
+  box-shadow: 0px 5px 8px #CCC;
+}
+div.comment a {
+  text-decoration: none;
+  color: #4078C0;
+}
+div.comment a:visited {
+  color: #4078C0;
+}
+div.comment a:hover {
+  text-decoration: underline;
+}
+div.comment .Clickable:active {
+  opacity: 0.7;
+  user-select: none;
+}
+
+div.commentBody hr {
+  border: 1px solid #CCC;
+}
+div.commentBody th, 
+div.commentBody td {
+  border: 1px solid #CCC;
+  margin-bottom: 1em;
+  margin-top: 1em;
+  padding-bottom: 6px;
+  padding-left: 13px;
+  padding-right: 13px;
+  padding-top: 6px;
+}
+div.commentBody table {
+  margin-bottom: 1em;
+  margin-top: 1em;
+  border-collapse: collapse;
+  display: block;
+  overflow: auto;
+  border: 0;
+  padding: 1px;
+}
+div.commentBody code {
+  background-color: #F7F7F7;
+  border-radius: 2px;
+  font-size: 9pt;
+  font-family: menlo, consolas, monaco, sans-serif;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+div.commentBody pre { 
+  padding: 13px;
+  background-color: #F7F7F7;
+  border-radius: 6px; 
+  font-size: 9pt;
+  font-family: menlo, consolas, monaco, sans-serif;
+  line-height: 130%;
+  overflow-x: auto;
+}
+div.commentBody pre > code {
+  padding: 0;
+  background-color: inherit;
+  border-radius: 0;
+}
+div.commentEmptyFooter {
+  height: 2px;
+  background-color: white;
+  margin-left: -10px;
+  margin-right: -10px;
+}
+div.commentBody {
+  padding-left: 12px;
+  padding-right: 12px;
+}
+div.commentBody h1 {
+  padding-bottom: 6px;
+  border-bottom: 1px solid #eee;
+}
+div.commentBody blockquote {
+  margin: 0;
+  padding: 0 15px;
+  color: #777;
+  border-left: 4px solid #ddd
+}
+div.commentBody a {
+  overflow-wrap: break-word;
+}
+div.commentBody img, video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+div.commentHeader {
+  height: 32px;
+  margin-top: 6px;
+  padding-bottom: 6px;
+  margin-left: 12px;
+  margin-right: 12px;
+  vertical-align: middle;
+  line-height: 32px;
+  font-size: 10pt;
+  border-bottom: 1px solid #EFEFEF;
+}
+div.commentHeader img {
+  margin-right: 12px;
+  background-color: #F0F0F0;
+  float: left;
+}
+span.commentAuthor {
+  color: #555555;
+  font-weight: bold;
+  cursor: default;
+}
+span.commentAuthor:hover {
+  text-decoration: underline;
+}
+
+span.commentTimeAgo {
+  color: #767676;
+}
+ul.taskList {
+  list-style: none;
+  margin-left: -20px;
+  line-height: 200%;
+}
+ul.taskList input {
+  position: relative;
+  top: -1px;
+}
+ul.taskList li:hover .taskHandle {
+  opacity: 1.0;
+}
+.taskHandle {
+  opacity: 0;
+  color: #BBB;
+  margin-left: -16px;
+  padding-right: 4px;
+}
+.taskGhost {
+  opacity: 0.0;
+}
+div.commentControls {
+  display: inline-block;
+  float: right;
+  padding-right: 1px;
+  padding-left: 10px;
+  -webkit-user-select: none;
+}
+div.commentControls i {
+  margin-left: 16px;
+  color: #BBB;
+}
+div.commentControls i:hover {
+  color: #0085E4;
+}
+.addCommentLabel {
+  color: #555555;
+  font-weight: bold;
+  cursor: default;
+}
+
+.CodeMirrorContainer {
+  margin: 8px;
+  min-height: 28px;
+}
+
+.CodeMirror {
+  height: auto;
+  min-height: 28px;
+  font-family: menlo, consolas, monaco, monospace;
+  font-size: 9pt;
+}
+
+.CodeMirror pre.CodeMirror-placeholder { color: #999; }
+
+/* Use system highlight color for selected text */
+.CodeMirror-focused .CodeMirror-selected { background: Highlight; }
+.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: Highlight; }
+
+.commentFooter {
+  text-align: right;
+  height: 40px;
+  border-top: 1px dotted #ECECEC;
+  padding-top: 10px;
+  margin-left: 12px;
+  margin-right: 12px;
+}
+
+.addCommentButton {
+  display: inline-block;
+  
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  
+  color: #555;
+  border: 1px solid #555;
+  border-radius: 3px;
+  
+  cursor: default;
+  -webkit-user-select: none;
+  white-space: nowrap;
+  
+  margin-left: 10px;
+}
+
+.addCommentSaveButton {
+  color: #0085E4;
+  font-weight: bold;
+  border: 1px solid #0085E4;
+}
+
+.addCommentSaveButtonDisabled {
+  color: #CCC;
+  border: 1px solid #CCC;
+}
+
+.viewDiffButton {
+  float: right;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.addCommentButton:visited,
+.addCommentButton:hover,
+.addCommentButton:active 
+{
+  color: #555;
+  text-decoration: none;
+}
+
+.commentUploadingLabel {
+  color: #555;
+}
+
+.commentFooter i {
+  font-size: 14px;
+  color: #555;
+}
+
+.formattingHelpButton {
+  float: left;
+  font-size: 17px;
+  color: #BBB;
+  position: relative;
+  top: 7px;
+}
+.formattingHelpButton:hover {
+  text-decoration: none;
+}
+.formattingHelpButton:visited {
+  color: #BBB;
+}
+
+.confirmCommentDelete {
+  color: #555;
+  cursor: default;
+  -webkit-user-select: none;
+  white-space: nowrap;
+}
+
+.confirmDeleteControl:hover {
+  color: #0085E4;
+}
+
+.misspelling {
+/* Would like to use text-decoration, but webkit doesn't support dotted underlines :(
+ 
+   So instead, use a pseudo element with a dotted border.
+*/
+
+/*   -webkit-text-decoration: underline dotted red; */
+  display: inline-block;
+  position: relative;
+}
+
+.misspelling::after {
+  border-bottom:2px dotted red;
+  content:'';
+  left:0;
+  right:0;
+  bottom: 3px;
+  position:absolute;
+  z-index: -1;
+}
+
+div.ReactionsBar {
+  margin-left: 12px;
+  margin-right: 12px;
+  border-top: 1px dotted #ECECEC;
+  -webkit-user-select: none;
+  cursor: default;
+}
+
+div.CommentReaction {
+  display: inline-block;
+  margin-top: 3px;
+  margin-bottom: 4px;
+  margin-right: 16px;
+  padding: 4px;
+  padding-left: 0px;
+}
+
+div.ReactionsBarWithPR div.CommentReaction {
+  margin-top: 12px;
+}
+
+span.CommentReactionEmoji {
+  font-size: 10pt;
+}
+
+span.CommentReactionCount {
+  font-size: 10pt;
+  color: #797979;
+  padding-left: 2px;
+}
+
+span.CommentReactionCountMine {
+  color: #0085E4;
+}
+
+.addReactionIcon::after {
+  content: "+";
+  font-weight: bold;
+  margin-right: -3px;
+}
+
+.addReactionOptions {
+  cursor: default;
+  -webkit-user-select: none;
+}
+
+.addReactionOption {
+  display: inline-block;
+  width: 28px;
+  height: 22px;
+  overflow: hidden;
+  text-align: center;
+}
+
+.addReactionOptionContent {
+  position: absolute;
+  transition: all 100ms ease-in-out;
+  transform: scale(1.0);
+}
+
+.addReactionOptionContent:hover {
+  transform: scale(1.5);
+}

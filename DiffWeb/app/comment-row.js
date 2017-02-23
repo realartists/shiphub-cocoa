@@ -1,4 +1,6 @@
+import '../../IssueWeb/app/components/comment/comment.css'
 import './comment.css'
+
 
 import DiffRow from './diff-row.js'
 import MiniMap from './minimap.js'
