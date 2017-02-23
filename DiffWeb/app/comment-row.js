@@ -3,74 +3,65 @@ import './comment.css'
 import DiffRow from './diff-row.js'
 import MiniMap from './minimap.js'
 
-import h from 'hyperscript'
-
 import { markdownRender } from '../../IssueWeb/app/markdown-render.js'
 
-class Avatar {
-  constructor(user, size) {
-    this.user = user || ghost;
-    this.pointSize = size || 32;
-    
-    var img = h('img', {
-      className: "avatar",
-      src: this.avatarURL(),
-      width: this.pointSize,
-      height: this.pointSize
-    });
-    
-    this.node = img;
+import React, { createElement as h } from 'react'
+import ReactDOM from 'react-dom'
+
+class Comment extends React.Component {
+  constructor(props) {
+    super(props);
   }
   
-  avatarURL() {
-    var avatarURL = this.user.avatar_url;
-    if (avatarURL == null) {
-      avatarURL = "https://avatars.githubusercontent.com/u/" + this.props.user.id + "?v=3";
-    }
-    avatarURL += "&s=" + this.pixelSize();
-    return avatarURL;
+  shouldComponentUpdate(nextProps, nextState) {
+    var idChanged = nextProps.comment.id != this.props.comment.id;
+    if (idChanged) return true;
+    
+    var bodyChanged = nextProps.comment.body != this.props.comment.body;
+    if (bodyChanged) return true;
+    
+    return false;
   }
   
-  pixelSize() {
-    return this.pointSize * 2;
+  render() {
+    var body = this.props.comment.body;
+    var [repoOwner, repoName] = this.props.issueIdentifier.split("/#");
+    return h('div', {className:'comment'},
+      h('div', { 
+        className:'commentBody', 
+        ref: (e) => this.commentBody = e,
+        dangerouslySetInnerHTML: {
+          __html:markdownRender(
+            body, 
+            repoOwner,
+            repoName
+          )
+        }
+      })
+    );
   }
 }
 
-class Comment {
-  constructor(prComment, issueIdentifier) {
-    this.issueIdentifier = issueIdentifier;
-    
-    var commentBody = this.commentBody = h('div', {className:'commentBody'});
-    var commentDiv = h('div', {className:'comment'}, commentBody);
-    
-    this.node = commentDiv;
-    
-    this._code = "";
-    this._editing = false;
-    this.comment = prComment;
+class CommentList extends React.Component {
+  constructor(props) {
+    super(props);
   }
   
-  get editing() { return this._editing; }
+  render() {
+    var comments = this.props.comments.map((c) => {
+      return h(Comment, {
+        key:c.id||"new", 
+        comment:c, 
+        issueIdentifier:this.props.issueIdentifier
+      })
+    });
+    
+    console.log("props.comments", this.props.comments);
+    console.log("comments", comments);
   
-  set code(newCode) {
-    if (this._code !== newCode) {
-      this._code = newCode;
-      var parts = this.issueIdentifier.split('/#');
-      this.commentBody.innerHTML = markdownRender(newCode, parts[0], parts[1]);
-    }
-  }
-  
-  get code() { return _code; }
-  
-  set comment(prComment) {
-    this.prComment = prComment;
-    if (!this.editing) {
-      this.code = prComment.body;
-    }
-  }
-  
-  get comment() {
-    return this.prComment;
+    return h('div', {className:'commentList'},
+      comments
+    );
   }
 }
 
@@ -80,20 +71,32 @@ class CommentRow extends DiffRow {
     
     this.issueIdentifier = issueIdentifier;
     
-    this.commentViews = []; // Array of Comment objects
     this.prComments = []; // Array of PRComments
     
-    var commentsContainer = this.commentsContainer = h('div', {className:'commentsContainer'});
-    var commentBlock = h('div', {className:'commentBlock'}, 
-      h('div', {className:'commentShadowTop'}), 
-      commentsContainer,
-      h('div', {className:'commentShadowBottom'})
-    );
+    var commentsContainer = this.commentsContainer = document.createElement('div');
+    commentsContainer.className = 'commentsContainer';
+    
+    var commentBlock = document.createElement('div');
+    commentBlock.className = 'commentBlock';
+    
+    var shadowTop = document.createElement('div');
+    shadowTop.className = 'commentShadowTop';
+    
+    var shadowBottom = document.createElement('div');
+    shadowBottom.className = 'commentShadowBottom';
+    
+    commentBlock.appendChild(shadowTop);
+    commentBlock.appendChild(commentsContainer);
+    commentBlock.appendChild(shadowBottom);
+    
     this._colspan = 1;
-    var td = h('td', {className:'comment-cell'}, commentBlock);
+    var td = document.createElement('td');
+    td.className = 'comment-cell';
+    td.appendChild(commentBlock);
     this.cell = td;
     
-    var row = h('tr', {}, td);
+    var row = document.createElement('tr');
+    row.appendChild(td);
     this.node = row;
     
     this.miniMapRegions = [new MiniMap.Region(commentsContainer, 'purple')];
@@ -111,57 +114,11 @@ class CommentRow extends DiffRow {
   }
   
   set comments(comments /*[PRComment]*/) {
-    var commentsById = comments.reduce((accum, c) => {
-      accum[c.id] = c;
-      return accum;
-    }, {});
-    
-    var commentViewsById = this.commentViews.reduce((accum, c) => {
-      accum[c.comment.id] = c;
-      return accum;
-    }, {});
-    
-    var removeTheseViews = this.commentViews.filter((cv) => !(commentsById[cv.comment.id]));
-    var insertTheseComments = comments.filter((c) => !(commentViewsById[c.id]));
-    
-    removeTheseViews.forEach((cv) => cv.row.remove());
-    
-    var newViews = insertTheseComments.map((c) => new Comment(c, this.issueIdentifier));
-    var existingViews = this.commentViews.filter((cv) => !!(commentsById[cv.comment.id]));
-    var commentViews = [];
-    // merge newViews and existingViews
-    var i, j, k;
-    i = j = k = 0;
-    for (; i < newViews.length && j < existingViews.length; k++) {
-      var a = newViews[i];
-      var b = existingViews[j];
-      if (a.comment.created_at < b.comment.created_at) {
-        commentViews[k] = a;
-        i++;
-      } else if (a.comment.created_at >= b.comment.created_at) {
-        commentViews[k] = b;
-        j++;
-      }
-    }
-    for (; i < newViews.length; i++, k++) {
-      commentViews[k] = newViews[i];
-    }
-    for (; j < existingViews.length; j++, k++) {
-      commentViews[k] = newViews[k];
-    }
-    
-    // update dom from back to front
-    var last = null;
-    for (i = commentViews.length-1; i >= 0; i--) {
-      var cv = commentViews[i];
-      if (!cv.node.parentNode) {
-        this.commentsContainer.insertBefore(cv.node, last);
-      }
-      last = cv.node;
-    }
-    
-    this.commentViews = commentViews;
     this.prComments = comments;
+    ReactDOM.render(
+      h(CommentList, {comments, issueIdentifier:this.issueIdentifier}),
+      this.commentsContainer
+    );
   }
   
   get comments() {
