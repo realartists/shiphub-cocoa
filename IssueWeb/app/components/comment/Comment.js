@@ -7,7 +7,7 @@ import { storeCommentDraft, clearCommentDraft, getCommentDraft } from 'util/draf
 class Comment extends AbstractComment {
   me() { return IssueState.current.me; }
   editComment() {
-    IssueState.current.editComment(this.props.commentIdx, this.state.code);
+    IssueState.current.editComment(this.props.commentIdx||0, this.state.code);
   }
   
   issue() { return IssueState.current.issue; }

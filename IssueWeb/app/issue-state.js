@@ -203,6 +203,9 @@ class IssueState {
                 }
               });
               this._renderState();
+              if (window.documentEditedHelper) {
+                window.documentEditedHelper.postMessage({});
+              }
             });
             resolve();
           }).catch((err) => {
