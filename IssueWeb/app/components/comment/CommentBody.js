@@ -1,5 +1,6 @@
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
+import Sortable from 'sortablejs'
 import { markdownRender } from 'util/markdown-render.js'
 import { rewriteTaskList } from 'util/rewrite-task-list.js'
 
