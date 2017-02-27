@@ -1,7 +1,7 @@
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
-import { markdownRender } from '../../markdown-render.js'
-import { rewriteTaskList } from '../../rewrite-task-list.js'
+import { markdownRender } from 'util/markdown-render.js'
+import { rewriteTaskList } from 'util/rewrite-task-list.js'
 
 function preOrderTraverseDOM(root, handler) {
   var stack = [root];

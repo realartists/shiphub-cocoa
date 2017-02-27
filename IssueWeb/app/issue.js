@@ -2,7 +2,7 @@ import 'font-awesome/css/font-awesome.css'
 import '../markdown-mark/style.css'
 import 'codemirror/lib/codemirror.css'
 import 'highlight.js/styles/xcode.css'
-import './index.css'
+import './issue.css'
 
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
@@ -17,21 +17,21 @@ window.$ = $;
 window.jQuery = $;
 window.jquery = $;
 
-import Completer from './completer.js'
-import SmartInput from './smart-input.js'
-import { emojify, emojifyReaction } from './emojify.js'
-import { githubLinkify } from './github-linkify.js'
-import LabelPicker from './label-picker.js'
-import AssigneesPicker from './assignees-picker.js'
-import { TimeAgo, TimeAgoString } from './time-ago'
-import { api } from './api-proxy.js'
-import { promiseQueue } from './promise-queue.js'
-import ghost from './ghost.js'
+import Completer from 'components/issue/completer.js'
+import SmartInput from 'components/issue/smart-input.js'
+import { emojify, emojifyReaction } from 'util/emojify.js'
+import { githubLinkify } from 'util/github-linkify.js'
+import LabelPicker from 'components/issue/label-picker.js'
+import AssigneesPicker from 'components/issue/assignees-picker.js'
+import { TimeAgo, TimeAgoString } from 'components/time-ago.js'
+import { api } from 'util/api-proxy.js'
+import { promiseQueue } from 'util/promise-queue.js'
+import ghost from 'util/ghost.js'
 import IssueState from './issue-state.js'
-import { keypath, setKeypath } from './keypath.js'
+import { keypath, setKeypath } from 'util/keypath.js'
 
-import AvatarIMG from './components/AvatarIMG.js'
-import Comment from './components/comment/Comment.js'
+import AvatarIMG from 'components/AvatarIMG.js'
+import Comment from 'components/comment/Comment.js'
 
 var EventIcon = React.createClass({
   propTypes: {

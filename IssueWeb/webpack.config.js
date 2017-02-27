@@ -1,4 +1,5 @@
 var webpack = require('webpack');
+var path = require('path');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
   template: __dirname + "/app/index.html",
@@ -13,12 +14,19 @@ var definePlugin = new webpack.DefinePlugin({
 });
 
 module.exports = {
-  entry: [
-    './app/index.js'
-  ],
+  resolve: {
+    root: [
+      path.resolve('./app'),
+      path.resolve('./image')
+    ]
+  },
+  entry: {
+    issue: './app/issue.js',
+    diff: './app/diff.js'
+  },
   output: {
     path: __dirname + "/dist",
-    filename: "index_bundle.js"
+    filename: "[name].js"
   },
   module: {
     preLoaders: [
@@ -35,5 +43,19 @@ module.exports = {
       { test: /\.svg(\?v=\d+\.\d+\.\d+)?$/, loader: "url?limit=10000&mimetype=image/svg+xml" }
     ]
   },
-  plugins: [HtmlWebpackPluginConfig, definePlugin]
+  plugins: [
+    new HtmlWebpackPlugin({
+      template: __dirname + "/app/issue.html",
+      filename: "issue.html",
+      inject: "head",
+      chunks: ['issue']
+    }), 
+    new HtmlWebpackPlugin({
+      template: __dirname + "/app/diff.html",
+      filename: "diff.html",
+      inject: "head",
+      chunks: ['diff']
+    }),
+    definePlugin
+  ]
 }

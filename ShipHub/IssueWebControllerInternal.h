@@ -19,13 +19,14 @@
 - (void)evaluateJavaScript:(NSString *)js;
 
 #pragma mark - Subclassers Must Override
-- (NSInteger)webpackDevServerPort; // port on which the webpack dev server for this webapp lives (e.g. 8080)
-- (NSString *)webResourcePath; // path in bundle where index.html lives. (e.g. IssueWeb)
+- (NSString *)webHtmlFilename; // html filename (e.g. issue.html)
 
 - (void)reconfigureForReload;
 
 #pragma mark - Subclassers May Override
 // subclassers may override
+- (NSString *)webResourcePath; // path in bundle where entry html file lives. (default IssueWeb)
+- (NSInteger)webpackDevServerPort; // port on which the webpack dev server for this webapp lives (default 8080)
 - (void)registerJavaScriptAPI:(WebScriptObject *)windowObject;
 - (IBAction)reload:(id)sender;
 - (IBAction)fixSpelling:(id)sender;

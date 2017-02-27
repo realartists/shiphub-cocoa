@@ -1,5 +1,5 @@
 import React, { createElement as h } from 'react'
-import ghost from '../ghost.js'
+import ghost from 'util/ghost.js'
 
 var AvatarIMG = React.createClass({
   propTypes: {

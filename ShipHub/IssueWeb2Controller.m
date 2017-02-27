@@ -116,9 +116,13 @@
     _nothingLabel.frame = _web.frame;
 }
 
+- (NSString *)webHtmlFilename {
+    ErrLog(@"Subclasses of IssueWeb2Controller must implement webHtmlFilename");
+    return @"index.html";
+}
+
 - (NSString *)webResourcePath {
-    ErrLog(@"Subclasses of IssueWebController must implement webResourcePath");
-    return nil;
+    return @"IssueWeb";
 }
 
 - (NSInteger)webpackDevServerPort {
@@ -128,10 +132,11 @@
 - (NSURL *)indexURL {
     NSURL *URL;
     if (_useWebpackDevServer) {
-        NSString *webpackURLStr = [NSString stringWithFormat:@"http://localhost:%td/", [self webpackDevServerPort]];
+        NSString *webpackURLStr = [NSString stringWithFormat:@"http://localhost:%td/%@", [self webpackDevServerPort], [self webHtmlFilename]];
         URL = [NSURL URLWithString:webpackURLStr];
     } else {
-        URL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:@"index" ofType:@"html" inDirectory:[self webResourcePath]]];
+        NSString *filename = [self webHtmlFilename];
+        URL = [NSURL fileURLWithPath:[[NSBundle mainBundle] pathForResource:[filename stringByDeletingPathExtension] ofType:[filename pathExtension] inDirectory:[self webResourcePath]]];
     }
     return URL;
 }

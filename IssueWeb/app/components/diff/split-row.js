@@ -1,6 +1,6 @@
 import DiffRow from './diff-row.js'
 import MiniMap from './minimap.js'
-import AttributedString from './attributed-string.js'
+import AttributedString from 'util/attributed-string.js'
 
 import h from 'hyperscript'
 import diff_match_patch from 'diff-match-patch'

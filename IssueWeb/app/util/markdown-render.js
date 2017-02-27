@@ -1,5 +1,6 @@
-import { emojify, emojifyReaction } from './emojify.js'
 import marked from './marked.min.js'
+import hljs from 'highlight.js'
+import { emojify, emojifyReaction } from './emojify.js'
 import { githubLinkify } from './github-linkify.js'
 
 var markedRenderer = new marked.Renderer();

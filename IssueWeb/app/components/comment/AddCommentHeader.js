@@ -1,5 +1,5 @@
 import React, { createElement as h } from 'react'
-import AvatarIMG from '../AvatarIMG'
+import AvatarIMG from 'components/AvatarIMG.js'
 
 var AddCommentHeader = React.createClass({
   render: function() {

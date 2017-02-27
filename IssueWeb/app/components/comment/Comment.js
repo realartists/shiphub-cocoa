@@ -1,8 +1,8 @@
 import AbstractComment from './AbstractComment.js'
-import { keypath } from '../../keypath.js'
-import { promiseQueue } from '../../promise-queue.js'
-import IssueState from '../../issue-state.js'
-import { storeCommentDraft, clearCommentDraft, getCommentDraft } from '../../draft-storage.js'
+import { keypath } from 'util/keypath.js'
+import { promiseQueue } from 'util/promise-queue.js'
+import IssueState from 'issue-state.js'
+import { storeCommentDraft, clearCommentDraft, getCommentDraft } from 'util/draft-storage.js'
 
 class Comment extends AbstractComment {
   me() { return IssueState.current.me; }

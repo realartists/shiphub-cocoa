@@ -1,6 +1,10 @@
 /* This is the shared Comment component between IssueWeb and DiffWeb */
 
+import 'font-awesome/css/font-awesome.css'
 import './comment.css'
+import '../../../markdown-mark/style.css'
+import 'codemirror/lib/codemirror.css'
+import 'xcode7.css'
 
 import Sortable from 'sortablejs'
 import CodeMirror from 'codemirror'
@@ -18,15 +22,15 @@ import 'codemirror/addon/display/placeholder.js'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/hint/show-hint.js'
 import 'codemirror/addon/search/searchcursor.js'
-import '../../spellcheck.js'
+import 'util/spellcheck.js'
 
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
-import ghost from '../../ghost';
-import { keypath } from '../../keypath.js'
-import { promiseQueue } from '../../promise-queue.js'
-import { pasteHelper } from '../../paste-helper.js'
-import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from '../../cm-util.js'
+import ghost from 'util/ghost.js';
+import { keypath } from 'util/keypath.js'
+import { promiseQueue } from 'util/promise-queue.js'
+import { pasteHelper } from 'util/paste-helper.js'
+import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from 'util/cm-util.js'
 
 import AddCommentHeader from './AddCommentHeader.js'
 import AddCommentFooter from './AddCommentFooter.js'

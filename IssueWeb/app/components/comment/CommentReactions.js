@@ -1,6 +1,6 @@
 import React, { createElement as h } from 'react'
-import { emojify, emojifyReaction } from '../../emojify.js'
-import { TimeAgo, TimeAgoString } from '../../time-ago.js'
+import { emojify, emojifyReaction } from 'util/emojify.js'
+import { TimeAgo, TimeAgoString } from 'components/time-ago.js'
 
 var CommentReaction = React.createClass({
   propTypes: { 

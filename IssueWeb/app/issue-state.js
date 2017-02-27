@@ -1,8 +1,8 @@
 /* Represents the model and mutations on the model for IssueWeb */
 
-import { promiseQueue } from './promise-queue.js'
-import { api } from './api-proxy.js'
-import { keypath, setKeypath } from './keypath.js'
+import { promiseQueue } from 'util/promise-queue.js'
+import { api } from 'util/api-proxy.js'
+import { keypath, setKeypath } from 'util/keypath.js'
 
 class IssueState {
   constructor(state) {

@@ -1,5 +1,5 @@
 import React, { createElement as h } from 'react'
-import { emojify, emojifyReaction } from '../../emojify.js'
+import { emojify, emojifyReaction } from 'util/emojify.js'
 
 var AddReactionOption = React.createClass({
   render: function() {

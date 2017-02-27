@@ -2,14 +2,14 @@ div.commentShadowTop
 {
   height: 16px;
   margin-bottom: -16px;
-  background-image: url("../image/comment_top_shadow.png");
+  background-image: url("../../../image/comment_top_shadow.png");
   background-repeat: repeat-x;
   width: 100%;
 }
 div.commentShadowBottom
 {
   height: 16px;
-  background-image: url("../image/comment_bottom_shadow.png");
+  background-image: url("../../../image/comment_bottom_shadow.png");
   background-repeat: repeat-x;
   width: 100%;
 }

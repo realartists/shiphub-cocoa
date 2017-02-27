@@ -1,8 +1,8 @@
 import React, { createElement as h } from 'react'
-import ghost from '../../ghost.js'
-import { TimeAgo, TimeAgoString } from '../../time-ago.js'
+import ghost from 'util/ghost.js'
+import { TimeAgo, TimeAgoString } from 'components/time-ago.js'
 import CommentControls from './CommentControls.js'
-import AvatarIMG from '../AvatarIMG'
+import AvatarIMG from 'components/AvatarIMG.js'
 
 var CommentHeader = React.createClass({  
   render: function() {

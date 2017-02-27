@@ -1,16 +1,16 @@
 
 import h from 'hyperscript'
-import filterSelection from './filter-selection.js'
-import MiniMap from './minimap.js'
-import AttributedString from './attributed-string.js'
-import DiffRow from './diff-row.js'
-import SplitRow from './split-row.js'
-import UnifiedRow from './unified-row.js'
-import CommentRow from './comment-row.js'
-import TrailerRow from './trailer-row.js'
+import filterSelection from 'util/filter-selection.js'
+import MiniMap from 'components/diff/minimap.js'
+import AttributedString from 'util/attributed-string.js'
+import DiffRow from 'components/diff/diff-row.js'
+import SplitRow from 'components/diff/split-row.js'
+import UnifiedRow from 'components/diff/unified-row.js'
+import CommentRow from 'components/diff/comment-row.js'
+import TrailerRow from 'components/diff/trailer-row.js'
 
 import './xcode7.css'
-import './index.css'
+import './diff.css'
 
 var HighlightWorker = require('worker!./highlight-worker.js');
 
@@ -575,7 +575,7 @@ class App {
   }
 }
 
-var app = new App(document.getElementById('app'));
+var app = null;
 
 window.updateDiff = function(filename, oldFile, newFile, diff, issueIdentifier, comments) {
   app.saveDraftComments();
@@ -588,5 +588,9 @@ window.setDiffMode = function(newDiffMode) {
   app.setDiffMode(newDiffMode);
 };
 
-window.loadComplete.postMessage({});
+window.onload = () => {
+  app = new App(document.getElementById('app'));
+  window.loadComplete.postMessage({});
+}
+
 

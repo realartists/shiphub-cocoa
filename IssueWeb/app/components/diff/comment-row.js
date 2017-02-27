@@ -1,47 +1,54 @@
-import '../../IssueWeb/app/components/comment/comment.css'
+import 'components/comment/comment.css'
 import './comment.css'
-
 
 import DiffRow from './diff-row.js'
 import MiniMap from './minimap.js'
 
-import { markdownRender } from '../../IssueWeb/app/markdown-render.js'
+import AbstractComment from 'components/comment/AbstractComment.js'
+import ghost from 'util/ghost.js'
 
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
 
-class Comment extends React.Component {
+class Comment extends AbstractComment {
   constructor(props) {
     super(props);
   }
   
-  shouldComponentUpdate(nextProps, nextState) {
-    var idChanged = nextProps.comment.id != this.props.comment.id;
-    if (idChanged) return true;
-    
-    var bodyChanged = nextProps.comment.body != this.props.comment.body;
-    if (bodyChanged) return true;
-    
-    return false;
+  issueIdentifierParts() {
+    var [repoOwner, repoName, number] = this.props.issueIdentifier.split("/#");
+    return { repoOwner, repoName, number };
   }
   
-  render() {
-    var body = this.props.comment.body;
-    var [repoOwner, repoName] = this.props.issueIdentifier.split("/#");
-    return h('div', {className:'comment'},
-      h('div', { 
-        className:'commentBody', 
-        ref: (e) => this.commentBody = e,
-        dangerouslySetInnerHTML: {
-          __html:markdownRender(
-            body, 
-            repoOwner,
-            repoName
-          )
-        }
-      })
-    );
+  issue() {
+    var { number } = this.issueIdentifierParts();
+    return {
+      number: number
+    }
   }
+  
+  me() { return ghost; }
+  
+  canClose() { return false; }
+  
+  repoOwner() {
+    return this.issueIdentifierParts().repoOwner;
+  }
+  
+  repoName() {
+    return this.issueIdentifierParts().repoName;
+  }
+  
+  shouldShowCommentPRBar() { return false; }
+  
+  saveDraftState() { }
+  restoreDraftState() { }
+  
+  deleteComment() { }
+  
+  saveAndClose() { return this.save(); }
+  
+  loginCompletions() { return [] }
 }
 
 class CommentList extends React.Component {
@@ -50,10 +57,13 @@ class CommentList extends React.Component {
   }
   
   render() {
-    var comments = this.props.comments.map((c) => {
+    var comments = this.props.comments.map((c, i) => {
+      console.log("Create comment", c);
       return h(Comment, {
         key:c.id||"new", 
         comment:c, 
+        first:i==0,
+        commentIdx:i,
         issueIdentifier:this.props.issueIdentifier
       })
     });

@@ -26,12 +26,12 @@
 
 @implementation PRDiffViewController
 
-- (NSInteger)webpackDevServerPort {
-    return 8081;
+- (NSString *)webResourcePath {
+    return @"IssueWeb";
 }
 
-- (NSString *)webResourcePath {
-    return @"DiffWeb";
+- (NSString *)webHtmlFilename {
+    return @"diff.html";
 }
 
 - (void)viewDidLoad {
@@ -46,7 +46,7 @@
     [diffFile loadTextContents:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
         if (_loadCount != count) return;
         
-        NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@, %@, %@, %@, %@, %@);", [JSON stringifyObject:diffFile.name], [JSON stringifyObject:oldFile], [JSON stringifyObject:newFile], [JSON stringifyObject:patch], [JSON stringifyObject:pr.issue.fullIdentifier], [JSON stringifyObject:comments]];
+        NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@, %@, %@, %@, %@, %@);", [JSON stringifyObject:diffFile.name], [JSON stringifyObject:oldFile], [JSON stringifyObject:newFile], [JSON stringifyObject:patch], [JSON stringifyObject:pr.issue.fullIdentifier], [JSON stringifyObject:comments withNameTransformer:[JSON underbarsAndIDNameTransformer]]];
         [self evaluateJavaScript:js];
     }];
 }

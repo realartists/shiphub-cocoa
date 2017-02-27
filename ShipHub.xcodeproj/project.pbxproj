@@ -369,13 +369,6 @@
 			remoteGlobalIDString = F668C87F153E91210044DBAC;
 			remoteInfo = SocketRocketOSX;
 		};
-		1A3D346E1DB1685B00CDF167 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 1A2217861C7E7B14006460E2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 1A3D346A1DB167ED00CDF167;
-			remoteInfo = DiffWeb;
-		};
 		1AD956C51D0BCFF6002B1259 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1A2217861C7E7B14006460E2 /* Project object */;
@@ -486,9 +479,6 @@
 		1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueDocumentController.m; sourceTree = "<group>"; };
 		1A0D87721CA9E25F0069782D /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSON.h; sourceTree = "<group>"; };
 		1A0D87731CA9E25F0069782D /* JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSON.m; sourceTree = "<group>"; };
-		1A1584D71D6E7E070050DCC6 /* rewrite-task-list.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "rewrite-task-list.js"; sourceTree = "<group>"; };
-		1A20CFC41D5152C800F412DE /* assignees-picker.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "assignees-picker.js"; sourceTree = "<group>"; };
-		1A20CFC51D5152C800F412DE /* cm-util.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "cm-util.js"; sourceTree = "<group>"; };
 		1A20CFEF1D52A3E800F412DE /* LocalReaction+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalReaction+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1A20CFF01D52A3E800F412DE /* LocalReaction+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalReaction+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1A20CFF11D52A3E800F412DE /* LocalReaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalReaction.h; sourceTree = "<group>"; };
@@ -591,7 +581,6 @@
 		1A3BEBA31E490CBF00CBFBEF /* MapAccount1to2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapAccount1to2.h; sourceTree = "<group>"; };
 		1A3BEBA41E490CBF00CBFBEF /* MapAccount1to2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MapAccount1to2.m; sourceTree = "<group>"; };
 		1A3BEBA81E492CD000CBFBEF /* MapLocalModel1to2.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MapLocalModel1to2.xcmappingmodel; sourceTree = "<group>"; };
-		1A3C5B1A1DDB9C8A005F9A01 /* draft-storage.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "draft-storage.js"; sourceTree = "<group>"; };
 		1A3C5B211DDCE241005F9A01 /* WelcomeHelpController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WelcomeHelpController.h; sourceTree = "<group>"; };
 		1A3C5B221DDCE241005F9A01 /* WelcomeHelpController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeHelpController.m; sourceTree = "<group>"; };
 		1A3C5B231DDCE241005F9A01 /* WelcomeHelpController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WelcomeHelpController.xib; sourceTree = "<group>"; };
@@ -622,19 +611,6 @@
 		1A3D34661DB05F5E00CDF167 /* IssueWebController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWebController.h; sourceTree = "<group>"; };
 		1A3D34671DB05F5E00CDF167 /* IssueWebController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWebController.m; sourceTree = "<group>"; };
 		1A3D34691DB05F9D00CDF167 /* IssueWebControllerInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IssueWebControllerInternal.h; sourceTree = "<group>"; };
-		1A3D34721DB16AD200CDF167 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
-		1A3D34731DB16AD200CDF167 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		1A3D34751DB16AD200CDF167 /* attributed-string.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "attributed-string.js"; sourceTree = "<group>"; };
-		1A3D34771DB16AD200CDF167 /* filter-selection.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "filter-selection.js"; sourceTree = "<group>"; };
-		1A3D34781DB16AD200CDF167 /* index.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = index.css; sourceTree = "<group>"; };
-		1A3D34791DB16AD200CDF167 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
-		1A3D347A1DB16AD200CDF167 /* index.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index.js; sourceTree = "<group>"; };
-		1A3D347C1DB16AD200CDF167 /* minimap.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = minimap.js; sourceTree = "<group>"; };
-		1A3D347E1DB16AD200CDF167 /* xcode7.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = xcode7.css; sourceTree = "<group>"; };
-		1A3D34821DB16AD200CDF167 /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		1A3D62FD1DB16B0000CDF167 /* npm-shrinkwrap.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "npm-shrinkwrap.json"; sourceTree = "<group>"; };
-		1A3D62FE1DB16B0000CDF167 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
-		1A3D62FF1DB16B0000CDF167 /* webpack.config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = webpack.config.js; sourceTree = "<group>"; };
 		1A48BB4B1D80D8BF001E761E /* UserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserNotificationManager.h; sourceTree = "<group>"; };
 		1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserNotificationManager.m; sourceTree = "<group>"; };
 		1A48BB511D80DED6001E761E /* IssueNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueNotification.h; sourceTree = "<group>"; };
@@ -765,8 +741,6 @@
 		1A9905171CE11A0700EAA474 /* LabelsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelsView.m; sourceTree = "<group>"; };
 		1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompactIssueCellViewController.h; sourceTree = "<group>"; };
 		1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompactIssueCellViewController.m; sourceTree = "<group>"; };
-		1A9DA7EE1D223DB500A23EC9 /* spellcheck.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = spellcheck.js; sourceTree = "<group>"; };
-		1AB0383F1D5AA0CF005093B9 /* promise-queue.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "promise-queue.js"; sourceTree = "<group>"; };
 		1AB038441D5AB7EC005093B9 /* IssueWaiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWaiter.h; sourceTree = "<group>"; };
 		1AB038451D5AB7EC005093B9 /* IssueWaiter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWaiter.m; sourceTree = "<group>"; };
 		1AB038491D5C0117005093B9 /* CHANGELOG */ = {isa = PBXFileReference; lastKnownFileType = text; path = CHANGELOG; sourceTree = "<group>"; };
@@ -777,6 +751,7 @@
 		1AB0384E1D5C0117005093B9 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1AB038521D5D0E22005093B9 /* cihub.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = cihub.sh; sourceTree = "<group>"; };
 		1AB038541D5D390E005093B9 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = ext/Sparkle.framework; sourceTree = "<group>"; };
+		1AB238AB1E64A9720059D772 /* app */ = {isa = PBXFileReference; lastKnownFileType = folder; path = app; sourceTree = "<group>"; };
 		1AB503E71D2471EF0097875C /* NSFileWrapper+ImageExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileWrapper+ImageExtras.h"; sourceTree = "<group>"; };
 		1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileWrapper+ImageExtras.m"; sourceTree = "<group>"; };
 		1AC01D941DC9087B00920C3F /* npm-shrinkwrap.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "npm-shrinkwrap.json"; sourceTree = "<group>"; };
@@ -784,10 +759,6 @@
 		1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalPriority+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AC6196F1D232E9A00FE1E76 /* LocalPriority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPriority.h; sourceTree = "<group>"; };
 		1AC619701D232E9A00FE1E76 /* LocalPriority.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalPriority.m; sourceTree = "<group>"; };
-		1AD095E31CF8DF9100A0277A /* completer.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = completer.js; sourceTree = "<group>"; };
-		1AD095E61CF8DF9100A0277A /* label-picker.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "label-picker.js"; sourceTree = "<group>"; };
-		1AD095E71CF8DF9100A0277A /* smart-input.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "smart-input.js"; sourceTree = "<group>"; };
-		1AD095E81CF8DF9100A0277A /* time-ago.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = "time-ago.js"; sourceTree = "<group>"; };
 		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 		1AD470DA1C99FC2C0050AE4B /* GHSyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHSyncConnection.h; sourceTree = "<group>"; };
@@ -861,12 +832,6 @@
 		1AF3497F1CDAC25900A5BEB0 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		1AF349801CDAC25900A5BEB0 /* nv.d3.min.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = nv.d3.min.css; sourceTree = "<group>"; };
 		1AF349811CDAC25900A5BEB0 /* nv.d3.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = nv.d3.min.js; sourceTree = "<group>"; };
-		1AF445991E5DE5A100E14640 /* issue-state.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "issue-state.js"; sourceTree = "<group>"; };
-		1AF4459A1E5DE5A100E14640 /* keypath.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = keypath.js; sourceTree = "<group>"; };
-		1AF4459B1E5DE5A100E14640 /* ghost.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = ghost.js; sourceTree = "<group>"; };
-		1AF4459C1E5DE5A100E14640 /* api-proxy.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "api-proxy.js"; sourceTree = "<group>"; };
-		1AF4459D1E5DE5A100E14640 /* markdown-render.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "markdown-render.js"; sourceTree = "<group>"; };
-		1AF445A61E5E428D00E14640 /* paste-helper.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "paste-helper.js"; sourceTree = "<group>"; };
 		1AF567291D62427100611DBB /* WelcomeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WelcomeController.h; sourceTree = "<group>"; };
 		1AF5672A1D62427100611DBB /* WelcomeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeController.m; sourceTree = "<group>"; };
 		1AF5672B1D62427100611DBB /* WelcomeController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WelcomeController.xib; sourceTree = "<group>"; };
@@ -886,12 +851,6 @@
 		1AF567471D665C5100611DBB /* LocalHidden.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalHidden.m; sourceTree = "<group>"; };
 		1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
 		1AFE21F01CA5EC3F00B51CF6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		1AFE21F21CA5EC3F00B51CF6 /* emojify.js */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.javascript; path = emojify.js; sourceTree = "<group>"; tabWidth = 2; };
-		1AFE21F31CA5EC3F00B51CF6 /* github-linkify.js */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.javascript; path = "github-linkify.js"; sourceTree = "<group>"; tabWidth = 2; };
-		1AFE21F41CA5EC3F00B51CF6 /* index.css */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text.css; path = index.css; sourceTree = "<group>"; tabWidth = 2; };
-		1AFE21F51CA5EC3F00B51CF6 /* index.html */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; tabWidth = 2; };
-		1AFE21F61CA5EC3F00B51CF6 /* index.js */ = {isa = PBXFileReference; indentWidth = 2; lastKnownFileType = sourcecode.javascript; path = index.js; sourceTree = "<group>"; tabWidth = 2; };
-		1AFE21F71CA5EC3F00B51CF6 /* marked.min.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = marked.min.js; sourceTree = "<group>"; };
 		1AFE21F91CA5EC3F00B51CF6 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		1AFE21FA1CA5EC3F00B51CF6 /* index_bundle.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index_bundle.js; sourceTree = "<group>"; };
 		1AFE21FB1CA5EC3F00B51CF6 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
@@ -1440,34 +1399,6 @@
 			name = Git;
 			sourceTree = "<group>";
 		};
-		1A3D34711DB16AD200CDF167 /* DiffWeb */ = {
-			isa = PBXGroup;
-			children = (
-				1A3D34721DB16AD200CDF167 /* .babelrc */,
-				1A3D34731DB16AD200CDF167 /* .gitignore */,
-				1A3D34741DB16AD200CDF167 /* app */,
-				1A3D34821DB16AD200CDF167 /* Makefile */,
-				1A3D62FD1DB16B0000CDF167 /* npm-shrinkwrap.json */,
-				1A3D62FE1DB16B0000CDF167 /* package.json */,
-				1A3D62FF1DB16B0000CDF167 /* webpack.config.js */,
-			);
-			path = DiffWeb;
-			sourceTree = SOURCE_ROOT;
-		};
-		1A3D34741DB16AD200CDF167 /* app */ = {
-			isa = PBXGroup;
-			children = (
-				1A3D34751DB16AD200CDF167 /* attributed-string.js */,
-				1A3D34771DB16AD200CDF167 /* filter-selection.js */,
-				1A3D34781DB16AD200CDF167 /* index.css */,
-				1A3D34791DB16AD200CDF167 /* index.html */,
-				1A3D347A1DB16AD200CDF167 /* index.js */,
-				1A3D347C1DB16AD200CDF167 /* minimap.js */,
-				1A3D347E1DB16AD200CDF167 /* xcode7.css */,
-			);
-			path = app;
-			sourceTree = "<group>";
-		};
 		1A5B293F1D89DCA8000C9F4B /* Projects */ = {
 			isa = PBXGroup;
 			children = (
@@ -1638,7 +1569,6 @@
 		1ADED9D91DAC46EB0093A098 /* Pull Request */ = {
 			isa = PBXGroup;
 			children = (
-				1A3D34711DB16AD200CDF167 /* DiffWeb */,
 				1ADED9E41DAC47CF0093A098 /* PullRequest.h */,
 				1ADED9E51DAC47CF0093A098 /* PullRequest.m */,
 				1ADED9E71DAC4A220093A098 /* PRDocument.h */,
@@ -1692,6 +1622,7 @@
 		1AFE21EE1CA5EC3F00B51CF6 /* IssueWeb */ = {
 			isa = PBXGroup;
 			children = (
+				1AB238AB1E64A9720059D772 /* app */,
 				1AC01D941DC9087B00920C3F /* npm-shrinkwrap.json */,
 				1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */,
 				1AFE21F01CA5EC3F00B51CF6 /* .gitignore */,
@@ -1707,28 +1638,6 @@
 		1AFE21F11CA5EC3F00B51CF6 /* app */ = {
 			isa = PBXGroup;
 			children = (
-				1AF445A61E5E428D00E14640 /* paste-helper.js */,
-				1AF445991E5DE5A100E14640 /* issue-state.js */,
-				1AF4459A1E5DE5A100E14640 /* keypath.js */,
-				1AF4459B1E5DE5A100E14640 /* ghost.js */,
-				1AF4459C1E5DE5A100E14640 /* api-proxy.js */,
-				1AF4459D1E5DE5A100E14640 /* markdown-render.js */,
-				1A3C5B1A1DDB9C8A005F9A01 /* draft-storage.js */,
-				1A1584D71D6E7E070050DCC6 /* rewrite-task-list.js */,
-				1AB0383F1D5AA0CF005093B9 /* promise-queue.js */,
-				1A20CFC41D5152C800F412DE /* assignees-picker.js */,
-				1A20CFC51D5152C800F412DE /* cm-util.js */,
-				1A9DA7EE1D223DB500A23EC9 /* spellcheck.js */,
-				1AD095E31CF8DF9100A0277A /* completer.js */,
-				1AD095E61CF8DF9100A0277A /* label-picker.js */,
-				1AD095E71CF8DF9100A0277A /* smart-input.js */,
-				1AD095E81CF8DF9100A0277A /* time-ago.js */,
-				1AFE21F21CA5EC3F00B51CF6 /* emojify.js */,
-				1AFE21F31CA5EC3F00B51CF6 /* github-linkify.js */,
-				1AFE21F41CA5EC3F00B51CF6 /* index.css */,
-				1AFE21F51CA5EC3F00B51CF6 /* index.html */,
-				1AFE21F61CA5EC3F00B51CF6 /* index.js */,
-				1AFE21F71CA5EC3F00B51CF6 /* marked.min.js */,
 			);
 			path = app;
 			sourceTree = "<group>";
@@ -1745,20 +1654,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXLegacyTarget section */
-		1A3D346A1DB167ED00CDF167 /* DiffWeb */ = {
-			isa = PBXLegacyTarget;
-			buildArgumentsString = "";
-			buildConfigurationList = 1A3D346B1DB167ED00CDF167 /* Build configuration list for PBXLegacyTarget "DiffWeb" */;
-			buildPhases = (
-			);
-			buildToolPath = /usr/bin/make;
-			buildWorkingDirectory = DiffWeb;
-			dependencies = (
-			);
-			name = DiffWeb;
-			passBuildSettingsInEnvironment = 1;
-			productName = IssueWeb;
-		};
 		1AD956BE1D0BCFBA002B1259 /* IssueWeb */ = {
 			isa = PBXLegacyTarget;
 			buildArgumentsString = "";
@@ -1785,14 +1680,12 @@
 				1A22178C1C7E7B14006460E2 /* Resources */,
 				28BF04101D22236400F22638 /* Copy Fonts */,
 				1A0D87791CAB03710069782D /* Copy Issue Web Content */,
-				1A3D34701DB1686F00CDF167 /* Copy Diff Web Content */,
 				1AF349861CDAC46F00A5BEB0 /* Copy Chart Web Content */,
 				1A2217C41C7E7BC1006460E2 /* Copy Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				1A3D346F1DB1685B00CDF167 /* PBXTargetDependency */,
 				1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */,
 				1A2217BF1C7E7BAF006460E2 /* PBXTargetDependency */,
 			);
@@ -1883,7 +1776,6 @@
 				1A3618F91C9383CF008C11CB /* ShipHubTests */,
 				1AD956BE1D0BCFBA002B1259 /* IssueWeb */,
 				1A3C5B4E1DDD012F005F9A01 /* AccountTool */,
-				1A3D346A1DB167ED00CDF167 /* DiffWeb */,
 			);
 		};
 /* End PBXProject section */
@@ -1996,20 +1888,6 @@
 			shellPath = /bin/sh;
 			shellScript = "ISSUE_WEB_DST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/IssueWeb\"\nISSUE_WEB_SRC=\"${PROJECT_DIR}/IssueWeb/dist\"\n\necho ISSUE_WEB_SRC=$ISSUE_WEB_SRC\necho ISSUE_WEB_DST=$ISSUE_WEB_DST\n\nmkdir -p \"$ISSUE_WEB_DST\"\n\nrsync -avz -u --delete \"$ISSUE_WEB_SRC/\" \"$ISSUE_WEB_DST/\"\n";
 			showEnvVarsInLog = 0;
-		};
-		1A3D34701DB1686F00CDF167 /* Copy Diff Web Content */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Diff Web Content";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "DIFF_WEB_DST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/DiffWeb\"\nDIFF_WEB_SRC=\"${PROJECT_DIR}/DiffWeb/dist\"\n\necho DIFF_WEB_SRC=$DIFF_WEB_SRC\necho DIFF_WEB_DST=$DIFF_WEB_DST\n\nmkdir -p \"$DIFF_WEB_DST\"\n\nrsync -avz -u --delete \"$DIFF_WEB_SRC/\" \"$DIFF_WEB_DST/\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2310,11 +2188,6 @@
 			name = SocketRocketOSX;
 			targetProxy = 1A2217BE1C7E7BAF006460E2 /* PBXContainerItemProxy */;
 		};
-		1A3D346F1DB1685B00CDF167 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 1A3D346A1DB167ED00CDF167 /* DiffWeb */;
-			targetProxy = 1A3D346E1DB1685B00CDF167 /* PBXContainerItemProxy */;
-		};
 		1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 1AD956BE1D0BCFBA002B1259 /* IssueWeb */;
@@ -2532,31 +2405,6 @@
 			};
 			name = Release;
 		};
-		1A3D346C1DB167ED00CDF167 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				DEBUGGING_SYMBOLS = YES;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		1A3D346D1DB167ED00CDF167 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 		1AD956BF1D0BCFBA002B1259 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2617,15 +2465,6 @@
 			buildConfigurations = (
 				1A3C5B5D1DDD012F005F9A01 /* Debug */,
 				1A3C5B5E1DDD012F005F9A01 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		1A3D346B1DB167ED00CDF167 /* Build configuration list for PBXLegacyTarget "DiffWeb" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				1A3D346C1DB167ED00CDF167 /* Debug */,
-				1A3D346D1DB167ED00CDF167 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -1,6 +1,5 @@
 import DiffRow from './diff-row.js'
 
-import AttributedString from './attributed-string.js'
 import h from 'hyperscript'
 
 class TrailerRow extends DiffRow {

@@ -215,6 +215,10 @@ static NSString *const TBQuoteItemsId = @"TBQuotes";
     return @"IssueWeb";
 }
 
+- (NSString *)webHtmlFilename {
+    return @"issue.html";
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
