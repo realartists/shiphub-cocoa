@@ -62,7 +62,7 @@ class CommentList extends React.Component {
       return h(Comment, {
         key:c.id||"new", 
         comment:c, 
-        first:i==0,
+        first:false,
         commentIdx:i,
         issueIdentifier:this.props.issueIdentifier
       })
