@@ -31,6 +31,7 @@ import { keypath } from 'util/keypath.js'
 import { promiseQueue } from 'util/promise-queue.js'
 import { pasteHelper } from 'util/paste-helper.js'
 import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from 'util/cm-util.js'
+import { emojify, emojifyReaction } from 'util/emojify.js'
 
 import AddCommentHeader from './AddCommentHeader.js'
 import AddCommentFooter from './AddCommentFooter.js'
