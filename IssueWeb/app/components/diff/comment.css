@@ -22,8 +22,7 @@ div.commentBlock {
 div.comment {
   margin-left: 16px;
   margin-right: 16px;
-  border: 1px solid #D6D5D5;
-  border-left: 0px;
-  border-right: 0px;
+  border-left: 1px solid #D6D5D5;
+  border-right: 1px solid #D6D5D5;
 }
 
