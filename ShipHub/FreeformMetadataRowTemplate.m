@@ -102,16 +102,32 @@ static BOOL operatorAllowsNil(NSPredicateOperatorType type) {
 
 - (void)setPredicate:(NSPredicate *)newPredicate {
     if ([newPredicate isKindOfClass:[NSComparisonPredicate class]]) {
-        NSComparisonPredicate * comparison = (NSComparisonPredicate *)newPredicate;
+        NSComparisonPredicate *c0 = (NSComparisonPredicate *)newPredicate;
+        NSExpression *lhs = c0.leftExpression;
+        NSExpression *rhs = c0.rightExpression;
         
-        NSExpression * right = [comparison rightExpression];
-        id rightValue = [right constantValue];
-        if ([rightValue isEqual:@0]) {
-            rightValue = nil;
+        if (lhs.expressionType == NSFunctionExpressionType
+            && rhs.expressionType == NSConstantValueExpressionType
+            && [rhs.constantValue isEqual:@0]) {
+            
+            lhs = [lhs.arguments firstObject];
+            
+            if (c0.predicateOperatorType == NSEqualToPredicateOperatorType) {
+                newPredicate = [NSComparisonPredicate predicateWithLeftExpression:lhs rightExpression:[NSExpression expressionForConstantValue:nil] modifier:NSAnyPredicateModifier type:NSEqualToPredicateOperatorType options:0];
+            } else {
+                newPredicate = [NSComparisonPredicate predicateWithLeftExpression:lhs rightExpression:[NSExpression expressionForConstantValue:nil] modifier:NSAllPredicateModifier type:NSNotEqualToPredicateOperatorType options:0];
+            }
+            [[self textField] setStringValue:@""];
+        } else {
+            id rightValue = [rhs constantValue];
+            if ([rightValue isEqual:@0]) {
+                rightValue = nil;
+            }
+            
+            NSString *displayValue = [self valueWithIdentifier:rightValue];
+            [[self textField] setStringValue:displayValue ?: @""];
         }
         
-        NSString *displayValue = [self valueWithIdentifier:rightValue];
-        [[self textField] setStringValue:displayValue ?: @""];
     } else if ([newPredicate isKindOfClass:[NSCompoundPredicate class]]) {
         NSCompoundPredicate *compound = (NSCompoundPredicate *)newPredicate;
         NSComparisonPredicate *left = [compound.subpredicates firstObject];
@@ -164,7 +180,9 @@ static BOOL operatorAllowsNil(NSPredicateOperatorType type) {
         
         double match = [super matchForPredicate:c0];
         if (match > 0.0) {
-            if ([c1 predicateOperatorType] == NSEqualToPredicateOperatorType) {
+            if ([c1 predicateOperatorType] == NSEqualToPredicateOperatorType
+                && c0.leftExpression.expressionType == NSKeyPathExpressionType
+                && c1.leftExpression.expressionType == NSKeyPathExpressionType) {
                 NSString *kp0 = [[c0 leftExpression] keyPath];
                 NSString *kp1 = [[c1 leftExpression] keyPath];
                 if ([kp0 isEqualToString:kp1]) {
