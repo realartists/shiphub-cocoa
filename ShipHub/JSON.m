@@ -142,6 +142,13 @@ static NSString *stringifyJSONObject(id obj) {
     return stringifyJSONObject(json);
 }
 
++ (id)serializeObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer {
+    if (!src) return [NSNull null];
+    
+    id obj = serializeObject(src, nameTransformer);
+    return obj;
+}
+
 + (id)JSRepresentableValueFromSerializedObject:(id)src {
     return [self JSRepresentableValueFromSerializedObject:src withNameTransformer:nil];
 }

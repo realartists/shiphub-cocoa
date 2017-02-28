@@ -46,7 +46,17 @@
     [diffFile loadTextContents:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
         if (_loadCount != count) return;
         
-        NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@, %@, %@, %@, %@, %@);", [JSON stringifyObject:diffFile.name], [JSON stringifyObject:oldFile], [JSON stringifyObject:newFile], [JSON stringifyObject:patch], [JSON stringifyObject:pr.issue.fullIdentifier], [JSON stringifyObject:comments withNameTransformer:[JSON underbarsAndIDNameTransformer]]];
+        NSDictionary *state =
+        @{ @"filename": diffFile.name,
+           @"path": diffFile.path,
+           @"leftText": oldFile ?: @"",
+           @"rightText": newFile ?: @"",
+           @"diff": patch ?: @"",
+           @"comments": [JSON serializeObject:comments withNameTransformer:[JSON underbarsAndIDNameTransformer]],
+           @"issueIdentifier": _pr.issue.fullIdentifier,
+           @"inReview": @NO };
+        
+        NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@);", [JSON stringifyObject:state]];
         [self evaluateJavaScript:js];
     }];
 }

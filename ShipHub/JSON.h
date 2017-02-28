@@ -18,6 +18,9 @@ typedef NSString* (^JSONNameTransformer)(NSString *original);
 
 + (id)stringifyObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer;
 
+// Convert src into an ObjC object comprised of only JSON types (array, dictionary, string, null, number)
++ (id)serializeObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer;
+
 // Recursively serialize all object properties into an object passable to JSC
 + (id)JSRepresentableValueFromSerializedObject:(id)src;
 + (id)JSRepresentableValueFromSerializedObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer;

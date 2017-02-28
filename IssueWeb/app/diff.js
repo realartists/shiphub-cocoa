@@ -42,6 +42,7 @@ class App {
   constructor(root) {  
     // Model state
     this.filename = ""; // used primarily for syntax highlighting
+    this.path = ""; // full path name of the new file
     this.leftText = ""; // the full left file as a string
     this.rightText = ""; // the full right file as a string
     this.diff = ""; // the text of the patch as a unified diff
@@ -49,6 +50,7 @@ class App {
     this.rightLines = []; // lines in rightText
     this.diffLines = []; // lines in diff
     this.comments = []; // Array of PRComments
+    this.inReview = false; // Whether or not comments are being buffered to submit in one go
     this.leftHighlight = null; // syntax highlighting
     this.rightHighlight = null;
     this.rowInfos = []; // Array of pointers into left, right, and diff, plus context info
@@ -342,12 +344,8 @@ class App {
     });
   }
   
-  updateDiff(filename, leftText, rightText, diff, issueIdentifier) {
-    this.filename = filename;
-    this.leftText = leftText;
-    this.rightText = rightText;
-    this.diff = diff;
-    this.issueIdentifier = issueIdentifier;
+  updateDiff(diffState) {
+    Object.assign(this, diffState);
     
     this.leftLines = splitLines(this.leftText);
     this.rightLines = splitLines(this.rightText);
@@ -573,15 +571,48 @@ class App {
     var text = this.getSelectedText();
     e.dataTransfer.setData('text', text);
   }
+  
+  // --- Comment handling ---
+  
+  /*
+    comment - { 
+      body: markdown content
+      diffIdx: index in this file's diff - callee will convert this to position
+    }
+    OR
+    comment - {
+      body: markdown content
+      in_reply_to: id of comment to reply to
+    } 
+    options - {
+      start_review: boolean
+    }
+  */
+  addComment(comment, options) {
+    
+  }
+  
 }
 
 var app = null;
 
-window.updateDiff = function(filename, oldFile, newFile, diff, issueIdentifier, comments) {
+/*
+diffState - {
+  filename: string, used mainly for syntax highlighting
+  path: string, used for creating comments
+  leftText: string, original contents of file
+  rightText: string, new contents of file
+  diff: string, text of the patch as a unified diff
+  comments: array of PRComments
+  issueIdentifier: string, repo_owner/repo_name#number
+  inReview: boolean, whether or not comments are being buffered to submit in one go with a review
+}
+*/
+window.updateDiff = function(diffState) {
   app.saveDraftComments();
   app.clearComments();
-  app.updateDiff(filename||"", oldFile||"", newFile||"", diff||"", issueIdentifier);
-  app.updateComments(comments);
+  app.updateDiff(diffState)
+  app.updateComments(diffState.comments);
 };
 
 window.setDiffMode = function(newDiffMode) {
