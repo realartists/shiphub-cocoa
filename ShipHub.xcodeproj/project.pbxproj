@@ -72,6 +72,7 @@
 		1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */; };
 		1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */; };
 		1A2C05C91E3BFAD100F993AF /* AssigneeNotContainsTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2C05C81E3BFAD100F993AF /* AssigneeNotContainsTemplate.m */; };
+		1A2FCCF01E660B240000F91B /* PRReview.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCEF1E660B240000F91B /* PRReview.m */; };
 		1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
 		1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
 		1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
@@ -521,6 +522,8 @@
 		1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewMilestoneController.xib; sourceTree = "<group>"; };
 		1A2C05C71E3BFAD100F993AF /* AssigneeNotContainsTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssigneeNotContainsTemplate.h; sourceTree = "<group>"; };
 		1A2C05C81E3BFAD100F993AF /* AssigneeNotContainsTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssigneeNotContainsTemplate.m; sourceTree = "<group>"; };
+		1A2FCCEE1E660B240000F91B /* PRReview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRReview.h; sourceTree = "<group>"; };
+		1A2FCCEF1E660B240000F91B /* PRReview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRReview.m; sourceTree = "<group>"; };
 		1A3618E11C8FBF96008C11CB /* DataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStore.h; sourceTree = "<group>"; };
 		1A3618E21C8FBF96008C11CB /* DataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataStore.m; sourceTree = "<group>"; };
 		1A3618E71C8FC25B008C11CB /* SyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncConnection.h; sourceTree = "<group>"; };
@@ -1586,6 +1589,8 @@
 				1ADEA3891E4E86C30033F51A /* DiffViewModeItem.m */,
 				1AE6F11A1E53BDB7008FD8AC /* PRComment.h */,
 				1AE6F11B1E53BDB7008FD8AC /* PRComment.m */,
+				1A2FCCEE1E660B240000F91B /* PRReview.h */,
+				1A2FCCEF1E660B240000F91B /* PRReview.m */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request";
@@ -1918,6 +1923,7 @@
 				1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */,
 				1A3D34681DB05F5E00CDF167 /* IssueWebController.m in Sources */,
 				1A51085D1D317AB300905D4D /* LocalNotification+CoreDataProperties.m in Sources */,
+				1A2FCCF01E660B240000F91B /* PRReview.m in Sources */,
 				1A069E9D1DB7EC03009085AF /* IssueWeb2Controller.m in Sources */,
 				1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */,
 				1A3D34621DB0528200CDF167 /* PRDiffViewController.m in Sources */,

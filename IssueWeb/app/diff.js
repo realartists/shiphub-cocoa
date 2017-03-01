@@ -6,7 +6,7 @@ import 'components/comment/comment.css'
 import 'components/diff/comment.css'
 import 'xcode7.css'
 
-import h from 'hyperscript'
+import h from 'util/make-element.js'
 import filterSelection from 'util/filter-selection.js'
 import MiniMap from 'components/diff/minimap.js'
 import AttributedString from 'util/attributed-string.js'

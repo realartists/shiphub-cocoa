@@ -2,7 +2,7 @@ import DiffRow from './diff-row.js'
 import MiniMap from './minimap.js'
 import AttributedString from 'util/attributed-string.js'
 
-import h from 'hyperscript'
+import h from 'util/make-element.js'
 import diff_match_patch from 'diff-match-patch'
 import htmlEscape from 'html-escape';
 

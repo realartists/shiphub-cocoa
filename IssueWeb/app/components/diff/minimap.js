@@ -1,4 +1,4 @@
-import h from 'hyperscript'
+import h from 'util/make-element.js'
 
 class Region {
   constructor(node /* DOM node */, color /* string, e.g. red or #F00 */) {

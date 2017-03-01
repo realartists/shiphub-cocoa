@@ -1,6 +1,6 @@
 import DiffRow from './diff-row.js'
 
-import h from 'hyperscript'
+import h from 'util/make-element.js'
 
 class TrailerRow extends DiffRow {
   constructor(mode) {
