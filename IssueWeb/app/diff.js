@@ -606,7 +606,8 @@ class App {
       startReview: boolean
     }
   */
-  addNewComment(comment, options) {  
+  addNewComment(comment, options) { 
+    if (!options) options = {};
     if (comment.diffIdx !== undefined) {
       comment.position = comment.diffIdx - this.firstHunkDiffIdx();
     } else if (comment.in_reply_to) {
@@ -618,14 +619,19 @@ class App {
     comment.commit_id = this.headSha;
     comment.original_commit_id = this.baseSha;
     
-    this.comments.push(comment);
     if (options.startReview || this.inReview) {
       window.queueReviewComment.postMessage(comment);
     } else {
-      window.postCommentImmediately.postMessage(comment);
+      window.addSingleComment.postMessage(comment);
     }
-    
-    this.updateComments(this.comments);
+  }
+  
+  editComment(comment) {
+    window.editComment.postMessage(comment);
+  }
+  
+  deleteComment(comment) {
+    window.deleteComment.postMessage(comment);
   }
   
 }

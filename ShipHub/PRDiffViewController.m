@@ -47,12 +47,49 @@
     [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
         [weakSelf queueReviewComment:msg.body];
     } name:@"queueReviewComment"];
+    
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf addSingleComment:msg.body];
+    } name:@"addSingleComment"];
+    
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf editComment:msg.body];
+    } name:@"editComment"];
+    
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf deleteComment:msg.body];
+    } name:@"deleteComment"];
 }
 
 - (void)queueReviewComment:(NSDictionary *)msg {
     PendingPRComment *pending = [[PendingPRComment alloc] initWithDictionary:msg metadataStore:[[DataStore activeStore] metadataStore]];
     _inReview = YES;
     [self.delegate diffViewController:self queueReviewComment:pending];
+}
+
+- (void)addSingleComment:(NSDictionary *)msg {
+    PendingPRComment *pending = [[PendingPRComment alloc] initWithDictionary:msg metadataStore:[[DataStore activeStore] metadataStore]];
+    [self.delegate diffViewController:self addReviewComment:pending];
+}
+
+- (void)editComment:(NSDictionary *)msg {
+    PRComment *comment = nil;
+    Class commentClass = [PRComment class];
+    if (msg[@"temporary_id"]) {
+        commentClass = [PendingPRComment class];
+    }
+    comment = [[commentClass alloc] initWithDictionary:msg metadataStore:[[DataStore activeStore] metadataStore]];
+    [self.delegate diffViewController:self editReviewComment:comment];
+}
+
+- (void)deleteComment:(NSDictionary *)msg {
+    PRComment *comment = nil;
+    Class commentClass = [PRComment class];
+    if (msg[@"temporary_id"]) {
+        commentClass = [PendingPRComment class];
+    }
+    comment = [[commentClass alloc] initWithDictionary:msg metadataStore:[[DataStore activeStore] metadataStore]];
+    [self.delegate diffViewController:self deleteReviewComment:comment];
 }
 
 - (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview

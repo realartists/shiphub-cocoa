@@ -29,5 +29,6 @@
 - (NSURL *)gitHubFilesURL;
 
 - (void)mergeComments:(NSArray<PRComment *> *)comments;
+- (void)deleteComments:(NSArray<PRComment *> *)comments;
 
 @end

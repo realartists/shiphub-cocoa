@@ -248,4 +248,11 @@
     _prComments = all;
 }
 
+- (void)deleteComments:(NSArray<PRComment *> *)comments {
+    NSDictionary *lookup = [NSDictionary lookupWithObjects:comments keyPath:@"identifier"];
+    _prComments = [_prComments filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        return lookup[[evaluatedObject identifier]] == nil;
+    }]];
+}
+
 @end

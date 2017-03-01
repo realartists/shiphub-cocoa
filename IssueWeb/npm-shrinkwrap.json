@@ -3340,7 +3340,7 @@
     },
     "uuid": {
       "version": "3.0.1",
-      "from": "uuid@>=3.0.0 <4.0.0",
+      "from": "uuid@latest",
       "resolved": "https://registry.npmjs.org/uuid/-/uuid-3.0.1.tgz"
     },
     "vary": {

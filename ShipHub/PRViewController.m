@@ -201,7 +201,7 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
                 [self diffViewController:vc addReviewComment:comment];
             } fail:nil];
         } else {
-            [_pr mergeComments:@[comment]];
+            [_pr mergeComments:@[roundtrip]];
         }
         [self reloadComments];
     }];
@@ -210,13 +210,67 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
 - (void)diffViewController:(PRDiffViewController *)vc
          editReviewComment:(PRComment *)comment
 {
+    NSParameterAssert(comment.identifier);
     
+    if ([comment isKindOfClass:[PendingPRComment class]]) {
+        NSInteger existingIdx = [_pendingComments indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            return [[obj pendingId] isEqualToString:[(id)comment pendingId]];
+        }];
+        if (existingIdx != NSNotFound) {
+            [_pendingComments replaceObjectAtIndex:existingIdx withObject:comment];
+        }
+        [self reloadComments];
+    } else {
+        NSInteger previousIdx = [_pr.prComments indexOfObjectPassingTest:^BOOL(PRComment * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            return [[obj identifier] isEqualToNumber:[comment identifier]];
+        }];
+        if (previousIdx != NSNotFound) {
+            PRComment *previous = _pr.prComments[previousIdx];
+            [_pr mergeComments:@[comment]];
+            [self reloadComments];
+            [[DataStore activeStore] editReviewComment:comment inIssue:_pr.issue.fullIdentifier completion:^(PRComment *roundtrip, NSError *error) {
+                if (error) {
+                    [_pr mergeComments:@[previous]];
+                    [self presentError:error withRetry:^{
+                        [self diffViewController:vc editReviewComment:comment];
+                    } fail:^{
+                        [self reloadComments];
+                    }];
+                } else {
+                    [_pr mergeComments:@[roundtrip]];
+                    [self reloadComments];
+                }
+            }];
+        }
+    }
 }
 
 - (void)diffViewController:(PRDiffViewController *)vc
        deleteReviewComment:(PRComment *)comment
 {
+    NSParameterAssert(comment.identifier);
     
+    if ([comment isKindOfClass:[PendingPRComment class]]) {
+        NSInteger existingIdx = [_pendingComments indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            return [[obj pendingId] isEqualToString:[(id)comment pendingId]];
+        }];
+        if (existingIdx != NSNotFound) {
+            [_pendingComments removeObjectAtIndex:existingIdx];
+        }
+    } else {
+        [_pr deleteComments:@[comment]];
+        [self reloadComments];
+        [[DataStore activeStore] deleteReviewComment:comment inIssue:_pr.issue.fullIdentifier completion:^(NSError *error) {
+            if (error) {
+                [_pr mergeComments:@[comment]];
+                [self presentError:error withRetry:^{
+                    [self diffViewController:vc editReviewComment:comment];
+                } fail:^{
+                    [self reloadComments];
+                }];
+            }
+        }];
+    }
 }
 
 @end

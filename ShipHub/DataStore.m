@@ -1912,7 +1912,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/comments", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
     [self.serverConnection perform:@"POST" on:endpoint body:msg completion:^(id jsonResponse, NSError *error) {
-        PRComment *roundtrip = error != nil ? [[PRComment alloc] initWithDictionary:jsonResponse metadataStore:self.metadataStore] : nil;
+        PRComment *roundtrip = error == nil ? [[PRComment alloc] initWithDictionary:jsonResponse metadataStore:self.metadataStore] : nil;
         // TODO: Persist to database
         RunOnMain(^{
             completion(roundtrip, error);
@@ -1954,6 +1954,45 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
     
     [[Analytics sharedInstance] track:@"Post PR Review"];
+}
+
+- (void)editReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(PRComment *comment, NSError *error))completion
+{
+    NSParameterAssert(comment.identifier);
+    NSParameterAssert(comment.body);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    NSDictionary *msg = @{ @"body" : comment.body };
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/comments/%@", [issueIdentifier issueRepoFullName], [comment identifier]];
+    
+    [self.serverConnection perform:@"PATCH" on:endpoint body:msg completion:^(id jsonResponse, NSError *error) {
+        // TODO: Update DB
+        PRComment *roundtrip = error == nil ? [[PRComment alloc] initWithDictionary:jsonResponse metadataStore:self.metadataStore] : nil;
+        RunOnMain(^{
+            completion(roundtrip, error);
+        });
+    }];
+    
+    [[Analytics sharedInstance] track:@"Edit PR Comment"];
+}
+
+- (void)deleteReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion
+{
+    NSParameterAssert(comment.identifier);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/comments/%@", [issueIdentifier issueRepoFullName], [comment identifier]];
+    
+    [self.serverConnection perform:@"DELETE" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
+        // TODO: Update DB
+        RunOnMain(^{
+            completion(error);
+        });
+    }];
+    
+    [[Analytics sharedInstance] track:@"Delete PR Comment"];
 }
 
 #pragma mark - Metadata Mutation

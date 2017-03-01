@@ -10,6 +10,8 @@ import ghost from 'util/ghost.js'
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
 
+import uuidV4 from 'uuid/v4.js'
+
 class Comment extends AbstractComment {
   constructor(props) {
     super(props);
@@ -46,11 +48,46 @@ class Comment extends AbstractComment {
   saveDraftState() { }
   restoreDraftState() { }
   
-  deleteComment() { }
+  deleteComment() {
+    this.props.commentDelegate.deleteComment(this.props.comment);
+    return Promise.resolve();
+  }
   
   saveAndClose() { return this.save(); }
   
   loginCompletions() { return [] }
+  
+  _save() {
+    if (this.props.comment) {
+      var newBody = this.state.code;
+      if (newBody != this.props.comment.body) {
+        var newComment = Object.assign({}, this.props.comment, {body:newBody});
+        this.props.commentDelegate.editComment(newComment);
+      }
+      this.setState(Object.assign({}, this.state, {editing:false}));
+    } else {
+      var now = new Date().toISOString();
+      var newComment = {
+        temporary_id: uuidV4(),
+        user: this.props.me,
+        body: this.state.code,
+        created_at: now,
+        updated_at: now,
+        reactions: [],
+      }
+      if (this.props.inReplyTo) {
+        newComment.in_reply_to = this.props.inReplyTo.id;
+      } else {
+        newComment.diffIdx = this.props.diffIdx;
+      }
+      this.props.commentDelegate.addNewComment(newComment);
+    }
+    
+    if (this.props.didSave) {
+      this.props.didSave();
+    }
+    return Promise.resolve();
+  }
   
   componentDidMount() {
     super.componentDidMount();
@@ -69,7 +106,7 @@ class Comment extends AbstractComment {
 class CommentList extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasReply: false }
+    this.state = { hasReply: this.props.comments.length == 0 }
   }
   
   addReply() {
@@ -81,7 +118,8 @@ class CommentList extends React.Component {
   }
     
   render() {
-    var buttonIdx = this.state.hasReply ? -1 : this.props.comments.length - 1;
+    var commentsLength = this.props.comments.length;
+    var buttonIdx = this.state.hasReply ? -1 : commentsLength - 1;
     var comments = this.props.comments.map((c, i) => {
       return h(Comment, {
         key:c.id||c.temporary_id||c.created_at, 
@@ -91,7 +129,8 @@ class CommentList extends React.Component {
         issueIdentifier:this.props.issueIdentifier,
         me:this.props.me,
         buttons:i==buttonIdx?[{"title": "Reply", "action": this.addReply.bind(this)}]:[],
-        didRender:this.props.didRender
+        didRender:this.props.didRender,
+        commentDelegate:this.props.commentDelegate
       })
     });
         
@@ -101,7 +140,10 @@ class CommentList extends React.Component {
         issueIdentifier:this.props.issueIdentifier,
         me:this.props.me,
         onCancel:this.cancelReply.bind(this),
-        didRender:this.props.didRender
+        didRender:this.props.didRender,
+        inReplyTo:commentsLength>0?this.props.comments[commentsLength-1]:undefined,
+        commentDelegate:this.props.commentDelegate,
+        didSave:this.cancelReply.bind(this)
       }));
     }
   
@@ -177,7 +219,8 @@ class CommentRow extends DiffRow {
         issueIdentifier:this.issueIdentifier,
         addComment:this.addComment.bind(this),
         me:this.me,
-        didRender:()=>this.delegate.updateMiniMap()
+        didRender:()=>this.delegate.updateMiniMap(),
+        commentDelegate:this.delegate
       }),
       this.commentsContainer
     );
