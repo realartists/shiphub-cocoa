@@ -18,7 +18,6 @@
 @interface PRSidebarViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource>
 
 @property IBOutlet NSOutlineView *outline;
-@property (nonatomic) GitDiff *activeDiff;
 
 @end
 
@@ -86,6 +85,7 @@
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification {
     id item = [_outline selectedItem];
     if ([item isKindOfClass:[GitDiffFile class]]) {
+        _selectedFile = item;
         [_delegate prSidebar:self didSelectGitDiffFile:item];
     }
 }

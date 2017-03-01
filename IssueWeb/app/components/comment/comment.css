@@ -227,7 +227,8 @@ div.comment .addCommentSaveButtonDisabled {
   border: 1px solid #CCC;
 }
 
-div.comment .viewDiffButton {
+div.comment .viewDiffButton,
+div.comment .buttonBarButton {
   float: right;
   margin-top: 10px;
   margin-bottom: 10px;

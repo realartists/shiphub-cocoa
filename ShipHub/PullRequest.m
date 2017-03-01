@@ -239,4 +239,13 @@
     return [[self class] gitHubFilesURLForIssueIdentifier:_issue.fullIdentifier];
 }
 
+- (void)mergeComments:(NSArray<PRComment *> *)comments {
+    NSMutableDictionary *lookup = [[NSDictionary lookupWithObjects:_prComments keyPath:@"identifier"] mutableCopy];
+    for (PRComment *prc in comments) {
+        lookup[prc.identifier] = prc;
+    }
+    NSArray *all = [[lookup allValues] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]]];
+    _prComments = all;
+}
+
 @end

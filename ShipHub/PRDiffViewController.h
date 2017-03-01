@@ -11,18 +11,42 @@
 #import "IssueWeb2Controller.h"
 #import "DiffViewMode.h"
 
+@class GitDiff;
 @class GitDiffFile;
 @class PRComment;
+@class PendingPRComment;
 @class PullRequest;
+
+@protocol PRDiffViewControllerDelegate;
 
 @interface PRDiffViewController : IssueWeb2Controller
 
-- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile comments:(NSArray<PRComment *> *)comments;
+@property id<PRDiffViewControllerDelegate> delegate;
+
+- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview;
 
 @property (nonatomic, readonly) PullRequest *pr;
 @property (nonatomic, readonly) GitDiffFile *diffFile;
-@property (nonatomic, readonly) NSArray<PRComment *> *comments;
+@property (nonatomic, readonly) GitDiff *diff;
+@property (readonly, getter=isInReview) BOOL inReview;
+@property (nonatomic) NSArray<PRComment *> *comments;
 
 @property (nonatomic, assign) DiffViewMode mode;
+
+@end
+
+@protocol PRDiffViewControllerDelegate <NSObject>
+
+- (void)diffViewController:(PRDiffViewController *)vc
+        queueReviewComment:(PendingPRComment *)comment;
+
+- (void)diffViewController:(PRDiffViewController *)vc
+          addReviewComment:(PendingPRComment *)comment;
+
+- (void)diffViewController:(PRDiffViewController *)vc
+         editReviewComment:(PRComment *)comment;
+
+- (void)diffViewController:(PRDiffViewController *)vc
+       deleteReviewComment:(PRComment *)comment;
 
 @end

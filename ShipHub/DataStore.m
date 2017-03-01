@@ -48,6 +48,8 @@
 #import "Reaction.h"
 #import "Milestone.h"
 #import "Project.h"
+#import "PRComment.h"
+#import "PRReview.h"
 
 #import "Error.h"
 
@@ -1887,6 +1889,71 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 
     [[Analytics sharedInstance] track:@"Delete Reaction"];
+}
+
+#pragma mark - Pull Request Mutation
+
+- (void)addSingleReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(PRComment *comment, NSError *error))completion
+{
+    NSParameterAssert(comment);
+    NSParameterAssert(comment.body);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    NSMutableDictionary *msg = [NSMutableDictionary new];
+    msg[@"body"] = comment.body;
+    if (comment.inReplyTo) {
+        msg[@"in_reply_to"] = comment.inReplyTo;
+    } else {
+        msg[@"file"] = comment.path;
+        msg[@"position"] = comment.position;
+        msg[@"commit_id"] = comment.commitId;
+    }
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/comments", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
+    [self.serverConnection perform:@"POST" on:endpoint body:msg completion:^(id jsonResponse, NSError *error) {
+        PRComment *roundtrip = error != nil ? [[PRComment alloc] initWithDictionary:jsonResponse metadataStore:self.metadataStore] : nil;
+        // TODO: Persist to database
+        RunOnMain(^{
+            completion(roundtrip, error);
+        });
+    }];
+    
+    [[Analytics sharedInstance] track:@"Post PR Comment"];
+}
+
+- (void)addReview:(PRReview *)review inIssue:(NSString *)issueIdentifier completion:(void (^)(PRReview *review, NSError *error))completion
+{
+    NSParameterAssert(review);
+    NSParameterAssert(review.body);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    NSMutableDictionary *msg = [NSMutableDictionary new];
+    msg[@"body"] = review.body;
+    msg[@"event"] = PRReviewStatusToString(review.status);
+    if (review.comments.count) {
+        msg[@"comments"] = [review.comments arrayByMappingObjects:^id(PRComment *obj) {
+            NSMutableDictionary *c = [NSMutableDictionary new];
+            c[@"body"] = obj.body;
+            c[@"path"] = obj.path;
+            c[@"commit_id"] = obj.commitId;
+            c[@"position"] = obj.position;
+            return c;
+        }];
+    }
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/reviews", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
+    NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
+    
+    [self.serverConnection perform:@"POST" on:endpoint headers:headers body:msg completion:^(id jsonResponse, NSError *error) {
+        // TODO: Parse response and save to DB
+        RunOnMain(^{
+            completion(error?nil:review, error);
+        });
+    }];
+    
+    [[Analytics sharedInstance] track:@"Post PR Review"];
 }
 
 #pragma mark - Metadata Mutation

@@ -31,7 +31,7 @@ table.diff {
   background-color: white;
 }
 
-.diff pre {
+.diff td > pre {
   padding: 0;
   margin: 0;
   white-space: pre-wrap;

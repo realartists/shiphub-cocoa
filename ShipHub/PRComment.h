@@ -19,7 +19,14 @@
 @property NSNumber *originalPosition;
 @property NSString *commitId;
 @property NSString *originalCommitId;
+@property NSNumber *inReplyTo;
 
 - (id)initWithDictionary:(NSDictionary *)d metadataStore:(MetadataStore *)store;
+
+@end
+
+@interface PendingPRComment : PRComment
+
+@property NSString *pendingId;
 
 @end

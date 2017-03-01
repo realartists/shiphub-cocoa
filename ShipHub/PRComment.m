@@ -23,6 +23,7 @@
         _originalPosition = d[@"original_position"];
         _commitId = d[@"commit_id"];
         _originalCommitId = d[@"original_commit_id"];
+        _inReplyTo = d[@"in_reply_to"];
         
         self.body = d[@"body"];
         self.createdAt = [NSDate dateWithJSONString:d[@"created_at"]];
@@ -32,6 +33,18 @@
         self.user = [store accountWithIdentifier:d[@"user"][@"id"]];
         
         // TODO: Reactions
+    }
+    return self;
+}
+
+@end
+
+@implementation PendingPRComment
+
+- (id)initWithDictionary:(NSDictionary *)d metadataStore:(MetadataStore *)store {
+    
+    if (self = [super initWithDictionary:d metadataStore:store]) {
+        _pendingId = d[@"pending_id"];
     }
     return self;
 }

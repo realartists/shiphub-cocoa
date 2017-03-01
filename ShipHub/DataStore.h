@@ -21,6 +21,8 @@
 @class Milestone;
 @class Project;
 @class ServerConnection;
+@class PRComment;
+@class PRReview;
 
 @interface DataStore : NSObject
 
@@ -112,6 +114,14 @@
 - (void)postCommentReaction:(NSString *)reactionContent inRepoFullName:(NSString *)repoFullName inComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion;
 
 - (void)deleteReaction:(NSNumber *)reactionIdentifier completion:(void (^)(NSError *error))completion;
+
+@end
+
+@interface DataStore (PullRequestMutations)
+
+- (void)addSingleReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(PRComment *comment, NSError *error))completion;
+
+- (void)addReview:(PRReview *)review inIssue:(NSString *)issueIdentifier completion:(void (^)(PRReview *review, NSError *error))completion;
 
 @end
 

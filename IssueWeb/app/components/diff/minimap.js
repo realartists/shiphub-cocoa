@@ -24,8 +24,10 @@ class MiniMap {
     this.scrollable = scrollable;
     container.appendChild(this.canvas);
     
-    window.addEventListener('scroll', () => this.setNeedsDisplay());
-    window.addEventListener('resize', () => this.setNeedsDisplay());
+    var needsDisplay = this.setNeedsDisplay.bind(this);
+    
+    window.addEventListener('scroll', needsDisplay);
+    window.addEventListener('resize', needsDisplay);
     
     this.canvas.addEventListener('mousedown', (e) => this.mouseDown(e));
     this.canvas.addEventListener('wheel', (e) => this.mouseWheel(e));

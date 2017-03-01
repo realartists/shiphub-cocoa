@@ -27,7 +27,9 @@ class Comment extends AbstractComment {
     }
   }
   
-  me() { return ghost; }
+  isNewIssue() { return false; }
+  
+  me() { return this.props.me; }
   
   canClose() { return false; }
   
@@ -49,39 +51,81 @@ class Comment extends AbstractComment {
   saveAndClose() { return this.save(); }
   
   loginCompletions() { return [] }
+  
+  componentDidMount() {
+    super.componentDidMount();
+    if (!this.props.comment) {
+      this.focusCodemirror();
+    }
+    this.props.didRender();
+  }
+  
+  componentDidUpdate() {
+    super.componentDidUpdate();
+    this.props.didRender();
+  }
 }
 
 class CommentList extends React.Component {
   constructor(props) {
     super(props);
+    this.state = { hasReply: false }
   }
   
+  addReply() {
+    this.setState(Object.assign({}, this.state, {hasReply: true}));
+  }
+  
+  cancelReply() {
+    this.setState(Object.assign({}, this.state, {hasReply: false}));
+  }
+    
   render() {
+    var buttonIdx = this.state.hasReply ? -1 : this.props.comments.length - 1;
     var comments = this.props.comments.map((c, i) => {
-      console.log("Create comment", c);
       return h(Comment, {
-        key:c.id||"new", 
+        key:c.id||c.temporary_id||c.created_at, 
         comment:c, 
         first:false,
         commentIdx:i,
-        issueIdentifier:this.props.issueIdentifier
+        issueIdentifier:this.props.issueIdentifier,
+        me:this.props.me,
+        buttons:i==buttonIdx?[{"title": "Reply", "action": this.addReply.bind(this)}]:[],
+        didRender:this.props.didRender
       })
     });
-    
-    console.log("props.comments", this.props.comments);
-    console.log("comments", comments);
+        
+    if (this.state.hasReply) {
+      comments.push(h(Comment, {
+        key:'add',
+        issueIdentifier:this.props.issueIdentifier,
+        me:this.props.me,
+        onCancel:this.cancelReply.bind(this),
+        didRender:this.props.didRender
+      }));
+    }
   
     return h('div', {className:'commentList'},
       comments
     );
   }
+  
+  componentDidUpdate() {
+    this.props.didRender();
+  }
+  
+  componentDidMount() {
+    this.props.didRender();
+  }
 }
 
 class CommentRow extends DiffRow {
-  constructor(issueIdentifier) {
+  constructor(issueIdentifier, me, delegate) {
     super();
     
     this.issueIdentifier = issueIdentifier;
+    this.me = me;
+    this.delegate = delegate;
     
     this.prComments = []; // Array of PRComments
     
@@ -128,7 +172,13 @@ class CommentRow extends DiffRow {
   set comments(comments /*[PRComment]*/) {
     this.prComments = comments;
     ReactDOM.render(
-      h(CommentList, {comments, issueIdentifier:this.issueIdentifier}),
+      h(CommentList, {
+        comments, 
+        issueIdentifier:this.issueIdentifier,
+        addComment:this.addComment.bind(this),
+        me:this.me,
+        didRender:()=>this.delegate.updateMiniMap()
+      }),
       this.commentsContainer
     );
   }
@@ -141,6 +191,10 @@ class CommentRow extends DiffRow {
     if (this.prComments.length == 0) return -1;
     
     return this.prComments[0].diffIdx;
+  }
+  
+  addComment(comment, options) {
+    this.delegate.addComment(comment, options);
   }
 }
 

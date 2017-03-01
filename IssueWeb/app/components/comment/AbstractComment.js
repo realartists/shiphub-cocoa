@@ -1,9 +1,9 @@
 /* This is the shared Comment component between IssueWeb and DiffWeb */
 
 import 'font-awesome/css/font-awesome.css'
-import './comment.css'
-import '../../../markdown-mark/style.css'
 import 'codemirror/lib/codemirror.css'
+import '../../../markdown-mark/style.css'
+import './comment.css'
 import 'xcode7.css'
 
 import Sortable from 'sortablejs'
@@ -41,6 +41,7 @@ import CommentReactions from './CommentReactions.js'
 import CommentHeader from './CommentHeader.js'
 import CommentPRBar from './CommentPRBar.js'
 import CommentBody from './CommentBody.js'
+import CommentButtonBar from './CommentButtonBar.js'
 
 class AbstractComment extends React.Component {
   constructor(props) {
@@ -294,6 +295,7 @@ class AbstractComment extends React.Component {
     if (this.props.comment && !this.state.editing) {
       return false;
     }
+    var body = this.state.code;
     if (body.trim().length > 0) {
       if (this.props.comment) {
         if (this.props.comment.body != body) {
@@ -374,11 +376,12 @@ class AbstractComment extends React.Component {
           previewing: this.state.previewing,
           onClose: this.saveAndClose.bind(this), 
           onSave: this.save.bind(this),
-          onCancel: this.cancelEditing.bind(this),
+          onCancel: this.props.onCancel||this.cancelEditing.bind(this),
           hasContents: this.state.code.trim().length > 0,
           editingExisting: !!(this.props.comment),
           canSave: this.needsSave(),
-          isNewIssue: this.isNewIssue()
+          isNewIssue: this.isNewIssue(),
+          canCancel: !!(this.props.onCancel)
         })
       }
     } else if (this.props.first && this.shouldShowCommentPRBar()) {
@@ -387,6 +390,15 @@ class AbstractComment extends React.Component {
         comment:this.props.comment,
         issue:this.issue(), 
         me: this.me(),
+        onToggleReaction:this.toggleReaction.bind(this)
+      });
+    } else if ((this.props.buttons||[]).length > 0) {
+      return h(CommentButtonBar, {
+        key:"buttons", 
+        comment:this.props.comment,
+        issue:this.issue(), 
+        me: this.me(),
+        buttons:this.props.buttons,
         onToggleReaction:this.toggleReaction.bind(this)
       });
     } else if ((keypath(this.props, "comment.reactions")||[]).length > 0) {

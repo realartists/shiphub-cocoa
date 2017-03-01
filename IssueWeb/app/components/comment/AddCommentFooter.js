@@ -25,7 +25,7 @@ var AddCommentFooter = React.createClass({
         onClick:this.props.onClose}, 
         'Close Issue'
       ));
-    } else if (this.props.editingExisting) {
+    } else if (this.props.editingExisting||this.props.canCancel) {
       contents.push(h('div', {
         key:'cancel', 
         className:'Clickable addCommentButton addCommentCloseButton', 

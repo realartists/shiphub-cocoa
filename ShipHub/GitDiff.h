@@ -64,4 +64,7 @@ typedef NS_ENUM(NSInteger, DiffFileMode) {
 // Returns a sorted, hierarchical listing of files.
 @property (readonly) GitFileTree *fileTree;
 
+@property (readonly) NSString *baseRev;
+@property (readonly) NSString *headRev;
+
 @end

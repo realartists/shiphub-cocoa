@@ -9,7 +9,9 @@
 #import <Cocoa/Cocoa.h>
 
 @class PullRequest;
+@class GitDiff;
 @class GitDiffFile;
+@class PRComment;
 @protocol PRSidebarViewControllerDelegate;
 
 @interface PRSidebarViewController : NSViewController
@@ -17,6 +19,10 @@
 @property (nonatomic, strong) PullRequest *pr;
 
 @property (weak) id<PRSidebarViewControllerDelegate> delegate;
+
+@property (nonatomic) GitDiff *activeDiff;
+@property (nonatomic) GitDiffFile *selectedFile;
+@property (nonatomic) NSArray<PRComment *> *allComments;
 
 @end
 

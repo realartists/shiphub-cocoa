@@ -28,4 +28,6 @@
 + (NSURL *)gitHubFilesURLForIssueIdentifier:(id)issueIdentifier;
 - (NSURL *)gitHubFilesURL;
 
+- (void)mergeComments:(NSArray<PRComment *> *)comments;
+
 @end

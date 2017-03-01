@@ -21,4 +21,6 @@
 
 @property (readonly) NSToolbar *toolbar; // toolbar for the window we're in
 
+@property (readonly, getter=isInReview) BOOL inReview;
+
 @end

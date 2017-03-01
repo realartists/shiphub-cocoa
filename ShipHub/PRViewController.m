@@ -14,11 +14,13 @@
 #import "ProgressSheet.h"
 #import "PRSidebarViewController.h"
 #import "PRDiffViewController.h"
+#import "PRComment.h"
 #import "DiffViewModeItem.h"
+#import "DataStore.h"
 
 static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
 
-@interface PRViewController () <PRSidebarViewControllerDelegate, NSToolbarDelegate> {
+@interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, NSToolbarDelegate> {
     NSToolbar *_toolbar;
     
     DiffViewModeItem *_diffViewModeItem;
@@ -29,6 +31,8 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
 @property PRSidebarViewController *sidebarController;
 @property NSSplitViewItem *diffItem;
 @property PRDiffViewController *diffController;
+@property NSMutableArray *pendingComments;
+@property GitDiffFile *selectedFile;
 
 @end
 
@@ -47,6 +51,7 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
     _sidebarController = [PRSidebarViewController new];
     _sidebarController.delegate = self;
     _diffController = [PRDiffViewController new];
+    _diffController.delegate = self;
     _diffController.mode = defaultDiffMode;
     
     if ([[NSSplitViewItem class] respondsToSelector:@selector(contentListWithViewController:)]) {
@@ -104,6 +109,8 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
     self.pr = [[PullRequest alloc] initWithIssue:issue];
     self.title = [NSString stringWithFormat:NSLocalizedString(@"Code Changes for %@ %@", nil), issue.fullIdentifier, issue.title];
     
+    self.pendingComments = [NSMutableArray new];
+    
     ProgressSheet *sheet = [ProgressSheet new];
     sheet.message = NSLocalizedString(@"Loading Pull Request", nil);
     [sheet beginSheetInWindow:self.view.window];
@@ -125,9 +132,91 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
     
 }
 
+#pragma mark -
+
+- (void)presentError:(NSError *)error withRetry:(dispatch_block_t)retry fail:(dispatch_block_t)fail {
+    NSAlert *alert = [NSAlert new];
+    alert.alertStyle = NSCriticalAlertStyle;
+    alert.messageText = NSLocalizedString(@"Unable to save changes", nil);
+    alert.informativeText = [error localizedDescription] ?: @"";
+    [alert addButtonWithTitle:NSLocalizedString(@"Retry", nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"Discard Changes", nil)];
+    
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertFirstButtonReturn) {
+            if (retry) retry();
+        } else {
+            if (fail) fail();
+        }
+    }];
+}
+
+- (NSArray *)allComments {
+    return [_pr.prComments arrayByAddingObjectsFromArray:_pendingComments];
+}
+
+- (NSArray *)commentsForSelectedFile {
+    GitDiffFile *file = _sidebarController.selectedFile;
+    if (!file) return @[];
+    GitDiff *diff = _sidebarController.activeDiff;
+    NSPredicate *filter = [NSPredicate predicateWithFormat:@"path = %@ AND position != nil AND commitId = %@", file.path, diff.headRev];
+    NSArray *comments = [_pr.prComments filteredArrayUsingPredicate:filter];
+    NSArray *pendingComments = [_pendingComments filteredArrayUsingPredicate:filter] ?: @[];
+    return [comments arrayByAddingObjectsFromArray:pendingComments];
+}
+
+- (void)reloadComments {
+    [_sidebarController setAllComments:[self allComments]];
+    [_diffController setComments:[self commentsForSelectedFile]];
+}
+
+#pragma mark - PRSidebarViewControllerDelegate
+
 - (void)prSidebar:(PRSidebarViewController *)sidebar didSelectGitDiffFile:(GitDiffFile *)file {
+    GitDiff *diff = sidebar.activeDiff;
     _diffViewModeItem.enabled = !(file.operation == DiffFileOperationAdded || file.operation == DiffFileOperationDeleted);
-    [_diffController setPR:_pr diffFile:file comments:[_pr.prComments filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"path = %@ AND position != nil", file.path]]];
+    NSArray *comments = [self commentsForSelectedFile];
+    [_diffController setPR:_pr diffFile:file diff:diff comments:comments inReview:_inReview];
+}
+
+#pragma mark - PRDiffViewControllerDelegate
+
+- (void)diffViewController:(PRDiffViewController *)vc
+        queueReviewComment:(PendingPRComment *)comment
+{
+    _inReview = YES;
+    [_pendingComments addObject:comment];
+    [self reloadComments];
+}
+
+- (void)diffViewController:(PRDiffViewController *)vc
+          addReviewComment:(PendingPRComment *)comment
+{
+    [_pendingComments addObject:comment];
+    [self reloadComments];
+    [[DataStore activeStore] addSingleReviewComment:comment inIssue:_pr.issue.fullIdentifier completion:^(PRComment *roundtrip, NSError *error) {
+        [_pendingComments removeObjectIdenticalTo:comment];
+        if (error) {
+            [self presentError:error withRetry:^{
+                [self diffViewController:vc addReviewComment:comment];
+            } fail:nil];
+        } else {
+            [_pr mergeComments:@[comment]];
+        }
+        [self reloadComments];
+    }];
+}
+
+- (void)diffViewController:(PRDiffViewController *)vc
+         editReviewComment:(PRComment *)comment
+{
+    
+}
+
+- (void)diffViewController:(PRDiffViewController *)vc
+       deleteReviewComment:(PRComment *)comment
+{
+    
 }
 
 @end

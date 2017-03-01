@@ -38,6 +38,9 @@
 @property NSArray<GitDiffFile *> *allFiles;
 @property GitFileTree *fileTree;
 
+@property NSString *baseRev;
+@property NSString *headRev;
+
 @end
 
 @interface GitFileTree ()
@@ -115,7 +118,7 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     NSDictionary *info = @{@"files":files, @"repo":repo};
     CHK(git_diff_foreach(diff, fileVisitor, NULL /*binary cb*/, NULL /*hunk cb*/, NULL /*line cb*/, (__bridge void *)info));
     
-    GitDiff *result = [[GitDiff alloc] initWithFiles:files];
+    GitDiff *result = [[GitDiff alloc] initWithFiles:files baseRev:baseRev headRev:headRev];
     
     cleanup();
     
@@ -124,8 +127,10 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
 #undef CHK
 }
 
-- (id)initWithFiles:(NSArray *)files {
+- (id)initWithFiles:(NSArray *)files baseRev:(NSString *)baseRev headRev:(NSString *)headRev {
     if (self = [super init]) {
+        self.baseRev = baseRev;
+        self.headRev = headRev;
         self.allFiles = files;
         [self buildFileTree];
     }

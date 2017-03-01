@@ -9,18 +9,18 @@
 #import "PRDiffViewController.h"
 #import "IssueWeb2ControllerInternal.h"
 
+#import "DataStore.h"
 #import "PullRequest.h"
 #import "Issue.h"
 #import "PRComment.h"
 #import "GitDiff.h"
 #import "JSON.h"
-
-#import <WebKit/WebKit.h>
+#import "Account.h"
+#import "WebKitExtras.h"
 
 @interface PRDiffViewController () {
     NSInteger _loadCount;
 }
-
 
 @end
 
@@ -34,14 +34,34 @@
     return @"diff.html";
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
+- (void)registerJavaScriptAPI:(WKUserContentController *)cc {
+    [super registerJavaScriptAPI:cc];
+    
+    __weak __typeof(self) weakSelf = self;
+    
+    // TODO:
+    //  documentEditedHelper
+    //  queue comment handler
+    //  post comment immediately
+    
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf queueReviewComment:msg.body];
+    } name:@"queueReviewComment"];
 }
 
-- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile comments:(NSArray<PRComment *> *)comments {
+- (void)queueReviewComment:(NSDictionary *)msg {
+    PendingPRComment *pending = [[PendingPRComment alloc] initWithDictionary:msg metadataStore:[[DataStore activeStore] metadataStore]];
+    _inReview = YES;
+    [self.delegate diffViewController:self queueReviewComment:pending];
+}
+
+- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview
+{
     _pr = pr;
     _diffFile = diffFile;
-    _comments = comments;
+    _diff = diff;
+    _comments = [comments mutableCopy];
+    _inReview = inReview;
     NSInteger count = ++_loadCount;
     [diffFile loadTextContents:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
         if (_loadCount != count) return;
@@ -54,7 +74,11 @@
            @"diff": patch ?: @"",
            @"comments": [JSON serializeObject:comments withNameTransformer:[JSON underbarsAndIDNameTransformer]],
            @"issueIdentifier": _pr.issue.fullIdentifier,
-           @"inReview": @NO };
+           @"inReview": @(inReview),
+           @"baseSha": diff.baseRev,
+           @"headSha": diff.headRev,
+           @"me" : [JSON serializeObject:[Account me] withNameTransformer:[JSON underbarsAndIDNameTransformer]]
+        };
         
         NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@);", [JSON stringifyObject:state]];
         [self evaluateJavaScript:js];
@@ -62,8 +86,14 @@
 }
 
 - (void)reconfigureForReload {
-    [self setPR:_pr diffFile:_diffFile comments:_comments];
+    [self setPR:_pr diffFile:_diffFile diff:_diff comments:_comments inReview:_inReview];
     [self setMode:_mode];
+}
+
+- (void)setComments:(NSArray<PRComment *> *)comments {
+    _comments = comments;
+    NSString *js = [NSString stringWithFormat:@"window.updateComments(%@);", [JSON stringifyObject:comments withNameTransformer:[JSON underbarsAndIDNameTransformer]]];
+    [self evaluateJavaScript:js];
 }
 
 - (void)setMode:(DiffViewMode)mode {

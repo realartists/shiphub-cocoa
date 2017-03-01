@@ -1,3 +1,10 @@
+import 'diff.css'
+import 'font-awesome/css/font-awesome.css'
+import '../markdown-mark/style.css'
+import 'codemirror/lib/codemirror.css'
+import 'components/comment/comment.css'
+import 'components/diff/comment.css'
+import 'xcode7.css'
 
 import h from 'hyperscript'
 import filterSelection from 'util/filter-selection.js'
@@ -8,9 +15,7 @@ import SplitRow from 'components/diff/split-row.js'
 import UnifiedRow from 'components/diff/unified-row.js'
 import CommentRow from 'components/diff/comment-row.js'
 import TrailerRow from 'components/diff/trailer-row.js'
-
-import './xcode7.css'
-import './diff.css'
+import ghost from 'util/ghost.js'
 
 var HighlightWorker = require('worker!./highlight-worker.js');
 
@@ -54,6 +59,9 @@ class App {
     this.leftHighlight = null; // syntax highlighting
     this.rightHighlight = null;
     this.rowInfos = []; // Array of pointers into left, right, and diff, plus context info
+    this.headSha = ""; // commit id of head of PR branch
+    this.baseSha = ""; // commit id of base of PR branch
+    this.me = ghost; // user object (used for adding new comments)
     
     // View state
     this.codeRows = []; // Array of SplitRow|UnifiedRow
@@ -92,6 +100,10 @@ class App {
   
   sizeTable() {
     this.table.style.minHeight = window.innerHeight + 'px';
+  }
+  
+  updateMiniMap() {
+    this.miniMap.setNeedsDisplay();
   }
   
   setDiffMode(newMode) {
@@ -400,15 +412,21 @@ class App {
     this.commentRows = [];
   }
   
+  firstHunkDiffIdx() {
+    var diffIdx = 0;
+    var diffLines = this.diffLines;
+    while (diffIdx < diffLines.length && !diffLines[diffIdx].startsWith("@@")) diffIdx++;
+    
+    return diffIdx;
+  }
+  
   updateComments(comments) {
     this.comments = comments;
     
     // augment each comment with its diffIdx (position offset by first hunk in diffLines)
     
     // find the first hunk in our diff
-    var diffIdx = 0;
-    var diffLines = this.diffLines;
-    while (diffIdx < diffLines.length && !diffLines[diffIdx].startsWith("@@")) diffIdx++;
+    var diffIdx = this.firstHunkDiffIdx();
     
     comments.forEach((c) => {
       c.diffIdx = diffIdx + c.position; // position is relative to the first hunk in diffLines
@@ -444,7 +462,7 @@ class App {
       var diffIdx = cg[0].diffIdx;
       var commentRow = diffIdxToCommentRow[diffIdx];
       if (!commentRow) {
-        commentRow = new CommentRow(this.issueIdentifier);
+        commentRow = new CommentRow(this.issueIdentifier, this.me, this);
         diffIdxToCommentRow[diffIdx] = commentRow;
       }
       commentRow.comments = cg;
@@ -585,11 +603,29 @@ class App {
       in_reply_to: id of comment to reply to
     } 
     options - {
-      start_review: boolean
+      startReview: boolean
     }
   */
-  addComment(comment, options) {
+  addNewComment(comment, options) {  
+    if (comment.diffIdx !== undefined) {
+      comment.position = comment.diffIdx - this.firstHunkDiffIdx();
+    } else if (comment.in_reply_to) {
+      var parent = this.comments.find((c) => c.id == comment.in_reply_to);
+      comment.diffIdx = parent.diffIdx;
+      comment.position = parent.position;
+    }
+    comment.path = this.path;
+    comment.commit_id = this.headSha;
+    comment.original_commit_id = this.baseSha;
     
+    this.comments.push(comment);
+    if (options.startReview || this.inReview) {
+      window.queueReviewComment.postMessage(comment);
+    } else {
+      window.postCommentImmediately.postMessage(comment);
+    }
+    
+    this.updateComments(this.comments);
   }
   
 }
@@ -606,6 +642,9 @@ diffState - {
   comments: array of PRComments
   issueIdentifier: string, repo_owner/repo_name#number
   inReview: boolean, whether or not comments are being buffered to submit in one go with a review
+  headSha: string, commit id of head of PR branch
+  baseSha: string, commit id of base of PR branch
+  me: object, user
 }
 */
 window.updateDiff = function(diffState) {
@@ -617,6 +656,10 @@ window.updateDiff = function(diffState) {
 
 window.setDiffMode = function(newDiffMode) {
   app.setDiffMode(newDiffMode);
+};
+
+window.updateComments = function(comments) {
+  app.updateComments(comments);
 };
 
 window.onload = () => {
