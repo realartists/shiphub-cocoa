@@ -7,7 +7,7 @@ import diff_match_patch from 'diff-match-patch'
 import htmlEscape from 'html-escape';
 
 class SplitRow extends DiffRow {
-  constructor(leftLine, leftLineNum, rightLine, rightLineNum, diffIdx, rightDiffIdx, changed) {
+  constructor(leftLine, leftLineNum, rightLine, rightLineNum, diffIdx, rightDiffIdx, changed, addNewCommentHandler) {
     super();
     
     this.leftLineNum = leftLineNum;
@@ -15,6 +15,7 @@ class SplitRow extends DiffRow {
     this.diffIdx = diffIdx;
     this.rightDiffIdx = rightDiffIdx;
     this.changed = changed;
+    this.addNewCommentHandler = addNewCommentHandler;
     
     var leftClasses = 'left codecol';
     var rightClasses = 'right codecol';
@@ -22,12 +23,8 @@ class SplitRow extends DiffRow {
     var gutterLeft = h('td', { className:'gutter gutter-left' });
     var gutterRight = h('td', { className:'gutter gutter-right' });
 
-    if (leftLineNum !== undefined) {
-      gutterLeft.innerHTML = "" + (1+leftLineNum);
-    }
-    if (rightLineNum !== undefined) {
-      gutterRight.innerHTML = "" + (1+rightLineNum);
-    }
+    this.configureGutterCol(gutterLeft, leftLineNum, diffIdx===undefined?rightDiffIdx:diffIdx, this.addCommentLeft.bind(this));
+    this.configureGutterCol(gutterRight, rightLineNum, rightDiffIdx===undefined?diffIdx:rightDiffIdx, this.addCommentRight.bind(this));
     
     if (leftLine === undefined) {
       leftClasses += ' spacer';
@@ -93,6 +90,16 @@ class SplitRow extends DiffRow {
     
     this.left.innerHTML = this.codeColContents(leftLineHighlighted);
     this.right.innerHTML = this.codeColContents(rightLineHighlighted);
+  }
+  
+  addCommentLeft() {
+    var idx = this.diffIdx !== undefined ? this.diffIdx : this.rightDiffIdx;
+    this.addNewCommentHandler(idx);
+  }
+  
+  addCommentRight() {
+    var idx = this.rightDiffIdx !== undefined ? this.rightDiffIdx : this.diffIdx;
+    this.addNewCommentHandler(idx);
   }
 }
 

@@ -1905,7 +1905,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     if (comment.inReplyTo) {
         msg[@"in_reply_to"] = comment.inReplyTo;
     } else {
-        msg[@"file"] = comment.path;
+        msg[@"path"] = comment.path;
         msg[@"position"] = comment.position;
         msg[@"commit_id"] = comment.commitId;
     }

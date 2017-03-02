@@ -195,15 +195,19 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
     [_pendingComments addObject:comment];
     [self reloadComments];
     [[DataStore activeStore] addSingleReviewComment:comment inIssue:_pr.issue.fullIdentifier completion:^(PRComment *roundtrip, NSError *error) {
-        [_pendingComments removeObjectIdenticalTo:comment];
         if (error) {
             [self presentError:error withRetry:^{
+                [_pendingComments removeObjectIdenticalTo:comment];
                 [self diffViewController:vc addReviewComment:comment];
-            } fail:nil];
+            } fail:^{
+                [_pendingComments removeObjectIdenticalTo:comment];
+                [self reloadComments];
+            }];
         } else {
+            [_pendingComments removeObjectIdenticalTo:comment];
             [_pr mergeComments:@[roundtrip]];
+            [self reloadComments];
         }
-        [self reloadComments];
     }];
 }
 

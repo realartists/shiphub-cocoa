@@ -48,7 +48,7 @@ table.diff {
 .diff .gutter {
   background-color: #F7F7F7;
   font-family: menlo;
-  color: #929292;
+  color: #BBB;
   font-size: 10px;
   text-align: right;
   padding-right: 4px;
@@ -60,6 +60,23 @@ table.diff {
   line-height: 13px;
   user-select: none;
   cursor: default;
+}
+
+.diff td.gutter-commentable {
+  color: #737373;
+}
+
+.diff td.gutter-commentable:hover {
+  background-color: blue;
+  color: white;
+  content: '+';
+  font-weight: bold;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.diff td.gutter-commentable:active {
+  background-color: #66F;
 }
 
 .diff tr > td:first-child {

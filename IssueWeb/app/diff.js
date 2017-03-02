@@ -219,7 +219,8 @@ class App {
           ri.rightIdx,
           ri.diffIdx,
           ri.rightDiffIdx,
-          ri.changed===true
+          ri.changed===true,
+          this.insertComment.bind(this)
         );
       });
     } else /* unified */ {
@@ -250,7 +251,8 @@ class App {
           oldText,
           ri.leftIdx,
           ri.rightIdx,
-          ri.diffIdx
+          ri.diffIdx,
+          this.insertComment.bind(this)
         );
       });
     }
@@ -422,6 +424,7 @@ class App {
   
   updateComments(comments) {
     this.comments = comments;
+    var existingRows = this.commentRows;
     
     // augment each comment with its diffIdx (position offset by first hunk in diffLines)
     
@@ -467,6 +470,14 @@ class App {
       }
       commentRow.comments = cg;
       nextRows.add(commentRow);
+    });
+    
+    // add any CommentRows in that have pending comments
+    existingRows.forEach((cr) => {
+      if (cr.hasNewComment && !nextRows.has(cr)) {
+        cr.comments = [];
+        nextRows.add(cr);
+      }
     });
     
     // remove any CommentRows from the DOM that aren't in nextRows
@@ -608,12 +619,12 @@ class App {
   */
   addNewComment(comment, options) { 
     if (!options) options = {};
-    if (comment.diffIdx !== undefined) {
-      comment.position = comment.diffIdx - this.firstHunkDiffIdx();
-    } else if (comment.in_reply_to) {
+    if (comment.in_reply_to) {
       var parent = this.comments.find((c) => c.id == comment.in_reply_to);
       comment.diffIdx = parent.diffIdx;
       comment.position = parent.position;
+    } else {
+      comment.position = comment.diffIdx - this.firstHunkDiffIdx();
     }
     comment.path = this.path;
     comment.commit_id = this.headSha;
@@ -632,6 +643,28 @@ class App {
   
   deleteComment(comment) {
     window.deleteComment.postMessage(comment);
+  }
+  
+  insertComment(diffIdx) {
+    // if we already have a comment row at diffIdx, then just ask it to do a reply
+    var cr = this.commentRows.find((cr) => cr.diffIdx == diffIdx);
+    if (cr) {
+      cr.showReply();
+    } else {
+      cr = new CommentRow(this.issueIdentifier, this.me, this);
+      cr.setHasNewComment(true, diffIdx);
+      this.commentRows.push(cr);
+      this.positionComments();
+    }
+  }
+  
+  cancelInsertComment(diffIdx) {
+    var crIdx = this.commentRows.findIndex((cr) => cr.diffIdx == diffIdx);
+    if (crIdx != -1) {
+      var cr = this.commentRows[crIdx];
+      cr.node.remove();
+      this.commentRows.splice(crIdx, 1);
+    }
   }
   
 }

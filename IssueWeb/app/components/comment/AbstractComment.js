@@ -250,7 +250,16 @@ class AbstractComment extends React.Component {
   }
   
   focusCodemirror() {
-    this.refs.codemirror.focus()
+    var cm = this.refs.codemirror;
+    if (cm) {
+      cm = cm.getCodeMirror();
+      cm.focus();
+      if (cm.getValue().length == 0) {
+        cm.setValue(" ");
+        cm.setSelection({line:0, ch:0}, {line:0, ch:1});
+        cm.replaceSelection("");
+      }
+    }
   }
   
   onBlur() {

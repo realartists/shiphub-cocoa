@@ -7,7 +7,7 @@ import diff_match_patch from 'diff-match-patch'
 import htmlEscape from 'html-escape';
 
 class UnifiedRow extends DiffRow {
-  constructor(mode, text, oldText, leftLineNum, rightLineNum, diffIdx) {
+  constructor(mode, text, oldText, leftLineNum, rightLineNum, diffIdx, addNewCommentHandler) {
     super();
     
     this.mode = mode;
@@ -16,15 +16,16 @@ class UnifiedRow extends DiffRow {
     this.leftLineNum = leftLineNum;
     this.rightLineNum = rightLineNum;
     this.diffIdx = diffIdx;
+    this.addNewCommentHandler = addNewCommentHandler;
             
     var gutterLeft = h('td', { className:'gutter gutter-left' });
     var gutterRight = h('td', { className:'gutter gutter-right' });
     
     if (leftLineNum !== undefined) {
-      gutterLeft.innerHTML = "" + (1+leftLineNum);
+      this.configureGutterCol(gutterLeft, leftLineNum, diffIdx, this.addComment.bind(this));
     }
     if (rightLineNum !== undefined) {
-      gutterRight.innerHTML = "" + (1+rightLineNum);
+      this.configureGutterCol(gutterRight, rightLineNum, diffIdx, this.addComment.bind(this));
     }
     
     var codeClasses = 'unified unified-codecol';
@@ -72,6 +73,10 @@ class UnifiedRow extends DiffRow {
     }
     
     this.codeCell.innerHTML = this.codeColContents(highlighted);
+  }
+  
+  addComment() {
+    this.addNewCommentHandler(this.diffIdx);
   }
 }
 
