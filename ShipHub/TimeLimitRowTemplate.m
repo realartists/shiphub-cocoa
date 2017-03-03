@@ -52,9 +52,9 @@
         
 #if USE_DATEDIFF
         if (op == NSLessThanPredicateOperatorType) {
-            p = [NSPredicate predicateWithFormat:@"%K > FUNCTION(now(), 'dateByAddingDays:', -%@)", keyPath, value];
+            p = [NSPredicate predicateWithFormat:@"%K > FUNCTION(now(), '_ship_dateByAddingDays:', -%@)", keyPath, value];
         } else {
-            p = [NSPredicate predicateWithFormat:@"%K < FUNCTION(now(), 'dateByAddingDays:', -%@)", keyPath, value];
+            p = [NSPredicate predicateWithFormat:@"%K < FUNCTION(now(), '_ship_dateByAddingDays:', -%@)", keyPath, value];
         }
 #else
         if (op == NSLessThanPredicateOperatorType) {
@@ -78,8 +78,8 @@
         NSString *keyPath = [left keyPath];
         NSString *rightStr = [right description];
         
-        if ([rightStr containsString:@"dateByAddingDays:"]) {
-            NSRegularExpression *expr = [NSRegularExpression regularExpressionWithPattern:@".*FUNCTION\\(now\\(\\)\\s*,\\s*.dateByAddingDays:.\\s*,\\s*(\\-?\\d+).*" options:0 error:NULL];
+        if ([rightStr containsString:@"_ship_dateByAddingDays:"]) {
+            NSRegularExpression *expr = [NSRegularExpression regularExpressionWithPattern:@".*FUNCTION\\(now\\(\\)\\s*,\\s*._ship_dateByAddingDays:.\\s*,\\s*(\\-?\\d+).*" options:0 error:NULL];
             NSTextCheckingResult *match = [expr firstMatchInString:rightStr options:0 range:NSMakeRange(0, [rightStr length])];
             if (match) {
                 NSRange range = [match rangeAtIndex:1];
