@@ -8,6 +8,8 @@
 
 #import "PRViewController.h"
 
+#import "Account.h"
+#import "ButtonToolbarItem.h"
 #import "Extras.h"
 #import "PullRequest.h"
 #import "GitDiff.h"
@@ -17,13 +19,16 @@
 #import "PRComment.h"
 #import "DiffViewModeItem.h"
 #import "DataStore.h"
+#import "PRReview.h"
+#import "PRReviewChangesViewController.h"
+#import "ProgressSheet.h"
 
 static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
+static NSString *const DiffViewModeID = @"DiffViewMode";
+static NSString *const ReviewChangesID = @"ReviewChanges";
 
-@interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, NSToolbarDelegate> {
+@interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, NSToolbarDelegate> {
     NSToolbar *_toolbar;
-    
-    DiffViewModeItem *_diffViewModeItem;
 }
 
 @property NSSplitViewController *splitController;
@@ -33,6 +38,12 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
 @property PRDiffViewController *diffController;
 @property NSMutableArray *pendingComments;
 @property GitDiffFile *selectedFile;
+
+@property DiffViewModeItem *diffViewModeItem;
+@property ButtonToolbarItem *reviewChangesItem;
+
+@property PRReviewChangesViewController *reviewChangesController;
+@property NSPopover *reviewChangesPopover;
 
 @end
 
@@ -68,13 +79,21 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
     _splitController.splitViewItems = @[_sidebarItem, _diffItem];
     [view setContentView:_splitController.view];
     
-    _toolbar = [[NSToolbar alloc] initWithIdentifier:@"PRViewController"];
-    _toolbar.delegate = self;
-    
-    DiffViewModeItem *diffItem = _diffViewModeItem = [[DiffViewModeItem alloc] initWithItemIdentifier:@"DiffViewMode"];
+    DiffViewModeItem *diffItem = _diffViewModeItem = [[DiffViewModeItem alloc] initWithItemIdentifier:DiffViewModeID];
     diffItem.mode = defaultDiffMode;
     diffItem.target = self;
     diffItem.action = @selector(changeDiffViewMode:);
+    
+    ButtonToolbarItem *reviewChangesItem = _reviewChangesItem = [[ButtonToolbarItem alloc] initWithItemIdentifier:ReviewChangesID];
+    reviewChangesItem.grayWhenDisabled = YES;
+    reviewChangesItem.label = NSLocalizedString(@"Send Review", nil);
+    reviewChangesItem.buttonImage = [NSImage imageNamed:@"Review changes"];
+    reviewChangesItem.buttonImage.template = YES;
+    reviewChangesItem.target = self;
+    reviewChangesItem.action = @selector(reviewChanges:);
+    
+    _toolbar = [[NSToolbar alloc] initWithIdentifier:@"PRViewController"];
+    _toolbar.delegate = self;
     
     self.view = view;
 }
@@ -87,16 +106,32 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
     self.diffController.mode = _diffViewModeItem.mode;
 }
 
+- (IBAction)reviewChanges:(id)sender {
+    if (!_reviewChangesController) {
+        _reviewChangesController = [PRReviewChangesViewController new];
+        _reviewChangesController.myPR = [_pr.issue.originator.identifier isEqualToNumber:[[Account me] identifier]];
+        _reviewChangesController.delegate = self;
+    }
+    
+    _reviewChangesPopover = [[NSPopover alloc] init];
+    _reviewChangesPopover.contentViewController = _reviewChangesController;
+    _reviewChangesPopover.behavior = NSPopoverBehaviorSemitransient;
+    
+    [_reviewChangesPopover showRelativeToRect:_reviewChangesItem.view.bounds ofView:_reviewChangesItem.view preferredEdge:NSRectEdgeMinY];
+}
+
 - (nullable NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag {
-    if ([itemIdentifier isEqualToString:@"DiffViewMode"]) {
+    if ([itemIdentifier isEqualToString:DiffViewModeID]) {
         return _diffViewModeItem;
+    } else if ([itemIdentifier isEqualToString:ReviewChangesID]) {
+        return _reviewChangesItem;
     } else {
         return [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
     }
 }
 
 - (NSArray<NSString *> *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
-    return @[NSToolbarFlexibleSpaceItemIdentifier, _diffViewModeItem.itemIdentifier];
+    return @[NSToolbarFlexibleSpaceItemIdentifier, DiffViewModeID, ReviewChangesID];
 }
 
 - (NSArray<NSString *> *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar {
@@ -177,6 +212,34 @@ static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
     _diffViewModeItem.enabled = !(file.operation == DiffFileOperationAdded || file.operation == DiffFileOperationDeleted);
     NSArray *comments = [self commentsForSelectedFile];
     [_diffController setPR:_pr diffFile:file diff:diff comments:comments inReview:_inReview];
+}
+
+#pragma mark - PRReviewChangesViewControllerDelegate
+
+- (void)reviewChangesViewController:(PRReviewChangesViewController *)vc submitReview:(PRReview *)review {
+    [_reviewChangesPopover close];
+    _reviewChangesPopover = nil;
+    _reviewChangesController = nil;
+    
+    ProgressSheet *progress = [ProgressSheet new];
+    progress.message = NSLocalizedString(@"Sending review", nil);
+    [progress beginSheetInWindow:self.view.window];
+    
+    review.comments = _pendingComments;
+    [[DataStore activeStore] addReview:review inIssue:_pr.issue.fullIdentifier completion:^(PRReview *roundtrip, NSError *error) {
+        [progress endSheet];
+        if (error) {
+            [self presentError:error withRetry:^{
+                [self reviewChangesViewController:nil submitReview:review];
+            } fail:nil];
+        } else {
+            [_pr mergeComments:roundtrip.comments];
+            [_pendingComments removeObjectsInArray:review.comments];
+            [self reloadComments];
+            
+            [[self.view window] close];
+        }
+    }];
 }
 
 #pragma mark - PRDiffViewControllerDelegate

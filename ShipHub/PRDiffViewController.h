@@ -21,7 +21,7 @@
 
 @interface PRDiffViewController : IssueWeb2Controller
 
-@property id<PRDiffViewControllerDelegate> delegate;
+@property (weak) id<PRDiffViewControllerDelegate> delegate;
 
 - (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview;
 

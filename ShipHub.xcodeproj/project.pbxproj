@@ -73,6 +73,9 @@
 		1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */; };
 		1A2C05C91E3BFAD100F993AF /* AssigneeNotContainsTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2C05C81E3BFAD100F993AF /* AssigneeNotContainsTemplate.m */; };
 		1A2FCCF01E660B240000F91B /* PRReview.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCEF1E660B240000F91B /* PRReview.m */; };
+		1A2FCCF71E68EADA0000F91B /* PRReviewChangesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCF51E68EADA0000F91B /* PRReviewChangesViewController.m */; };
+		1A2FCCF81E68EADA0000F91B /* PRReviewChangesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2FCCF61E68EADA0000F91B /* PRReviewChangesViewController.xib */; };
+		1A2FCCFB1E68EB8C0000F91B /* PlaceholderTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCFA1E68EB8C0000F91B /* PlaceholderTextView.m */; };
 		1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
 		1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
 		1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
@@ -524,6 +527,11 @@
 		1A2C05C81E3BFAD100F993AF /* AssigneeNotContainsTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssigneeNotContainsTemplate.m; sourceTree = "<group>"; };
 		1A2FCCEE1E660B240000F91B /* PRReview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRReview.h; sourceTree = "<group>"; };
 		1A2FCCEF1E660B240000F91B /* PRReview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRReview.m; sourceTree = "<group>"; };
+		1A2FCCF41E68EADA0000F91B /* PRReviewChangesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRReviewChangesViewController.h; sourceTree = "<group>"; };
+		1A2FCCF51E68EADA0000F91B /* PRReviewChangesViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRReviewChangesViewController.m; sourceTree = "<group>"; };
+		1A2FCCF61E68EADA0000F91B /* PRReviewChangesViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRReviewChangesViewController.xib; sourceTree = "<group>"; };
+		1A2FCCF91E68EB8C0000F91B /* PlaceholderTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaceholderTextView.h; sourceTree = "<group>"; };
+		1A2FCCFA1E68EB8C0000F91B /* PlaceholderTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaceholderTextView.m; sourceTree = "<group>"; };
 		1A3618E11C8FBF96008C11CB /* DataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStore.h; sourceTree = "<group>"; };
 		1A3618E21C8FBF96008C11CB /* DataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataStore.m; sourceTree = "<group>"; };
 		1A3618E71C8FC25B008C11CB /* SyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncConnection.h; sourceTree = "<group>"; };
@@ -1169,6 +1177,8 @@
 				1A51A5881DBE9BC200272822 /* TextViewController.h */,
 				1A51A5891DBE9BC200272822 /* TextViewController.m */,
 				1A51A58B1DBE9C5400272822 /* TextViewController.xib */,
+				1A2FCCF91E68EB8C0000F91B /* PlaceholderTextView.h */,
+				1A2FCCFA1E68EB8C0000F91B /* PlaceholderTextView.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -1591,6 +1601,9 @@
 				1AE6F11B1E53BDB7008FD8AC /* PRComment.m */,
 				1A2FCCEE1E660B240000F91B /* PRReview.h */,
 				1A2FCCEF1E660B240000F91B /* PRReview.m */,
+				1A2FCCF41E68EADA0000F91B /* PRReviewChangesViewController.h */,
+				1A2FCCF51E68EADA0000F91B /* PRReviewChangesViewController.m */,
+				1A2FCCF61E68EADA0000F91B /* PRReviewChangesViewController.xib */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request";
@@ -1856,6 +1869,7 @@
 				1A012E811D3EAC0E006CE5DF /* SaveSearchController.xib in Resources */,
 				1A7FD77F1D494A5C00B585E2 /* LabelModifyController.xib in Resources */,
 				1A012E9F1D3EE111006CE5DF /* SearchSheet.xib in Resources */,
+				1A2FCCF81E68EADA0000F91B /* PRReviewChangesViewController.xib in Resources */,
 				1A3C5B251DDCE241005F9A01 /* WelcomeHelpController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2017,6 +2031,7 @@
 				1A694AFB1CA0A96500F73608 /* Account.m in Sources */,
 				1AD956B31D0B5654002B1259 /* DownloadBarViewController.m in Sources */,
 				1A012E9E1D3EE111006CE5DF /* SearchSheet.m in Sources */,
+				1A2FCCF71E68EADA0000F91B /* PRReviewChangesViewController.m in Sources */,
 				1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */,
 				1A7FD7791D493B0400B585E2 /* ProgressSheet.m in Sources */,
 				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
@@ -2046,6 +2061,7 @@
 				1A38CA051D934EF800655891 /* LocalProject+CoreDataProperties.m in Sources */,
 				1A48BB4D1D80D8BF001E761E /* UserNotificationManager.m in Sources */,
 				1AC619721D232E9A00FE1E76 /* LocalPriority.m in Sources */,
+				1A2FCCFB1E68EB8C0000F91B /* PlaceholderTextView.m in Sources */,
 				1A20CFFA1D52A81F00F412DE /* Reaction.m in Sources */,
 				1A012EB81D448FF2006CE5DF /* RepoRowTemplate.m in Sources */,
 				1ADED9D01D95AA590093A098 /* RateDampener.m in Sources */,

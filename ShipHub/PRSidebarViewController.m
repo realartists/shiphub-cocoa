@@ -96,15 +96,18 @@
     
     if (item == _activeDiff.fileTree) {
         // root item
-        cell.imageView.image = [NSImage overviewIconNamed:@"Repo"];
+        cell.imageView.image = [NSImage imageNamed:NSImageNameFolder];
         cell.textField.stringValue = self.pr.issue.repository.name;
+        cell.textField.toolTip = cell.textField.stringValue;
     } else if ([item isKindOfClass:[GitFileTree class]]) {
         cell.imageView.image = [NSImage imageNamed:NSImageNameFolder];
         cell.textField.stringValue = [item name];
+        cell.textField.toolTip = cell.textField.stringValue;
     } else {
         NSString *filename = [item name];
         cell.imageView.image = [[NSWorkspace sharedWorkspace] iconForFileType:[filename pathExtension]];
         cell.textField.stringValue = [item name];
+        cell.textField.toolTip = cell.textField.stringValue;
     }
     
     return cell;
