@@ -31,7 +31,7 @@ static NSString *MachineModel() {
 
 static NSString *OperatingSystemMajorMinor() {
     NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
-    return [NSString stringWithFormat:@"%ld.%ld", version.majorVersion, version.minorVersion];
+    return [NSString stringWithFormat:@"%ld.%ld.%ld", version.majorVersion, version.minorVersion, version.patchVersion];
 }
 
 static NSString *AnalyticsHost() {
