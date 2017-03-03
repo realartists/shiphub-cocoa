@@ -439,28 +439,28 @@ static inline uint8_t h2b(uint8_t v) {
     return x >= min && x <= max;
 }
 
-- (NSDate *)_addUnit:(NSCalendarUnit)unit value:(NSNumber *)value {
+- (NSDate *)_ship_addUnit:(NSCalendarUnit)unit value:(NSNumber *)value {
     NSCalendar *calendar = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
     return [calendar dateByAddingUnit:unit value:[value integerValue] toDate:self options:0];
 }
 
-- (NSDate *)dateByAddingSeconds:(NSNumber *)seconds {
-    return [self _addUnit:NSCalendarUnitSecond value:seconds];
+- (NSDate *)_ship_dateByAddingSeconds:(NSNumber *)seconds {
+    return [self _ship_addUnit:NSCalendarUnitSecond value:seconds];
 }
-- (NSDate *)dateByAddingMinutes:(NSNumber *)minutes {
-    return [self _addUnit:NSCalendarUnitMinute value:minutes];
+- (NSDate *)_ship_dateByAddingMinutes:(NSNumber *)minutes {
+    return [self _ship_addUnit:NSCalendarUnitMinute value:minutes];
 }
-- (NSDate *)dateByAddingHours:(NSNumber *)hours {
-    return [self _addUnit:NSCalendarUnitHour value:hours];
+- (NSDate *)_ship_dateByAddingHours:(NSNumber *)hours {
+    return [self _ship_addUnit:NSCalendarUnitHour value:hours];
 }
-- (NSDate *)dateByAddingDays:(NSNumber *)days {
-    return [self _addUnit:NSCalendarUnitDay value:days];
+- (NSDate *)_ship_dateByAddingDays:(NSNumber *)days {
+    return [self _ship_addUnit:NSCalendarUnitDay value:days];
 }
-- (NSDate *)dateByAddingMonths:(NSNumber *)months {
-    return [self _addUnit:NSCalendarUnitMonth value:months];
+- (NSDate *)_ship_dateByAddingMonths:(NSNumber *)months {
+    return [self _ship_addUnit:NSCalendarUnitMonth value:months];
 }
-- (NSDate *)dateByAddingYears:(NSNumber *)years {
-    return [self _addUnit:NSCalendarUnitYear value:years];
+- (NSDate *)_ship_dateByAddingYears:(NSNumber *)years {
+    return [self _ship_addUnit:NSCalendarUnitYear value:years];
 }
 
 @end

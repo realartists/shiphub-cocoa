@@ -65,7 +65,7 @@ NSString *const BillingSubscriptionRefreshHashDidChangeNotification = @"BillingS
     } else if (_state == BillingStateTrial) {
         [self updateWithRecord:@{@"mode":@"free"}];
     } else {
-        [self updateWithRecord:@{@"mode":@"trial", @"trialEndDate":[[[NSDate date] dateByAddingDays:@1] JSONString]}];
+        [self updateWithRecord:@{@"mode":@"trial", @"trialEndDate":[[[NSDate date] _ship_dateByAddingDays:@1] JSONString]}];
     }
 }
 #endif

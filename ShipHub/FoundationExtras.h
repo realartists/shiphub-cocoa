@@ -78,12 +78,12 @@
 
 - (NSDate *)dateByAddingTimeIntervalNumber:(NSNumber *)timeInterval;
 
-- (NSDate *)dateByAddingSeconds:(NSNumber *)seconds;
-- (NSDate *)dateByAddingMinutes:(NSNumber *)minutes;
-- (NSDate *)dateByAddingHours:(NSNumber *)hours;
-- (NSDate *)dateByAddingDays:(NSNumber *)days;
-- (NSDate *)dateByAddingMonths:(NSNumber *)months;
-- (NSDate *)dateByAddingYears:(NSNumber *)years;
+- (NSDate *)_ship_dateByAddingSeconds:(NSNumber *)seconds;
+- (NSDate *)_ship_dateByAddingMinutes:(NSNumber *)minutes;
+- (NSDate *)_ship_dateByAddingHours:(NSNumber *)hours;
+- (NSDate *)_ship_dateByAddingDays:(NSNumber *)days;
+- (NSDate *)_ship_dateByAddingMonths:(NSNumber *)months;
+- (NSDate *)_ship_dateByAddingYears:(NSNumber *)years;
 
 - (BOOL)between:(NSDate *)start :(NSDate *)end;
 

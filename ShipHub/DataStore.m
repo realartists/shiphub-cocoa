@@ -126,8 +126,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  8: realartists/shiphub-cocoa#330 Creating a new label can cause a dupe
  9: realartists/shiphub-cocoa#378 Support user => org transitions (non-lightweight-migration 1to2)
  10: Migration in step 9 could disassociate repos from their owners.
+ 11: realartists/shiphub-cocoa#424 Workaround rdar://30838212 CalendarUI.framework defines unprefixed category methods on NSDate
  */
-static const NSInteger CurrentLocalModelVersion = 10;
+static const NSInteger CurrentLocalModelVersion = 11;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
@@ -364,15 +365,11 @@ static NSString *const LastUpdated = @"LastUpdated";
         needsDuplicateLabelFix = YES;
     }
     
-    BOOL needsHeavyweightMigration = NO;
-    if (previousStoreVersion < 9) {
-        needsHeavyweightMigration = YES;
-    }
+    BOOL needsHeavyweightMigration = previousStoreVersion < 9;
     
-    BOOL needsRepoOwnerFix = NO;
-    if (previousStoreVersion < 10) {
-        needsRepoOwnerFix = YES;
-    }
+    BOOL needsRepoOwnerFix = previousStoreVersion < 10;
+    
+    BOOL needsDateFunctionRename = previousStoreVersion < 11;
     
     NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @(!needsHeavyweightMigration) };
     
@@ -502,6 +499,35 @@ static NSString *const LastUpdated = @"LastUpdated";
                 
                 [_writeMoc save:NULL];
             }
+        }];
+    }
+    
+    if (needsDateFunctionRename) {
+        NSRegularExpression *re = [NSRegularExpression regularExpressionWithPattern:@"FUNCTION\\(now\\(\\)\\s*,\\s*.(dateByAdding\\w+):.\\s*,\\s*\\-?\\d+" options:0 error:NULL];
+        [_writeMoc performBlockAndWait:^{
+            NSFetchRequest *queryFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQuery"];
+            NSArray *queries = [_writeMoc executeFetchRequest:queryFetch error:NULL];
+            
+            for (LocalQuery *q in queries) {
+                NSString *oldPredicate = q.predicate;
+                NSArray *matches = [re matchesInString:oldPredicate options:0 range:NSMakeRange(0, oldPredicate.length)];
+                if (matches.count) {
+                    NSMutableString *newPredicate = [NSMutableString new];
+                    NSUInteger lastOffset = 0;
+                    for (NSTextCheckingResult *match in matches) {
+                        NSRange selRange = [match rangeAtIndex:1];
+                        [newPredicate appendString:[oldPredicate substringWithRange:NSMakeRange(lastOffset, selRange.location-lastOffset)]];
+                        lastOffset = selRange.location;
+                        [newPredicate appendString:@"_ship_"];
+                        [newPredicate appendString:[oldPredicate substringWithRange:NSMakeRange(lastOffset, selRange.length)]];
+                        lastOffset += selRange.length;
+                    }
+                    [newPredicate appendString:[oldPredicate substringFromIndex:lastOffset]];
+                    q.predicate = newPredicate;
+                }
+            }
+            
+            [_writeMoc save:NULL];
         }];
     }
     

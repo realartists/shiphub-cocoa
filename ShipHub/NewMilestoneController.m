@@ -120,7 +120,7 @@
     
     _dueButton.state = NSOffState;
     _duePicker.enabled = NO;
-    _duePicker.dateValue = [[NSDate date] dateByAddingDays:@7];
+    _duePicker.dateValue = [[NSDate date] _ship_dateByAddingDays:@7];
     
     _nameField.stringValue = _initialName ?: @"";
     
