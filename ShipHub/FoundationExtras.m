@@ -879,6 +879,14 @@ CGRect CenteredRectInRect(CGRect outer, CGRect inner) {
     
 }
 
+CGRect CenteredRectInRectWithoutRounding(CGRect outer, CGRect inner) {
+    return CGRectMake((CGRectGetMinX(outer) + (CGRectGetWidth(outer) - CGRectGetWidth(inner)) / 2.0),
+                      (CGRectGetMinY(outer) + (CGRectGetHeight(outer) - CGRectGetHeight(inner)) / 2.0),
+                      CGRectGetWidth(inner), CGRectGetHeight(inner));
+    
+}
+
+
 CGRect IntegralRect(CGRect r) {
     r.origin.x = round(r.origin.x);
     r.origin.y = round(r.origin.y);

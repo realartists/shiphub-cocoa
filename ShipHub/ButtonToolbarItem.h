@@ -18,4 +18,6 @@
 
 @property (nonatomic) BOOL grayWhenDisabled;
 
+@property (nonatomic, copy) NSString *badgeString;
+
 @end

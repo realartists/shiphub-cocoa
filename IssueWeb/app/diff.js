@@ -625,7 +625,7 @@ class App {
     comment.path = this.path;
     comment.commit_id = this.headSha;
     comment.original_commit_id = this.baseSha;
-    
+        
     if (this.inReview) {
       window.queueReviewComment.postMessage(comment);
     } else {
@@ -663,6 +663,14 @@ class App {
     }
   }
   
+  scrollToCommentId(commentId) {
+    var comment = this.comments.find((c) => c.id == commentId || c.pending_id == commentId);
+    if (comment) {
+      var cr = this.commentRows.find((cr) => cr.diffIdx == comment.diffIdx);
+      cr.scrollToComment(comment);
+    }
+  }
+  
 }
 
 var app = null;
@@ -695,6 +703,10 @@ window.setDiffMode = function(newDiffMode) {
 
 window.updateComments = function(comments) {
   app.updateComments(comments);
+};
+
+window.scrollToCommentId = function(commentId) {
+  app.scrollToCommentId(commentId);
 };
 
 window.onload = () => {

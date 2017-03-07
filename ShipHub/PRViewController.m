@@ -209,8 +209,17 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
 }
 
 - (void)reloadComments {
+    _reviewChangesItem.badgeString = _pendingComments.count > 0 ? [NSString localizedStringWithFormat:@"%td", _pendingComments.count] : @"";
     [_sidebarController setAllComments:[self allComments]];
     [_diffController setComments:[self commentsForSelectedFile]];
+}
+
+- (void)scrollToComment:(PRComment *)comment {
+    if ([comment.path isEqual:_diffController.diffFile.path]) {
+        [_diffController scrollToComment:comment];
+    } else {
+        NSAssert(NO, @"not implemented yet");
+    }
 }
 
 #pragma mark - PRSidebarViewControllerDelegate
@@ -262,6 +271,7 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
     _inReview = YES;
     [_pendingComments addObject:comment];
     [self reloadComments];
+    [self scrollToComment:comment];
 }
 
 - (void)diffViewController:(PRDiffViewController *)vc
@@ -269,6 +279,7 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
 {
     [_pendingComments addObject:comment];
     [self reloadComments];
+    [self scrollToComment:comment];
     [[DataStore activeStore] addSingleReviewComment:comment inIssue:_pr.issue.fullIdentifier completion:^(PRComment *roundtrip, NSError *error) {
         if (error) {
             [self presentError:error withRetry:^{
@@ -327,14 +338,13 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
 - (void)diffViewController:(PRDiffViewController *)vc
        deleteReviewComment:(PRComment *)comment
 {
-    NSParameterAssert(comment.identifier);
-    
     if ([comment isKindOfClass:[PendingPRComment class]]) {
         NSInteger existingIdx = [_pendingComments indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             return [[obj pendingId] isEqualToString:[(id)comment pendingId]];
         }];
         if (existingIdx != NSNotFound) {
             [_pendingComments removeObjectAtIndex:existingIdx];
+            [self reloadComments];
         }
     } else {
         [_pr deleteComments:@[comment]];

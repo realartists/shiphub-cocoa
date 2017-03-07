@@ -199,6 +199,7 @@ BOOL NSRangeContainsRange(NSRange outer, NSRange inner);
 BOOL NSRangeIntersectsRange(NSRange a, NSRange b);
 
 CGRect CenteredRectInRect(CGRect outer, CGRect rectToCenter);
+CGRect CenteredRectInRectWithoutRounding(CGRect outer, CGRect rectToCenter);
 CGRect IntegralRect(CGRect r);
 
 void Extras_dispatch_assert_current_queue(dispatch_queue_t q);

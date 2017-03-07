@@ -8,9 +8,18 @@
 
 #import "ButtonToolbarItem.h"
 
+#import "Extras.h"
+
+@interface ButtonToolbarBadgeView : NSView
+
+@property (nonatomic, copy) NSString *badgeString;
+
+@end
+
 @interface ButtonToolbarItem ()
 
 @property (strong) NSSegmentedControl *segmented;
+@property (strong) ButtonToolbarBadgeView *badgeView;
 
 @end
 
@@ -61,6 +70,83 @@
         [_segmented setEnabled:enabled];
     } else {
         _segmented.animator.hidden = !enabled;
+    }
+}
+
+- (void)setBadgeString:(NSString *)badgeString {
+    if (!_badgeView) {
+        if (!badgeString.length) return;
+        
+        _badgeView = [ButtonToolbarBadgeView new];
+        [_segmented addSubview:_badgeView];
+    }
+    
+    _badgeView.badgeString = badgeString;
+    
+    CGSize size = [_badgeView fittingSize];
+    _badgeView.frame = CGRectMake(_segmented.bounds.size.width - size.width - 3.0,
+                                  0.0,
+                                  size.width, size.height);
+    
+    _badgeView.hidden = badgeString.length == 0;
+}
+
+- (NSString *)badgeString {
+    return _badgeView.badgeString;
+}
+
+@end
+
+@implementation ButtonToolbarBadgeView
+
+- (id)init {
+    if (self = [super init]) {
+        self.wantsLayer = YES;
+        //self.layer.shadowOpacity = 0.5;
+    }
+    return self;
+}
+
+static NSDictionary *textAttrs() {
+    static dispatch_once_t onceToken;
+    static NSDictionary *attrs;
+    dispatch_once(&onceToken, ^{
+        attrs = @{ NSFontAttributeName : [NSFont systemFontOfSize:8.0],
+                   NSForegroundColorAttributeName : [NSColor whiteColor] };
+    });
+    return attrs;
+}
+
+static CGFloat cornerRadius = 6.0;
+
+- (CGSize)fittingSize {
+    CGSize textSize = [_badgeString sizeWithAttributes:textAttrs()];
+    if (textSize.width < cornerRadius * 2.0) {
+        return CGSizeMake(cornerRadius * 2.0, cornerRadius * 2.0);
+    } else {
+        return CGSizeMake(textSize.width + cornerRadius, cornerRadius * 2.0);
+    }
+}
+
+- (void)drawRect:(NSRect)dirtyRect {
+    CGRect bounds = self.bounds;
+    
+    NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:bounds xRadius:cornerRadius yRadius:cornerRadius];
+    [[NSColor redColor] setFill];
+    [path fill];
+    
+    CGSize textSize = [_badgeString sizeWithAttributes:textAttrs()];
+    CGRect textRect = CenteredRectInRectWithoutRounding(bounds, CGRectMake(0, 0, textSize.width, textSize.height));
+    textRect.origin.y += 0.5;
+    
+    [[NSColor whiteColor] set];
+    [_badgeString drawInRect:textRect withAttributes:textAttrs()];
+}
+
+- (void)setBadgeString:(NSString *)badgeString {
+    if (![_badgeString isEqualToString:badgeString]) {
+        _badgeString = [badgeString copy];
+        [self setNeedsDisplay:YES];
     }
 }
 

@@ -75,7 +75,7 @@ class Comment extends AbstractComment {
         updated_at: now,
         reactions: [],
       }
-      if (this.props.inReplyTo) {
+      if (this.props.inReplyTo && !!(this.props.inReplyTo.id)) {
         newComment.in_reply_to = this.props.inReplyTo.id;
       } else {
         newComment.diffIdx = this.props.diffIdx;
@@ -183,6 +183,7 @@ class CommentList extends React.Component {
   
   addReply() {
     if (!this.state.hasReply) {
+      this.needsScrollAddComment = true;
       this.setState(Object.assign({}, this.state, {hasReply: true}));
     } else {
       this.refs.addComment.focusCodemirror();
@@ -200,6 +201,7 @@ class CommentList extends React.Component {
     var comments = this.props.comments.map((c, i) => {
       return h(Comment, {
         key:c.id||c.pending_id||c.created_at, 
+        ref:'comment.' + (c.id||c.pending_id||c.created_at),
         comment:c, 
         first:false,
         commentIdx:i,
@@ -232,8 +234,20 @@ class CommentList extends React.Component {
     );
   }
   
+  scrollToComment(c) {
+    var ref = 'comment.' + (c.id||c.pending_id||c.created_at);
+    if (ref in this.refs) {
+      var comp = this.refs[ref];
+      comp.scrollIntoView();
+    }
+  }
+  
   componentDidUpdate() {
     this.props.didRender();
+    if (this.needsScrollAddComment && this.refs.addComment) {
+      this.needsScrollAddComment = false;
+      this.refs.addComment.scrollIntoView();
+    }
   }
   
   componentDidMount() {
@@ -350,6 +364,12 @@ class CommentRow extends DiffRow {
       this.commentsContainer,
       then
     );
+  }
+  
+  scrollToComment(comment) {
+    setTimeout(() => {
+      this.commentList.scrollToComment(comment);
+    }, 1);
   }
 }
 

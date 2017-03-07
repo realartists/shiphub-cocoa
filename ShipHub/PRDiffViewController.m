@@ -94,10 +94,12 @@
 
 - (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview
 {
+    NSParameterAssert(comments);
+    
     _pr = pr;
     _diffFile = diffFile;
     _diff = diff;
-    _comments = [comments mutableCopy];
+    _comments = [comments copy];
     _inReview = inReview;
     NSInteger count = ++_loadCount;
     [diffFile loadTextContents:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
@@ -128,7 +130,9 @@
 }
 
 - (void)setComments:(NSArray<PRComment *> *)comments {
-    _comments = comments;
+    NSParameterAssert(comments);
+    
+    _comments = [comments copy];
     NSString *js = [NSString stringWithFormat:@"window.updateComments(%@);", [JSON stringifyObject:comments withNameTransformer:[JSON underbarsAndIDNameTransformer]]];
     [self evaluateJavaScript:js];
 }
@@ -141,6 +145,17 @@
         case DiffViewModeSplit: modeStr = "split"; break;
     }
     [self evaluateJavaScript:[NSString stringWithFormat:@"window.setDiffMode('%s');", modeStr]];
+}
+
+- (void)scrollToComment:(PRComment *)comment {
+    NSString *js;
+    if ([comment isKindOfClass:[PendingPRComment class]]) {
+        js = [NSString stringWithFormat:@"window.scrollToCommentId(%@);", [JSON stringifyObject:((PendingPRComment *)comment).pendingId]];
+    } else {
+        js = [NSString stringWithFormat:@"window.scrollToCommentId(%@);", [JSON stringifyObject:comment.identifier]];
+    }
+    
+    [self evaluateJavaScript:js];
 }
 
 @end

@@ -25,6 +25,8 @@
 
 - (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview;
 
+- (void)scrollToComment:(PRComment *)comment;
+
 @property (nonatomic, readonly) PullRequest *pr;
 @property (nonatomic, readonly) GitDiffFile *diffFile;
 @property (nonatomic, readonly) GitDiff *diff;
