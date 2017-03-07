@@ -89,6 +89,15 @@ class Comment extends AbstractComment {
     return Promise.resolve();
   }
   
+  onTaskListEdit(newBody) {
+    if (!this.props.comment || this.state.editing) {
+      this.updateCode(newBody);
+    } else {
+      var newComment = Object.assign({}, this.props.comment, {body:newBody});
+      this.props.commentDelegate.editComment(newComment);
+    }
+  }
+  
   componentDidMount() {
     super.componentDidMount();
     if (!this.props.comment) {

@@ -101,9 +101,29 @@ var CommentBody = React.createClass({
     var newBody = rewriteTaskList(body, srcIdx, dstIdx);
     
     if (body != newBody) {
+      this.rebindChecks();
+    
       this.updateLastRendered(newBody);
       this.props.onEdit(newBody);
     }
+  },
+  
+  rebindChecks(nodes) {
+    if (!nodes) {
+      var el = ReactDOM.findDOMNode(this.refs.commentBody);
+      if (!el) return;
+      var nodes = [];
+      preOrderTraverseDOM(el, (x) => nodes.push(x));
+    }
+  
+    var checks = nodes.filter((x) => x.nodeName == 'INPUT' && x.type == 'checkbox');
+    
+    checks.forEach((x, i) => {
+      x.onchange = (evt) => {
+        var checked = evt.target.checked;
+        this.updateCheckbox(i, checked);
+      };
+    });
   },
   
   findTaskItems: function() {
@@ -115,14 +135,7 @@ var CommentBody = React.createClass({
     var nodes = [];
     preOrderTraverseDOM(el, (x) => nodes.push(x));
     
-    var checks = nodes.filter((x) => x.nodeName == 'INPUT' && x.type == 'checkbox');
-    
-    checks.forEach((x, i) => {
-      x.onchange = (evt) => {
-        var checked = evt.target.checked;
-        this.updateCheckbox(i, checked);
-      };
-    });
+    this.rebindChecks(nodes);
 
 
     // Find and bind sortables to task lists
