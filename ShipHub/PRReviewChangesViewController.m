@@ -12,6 +12,7 @@
 
 @interface PRReviewChangesViewController ()
 
+@property IBOutlet NSTextField *titleLabel;
 @property IBOutlet NSTextView *commentText;
 
 @property IBOutlet NSButton *commentButton;
@@ -30,6 +31,20 @@
     _approveButton.toolTip = myPR ? NSLocalizedString(@"GitHub does not allow you to approve your own pull request.", nil) : nil;
     _requestChangesButton.enabled = !myPR;
     _requestChangesButton.toolTip = myPR ? NSLocalizedString(@"GitHub does not allow you to request changes on your own pull request.", nil) : nil;
+}
+
+- (void)setNumberOfPendingComments:(NSInteger)numberOfPendingComments {
+    [self view];
+    
+    _numberOfPendingComments = numberOfPendingComments;
+    
+    if (_numberOfPendingComments == 0) {
+        _titleLabel.stringValue = NSLocalizedString(@"Add your review", nil);
+    } else if (_numberOfPendingComments == 1) {
+        _titleLabel.stringValue = NSLocalizedString(@"Submit 1 pending comment", nil);
+    } else {
+        _titleLabel.stringValue = [NSString localizedStringWithFormat:NSLocalizedString(@"Submit %td pending comments", nil), _numberOfPendingComments];
+    }
 }
 
 - (IBAction)statusChanged:(NSButton *)sender {

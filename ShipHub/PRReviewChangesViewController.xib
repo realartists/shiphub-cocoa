@@ -12,6 +12,7 @@
                 <outlet property="commentButton" destination="Trg-de-cjM" id="uBA-8p-TpN"/>
                 <outlet property="commentText" destination="L9N-N3-kzt" id="ral-tp-rPy"/>
                 <outlet property="requestChangesButton" destination="86f-la-86S" id="2Oa-PY-SS6"/>
+                <outlet property="titleLabel" destination="Rkh-4t-y3s" id="pMN-1p-9a4"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
@@ -36,7 +37,7 @@
                                 <size key="maxSize" width="463" height="10000000"/>
                                 <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                 <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="string" keyPath="placeholderString" value="Leave a comment"/>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="placeholderString" value="Add a review summary"/>
                                 </userDefinedRuntimeAttributes>
                             </textView>
                         </subviews>
@@ -127,7 +128,7 @@ DQ
                     </connections>
                 </button>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rkh-4t-y3s">
-                    <rect key="frame" x="18" y="392" width="109" height="17"/>
+                    <rect key="frame" x="18" y="392" width="444" height="17"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Add your review" id="eza-19-SHp">
                         <font key="font" metaFont="systemBold"/>

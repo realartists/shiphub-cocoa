@@ -109,6 +109,11 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
 }
 
 - (IBAction)reviewChanges:(id)sender {
+    if (_reviewChangesPopover.shown) {
+        [_reviewChangesPopover close];
+        return;
+    }
+    
     if (!_reviewChangesController) {
         _reviewChangesController = [PRReviewChangesViewController new];
         _reviewChangesController.myPR = [_pr.issue.originator.identifier isEqualToNumber:[[Account me] identifier]];
@@ -118,6 +123,8 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
     _reviewChangesPopover = [[NSPopover alloc] init];
     _reviewChangesPopover.contentViewController = _reviewChangesController;
     _reviewChangesPopover.behavior = NSPopoverBehaviorSemitransient;
+    
+    _reviewChangesController.numberOfPendingComments = _pendingComments.count;
     
     [_reviewChangesPopover showRelativeToRect:_reviewChangesItem.view.bounds ofView:_reviewChangesItem.view preferredEdge:NSRectEdgeMinY];
 }
@@ -343,8 +350,9 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
         }];
         if (existingIdx != NSNotFound) {
             [_pendingComments replaceObjectAtIndex:existingIdx withObject:comment];
+            [self reloadComments];
+            [self scheduleSavePendingReview];
         }
-        [self reloadComments];
     } else {
         NSInteger previousIdx = [_pr.prComments indexOfObjectPassingTest:^BOOL(PRComment * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             return [[obj identifier] isEqualToNumber:[comment identifier]];
@@ -380,6 +388,7 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
         if (existingIdx != NSNotFound) {
             [_pendingComments removeObjectAtIndex:existingIdx];
             [self reloadComments];
+            [self scheduleSavePendingReview];
         }
     } else {
         [_pr deleteComments:@[comment]];

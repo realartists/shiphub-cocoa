@@ -18,6 +18,8 @@
 
 @property (nonatomic, getter=isMyPR) BOOL myPR; // you can only comment on your own PR, not accept or reject.
 
+@property (nonatomic) NSInteger numberOfPendingComments;
+
 @end
 
 @protocol PRReviewChangesViewControllerDelegate <NSObject>
