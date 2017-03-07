@@ -36,6 +36,7 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
 @property PRSidebarViewController *sidebarController;
 @property NSSplitViewItem *diffItem;
 @property PRDiffViewController *diffController;
+@property PRReview *pendingReview;
 @property NSMutableArray *pendingComments;
 @property GitDiffFile *selectedFile;
 
@@ -152,6 +153,11 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
     [self.pr checkout:^(NSError *error) {
         [sheet endSheet];
         
+        if (self.pr.myLastPendingReview) {
+            _pendingReview = self.pr.myLastPendingReview;
+            [_pendingComments addObjectsFromArray:_pendingReview.comments];
+        }
+        
         if (error) {
             NSAlert *alert = [NSAlert new];
             alert.messageText = NSLocalizedString(@"Unable to load pull request", nil);
@@ -160,6 +166,8 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
         } else {
             _sidebarController.pr = self.pr;
         }
+        
+        [self reloadComments];
     }];
 }
 
@@ -226,6 +234,9 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
     [progress beginSheetInWindow:self.view.window];
     
     review.comments = _pendingComments;
+    if (_pendingReview) {
+        review.identifier = _pendingReview.identifier;
+    }
     [[DataStore activeStore] addReview:review inIssue:_pr.issue.fullIdentifier completion:^(PRReview *roundtrip, NSError *error) {
         [progress endSheet];
         if (error) {
@@ -233,6 +244,7 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
                 [self reviewChangesViewController:nil submitReview:review];
             } fail:nil];
         } else {
+            _pendingReview = nil;
             [_pr mergeComments:roundtrip.comments];
             [_pendingComments removeObjectsInArray:review.comments];
             [self reloadComments];
@@ -277,7 +289,7 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
 - (void)diffViewController:(PRDiffViewController *)vc
          editReviewComment:(PRComment *)comment
 {
-    NSParameterAssert(comment.identifier);
+    NSParameterAssert(comment);
     
     if ([comment isKindOfClass:[PendingPRComment class]]) {
         NSInteger existingIdx = [_pendingComments indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {

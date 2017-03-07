@@ -75,7 +75,7 @@
 - (void)editComment:(NSDictionary *)msg {
     PRComment *comment = nil;
     Class commentClass = [PRComment class];
-    if (msg[@"temporary_id"]) {
+    if (msg[@"pending_id"]) {
         commentClass = [PendingPRComment class];
     }
     comment = [[commentClass alloc] initWithDictionary:msg metadataStore:[[DataStore activeStore] metadataStore]];
@@ -85,7 +85,7 @@
 - (void)deleteComment:(NSDictionary *)msg {
     PRComment *comment = nil;
     Class commentClass = [PRComment class];
-    if (msg[@"temporary_id"]) {
+    if (msg[@"pending_id"]) {
         commentClass = [PendingPRComment class];
     }
     comment = [[commentClass alloc] initWithDictionary:msg metadataStore:[[DataStore activeStore] metadataStore]];

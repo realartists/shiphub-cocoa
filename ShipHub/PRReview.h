@@ -8,7 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
+@class Account;
 @class PRComment;
+@class MetadataStore;
 
 typedef NS_ENUM(NSInteger, PRReviewStatus) {
     PRReviewStatusPending = 0,
@@ -22,6 +24,11 @@ extern NSString *PRReviewStatusToString(PRReviewStatus st);
 
 @interface PRReview : NSObject
 
+- (id)init;
+- (id)initWithDictionary:(NSDictionary *)d comments:(NSArray<PRComment *> *)comments metadataStore:(MetadataStore *)store;
+
+@property NSNumber *identifier;
+@property Account *user;
 @property PRReviewStatus status;
 @property NSString *body;
 @property NSArray<PRComment *> *comments;

@@ -8,6 +8,7 @@
 
 #import "PullRequest.h"
 
+#import "Account.h"
 #import "Auth.h"
 #import "DataStore.h"
 #import "Error.h"
@@ -15,8 +16,10 @@
 #import "Issue.h"
 #import "Repo.h"
 #import "IssueIdentifier.h"
+#import "RequestPager.h"
 #import "ServerConnection.h"
 #import "PRComment.h"
+#import "PRReview.h"
 
 #import "GitDiff.h"
 #import "GitRepo.h"
@@ -119,8 +122,8 @@
 
 // runs on a background queue
 - (NSError *)checkoutWithProgress:(NSProgress *)progress {
-    NSString *endpoint;
-    ServerConnection *conn = [[DataStore activeStore] serverConnection];
+    Auth *auth = [[DataStore activeStore] auth];
+    RequestPager *pager = [[RequestPager alloc] initWithAuth:auth];
     MetadataStore *ms = [[DataStore activeStore] metadataStore];
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     
@@ -128,36 +131,52 @@
     __block NSArray<PRComment *> *comments = nil;
     __block NSError *prError = nil;
     __block NSError *commentsError = nil;
+    __block PRReview *review = nil;
+    __block NSError *reviewError = nil;
     
     NSInteger operations = 0;
     
-    endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@", _issue.repository.fullName, _issue.number];
-    [conn perform:@"GET" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
-        if ([jsonResponse isKindOfClass:[NSDictionary class]]) {
-            prInfo = jsonResponse;
-        } else {
-            prError = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
-        }
-        if (!prError) {
-            prError = error;
-        }
+    NSString *pullEndpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@", _issue.repository.fullName, _issue.number];
+    [pager fetchSingleObject:[pager get:pullEndpoint] completion:^(NSDictionary *obj, NSError *err) {
+        prError = err;
+        prInfo = obj;
         dispatch_semaphore_signal(sema);
     }];
     operations++;
     
-    endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/comments", _issue.repository.fullName, _issue.number];
-    [conn perform:@"GET" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
-        if ([jsonResponse isKindOfClass:[NSArray class]]) {
-            comments = [jsonResponse arrayByMappingObjects:^id(id obj) {
-                return [[PRComment alloc] initWithDictionary:obj metadataStore:ms];
+    NSString *commentsEndpoint = [pullEndpoint stringByAppendingPathComponent:@"comments"];
+    [pager fetchPaged:[pager get:commentsEndpoint] completion:^(NSArray *data, NSError *err) {
+        comments = [data arrayByMappingObjects:^id(id obj) {
+            return [[PRComment alloc] initWithDictionary:obj metadataStore:ms];
+        }];
+        commentsError = err;
+        dispatch_semaphore_signal(sema);
+    }];
+    operations++;
+    
+    NSDictionary *reviewsHeaders = @{@"Accept":@"application/vnd.github.black-cat-preview+json"};
+    NSString *reviewsEndpoint = [pullEndpoint stringByAppendingPathComponent:@"reviews"];
+    
+    [pager fetchPaged:[pager get:reviewsEndpoint params:nil headers:reviewsHeaders] completion:^(NSArray *data, NSError *err) {
+        // See if we can find our own PRReview in here
+        id myReview = [data firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"state = 'PENDING' AND user.id = %@", [[Account me] identifier]]];
+        if (myReview) {
+            NSString *reviewCommentsEndpoint = [reviewsEndpoint stringByAppendingFormat:@"/%@/comments", myReview[@"id"]];
+            [pager fetchPaged:[pager get:reviewCommentsEndpoint params:nil headers:reviewsHeaders] completion:^(NSArray *rcs, NSError *err2) {
+                if (rcs) {
+                    rcs = [rcs arrayByMappingObjects:^id(id obj) {
+                        return [[PendingPRComment alloc] initWithDictionary:obj metadataStore:ms];
+                    }];
+                    review = [[PRReview alloc] initWithDictionary:myReview comments:rcs metadataStore:ms];
+                } else {
+                    reviewError = err2;
+                }
+                dispatch_semaphore_signal(sema);
             }];
         } else {
-            commentsError = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+            reviewError = err;
+            dispatch_semaphore_signal(sema);
         }
-        if (!commentsError) {
-            commentsError = error;
-        }
-        dispatch_semaphore_signal(sema);
     }];
     operations++;
     
@@ -169,9 +188,11 @@
     
     if (prError) return prError;
     if (commentsError) return commentsError;
+    if (reviewError) return reviewError;
     
     _info = prInfo;
     _prComments = comments;
+    _myLastPendingReview = review;
     
     return [self cloneWithProgress:progress];
 }

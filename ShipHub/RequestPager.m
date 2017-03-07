@@ -19,7 +19,14 @@
 
 @implementation RequestPager
 
+- (id)initWithAuth:(Auth *)auth {
+    return [self initWithAuth:auth queue:dispatch_queue_create("RequestPager", NULL)];
+}
+
 - (id)initWithAuth:(Auth *)auth queue:(dispatch_queue_t)queue {
+    NSParameterAssert(auth);
+    NSParameterAssert(queue);
+    
     if (self = [super init]) {
         self.auth = auth;
         self.q = queue;
@@ -173,6 +180,16 @@ function pagedFetch(url) /* => Promise */ {
     });
 }
 #endif
+
+- (void)fetchSingleObject:(NSURLRequest *)rootRequest completion:(void (^)(NSDictionary *obj, NSError *err))completion {
+    [self jsonTask:rootRequest completion:^(id json, NSHTTPURLResponse *response, NSError *err) {
+        if (![json isKindOfClass:[NSDictionary class]]) {
+            json = nil;
+            if (!err) err = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+        }
+        if (completion) completion(json, err);
+    }];
+}
 
 - (void)fetchPaged:(NSURLRequest *)rootRequest completion:(void (^)(NSArray *data, NSError *err))completion {
     [self fetchPaged:rootRequest headersCompletion:^(NSArray *data, NSDictionary *headers, NSError *err) {

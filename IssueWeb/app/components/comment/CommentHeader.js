@@ -17,6 +17,7 @@ var CommentHeader = React.createClass({
       h('span', {className:'commentAuthor'}, user.login),
       h('span', {className:'commentTimeAgo'}, desc),
       h(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
+      !!(this.props.comment.pending_id)?h('span', {className:'commentPending'}, 'Pending'):"",
       h(CommentControls, this.props)
     );
   }

@@ -8,7 +8,29 @@
 
 #import "PRReview.h"
 
+#import "Account.h"
+#import "MetadataStore.h"
+#import "PRComment.h"
+
 @implementation PRReview
+
+- (id)init {
+    if (self = [super init]) {
+        _user = [Account me];
+    }
+    return self;
+}
+
+- (id)initWithDictionary:(NSDictionary *)d comments:(NSArray<PRComment *> *)comments metadataStore:(MetadataStore *)store {
+    if (self = [super init]) {
+        _identifier = d[@"id"];
+        _user = [store accountWithIdentifier:d[@"user"][@"id"]];
+        _body = d[@"body"];
+        _status = PRReviewStatusFromString(d[@"status"]);
+        _comments = [comments copy];
+    }
+    return self;
+}
 
 @end
 

@@ -103,6 +103,78 @@ class Comment extends AbstractComment {
   }
 }
 
+class ReviewFooter extends React.Component {
+  render() {
+    var canSave = this.props.canSave;
+    var contents = [];
+    
+    if (!this.props.previewing) {
+      contents.push(h('a', {
+        key:'markdown', 
+        className:'markdown-mark formattingHelpButton', 
+        target:"_blank", 
+        href:"https://guides.github.com/features/mastering-markdown/", 
+        title:"Open Markdown Formatting Guide"
+      }));
+    }
+    
+    contents.push(h('div', {
+      key:'cancel', 
+      className:'Clickable addCommentButton addCommentCloseButton', 
+      onClick:this.props.onCancel}, 
+      'Cancel'
+    ));
+    
+    if (!this.props.inReview) {
+      contents.push(h('div', {
+        key:'addSingle',
+        title:'⌘⇧↩︎', 
+        className:'Clickable addCommentButton', 
+        onClick:this.props.onAddSingleComment}, 
+        'Add Single Comment'
+      ));
+    }
+    
+    contents.push(h('div', {
+      key:'addReview',
+      title:'⌘↩︎', 
+      className:'Clickable addCommentButton addCommentSaveButton', 
+      onClick:this.props.onSave}, 
+      this.props.inReview?'Add review comment':'Start a review'
+    ));
+    
+    return h('div', {className:'commentFooter'}, contents);
+  }
+}
+
+class AddReviewComment extends Comment {
+  save() {
+    // default behavior is to begin a review
+    this.props.commentDelegate.inReview = true;
+    super.save();
+  }
+  
+  saveAndClose() {
+    // this is repurposed to mean add single comment
+    super.save();
+  }
+  
+  renderFooter() {
+    if (this.state.uploadCount > 0) {
+      return super.renderFooter();
+    } else {
+      return h(ReviewFooter, {
+        previewing: this.state.previewing,
+        inReview: this.props.commentDelegate.inReview,
+        canSave: this.needsSave(),
+        onAddSingleComment: this.saveAndClose.bind(this),
+        onSave: this.save.bind(this),
+        onCancel: this.props.onCancel
+      });
+    }
+  }
+}
+
 class CommentList extends React.Component {
   constructor(props) {
     super(props);
@@ -141,7 +213,7 @@ class CommentList extends React.Component {
     });
         
     if (this.state.hasReply) {
-      comments.push(h(Comment, {
+      comments.push(h(AddReviewComment, {
         key:'add',
         ref:'addComment',
         issueIdentifier:this.props.issueIdentifier,

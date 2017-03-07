@@ -22,6 +22,7 @@
 #import "TimeSeries.h"
 #import "GHNotificationManager.h"
 #import "Billing.h"
+#import "RequestPager.h"
 
 #import "LocalAccount.h"
 #import "LocalRepo.h"
@@ -1955,29 +1956,76 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(issueIdentifier);
     NSParameterAssert(completion);
     
-    NSMutableDictionary *msg = [NSMutableDictionary new];
-    msg[@"body"] = review.body;
-    msg[@"event"] = PRReviewStatusToString(review.status);
-    if (review.comments.count) {
-        msg[@"comments"] = [review.comments arrayByMappingObjects:^id(PRComment *obj) {
-            NSMutableDictionary *c = [NSMutableDictionary new];
-            c[@"body"] = obj.body;
-            c[@"path"] = obj.path;
-            c[@"commit_id"] = obj.commitId;
-            c[@"position"] = obj.position;
-            return c;
-        }];
-    }
-    
-    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/reviews", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
     NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
     
-    [self.serverConnection perform:@"POST" on:endpoint headers:headers body:msg completion:^(id jsonResponse, NSError *error) {
-        // TODO: Parse response and save to DB
-        RunOnMain(^{
-            completion(error?nil:review, error);
-        });
-    }];
+    dispatch_block_t postReview = ^{
+        NSMutableDictionary *msg = [NSMutableDictionary new];
+        msg[@"body"] = review.body;
+        msg[@"event"] = PRReviewStatusToString(review.status);
+        if (review.comments.count) {
+            msg[@"comments"] = [review.comments arrayByMappingObjects:^id(PRComment *obj) {
+                NSMutableDictionary *c = [NSMutableDictionary new];
+                c[@"body"] = obj.body;
+                c[@"path"] = obj.path;
+                //c[@"commit_id"] = obj.commitId;
+                c[@"position"] = obj.position;
+                return c;
+            }];
+        }
+        
+        NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/reviews", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
+        
+        [self.serverConnection perform:@"POST" on:endpoint headers:headers body:msg completion:^(id jsonResponse, NSError *error) {
+            if (!error && [jsonResponse isKindOfClass:[NSDictionary class]] && [jsonResponse objectForKey:@"id"] != nil) {
+                
+                if (review.comments.count) {
+                    NSString *reviewCommentsEndpoint = [endpoint stringByAppendingFormat:@"/%@/comments", [jsonResponse objectForKey:@"id"]];
+                    
+                    RequestPager *pager = [[RequestPager alloc] initWithAuth:self.auth];
+                    
+                    [pager fetchPaged:[pager get:reviewCommentsEndpoint params:nil headers:headers] completion:^(NSArray *data, NSError *err2) {
+                        
+                        if (err2) {
+                            RunOnMain(^{
+                                completion(nil, err2);
+                            });
+                        } else {
+                            NSArray *comments = [data arrayByMappingObjects:^id(id obj) {
+                                return [[PRComment alloc] initWithDictionary:obj metadataStore:self.metadataStore];
+                            }];
+                            
+                            PRReview *roundtrip = [[PRReview alloc] initWithDictionary:jsonResponse comments:comments metadataStore:self.metadataStore];
+                            
+                            RunOnMain(^{
+                                completion(roundtrip, nil);
+                            });
+                        }
+                    }];
+                    
+                } else {
+                    PRReview *roundtrip = [[PRReview alloc] initWithDictionary:jsonResponse comments:nil metadataStore:self.metadataStore];
+                    RunOnMain(^{
+                        completion(roundtrip, nil);
+                    });
+                }
+            } else {
+                RunOnMain(^{
+                    completion(nil, error);
+                });
+            }
+        }];
+    };
+    
+    if (review.identifier) {
+        // first we have to delete the existing review, because GitHub is lame like that
+        NSString *deleteEndpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/reviews/%@", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber], review.identifier];
+        
+        [self.serverConnection perform:@"DELETE" on:deleteEndpoint headers:headers body:nil completion:^(id jsonResponse, NSError *error) {
+            postReview(); // try to post regardless of whether or not the delete failed
+        }];
+    } else {
+        postReview();
+    }
     
     [[Analytics sharedInstance] track:@"Post PR Review"];
 }

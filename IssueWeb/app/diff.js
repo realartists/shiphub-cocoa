@@ -613,12 +613,8 @@ class App {
       body: markdown content
       in_reply_to: id of comment to reply to
     } 
-    options - {
-      startReview: boolean
-    }
   */
-  addNewComment(comment, options) { 
-    if (!options) options = {};
+  addNewComment(comment) { 
     if (comment.in_reply_to) {
       var parent = this.comments.find((c) => c.id == comment.in_reply_to);
       comment.diffIdx = parent.diffIdx;
@@ -630,7 +626,7 @@ class App {
     comment.commit_id = this.headSha;
     comment.original_commit_id = this.baseSha;
     
-    if (options.startReview || this.inReview) {
+    if (this.inReview) {
       window.queueReviewComment.postMessage(comment);
     } else {
       window.addSingleComment.postMessage(comment);

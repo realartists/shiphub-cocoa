@@ -13,7 +13,8 @@
 
 @interface RequestPager : NSObject
 
-- (id)initWithAuth:(Auth *)auth queue:(dispatch_queue_t)queue;
+- (id)initWithAuth:(Auth *)auth; // callbacks will be on a private serial queue
+- (id)initWithAuth:(Auth *)auth queue:(dispatch_queue_t)queue; // callbacks will be on queue
 
 - (NSMutableURLRequest *)get:(NSString *)endpoint;
 - (NSMutableURLRequest *)get:(NSString *)endpoint params:(NSDictionary *)params;
@@ -25,6 +26,7 @@
 
 - (NSArray<NSURLSessionDataTask *> *)jsonTasks:(NSArray<NSURLRequest *>*)requests completion:(void (^)(NSArray *json, NSError *err))completion;
 
+- (void)fetchSingleObject:(NSURLRequest *)rootRequest completion:(void (^)(NSDictionary *obj, NSError *err))completion;
 - (void)fetchPaged:(NSURLRequest *)rootRequest completion:(void (^)(NSArray *data, NSError *err))completion;
 - (void)fetchPaged:(NSURLRequest *)rootRequest headersCompletion:(void (^)(NSArray *data, NSDictionary *headers, NSError *err))completion;
 

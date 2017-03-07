@@ -11,6 +11,7 @@
 @class Issue;
 @class GitDiff;
 @class PRComment;
+@class PRReview;
 
 @interface PullRequest : NSObject
 
@@ -22,6 +23,7 @@
 
 @property (readonly) NSArray<PRComment *> *prComments; // available after checkout is completed
 @property (readonly) GitDiff *spanDiff; // available after checkout is completed
+@property (readonly) PRReview *myLastPendingReview; // available after checkout is completed
 
 + (BOOL)isGitHubFilesURL:(NSURL *)URL;
 + (id)issueIdentifierForGitHubFilesURL:(NSURL *)URL commentIdentifier:(NSNumber *__autoreleasing *)outCommentIdentifier;

@@ -379,7 +379,7 @@ class AbstractComment extends React.Component {
       if (this.state.uploadCount > 0) {
         return h(AddCommentUploadProgress, {ref:'uploadProgress'});
       } else {
-        return h(AddCommentFooter, {
+        var footerProps = {
           ref:'footer', 
           canClose: this.canClose(),
           previewing: this.state.previewing,
@@ -391,7 +391,13 @@ class AbstractComment extends React.Component {
           canSave: this.needsSave(),
           isNewIssue: this.isNewIssue(),
           canCancel: !!(this.props.onCancel)
-        })
+        };
+        if (this.props.footer) {
+          footerProps = Object.assign({}, this.props, footerProps);
+          return h(this.props.footer, footerProps);
+        } else {
+          return h(AddCommentFooter, footerProps);
+        }
       }
     } else if (this.props.first && this.shouldShowCommentPRBar()) {
       return h(CommentPRBar, {

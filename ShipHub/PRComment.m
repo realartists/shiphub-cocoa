@@ -44,7 +44,8 @@
 - (id)initWithDictionary:(NSDictionary *)d metadataStore:(MetadataStore *)store {
     
     if (self = [super initWithDictionary:d metadataStore:store]) {
-        _pendingId = d[@"pending_id"];
+        _pendingId = d[@"pending_id"] ?: [d[@"id"] description];
+        self.identifier = nil;
     }
     return self;
 }
