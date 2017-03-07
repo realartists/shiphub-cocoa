@@ -38,6 +38,7 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
 @property PRDiffViewController *diffController;
 @property PRReview *pendingReview;
 @property NSMutableArray *pendingComments;
+@property NSTimer *pendingReviewTimer;
 @property GitDiffFile *selectedFile;
 
 @property DiffViewModeItem *diffViewModeItem;
@@ -222,6 +223,36 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
     }
 }
 
+- (void)scheduleSavePendingReview {
+    Trace();
+    
+    // note that the timer will keep us alive so even if the window closes, we should be able to do the save anyway
+    NSTimer *newTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(savePendingReview:) userInfo:nil repeats:NO];
+    if (_pendingReviewTimer) {
+        [_pendingReviewTimer invalidate];
+    }
+    _pendingReviewTimer = newTimer;
+}
+
+- (void)savePendingReview:(NSTimer *)timer {
+    Trace();
+    
+    _pendingReviewTimer = nil;
+    
+    PRReview *review = [_pendingReview copy] ?: [PRReview new];
+    review.comments = _pendingComments;
+    review.status = PRReviewStatusPending;
+    
+    [[DataStore activeStore] addReview:review inIssue:_pr.issue.fullIdentifier completion:^(PRReview *roundtrip, NSError *error) {
+        if (roundtrip) {
+            _pendingReview = roundtrip;
+        }
+        if (error) {
+            ErrLog(@"Error background saving pending review: %@", error);
+        }
+    }];
+}
+
 #pragma mark - PRSidebarViewControllerDelegate
 
 - (void)prSidebar:(PRSidebarViewController *)sidebar didSelectGitDiffFile:(GitDiffFile *)file {
@@ -237,6 +268,9 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
     [_reviewChangesPopover close];
     _reviewChangesPopover = nil;
     _reviewChangesController = nil;
+    
+    [_pendingReviewTimer invalidate];
+    _pendingReviewTimer = nil;
     
     ProgressSheet *progress = [ProgressSheet new];
     progress.message = NSLocalizedString(@"Sending review", nil);
@@ -272,6 +306,7 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
     [_pendingComments addObject:comment];
     [self reloadComments];
     [self scrollToComment:comment];
+    [self scheduleSavePendingReview];
 }
 
 - (void)diffViewController:(PRDiffViewController *)vc

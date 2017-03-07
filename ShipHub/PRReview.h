@@ -22,7 +22,7 @@ typedef NS_ENUM(NSInteger, PRReviewStatus) {
 extern PRReviewStatus PRReviewStatusFromString(NSString *str);
 extern NSString *PRReviewStatusToString(PRReviewStatus st);
 
-@interface PRReview : NSObject
+@interface PRReview : NSObject <NSCopying>
 
 - (id)init;
 - (id)initWithDictionary:(NSDictionary *)d comments:(NSArray<PRComment *> *)comments metadataStore:(MetadataStore *)store;

@@ -32,6 +32,16 @@
     return self;
 }
 
+- (id)copyWithZone:(NSZone *)zone {
+    PRReview *copy = [[PRReview allocWithZone:zone] init];
+    copy->_identifier = _identifier;
+    copy->_user = _user;
+    copy->_body = [_body copy];
+    copy->_status = _status;
+    copy->_comments = [_comments copy];
+    return copy;
+}
+
 @end
 
 PRReviewStatus PRReviewStatusFromString(NSString *str) {

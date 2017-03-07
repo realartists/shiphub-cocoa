@@ -1952,7 +1952,6 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)addReview:(PRReview *)review inIssue:(NSString *)issueIdentifier completion:(void (^)(PRReview *review, NSError *error))completion
 {
     NSParameterAssert(review);
-    NSParameterAssert(review.body);
     NSParameterAssert(issueIdentifier);
     NSParameterAssert(completion);
     
@@ -1960,8 +1959,10 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     dispatch_block_t postReview = ^{
         NSMutableDictionary *msg = [NSMutableDictionary new];
-        msg[@"body"] = review.body;
-        msg[@"event"] = PRReviewStatusToString(review.status);
+        if (review.body) msg[@"body"] = review.body;
+        if (review.status != PRReviewStatusPending) {
+            msg[@"event"] = PRReviewStatusToString(review.status);
+        }
         if (review.comments.count) {
             msg[@"comments"] = [review.comments arrayByMappingObjects:^id(PRComment *obj) {
                 NSMutableDictionary *c = [NSMutableDictionary new];
@@ -1990,8 +1991,9 @@ static NSString *const LastUpdated = @"LastUpdated";
                                 completion(nil, err2);
                             });
                         } else {
+                            Class prCommentClass = review.status == PRReviewStatusPending ? [PendingPRComment class] : [PRComment class];
                             NSArray *comments = [data arrayByMappingObjects:^id(id obj) {
-                                return [[PRComment alloc] initWithDictionary:obj metadataStore:self.metadataStore];
+                                return [[prCommentClass alloc] initWithDictionary:obj metadataStore:self.metadataStore];
                             }];
                             
                             PRReview *roundtrip = [[PRReview alloc] initWithDictionary:jsonResponse comments:comments metadataStore:self.metadataStore];
