@@ -23,9 +23,10 @@
 
 @property (weak) id<PRDiffViewControllerDelegate> delegate;
 
-- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview;
+- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview scrollInfo:(NSDictionary *)scrollInfo;
 
 - (void)scrollToComment:(PRComment *)comment;
+- (void)navigate:(NSDictionary *)options; // See diff.js: App.scrollTo() docstring for options
 
 @property (nonatomic, readonly) PullRequest *pr;
 @property (nonatomic, readonly) GitDiffFile *diffFile;
@@ -50,5 +51,8 @@
 
 - (void)diffViewController:(PRDiffViewController *)vc
        deleteReviewComment:(PRComment *)comment;
+
+- (void)diffViewController:(PRDiffViewController *)vc
+        continueNavigation:(NSDictionary *)options;
 
 @end

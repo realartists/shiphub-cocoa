@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class GitCommit;
+@class GitFileTree;
 @class GitRepo;
 
 typedef NS_ENUM(NSInteger, DiffFileOperation) {
@@ -41,6 +42,8 @@ typedef NS_ENUM(NSInteger, DiffFileMode) {
 @property (readonly) DiffFileOperation operation;
 @property (readonly) DiffFileMode mode;
 
+@property (readonly, weak) GitFileTree *parentTree;
+
 // Only valid if not binary and mode is Blob or BlobExecutable
 - (void)loadTextContents:(void (^)(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error))completion;
 
@@ -52,6 +55,8 @@ typedef NS_ENUM(NSInteger, DiffFileMode) {
 @property (readonly) NSString *dirname;
 @property (readonly) NSString *path;
 @property (readonly) NSArray /*either GitFileTree or GitFile*/ *children;
+
+@property (readonly, weak) GitFileTree *parentTree; // may be nil
 
 @end
 

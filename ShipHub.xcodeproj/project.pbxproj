@@ -76,6 +76,7 @@
 		1A2FCCF71E68EADA0000F91B /* PRReviewChangesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCF51E68EADA0000F91B /* PRReviewChangesViewController.m */; };
 		1A2FCCF81E68EADA0000F91B /* PRReviewChangesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2FCCF61E68EADA0000F91B /* PRReviewChangesViewController.xib */; };
 		1A2FCCFB1E68EB8C0000F91B /* PlaceholderTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCFA1E68EB8C0000F91B /* PlaceholderTextView.m */; };
+		1A2FCD1C1E70C6C30000F91B /* PRNavigationToolbarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCD1B1E70C6C30000F91B /* PRNavigationToolbarItem.m */; };
 		1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
 		1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
 		1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
@@ -532,6 +533,8 @@
 		1A2FCCF61E68EADA0000F91B /* PRReviewChangesViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRReviewChangesViewController.xib; sourceTree = "<group>"; };
 		1A2FCCF91E68EB8C0000F91B /* PlaceholderTextView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlaceholderTextView.h; sourceTree = "<group>"; };
 		1A2FCCFA1E68EB8C0000F91B /* PlaceholderTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaceholderTextView.m; sourceTree = "<group>"; };
+		1A2FCD1A1E70C6C30000F91B /* PRNavigationToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNavigationToolbarItem.h; sourceTree = "<group>"; };
+		1A2FCD1B1E70C6C30000F91B /* PRNavigationToolbarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNavigationToolbarItem.m; sourceTree = "<group>"; };
 		1A3618E11C8FBF96008C11CB /* DataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStore.h; sourceTree = "<group>"; };
 		1A3618E21C8FBF96008C11CB /* DataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataStore.m; sourceTree = "<group>"; };
 		1A3618E71C8FC25B008C11CB /* SyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncConnection.h; sourceTree = "<group>"; };
@@ -1597,6 +1600,8 @@
 				1AE6F1161E527B23008FD8AC /* DiffViewMode.h */,
 				1ADEA3881E4E86C30033F51A /* DiffViewModeItem.h */,
 				1ADEA3891E4E86C30033F51A /* DiffViewModeItem.m */,
+				1A2FCD1A1E70C6C30000F91B /* PRNavigationToolbarItem.h */,
+				1A2FCD1B1E70C6C30000F91B /* PRNavigationToolbarItem.m */,
 				1AE6F11A1E53BDB7008FD8AC /* PRComment.h */,
 				1AE6F11B1E53BDB7008FD8AC /* PRComment.m */,
 				1A2FCCEE1E660B240000F91B /* PRReview.h */,
@@ -2075,6 +2080,7 @@
 				1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */,
 				1A5B293B1D888C0A000C9F4B /* EmptyLabelView.m in Sources */,
 				1A012E941D3EAC47006CE5DF /* StateRowTemplate.m in Sources */,
+				1A2FCD1C1E70C6C30000F91B /* PRNavigationToolbarItem.m in Sources */,
 				1A012EC11D452F17006CE5DF /* LabelRowTemplate.m in Sources */,
 				1A694B0E1CA3413700F73608 /* OverviewNode.m in Sources */,
 				1A7FD7831D497C1700B585E2 /* AssigneeModifyController.m in Sources */,

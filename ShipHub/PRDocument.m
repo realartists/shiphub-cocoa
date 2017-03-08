@@ -64,6 +64,10 @@
     // no-op
 }
 
+- (void)updateChangeCount:(NSDocumentChangeType)change {
+    // don't bother with change tracking
+}
+
 - (void)updateDocumentName {
     NSString *docName = _prViewController.title ?: [self defaultDraftName];
     [self setDisplayName:docName];

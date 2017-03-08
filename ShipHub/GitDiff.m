@@ -28,6 +28,8 @@
 @property DiffFileOperation operation;
 @property DiffFileMode mode;
 
+@property (readwrite, weak) GitFileTree *parentTree;
+
 @property GitRepo *repo;
 @property (getter=isBinary) BOOL binary;
 
@@ -48,6 +50,8 @@
 @property NSString *dirname;
 @property NSString *path;
 @property NSMutableArray *mutableChildren;
+
+@property (readwrite, weak) GitFileTree *parentTree;
 
 @end
 
@@ -207,10 +211,12 @@ static NSUInteger pathDepth(NSString *path) {
             parent.dirname = [dirname substringFromIndex:subIdx];
             
             [grandparent.mutableChildren addObject:parent];
+            parent.parentTree = grandparent;
             parents[dirname] = parent;
         }
         
         [parent.mutableChildren addObject:file];
+        file.parentTree = parent;
     }
     
     NSMutableArray *q = [NSMutableArray arrayWithObject:root];

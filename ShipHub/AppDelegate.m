@@ -22,6 +22,7 @@
 #import "SubscriptionController.h"
 #import "TextViewController.h"
 #import "WelcomeHelpController.h"
+#import "PRDocument.h"
 
 #import <HockeySDK/HockeySDK.h>
 #import <Sparkle/Sparkle.h>
@@ -48,6 +49,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 @property (strong) NSWindowController *acknowledgementsController;
 
 @property IBOutlet NSMenu *accountMenu;
+@property IBOutlet NSMenuItem *pullRequestMenu;
 
 @property (strong) IBOutlet NSMutableArray *overviewControllers;
 
@@ -140,6 +142,10 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 #endif
     
     [self registerHockeyApp];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePullRequestMenuVisibility) name:NSWindowDidBecomeKeyNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePullRequestMenuVisibility) name:NSApplicationDidBecomeActiveNotification object:nil];
+    [self updatePullRequestMenuVisibility];
     
     _overviewControllers = [NSMutableArray array];
     _authController = [AuthController new];
@@ -248,6 +254,11 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     [[IssueDocumentController sharedDocumentController] openIssuesWithIdentifiers:identifiers];
     
     return YES;
+}
+
+- (void)updatePullRequestMenuVisibility {
+    NSDocument *keyDocument = [[IssueDocumentController sharedDocumentController] currentDocument];
+    _pullRequestMenu.hidden = ![keyDocument isKindOfClass:[PRDocument class]];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {

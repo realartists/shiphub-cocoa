@@ -59,6 +59,14 @@
     [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
         [weakSelf deleteComment:msg.body];
     } name:@"deleteComment"];
+    
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf scrollContinuation:msg.body];
+    } name:@"scrollContinuation"];
+}
+
+- (void)scrollContinuation:(NSDictionary *)msg {
+    [self.delegate diffViewController:self continueNavigation:msg];
 }
 
 - (void)queueReviewComment:(NSDictionary *)msg {
@@ -92,7 +100,7 @@
     [self.delegate diffViewController:self deleteReviewComment:comment];
 }
 
-- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview
+- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview scrollInfo:(NSDictionary *)scrollInfo
 {
     NSParameterAssert(comments);
     
@@ -121,11 +129,15 @@
         
         NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@);", [JSON stringifyObject:state]];
         [self evaluateJavaScript:js];
+        
+        if (scrollInfo) {
+            [self navigate:scrollInfo];
+        }
     }];
 }
 
 - (void)reconfigureForReload {
-    [self setPR:_pr diffFile:_diffFile diff:_diff comments:_comments inReview:_inReview];
+    [self setPR:_pr diffFile:_diffFile diff:_diff comments:_comments inReview:_inReview scrollInfo:nil];
     [self setMode:_mode];
 }
 
@@ -155,6 +167,11 @@
         js = [NSString stringWithFormat:@"window.scrollToCommentId(%@);", [JSON stringifyObject:comment.identifier]];
     }
     
+    [self evaluateJavaScript:js];
+}
+
+- (void)navigate:(NSDictionary *)options {
+    NSString *js = [NSString stringWithFormat:@"window.scrollTo(%@);", [JSON stringifyObject:options]];
     [self evaluateJavaScript:js];
 }
 

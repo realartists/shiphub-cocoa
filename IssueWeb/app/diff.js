@@ -54,6 +54,7 @@ class App {
     this.leftLines = []; // lines in leftText
     this.rightLines = []; // lines in rightText
     this.diffLines = []; // lines in diff
+    this.hunkIndexes = []; // indexes into diffLines that start with @@
     this.comments = []; // Array of PRComments
     this.inReview = false; // Whether or not comments are being buffered to submit in one go
     this.leftHighlight = null; // syntax highlighting
@@ -130,6 +131,9 @@ class App {
   
     // contain indexes into left, right, and diff, as well as some additional context
     var rowInfos = this.rowInfos = [];
+    
+    // indexes into diff for lines that start with @@
+    var hunkIndexes = this.hunkIndexes = [];
 
     var leftIdx = 0;    // into leftLines
     var rightIdx = 0;   // into rightLines
@@ -145,6 +149,8 @@ class App {
       var diffLine = diffLines[diffIdx];
       if (diffLine.startsWith("@@")) {
         var {leftStartLine, leftRun, rightStartLine, rightRun} = parseDiffLine(diffLine);
+        
+        hunkIndexes.push(diffIdx);
         
         hunkQueue = 0; // reset +/- queue
         
@@ -671,6 +677,106 @@ class App {
     }
   }
   
+  _codeRowsAtHunkStarts() {
+    var hunkSet = new Set(this.hunkIndexes);
+    var hunkRows = this.codeRows.filter((row) => {
+      return hunkSet.has(row.diffIdx-1);
+    });
+    return hunkRows
+  }
+  
+  /*
+  options - {
+    type: string, (comment|hunk)
+    direction: int, 1 (down) or -1 (up)
+    first: boolean, go to item at top of file
+    last: boolean, go to the item at the bottom of the file
+  }
+  */
+  scrollTo(options) { 
+    var rows;
+    if (options.type === 'comment') {
+      rows = this.commentRows;
+    } else if (options.type == 'hunk') {
+      rows = this._codeRowsAtHunkStarts();
+    } else {
+      rows = this.commentRows.concat(this._codeRowsAtHunkStarts());
+      rows.sort((a, b) => {
+        if (a.diffIdx < b.diffIdx) return -1;
+        else if (a.diffIdx > b.diffIdx) return 1;
+        else {
+          if ((a instanceof CommentRow) && !(b instanceof CommentRow)) {
+            return -1;
+          } else if (!(a instanceof CommentRow) && (b instanceof CommentRow)) {
+            return 1;
+          } else {
+            return 0;
+          }
+        }
+      });
+    }
+    
+    if (options.direction) {
+      var scrollableHeight = this.table.scrollHeight;
+      var visibleHeight = this.miniMap.canvas.clientHeight;
+      var lineTop = window.scrollY;
+      var lineBottom = lineTop + visibleHeight;
+      var atBottom = Math.abs(lineTop - (scrollableHeight - visibleHeight)) < 1.0;
+      var atTop = lineTop < 1.0;
+      
+      var onscreen = [];
+      var above = [];
+      var below = [];
+      
+      for (var i = 0; i < rows.length; i++) {
+        var r = rows[i];
+        var offsetY = 0;
+        var n = r.node;
+        while (n && n != this.table) {
+          offsetY += n.offsetTop;
+          n = n.offsetParent;
+        }
+        
+        if (offsetY < lineTop) {
+          above.push(i);
+        } else if (offsetY > lineBottom) {
+          below.push(i);
+        } else {
+          onscreen.push(i);
+        }
+      }
+      
+      var next = undefined;
+      if (options.direction > 0) {
+        // scroll down
+        if (atBottom) { }
+        else if (onscreen.length > 1) next = onscreen[1];
+        else if (below.length > 0) next = below[0];
+      } else {
+        // scroll up
+        if (atTop) { }
+        else if (above.length > 0) next = above[above.length-1];
+      }
+      
+      if (next !== undefined) {
+        rows[next].node.scrollIntoView({behavior: "smooth"});
+      } else {
+        window.scrollContinuation.postMessage(options);
+      }
+    } else if (options.first) {
+      if (rows.length) {
+        rows[0].node.scrollIntoView();
+      } else {
+        window.scroll(0, 0);
+      }
+    } else if (options.last) {
+      if (rows.length) {
+        rows[rows.length-1].node.scrollIntoView();
+      } else {
+        window.scroll(0, scrollableHeight - visibleHeight);
+      }
+    }
+  }
 }
 
 var app = null;
@@ -708,6 +814,10 @@ window.updateComments = function(comments) {
 window.scrollToCommentId = function(commentId) {
   app.scrollToCommentId(commentId);
 };
+
+window.scrollTo = function(options) {
+  app.scrollTo(options);
+}
 
 window.onload = () => {
   app = new App(document.getElementById('app'));

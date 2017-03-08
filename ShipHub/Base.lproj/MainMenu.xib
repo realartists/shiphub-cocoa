@@ -15,6 +15,7 @@
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
             <connections>
                 <outlet property="accountMenu" destination="Qjt-qC-mZs" id="DKC-Vv-5H3"/>
+                <outlet property="pullRequestMenu" destination="P83-Sk-zpJ" id="P1J-Bc-t5h"/>
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
@@ -545,12 +546,14 @@ CA
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="IEC-BG-Zzv"/>
-                            <menuItem title="Indent" keyEquivalent="]" id="u0T-n6-Ji7">
+                            <menuItem title="Indent" id="u0T-n6-Ji7">
+                                <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="mdIndent:" target="-1" id="URm-HU-B6H"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Outdent" keyEquivalent="[" id="eFb-2a-Rgd">
+                            <menuItem title="Outdent" id="eFb-2a-Rgd">
+                                <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="mdOutdent:" target="-1" id="kq1-vj-sLI"/>
                                 </connections>
@@ -618,6 +621,58 @@ CA
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="NOP-bg-KI9"/>
+                        </items>
+                    </menu>
+                </menuItem>
+                <menuItem title="Pull Request" hidden="YES" id="P83-Sk-zpJ">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Pull Request" id="F7c-rh-MFi">
+                        <items>
+                            <menuItem title="Navigation" enabled="NO" id="gQp-dZ-uQ0">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                            </menuItem>
+                            <menuItem title="Next Thing" keyEquivalent="" id="4ha-53-U9r">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                <connections>
+                                    <action selector="nextThing:" target="-1" id="4jC-Ie-DcK"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Previous Thing" keyEquivalent="" id="rTq-wa-fie">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                <connections>
+                                    <action selector="previousThing:" target="-1" id="Z66-UF-Crq"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Next Change" keyEquivalent="d" id="Eev-WK-nJP">
+                                <connections>
+                                    <action selector="nextChange:" target="-1" id="asy-2H-hbo"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Previous Change" keyEquivalent="D" id="spt-sD-7Nd">
+                                <connections>
+                                    <action selector="previousChange:" target="-1" id="oJQ-Bb-sPw"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Next Comment" keyEquivalent="m" id="70Y-yc-4A5">
+                                <connections>
+                                    <action selector="nextComment:" target="-1" id="ftU-ke-gvo"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Previous Comment" keyEquivalent="M" id="PoN-ST-Fzr">
+                                <connections>
+                                    <action selector="previousComment:" target="-1" id="wHq-aZ-4m2"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Next File" keyEquivalent="]" id="r1T-KX-GFO">
+                                <connections>
+                                    <action selector="nextFile:" target="-1" id="4KY-Ut-mX0"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Previous File" keyEquivalent="[" id="jtm-ca-b7v">
+                                <connections>
+                                    <action selector="previousFile:" target="-1" id="pmE-NX-8y8"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>

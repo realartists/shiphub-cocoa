@@ -15,9 +15,19 @@
 #import "GitDiff.h"
 #import "NSImage+Icons.h"
 
+@interface PRSidebarRowView : NSTableRowView
+
+@end
+
+@interface PRSidebarOutlineView : NSOutlineView
+
+@end
+
 @interface PRSidebarViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource>
 
-@property IBOutlet NSOutlineView *outline;
+@property IBOutlet PRSidebarOutlineView *outline;
+
+@property NSArray *inorderFiles;
 
 @end
 
@@ -34,9 +44,31 @@
     self.activeDiff = pr.spanDiff;
 }
 
+static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
+    if (!tree) return;
+    
+    for (id item in tree.children) {
+        if ([item isKindOfClass:[GitDiffFile class]]) {
+            [files addObject:item];
+        } else {
+            traverseFiles(item, files);
+        }
+    }
+}
+
 - (void)setActiveDiff:(GitDiff *)diff {
     if (_activeDiff != diff) {
         _activeDiff = diff;
+        
+        {
+            // create inorderFiles, a traversal of
+            // the tree that's the same order as the fully
+            // expanded outline view
+            NSMutableArray *files = [NSMutableArray new];
+            traverseFiles(diff.fileTree, files);
+            _inorderFiles = files;
+        }
+        
         [_outline reloadData];
         [_outline expandItem:nil expandChildren:YES];
         [self selectFirstItem];
@@ -44,13 +76,73 @@
 }
 
 - (void)selectFirstItem {
-    for (NSUInteger i = 0; i < _outline.numberOfRows; i++) {
-        id item = [_outline itemAtRow:i];
-        if ([item isKindOfClass:[GitDiffFile class]]) {
-            [_outline selectRowIndexes:[NSIndexSet indexSetWithIndex:i] byExtendingSelection:NO];
-            break;
+    GitDiffFile *first = [_inorderFiles firstObject];
+    if (first) {
+        [self selectFile:first];
+    }
+}
+
+- (void)selectFile:(GitDiffFile *)item {
+    GitFileTree *tree = item.parentTree;
+    NSMutableArray *path = [NSMutableArray new];
+    while (tree) {
+        [path addObject:tree];
+        tree = tree.parentTree;
+    }
+    for (tree in path.reverseObjectEnumerator) {
+        [_outline expandItem:tree];
+    }
+    NSInteger row = [_outline rowForItem:item];
+    if (row != NSNotFound) {
+        [_outline selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+    }
+}
+
+- (BOOL)canGoNextFile {
+    id item = [_outline selectedItem];
+    if (item) {
+        NSInteger idx = [_inorderFiles indexOfObjectIdenticalTo:item];
+        return (idx+1 < _inorderFiles.count);
+    }
+    return NO;
+}
+
+- (BOOL)canGoPreviousFile {
+    id item = [_outline selectedItem];
+    if (item) {
+        NSInteger idx = [_inorderFiles indexOfObjectIdenticalTo:item];
+        return idx-1 >= 0;
+    }
+    return NO;
+}
+
+- (IBAction)nextFile:(id)sender {
+    id item = [_outline selectedItem];
+    if (item) {
+        NSInteger idx = [_inorderFiles indexOfObjectIdenticalTo:item];
+        if (idx+1 < _inorderFiles.count) {
+            [self selectFile:_inorderFiles[idx+1]];
         }
     }
+}
+
+- (IBAction)previousFile:(id)sender {
+    id item = [_outline selectedItem];
+    if (item) {
+        NSInteger idx = [_inorderFiles indexOfObjectIdenticalTo:item];
+        if (idx-1 >= 0) {
+            [self selectFile:_inorderFiles[idx-1]];
+        }
+    }
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    if (menuItem.action == @selector(nextFile:)) {
+        return [self canGoNextFile];
+    } else if (menuItem.action == @selector(previousFile:)) {
+        return [self canGoPreviousFile];
+    }
+    return YES;
 }
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
@@ -112,5 +204,16 @@
     
     return cell;
 }
+
+@end
+
+@implementation PRSidebarOutlineView
+
+- (BOOL)acceptsFirstResponder { return NO; }
+
+@end
+
+
+@implementation PRSidebarRowView
 
 @end

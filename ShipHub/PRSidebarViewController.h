@@ -24,6 +24,12 @@
 @property (nonatomic) GitDiffFile *selectedFile;
 @property (nonatomic) NSArray<PRComment *> *allComments;
 
+- (BOOL)canGoNextFile;
+- (BOOL)canGoPreviousFile;
+
+- (IBAction)nextFile:(id)sender;
+- (IBAction)previousFile:(id)sender;
+
 @end
 
 @protocol PRSidebarViewControllerDelegate <NSObject>

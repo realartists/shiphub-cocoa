@@ -21,11 +21,13 @@
 #import "DataStore.h"
 #import "PRReview.h"
 #import "PRReviewChangesViewController.h"
+#import "PRNavigationToolbarItem.h"
 #import "ProgressSheet.h"
 
 static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
 static NSString *const DiffViewModeID = @"DiffViewMode";
 static NSString *const ReviewChangesID = @"ReviewChanges";
+static NSString *const NavigationItemID = @"Navigation";
 
 @interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, NSToolbarDelegate> {
     NSToolbar *_toolbar;
@@ -43,9 +45,12 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
 
 @property DiffViewModeItem *diffViewModeItem;
 @property ButtonToolbarItem *reviewChangesItem;
+@property PRNavigationToolbarItem *navigationItem;
 
 @property PRReviewChangesViewController *reviewChangesController;
 @property NSPopover *reviewChangesPopover;
+
+@property NSDictionary *nextScrollInfo;
 
 @end
 
@@ -94,6 +99,9 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
     reviewChangesItem.target = self;
     reviewChangesItem.action = @selector(reviewChanges:);
     
+    _navigationItem = [[PRNavigationToolbarItem alloc] initWithItemIdentifier:NavigationItemID];
+    _navigationItem.target = self;
+    
     _toolbar = [[NSToolbar alloc] initWithIdentifier:@"PRViewController"];
     _toolbar.delegate = self;
     
@@ -134,17 +142,81 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
         return _diffViewModeItem;
     } else if ([itemIdentifier isEqualToString:ReviewChangesID]) {
         return _reviewChangesItem;
+    } else if ([itemIdentifier isEqualToString:NavigationItemID]) {
+        return _navigationItem;
     } else {
         return [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
     }
 }
 
 - (NSArray<NSString *> *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
-    return @[NSToolbarFlexibleSpaceItemIdentifier, DiffViewModeID, ReviewChangesID];
+    return @[NavigationItemID, NSToolbarFlexibleSpaceItemIdentifier, DiffViewModeID, ReviewChangesID];
 }
 
 - (NSArray<NSString *> *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar {
     return [self toolbarDefaultItemIdentifiers:toolbar];
+}
+
+#pragma mark - Navigation
+
+- (IBAction)nextFile:(id)sender {
+    [_sidebarController nextFile:self];
+}
+
+- (IBAction)previousFile:(id)sender {
+    [_sidebarController previousFile:self];
+}
+
+- (IBAction)nextThing:(id)sender {
+    [_diffController navigate:@{ @"direction" : @(1) }];
+}
+
+- (IBAction)previousThing:(id)sender {
+    [_diffController navigate:@{ @"direction" : @(-1) }];
+}
+
+- (IBAction)nextChange:(id)sender {
+    [_diffController navigate:@{ @"direction" : @(1),
+                                 @"type" : @"hunk" }];
+}
+- (IBAction)previousChange:(id)sender {
+    [_diffController navigate:@{ @"direction" : @(-1),
+                                 @"type" : @"hunk" }];
+}
+
+- (IBAction)nextComment:(id)sender {
+    [_diffController navigate:@{ @"direction" : @(1),
+                                 @"type" : @"comment" }];
+}
+
+- (IBAction)previousComment:(id)sender {
+    [_diffController navigate:@{ @"direction" : @(-1),
+                                 @"type" : @"comment" }];
+}
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    if (menuItem.action == @selector(nextFile:)) {
+        return [_sidebarController canGoNextFile];
+    } else if (menuItem.action == @selector(previousFile:)) {
+        return [_sidebarController canGoPreviousFile];
+    }
+    return YES;
+}
+
+- (void)diffViewController:(PRDiffViewController *)vc continueNavigation:(NSDictionary *)options {
+    if ([options[@"direction"] integerValue] > 0) {
+        if ([_sidebarController canGoNextFile]) {
+            _nextScrollInfo = @{ @"type" : options[@"type"] ?: @"",
+                                 @"first" : @YES };
+            [_sidebarController nextFile:self];
+        }
+    } else {
+        if ([_sidebarController canGoPreviousFile]) {
+            _nextScrollInfo = @{ @"type" : options[@"type"] ?: @"",
+                                 @"last" : @YES };
+            [_sidebarController previousFile:self];
+        }
+    }
 }
 
 #pragma mark -
@@ -266,7 +338,9 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
     GitDiff *diff = sidebar.activeDiff;
     _diffViewModeItem.enabled = !(file.operation == DiffFileOperationAdded || file.operation == DiffFileOperationDeleted);
     NSArray *comments = [self commentsForSelectedFile];
-    [_diffController setPR:_pr diffFile:file diff:diff comments:comments inReview:_inReview];
+    NSDictionary *scrollInfo = _nextScrollInfo ?: @{ @"first" : @YES };
+    _nextScrollInfo = nil;
+    [_diffController setPR:_pr diffFile:file diff:diff comments:comments inReview:_inReview scrollInfo:scrollInfo];
 }
 
 #pragma mark - PRReviewChangesViewControllerDelegate
