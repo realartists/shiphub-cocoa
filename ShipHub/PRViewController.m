@@ -251,6 +251,7 @@ static NSString *const IssueItemID = @"Issue";
         [sheet endSheet];
         
         if (self.pr.myLastPendingReview) {
+            _inReview = YES;
             _pendingReview = self.pr.myLastPendingReview;
             [_pendingComments addObjectsFromArray:_pendingReview.comments];
         }
