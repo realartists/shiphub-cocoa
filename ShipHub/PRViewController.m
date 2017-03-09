@@ -13,6 +13,7 @@
 #import "Extras.h"
 #import "PullRequest.h"
 #import "GitDiff.h"
+#import "IssueDocumentController.h"
 #import "ProgressSheet.h"
 #import "PRSidebarViewController.h"
 #import "PRDiffViewController.h"
@@ -22,12 +23,12 @@
 #import "PRReview.h"
 #import "PRReviewChangesViewController.h"
 #import "PRNavigationToolbarItem.h"
-#import "ProgressSheet.h"
 
 static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
 static NSString *const DiffViewModeID = @"DiffViewMode";
 static NSString *const ReviewChangesID = @"ReviewChanges";
 static NSString *const NavigationItemID = @"Navigation";
+static NSString *const IssueItemID = @"Issue";
 
 @interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, NSToolbarDelegate> {
     NSToolbar *_toolbar;
@@ -46,6 +47,7 @@ static NSString *const NavigationItemID = @"Navigation";
 @property DiffViewModeItem *diffViewModeItem;
 @property ButtonToolbarItem *reviewChangesItem;
 @property PRNavigationToolbarItem *navigationItem;
+@property ButtonToolbarItem *issueItem;
 
 @property PRReviewChangesViewController *reviewChangesController;
 @property NSPopover *reviewChangesPopover;
@@ -102,6 +104,14 @@ static NSString *const NavigationItemID = @"Navigation";
     _navigationItem = [[PRNavigationToolbarItem alloc] initWithItemIdentifier:NavigationItemID];
     _navigationItem.target = self;
     
+    _issueItem = [[ButtonToolbarItem alloc] initWithItemIdentifier:IssueItemID];
+    _issueItem.grayWhenDisabled = YES;
+    _issueItem.label = NSLocalizedString(@"Open Issue", nil);
+    _issueItem.buttonImage = [NSImage imageNamed:@"Open Issue"];
+    _issueItem.buttonImage.template = YES;
+    _issueItem.target = self;
+    _issueItem.action = @selector(openIssue:);
+    
     _toolbar = [[NSToolbar alloc] initWithIdentifier:@"PRViewController"];
     _toolbar.delegate = self;
     
@@ -144,13 +154,15 @@ static NSString *const NavigationItemID = @"Navigation";
         return _reviewChangesItem;
     } else if ([itemIdentifier isEqualToString:NavigationItemID]) {
         return _navigationItem;
+    } else if ([itemIdentifier isEqualToString:IssueItemID]) {
+        return _issueItem;
     } else {
         return [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
     }
 }
 
 - (NSArray<NSString *> *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
-    return @[NavigationItemID, NSToolbarFlexibleSpaceItemIdentifier, DiffViewModeID, ReviewChangesID];
+    return @[IssueItemID, NavigationItemID, NSToolbarFlexibleSpaceItemIdentifier, DiffViewModeID, ReviewChangesID];
 }
 
 - (NSArray<NSString *> *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar {
@@ -158,6 +170,11 @@ static NSString *const NavigationItemID = @"Navigation";
 }
 
 #pragma mark - Navigation
+
+- (IBAction)openIssue:(id)sender {
+    IssueDocumentController *idc = [IssueDocumentController sharedDocumentController];
+    [idc openIssueWithIdentifier:_pr.issue.fullIdentifier];
+}
 
 - (IBAction)nextFile:(id)sender {
     [_sidebarController nextFile:self];
