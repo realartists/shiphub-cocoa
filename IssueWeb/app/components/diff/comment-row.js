@@ -138,8 +138,8 @@ class ReviewFooter extends React.Component {
       contents.push(h('div', {
         key:'addSingle',
         title:'⌘⇧↩︎', 
-        className:'Clickable addCommentButton', 
-        onClick:this.props.onAddSingleComment}, 
+        className:'Clickable addCommentButton' + (canSave ? "" : " addCommentSaveButtonDisabled"),
+        onClick:canSave?this.props.onAddSingleComment:undefined}, 
         'Add Single Comment'
       ));
     }
@@ -147,8 +147,8 @@ class ReviewFooter extends React.Component {
     contents.push(h('div', {
       key:'addReview',
       title:'⌘↩︎', 
-      className:'Clickable addCommentButton addCommentSaveButton', 
-      onClick:this.props.onSave}, 
+      className:'Clickable addCommentButton addCommentSaveButton' + (canSave ? "" : " addCommentSaveButtonDisabled"),
+      onClick:canSave?this.props.onSave:undefined}, 
       this.props.inReview?'Add review comment':'Start a review'
     ));
     
