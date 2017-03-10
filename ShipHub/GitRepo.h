@@ -17,6 +17,6 @@
 - (void)unlock;
 
 // synchronously fetch remote. Acquires writeLock for the duration.
-- (NSError *)fetchRemote:(NSURL *)remoteURL refs:(NSArray *)refs;
+- (NSError *)fetchRemote:(NSURL *)remoteURL username:(NSString *)username password:(NSString *)password refs:(NSArray *)refs;
 
 @end

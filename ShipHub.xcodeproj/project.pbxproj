@@ -77,6 +77,7 @@
 		1A2FCCF81E68EADA0000F91B /* PRReviewChangesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2FCCF61E68EADA0000F91B /* PRReviewChangesViewController.xib */; };
 		1A2FCCFB1E68EB8C0000F91B /* PlaceholderTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCFA1E68EB8C0000F91B /* PlaceholderTextView.m */; };
 		1A2FCD1C1E70C6C30000F91B /* PRNavigationToolbarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCD1B1E70C6C30000F91B /* PRNavigationToolbarItem.m */; };
+		1A2FCD231E7314320000F91B /* clonepr.applescript in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCD221E7314320000F91B /* clonepr.applescript */; };
 		1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
 		1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
 		1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
@@ -331,6 +332,18 @@
 		28BF04131D2224BA00F22638 /* FontAwesome.otf in Copy Fonts */ = {isa = PBXBuildFile; fileRef = 28BF03C21D1C582E00F22638 /* FontAwesome.otf */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXBuildRule section */
+		1A2FCD251E7316140000F91B /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.osacompile;
+			filePatterns = applescript;
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+			);
+		};
+/* End PBXBuildRule section */
+
 /* Begin PBXContainerItemProxy section */
 		1A012ED71D46EC96006CE5DF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -535,6 +548,7 @@
 		1A2FCCFA1E68EB8C0000F91B /* PlaceholderTextView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlaceholderTextView.m; sourceTree = "<group>"; };
 		1A2FCD1A1E70C6C30000F91B /* PRNavigationToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNavigationToolbarItem.h; sourceTree = "<group>"; };
 		1A2FCD1B1E70C6C30000F91B /* PRNavigationToolbarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNavigationToolbarItem.m; sourceTree = "<group>"; };
+		1A2FCD221E7314320000F91B /* clonepr.applescript */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.applescript; path = clonepr.applescript; sourceTree = "<group>"; };
 		1A3618E11C8FBF96008C11CB /* DataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStore.h; sourceTree = "<group>"; };
 		1A3618E21C8FBF96008C11CB /* DataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataStore.m; sourceTree = "<group>"; };
 		1A3618E71C8FC25B008C11CB /* SyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncConnection.h; sourceTree = "<group>"; };
@@ -1609,6 +1623,7 @@
 				1A2FCCF41E68EADA0000F91B /* PRReviewChangesViewController.h */,
 				1A2FCCF51E68EADA0000F91B /* PRReviewChangesViewController.m */,
 				1A2FCCF61E68EADA0000F91B /* PRReviewChangesViewController.xib */,
+				1A2FCD221E7314320000F91B /* clonepr.applescript */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request";
@@ -1707,6 +1722,7 @@
 				1A2217C41C7E7BC1006460E2 /* Copy Frameworks */,
 			);
 			buildRules = (
+				1A2FCD251E7316140000F91B /* PBXBuildRule */,
 			);
 			dependencies = (
 				1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */,
@@ -2100,6 +2116,7 @@
 				1AE09BF81C97687E00C5AC35 /* LocalRelationship.m in Sources */,
 				1A7FD77E1D494A5C00B585E2 /* LabelModifyController.m in Sources */,
 				1A7FD7701D492E9E00B585E2 /* BulkModifyController.m in Sources */,
+				1A2FCD231E7314320000F91B /* clonepr.applescript in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -17,6 +17,7 @@
 }
 
 @property git_repository *repo;
+@property NSArray *fetchingRefs;
 
 @end
 
@@ -72,8 +73,48 @@ static void initGit2() {
     pthread_rwlock_destroy(&_rwlock);
 }
 
-- (NSError *)fetchRemote:(NSURL *)remoteURL refs:(NSArray *)refs {
+/**
+ * Signature of a function which acquires a credential object.
+ *
+ * - cred: The newly created credential object.
+ * - url: The resource for which we are demanding a credential.
+ * - username_from_url: The username that was embedded in a "user\@host"
+ *                          remote url, or NULL if not included.
+ * - allowed_types: A bitmask stating which cred types are OK to return.
+ * - payload: The payload provided when specifying this callback.
+ * - returns 0 for success, < 0 to indicate an error, > 0 to indicate
+ *       no credential was acquired
+ */
+static int credentialsCallback(git_cred **cred,
+                               const char *url,
+                               const char *username_from_url,
+                               unsigned int allowed_types,
+                               void *payload)
+{
+    NSDictionary *info = (__bridge NSDictionary *)payload;
+    return git_cred_userpass_plaintext_new(cred, [info[@"username"] UTF8String], [info[@"password"] UTF8String]);
+}
+
+static int updateRefs(const char *ref_name, const char *remote_url, const git_oid *oid, unsigned int is_merge, void *payload) {
+    GitRepo *repo = (__bridge GitRepo *)payload;
+    
+    NSArray *fetchRefs = repo.fetchingRefs;
+    
+    for (NSString *candidateRef in fetchRefs) {
+        if (strcmp(ref_name, [[@"refs/" stringByAppendingString:candidateRef] UTF8String]) == 0) {
+            git_reference *newRef = NULL;
+            return git_reference_create(&newRef, repo.repo, ref_name, oid, 1, "fetch");
+        }
+    }
+    
+    return 0;
+}
+
+- (NSError *)fetchRemote:(NSURL *)remoteURL username:(NSString *)username password:(NSString *)password refs:(NSArray *)refs
+{
     [self writeLock];
+    
+    _fetchingRefs = refs;
     
     __block git_remote *remote = NULL;
     __block git_strarray refspecs = {0};
@@ -86,6 +127,7 @@ static void initGit2() {
             }
             free(refspecs.strings);
         }
+        _fetchingRefs = nil;
         [self unlock];
     };
     
@@ -108,8 +150,45 @@ static void initGit2() {
         }
     }
     
-    CHK(git_remote_create_anonymous(&remote, _repo, [[remoteURL description] UTF8String]));
-    CHK(git_remote_fetch(remote, &refspecs, NULL /*opts*/, NULL /*reflogs msg*/));
+    git_remote_lookup(&remote, _repo, "github");
+    if (!remote) {
+        git_remote_create(&remote,
+                          _repo,
+                          "github",
+                          [[remoteURL description] UTF8String]);
+    }
+    
+    NSDictionary *payload = @{ @"username": username, @"password": password };
+    
+    git_fetch_options opts = {
+        .version = GIT_FETCH_OPTIONS_VERSION,
+        .callbacks =
+        {
+            .version = GIT_REMOTE_CALLBACKS_VERSION,
+            .sideband_progress = NULL,
+            .completion = NULL,
+            .credentials = credentialsCallback,
+            .certificate_check = NULL,
+            .transfer_progress = NULL,
+            .update_tips = NULL,
+            .pack_progress = NULL,
+            .push_transfer_progress = NULL,
+            .push_update_reference = NULL,
+            .push_negotiation = NULL,
+            .transport = NULL,
+            .payload = (__bridge void *)payload,
+        },
+        .prune = GIT_FETCH_NO_PRUNE,
+        .update_fetchhead = 1,
+        .download_tags = GIT_REMOTE_DOWNLOAD_TAGS_NONE,
+        .custom_headers = { NULL, 0 }
+    };
+    
+    CHK(git_remote_fetch(remote, &refspecs, &opts, NULL /*reflogs msg*/));
+    
+    // we have to use FETCH_HEAD now to locally add a named ref to each ref
+    // (why git doesn't do this automatically or have an option to do it automatically is beyond me)
+    git_repository_fetchhead_foreach(_repo, updateRefs, (__bridge void *)self);
     
     cleanup();
     return nil;

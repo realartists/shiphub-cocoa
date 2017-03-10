@@ -219,3 +219,11 @@
 - (id)selectedItem;
 
 @end
+
+@interface NSAppleScript (AppKitExtras)
+
++ (NSError *)errorWithErrorDictionary:(NSDictionary *)dictionary;
+
+- (NSError *)callSubroutine:(NSString *)subroutine withParams:(NSArray *)params;
+
+@end

@@ -92,23 +92,24 @@
         return error;
     }
     
+    NSString *remoteURLStr = _info[@"base"][@"repo"][@"clone_url"]; // want to use the base, as this is "origin"
+    
+    if (remoteURLStr) {
+        _githubRemoteURL = [NSURL URLWithString:remoteURLStr];
+    }
+    
+    // See https://help.github.com/articles/checking-out-pull-requests-locally/
+    NSString *refSpec = [NSString stringWithFormat:@"pull/%@/head", _issue.number];
+    _headRefSpec = refSpec;
+    
     // optimistically, see if we can find the PR without doing any network operations
     NSError *optimisticErr = [self loadSpanDiff];
     if (optimisticErr) {
-        NSString *remoteURLStr = _info[@"base"][@"repo"][@"clone_url"]; // want to use the base, as this is "origin"
+        
+        DebugLog(@"Have to fetch refSpec %@ from %@", refSpec, remoteURLStr);
         
         // See https://github.com/blog/1270-easier-builds-and-deployments-using-git-over-https-and-oauth
-        NSURLComponents *comps = [NSURLComponents componentsWithString:remoteURLStr];
-        comps.user = [[[DataStore activeStore] auth] ghToken];
-        comps.password = @"x-oauth-basic";
-        NSURL *remoteURL = comps.URL;
-        
-        // See https://help.github.com/articles/checking-out-pull-requests-locally/
-        NSString *refSpec = [NSString stringWithFormat:@"pull/%@/head", _issue.number];
-        
-        DebugLog(@"Have to fetch refSpac %@ from %@", refSpec, remoteURLStr);
-        
-        error = [_repo fetchRemote:remoteURL refs:@[refSpec]];
+        error = [_repo fetchRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" refs:@[refSpec]];
         if (error) return error;
         
         error = [self loadSpanDiff];
@@ -274,6 +275,10 @@
     _prComments = [_prComments filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
         return lookup[[evaluatedObject identifier]] == nil;
     }]];
+}
+
+- (NSString *)bareRepoPath {
+    return _dir;
 }
 
 @end

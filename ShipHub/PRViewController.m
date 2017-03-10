@@ -14,6 +14,7 @@
 #import "PullRequest.h"
 #import "GitDiff.h"
 #import "IssueDocumentController.h"
+#import "IssueIdentifier.h"
 #import "ProgressSheet.h"
 #import "PRSidebarViewController.h"
 #import "PRDiffViewController.h"
@@ -29,6 +30,7 @@ static NSString *const DiffViewModeID = @"DiffViewMode";
 static NSString *const ReviewChangesID = @"ReviewChanges";
 static NSString *const NavigationItemID = @"Navigation";
 static NSString *const IssueItemID = @"Issue";
+static NSString *const WorkingCopyItemID = @"WorkingCopy";
 
 @interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, NSToolbarDelegate> {
     NSToolbar *_toolbar;
@@ -48,6 +50,7 @@ static NSString *const IssueItemID = @"Issue";
 @property ButtonToolbarItem *reviewChangesItem;
 @property PRNavigationToolbarItem *navigationItem;
 @property ButtonToolbarItem *issueItem;
+@property ButtonToolbarItem *workingCopyItem;
 
 @property PRReviewChangesViewController *reviewChangesController;
 @property NSPopover *reviewChangesPopover;
@@ -112,13 +115,21 @@ static NSString *const IssueItemID = @"Issue";
     _issueItem.target = self;
     _issueItem.action = @selector(openIssue:);
     
+    _workingCopyItem = [[ButtonToolbarItem alloc] initWithItemIdentifier:WorkingCopyItemID];
+    _workingCopyItem.grayWhenDisabled = YES;
+    _workingCopyItem.label = NSLocalizedString(@"Clone PR", nil);
+    _workingCopyItem.buttonImage = [NSImage imageNamed:@"Terminal"];
+    _workingCopyItem.buttonImage.template = YES;
+    _workingCopyItem.target = self;
+    _workingCopyItem.action = @selector(workingCopy:);
+    
     _toolbar = [[NSToolbar alloc] initWithIdentifier:@"PRViewController"];
     _toolbar.delegate = self;
     
     self.view = view;
 }
 
-#pragma mark - Toolbar
+#pragma mark - Toolbar Actions
 
 - (IBAction)changeDiffViewMode:(id)sender {
     DiffViewMode mode = _diffViewModeItem.mode;
@@ -147,6 +158,41 @@ static NSString *const IssueItemID = @"Issue";
     [_reviewChangesPopover showRelativeToRect:_reviewChangesItem.view.bounds ofView:_reviewChangesItem.view preferredEdge:NSRectEdgeMinY];
 }
 
+- (IBAction)workingCopy:(id)sender {
+    NSURL *scriptURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"clonepr" withExtension:@"scpt"];
+    
+    NSDictionary *asError = nil;
+    NSAppleScript *as = [[NSAppleScript alloc] initWithContentsOfURL:scriptURL error:&asError];
+    
+    NSError *scriptError = [NSAppleScript errorWithErrorDictionary:asError];
+    
+    if (scriptError) {
+        [self presentError:scriptError];
+        return;
+    }
+    
+    NSString *issueIdentifier = _pr.issue.fullIdentifier;
+    NSString *repoName = [issueIdentifier issueRepoName];
+    NSString *repoPath = _pr.bareRepoPath;
+    NSString *remoteURL = [_pr.githubRemoteURL description];
+    NSString *refName = [NSString stringWithFormat:@"pull/%@/head", [issueIdentifier issueNumber]];
+    NSString *branchName = [NSString stringWithFormat:@"pull/%@", [issueIdentifier issueNumber]];
+    NSString *baseRev = _pr.spanDiff.baseRev;
+    NSString *headRev = _pr.spanDiff.headRev;
+    
+    NSArray *params = @[ issueIdentifier, repoName, repoPath, remoteURL, refName, branchName, baseRev, headRev ];
+    
+    scriptError = [as callSubroutine:@"do_clone" withParams:params];
+    
+    if (scriptError) {
+        [self presentError:scriptError];
+    }
+}
+
+
+
+#pragma mark - Toolbar Delegate
+
 - (nullable NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag {
     if ([itemIdentifier isEqualToString:DiffViewModeID]) {
         return _diffViewModeItem;
@@ -156,13 +202,15 @@ static NSString *const IssueItemID = @"Issue";
         return _navigationItem;
     } else if ([itemIdentifier isEqualToString:IssueItemID]) {
         return _issueItem;
+    } else if ([itemIdentifier isEqualToString:WorkingCopyItemID]) {
+        return _workingCopyItem;
     } else {
         return [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
     }
 }
 
 - (NSArray<NSString *> *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
-    return @[IssueItemID, NavigationItemID, NSToolbarFlexibleSpaceItemIdentifier, DiffViewModeID, ReviewChangesID];
+    return @[IssueItemID, NavigationItemID, NSToolbarSpaceItemIdentifier, WorkingCopyItemID, NSToolbarFlexibleSpaceItemIdentifier, DiffViewModeID, ReviewChangesID];
 }
 
 - (NSArray<NSString *> *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar {
@@ -274,6 +322,18 @@ static NSString *const IssueItemID = @"Issue";
 }
 
 #pragma mark -
+
+- (BOOL)presentError:(NSError *)error {
+    NSAlert *alert = [NSAlert new];
+    alert.alertStyle = NSCriticalAlertStyle;
+    alert.messageText = NSLocalizedString(@"Error", nil);
+    alert.informativeText = [error localizedDescription] ?: @"";
+    [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+    
+    [alert beginSheetModalForWindow:self.view.window completionHandler:nil];
+    
+    return YES;
+}
 
 - (void)presentError:(NSError *)error withRetry:(dispatch_block_t)retry fail:(dispatch_block_t)fail {
     NSAlert *alert = [NSAlert new];

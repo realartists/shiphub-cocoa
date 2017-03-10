@@ -8,6 +8,7 @@
 
 #import "AppKitExtras.h"
 #import "FoundationExtras.h"
+#import <Carbon/Carbon.h>
 
 #import <objc/runtime.h>
 
@@ -933,6 +934,86 @@ static CGFloat GetAttachmentWidth(void *ref) {
     } else {
         return nil;
     }
+}
+
+@end
+
+@implementation NSAppleScript (AppKitExtras)
+
++ (NSError *)errorWithErrorDictionary:(NSDictionary *)errors
+{
+    if (!errors) return nil;
+    
+    return [NSError errorWithDomain:@"applescript" code:[errors[NSAppleScriptErrorNumber] integerValue] userInfo:@{ NSLocalizedFailureReasonErrorKey : errors[NSAppleScriptErrorMessage] ?: @"Unknown Error" }];
+}
+
+- (NSError *)callSubroutine:(NSString *)subroutine withParams:(NSArray *)params
+{
+    // See https://developer.apple.com/library/content/technotes/tn2084/_index.html
+    
+    NSArray *asParams = [params arrayByMappingObjects:^id(id obj) {
+        if ([obj isKindOfClass:[NSString class]]) {
+            return [NSAppleEventDescriptor descriptorWithString:obj];
+        } else if ([obj isKindOfClass:[NSNumber class]]) {
+            NSNumber *n = obj;
+            CFNumberRef cn = (__bridge CFNumberRef)n;
+            BOOL isBOOL = CFGetTypeID(cn) == CFBooleanGetTypeID();
+            
+            if (CFNumberIsFloatType(cn)) {
+                return [NSAppleEventDescriptor descriptorWithDouble:[n doubleValue]];
+            } else if (isBOOL) {
+                return [NSAppleEventDescriptor descriptorWithBoolean:[n boolValue]];
+            } else {
+                return [NSAppleEventDescriptor descriptorWithInt32:[n intValue]];
+            }
+        } else if ([obj isKindOfClass:[NSDate class]]) {
+            return [NSAppleEventDescriptor descriptorWithDate:obj];
+        } else if ([obj isKindOfClass:[NSURL class]]) {
+            return [NSAppleEventDescriptor descriptorWithFileURL:obj];
+        } else {
+            ErrLog(@"Don't know how to map %@ to an NSAppleEventDescriptor", obj);
+            return [NSAppleEventDescriptor nullDescriptor];
+        }
+    }];
+    
+    NSAppleEventDescriptor *paramDesc = [NSAppleEventDescriptor listDescriptor];
+    for (NSUInteger i = 0; i < asParams.count; i++) {
+        [paramDesc insertDescriptor:asParams[i] atIndex:i+1 /* AS is 1 indexed */];
+    }
+    
+    // create the AppleEvent target
+    ProcessSerialNumber psn = {0, kCurrentProcess};
+    NSAppleEventDescriptor* target =
+    [NSAppleEventDescriptor
+     descriptorWithDescriptorType:typeProcessSerialNumber
+     bytes:&psn
+     length:sizeof(ProcessSerialNumber)];
+    
+    // create an NSAppleEventDescriptor with the script's method name to call,
+    // this is used for the script statement: "on show_message(user_message)"
+    // Note that the routine name must be in lower case.
+    NSAppleEventDescriptor* handler =
+    [NSAppleEventDescriptor descriptorWithString:
+     [subroutine lowercaseString]];
+    
+    // create the event for an AppleScript subroutine,
+    // set the method name and the list of parameters
+    NSAppleEventDescriptor* event =
+    [NSAppleEventDescriptor appleEventWithEventClass:kASAppleScriptSuite
+                                             eventID:kASSubroutineEvent
+                                    targetDescriptor:target
+                                            returnID:kAutoGenerateReturnID
+                                       transactionID:kAnyTransactionID];
+    [event setParamDescriptor:handler forKeyword:keyASSubroutineName];
+    [event setParamDescriptor:paramDesc forKeyword:keyDirectObject];
+    
+    // call the event in AppleScript
+    NSDictionary *errors = nil;
+    if (![self executeAppleEvent:event error:&errors])
+    {
+        return [NSAppleScript errorWithErrorDictionary:errors];
+    }
+    return nil;
 }
 
 @end

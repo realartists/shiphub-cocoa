@@ -24,6 +24,9 @@
 @property (readonly) NSArray<PRComment *> *prComments; // available after checkout is completed
 @property (readonly) GitDiff *spanDiff; // available after checkout is completed
 @property (readonly) PRReview *myLastPendingReview; // available after checkout is completed
+@property (readonly) NSString *bareRepoPath; // available after checkout
+@property (readonly) NSURL *githubRemoteURL;
+@property (readonly) NSString *headRefSpec;
 
 + (BOOL)isGitHubFilesURL:(NSURL *)URL;
 + (id)issueIdentifierForGitHubFilesURL:(NSURL *)URL commentIdentifier:(NSNumber *__autoreleasing *)outCommentIdentifier;
