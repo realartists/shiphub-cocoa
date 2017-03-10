@@ -110,7 +110,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 
 - (NSString *)userNameForHockeyManager:(BITHockeyManager *)hockeyManager componentManager:(BITHockeyBaseManager *)componentManager
 {
-    return _auth.account.login;
+    return [Auth lastUsedLogin].login;
 }
 
 - (IBAction)showSendFeedback:(id)sender {
