@@ -146,6 +146,8 @@
 		1A3D345F1DB0380300CDF167 /* PRSidebarViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A3D345D1DB0380300CDF167 /* PRSidebarViewController.xib */; };
 		1A3D34621DB0528200CDF167 /* PRDiffViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D34611DB0528200CDF167 /* PRDiffViewController.m */; };
 		1A3D34681DB05F5E00CDF167 /* IssueWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D34671DB05F5E00CDF167 /* IssueWebController.m */; };
+		1A4353551E73762A00C5F5AB /* PRMergeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4353531E73762A00C5F5AB /* PRMergeViewController.m */; };
+		1A4353561E73762A00C5F5AB /* PRMergeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A4353541E73762A00C5F5AB /* PRMergeViewController.xib */; };
 		1A48BB4D1D80D8BF001E761E /* UserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */; };
 		1A48BB531D80DED6001E761E /* IssueNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB521D80DED6001E761E /* IssueNotification.m */; };
 		1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
@@ -639,6 +641,9 @@
 		1A3D34661DB05F5E00CDF167 /* IssueWebController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWebController.h; sourceTree = "<group>"; };
 		1A3D34671DB05F5E00CDF167 /* IssueWebController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWebController.m; sourceTree = "<group>"; };
 		1A3D34691DB05F9D00CDF167 /* IssueWebControllerInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IssueWebControllerInternal.h; sourceTree = "<group>"; };
+		1A4353521E73762A00C5F5AB /* PRMergeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMergeViewController.h; sourceTree = "<group>"; };
+		1A4353531E73762A00C5F5AB /* PRMergeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMergeViewController.m; sourceTree = "<group>"; };
+		1A4353541E73762A00C5F5AB /* PRMergeViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRMergeViewController.xib; sourceTree = "<group>"; };
 		1A48BB4B1D80D8BF001E761E /* UserNotificationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserNotificationManager.h; sourceTree = "<group>"; };
 		1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserNotificationManager.m; sourceTree = "<group>"; };
 		1A48BB511D80DED6001E761E /* IssueNotification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueNotification.h; sourceTree = "<group>"; };
@@ -1623,6 +1628,9 @@
 				1A2FCCF41E68EADA0000F91B /* PRReviewChangesViewController.h */,
 				1A2FCCF51E68EADA0000F91B /* PRReviewChangesViewController.m */,
 				1A2FCCF61E68EADA0000F91B /* PRReviewChangesViewController.xib */,
+				1A4353521E73762A00C5F5AB /* PRMergeViewController.h */,
+				1A4353531E73762A00C5F5AB /* PRMergeViewController.m */,
+				1A4353541E73762A00C5F5AB /* PRMergeViewController.xib */,
 				1A2FCD221E7314320000F91B /* clonepr.applescript */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
@@ -1864,6 +1872,7 @@
 				1A38C9F71D9206C800655891 /* HiddenMilestoneViewController.xib in Resources */,
 				1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */,
 				1A3AB35E1D90AE17004BB768 /* SubscriptionController.xib in Resources */,
+				1A4353561E73762A00C5F5AB /* PRMergeViewController.xib in Resources */,
 				1AF567381D625E2300611DBB /* WebAuthController.xib in Resources */,
 				1A012E7E1D3EAC0E006CE5DF /* SearchEditorViewController.xib in Resources */,
 				1AD956B41D0B5654002B1259 /* DownloadBarViewController.xib in Resources */,
@@ -1973,6 +1982,7 @@
 				1AF5674A1D665C5100611DBB /* LocalHidden.m in Sources */,
 				1A694AF61CA09EAD00F73608 /* Label.m in Sources */,
 				1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */,
+				1A4353551E73762A00C5F5AB /* PRMergeViewController.m in Sources */,
 				1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
 				1A012EA81D443CFC006CE5DF /* CustomQuery.m in Sources */,

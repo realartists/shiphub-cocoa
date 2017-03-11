@@ -88,7 +88,8 @@
             
             if (http.statusCode < 200 || http.statusCode >= 400) {
                 if (!error) {
-                    error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+                    error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse
+                                              userInfo:@{ ShipErrorUserInfoHTTPResponseCodeKey : @(http.statusCode) }];
                 }
             }
             

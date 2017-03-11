@@ -8,12 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
-extern NSString *ShipErrorDomain;
-extern NSString *ShipErrorUserInfoProblemIDKey;
+extern NSString *const ShipErrorDomain;
+extern NSString *const ShipErrorUserInfoProblemIDKey;
 
-extern NSString *ShipErrorUserInfoConflictsKey;
-extern NSString *ShipErrorUserInfoLocalProblemKey;
-extern NSString *ShipErrorUserInfoServerProblemKey;
+extern NSString *const ShipErrorUserInfoConflictsKey;
+extern NSString *const ShipErrorUserInfoLocalProblemKey;
+extern NSString *const ShipErrorUserInfoServerProblemKey;
+
+extern NSString *const ShipErrorUserInfoHTTPResponseCodeKey;
 
 typedef NS_ENUM(NSInteger, ShipErrorCode) {
     ShipErrorCodeUnexpectedServerResponse = 1,
@@ -28,15 +30,16 @@ typedef NS_ENUM(NSInteger, ShipErrorCode) {
     ShipErrorCodeInvalidUserAccount = 13,
     ShipErrorCodeProblemSaveOtherError = 14,
     ShipErrorCodeInternalInconsistencyError = 15,
-    ShipErrorCodeGitCloneError = 16
+    ShipErrorCodeGitCloneError = 16,
+    ShipErrorCodeCannotMergePRError = 17
 };
 
 NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code);
 
-
 @interface NSError (ShipError)
 
 + (NSError *)shipErrorWithCode:(ShipErrorCode)code;
++ (NSError *)shipErrorWithCode:(ShipErrorCode)code userInfo:(NSDictionary *)userInfo;
 + (NSError *)shipErrorWithCode:(ShipErrorCode)code localizedMessage:(NSString *)message;
 
 @property (nonatomic, readonly, getter=isShipError) BOOL shipError;

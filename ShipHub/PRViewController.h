@@ -35,4 +35,6 @@
 - (IBAction)nextComment:(id)sender;
 - (IBAction)previousComment:(id)sender;
 
+- (IBAction)merge:(id)sender;
+
 @end

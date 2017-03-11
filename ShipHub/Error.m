@@ -8,13 +8,14 @@
 
 #import "Error.h"
 
-NSString *ShipErrorDomain = @"ShipErrorDomain";
-NSString *ShipErrorUserInfoProblemIDKey= @"ProblemID";
+NSString *const ShipErrorDomain = @"ShipErrorDomain";
+NSString *const ShipErrorUserInfoProblemIDKey= @"ProblemID";
 
-NSString *ShipErrorUserInfoConflictsKey = @"Conflicts";
-NSString *ShipErrorUserInfoLocalProblemKey = @"LocalProblem";
-NSString *ShipErrorUserInfoServerProblemKey = @"ServerProblem";
+NSString *const ShipErrorUserInfoConflictsKey = @"Conflicts";
+NSString *const ShipErrorUserInfoLocalProblemKey = @"LocalProblem";
+NSString *const ShipErrorUserInfoServerProblemKey = @"ServerProblem";
 
+NSString *const ShipErrorUserInfoHTTPResponseCodeKey = @"ShipHTTPResponseCode";
 
 NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
     switch (code) {
@@ -31,6 +32,7 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
         case ShipErrorCodeProblemSaveOtherError: return NSLocalizedString(@"Unable to save issue", nil);
         case ShipErrorCodeInternalInconsistencyError: return NSLocalizedString(@"Internal inconsistency error. Consider removing the contents of ~/Library/RealArtists and restarting the application.", nil);
         case ShipErrorCodeGitCloneError: return NSLocalizedString(@"Unable to clone the repository", nil);
+        case ShipErrorCodeCannotMergePRError: return NSLocalizedString(@"The Pull Request branch cannot be cleanly merged into the default repository branch", nil);
         default: return NSLocalizedString(@"Unexpected Error", nil);
     }
 }
@@ -39,6 +41,9 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
 
 + (NSError *)shipErrorWithCode:(ShipErrorCode)code {
     return [self shipErrorWithCode:code problemID:nil];
+}
++ (NSError *)shipErrorWithCode:(ShipErrorCode)code userInfo:(NSDictionary *)userInfo {
+    return [NSError errorWithDomain:ShipErrorDomain code:code userInfo:userInfo];
 }
 + (NSError *)shipErrorWithCode:(ShipErrorCode)code problemID:(NSNumber *)problemID
 {

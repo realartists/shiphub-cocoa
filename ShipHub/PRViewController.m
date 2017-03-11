@@ -24,6 +24,7 @@
 #import "PRReview.h"
 #import "PRReviewChangesViewController.h"
 #import "PRNavigationToolbarItem.h"
+#import "PRMergeViewController.h"
 
 static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
 static NSString *const DiffViewModeID = @"DiffViewMode";
@@ -31,8 +32,9 @@ static NSString *const ReviewChangesID = @"ReviewChanges";
 static NSString *const NavigationItemID = @"Navigation";
 static NSString *const IssueItemID = @"Issue";
 static NSString *const WorkingCopyItemID = @"WorkingCopy";
+static NSString *const MergeItemID = @"Merge";
 
-@interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, NSToolbarDelegate> {
+@interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, PRMergeViewControllerDelegate, NSToolbarDelegate> {
     NSToolbar *_toolbar;
 }
 
@@ -51,9 +53,13 @@ static NSString *const WorkingCopyItemID = @"WorkingCopy";
 @property PRNavigationToolbarItem *navigationItem;
 @property ButtonToolbarItem *issueItem;
 @property ButtonToolbarItem *workingCopyItem;
+@property ButtonToolbarItem *mergeItem;
 
 @property PRReviewChangesViewController *reviewChangesController;
 @property NSPopover *reviewChangesPopover;
+
+@property PRMergeViewController *mergeController;
+@property NSPopover *mergePopover;
 
 @property NSDictionary *nextScrollInfo;
 
@@ -123,6 +129,14 @@ static NSString *const WorkingCopyItemID = @"WorkingCopy";
     _workingCopyItem.target = self;
     _workingCopyItem.action = @selector(workingCopy:);
     
+    _mergeItem = [[ButtonToolbarItem alloc] initWithItemIdentifier:MergeItemID];
+    _mergeItem.grayWhenDisabled = YES;
+    _mergeItem.label = NSLocalizedString(@"Merge", nil);
+    _mergeItem.buttonImage = [NSImage imageNamed:@"Merge"];
+    _mergeItem.buttonImage.template = YES;
+    _mergeItem.target = self;
+    _mergeItem.action = @selector(merge:);
+    
     _toolbar = [[NSToolbar alloc] initWithIdentifier:@"PRViewController"];
     _toolbar.delegate = self;
     
@@ -158,6 +172,25 @@ static NSString *const WorkingCopyItemID = @"WorkingCopy";
     [_reviewChangesPopover showRelativeToRect:_reviewChangesItem.view.bounds ofView:_reviewChangesItem.view preferredEdge:NSRectEdgeMinY];
 }
 
+- (IBAction)merge:(id)sender {
+    if (_mergePopover.shown) {
+        [_mergePopover close];
+        return;
+    }
+    
+    if (!_mergeController) {
+        _mergeController = [PRMergeViewController new];
+        _mergeController.delegate = self;
+    }
+    _mergeController.pr = _pr;
+    
+    _mergePopover = [[NSPopover alloc] init];
+    _mergePopover.contentViewController = _mergeController;
+    _mergePopover.behavior = NSPopoverBehaviorSemitransient;
+    
+    [_mergePopover showRelativeToRect:_mergeItem.view.bounds ofView:_mergeItem.view preferredEdge:NSRectEdgeMinY];
+}
+
 - (IBAction)workingCopy:(id)sender {
     NSURL *scriptURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"clonepr" withExtension:@"scpt"];
     
@@ -189,8 +222,6 @@ static NSString *const WorkingCopyItemID = @"WorkingCopy";
     }
 }
 
-
-
 #pragma mark - Toolbar Delegate
 
 - (nullable NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag {
@@ -204,13 +235,23 @@ static NSString *const WorkingCopyItemID = @"WorkingCopy";
         return _issueItem;
     } else if ([itemIdentifier isEqualToString:WorkingCopyItemID]) {
         return _workingCopyItem;
+    } else if ([itemIdentifier isEqualToString:MergeItemID]) {
+        return _mergeItem;
     } else {
         return [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
     }
 }
 
 - (NSArray<NSString *> *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
-    return @[IssueItemID, NavigationItemID, NSToolbarSpaceItemIdentifier, WorkingCopyItemID, NSToolbarFlexibleSpaceItemIdentifier, DiffViewModeID, ReviewChangesID];
+    return @[IssueItemID,
+             NavigationItemID,
+             NSToolbarSpaceItemIdentifier,
+             WorkingCopyItemID,
+             NSToolbarSpaceItemIdentifier,
+             MergeItemID,
+             NSToolbarFlexibleSpaceItemIdentifier,
+             DiffViewModeID,
+             ReviewChangesID];
 }
 
 - (NSArray<NSString *> *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar {
@@ -264,6 +305,8 @@ static NSString *const WorkingCopyItemID = @"WorkingCopy";
         return [_sidebarController canGoNextFile];
     } else if (menuItem.action == @selector(previousFile:)) {
         return [_sidebarController canGoPreviousFile];
+    } else if (menuItem.action == @selector(merge:)) {
+        return [_pr canMerge];
     }
     return YES;
 }
@@ -303,6 +346,8 @@ static NSString *const WorkingCopyItemID = @"WorkingCopy";
             _pendingReview = self.pr.myLastPendingReview;
             [_pendingComments addObjectsFromArray:_pendingReview.comments];
         }
+        
+        _mergeItem.enabled = self.pr.canMerge;
         
         if (error) {
             NSAlert *alert = [NSAlert new];
@@ -451,6 +496,30 @@ static NSString *const WorkingCopyItemID = @"WorkingCopy";
             [_pendingComments removeObjectsInArray:review.comments];
             [self reloadComments];
             
+            [[self.view window] close];
+        }
+    }];
+}
+
+#pragma mark - PRMergeViewControllerDelegate
+
+- (void)mergeViewController:(PRMergeViewController *)vc didSubmitWithTitle:(NSString *)title message:(NSString *)message strategy:(PRMergeStrategy)strat
+{
+    [_mergePopover close];
+    _mergePopover = nil;
+    _mergeController = nil;
+    
+    ProgressSheet *progress = [ProgressSheet new];
+    progress.message = NSLocalizedString(@"Merging", nil);
+    [progress beginSheetInWindow:self.view.window];
+    
+    [_pr performMergeWithMethod:strat title:title message:message completion:^(NSError *error) {
+        [progress endSheet];
+        if (error) {
+            [self presentError:error withRetry:^{
+                [self merge:nil];
+            } fail:nil];
+        } else {
             [[self.view window] close];
         }
     }];

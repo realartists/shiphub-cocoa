@@ -1,6 +1,5 @@
 on waitfor(mytab)
 	using terms from application "Terminal"
-		log "hello"
 		repeat while mytab is busy
 			delay 0.1
 		end repeat
