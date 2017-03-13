@@ -15,6 +15,11 @@ dist/.uptodate: node_modules/.uptodate $(INPUT)
 node_modules/.uptodate: npm-shrinkwrap.json
 	$(INSTALL_MODS) && touch node_modules/.uptodate
 
+.PHONY: clean analyze install
 clean:
 	rm -rf dist/* dist/.uptodate
+
+analyze:
+
+install:
 
