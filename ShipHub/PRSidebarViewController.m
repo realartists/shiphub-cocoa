@@ -15,6 +15,17 @@
 #import "GitDiff.h"
 #import "NSImage+Icons.h"
 
+@interface PRSidebarCellView : NSTableCellView
+
+@property IBOutlet NSTextField *changeLabel;
+@property IBOutlet NSLayoutConstraint *commentWidthConstraint;
+
+@property (nonatomic, assign) BOOL hasComments;
+@property (nonatomic, copy) NSString *changeType;
+@property (nonatomic, copy) NSString *filename;
+
+@end
+
 @interface PRSidebarRowView : NSTableRowView
 
 @end
@@ -184,22 +195,49 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
 
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
-    NSTableCellView *cell = [outlineView makeViewWithIdentifier:@"DataCell" owner:self];
+    PRSidebarCellView *cell = [outlineView makeViewWithIdentifier:@"DataCell" owner:self];
+    
+    cell.hasComments = NO;
     
     if (item == _activeDiff.fileTree) {
         // root item
         cell.imageView.image = [NSImage imageNamed:NSImageNameFolder];
-        cell.textField.stringValue = self.pr.issue.repository.name;
-        cell.textField.toolTip = cell.textField.stringValue;
+        cell.filename = self.pr.issue.repository.name;
+        cell.changeType = @"";
     } else if ([item isKindOfClass:[GitFileTree class]]) {
         cell.imageView.image = [NSImage imageNamed:NSImageNameFolder];
-        cell.textField.stringValue = [item name];
-        cell.textField.toolTip = cell.textField.stringValue;
+        cell.filename = [item name];
+        cell.changeType = @"";
     } else {
         NSString *filename = [item name];
         cell.imageView.image = [[NSWorkspace sharedWorkspace] iconForFileType:[filename pathExtension]];
-        cell.textField.stringValue = [item name];
-        cell.textField.toolTip = cell.textField.stringValue;
+        cell.filename = filename;
+        
+        NSString *op = @"";
+        switch ([(GitDiffFile *)item operation]) {
+            case DiffFileOperationAdded:
+                op = @"A";
+                break;
+            case DiffFileOperationCopied:
+                op = @"A+";
+                break;
+            case DiffFileOperationRenamed:
+                op = @"R";
+                break;
+            case DiffFileOperationDeleted:
+                op = @"D";
+                break;
+            case DiffFileOperationModified:
+                op = @"M";
+                break;
+            case DiffFileOperationTypeChange:
+                op = @"M";
+                break;
+            case DiffFileOperationTypeConflicted:
+                op = @"C";
+                break;
+        }
+        cell.changeType = op;
     }
     
     return cell;
@@ -215,5 +253,31 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
 
 
 @implementation PRSidebarRowView
+
+@end
+
+@implementation PRSidebarCellView
+
+- (void)setChangeType:(NSString *)changeType {
+    _changeLabel.stringValue = changeType ?: @"";
+}
+
+- (NSString *)changeType {
+    return _changeLabel.stringValue;
+}
+
+- (void)setHasComments:(BOOL)hasComments {
+    _hasComments = hasComments;
+    _commentWidthConstraint.constant = hasComments ? 14.0 : 0.0;
+}
+
+- (void)setFilename:(NSString *)filename {
+    self.textField.stringValue = filename ?: @"";
+    self.textField.toolTip = self.textField.stringValue;
+}
+
+- (NSString *)filename {
+    return self.textField.stringValue;
+}
 
 @end

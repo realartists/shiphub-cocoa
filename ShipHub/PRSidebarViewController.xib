@@ -44,7 +44,7 @@
                                         </textFieldCell>
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <prototypeCellViews>
-                                            <tableCellView identifier="HeaderCell" id="T3f-xP-XGT">
+                                            <tableCellView identifier="HeaderCell" id="T3f-xP-XGT" userLabel="Header">
                                                 <rect key="frame" x="1" y="1" width="324" height="17"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -62,11 +62,11 @@
                                                     <outlet property="textField" destination="fd4-Wj-L7o" id="52z-kR-B2R"/>
                                                 </connections>
                                             </tableCellView>
-                                            <tableCellView identifier="DataCell" id="ilr-MM-Z5w">
+                                            <tableCellView identifier="DataCell" id="ilr-MM-Z5w" userLabel="Cell" customClass="PRSidebarCellView">
                                                 <rect key="frame" x="1" y="20" width="324" height="17"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <imageView translatesAutoresizingMaskIntoConstraints="NO" id="nun-68-sSA">
+                                                    <imageView translatesAutoresizingMaskIntoConstraints="NO" id="nun-68-sSA" userLabel="File Icon">
                                                         <rect key="frame" x="3" y="0.0" width="17" height="17"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" constant="17" id="8du-GU-1p7"/>
@@ -74,23 +74,45 @@
                                                         </constraints>
                                                         <imageCell key="cell" refusesFirstResponder="YES" imageScaling="proportionallyDown" image="NSActionTemplate" id="dGw-S6-xD0"/>
                                                     </imageView>
-                                                    <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="SUQ-c7-fYn">
-                                                        <rect key="frame" x="25" y="0.0" width="298" height="17"/>
-                                                        <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="gMk-xq-U8k">
+                                                    <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="SUQ-c7-fYn" userLabel="File Label">
+                                                        <rect key="frame" x="25" y="0.0" width="267" height="17"/>
+                                                        <textFieldCell key="cell" lineBreakMode="truncatingMiddle" sendsActionOnEndEditing="YES" title="Table View Cell" id="gMk-xq-U8k">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
+                                                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="5G9-8m-5Jz" userLabel="Comment Icon">
+                                                        <rect key="frame" x="293" y="0.0" width="14" height="14"/>
+                                                        <constraints>
+                                                            <constraint firstAttribute="height" constant="14" id="DRa-Pw-mvm"/>
+                                                            <constraint firstAttribute="width" constant="14" id="nIu-jm-BIP"/>
+                                                        </constraints>
+                                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" image="PRSidebarMessageBubble" id="Lkf-MM-gd7"/>
+                                                    </imageView>
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rfp-pt-86Q" userLabel="Change Label">
+                                                        <rect key="frame" x="307" y="0.0" width="16" height="17"/>
+                                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="M" id="ghL-bs-ndy">
+                                                            <font key="font" metaFont="systemBold"/>
+                                                            <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                        </textFieldCell>
+                                                    </textField>
                                                 </subviews>
                                                 <constraints>
+                                                    <constraint firstItem="Rfp-pt-86Q" firstAttribute="top" secondItem="ilr-MM-Z5w" secondAttribute="top" id="40F-8p-VuP"/>
                                                     <constraint firstItem="SUQ-c7-fYn" firstAttribute="leading" secondItem="nun-68-sSA" secondAttribute="trailing" constant="7" id="OLS-97-o0i"/>
-                                                    <constraint firstAttribute="trailing" secondItem="SUQ-c7-fYn" secondAttribute="trailing" constant="3" id="RFF-2l-UiF"/>
+                                                    <constraint firstItem="5G9-8m-5Jz" firstAttribute="top" secondItem="ilr-MM-Z5w" secondAttribute="top" constant="3" id="OnQ-cy-o6j"/>
+                                                    <constraint firstItem="5G9-8m-5Jz" firstAttribute="leading" secondItem="SUQ-c7-fYn" secondAttribute="trailing" constant="3" id="VP3-ac-WHw"/>
+                                                    <constraint firstItem="Rfp-pt-86Q" firstAttribute="leading" secondItem="5G9-8m-5Jz" secondAttribute="trailing" constant="2" id="ZeD-hm-Dp0"/>
                                                     <constraint firstItem="nun-68-sSA" firstAttribute="leading" secondItem="ilr-MM-Z5w" secondAttribute="leading" constant="3" id="sDY-5Z-SSf"/>
                                                     <constraint firstItem="nun-68-sSA" firstAttribute="top" secondItem="ilr-MM-Z5w" secondAttribute="top" id="vhI-Lg-3qH"/>
                                                     <constraint firstItem="SUQ-c7-fYn" firstAttribute="top" secondItem="ilr-MM-Z5w" secondAttribute="top" id="zGM-eZ-9aT"/>
+                                                    <constraint firstAttribute="trailing" secondItem="Rfp-pt-86Q" secondAttribute="trailing" constant="3" id="zon-w0-szt"/>
                                                 </constraints>
                                                 <connections>
+                                                    <outlet property="changeLabel" destination="Rfp-pt-86Q" id="Hah-49-G9y"/>
+                                                    <outlet property="commentWidthConstraint" destination="nIu-jm-BIP" id="j5k-AC-Hyc"/>
                                                     <outlet property="imageView" destination="nun-68-sSA" id="duN-ku-P96"/>
                                                     <outlet property="textField" destination="SUQ-c7-fYn" id="EdH-XG-I7J"/>
                                                 </connections>
@@ -127,5 +149,6 @@
     </objects>
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
+        <image name="PRSidebarMessageBubble" width="14" height="14"/>
     </resources>
 </document>
