@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import Sortable from 'sortablejs'
 import { markdownRender } from 'util/markdown-render.js'
 import { rewriteTaskList } from 'util/rewrite-task-list.js'
+import matchAll from 'util/match-all.js'
 
 function preOrderTraverseDOM(root, handler) {
   var stack = [root];
@@ -17,15 +18,6 @@ function preOrderTraverseDOM(root, handler) {
       stack.unshift(...x.childNodes);
     }
   }
-}
-
-function matchAll(re, str) {
-  var matches = [];
-  var match;
-  while ((match = re.exec(str)) !== null) {
-    matches.push(match);
-  }
-  return matches;
 }
 
 var CommentBody = React.createClass({

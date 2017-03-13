@@ -29,6 +29,7 @@ import { promiseQueue } from 'util/promise-queue.js'
 import ghost from 'util/ghost.js'
 import IssueState from './issue-state.js'
 import { keypath, setKeypath } from 'util/keypath.js'
+import matchAll from 'util/match-all.js'
 
 import AvatarIMG from 'components/AvatarIMG.js'
 import Comment from 'components/comment/Comment.js'
