@@ -16,5 +16,5 @@ node_modules/.uptodate: npm-shrinkwrap.json
 	$(INSTALL_MODS) && touch node_modules/.uptodate
 
 clean:
-	rm -r dist/* dist/.uptodate
+	rm -rf dist/* dist/.uptodate
 

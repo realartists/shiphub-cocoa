@@ -1702,7 +1702,7 @@
 /* Begin PBXLegacyTarget section */
 		1AD956BE1D0BCFBA002B1259 /* IssueWeb */ = {
 			isa = PBXLegacyTarget;
-			buildArgumentsString = "";
+			buildArgumentsString = "$(ACTION)";
 			buildConfigurationList = 1AD956C41D0BCFBA002B1259 /* Build configuration list for PBXLegacyTarget "IssueWeb" */;
 			buildPhases = (
 			);
