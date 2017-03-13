@@ -14,13 +14,21 @@
 
 @implementation PRComment
 
+static NSNumber *getNum(NSDictionary *d, NSString *field) {
+    id v = d[field];
+    if (![v isKindOfClass:[NSNumber class]]) {
+        return nil;
+    }
+    return v;
+}
+
 - (id)initWithDictionary:(NSDictionary *)d metadataStore:(MetadataStore *)store {
     if (self = [super init]) {
         _pullRequestReviewId = d[@"pull_request_review_id"];
         _diffHunk = d[@"diff_hunk"];
         _path = d[@"path"];
-        _position = d[@"position"];
-        _originalPosition = d[@"original_position"];
+        _position = getNum(d, @"position");
+        _originalPosition = getNum(d, @"original_position");
         _commitId = d[@"commit_id"];
         _originalCommitId = d[@"original_commit_id"];
         _inReplyTo = d[@"in_reply_to"];

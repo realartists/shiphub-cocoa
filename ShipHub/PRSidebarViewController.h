@@ -30,6 +30,10 @@
 - (IBAction)nextFile:(id)sender;
 - (IBAction)previousFile:(id)sender;
 
+- (IBAction)nextCommentedFile:(id)sender;
+- (IBAction)previousCommentedFile:(id)sender;
+
+
 @end
 
 @protocol PRSidebarViewControllerDelegate <NSObject>

@@ -312,17 +312,28 @@ static NSString *const MergeItemID = @"Merge";
 }
 
 - (void)diffViewController:(PRDiffViewController *)vc continueNavigation:(NSDictionary *)options {
+    NSString *type = options[@"type"] ?: @"";
     if ([options[@"direction"] integerValue] > 0) {
         if ([_sidebarController canGoNextFile]) {
-            _nextScrollInfo = @{ @"type" : options[@"type"] ?: @"",
+            _nextScrollInfo = @{ @"type" : type,
                                  @"first" : @YES };
-            [_sidebarController nextFile:self];
+            
+            if ([type isEqualToString:@"comment"]) {
+                [_sidebarController nextCommentedFile:self];
+            } else {
+                [_sidebarController nextFile:self];
+            }
         }
     } else {
         if ([_sidebarController canGoPreviousFile]) {
-            _nextScrollInfo = @{ @"type" : options[@"type"] ?: @"",
+            _nextScrollInfo = @{ @"type" : type,
                                  @"last" : @YES };
-            [_sidebarController previousFile:self];
+            
+            if ([type isEqualToString:@"comment"]) {
+                [_sidebarController previousCommentedFile:self];
+            } else {
+                [_sidebarController previousFile:self];
+            }
         }
     }
 }

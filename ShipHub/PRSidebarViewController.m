@@ -12,6 +12,7 @@
 #import "Issue.h"
 #import "Repo.h"
 #import "PullRequest.h"
+#import "PRComment.h"
 #import "GitDiff.h"
 #import "NSImage+Icons.h"
 
@@ -39,6 +40,7 @@
 @property IBOutlet PRSidebarOutlineView *outline;
 
 @property NSArray *inorderFiles;
+@property NSSet *commentedPaths;
 
 @end
 
@@ -53,6 +55,15 @@
     
     _pr = pr;
     self.activeDiff = pr.spanDiff;
+}
+
+- (void)setAllComments:(NSArray<PRComment *> *)allComments {
+    NSArray *relevantComments = [allComments filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"commitId == %@ AND position != nil", _activeDiff.headRev]];
+    _commentedPaths = [NSSet setWithArray:[relevantComments arrayByMappingObjects:^id(PRComment * obj) {
+        return [obj path];
+    }]];
+    _allComments = allComments;
+    [_outline reloadData];
 }
 
 static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
@@ -147,6 +158,32 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
     }
 }
 
+- (IBAction)nextCommentedFile:(id)sender {
+    id item = [_outline selectedItem];
+    if (item) {
+        NSInteger idx = [_inorderFiles indexOfObjectIdenticalTo:item];
+        idx++;
+        while (idx < _inorderFiles.count && ![_commentedPaths containsObject:[_inorderFiles[idx] path]])
+            idx++;
+        if (idx < _inorderFiles.count) {
+            [self selectFile:_inorderFiles[idx]];
+        }
+    }
+}
+
+- (IBAction)previousCommentedFile:(id)sender {
+    id item = [_outline selectedItem];
+    if (item) {
+        NSInteger idx = [_inorderFiles indexOfObjectIdenticalTo:item];
+        idx--;
+        while (idx >= 0 && ![_commentedPaths containsObject:[_inorderFiles[idx] path]])
+            idx--;
+        if (idx >= 0) {
+            [self selectFile:_inorderFiles[idx]];
+        }
+    }
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     if (menuItem.action == @selector(nextFile:)) {
         return [self canGoNextFile];
@@ -197,24 +234,25 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
 {
     PRSidebarCellView *cell = [outlineView makeViewWithIdentifier:@"DataCell" owner:self];
     
-    cell.hasComments = NO;
-    
     if (item == _activeDiff.fileTree) {
         // root item
         cell.imageView.image = [NSImage imageNamed:NSImageNameFolder];
         cell.filename = self.pr.issue.repository.name;
         cell.changeType = @"";
+        cell.hasComments = NO;
     } else if ([item isKindOfClass:[GitFileTree class]]) {
         cell.imageView.image = [NSImage imageNamed:NSImageNameFolder];
         cell.filename = [item name];
         cell.changeType = @"";
+        cell.hasComments = NO;
     } else {
+        GitDiffFile *file = item;
         NSString *filename = [item name];
         cell.imageView.image = [[NSWorkspace sharedWorkspace] iconForFileType:[filename pathExtension]];
         cell.filename = filename;
         
         NSString *op = @"";
-        switch ([(GitDiffFile *)item operation]) {
+        switch ([file operation]) {
             case DiffFileOperationAdded:
                 op = @"A";
                 break;
@@ -238,6 +276,8 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
                 break;
         }
         cell.changeType = op;
+        
+        cell.hasComments = [_commentedPaths containsObject:file.path];
     }
     
     return cell;
