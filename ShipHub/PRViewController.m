@@ -300,6 +300,10 @@ static NSString *const MergeItemID = @"Merge";
                                  @"type" : @"comment" }];
 }
 
+- (IBAction)filterInNavigator:(id)sender {
+    [_sidebarController filterInNavigator:sender];
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     if (menuItem.action == @selector(nextFile:)) {
         return [_sidebarController canGoNextFile];

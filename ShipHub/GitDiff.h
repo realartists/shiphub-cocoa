@@ -72,4 +72,6 @@ typedef NS_ENUM(NSInteger, DiffFileMode) {
 @property (readonly) NSString *baseRev;
 @property (readonly) NSString *headRev;
 
+- (GitDiff *)copyByFilteringFilesWithPredicate:(NSPredicate *)predicate;
+
 @end

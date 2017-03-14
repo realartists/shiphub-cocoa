@@ -8,6 +8,8 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="PRSidebarViewController">
             <connections>
+                <outlet property="commentFilterButton" destination="phf-1B-MUt" id="WJa-qH-wyK"/>
+                <outlet property="filterField" destination="1J9-qx-ExO" id="cuJ-5y-oPS"/>
                 <outlet property="outline" destination="s7W-GM-7gG" id="hi0-v5-C7H"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
@@ -18,14 +20,14 @@
             <rect key="frame" x="0.0" y="0.0" width="327" height="623"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jan-26-0RY">
-                    <rect key="frame" x="0.0" y="0.0" width="327" height="623"/>
-                    <clipView key="contentView" drawsBackground="NO" id="iE7-xr-yYa">
-                        <rect key="frame" x="0.0" y="0.0" width="327" height="623"/>
+                <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jan-26-0RY">
+                    <rect key="frame" x="0.0" y="30" width="327" height="593"/>
+                    <clipView key="contentView" wantsLayer="YES" drawsBackground="NO" id="iE7-xr-yYa">
+                        <rect key="frame" x="0.0" y="0.0" width="327" height="593"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" selectionHighlightStyle="sourceList" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="16" outlineTableColumn="fKT-C7-eOT" id="s7W-GM-7gG" customClass="PRSidebarOutlineView">
-                                <rect key="frame" x="0.0" y="0.0" width="327" height="623"/>
+                            <outlineView wantsLayer="YES" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" selectionHighlightStyle="sourceList" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="16" outlineTableColumn="fKT-C7-eOT" id="s7W-GM-7gG" customClass="PRSidebarOutlineView">
+                                <rect key="frame" x="0.0" y="0.0" width="327" height="593"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
                                 <color key="backgroundColor" name="_sourceListBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -62,7 +64,7 @@
                                                     <outlet property="textField" destination="fd4-Wj-L7o" id="52z-kR-B2R"/>
                                                 </connections>
                                             </tableCellView>
-                                            <tableCellView identifier="DataCell" id="ilr-MM-Z5w" userLabel="Cell" customClass="PRSidebarCellView">
+                                            <tableCellView identifier="DataCell" wantsLayer="YES" id="ilr-MM-Z5w" userLabel="Cell" customClass="PRSidebarCellView">
                                                 <rect key="frame" x="1" y="20" width="324" height="17"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -74,7 +76,7 @@
                                                         </constraints>
                                                         <imageCell key="cell" refusesFirstResponder="YES" imageScaling="proportionallyDown" image="NSActionTemplate" id="dGw-S6-xD0"/>
                                                     </imageView>
-                                                    <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="SUQ-c7-fYn" userLabel="File Label">
+                                                    <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SUQ-c7-fYn" userLabel="File Label">
                                                         <rect key="frame" x="25" y="0.0" width="267" height="17"/>
                                                         <textFieldCell key="cell" lineBreakMode="truncatingMiddle" sendsActionOnEndEditing="YES" title="Table View Cell" id="gMk-xq-U8k">
                                                             <font key="font" metaFont="system"/>
@@ -133,16 +135,66 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="cfk-Hi-KDr">
-                        <rect key="frame" x="224" y="17" width="15" height="102"/>
+                        <rect key="frame" x="312" y="0.0" width="15" height="0.0"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                 </scrollView>
+                <visualEffectView wantsLayer="YES" appearanceType="vibrantLight" blendingMode="behindWindow" material="sidebar" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="1Pe-Jf-IJa">
+                    <rect key="frame" x="0.0" y="0.0" width="327" height="30"/>
+                    <subviews>
+                        <box appearanceType="aqua" verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="k2s-rf-wi6">
+                            <rect key="frame" x="0.0" y="27" width="327" height="5"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="1" id="bvh-Fv-8CF"/>
+                            </constraints>
+                        </box>
+                        <searchField wantsLayer="YES" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1J9-qx-ExO">
+                            <rect key="frame" x="8" y="4" width="284" height="22"/>
+                            <searchFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" placeholderString="Filter" usesSingleLineMode="YES" bezelStyle="round" id="kKi-Jz-O27">
+                                <font key="font" metaFont="system"/>
+                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                            </searchFieldCell>
+                            <connections>
+                                <action selector="searchFilterEdited:" target="-2" id="L7G-rb-61H"/>
+                            </connections>
+                        </searchField>
+                        <button toolTip="Show only files with comments" translatesAutoresizingMaskIntoConstraints="NO" id="phf-1B-MUt">
+                            <rect key="frame" x="298" y="3" width="22" height="22"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="22" id="0XI-7p-oz5"/>
+                                <constraint firstAttribute="width" constant="22" id="YQT-6u-2eP"/>
+                            </constraints>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="PRSidebarMessageFilterOff" imagePosition="only" alignment="center" alternateImage="PRSidebarMessageFilterOn" imageScaling="proportionallyUpOrDown" inset="2" id="ffS-lE-6Wr">
+                                <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="commentFilterButtonToggled:" target="-2" id="czL-KV-UZX"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="30" id="1TV-VV-ITK"/>
+                        <constraint firstAttribute="bottom" secondItem="1J9-qx-ExO" secondAttribute="bottom" constant="4" id="Bdf-9v-VvT"/>
+                        <constraint firstAttribute="trailing" secondItem="phf-1B-MUt" secondAttribute="trailing" constant="7" id="HCj-vf-HfN"/>
+                        <constraint firstItem="1J9-qx-ExO" firstAttribute="leading" secondItem="1Pe-Jf-IJa" secondAttribute="leading" constant="8" id="HT6-GD-kn9"/>
+                        <constraint firstAttribute="trailing" secondItem="k2s-rf-wi6" secondAttribute="trailing" id="W0h-hW-ivE"/>
+                        <constraint firstItem="k2s-rf-wi6" firstAttribute="top" secondItem="1Pe-Jf-IJa" secondAttribute="top" id="Woi-Vi-FFV"/>
+                        <constraint firstItem="k2s-rf-wi6" firstAttribute="leading" secondItem="1Pe-Jf-IJa" secondAttribute="leading" id="Xjr-Vh-C7J"/>
+                        <constraint firstAttribute="bottom" secondItem="phf-1B-MUt" secondAttribute="bottom" constant="3" id="cfA-96-yOJ"/>
+                        <constraint firstItem="phf-1B-MUt" firstAttribute="leading" secondItem="1J9-qx-ExO" secondAttribute="trailing" constant="6" id="ey2-7i-teB"/>
+                    </constraints>
+                </visualEffectView>
             </subviews>
             <constraints>
-                <constraint firstAttribute="trailing" secondItem="Jan-26-0RY" secondAttribute="trailing" id="kPK-cL-Lbf"/>
-                <constraint firstItem="Jan-26-0RY" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="nmK-D9-yff"/>
-                <constraint firstItem="Jan-26-0RY" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="p1h-eF-8JK"/>
-                <constraint firstAttribute="bottom" secondItem="Jan-26-0RY" secondAttribute="bottom" id="p9H-Tg-EXB"/>
+                <constraint firstItem="Jan-26-0RY" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="Huf-V7-89m"/>
+                <constraint firstItem="1Pe-Jf-IJa" firstAttribute="top" secondItem="Jan-26-0RY" secondAttribute="bottom" id="Ook-4t-cgt"/>
+                <constraint firstAttribute="bottom" secondItem="1Pe-Jf-IJa" secondAttribute="bottom" id="hot-cx-GKA"/>
+                <constraint firstAttribute="trailing" secondItem="1Pe-Jf-IJa" secondAttribute="trailing" id="rVQ-DJ-XPi"/>
+                <constraint firstAttribute="trailing" secondItem="Jan-26-0RY" secondAttribute="trailing" id="s3E-cV-RBQ"/>
+                <constraint firstItem="1Pe-Jf-IJa" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="trM-pW-LRy"/>
+                <constraint firstItem="Jan-26-0RY" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="wGq-sd-WoZ"/>
             </constraints>
             <point key="canvasLocation" x="368.5" y="410.5"/>
         </customView>
@@ -150,5 +202,7 @@
     <resources>
         <image name="NSActionTemplate" width="14" height="14"/>
         <image name="PRSidebarMessageBubble" width="14" height="14"/>
+        <image name="PRSidebarMessageFilterOff" width="22" height="22"/>
+        <image name="PRSidebarMessageFilterOn" width="22" height="22"/>
     </resources>
 </document>

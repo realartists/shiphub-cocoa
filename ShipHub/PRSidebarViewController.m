@@ -39,6 +39,10 @@
 
 @property IBOutlet PRSidebarOutlineView *outline;
 
+@property IBOutlet NSSearchField *filterField;
+@property IBOutlet NSButton *commentFilterButton;
+
+@property GitDiff *filteredDiff;
 @property NSArray *inorderFiles;
 @property NSSet *commentedPaths;
 
@@ -48,6 +52,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+}
+
+- (void)reloadData {
+    GitDiffFile *file = [_outline selectedItem];
+    [_outline reloadData];
+    [self selectFile:file];
 }
 
 - (void)setPr:(PullRequest *)pr {
@@ -63,7 +73,7 @@
         return [obj path];
     }]];
     _allComments = allComments;
-    [_outline reloadData];
+    [self reloadData];
 }
 
 static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
@@ -78,21 +88,52 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
     }
 }
 
+- (void)buildInorderFiles {
+    // create inorderFiles, a traversal of
+    // the tree that's the same order as the fully
+    // expanded outline view
+    NSMutableArray *files = [NSMutableArray new];
+    traverseFiles(_filteredDiff.fileTree, files);
+    _inorderFiles = files;
+}
+
 - (void)setActiveDiff:(GitDiff *)diff {
     if (_activeDiff != diff) {
         _activeDiff = diff;
+        _filteredDiff = diff;
         
-        {
-            // create inorderFiles, a traversal of
-            // the tree that's the same order as the fully
-            // expanded outline view
-            NSMutableArray *files = [NSMutableArray new];
-            traverseFiles(diff.fileTree, files);
-            _inorderFiles = files;
-        }
+        [_filterField setStringValue:@""];
+        _commentFilterButton.state = NSOffState;
+        
+        [self buildInorderFiles];
         
         [_outline reloadData];
         [_outline expandItem:nil expandChildren:YES];
+        [self selectFirstItem];
+    }
+}
+
+- (void)updateFilteredDiff {
+    NSString *pathFilter = [_filterField.stringValue trim];
+    BOOL mustBeCommented = _commentFilterButton.state == NSOnState;
+    _filteredDiff = [_activeDiff copyByFilteringFilesWithPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        
+        GitDiffFile *file = evaluatedObject;
+        if (mustBeCommented && ![_commentedPaths containsObject:file.path]) {
+            return NO;
+        }
+        
+        if ([pathFilter length] && ![file.path localizedStandardContainsString:pathFilter]) {
+            return NO;
+        }
+        
+        return YES;
+    }]];
+    
+    [self buildInorderFiles];
+    [self reloadData];
+    [_outline expandItem:nil expandChildren:YES];
+    if (![_outline selectedItem]) {
         [self selectFirstItem];
     }
 }
@@ -184,6 +225,18 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
     }
 }
 
+- (IBAction)commentFilterButtonToggled:(id)sender {
+    [self updateFilteredDiff];
+}
+
+- (IBAction)searchFilterEdited:(id)sender {
+    [self updateFilteredDiff];
+}
+
+- (IBAction)filterInNavigator:(id)sender {
+    [_filterField.window makeFirstResponder:_filterField];
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     if (menuItem.action == @selector(nextFile:)) {
         return [self canGoNextFile];
@@ -195,7 +248,7 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
 
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(id)item {
     if (item == nil) {
-        return _activeDiff != nil ? 1 : 0;
+        return _filteredDiff != nil ? 1 : 0;
     } else if ([item isKindOfClass:[GitFileTree class]]) {
         return [[item children] count];
     } else {
@@ -206,7 +259,7 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
 
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(nullable id)item {
     if (item == nil) {
-        return _activeDiff.fileTree;
+        return _filteredDiff.fileTree;
     } else if ([item isKindOfClass:[GitFileTree class]]) {
         return [item children][index];
     } else {
@@ -225,8 +278,10 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
 - (void)outlineViewSelectionDidChange:(NSNotification *)notification {
     id item = [_outline selectedItem];
     if ([item isKindOfClass:[GitDiffFile class]]) {
-        _selectedFile = item;
-        [_delegate prSidebar:self didSelectGitDiffFile:item];
+        if (_selectedFile != item) {
+            _selectedFile = item;
+            [_delegate prSidebar:self didSelectGitDiffFile:item];
+        }
     }
 }
 
@@ -234,7 +289,7 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
 {
     PRSidebarCellView *cell = [outlineView makeViewWithIdentifier:@"DataCell" owner:self];
     
-    if (item == _activeDiff.fileTree) {
+    if (item == _filteredDiff.fileTree) {
         // root item
         cell.imageView.image = [NSImage imageNamed:NSImageNameFolder];
         cell.filename = self.pr.issue.repository.name;
@@ -289,6 +344,10 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
 
 - (BOOL)acceptsFirstResponder { return NO; }
 
+- (void)selectRowIndexes:(NSIndexSet *)indexes byExtendingSelection:(BOOL)extend {
+    [super selectRowIndexes:indexes byExtendingSelection:extend];
+}
+
 @end
 
 
@@ -313,7 +372,6 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
 
 - (void)setFilename:(NSString *)filename {
     self.textField.stringValue = filename ?: @"";
-    self.textField.toolTip = self.textField.stringValue;
 }
 
 - (NSString *)filename {

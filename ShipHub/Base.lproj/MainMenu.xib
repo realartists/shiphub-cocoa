@@ -628,6 +628,13 @@ CA
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Pull Request" id="F7c-rh-MFi">
                         <items>
+                            <menuItem title="Filter in Navigator" keyEquivalent="j" id="HXJ-1d-VNb">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
+                                <connections>
+                                    <action selector="filterInNavigator:" target="-1" id="A7y-8s-YBF"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="upc-ln-X9c"/>
                             <menuItem title="Navigation" enabled="NO" id="gQp-dZ-uQ0">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>

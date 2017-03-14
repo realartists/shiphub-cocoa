@@ -33,6 +33,7 @@
 - (IBAction)nextCommentedFile:(id)sender;
 - (IBAction)previousCommentedFile:(id)sender;
 
+- (IBAction)filterInNavigator:(id)sender;
 
 @end
 

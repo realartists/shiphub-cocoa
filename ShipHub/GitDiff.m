@@ -236,6 +236,10 @@ static NSUInteger pathDepth(NSString *path) {
     self.fileTree = root;
 }
 
+- (GitDiff *)copyByFilteringFilesWithPredicate:(NSPredicate *)predicate {
+    return [[GitDiff alloc] initWithFiles:[self.allFiles filteredArrayUsingPredicate:predicate] baseRev:self.baseRev headRev:self.headRev];
+}
+
 @end
 
 @implementation GitFileTree
