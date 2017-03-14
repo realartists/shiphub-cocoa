@@ -306,6 +306,7 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
         cell.imageView.image = [[NSWorkspace sharedWorkspace] iconForFileType:[filename pathExtension]];
         cell.filename = filename;
         
+        NSString *opTooltip = nil;
         NSString *op = @"";
         switch ([file operation]) {
             case DiffFileOperationAdded:
@@ -316,6 +317,7 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
                 break;
             case DiffFileOperationRenamed:
                 op = @"R";
+                opTooltip = [NSString stringWithFormat:NSLocalizedString(@"Renamed from %@", nil), file.oldPath];
                 break;
             case DiffFileOperationDeleted:
                 op = @"D";
@@ -331,6 +333,7 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
                 break;
         }
         cell.changeType = op;
+        cell.changeLabel.toolTip = opTooltip;
         
         cell.hasComments = [_commentedPaths containsObject:file.path];
     }
