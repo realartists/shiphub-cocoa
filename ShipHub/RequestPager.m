@@ -197,6 +197,45 @@ function pagedFetch(url) /* => Promise */ {
     }];
 }
 
+- (NSArray *)_pageRequestsWithRootRequest:(NSURLRequest *)rootRequest response:(NSHTTPURLResponse *)response {
+    NSMutableArray *pageRequests = [NSMutableArray array];
+    
+    NSDictionary *headers = [response allHeaderFields];
+    NSString *link = headers[@"Link"];
+    
+    if (link) {
+        NSString *next, *last;
+        NSArray *comps = [link componentsSeparatedByString:@", "];
+        next = [comps firstObject];
+        last = [comps lastObject];
+        
+        NSTextCheckingResult *matchNext = [[[NSRegularExpression regularExpressionWithPattern:@"\\<(.*?)\\>; rel=\"next\"" options:0 error:NULL] matchesInString:next options:0 range:NSMakeRange(0, next.length)] firstObject];
+        NSTextCheckingResult *matchLast = [[[NSRegularExpression regularExpressionWithPattern:@"\\<(.*?)\\>; rel=\"last\"" options:0 error:NULL] matchesInString:last options:0 range:NSMakeRange(0, last.length)] firstObject];
+        
+        if (matchNext && matchLast) {
+            NSString *nextPageURLStr = [next substringWithRange:[matchNext rangeAtIndex:1]];
+            NSString *lastPageURLStr = [last substringWithRange:[matchLast rangeAtIndex:1]];
+            NSRegularExpression *pageExp = [NSRegularExpression regularExpressionWithPattern:@"[\\&\\?]page=(\\d+)" options:0 error:NULL];
+            NSTextCheckingResult *secondPageMatch = [[pageExp matchesInString:nextPageURLStr options:0 range:NSMakeRange(0, nextPageURLStr.length)] firstObject];
+            NSTextCheckingResult *lastPageMatch = [[pageExp matchesInString:lastPageURLStr options:0 range:NSMakeRange(0, lastPageURLStr.length)] firstObject];
+            
+            if (secondPageMatch && lastPageMatch) {
+                NSInteger secondIdx = [[nextPageURLStr substringWithRange:[secondPageMatch rangeAtIndex:1]] integerValue];
+                NSInteger lastIdx = [[lastPageURLStr substringWithRange:[lastPageMatch rangeAtIndex:1]] integerValue];
+                
+                for (NSInteger i = secondIdx; i <= lastIdx; i++) {
+                    NSString *pageURLStr = [nextPageURLStr stringByReplacingCharactersInRange:[secondPageMatch rangeAtIndex:1] withString:[NSString stringWithFormat:@"%td", i]];
+                    [pageRequests addObject:[self get:pageURLStr
+                                               params:nil
+                                              headers:[rootRequest allHTTPHeaderFields]]];
+                }
+            }
+        }
+    }
+    
+    return pageRequests;
+}
+
 - (void)fetchPaged:(NSURLRequest *)rootRequest headersCompletion:(void (^)(NSArray *data, NSDictionary *headers, NSError *err))completion {
     NSParameterAssert(rootRequest);
     NSParameterAssert(completion);
@@ -212,40 +251,8 @@ function pagedFetch(url) /* => Promise */ {
             return;
         }
         
-        NSMutableArray *pageRequests = [NSMutableArray array];
-        
         NSDictionary *headers = [response allHeaderFields];
-        NSString *link = headers[@"Link"];
-        
-        if (link) {
-            NSString *next, *last;
-            NSArray *comps = [link componentsSeparatedByString:@", "];
-            next = [comps firstObject];
-            last = [comps lastObject];
-            
-            NSTextCheckingResult *matchNext = [[[NSRegularExpression regularExpressionWithPattern:@"\\<(.*?)\\>; rel=\"next\"" options:0 error:NULL] matchesInString:next options:0 range:NSMakeRange(0, next.length)] firstObject];
-            NSTextCheckingResult *matchLast = [[[NSRegularExpression regularExpressionWithPattern:@"\\<(.*?)\\>; rel=\"last\"" options:0 error:NULL] matchesInString:last options:0 range:NSMakeRange(0, last.length)] firstObject];
-            
-            if (matchNext && matchLast) {
-                NSString *nextPageURLStr = [next substringWithRange:[matchNext rangeAtIndex:1]];
-                NSString *lastPageURLStr = [last substringWithRange:[matchLast rangeAtIndex:1]];
-                NSRegularExpression *pageExp = [NSRegularExpression regularExpressionWithPattern:@"[\\&\\?]page=(\\d+)" options:0 error:NULL];
-                NSTextCheckingResult *secondPageMatch = [[pageExp matchesInString:nextPageURLStr options:0 range:NSMakeRange(0, nextPageURLStr.length)] firstObject];
-                NSTextCheckingResult *lastPageMatch = [[pageExp matchesInString:lastPageURLStr options:0 range:NSMakeRange(0, lastPageURLStr.length)] firstObject];
-                
-                if (secondPageMatch && lastPageMatch) {
-                    NSInteger secondIdx = [[nextPageURLStr substringWithRange:[secondPageMatch rangeAtIndex:1]] integerValue];
-                    NSInteger lastIdx = [[lastPageURLStr substringWithRange:[lastPageMatch rangeAtIndex:1]] integerValue];
-                    
-                    for (NSInteger i = secondIdx; i <= lastIdx; i++) {
-                        NSString *pageURLStr = [nextPageURLStr stringByReplacingCharactersInRange:[secondPageMatch rangeAtIndex:1] withString:[NSString stringWithFormat:@"%td", i]];
-                        [pageRequests addObject:[self get:pageURLStr
-                                                   params:nil
-                                                  headers:[rootRequest allHTTPHeaderFields]]];
-                    }
-                }
-            }
-        }
+        NSArray *pageRequests = [self _pageRequestsWithRootRequest:rootRequest response:response];
         
         if (pageRequests.count) {
             [self jsonTasks:pageRequests completion:^(NSArray *rest, NSError *restErr) {
@@ -270,6 +277,54 @@ function pagedFetch(url) /* => Promise */ {
             completion(first, headers, nil);
         }
         
+    }];
+}
+
+- (void)streamPages:(NSURLRequest *)rootRequest pageHandler:(void (^)(NSArray *data))pageHandler completion:(void (^)(NSError *))completion
+{
+    NSParameterAssert(rootRequest);
+    NSParameterAssert(pageHandler);
+    NSParameterAssert(completion);
+    
+    [self jsonTask:rootRequest completion:^(id first, NSHTTPURLResponse *response, NSError *err) {
+        if (!err && ![first isKindOfClass:[NSArray class]]) {
+            err = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+        }
+        
+        if (err) {
+            completion(err);
+            return;
+        }
+        
+        pageHandler(first);
+        
+        NSArray *pageRequests = [self _pageRequestsWithRootRequest:rootRequest response:response];
+        
+        
+        if (pageRequests.count) {
+            __block NSUInteger pagesFinished = 0;
+            __block NSError *pageErr = nil;
+            NSUInteger totalPages = pageRequests.count;
+            for (NSURLRequest *pageRequest in pageRequests) {
+                [self jsonTask:pageRequest completion:^(id page, NSHTTPURLResponse *response2, NSError *err2) {
+                    if (err2 && !pageErr) {
+                        pageErr = err2;
+                    }
+                    
+                    if (page && !err2) {
+                        pageHandler(page);
+                    }
+                    
+                    pagesFinished++;
+                    
+                    if (pagesFinished == totalPages) {
+                        completion(pageErr);
+                    }
+                }];
+            }
+        } else {
+            completion(nil);
+        }
     }];
 }
 

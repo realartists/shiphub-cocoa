@@ -8,6 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class Issue;
 @class IssueDocument;
 @class PRDocument;
 
@@ -19,6 +20,9 @@
 - (void)openIssuesWithIdentifiers:(NSArray *)issueIdentifiers;
 
 - (void)newDocumentWithURL:(NSURL *)URL;
+- (void)newDocumentWithIssueTemplate:(Issue *)issueTemplate;
 - (void)openDiffWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier completion:(void (^)(PRDocument *doc))completion;
+
+- (IBAction)newPullRequest:(id)sender;
 
 @end

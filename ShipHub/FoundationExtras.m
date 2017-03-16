@@ -613,6 +613,23 @@ static inline uint8_t h2b(uint8_t v) {
     }
 }
 
++ (NSArray *)roundRobin:(NSArray<NSArray *> *)arrays {
+    NSMutableArray *robin = [NSMutableArray new];
+    NSUInteger i = 0;
+    while (1) { // loop on i
+        NSUInteger s = 0;
+        for (NSArray *a in arrays) {
+            if (a.count < i) {
+                [robin addObject:a[i]];
+                s++;
+            }
+        }
+        if (s == 0) break;
+        i++;
+    }
+    return robin;
+}
+
 @end
 
 @implementation NSMutableArray (Extras)

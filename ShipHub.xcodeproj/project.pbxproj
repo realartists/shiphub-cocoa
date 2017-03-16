@@ -302,6 +302,8 @@
 		1AE09C231C9779E400C5AC35 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EE1C8FC3DB008C11CB /* Reachability.m */; };
 		1AE09C241C977A3400C5AC35 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
 		1AE6F11C1E53BDB7008FD8AC /* PRComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE6F11B1E53BDB7008FD8AC /* PRComment.m */; };
+		1AE8775E1E786774008AB0AD /* PRCreateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE8775C1E786774008AB0AD /* PRCreateController.m */; };
+		1AE8775F1E786774008AB0AD /* PRCreateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AE8775D1E786774008AB0AD /* PRCreateController.xib */; };
 		1AF349501CDA95F000A5BEB0 /* TimeSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */; };
 		1AF349511CDA95F000A5BEB0 /* TimeSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */; };
 		1AF349751CDAC1E900A5BEB0 /* ChartController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3496F1CDAC1E900A5BEB0 /* ChartController.m */; };
@@ -852,6 +854,9 @@
 		1AE6F1161E527B23008FD8AC /* DiffViewMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DiffViewMode.h; sourceTree = "<group>"; };
 		1AE6F11A1E53BDB7008FD8AC /* PRComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRComment.h; sourceTree = "<group>"; };
 		1AE6F11B1E53BDB7008FD8AC /* PRComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRComment.m; sourceTree = "<group>"; };
+		1AE8775B1E786774008AB0AD /* PRCreateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCreateController.h; sourceTree = "<group>"; };
+		1AE8775C1E786774008AB0AD /* PRCreateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCreateController.m; sourceTree = "<group>"; };
+		1AE8775D1E786774008AB0AD /* PRCreateController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRCreateController.xib; sourceTree = "<group>"; };
 		1AF3494E1CDA95F000A5BEB0 /* TimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeries.h; sourceTree = "<group>"; };
 		1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeSeries.m; sourceTree = "<group>"; };
 		1AF3496E1CDAC1E900A5BEB0 /* ChartController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChartController.h; sourceTree = "<group>"; };
@@ -1632,6 +1637,9 @@
 				1A4353531E73762A00C5F5AB /* PRMergeViewController.m */,
 				1A4353541E73762A00C5F5AB /* PRMergeViewController.xib */,
 				1A2FCD221E7314320000F91B /* clonepr.applescript */,
+				1AE8775B1E786774008AB0AD /* PRCreateController.h */,
+				1AE8775C1E786774008AB0AD /* PRCreateController.m */,
+				1AE8775D1E786774008AB0AD /* PRCreateController.xib */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request";
@@ -1863,6 +1871,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1AE8775F1E786774008AB0AD /* PRCreateController.xib in Resources */,
 				1A7FD77A1D493B0400B585E2 /* ProgressSheet.xib in Resources */,
 				1AF5673D1D627C2E00611DBB /* OAuthController.xib in Resources */,
 				1A38CA121D9363DE00655891 /* NewProjectController.xib in Resources */,
@@ -1958,6 +1967,7 @@
 				1AE09BF61C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
 				1AE6F11C1E53BDB7008FD8AC /* PRComment.m in Sources */,
 				1A3618F51C90C7F6008C11CB /* LocalModel.xcdatamodeld in Sources */,
+				1AE8775E1E786774008AB0AD /* PRCreateController.m in Sources */,
 				1A7FD7741D492FE000B585E2 /* MilestoneModifyController.m in Sources */,
 				1A694B2A1CA341D500F73608 /* NetworkStateWindow.m in Sources */,
 				1A5108661D319E2B00905D4D /* NotificationsManager.m in Sources */,

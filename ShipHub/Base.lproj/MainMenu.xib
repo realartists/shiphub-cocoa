@@ -98,9 +98,14 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="File" id="bib-Uj-vzu">
                         <items>
-                            <menuItem title="New" keyEquivalent="n" id="Was-JA-tGl">
+                            <menuItem title="New Issue" keyEquivalent="n" id="Was-JA-tGl">
                                 <connections>
                                     <action selector="newDocument:" target="V6k-To-yxO" id="ypv-Vb-ADy"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="New Pull Request" keyEquivalent="N" id="U6f-iM-TOh">
+                                <connections>
+                                    <action selector="newPullRequest:" target="V6k-To-yxO" id="T5Y-gv-99E"/>
                                 </connections>
                             </menuItem>
                             <menuItem title="New Overview Window" keyEquivalent="n" id="4rE-a3-IqH">
