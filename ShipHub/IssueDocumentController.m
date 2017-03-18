@@ -25,6 +25,7 @@
 #import "Milestone.h"
 #import "Repo.h"
 #import "Label.h"
+#import "PRCreateController.h"
 
 @interface IssueDocumentController () {
     NSMutableArray *_toRestore;
@@ -452,6 +453,11 @@
     
     Issue *i = [[Issue alloc] initWithTitle:title repo:repo milestone:milestone assignees:assignees labels:labels body:body];
     [self newDocumentWithIssueTemplate:i];
+}
+
+- (IBAction)newPullRequest:(id)sender {
+    PRCreateController *prc = [PRCreateController new];
+    [prc showWindow:sender]; // prc manages its own lifetime.
 }
 
 @end

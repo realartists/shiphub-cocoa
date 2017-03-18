@@ -237,6 +237,7 @@ class IssueState {
   
     var owner = issue._bare_owner;
     var repo = issue._bare_repo;
+    var isPR = !!(issue.pull_request);
   
     if (!owner || !repo) {
       return;
@@ -259,22 +260,53 @@ class IssueState {
   
     var assignees = issue.assignees.map((u) => u.login);
   
-    var url = `https://api.github.com/repos/${owner}/${repo}/issues`;
-    var request = api(url, {
-      headers: { 
-        Authorization: "token " + this.token,
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      }, 
-      method: "POST",
-      body: JSON.stringify({
-        title: issue.title,
-        body: issue.body,
-        assignees: assignees,
-        milestone: keypath(issue, "milestone.number"),
-        labels: issue.labels.map((l) => l.name)
-      })
-    });
+    var url, request;
+    if (isPR) {
+      url = `https://api.github.com/repos/${owner}/${repo}/pulls`;
+      var head;
+      var [headOwner, headRepo] = issue.pr_head_info.repo_full_name.split(/\//);
+      if (issue.pr_head_info.repo_full_name == `${owner}/${repo}`) {
+        head = issue.pr_head_info.branch_name;
+      } else if (headOwner == owner) {
+        head = headOwner + ":" + issue.pr_head_info.branch_name;
+      } else {
+        head = issue.pr_head_info.repo_full_name + ":" + issue.pr_head_info.branch_name;
+      }
+      request = api(url, {
+        headers: { 
+          Authorization: "token " + this.token,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }, 
+        method: "POST",
+        body: JSON.stringify({
+          title: issue.title,
+          body: issue.body,
+          assignees: assignees,
+          milestone: keypath(issue, "milestone.number"),
+          labels: issue.labels.map((l) => l.name),
+          head: head,
+          base: issue.pr_base_info.branch_name
+        })
+      });
+    } else {
+      url = `https://api.github.com/repos/${owner}/${repo}/issues`;
+      request = api(url, {
+        headers: { 
+          Authorization: "token " + this.token,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }, 
+        method: "POST",
+        body: JSON.stringify({
+          title: issue.title,
+          body: issue.body,
+          assignees: assignees,
+          milestone: keypath(issue, "milestone.number"),
+          labels: issue.labels.map((l) => l.name)
+        })
+      });
+    }
   
     return new Promise((resolve, reject) => {
       request.then((body) => {

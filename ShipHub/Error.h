@@ -16,6 +16,7 @@ extern NSString *const ShipErrorUserInfoLocalProblemKey;
 extern NSString *const ShipErrorUserInfoServerProblemKey;
 
 extern NSString *const ShipErrorUserInfoHTTPResponseCodeKey;
+extern NSString *const ShipErrorUserInfoErrorJSONBodyKey;
 
 typedef NS_ENUM(NSInteger, ShipErrorCode) {
     ShipErrorCodeUnexpectedServerResponse = 1,
@@ -43,5 +44,7 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code);
 + (NSError *)shipErrorWithCode:(ShipErrorCode)code localizedMessage:(NSString *)message;
 
 @property (nonatomic, readonly, getter=isShipError) BOOL shipError;
+
+- (NSInteger)shipHttpErrorCode;
 
 @end

@@ -133,6 +133,8 @@
 
 - (NSComparisonResult)localizedStandardCompareContents:(NSArray *)other;
 
++ (NSArray *)roundRobin:(NSArray<NSArray *> *)arrays; // round robin elements from arrays into a new array
+
 @end
 
 @interface NSMutableArray (Extras)

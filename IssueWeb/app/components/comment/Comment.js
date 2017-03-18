@@ -25,7 +25,9 @@ class Comment extends AbstractComment {
   
   repoName() { return IssueState.current.repoName; }
   
-  shouldShowCommentPRBar() { return !!(IssueState.current.issue.pull_request); }
+  shouldShowCommentPRBar() { 
+    return !!(IssueState.current.issue.pull_request) && IssueState.current.issue.number > 0;
+  }
   
   saveDraftState() {
     var issue = this.issue();

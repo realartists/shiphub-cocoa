@@ -30,4 +30,7 @@
 - (void)fetchPaged:(NSURLRequest *)rootRequest completion:(void (^)(NSArray *data, NSError *err))completion;
 - (void)fetchPaged:(NSURLRequest *)rootRequest headersCompletion:(void (^)(NSArray *data, NSDictionary *headers, NSError *err))completion;
 
+// Return pages as soon as they are available (and not necessarily in order)
+- (void)streamPages:(NSURLRequest *)rootRequest pageHandler:(void (^)(NSArray *data))pageHandler completion:(void (^)(NSError *))completion;
+
 @end

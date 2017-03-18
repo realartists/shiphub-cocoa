@@ -182,6 +182,22 @@
     return self;
 }
 
+- (instancetype)initPRWithTitle:(NSString *)title repo:(Repo *)repo body:(NSString *)body baseInfo:(NSDictionary *)baseInfo headInfo:(NSDictionary *)headInfo
+{
+    if (self = [super init]) {
+        _originator = [Account me];
+        _labels = @[];
+        _assignees = @[];
+        _body = [body copy];
+        _title = [title copy] ?: @"";
+        _repository = repo;
+        _pullRequest = YES;
+        _prBaseInfo = baseInfo;
+        _prHeadInfo = headInfo;
+    }
+    return self;
+}
+
 - (NSComparisonResult)labelsCompare:(Issue *)other {
     NSArray *l1 = _labels;
     NSArray *l2 = other.labels;

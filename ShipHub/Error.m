@@ -16,6 +16,7 @@ NSString *const ShipErrorUserInfoLocalProblemKey = @"LocalProblem";
 NSString *const ShipErrorUserInfoServerProblemKey = @"ServerProblem";
 
 NSString *const ShipErrorUserInfoHTTPResponseCodeKey = @"ShipHTTPResponseCode";
+NSString *const ShipErrorUserInfoErrorJSONBodyKey = @"ShipErrorUserInfoErrorJSONBody";
 
 NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
     switch (code) {
@@ -64,4 +65,10 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
 - (BOOL)isShipError {
     return [[self domain] isEqualToString:ShipErrorDomain];
 }
+
+- (NSInteger)shipHttpErrorCode {
+    NSNumber *num = [self userInfo][ShipErrorUserInfoHTTPResponseCodeKey];
+    return [num integerValue];
+}
+
 @end

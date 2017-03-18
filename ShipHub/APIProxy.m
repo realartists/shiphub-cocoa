@@ -217,6 +217,9 @@
      BIND(@"POST /repos/:owner/:repo/issues",
           postIssue:owner:repo:),
      
+     BIND(@"POST /repos/:owner/:repo/pulls",
+          postPull:owner:repo:),
+     
      BIND(@"POST /repos/:owner/:repo/issues/:number/reactions",
           postIssueReaction:owner:repo:issueNumber:),
      
@@ -289,6 +292,19 @@
     Repo *r = [self findRepoWithOwner:owner repo:repo];
     if (r) {
         [[DataStore activeStore] saveNewIssue:request.bodyJSON inRepo:r completion:^(Issue *issue, NSError *error) {
+            [self yieldUpdatedIssue:issue];
+            [self yield:issue err:error];
+        }];
+    } else {
+        [self yield:nil err:[NSError shipErrorWithCode:ShipErrorCodeProblemDoesNotExist localizedMessage:[NSString stringWithFormat:NSLocalizedString(@"Could not locate repo %@/%@", nil), owner, repo]]];
+    }
+}
+
+- (void)postPull:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo
+{
+    Repo *r = [self findRepoWithOwner:owner repo:repo];
+    if (r) {
+        [[DataStore activeStore] saveNewPullRequest:request.bodyJSON inRepo:r completion:^(Issue *issue, NSError *error) {
             [self yieldUpdatedIssue:issue];
             [self yield:issue err:error];
         }];

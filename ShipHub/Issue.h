@@ -45,6 +45,9 @@
 @property (readonly) BOOL unread;
 @property (readonly) BOOL pullRequest;
 
+@property (readonly) NSDictionary *prBaseInfo;
+@property (readonly) NSDictionary *prHeadInfo;
+
 // events and comments are conditionally populated.
 // if they're just nonexistent, then they will be empty arrays.
 // if they're not populated at all, then they will be nil.
@@ -63,6 +66,8 @@
 - (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms options:(NSDictionary *)options;
 
 - (instancetype)initWithTitle:(NSString *)title repo:(Repo *)repo milestone:(Milestone *)mile assignees:(NSArray<Account *> *)assignees labels:(NSArray<Label *> *)labels body:(NSString *)body;
+
+- (instancetype)initPRWithTitle:(NSString *)title repo:(Repo *)repo body:(NSString *)body baseInfo:(NSDictionary *)baseInfo headInfo:(NSDictionary *)headInfo;
 
 - (Issue *)clone;
 

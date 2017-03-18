@@ -2071,6 +2071,89 @@ static NSString *const LastUpdated = @"LastUpdated";
     [[Analytics sharedInstance] track:@"Delete PR Comment"];
 }
 
+- (void)saveNewPullRequest:(NSDictionary *)prJSON inRepo:(Repo *)r completion:(void (^)(Issue *issue, NSError *error))completion {
+    NSParameterAssert(prJSON);
+    NSParameterAssert(r);
+    NSParameterAssert(completion);
+    
+    // the create pull request endpoint only takes a title and body (and the base and head refs).
+    // beyond that, we have to patch the issue to do more with it.
+    
+    BOOL needsPatch =  [prJSON[@"assignees"] count] > 0
+                    || prJSON[@"milestone"] != nil
+                    || [prJSON[@"labels"] count] > 0;
+    
+    NSMutableDictionary *createMsg = [NSMutableDictionary new];
+    createMsg[@"title"] = prJSON[@"title"];
+    if ([prJSON[@"body"] length]) {
+        createMsg[@"body"] = prJSON[@"body"];
+    }
+    createMsg[@"head"] = prJSON[@"head"];
+    createMsg[@"base"] = prJSON[@"base"];
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls", r.fullName];
+    
+    if (needsPatch) {
+        void (^patchCompletion)(Issue *, NSError *) = ^(Issue *issue, NSError *error) {
+            
+            if (error) {
+                completion(nil, error);
+            } else {
+                NSMutableDictionary *patchDict = [prJSON mutableCopy];
+                [patchDict removeObjectForKey:@"title"];
+                [patchDict removeObjectForKey:@"body"];
+                [patchDict removeObjectForKey:@"head"];
+                [patchDict removeObjectForKey:@"base"];
+                
+                [self patchIssue:patchDict issueIdentifier:issue.fullIdentifier completion:^(Issue *patched, NSError *error2) {
+                    if (error2) {
+                        ErrLog(@"Unable to patch newly created issue: %@", error2);
+                        completion(issue, nil); // pretend we succeeded, since we did partially. better than forcing the user to submit a dupe PR.
+                    } else {
+                        completion(patched, nil);
+                    }
+                }];
+            }
+        };
+        completion = patchCompletion;
+    }
+    
+    [self.serverConnection perform:@"POST" on:endpoint body:createMsg completion:^(id jsonResponse, NSError *error) {
+        
+        if (!error) {
+            NSMutableDictionary *myJSON = [[JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
+            myJSON[@"prIdentifier"] = myJSON[@"identifier"];
+            [myJSON removeObjectForKey:@"identifier"];
+            
+            // need to discover the issue identifier, because github has only given us the pr id right now
+            NSString *issueEndpoint = [NSString stringWithFormat:@"/repos/%@/issues/%@", r.fullName, myJSON[@"number"]];
+            [self.serverConnection perform:@"GET" on:issueEndpoint body:nil completion:^(id issueBody, NSError *issueError) {
+                
+                if (!issueError) {
+                    [myJSON addEntriesFromDictionary:[JSON parseObject:issueBody withNameTransformer:[JSON githubToCocoaNameTransformer]]];
+                    myJSON[@"repository"] = r.identifier;
+                    DebugLog(@"Storing json: %@", myJSON);
+                    [self storeSingleSyncObject:myJSON type:@"issue" completion:^{
+                        id issueIdentifier = [NSString stringWithFormat:@"%@#%@", r.fullName, myJSON[@"number"]];
+                        [self loadFullIssue:issueIdentifier completion:completion];
+                    }];
+                } else {
+                    RunOnMain(^{
+                        completion(nil, error);
+                    });
+                }
+            }];
+        } else {
+            RunOnMain(^{
+                completion(nil, error);
+            });
+        }
+        
+    }];
+    
+    [[Analytics sharedInstance] track:@"Create Pull Request"];
+}
+
 #pragma mark - Metadata Mutation
 
 - (void)addLabel:(NSDictionary *)label

@@ -88,8 +88,39 @@
             
             if (http.statusCode < 200 || http.statusCode >= 400) {
                 if (!error) {
-                    error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse
-                                              userInfo:@{ ShipErrorUserInfoHTTPResponseCodeKey : @(http.statusCode) }];
+                    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+                    userInfo[ShipErrorUserInfoHTTPResponseCodeKey] = @(http.statusCode);
+                    
+                    id errorJSON = nil;
+                    if ([data length]) {
+                        errorJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+                        if ([errorJSON isKindOfClass:[NSDictionary class]]) {
+                            NSArray *errors = [errorJSON objectForKey:@"errors"];
+                            NSString *message = [errorJSON objectForKey:@"message"];
+                            NSString *desc = nil;
+                            if ([errors isKindOfClass:[NSArray class]] && [errors count] > 0) {
+                                NSDictionary *err1 = [errors firstObject];
+                                if ([err1 isKindOfClass:[NSDictionary class]]) {
+                                    NSString *errmsg = [err1 objectForKey:@"message"];
+                                    if ([errmsg isKindOfClass:[NSString class]] && [errmsg length] > 0) {
+                                        desc = errmsg;
+                                    }
+                                }
+                            }
+                            if (desc == nil && [message isKindOfClass:[NSString class]] && [message length] > 0) {
+                                desc = message;
+                            }
+                            if ([desc length]) {
+                                userInfo[NSLocalizedDescriptionKey] = desc;
+                            }
+                        }
+                    }
+                    
+                    if (errorJSON) {
+                        userInfo[ShipErrorUserInfoErrorJSONBodyKey] = errorJSON;
+                    }
+                    
+                    error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse userInfo:userInfo];
                 }
             }
             

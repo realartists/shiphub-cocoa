@@ -127,6 +127,8 @@
 
 - (void)deleteReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion;
 
+- (void)saveNewPullRequest:(NSDictionary *)prJSON inRepo:(Repo *)r completion:(void (^)(Issue *issue, NSError *error))completion;
+
 @end
 
 @interface DataStore (CustomQuery)
