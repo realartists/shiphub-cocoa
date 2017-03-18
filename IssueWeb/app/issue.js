@@ -1049,7 +1049,7 @@ var RepoField = React.createClass({
     var opts = IssueState.current.repos.map((r) => r.full_name);
     var matcher = Completer.SubstrMatcher(opts);
     
-    var canEdit = this.props.issue.number == null;
+    var canEdit = this.props.issue.number == null && !(this.props.issue.pull_request);
     var inputType = Completer;
     if (!canEdit) {
       inputType = 'input';
