@@ -22,13 +22,22 @@
 
 #import <WebKit/WebKit.h>
 
+@class IssueWeb2View;
+
+@protocol IssueWeb2ViewUIDelegate <WKUIDelegate>
+@optional
+- (void)webView:(IssueWeb2View *)web willOpenContextMenu:(NSMenu *)menu;
+@end
+
 @interface IssueWeb2View : WKWebView
 
 @property (copy) NSString *dragPasteboardName;
 
+@property (nonatomic, weak) id<IssueWeb2ViewUIDelegate> UIDelegate;
+
 @end
 
-@interface IssueWeb2Controller () {
+@interface IssueWeb2Controller () <IssueWeb2ViewUIDelegate> {
     BOOL _didFinishLoading;
     NSMutableArray *_javaScriptToRun;
     NSInteger _pastedImageCount;
@@ -451,6 +460,42 @@
     }
 }
 
+#pragma mark - WKUIDelegate
+
+- (void)webView:(WKWebView *)web willOpenContextMenu:(NSMenu *)menu {
+    if (_spellcheckContextTarget) {
+        NSDictionary *target = _spellcheckContextTarget;
+        _spellcheckContextTarget = nil;
+        
+        NSSpellChecker *checker = [NSSpellChecker sharedSpellChecker];
+        NSString *contents = target[@"text"];
+        NSArray *guesses = [checker guessesForWordRange:NSMakeRange(0, contents.length) inString:contents language:nil inSpellDocumentWithTag:_spellcheckDocumentTag];
+        
+        NSMutableArray *items = [NSMutableArray new];
+        if ([guesses count] == 0) {
+            NSMenuItem *noGuesses = [[NSMenuItem alloc] initWithTitle:NSLocalizedString(@"No Guesses Found", nil) action:@selector(fixSpelling:) keyEquivalent:@""];
+            noGuesses.enabled = NO;
+            [items addObject:noGuesses];
+        } else {
+            
+            for (NSString *guess in guesses) {
+                NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:guess action:@selector(fixSpelling:) keyEquivalent:@""];
+                item.target = self;
+                item.representedObject = target;
+                [items addObject:item];
+            }
+        }
+        
+        NSUInteger i = 0;
+        for (NSMenuItem *item in items) {
+            [menu insertItem:item atIndex:i];
+            i++;
+        }
+        
+        [menu insertItem:[NSMenuItem separatorItem] atIndex:i];
+    }
+}
+
 #pragma mark - JavaScript Handlers
 
 #pragma mark - JavaScript Bridge
@@ -758,6 +803,14 @@
 
 @implementation IssueWeb2View
 
+@dynamic UIDelegate;
+
+- (void)willOpenMenu:(NSMenu *)menu withEvent:(NSEvent *)event {
+    [super willOpenMenu:menu withEvent:event];
+    if ([self.UIDelegate respondsToSelector:@selector(webView:willOpenContextMenu:)]) {
+        [self.UIDelegate webView:self willOpenContextMenu:menu];
+    }
+}
 
 - (BOOL)performKeyEquivalent:(NSEvent *)event {
     // realartists/shiphub-cocoa#272 Ctrl-Tab to go between tabs doesn’t work for IssueDocuments
