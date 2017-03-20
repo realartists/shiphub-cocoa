@@ -13,8 +13,6 @@
 NSString *const ReachabilityDidChangeNotification = @"ReachabilityDidChangeNotification";
 NSString *const ReachabilityKey = @"ReachabilityKey";
 
-NSString *const ReachabilityRetryOperationsNotification = @"ReachabilityRetryOperationsNotification";
-
 @interface Reachability () {
     BOOL _forceOffline;
 }

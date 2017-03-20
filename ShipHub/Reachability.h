@@ -20,5 +20,3 @@
 
 extern NSString *const ReachabilityDidChangeNotification;
 extern NSString *const ReachabilityKey; // => bool
-
-extern NSString *const ReachabilityRetryOperationsNotification;

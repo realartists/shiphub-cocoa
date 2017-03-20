@@ -16,6 +16,7 @@ import UnifiedRow from 'components/diff/unified-row.js'
 import CommentRow from 'components/diff/comment-row.js'
 import TrailerRow from 'components/diff/trailer-row.js'
 import ghost from 'util/ghost.js'
+import 'util/media-reloader.js'
 
 var HighlightWorker = require('worker!./highlight-worker.js');
 

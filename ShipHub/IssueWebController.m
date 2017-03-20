@@ -18,6 +18,7 @@
 #import "WebKitExtras.h"
 #import "DownloadBarViewController.h"
 #import "NSFileWrapper+ImageExtras.h"
+#import "Reachability.h"
 
 #import <WebKit/WebKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
@@ -86,6 +87,7 @@
 - (void)loadView {
     NSView *container = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewDidChangeFrame:) name:NSViewFrameDidChangeNotification object:container];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:ReachabilityDidChangeNotification object:nil];
     
     _web = [[IssueWebView alloc] initWithFrame:container.bounds frameName:nil groupName:nil];
     _web.continuousSpellCheckingEnabled = YES;
@@ -101,6 +103,7 @@
     _nothingLabel.font = [NSFont systemFontOfSize:28.0];
     _nothingLabel.stringValue = NSLocalizedString(@"No Issue Selected", nil);
     [container addSubview:_nothingLabel];
+    
     
     self.view = container;
 }
@@ -157,6 +160,13 @@
     NSURL *URL = [self indexURL];
     NSURLRequest *request = [NSURLRequest requestWithURL:URL];
     [_web.mainFrame loadRequest:request];
+}
+
+- (void)reachabilityChanged:(NSNotification *)note {
+    BOOL reachable = [note.userInfo[ReachabilityKey] boolValue];
+    if (reachable && _didFinishLoading) {
+        [self evaluateJavaScript:@"if (window.reloadFailedMedia) { window.reloadFailedMedia(); }"];
+    }
 }
 
 - (void)evaluateJavaScript:(NSString *)js {
