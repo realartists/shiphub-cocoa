@@ -88,6 +88,8 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
 
 - (void)handleLoadError:(NSError *)error {
     _loading = NO;
+    [_progressIndicator stopAnimation:nil];
+    
     NSAlert *alert = [NSAlert new];
     alert.messageText = NSLocalizedString(@"Unable to load git push data", nil);
     alert.informativeText = [error localizedDescription];
