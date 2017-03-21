@@ -94,6 +94,8 @@ class AbstractComment extends React.Component {
   
   loginCompletions() { throw "not implemented"; }
   
+  onTaskListEdit() { throw "not implemented"; }
+  
   /* End methods that subclassers must override 
     
      The following methods may be overridden by subclassers or left as is.
@@ -154,61 +156,6 @@ class AbstractComment extends React.Component {
       if (window.documentEditedHelper) {
         window.documentEditedHelper.postMessage({});
       }
-    }
-  }
-  
-  /* Called for task list edits that occur 
-     e.g. checked a task button or reordered a task list 
-  */
-  onTaskListEdit(newBody) {
-    if (!this.props.comment || this.state.editing) {
-      this.updateCode(newBody);
-    } else {
-      this.setState(Object.assign({}, this.state, {pendingTaskBody: newBody}));
-      
-      var owner = IssueState.current.repoOwner;
-      var repo = IssueState.current.repoName;
-      var num = IssueState.current.issue.number;
-      var patch = { body: newBody };
-      var q = this.editCommentQueue();
-      var url = this.editCommentURL();
-      var initialId = this.props.comment.id;
-            
-      promiseQueue(q, () => {
-        var currentId = keypath(this.props, "comment.id") || "";
-        if (currentId == initialId && newBody != this.state.pendingTaskBody) {
-          // let's just jump ahead to the next thing, we're already stale.
-          return Promise.resolve();
-        }
-        var request = api(url, { 
-          headers: { 
-            Authorization: "token " + IssueState.current.token,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }, 
-          method: "PATCH",
-          body: JSON.stringify(patch)
-        });
-        var end = () => {
-          if (this.state.pendingTaskBody == newBody) {
-            this.setState(Object.assign({}, this.state, {pendingTaskBody: null}));
-          }
-        };
-        return new Promise((resolve, reject) => {
-          // NB: The 1500ms delay is because GitHub only has 1s precision on updated_at
-          request.then(() => {
-            setTimeout(() => {
-              end();
-              resolve();            
-            }, 1500);
-          }).catch((err) => {
-            setTimeout(() => {
-              end();
-              reject(err);
-            }, 1500);
-          });
-        });
-      });
     }
   }
   
