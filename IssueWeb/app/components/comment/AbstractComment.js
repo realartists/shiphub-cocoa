@@ -168,7 +168,7 @@ class AbstractComment extends React.Component {
   scrollIntoView() {
     var el = ReactDOM.findDOMNode(this);
     if (el) {
-      el.scrollIntoView();
+      el.scrollIntoViewIfNeeded();
     }
   }
   
