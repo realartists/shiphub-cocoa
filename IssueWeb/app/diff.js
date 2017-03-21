@@ -535,6 +535,20 @@ class App {
   }
   
   getSelectedText() {
+    var sel = window.getSelection();
+    // find out if the selection is fully within a comment
+    // if so, return just it
+    var startRange = sel.getRangeAt(0);
+    var endRange = sel.getRangeAt(sel.rangeCount-1);
+    var containsComment = this.commentRows.find((r) => {
+      var hasStart = r.node.contains(startRange.startContainer);
+      var hasEnd = r.node.contains(endRange.endContainer);
+      return hasStart && hasEnd;
+    });
+    if (containsComment) {
+      return sel.toString();
+    }
+    
     var text = "";
     if (this.displayedDiffMode == 'split') {
       var col = this.selectedColumn || 'left';
@@ -560,8 +574,6 @@ class App {
       
       // 2. if it's a multiline selection, return the whole line contents for each line 
       // that intersects the selection, including prefix " ", "+", "-"
-      
-      var sel = window.getSelection();
       
       var selectedRows = this.codeRows.filter((r) => sel.containsNode(r.node, true /* allow partial containment */));
       if (selectedRows <= 1) {
