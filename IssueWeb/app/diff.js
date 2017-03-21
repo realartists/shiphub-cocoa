@@ -822,6 +822,13 @@ window.scrollTo = function(options) {
 
 window.onload = () => {
   app = new App(document.getElementById('app'));
+  
+  window.addEventListener('contextmenu', function(e) {
+    var tgt = e.target;
+    var url = tgt.href || tgt.src;
+    window.contextContext.postMessage({downloadurl: url});
+  });
+  
   window.loadComplete.postMessage({});
 }
 

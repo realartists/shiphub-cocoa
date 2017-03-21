@@ -45,6 +45,8 @@
     
     NSInteger _spellcheckDocumentTag;
     NSDictionary *_spellcheckContextTarget;
+    
+    NSURL *_contextMenuDownloadURL;
 }
 
 @property IssueWeb2View *web;
@@ -407,6 +409,10 @@
     } name:@"spellcheck"];
     
     [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf contextMenuContext:msg.body];
+    } name:@"contextContext"];
+    
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
         [weakSelf javascriptLoadComplete];
     } name:@"loadComplete"];
 }
@@ -451,6 +457,7 @@
         if ([URL isEqual:[self indexURL]]) {
             decisionHandler(WKNavigationActionPolicyAllow);
         } else {
+            [[NSWorkspace sharedWorkspace] openURL:URL]; // open link context menu
             decisionHandler(WKNavigationActionPolicyCancel);
         }
     } else {
@@ -460,9 +467,30 @@
     }
 }
 
+- (void)contextMenuDownloadLinked:(id)sender {
+    if (_contextMenuDownloadURL) {
+        [self downloadURL:_contextMenuDownloadURL];
+    }
+}
+
 #pragma mark - WKUIDelegate
 
+- (nullable WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures
+{
+    // open link in new window context menu
+    [[NSWorkspace sharedWorkspace] openURL:navigationAction.request.URL];
+    return nil;
+}
+
 - (void)webView:(WKWebView *)web willOpenContextMenu:(NSMenu *)menu {
+    for (NSMenuItem *item in menu.itemArray) {
+        if (item.tag == 2) {
+            // Download Linked
+            item.target = self;
+            item.action = @selector(contextMenuDownloadLinked:);
+        }
+    }
+    
     if (_spellcheckContextTarget) {
         NSDictionary *target = _spellcheckContextTarget;
         _spellcheckContextTarget = nil;
@@ -499,6 +527,19 @@
 #pragma mark - JavaScript Handlers
 
 #pragma mark - JavaScript Bridge
+
+- (void)contextMenuContext:(NSDictionary *)msg {
+    NSString *URLStr = msg[@"downloadurl"];
+    if ([URLStr length] == 0) {
+        _contextMenuDownloadURL = nil;
+    } else {
+        @try {
+            _contextMenuDownloadURL = [NSURL URLWithString:URLStr];
+        } @catch (id) {
+            _contextMenuDownloadURL = nil;
+        }
+    }
+}
 
 - (NSString *)placeholderWithWrapper:(NSFileWrapper *)wrapper {
     NSString *filename = wrapper.preferredFilename ?: @"attachment";
