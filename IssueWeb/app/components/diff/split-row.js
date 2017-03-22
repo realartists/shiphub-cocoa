@@ -90,6 +90,10 @@ class SplitRow extends DiffRow {
     
     this.left.innerHTML = this.codeColContents(leftLineHighlighted);
     this.right.innerHTML = this.codeColContents(rightLineHighlighted);
+    
+    if (this.lastSearch) {
+      this.search(this.lastSearch);
+    }
   }
   
   addCommentLeft() {
@@ -100,6 +104,80 @@ class SplitRow extends DiffRow {
   addCommentRight() {
     var idx = this.rightDiffIdx !== undefined ? this.rightDiffIdx : this.diffIdx;
     this.addNewCommentHandler(idx);
+  }
+  
+  currentLeftAstr() {
+    return AttributedString.fromHTML(this.left.innerHTML.substr(5, this.left.innerHTML.length-7));
+  }
+  
+  currentRightAstr() {
+    return AttributedString.fromHTML(this.right.innerHTML.substr(5, this.right.innerHTML.length-7));
+  }
+  
+  search(regexp) {
+    this.lastSearch = regexp;
+    
+    var leftText = this.left.textContent;
+    var rightText = this.right.textContent;
+    
+    if (this.hadSearchMatch || (regexp && leftText.match(regexp)) || (regexp && rightText.match(regexp))) {
+      var leftAstr = this.currentLeftAstr();
+      var rightAstr = this.currentRightAstr();
+      
+      leftAstr.off(["search-match", "search-match-highlight"]);
+      rightAstr.off(["search-match", "search-match-highlight"]);
+      
+      var matchCount = {c:0};
+      if (regexp) {
+        this.leftSearchMatchRanges = [];
+        this.rightSearchMatchRanges = [];
+      
+        var matchem = function(astr, ranges) {
+          regexp.lastIndex = 0;
+          var match;
+          while ((match = regexp.exec(astr.string)) !== null) {
+            var offset = match.index;
+            var length = match[0].length;
+            var range = new AttributedString.Range(offset, length);
+            astr.addAttributes(range, ["search-match"]);
+            ranges.push(range);
+            matchCount.c = matchCount.c + 1;
+          }
+        }
+        matchem(leftAstr, this.leftSearchMatchRanges);
+        matchem(rightAstr, this.rightSearchMatchRanges);
+      } else {
+        delete this.leftSearchMatchRanges;
+        delete this.rightSearchMatchRanges;
+      }
+        
+      this.left.innerHTML = this.codeColContents(leftAstr.toHTML());
+      this.right.innerHTML = this.codeColContents(rightAstr.toHTML());
+        
+      this.hadSearchMatch = matchCount.c > 0;
+      return matchCount.c;
+    }
+    return 0;
+  }
+  
+  highlightSearchMatch(idx) {
+    var leftAstr = this.currentLeftAstr();
+    var rightAstr = this.currentRightAstr();
+            
+    var j = 0;
+    
+    if (idx < this.leftSearchMatchRanges.length) {
+      leftAstr.addAttributes(this.leftSearchMatchRanges[idx], ["search-match-highlight"]);
+      this.left.innerHTML = this.codeColContents(leftAstr.toHTML());
+    } else {
+      idx -= this.leftSearchMatchRanges.length;
+      if (idx < this.rightSearchMatchRanges.length) {
+        rightAstr.addAttributes(this.rightSearchMatchRanges[idx], ["search-match-highlight"]);
+        this.right.innerHTML = this.codeColContents(rightAstr.toHTML());
+      }
+    }
+    
+    this.node.scrollIntoViewIfNeeded();
   }
 }
 

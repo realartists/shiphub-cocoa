@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="PRFindBarController">
+            <connections>
+                <outlet property="searchField" destination="99g-SL-0Gx" id="iew-bK-Qr1"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Hz6-mo-xeY">
+            <rect key="frame" x="0.0" y="0.0" width="456" height="30"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <searchField wantsLayer="YES" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="99g-SL-0Gx" customClass="TextFindingSearchField">
+                    <rect key="frame" x="8" y="4" width="329" height="22"/>
+                    <searchFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" usesSingleLineMode="YES" bezelStyle="round" id="BFB-rs-zKO">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                    </searchFieldCell>
+                    <connections>
+                        <action selector="searchFieldAction:" target="-2" id="skB-6i-keC"/>
+                    </connections>
+                </searchField>
+                <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EIg-73-IAn" userLabel="Navigate">
+                    <rect key="frame" x="343" y="3" width="55" height="24"/>
+                    <segmentedCell key="cell" borderStyle="border" alignment="left" style="rounded" trackingMode="momentary" id="CdI-Ay-IXx">
+                        <font key="font" metaFont="system"/>
+                        <segments>
+                            <segment image="NSLeftFacingTriangleTemplate" width="24"/>
+                            <segment image="NSRightFacingTriangleTemplate" width="24" tag="1"/>
+                        </segments>
+                    </segmentedCell>
+                    <connections>
+                        <action selector="navigate:" target="-2" id="JoR-AY-kOV"/>
+                    </connections>
+                </segmentedControl>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="h0w-Pi-FLV">
+                    <rect key="frame" x="404" y="5" width="44" height="19"/>
+                    <buttonCell key="cell" type="roundRect" title="Done" bezelStyle="roundedRect" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="uxH-U8-uEx">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="cellTitle"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="done:" target="-2" id="l9f-aS-VOd"/>
+                    </connections>
+                </button>
+            </subviews>
+            <constraints>
+                <constraint firstItem="h0w-Pi-FLV" firstAttribute="leading" secondItem="EIg-73-IAn" secondAttribute="trailing" constant="8" id="2Tv-Q9-MCm"/>
+                <constraint firstAttribute="trailing" secondItem="h0w-Pi-FLV" secondAttribute="trailing" constant="8" id="3jG-au-R4a"/>
+                <constraint firstItem="EIg-73-IAn" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="4" id="9e8-pa-Rzb"/>
+                <constraint firstItem="99g-SL-0Gx" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="4" id="OVt-cz-AQG"/>
+                <constraint firstItem="h0w-Pi-FLV" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="6" id="Y4a-Yn-2mg"/>
+                <constraint firstItem="99g-SL-0Gx" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="8" id="lRY-Yj-c4Z"/>
+                <constraint firstItem="EIg-73-IAn" firstAttribute="leading" secondItem="99g-SL-0Gx" secondAttribute="trailing" constant="8" id="lZe-2p-LGc"/>
+            </constraints>
+            <point key="canvasLocation" x="120" y="50"/>
+        </customView>
+    </objects>
+    <resources>
+        <image name="NSLeftFacingTriangleTemplate" width="9" height="12"/>
+        <image name="NSRightFacingTriangleTemplate" width="9" height="12"/>
+    </resources>
+</document>

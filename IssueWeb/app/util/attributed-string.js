@@ -42,7 +42,7 @@ class AttributedString {
       var classes = [];
       while (n != el) {
         var cls = n.className.split(' ');
-        classes = classes.concat(cls);
+        classes = cls.concat(classes);
         n = n.parentNode;
       }
       var astr = new AttributedString(textNode.textContent);
@@ -57,6 +57,49 @@ class AttributedString {
   */
   addAttributes(range, attrs) {
     this.attrs.push({range, attrs});
+  }
+  
+  // turn off css classNames wherever they appear
+  // classNames is an array of css classNames
+  off(classNames) {
+    var attrs = [];
+    for (var i = 0; i < this.attrs.length; i++) {
+      var origAttr = this.attrs[i];
+      var newAttr = { range: new Range(origAttr.range.location, origAttr.range.length),
+                      attrs: origAttr.attrs.filter((name) => !classNames.includes(name)) };
+      if (newAttr.attrs.length > 0) {
+        attrs.push(newAttr);
+      }
+    }
+    
+    function equalClasses(a, b) {
+      if (a.length != b.length) return false;
+      var sa = new Set(a);
+      for (var i = 0; i < b.length; i++) {
+        if (!sa.has(b[i])) return false;
+      }
+      return true;
+    }
+
+    attrs.sort((a, b) => {
+      if (a.location < b.location) return -1;
+      else if (a.location > b.location) return 1;
+      else return 0;
+    });
+
+    var last = null;
+    var simple = [];
+    for (var i = 0; i < attrs.length; i++) {
+      var cur = attrs[i];
+      if (!last || (last.range.location + last.range.length) != cur.range.location || !equalClasses(last.attrs, cur.attrs)) {
+        last = cur;
+        simple.push(cur);
+      } else {
+        last.range.length += cur.range.length;
+      }
+    }
+    
+    this.attrs = simple;
   }
   
   append(str /* either AttributedString or string */) {
@@ -84,13 +127,12 @@ class AttributedString {
     var offset = 0;
     for (var i = 0; i <= this.string.length; i++) {
     
-      var next = active.slice();
-      next = next.filter((attr) => attr.range.contains(i));
+      var next = active.filter((attr) => attr.range.contains(i));
       var changedActive = next.length != active.length;
       
       var more = this.attrs.filter((attr) => attr.range.location == i && attr.range.length != 0);
       next = next.concat(more);
-      var changedActive = changedActive || more.length > 0;
+      changedActive = changedActive || more.length > 0;
             
       if (changedActive) {
         if (offset != i) {
@@ -102,7 +144,13 @@ class AttributedString {
         active = next;
       }
     }
-        
+    
+    if (offset < this.string.length) {
+      var substr = this.string.slice(offset, this.string.length);
+      var classNames = active.map((a) => a.attrs).reduce((p, c) => p.concat(c), []);
+      accum = visitor(substr, classNames, accum);
+    }
+    
     return accum;
   }
   
@@ -122,6 +170,25 @@ class AttributedString {
       return previousValue + substr;
     }, "")
   }
+}
+
+if (__DEBUG__) {
+  function assert(actual, expected, msg) {
+    if (actual != expected) {
+      throw "Test failed: " + msg + " expected: " + expected + " actual: " + actual;
+    }
+  }
+
+  var a1HTML = "<span class='a'>a<span class='b'>ab</span></span>";
+  var a1 = AttributedString.fromHTML(a1HTML)
+  assert(a1.toHTML(), "<span class='a'>a</span><span class='a b'>ab</span>", "a1 parse");
+  var a2 = AttributedString.fromHTML(a1.toHTML())
+  assert(a1.toHTML(), a2.toHTML(), "a1 => a2");
+  
+  var a3 = new AttributedString("");
+  a3.append(a2);
+  a3.off(["b"])
+  assert(a3.toHTML(), "<span class='a'>aab</span>", "turn off b");
 }
 
 AttributedString.Range = Range;

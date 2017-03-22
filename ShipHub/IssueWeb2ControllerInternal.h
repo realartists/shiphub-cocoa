@@ -11,12 +11,13 @@
 
 #import <WebKit/WebKit.h>
 
-@interface IssueWeb2Controller (Internal) <WKNavigationDelegate, WKUIDelegate>
+@interface IssueWeb2Controller (Internal) <WKNavigationDelegate, WKUIDelegate, NSTextFinderBarContainer>
 
 @property (readonly) WKWebView *web;
 @property (readonly) EmptyLabelView *nothingLabel;
 
 - (void)evaluateJavaScript:(NSString *)js;
+@property (readonly) BOOL didFinishLoading;
 
 #pragma mark - Subclassers Must Override
 - (void)reconfigureForReload;
@@ -29,7 +30,5 @@
 - (void)registerJavaScriptAPI:(WKUserContentController *)cc NS_REQUIRES_SUPER;
 - (IBAction)reload:(id)sender;
 - (IBAction)fixSpelling:(id)sender;
-
-#pragma mark -
 
 @end

@@ -2,12 +2,11 @@ import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
 import SmartInput from './smart-input.js'
 import { htmlEncode } from 'js-htmlencode'
+import escapeStringForRegex from 'util/escape-regex.js'
 
 import 'typeahead.js'
 
-function escapeStringForRegex(s) {
-    return s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-}
+
 
 var Completer = React.createClass({
   propTypes: {

@@ -262,6 +262,18 @@ class CommentList extends React.Component {
   componentDidMount() {
     this.props.didRender();
   }
+  
+  activeComment() {
+    for (var ref in this.refs) {
+      if (ref == "addComment" || ref.startsWith("comment.")) {
+        var comment = this.refs[ref];
+        if (comment.isActive()) {
+          return comment;
+        }
+      }
+    }
+    return null;
+  }
 }
 
 class CommentRow extends DiffRow {
@@ -379,6 +391,14 @@ class CommentRow extends DiffRow {
     setTimeout(() => {
       this.commentList.scrollToComment(comment);
     }, 1);
+  }
+  
+  activeComment() {
+    if (this.commentList) {
+      return this.commentList.activeComment();
+    } else {
+      return null;
+    }
   }
 }
 

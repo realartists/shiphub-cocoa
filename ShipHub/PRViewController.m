@@ -342,6 +342,14 @@ static NSString *const MergeItemID = @"Merge";
     }
 }
 
+- (IBAction)performFindPanelAction:(id)sender {
+    [_diffController performTextFinderAction:sender];
+}
+
+- (IBAction)performTextFinderAction:(nullable id)sender {
+    [_diffController performTextFinderAction:sender];
+}
+
 #pragma mark -
 
 - (void)loadForIssue:(Issue *)issue {

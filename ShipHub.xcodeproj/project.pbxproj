@@ -78,6 +78,7 @@
 		1A2FCCFB1E68EB8C0000F91B /* PlaceholderTextView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCFA1E68EB8C0000F91B /* PlaceholderTextView.m */; };
 		1A2FCD1C1E70C6C30000F91B /* PRNavigationToolbarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCD1B1E70C6C30000F91B /* PRNavigationToolbarItem.m */; };
 		1A2FCD231E7314320000F91B /* clonepr.applescript in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCD221E7314320000F91B /* clonepr.applescript */; };
+		1A30654A1E83147300D2B181 /* TextFindingSearchField.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3065491E83147300D2B181 /* TextFindingSearchField.m */; };
 		1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
 		1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
 		1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
@@ -230,6 +231,9 @@
 		1A7FD7881D49856600B585E2 /* StateModifyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD7861D49856600B585E2 /* StateModifyController.m */; };
 		1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7FD7871D49856600B585E2 /* StateModifyController.xib */; };
 		1A83679F1D5542ED0019C609 /* SemiMixedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A83679E1D5542ED0019C609 /* SemiMixedButton.m */; };
+		1A85A6061E81BA12004A4B23 /* MarkdownFormattingController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A85A6051E81BA12004A4B23 /* MarkdownFormattingController.m */; };
+		1A85A60D1E81EDDA004A4B23 /* PRFindBarController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A85A60B1E81EDDA004A4B23 /* PRFindBarController.m */; };
+		1A85A60E1E81EDDA004A4B23 /* PRFindBarController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A85A60C1E81EDDA004A4B23 /* PRFindBarController.xib */; };
 		1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */; };
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsView.m */; };
@@ -553,6 +557,8 @@
 		1A2FCD1A1E70C6C30000F91B /* PRNavigationToolbarItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNavigationToolbarItem.h; sourceTree = "<group>"; };
 		1A2FCD1B1E70C6C30000F91B /* PRNavigationToolbarItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRNavigationToolbarItem.m; sourceTree = "<group>"; };
 		1A2FCD221E7314320000F91B /* clonepr.applescript */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.applescript; path = clonepr.applescript; sourceTree = "<group>"; };
+		1A3065481E83147300D2B181 /* TextFindingSearchField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextFindingSearchField.h; sourceTree = "<group>"; };
+		1A3065491E83147300D2B181 /* TextFindingSearchField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextFindingSearchField.m; sourceTree = "<group>"; };
 		1A3618E11C8FBF96008C11CB /* DataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStore.h; sourceTree = "<group>"; };
 		1A3618E21C8FBF96008C11CB /* DataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataStore.m; sourceTree = "<group>"; };
 		1A3618E71C8FC25B008C11CB /* SyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncConnection.h; sourceTree = "<group>"; };
@@ -766,6 +772,11 @@
 		1A7FD7871D49856600B585E2 /* StateModifyController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = StateModifyController.xib; sourceTree = "<group>"; };
 		1A83679D1D5542ED0019C609 /* SemiMixedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SemiMixedButton.h; sourceTree = "<group>"; };
 		1A83679E1D5542ED0019C609 /* SemiMixedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SemiMixedButton.m; sourceTree = "<group>"; };
+		1A85A6041E81BA12004A4B23 /* MarkdownFormattingController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MarkdownFormattingController.h; sourceTree = "<group>"; };
+		1A85A6051E81BA12004A4B23 /* MarkdownFormattingController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MarkdownFormattingController.m; sourceTree = "<group>"; };
+		1A85A60A1E81EDDA004A4B23 /* PRFindBarController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRFindBarController.h; sourceTree = "<group>"; };
+		1A85A60B1E81EDDA004A4B23 /* PRFindBarController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRFindBarController.m; sourceTree = "<group>"; };
+		1A85A60C1E81EDDA004A4B23 /* PRFindBarController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRFindBarController.xib; sourceTree = "<group>"; };
 		1A9905061CDBC93A00EAA474 /* Issue3PaneTableController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Issue3PaneTableController.h; sourceTree = "<group>"; };
 		1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Issue3PaneTableController.m; sourceTree = "<group>"; };
 		1A99050C1CDBC98900EAA474 /* IssueTableControllerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueTableControllerPrivate.h; sourceTree = "<group>"; };
@@ -1206,6 +1217,8 @@
 				1A51A58B1DBE9C5400272822 /* TextViewController.xib */,
 				1A2FCCF91E68EB8C0000F91B /* PlaceholderTextView.h */,
 				1A2FCCFA1E68EB8C0000F91B /* PlaceholderTextView.m */,
+				1A3065481E83147300D2B181 /* TextFindingSearchField.h */,
+				1A3065491E83147300D2B181 /* TextFindingSearchField.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -1524,6 +1537,8 @@
 				1A7FD7781D493B0400B585E2 /* ProgressSheet.xib */,
 				1A5B29391D888C0A000C9F4B /* EmptyLabelView.h */,
 				1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */,
+				1A85A6041E81BA12004A4B23 /* MarkdownFormattingController.h */,
+				1A85A6051E81BA12004A4B23 /* MarkdownFormattingController.m */,
 			);
 			name = "Shared UI";
 			sourceTree = "<group>";
@@ -1640,6 +1655,9 @@
 				1AE8775B1E786774008AB0AD /* PRCreateController.h */,
 				1AE8775C1E786774008AB0AD /* PRCreateController.m */,
 				1AE8775D1E786774008AB0AD /* PRCreateController.xib */,
+				1A85A60A1E81EDDA004A4B23 /* PRFindBarController.h */,
+				1A85A60B1E81EDDA004A4B23 /* PRFindBarController.m */,
+				1A85A60C1E81EDDA004A4B23 /* PRFindBarController.xib */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request";
@@ -1899,6 +1917,7 @@
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
 				1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */,
 				1A51A58C1DBE9C5400272822 /* TextViewController.xib in Resources */,
+				1A85A60E1E81EDDA004A4B23 /* PRFindBarController.xib in Resources */,
 				28BF03B81D187EFA00F22638 /* NewLabelController.xib in Resources */,
 				1A51A5841DBE95A300272822 /* Acknowledgements.rtf in Resources */,
 				1ADED9EB1DAC4A220093A098 /* PRDocument.xib in Resources */,
@@ -2073,6 +2092,7 @@
 				1AD956B31D0B5654002B1259 /* DownloadBarViewController.m in Sources */,
 				1A012E9E1D3EE111006CE5DF /* SearchSheet.m in Sources */,
 				1A2FCCF71E68EADA0000F91B /* PRReviewChangesViewController.m in Sources */,
+				1A30654A1E83147300D2B181 /* TextFindingSearchField.m in Sources */,
 				1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */,
 				1A7FD7791D493B0400B585E2 /* ProgressSheet.m in Sources */,
 				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
@@ -2085,6 +2105,7 @@
 				1AF567431D6393FB00611DBB /* ABTesting.m in Sources */,
 				1AE09BFE1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
 				1A38C9EE1D9203AB00655891 /* HiddenRepoViewController.m in Sources */,
+				1A85A6061E81BA12004A4B23 /* MarkdownFormattingController.m in Sources */,
 				1A012ECD1D46DD4B006CE5DF /* ServerChooser.m in Sources */,
 				1A38CA111D9363DE00655891 /* NewProjectController.m in Sources */,
 				1A694AF21CA09E9800F73608 /* Milestone.m in Sources */,
@@ -2109,6 +2130,7 @@
 				1A38C9FC1D9339D400655891 /* WebSession.m in Sources */,
 				1AF349501CDA95F000A5BEB0 /* TimeSeries.m in Sources */,
 				1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */,
+				1A85A60D1E81EDDA004A4B23 /* PRFindBarController.m in Sources */,
 				1A5B29421D89DCFA000C9F4B /* ProjectsViewController.m in Sources */,
 				1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */,
 				1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */,

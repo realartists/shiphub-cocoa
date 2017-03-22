@@ -597,7 +597,7 @@ class AbstractComment extends React.Component {
         codefence: insertTemplate(
           '```swift\n' +
           'func sayHello(name: String) {\n' +
-          '  print("Hello, \(name)!")\n' +
+          '  print("Hello, \\(name)!")\n' +
           '}\n' +
           '```'
         ),

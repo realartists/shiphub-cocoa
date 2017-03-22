@@ -47,6 +47,8 @@
     NSDictionary *_spellcheckContextTarget;
     
     NSURL *_contextMenuDownloadURL;
+    
+    BOOL _findBarVisible;
 }
 
 @property IssueWeb2View *web;
@@ -58,6 +60,10 @@
 @property NSTimer *downloadDebounceTimer;
 
 @property EmptyLabelView *nothingLabel;
+
+@property (strong) NSView *findBarView;
+@property (getter=isFindBarVisible) BOOL findBarVisible;
+- (void)findBarViewDidChangeHeight;
 
 @end
 
@@ -105,9 +111,27 @@
     _nothingLabel.stringValue = NSLocalizedString(@"No Issue Selected", nil);
     [container addSubview:_nothingLabel];
     
-    
-    
     self.view = container;
+}
+
+- (void)findBarViewDidChangeHeight {
+    [self layoutSubviews];
+}
+
+- (void)setFindBarVisible:(BOOL)findBarVisible {
+    _findBarVisible = findBarVisible;
+    if (findBarVisible) {
+        if ([self.findBarView superview] != self.view) {
+            [self.view addSubview:self.findBarView];
+        }
+    } else {
+        [self.findBarView removeFromSuperview];
+    }
+    [self layoutSubviews];
+}
+
+- (BOOL)isFindBarVisible {
+    return _findBarVisible;
 }
 
 - (void)viewDidChangeFrame:(NSNotification *)note {
@@ -116,6 +140,14 @@
 
 - (void)layoutSubviews {
     CGRect b = self.view.bounds;
+    if (self.findBarVisible) {
+        CGRect f = self.findBarView.frame;
+        f.origin.x = 0;
+        f.size.width = b.size.width;
+        f.origin.y = CGRectGetHeight(b) - f.size.height;
+        self.findBarView.frame = f;
+        b.size.height -= f.size.height;
+    }
     if (_downloadProgress && !_downloadDebounceTimer) {
         CGRect downloadFrame = CGRectMake(0, 0, CGRectGetWidth(b), _downloadBar.view.frame.size.height);
         _downloadBar.view.frame = downloadFrame;
@@ -123,7 +155,7 @@
         CGRect webFrame = CGRectMake(0, CGRectGetMaxY(downloadFrame), CGRectGetWidth(b), CGRectGetHeight(b) - CGRectGetHeight(downloadFrame));
         _web.frame = webFrame;
     } else {
-        _web.frame = self.view.bounds;
+        _web.frame = b;
         if (_downloadBar.viewLoaded) {
             _downloadBar.view.frame = CGRectMake(0, -_downloadBar.view.frame.size.height, CGRectGetWidth(b), _downloadBar.view.frame.size.height);
         }
@@ -169,6 +201,10 @@
     if (reachable && _didFinishLoading) {
         [self evaluateJavaScript:@"if (window.reloadFailedMedia) { window.reloadFailedMedia(); }"];
     }
+}
+
+- (BOOL)didFinishLoading {
+    return _didFinishLoading;
 }
 
 - (void)evaluateJavaScript:(NSString *)js

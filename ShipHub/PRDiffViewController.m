@@ -16,15 +16,51 @@
 #import "GitDiff.h"
 #import "JSON.h"
 #import "Account.h"
+#import "MarkdownFormattingController.h"
+#import "PRFindBarController.h"
 #import "WebKitExtras.h"
 
-@interface PRDiffViewController () {
+@interface PRDiffViewController () <MarkdownFormattingControllerDelegate, PRFindBarControllerDelegate> {
     NSInteger _loadCount;
 }
+
+@property MarkdownFormattingController *markdownFormattingController;
+@property PRFindBarController *findController;
 
 @end
 
 @implementation PRDiffViewController
+
+- (void)loadView {
+    _markdownFormattingController = [MarkdownFormattingController new];
+    _markdownFormattingController.delegate = self;
+    _markdownFormattingController.requireFocusToValidateActions = YES;
+    
+    _markdownFormattingController.nextResponder = self.nextResponder;
+    [super setNextResponder:_markdownFormattingController];
+    
+    _findController = [PRFindBarController new];
+    _findController.viewContainer = self;
+    _findController.delegate = self;
+    
+    [super loadView];
+}
+
+- (void)setNextResponder:(NSResponder *)nextResponder {
+    if (_markdownFormattingController) {
+        _markdownFormattingController.nextResponder = nextResponder;
+    } else {
+        [super setNextResponder:nextResponder];
+    }
+}
+
+- (NSTouchBar *)makeTouchBar {
+    if (_markdownFormattingController.hasCommentFocus) {
+        return _markdownFormattingController.markdownTouchBar;
+    }
+    
+    return nil;
+}
 
 - (NSString *)webResourcePath {
     return @"IssueWeb";
@@ -41,8 +77,6 @@
     
     // TODO:
     //  documentEditedHelper
-    //  queue comment handler
-    //  post comment immediately
     
     [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
         [weakSelf queueReviewComment:msg.body];
@@ -63,6 +97,8 @@
     [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
         [weakSelf scrollContinuation:msg.body];
     } name:@"scrollContinuation"];
+    
+    [_markdownFormattingController registerJavaScriptAPI:cc];
 }
 
 - (void)scrollContinuation:(NSDictionary *)msg {
@@ -105,6 +141,9 @@
     NSParameterAssert(comments);
     
     _pr = pr;
+    if (_diffFile != diffFile) {
+        [_findController hide];
+    }
     _diffFile = diffFile;
     _diff = diff;
     _comments = [comments copy];
@@ -173,6 +212,48 @@
 - (void)navigate:(NSDictionary *)options {
     NSString *js = [NSString stringWithFormat:@"window.scrollTo(%@);", [JSON stringifyObject:options]];
     [self evaluateJavaScript:js];
+}
+
+#pragma mark - Text Finding
+
+- (IBAction)performFindPanelAction:(id)sender {
+    [_findController performFindAction:[sender tag]];
+}
+
+- (IBAction)performTextFinderAction:(nullable id)sender {
+    [_findController performFindAction:[sender tag]];
+}
+
+- (void)findBarController:(PRFindBarController *)controller searchFor:(NSString *)str {
+    NSString *js = [NSString stringWithFormat:@"window.search(%@)", [JSON stringifyObject:@{ @"str" : str }]];
+    [self evaluateJavaScript:js];
+}
+
+- (void)findBarControllerScrollToSelection:(PRFindBarController *)controller {
+    NSString *js = [NSString stringWithFormat:@"window.search(%@)", [JSON stringifyObject:@{ @"action" : @"scroll" }]];
+    [self evaluateJavaScript:js];
+}
+
+- (void)findBarControllerGoNext:(PRFindBarController *)controller {
+    NSString *js = [NSString stringWithFormat:@"window.search(%@)", [JSON stringifyObject:@{ @"action" : @"next" }]];
+    [self evaluateJavaScript:js];
+}
+
+- (void)findBarControllerGoPrevious:(PRFindBarController *)controller {
+    NSString *js = [NSString stringWithFormat:@"window.search(%@)", [JSON stringifyObject:@{ @"action" : @"previous" }]];
+    [self evaluateJavaScript:js];
+}
+
+- (void)findBarController:(PRFindBarController *)controller selectedTextForFind:(void (^)(NSString *))handler
+{
+    NSString *js = [NSString stringWithFormat:@"window.search()"];
+    if (self.didFinishLoading) {
+        [self.web evaluateJavaScript:js completionHandler:^(id txt, NSError *error) {
+            handler(txt);
+        }];
+    } else {
+        handler(@"");
+    }
 }
 
 @end

@@ -16,6 +16,7 @@ import UnifiedRow from 'components/diff/unified-row.js'
 import CommentRow from 'components/diff/comment-row.js'
 import TrailerRow from 'components/diff/trailer-row.js'
 import ghost from 'util/ghost.js'
+import escapeStringForRegex from 'util/escape-regex.js'
 import 'util/media-reloader.js'
 
 var HighlightWorker = require('worker!./highlight-worker.js');
@@ -790,6 +791,105 @@ class App {
       }
     }
   }
+  
+  activeComment() {
+    for (var i = 0; i < this.commentRows.length; i++) {
+      var cr = this.commentRows[i];
+      var active = cr.activeComment();
+      if (active) return active;
+    }
+    return null;
+  }
+  
+  applyMarkdownFormat(format) {
+    var c = this.activeComment();
+    if (c) { 
+      c.applyMarkdownFormat(format);
+    }
+  }
+  
+  toggleCommentPreview() {
+    var c = this.activeComment();
+    if (c) {
+      c.togglePreview();
+    }
+  }
+  
+  /*
+    search runs in different modes depending on opts:
+    { str: "..." } -- start a new search for str
+    { action: "next" } -- scroll to the next match of the current search
+    { action: "previous" } -- scroll to the previous match of the current search
+    { action: "scroll" } -- scroll to the current match of the current search
+    null -- return the currently selected text
+  */
+  search(opts) {
+    if (!opts) {
+      return this.getSelectedText();
+    }
+    
+    if ("str" in opts) {
+      if (opts.str.length == 0) opts.str = null;
+      this.searchState = { str: opts.str, i: null };
+    } else if (opts.action && this.searchState) {
+      if (opts.action == "next") {
+        this.searchState.i += 1;
+      } else if (opts.action == "previous") {
+        this.searchState.i -= 1;
+      }
+    }
+    
+    if (this.searchState) {
+      var totalMatches = 0;
+      var matchIdxToCodeRow = [];
+      var baseMatchIdxForCodeRow = [];
+      var regexp = this.searchState.str ? new RegExp(escapeStringForRegex(this.searchState.str), 'ig') : null;
+      var nextIdx = null;
+      var scrollableHeight = this.table.scrollHeight;
+      var visibleHeight = this.miniMap.canvas.clientHeight;
+      var lineTop = window.scrollY;
+      var lineBottom = lineTop + visibleHeight;
+      var needsViewportCalc = this.searchState.i === null;
+      for (var i = 0; i < this.codeRows.length; i++) {
+        var r = this.codeRows[i];
+        var offsetY = 0;
+        
+        if (needsViewportCalc) {
+          var n = r.node;
+          while (n && n != this.table) {
+            offsetY += n.offsetTop;
+            n = n.offsetParent;
+          }
+        }
+        
+        baseMatchIdxForCodeRow[i] = totalMatches;
+        var numMatches = r.search(regexp);
+        if (offsetY >= lineTop && numMatches > 0 && nextIdx === null) {
+          nextIdx = totalMatches;
+        }
+        for (var j = 0; j < numMatches; j++) {
+          matchIdxToCodeRow[totalMatches+j] = i;
+        }
+        totalMatches += numMatches;
+      }
+      
+      if (this.searchState.i === null) {
+        this.searchState.i = nextIdx;
+      }
+    
+      if (totalMatches > 0) {
+        while (this.searchState.i < 0) {
+          this.searchState.i += totalMatches;
+        }
+        this.searchState.i = this.searchState.i % totalMatches;
+      
+        var codeRow = matchIdxToCodeRow[this.searchState.i];
+        var baseIdx = baseMatchIdxForCodeRow[codeRow];
+        var rowLocalMatchIdx = this.searchState.i - baseIdx;
+        this.codeRows[codeRow].highlightSearchMatch(rowLocalMatchIdx);
+      }
+    }
+  }
 }
 
 var app = null;
@@ -830,6 +930,18 @@ window.scrollToCommentId = function(commentId) {
 
 window.scrollTo = function(options) {
   app.scrollTo(options);
+}
+
+window.applyMarkdownFormat = function(format) {
+  app.applyMarkdownFormat(format);
+}
+
+window.toggleCommentPreview = function(format) {
+  app.toggleCommentPreview();
+}
+
+window.search = function(options) {
+  return app.search(options);
 }
 
 window.onload = () => {

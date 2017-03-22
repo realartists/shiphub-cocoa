@@ -73,10 +73,57 @@ class UnifiedRow extends DiffRow {
     }
     
     this.codeCell.innerHTML = this.codeColContents(highlighted);
+    
+    if (this.lastSearch) {
+      this.search(this.lastSearch);
+    }
   }
   
   addComment() {
     this.addNewCommentHandler(this.diffIdx);
+  }
+  
+  currentAstr() {
+    return AttributedString.fromHTML(this.codeCell.innerHTML.substr(5, this.codeCell.innerHTML.length-7));
+  }
+  
+  search(regexp) {
+    this.lastSearch = regexp;
+    
+    var text = this.codeCell.textContent;
+    if (this.hadSearchMatch || (regexp && text.match(regexp))) {
+      var astr = this.currentAstr();
+      
+      astr.off(["search-match", "search-match-highlight"]);
+      
+      var ranges = this.searchMatchRanges =  [];
+      if (regexp) {
+        regexp.lastIndex = 0;
+        var match;
+        while ((match = regexp.exec(astr.string)) !== null) {
+          var offset = match.index;
+          var length = match[0].length;
+          var range = new AttributedString.Range(offset, length);
+          astr.addAttributes(range, ["search-match"]);
+          ranges.push(range);
+        }
+      }
+      
+      this.codeCell.innerHTML = this.codeColContents(astr.toHTML());
+      this.hadSearchMatch = ranges.length > 0;
+      return ranges.length;
+    }
+    return 0;
+  }
+  
+  highlightSearchMatch(idx) {
+    var astr = this.currentAstr();
+    if (idx < this.searchMatchRanges.length) {
+      astr.addAttributes(this.searchMatchRanges[idx], ["search-match-highlight"]);
+      this.codeCell.innerHTML = this.codeColContents(astr.toHTML());
+    }
+    
+    this.node.scrollIntoViewIfNeeded();
   }
 }
 

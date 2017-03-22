@@ -123,6 +123,31 @@ table.diff {
   background-color: #EEE;
 }
 
+.diff .search-match
+{
+  background-color: #FBF7BF;
+}
+
+.diff .search-match-highlight { 
+  animation-name: search-match-highlight;
+  animation-timing-function: ease-in-out;
+  animation-duration: 0.2s;
+  background-color: #E2D85E;
+  text-decoration: underline;
+}
+
+@keyframes search-match-highlight {
+  0% { 
+    background-color: #FBF7BF;
+  }
+  50% {
+    background-color: white;
+  }
+  100% { 
+    background-color: #E2D85E;
+  }
+}
+
 .selecting-left td.right,
 .selecting-left td.right *,
 .selecting-left th.right,
