@@ -607,9 +607,9 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     
     CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
     NSTimeInterval diff = now - _lastRateLimitAlertShown;
-    NSTimeInterval oneHour = 60.0 * 60.0;
+    NSTimeInterval longTime = 60 * 60 * 24 * 30;
     
-    if (!prev && next && (diff >= oneHour)) {
+    if (!prev && next && (diff >= longTime)) {
         [[Analytics sharedInstance] track:@"Rate Alert Shown"];
         _lastRateLimitAlertShown = now;
         NSAlert *alert = [NSAlert new];
