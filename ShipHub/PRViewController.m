@@ -143,6 +143,12 @@ static NSString *const MergeItemID = @"Merge";
     self.view = view;
 }
 
+- (void)viewDidAppear {
+    [super viewDidAppear];
+    
+    [_diffController focus];
+}
+
 #pragma mark - Toolbar Actions
 
 - (IBAction)changeDiffViewMode:(id)sender {

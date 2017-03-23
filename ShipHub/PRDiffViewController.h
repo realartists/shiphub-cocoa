@@ -28,6 +28,8 @@
 - (void)scrollToComment:(PRComment *)comment;
 - (void)navigate:(NSDictionary *)options; // See diff.js: App.scrollTo() docstring for options
 
+- (void)focus;
+
 @property (nonatomic, readonly) PullRequest *pr;
 @property (nonatomic, readonly) GitDiffFile *diffFile;
 @property (nonatomic, readonly) GitDiff *diff;

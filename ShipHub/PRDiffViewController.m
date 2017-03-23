@@ -62,6 +62,10 @@
     return nil;
 }
 
+- (void)focus {
+    [self.web.window makeFirstResponder:self.web];
+}
+
 - (NSString *)webResourcePath {
     return @"IssueWeb";
 }
