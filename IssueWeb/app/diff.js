@@ -56,6 +56,7 @@ class App {
     this.leftLines = []; // lines in leftText
     this.rightLines = []; // lines in rightText
     this.diffLines = []; // lines in diff
+    this.diffIdxMapping = null; // null or array, mapping lines in diff to ultimate span diff where comments are defined
     this.hunkIndexes = []; // indexes into diffLines that start with @@
     this.comments = []; // Array of PRComments
     this.inReview = false; // Whether or not comments are being buffered to submit in one go
@@ -125,6 +126,17 @@ class App {
       displayedDiffMode = "unified";
     }
     
+    var diffIdxMapping = this.diffIdxMapping;
+    var mapDiffIdx = (idx) => {
+      if (diffIdxMapping) {
+        var x = diffIdxMapping[idx];
+        if (x >= 0) return x;
+        else return undefined;
+      } else {
+        return idx;
+      }
+    };
+    
     this.displayedDiffMode = displayedDiffMode;
     
     var leftLines = this.leftLines;
@@ -165,12 +177,12 @@ class App {
         hunkQueue = 0; // reset +/- queue
         
         // it's a context line
-        rowInfos.push({leftIdx, rightIdx, diffIdx});
+        rowInfos.push({leftIdx, rightIdx, diffIdx:mapDiffIdx(diffIdx)});
         leftIdx++;
         rightIdx++;
       } else if (diffLine.startsWith("-")) {
         // the line exists in left, but no longer in right
-        rowInfos.push({leftIdx, diffIdx});
+        rowInfos.push({leftIdx, diffIdx:mapDiffIdx(diffIdx)});
         leftIdx++;
         hunkQueue++;
       } else if (diffLine.startsWith("+")) {
@@ -179,14 +191,14 @@ class App {
             // if we have an active hunk queue, hook this line in right up with the corresponding deleted line in left.
             var hunkIdx = rowInfos.length - hunkQueue;
             rowInfos[hunkIdx].rightIdx = rightIdx;
-            rowInfos[hunkIdx].rightDiffIdx = diffIdx;
+            rowInfos[hunkIdx].rightDiffIdx = mapDiffIdx(diffIdx);
             rowInfos[hunkIdx].changed = true;
             hunkQueue--;
           } else {
-            rowInfos.push({rightIdx, diffIdx});
+            rowInfos.push({rightIdx, diffIdx:mapDiffIdx(diffIdx)});
           }
         } else /* unified */ {
-          var nextRow = {rightIdx, diffIdx};
+          var nextRow = {rightIdx, diffIdx:mapDiffIdx(diffIdx)};
           if (hunkQueue) {
             // if we have an active hunk queue, note the context for intraline changes
             var hunkIdx = rowInfos.length - hunkQueue;
@@ -400,7 +412,7 @@ class App {
       var currentPrev = node.previousSibling;
       var desiredPrev = diffIdxToRow[cr.diffIdx];
       if (!desiredPrev) {
-        throw "Could not find code row for diff index " + cr.diffIdx;
+        return; // can't place the comment anywhere
       }
       desiredPrev = desiredPrev.node;
       if (currentPrev != desiredPrev) {

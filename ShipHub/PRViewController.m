@@ -433,8 +433,8 @@ static NSString *const MergeItemID = @"Merge";
 - (NSArray *)commentsForSelectedFile {
     GitDiffFile *file = _sidebarController.selectedFile;
     if (!file) return @[];
-    GitDiff *diff = _sidebarController.activeDiff;
-    NSPredicate *filter = [NSPredicate predicateWithFormat:@"path = %@ AND position != nil AND commitId = %@", file.path, diff.headRev];
+    NSString *headRev = _pr.spanDiff.headRev;
+    NSPredicate *filter = [NSPredicate predicateWithFormat:@"path = %@ AND position != nil AND commitId = %@", file.path, headRev];
     NSArray *comments = [_pr.prComments filteredArrayUsingPredicate:filter];
     NSArray *pendingComments = [_pendingComments filteredArrayUsingPredicate:filter] ?: @[];
     return [comments arrayByAddingObjectsFromArray:pendingComments];

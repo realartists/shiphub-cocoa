@@ -372,4 +372,148 @@ static NSUInteger pathDepth(NSString *path) {
     });
 }
 
+static BOOL matchingHunkStart(NSString *a, NSString *b) {
+    static dispatch_once_t onceToken;
+    static NSRegularExpression *re;
+    dispatch_once(&onceToken, ^{
+        re = [NSRegularExpression regularExpressionWithPattern:@"^@@ \\-(\\d+)(?:,(\\d+))? \\+(\\d+)(?:,(\\d+))? @@" options:0 error:NULL];
+    });
+    
+    NSTextCheckingResult *ma = [re firstMatchInString:a options:0 range:NSMakeRange(0, a.length)];
+    if (!ma) return NO;
+    NSTextCheckingResult *mb = [re firstMatchInString:b options:0 range:NSMakeRange(0, b.length)];
+    if (!mb) return NO;
+    
+    NSRange aRange[5];
+    NSRange bRange[5];
+    
+    for (NSInteger i = 0; i < 5; i++) {
+        aRange[i] = [ma rangeAtIndex:i];
+        bRange[i] = [mb rangeAtIndex:i];
+    }
+    
+    NSInteger aLeftStartLine, aLeftRun, aRightStartLine, aRightRun;
+    NSInteger bLeftStartLine, bLeftRun, bRightStartLine, bRightRun;
+    
+    aLeftStartLine = [[a substringWithRange:aRange[1]] integerValue];
+    bLeftStartLine = [[b substringWithRange:bRange[1]] integerValue];
+    aLeftRun = aRange[2].location != NSNotFound ? [[a substringWithRange:aRange[2]] integerValue] : 1;
+    bLeftRun = bRange[2].location != NSNotFound ? [[b substringWithRange:bRange[2]] integerValue] : 1;
+    aRightStartLine = [[a substringWithRange:aRange[3]] integerValue];
+    bRightStartLine = [[b substringWithRange:bRange[3]] integerValue];
+    aRightRun = aRange[4].location != NSNotFound ? [[a substringWithRange:aRange[4]] integerValue] : 1;
+    bRightRun = bRange[4].location != NSNotFound ? [[b substringWithRange:bRange[4]] integerValue] : 1;
+    
+    return aLeftRun == bLeftRun && aRightRun == bRightRun;
+}
+
+static NSArray *patchMapping(NSString *a, NSString *b) {
+    NSArray *aLines = [a componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    NSArray *bLines = [b componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+    
+    NSInteger aLineCount = [aLines count];
+    NSInteger bLineCount = [bLines count];
+    if (!aLineCount) {
+        return @[];
+    }
+    
+    NSInteger aIdx = 0, bIdx = 0;
+    
+    NSMutableArray *map = [NSMutableArray arrayWithCapacity:[aLines count]];
+    
+    // initialize map with no mapping sentinel value -1 at
+    // every position.
+    for (NSUInteger i = 0; i < aLineCount; i++) {
+        [map addObject:@(-1)];
+    }
+    
+    // walk to the first hunk of the diff. assume the headers are equivalent-ish
+    while (aIdx < aLineCount && ![aLines[aIdx] hasPrefix:@"@@"]
+           && bIdx < bLineCount && ![bLines[bIdx] hasPrefix:@"@@"])
+    {
+        map[aIdx] = @(bIdx);
+        aIdx++;
+        bIdx++;
+    }
+    
+    // for each hunk in a, see if we can find it in b
+    while (aIdx < aLineCount) {
+        NSString *aLine = aLines[aIdx];
+        
+        if ([aLine hasPrefix:@"@@"]) {
+            NSInteger bSave = bIdx;
+            
+            // see if we can find a matching hunk header in b
+            while (bIdx < bLineCount && !matchingHunkStart(aLine, bLines[bIdx])) bIdx++;
+            
+            if (bIdx != bLineCount) {
+                // found candidate hunk match in b
+                // walk a and b forward to see if we can match all the way
+                
+                NSInteger aSave = aIdx;
+                
+                while (aIdx < aLineCount
+                       && bIdx < bLineCount
+                       && [aLines[aIdx] isEqualToString:bLines[bIdx]]) {
+                    aIdx++;
+                    bIdx++;
+                }
+                
+                if (((aIdx < aLineCount && [aLines[aIdx] hasPrefix:@"@@"]) || aIdx == aLineCount)
+                    && ((bIdx < bLineCount && [bLines[bIdx] hasPrefix:@"@@"]) || bIdx == bLineCount))
+                {
+                    // preceding hunk from aSave to aIdx is a match. map it.
+                    for (NSInteger aMap = aSave, bMap = bSave; aMap < aIdx; aMap++, bMap++) {
+                        map[aMap] = @(bMap);
+                    }
+                } else {
+                    // couldn't find a match in b for the hunk in a.
+                    // restore bIdx to allow for re-searching this hunk in b again.
+                    // meanwhile, aIdx is advanced past this hunk in a.
+                    bIdx = bSave;
+                }
+                
+            } else {
+                // couldn't find a match. this hunk in a is unmatcheable. skip it.
+                while (aIdx < aLineCount && [aLines[aIdx] hasPrefix:@"@@"]) aIdx++;
+                
+                // reset bIdx to where it was.
+                bIdx = bSave;
+            }
+        } else {
+            aIdx++; // skip this line in a
+        }
+    }
+    
+    return map;
+}
+
++ (void)computePatchMappingFromPatch:(NSString *)patch toPatchForFile:(GitDiffFile *)spanDiffFile completion:(void (^)(NSArray *mapping))completion
+{
+    NSParameterAssert(patch);
+    NSParameterAssert(completion);
+    
+    if (!spanDiffFile) {
+        NSInteger lineCount = [[patch componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]] count];
+        NSMutableArray *map = [NSMutableArray arrayWithCapacity:lineCount];
+        for (NSUInteger i = 0; i < lineCount; i++) {
+            [map addObject:@(-1)];
+        }
+        completion(map);
+    } else {
+        [spanDiffFile loadTextContents:^(NSString *oldFile, NSString *newFile, NSString *spanPatch, NSError *error) {
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                
+                NSArray *mapping = patchMapping(patch, spanPatch);
+                
+                RunOnMain(^{
+                    completion(mapping);
+                });
+                
+            });
+        }];
+    }
+}
+
 @end

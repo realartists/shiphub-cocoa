@@ -47,6 +47,10 @@ typedef NS_ENUM(NSInteger, DiffFileMode) {
 // Only valid if not binary and mode is Blob or BlobExecutable
 - (void)loadTextContents:(void (^)(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error))completion;
 
+// Figure out where (if anywhere) that lines in patch live in the patch for spanDiffFile.
+// Completion provides an NSArray with length = lines in patch. Each entry in the mapping array maps from line number in patch to the line number in the patch for the provided spanDiffFile or -1 if there is no mapping.
++ (void)computePatchMappingFromPatch:(NSString *)patch toPatchForFile:(GitDiffFile *)spanDiffFile completion:(void (^)(NSArray *mapping))completion;
+
 @end
 
 @interface GitFileTree : NSObject

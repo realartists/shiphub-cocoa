@@ -152,30 +152,60 @@
     _diff = diff;
     _comments = [comments copy];
     _inReview = inReview;
+    
+    BOOL needsDiffMapping = diff != pr.spanDiff;
+    GitDiffFile *mappingFile = nil;
+    
+    if (needsDiffMapping) {
+        GitDiff *spanDiff = pr.spanDiff;
+        for (GitDiffFile *spanFile in spanDiff.allFiles) {
+            if (spanFile.path && diffFile.path && [spanFile.path isEqualToString:diffFile.path]) {
+                mappingFile = spanFile;
+                break;
+            } else if (spanFile.oldPath && diffFile.path && [spanFile.oldPath isEqualToString:diffFile.path]) {
+                // file has been renamed since our currently viewed commit(s)
+                mappingFile = spanFile;
+                break;
+            }
+        }
+    }
+    
     NSInteger count = ++_loadCount;
     [diffFile loadTextContents:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
         if (_loadCount != count) return;
         
-        NSDictionary *state =
-        @{ @"filename": diffFile.name,
-           @"path": diffFile.path,
-           @"leftText": oldFile ?: @"",
-           @"rightText": newFile ?: @"",
-           @"diff": patch ?: @"",
-           @"comments": [JSON serializeObject:comments withNameTransformer:[JSON underbarsAndIDNameTransformer]],
-           @"issueIdentifier": _pr.issue.fullIdentifier,
-           @"inReview": @(inReview),
-           @"baseSha": diff.baseRev,
-           @"headSha": diff.headRev,
-           @"me" : [JSON serializeObject:[Account me] withNameTransformer:[JSON underbarsAndIDNameTransformer]]
+        void (^complete)(id) = ^(id patchMapping) {
+            NSDictionary *state =
+            @{ @"filename": diffFile.name,
+               @"path": diffFile.path,
+               @"leftText": oldFile ?: @"",
+               @"rightText": newFile ?: @"",
+               @"diff": patch ?: @"",
+               @"diffIdxMapping": patchMapping ?: [NSNull null],
+               @"comments": [JSON serializeObject:comments withNameTransformer:[JSON underbarsAndIDNameTransformer]],
+               @"issueIdentifier": _pr.issue.fullIdentifier,
+               @"inReview": @(inReview),
+               @"baseSha": pr.spanDiff.baseRev,
+               @"headSha": pr.spanDiff.headRev,
+               @"me" : [JSON serializeObject:[Account me] withNameTransformer:[JSON underbarsAndIDNameTransformer]]
+            };
+            
+            NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@);", [JSON stringifyObject:state]];
+            [self evaluateJavaScript:js];
+
+            if (scrollInfo) {
+                [self navigate:scrollInfo];
+            }
         };
         
-        NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@);", [JSON stringifyObject:state]];
-        [self evaluateJavaScript:js];
-        
-        if (scrollInfo) {
-            [self navigate:scrollInfo];
+        if (needsDiffMapping) {
+            [GitDiffFile computePatchMappingFromPatch:patch toPatchForFile:mappingFile completion:^(NSArray *mapping) {
+                complete(mapping);
+            }];
+        } else {
+            complete(nil);
         }
+        
     }];
 }
 
