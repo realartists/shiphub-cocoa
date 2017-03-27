@@ -91,7 +91,7 @@
                 }
                 NSDictionary *subject = note[@"subject"];
                 
-                if (![subject[@"type"] isEqualToString:@"Issue"]) {
+                if (!([subject[@"type"] isEqualToString:@"Issue"] || [subject[@"type"] isEqualToString:@"PullRequest"])) {
                     continue;
                 }
                 
