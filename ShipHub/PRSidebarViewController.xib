@@ -3,14 +3,17 @@
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <capability name="box content view" minToolsVersion="7.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="PRSidebarViewController">
             <connections>
                 <outlet property="commentFilterButton" destination="phf-1B-MUt" id="WJa-qH-wyK"/>
+                <outlet property="commitLabel" destination="pHW-AZ-Kd6" id="oa5-GX-f61"/>
                 <outlet property="filterField" destination="1J9-qx-ExO" id="cuJ-5y-oPS"/>
                 <outlet property="outline" destination="s7W-GM-7gG" id="hi0-v5-C7H"/>
+                <outlet property="showCommitsButton" destination="B0e-5c-fdp" id="ola-VN-3Xv"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
@@ -19,15 +22,18 @@
         <customView wantsLayer="YES" id="Hz6-mo-xeY">
             <rect key="frame" x="0.0" y="0.0" width="327" height="623"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <userGuides>
+                <userLayoutGuide location="5" affinity="minX"/>
+            </userGuides>
             <subviews>
                 <scrollView wantsLayer="YES" borderType="none" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Jan-26-0RY">
-                    <rect key="frame" x="0.0" y="30" width="327" height="593"/>
+                    <rect key="frame" x="0.0" y="30" width="327" height="570"/>
                     <clipView key="contentView" wantsLayer="YES" drawsBackground="NO" id="iE7-xr-yYa">
-                        <rect key="frame" x="0.0" y="0.0" width="327" height="593"/>
+                        <rect key="frame" x="0.0" y="0.0" width="327" height="570"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <outlineView wantsLayer="YES" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" selectionHighlightStyle="sourceList" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="16" outlineTableColumn="fKT-C7-eOT" id="s7W-GM-7gG" customClass="PRSidebarOutlineView">
-                                <rect key="frame" x="0.0" y="0.0" width="327" height="593"/>
+                                <rect key="frame" x="0.0" y="0.0" width="327" height="570"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
                                 <color key="backgroundColor" name="_sourceListBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -186,12 +192,62 @@
                         <constraint firstItem="phf-1B-MUt" firstAttribute="leading" secondItem="1J9-qx-ExO" secondAttribute="trailing" constant="6" id="ey2-7i-teB"/>
                     </constraints>
                 </visualEffectView>
+                <box autoresizesSubviews="NO" boxType="custom" borderType="none" borderWidth="0.0" title="Box" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="MKa-2E-r2V">
+                    <rect key="frame" x="0.0" y="601" width="327" height="22"/>
+                    <view key="contentView" id="SUT-NG-Vr2">
+                        <rect key="frame" x="0.0" y="0.0" width="327" height="22"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pHW-AZ-Kd6">
+                                <rect key="frame" x="4" y="3" width="279" height="17"/>
+                                <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="All Commits (2)" id="LEh-lV-O3J">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <button horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="B0e-5c-fdp">
+                                <rect key="frame" x="289" y="1" width="33" height="19"/>
+                                <buttonCell key="cell" type="roundRect" title="•••" bezelStyle="roundedRect" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="zcb-lw-27u">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="cellTitle"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="showCommits:" target="-2" id="M7v-KN-snF"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="B0e-5c-fdp" firstAttribute="leading" secondItem="pHW-AZ-Kd6" secondAttribute="trailing" constant="8" id="H3M-Op-LdR"/>
+                            <constraint firstItem="pHW-AZ-Kd6" firstAttribute="top" secondItem="SUT-NG-Vr2" secondAttribute="top" constant="2" id="J5H-c6-5rV"/>
+                            <constraint firstItem="B0e-5c-fdp" firstAttribute="top" secondItem="SUT-NG-Vr2" secondAttribute="top" constant="2" id="QHV-Rv-fL7"/>
+                            <constraint firstAttribute="trailing" secondItem="B0e-5c-fdp" secondAttribute="trailing" constant="5" id="eTO-iB-1eD"/>
+                            <constraint firstItem="pHW-AZ-Kd6" firstAttribute="leading" secondItem="SUT-NG-Vr2" secondAttribute="leading" constant="6" id="g76-sd-bGq"/>
+                        </constraints>
+                    </view>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="22" id="rRG-ev-0bl"/>
+                    </constraints>
+                    <color key="fillColor" name="windowBackgroundColor" catalog="System" colorSpace="catalog"/>
+                </box>
+                <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="Wg2-Yh-0rr">
+                    <rect key="frame" x="0.0" y="598" width="327" height="5"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="kTu-ne-8Pk"/>
+                    </constraints>
+                </box>
             </subviews>
             <constraints>
-                <constraint firstItem="Jan-26-0RY" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="Huf-V7-89m"/>
+                <constraint firstItem="Wg2-Yh-0rr" firstAttribute="top" secondItem="MKa-2E-r2V" secondAttribute="bottom" id="1Qa-fp-t11"/>
+                <constraint firstAttribute="trailing" secondItem="Wg2-Yh-0rr" secondAttribute="trailing" id="GZi-NY-Y2R"/>
+                <constraint firstItem="Wg2-Yh-0rr" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="Lwv-1B-g80"/>
+                <constraint firstItem="MKa-2E-r2V" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="OD8-QT-P8a"/>
                 <constraint firstItem="1Pe-Jf-IJa" firstAttribute="top" secondItem="Jan-26-0RY" secondAttribute="bottom" id="Ook-4t-cgt"/>
                 <constraint firstAttribute="bottom" secondItem="1Pe-Jf-IJa" secondAttribute="bottom" id="hot-cx-GKA"/>
+                <constraint firstAttribute="trailing" secondItem="MKa-2E-r2V" secondAttribute="trailing" id="pUt-ad-Zai"/>
+                <constraint firstItem="Jan-26-0RY" firstAttribute="top" secondItem="Wg2-Yh-0rr" secondAttribute="bottom" id="pWY-xX-eNZ"/>
                 <constraint firstAttribute="trailing" secondItem="1Pe-Jf-IJa" secondAttribute="trailing" id="rVQ-DJ-XPi"/>
+                <constraint firstItem="MKa-2E-r2V" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="rzh-Sv-zfN"/>
                 <constraint firstAttribute="trailing" secondItem="Jan-26-0RY" secondAttribute="trailing" id="s3E-cV-RBQ"/>
                 <constraint firstItem="1Pe-Jf-IJa" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="trM-pW-LRy"/>
                 <constraint firstItem="Jan-26-0RY" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="wGq-sd-WoZ"/>

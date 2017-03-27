@@ -254,6 +254,8 @@
 		1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD956B61D0B75AD002B1259 /* MultiDownloadProgress.m */; };
 		1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */; };
 		1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD9ECC81D188E6800E9FAFC /* FilterButton.m */; };
+		1ADCCB171E84967300916FF7 /* PRCommitController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADCCB151E84967300916FF7 /* PRCommitController.m */; };
+		1ADCCB181E84967300916FF7 /* PRCommitController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1ADCCB161E84967300916FF7 /* PRCommitController.xib */; };
 		1ADEA38A1E4E86C30033F51A /* DiffViewModeItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADEA3891E4E86C30033F51A /* DiffViewModeItem.m */; };
 		1ADED9D01D95AA590093A098 /* RateDampener.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9CF1D95AA590093A098 /* RateDampener.m */; };
 		1ADED9E21DAC47310093A098 /* PRViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ADED9E01DAC47310093A098 /* PRViewController.m */; };
@@ -818,6 +820,10 @@
 		1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterBarViewController.m; sourceTree = "<group>"; };
 		1AD9ECC71D188E6800E9FAFC /* FilterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilterButton.h; sourceTree = "<group>"; };
 		1AD9ECC81D188E6800E9FAFC /* FilterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilterButton.m; sourceTree = "<group>"; };
+		1ADCCB101E84876600916FF7 /* GitDiffInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GitDiffInternal.h; sourceTree = "<group>"; };
+		1ADCCB141E84967300916FF7 /* PRCommitController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCommitController.h; sourceTree = "<group>"; };
+		1ADCCB151E84967300916FF7 /* PRCommitController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCommitController.m; sourceTree = "<group>"; };
+		1ADCCB161E84967300916FF7 /* PRCommitController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRCommitController.xib; sourceTree = "<group>"; };
 		1ADEA3881E4E86C30033F51A /* DiffViewModeItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiffViewModeItem.h; sourceTree = "<group>"; };
 		1ADEA3891E4E86C30033F51A /* DiffViewModeItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DiffViewModeItem.m; sourceTree = "<group>"; };
 		1ADED9CE1D95AA590093A098 /* RateDampener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RateDampener.h; sourceTree = "<group>"; };
@@ -1438,6 +1444,7 @@
 			isa = PBXGroup;
 			children = (
 				1A3D344A1DAEF0A800CDF167 /* GitDiff.h */,
+				1ADCCB101E84876600916FF7 /* GitDiffInternal.h */,
 				1A3D344B1DAEF0A800CDF167 /* GitDiff.m */,
 				1A3D344D1DAEF5F900CDF167 /* GitCommit.h */,
 				1A3D344E1DAEF5F900CDF167 /* GitCommit.m */,
@@ -1658,6 +1665,9 @@
 				1A85A60A1E81EDDA004A4B23 /* PRFindBarController.h */,
 				1A85A60B1E81EDDA004A4B23 /* PRFindBarController.m */,
 				1A85A60C1E81EDDA004A4B23 /* PRFindBarController.xib */,
+				1ADCCB141E84967300916FF7 /* PRCommitController.h */,
+				1ADCCB151E84967300916FF7 /* PRCommitController.m */,
+				1ADCCB161E84967300916FF7 /* PRCommitController.xib */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request";
@@ -1898,6 +1908,7 @@
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
 				1A38C9F71D9206C800655891 /* HiddenMilestoneViewController.xib in Resources */,
 				1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */,
+				1ADCCB181E84967300916FF7 /* PRCommitController.xib in Resources */,
 				1A3AB35E1D90AE17004BB768 /* SubscriptionController.xib in Resources */,
 				1A4353561E73762A00C5F5AB /* PRMergeViewController.xib in Resources */,
 				1AF567381D625E2300611DBB /* WebAuthController.xib in Resources */,
@@ -2028,6 +2039,7 @@
 				1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */,
 				28BF03B51D1873CA00F22638 /* NewLabelController.m in Sources */,
 				1A3AB36A1D91BDA7004BB768 /* UnsubscribedRepoController.m in Sources */,
+				1ADCCB171E84967300916FF7 /* PRCommitController.m in Sources */,
 				1A20CFF41D52A3E800F412DE /* LocalReaction.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
 				1AF567481D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */,

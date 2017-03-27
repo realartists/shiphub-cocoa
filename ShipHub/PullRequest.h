@@ -10,6 +10,7 @@
 
 @class Issue;
 @class GitDiff;
+@class GitCommit;
 @class PRComment;
 @class PRReview;
 
@@ -35,6 +36,9 @@ typedef NS_ENUM(NSInteger, PRMergeStrategy) {
 // All of the following properties and methods are available only after checkout has completed.
 @property (readonly) NSArray<PRComment *> *prComments;
 @property (readonly) GitDiff *spanDiff;
+@property (readonly) GitDiff *spanDiffSinceMyLastReview;
+@property (readonly) NSArray<GitCommit *> *commits;
+@property (readonly) PRReview *myLastSubmittedReview;
 @property (readonly) PRReview *myLastPendingReview;
 @property (readonly) NSString *bareRepoPath;
 @property (readonly) NSURL *githubRemoteURL;

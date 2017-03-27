@@ -7,14 +7,20 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <git2.h>
+
+@class GitDiff;
+@class GitRepo;
 
 @interface GitCommit : NSObject
 
-// - (id)initWithOID:(git_object *)obj; // Commit takes ownership of obj
-
-@property (readonly) NSString *author;
+@property (readonly) NSString *rev;
+@property (readonly) NSString *authorName;
+@property (readonly) NSString *authorEmail;
 @property (readonly) NSDate *date;
 @property (readonly) NSString *message;
+
+@property (readonly) GitDiff *diff;
+
++ (NSArray<GitCommit *> *)commitLogFrom:(NSString *)baseRev to:(NSString *)headRev inRepo:(GitRepo *)repo error:(NSError *__autoreleasing *)error;
 
 @end

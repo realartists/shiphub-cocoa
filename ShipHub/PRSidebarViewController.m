@@ -13,7 +13,9 @@
 #import "Repo.h"
 #import "PullRequest.h"
 #import "PRComment.h"
+#import "GitCommit.h"
 #import "GitDiff.h"
+#import "PRCommitController.h"
 #import "NSImage+Icons.h"
 
 @interface PRSidebarCellView : NSTableCellView
@@ -35,12 +37,18 @@
 
 @end
 
-@interface PRSidebarViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource>
+@interface PRSidebarViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, PRCommitControllerDelegate>
 
 @property IBOutlet PRSidebarOutlineView *outline;
 
 @property IBOutlet NSSearchField *filterField;
 @property IBOutlet NSButton *commentFilterButton;
+
+@property IBOutlet NSButton *showCommitsButton;
+@property IBOutlet NSTextField *commitLabel;
+
+@property NSPopover *commitPopover;
+@property PRCommitController *commitController;
 
 @property GitDiff *filteredDiff;
 @property NSArray *inorderFiles;
@@ -52,6 +60,8 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    _showCommitsButton.enabled = NO;
+    _commitLabel.stringValue = @"";
 }
 
 - (void)reloadData {
@@ -64,6 +74,9 @@
     NSAssert(pr.spanDiff != nil, nil);
     
     _pr = pr;
+    _showCommitsButton.enabled = pr != nil;
+    _commitController.pr = pr;
+    _activeCommit = nil;
     self.activeDiff = pr.spanDiff;
 }
 
@@ -74,6 +87,57 @@
     }]];
     _allComments = allComments;
     [self reloadData];
+}
+
+- (void)updateCommitLabel {
+    if (self.activeDiff == _pr.spanDiff) {
+        _commitLabel.stringValue = [NSString localizedStringWithFormat:NSLocalizedString(@"All Commits (%tu)", nil), _pr.commits.count];
+    } else if (self.activeDiff == _pr.spanDiffSinceMyLastReview) {
+        _commitLabel.stringValue = NSLocalizedString(@"Changes since your last review", nil);
+    } else if (self.activeCommit) {
+        _commitLabel.stringValue = [_activeCommit.message trim];
+    } else {
+        _commitLabel.stringValue = @"";
+    }
+}
+
+- (IBAction)showCommits:(id)sender {
+    if (_commitPopover.shown) {
+        [_commitPopover close];
+        return;
+    }
+    
+    if (!_commitController) {
+        _commitController = [PRCommitController new];
+        _commitController.delegate = self;
+    }
+    _commitController.pr = _pr;
+    
+    if (!_commitPopover) {
+        _commitPopover = [NSPopover new];
+        _commitPopover.contentViewController = _commitController;
+        _commitPopover.behavior = NSPopoverBehaviorSemitransient;
+    }
+    
+    [_commitPopover showRelativeToRect:_showCommitsButton.bounds ofView:_showCommitsButton preferredEdge:NSRectEdgeMinY];
+}
+
+- (void)commitControllerDidSelectSpanDiff:(PRCommitController *)cc {
+    _activeCommit = nil;
+    self.activeDiff = _pr.spanDiff;
+    [_commitPopover close];
+}
+
+- (void)commitControllerDidSelectSinceReviewSpanDiff:(PRCommitController *)cc {
+    _activeCommit = nil;
+    self.activeDiff = _pr.spanDiffSinceMyLastReview;
+    [_commitPopover close];
+}
+
+- (void)commitController:(PRCommitController *)cc didSelectCommit:(GitCommit *)commit {
+    _activeCommit = commit;
+    self.activeDiff = commit.diff;
+    [_commitPopover close];
 }
 
 static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
@@ -104,6 +168,8 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
         
         [_filterField setStringValue:@""];
         _commentFilterButton.state = NSOffState;
+        
+        [self updateCommitLabel];
         
         [self buildInorderFiles];
         
@@ -158,6 +224,7 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
     NSInteger row = [_outline rowForItem:item];
     if (row != NSNotFound) {
         [_outline selectRowIndexes:[NSIndexSet indexSetWithIndex:row] byExtendingSelection:NO];
+        [_outline scrollRowToVisible:row];
     }
 }
 

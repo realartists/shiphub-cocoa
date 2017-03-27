@@ -64,6 +64,8 @@ typedef NS_ENUM(NSInteger, DiffFileMode) {
 
 + (GitDiff *)diffWithRepo:(GitRepo *)repo from:(NSString *)baseRev to:(NSString *)headRev error:(NSError *__autoreleasing *)error;
 
++ (GitDiff *)emptyDiffAtRev:(NSString *)rev;
+
 @property (readonly) NSArray<GitDiffFile *> *allFiles;
 
 // Returns a sorted, hierarchical listing of files.

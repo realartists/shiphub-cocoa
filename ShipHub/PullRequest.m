@@ -22,6 +22,7 @@
 #import "PRReview.h"
 
 #import "GitDiff.h"
+#import "GitCommit.h"
 #import "GitRepo.h"
 
 @interface PullRequest ()
@@ -42,12 +43,54 @@
     return self;
 }
 
+- (NSString *)_baseRev {
+    return _info[@"base"][@"sha"];
+}
+
+- (NSString *)_headRev {
+    return _info[@"head"][@"sha"];
+}
+
 // runs on a background queue
 - (NSError *)loadSpanDiff {
     NSError *err = nil;
-    _spanDiff = [GitDiff diffWithRepo:_repo from:_info[@"base"][@"sha"] to:_info[@"head"][@"sha"] error:&err];
+    _spanDiff = [GitDiff diffWithRepo:_repo from:[self _baseRev] to:[self _headRev] error:&err];
     if (err) return err;
     
+    return nil;
+}
+
+- (NSError *)loadCommits {
+    CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
+    NSError *err = nil;
+    _commits = [GitCommit commitLogFrom:[self _baseRev] to:[self _headRev] inRepo:_repo error:&err];
+    CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
+#if DEBUG
+    DebugLog(@"Loaded %td commits in %.3fs", _commits.count, (end-start));
+#else
+    (void)start;
+    (void)end;
+#endif
+    return err;
+}
+
+- (NSError *)loadSpanDiffSinceLastSubmittedReview {
+    GitDiff *span = nil;
+    if (_myLastSubmittedReview.commitId) {
+        NSString *rev = _myLastSubmittedReview.commitId;
+        if ([[self _headRev] isEqualToString:rev]) {
+            span = [GitDiff emptyDiffAtRev:rev];
+        } else {
+            NSError *error = nil;
+            span = [GitDiff diffWithRepo:_repo from:rev to:[self _headRev] error:&error];
+            if (error) {
+                // this is most likely due to a force push. the head rev of _myLastSubmittedReview no longer exists.
+                // so just use the full span
+                span = _spanDiff;
+            }
+        }
+    }
+    _spanDiffSinceMyLastReview = span;
     return nil;
 }
 
@@ -118,7 +161,19 @@
         DebugLog(@"Loaded span diff without network op");
     }
     
-    return nil;
+    error = [self loadCommits];
+    if (error) {
+        ErrLog(@"Error loading commits %@", error);
+        return error;
+    }
+    
+    error = [self loadSpanDiffSinceLastSubmittedReview];
+    if (error) {
+        ErrLog(@"Error loading span diff since last submitted review: %@", error);
+        return error;
+    }
+    
+    return error;
 }
 
 // runs on a background queue
@@ -133,6 +188,7 @@
     __block NSError *prError = nil;
     __block NSError *commentsError = nil;
     __block PRReview *review = nil;
+    __block PRReview *submittedReview = nil;
     __block NSError *reviewError = nil;
     
     NSInteger operations = 0;
@@ -159,7 +215,15 @@
     NSString *reviewsEndpoint = [pullEndpoint stringByAppendingPathComponent:@"reviews"];
     
     [pager fetchPaged:[pager get:reviewsEndpoint params:nil headers:reviewsHeaders] completion:^(NSArray *data, NSError *err) {
-        // See if we can find our own PRReview in here
+        // See if we can find our own PRReview(s) in here
+        
+        NSArray *mySubmittedReviews = [data filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"state != 'PENDING' AND user.id = %@", [[Account me] identifier]]];
+        mySubmittedReviews = [mySubmittedReviews arrayByMappingObjects:^id(id obj) {
+            return [[PRReview alloc] initWithDictionary:obj comments:nil metadataStore:ms];
+        }];
+        mySubmittedReviews = [mySubmittedReviews sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:NO]]];
+        submittedReview = [mySubmittedReviews firstObject];
+        
         id myReview = [data firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"state = 'PENDING' AND user.id = %@", [[Account me] identifier]]];
         if (myReview) {
             NSString *reviewCommentsEndpoint = [reviewsEndpoint stringByAppendingFormat:@"/%@/comments", myReview[@"id"]];
@@ -194,6 +258,7 @@
     _info = prInfo;
     _prComments = comments;
     _myLastPendingReview = review;
+    _myLastSubmittedReview = submittedReview;
     
     return [self cloneWithProgress:progress];
 }

@@ -9,6 +9,7 @@
 #import "PRReview.h"
 
 #import "Account.h"
+#import "Extras.h"
 #import "MetadataStore.h"
 #import "PRComment.h"
 
@@ -17,6 +18,7 @@
 - (id)init {
     if (self = [super init]) {
         _user = [Account me];
+        _createdAt = [NSDate date];
     }
     return self;
 }
@@ -27,6 +29,8 @@
         _user = [store accountWithIdentifier:d[@"user"][@"id"]];
         _body = d[@"body"];
         _status = PRReviewStatusFromString(d[@"status"]);
+        _createdAt = [NSDate dateWithJSONString:d[@"created_at"]];
+        _commitId = d[@"commit_id"];
         _comments = [comments copy];
     }
     return self;
@@ -39,6 +43,7 @@
     copy->_body = [_body copy];
     copy->_status = _status;
     copy->_comments = [_comments copy];
+    copy->_createdAt = [NSDate date];
     return copy;
 }
 

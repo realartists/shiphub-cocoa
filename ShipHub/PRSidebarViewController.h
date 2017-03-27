@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class PullRequest;
+@class GitCommit;
 @class GitDiff;
 @class GitDiffFile;
 @class PRComment;
@@ -21,6 +22,7 @@
 @property (weak) id<PRSidebarViewControllerDelegate> delegate;
 
 @property (nonatomic) GitDiff *activeDiff;
+@property (nonatomic) GitCommit *activeCommit; // nil unless activeDiff is the diff of a specific commit to its parent
 @property (nonatomic) GitDiffFile *selectedFile;
 @property (nonatomic) NSArray<PRComment *> *allComments;
 

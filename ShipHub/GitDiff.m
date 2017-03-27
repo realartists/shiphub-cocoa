@@ -6,7 +6,7 @@
 //  Copyright © 2016 Real Artists, Inc. All rights reserved.
 //
 
-#import "GitDiff.h"
+#import "GitDiffInternal.h"
 
 #import "Extras.h"
 #import "NSError+Git.h"
@@ -64,6 +64,16 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     return 0;
 }
 
+#define CHK(X) \
+    do { \
+        int giterr = (X); \
+        if (giterr) { \
+            if (error) *error = [NSError gitError]; \
+            cleanup(); \
+            return nil; \
+        } \
+    } while (0);
+
 + (GitDiff *)diffWithRepo:(GitRepo *)repo from:(NSString *)baseRev to:(NSString *)headRev error:(NSError *__autoreleasing *)error
 {
     NSParameterAssert(repo);
@@ -80,7 +90,6 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     git_commit *headCommit = NULL;
     git_tree *baseTree = NULL;
     git_tree *headTree = NULL;
-    git_diff *diff = NULL;
     
     dispatch_block_t cleanup = ^{
         if (baseObj) git_object_free(baseObj);
@@ -89,19 +98,8 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
         if (headCommit) git_commit_free(headCommit);
         if (baseTree) git_tree_free(baseTree);
         if (headTree) git_tree_free(headTree);
-        if (diff) git_diff_free(diff);
         [repo unlock];
     };
-    
-#define CHK(X) \
-    do { \
-        int giterr = (X); \
-        if (giterr) { \
-            if (error) *error = [NSError gitError]; \
-            cleanup(); \
-            return nil; \
-        } \
-    } while (0);
     
     CHK(git_revparse_single(&baseObj, repo.repo, [baseRev UTF8String]));
     CHK(git_revparse_single(&headObj, repo.repo, [headRev UTF8String]));
@@ -111,6 +109,26 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     
     CHK(git_commit_tree(&baseTree, baseCommit));
     CHK(git_commit_tree(&headTree, headCommit));
+    
+    NSError *diffErr = nil;
+    GitDiff *result = [GitDiff diffWithRepo:repo fromTree:baseTree fromRev:baseRev toTree:headTree toRev:headRev error:&diffErr];
+    
+    if (diffErr && error) {
+        *error = diffErr;
+    }
+    
+    cleanup();
+    
+    return result;
+}
+
++ (GitDiff *)diffWithRepo:(GitRepo *)repo fromTree:(git_tree *)baseTree fromRev:(NSString *)baseRev toTree:(git_tree *)headTree toRev:(NSString *)headRev error:(NSError *__autoreleasing *)error
+{
+    git_diff *diff = NULL;
+    
+    dispatch_block_t cleanup = ^{
+        if (diff) git_diff_free(diff);
+    };
     
     CHK(git_diff_tree_to_tree(&diff, repo.repo, baseTree, headTree, NULL));
     
@@ -127,9 +145,14 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     cleanup();
     
     return result;
-    
-#undef CHK
 }
+
++ (GitDiff *)emptyDiffAtRev:(NSString *)rev {
+    GitDiff *diff = [[GitDiff alloc] initWithFiles:@[] baseRev:rev headRev:rev];
+    return diff;
+}
+
+#undef CHK
 
 - (id)initWithFiles:(NSArray *)files baseRev:(NSString *)baseRev headRev:(NSString *)headRev {
     if (self = [super init]) {

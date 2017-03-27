@@ -31,6 +31,8 @@ extern NSString *PRReviewStatusToString(PRReviewStatus st);
 @property Account *user;
 @property PRReviewStatus status;
 @property NSString *body;
+@property NSDate *createdAt;
+@property NSString *commitId;
 @property NSArray<PRComment *> *comments;
 
 @end
