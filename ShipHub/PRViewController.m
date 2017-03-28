@@ -358,6 +358,27 @@ static NSString *const MergeItemID = @"Merge";
 
 #pragma mark -
 
+- (IBAction)copyIssueNumber:(id)sender {
+    [NSString copyIssueIdentifiers:@[_pr.issue.fullIdentifier] toPasteboard:[NSPasteboard generalPasteboard]];
+}
+
+- (IBAction)copyIssueNumberWithTitle:(id)sender {
+    [NSString copyIssueIdentifiers:@[_pr.issue.fullIdentifier] withTitles:@[_pr.issue.title] toPasteboard:[NSPasteboard generalPasteboard]];
+}
+
+- (IBAction)copyIssueGitHubURL:(id)sender {
+    [_pr.issue.fullIdentifier copyIssueGitHubURLToPasteboard:[NSPasteboard generalPasteboard]];
+}
+
+- (IBAction)openDocumentInBrowser:(id)sender {
+    NSURL *URL = [_pr gitHubFilesURL];
+    if (URL) {
+        [[NSWorkspace sharedWorkspace] openURL:URL];
+    }
+}
+
+#pragma mark -
+
 - (void)loadForIssue:(Issue *)issue {
     self.pr = [[PullRequest alloc] initWithIssue:issue];
     self.title = [NSString stringWithFormat:NSLocalizedString(@"Code Changes for %@ %@", nil), issue.fullIdentifier, issue.title];

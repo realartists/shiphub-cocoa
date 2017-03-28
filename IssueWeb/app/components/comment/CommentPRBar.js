@@ -11,7 +11,7 @@ var CommentPRBar = React.createClass({
   
   render: function() {
     var issue = this.props.issue;
-    var href = `https://github.com/${issue._bare_owner}/${issue._bare_repo}/pulls/${issue.number}/files`;
+    var href = `https://github.com/${issue._bare_owner}/${issue._bare_repo}/pull/${issue.number}/files`;
     return h('div', {className:'ReactionsBarWithPR'},
       h(CommentReactions, {reactions:this.props.comment.reactions, me:this.props.me, onToggle:this.props.onToggleReaction}, 
         h('a', 

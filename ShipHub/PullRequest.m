@@ -286,7 +286,7 @@
     NSURLComponents *components = [NSURLComponents componentsWithURL:URL resolvingAgainstBaseURL:NO];
     NSString *path = [components path];
     NSArray *pathParts = [path componentsSeparatedByString:@"/"];
-    if (pathParts.count != 6 || ![pathParts[3] isEqualToString:@"pulls"] || ![pathParts[5] isEqualToString:@"files"]) {
+    if (pathParts.count != 6 || ![pathParts[3] isEqualToString:@"pull"] || ![pathParts[5] isEqualToString:@"files"]) {
         return nil;
     }
     
@@ -318,7 +318,7 @@
     AuthAccount *account = [[[DataStore activeStore] auth] account];
     NSString *host = [account.ghHost stringByReplacingOccurrencesOfString:@"api." withString:@""] ?: @"github.com";
     
-    NSString *URLStr = [NSString stringWithFormat:@"https://%@/%@/%@/pulls/%@/files", host, [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
+    NSString *URLStr = [NSString stringWithFormat:@"https://%@/%@/%@/pull/%@/files", host, [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
     return [NSURL URLWithString:URLStr];
 }
 
