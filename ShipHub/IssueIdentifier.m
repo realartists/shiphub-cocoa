@@ -26,7 +26,7 @@
     NSString *path = [components path];
     
     NSArray *pathParts = [path componentsSeparatedByString:@"/"];
-    if (pathParts.count != 5 || ![pathParts[3] isEqualToString:@"issues"]) {
+    if (pathParts.count != 5 || !([pathParts[3] isEqualToString:@"issues"] || [pathParts[3] isEqualToString:@"pull"])) {
         return nil;
     }
     
