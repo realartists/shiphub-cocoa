@@ -179,81 +179,36 @@ static NSUInteger pathDepth(NSString *path) {
 
 - (void)buildFileTree {
     /*
-     This method builds a compressed file tree, suitable for presentation to the user.
-     
-     For example, consider the following hypothetical file list:
-     
-     src/com/realartists/shiphub/git/diff.java
-     src/com/realartists/shiphub/git/file.java
-     src/com/realartists/shiphub/git/commit.java
-     src/com/realartists/shiphub/ui/git/viewcontroller.java
-     
-     This method builds this into a hierarchy like so:
-     + src/com/realartists/shiphub
-        + git
-            diff.java
-            file.java
-            commit.java
-        + ui/git
-            viewcontroller.java
+     This method builds a file tree, suitable for presentation to the user.
     */
      
-    NSArray *depthSorted = [_allFiles sortedArrayUsingComparator:^NSComparisonResult(GitDiffFile *a, GitDiffFile *b) {
-        NSUInteger aDepth = pathDepth(a.path);
-        NSUInteger bDepth = pathDepth(b.path);
-        
-        if (aDepth < bDepth) {
-            return NSOrderedAscending;
-        } else if (aDepth > bDepth) {
-            return NSOrderedDescending;
-        } else {
-            return NSOrderedSame;
-        }
+    NSArray *pathSorted = [_allFiles sortedArrayUsingComparator:^NSComparisonResult(GitDiffFile *a, GitDiffFile *b) {
+        return [a.path localizedStandardCompare:b.path];
     }];
     
     GitFileTree *root = [GitFileTree new];
     NSMutableDictionary *parents = [NSMutableDictionary new];
     parents[@""] = root;
     
-    for (GitDiffFile *file in depthSorted) {
-        NSString *dirname = [file.path stringByDeletingLastPathComponent];
-        GitFileTree *parent = parents[dirname];
-        if (!parent) {
-            parent = [GitFileTree new];
-            parent.path = dirname;
-            
-            GitFileTree *grandparent = nil;
-            NSString *gpdirname = dirname;
-            do {
-                gpdirname = [gpdirname stringByDeletingLastPathComponent];
-                grandparent = parents[gpdirname];
-            } while (grandparent == nil);
-            
-            NSUInteger subIdx = gpdirname.length;
-            if ([dirname characterAtIndex:subIdx] == '/') subIdx++;
-            parent.dirname = [dirname substringFromIndex:subIdx];
-            
-            [grandparent.mutableChildren addObject:parent];
-            parent.parentTree = grandparent;
-            parents[dirname] = parent;
-        }
-        
-        [parent.mutableChildren addObject:file];
-        file.parentTree = parent;
-    }
-    
-    NSMutableArray *q = [NSMutableArray arrayWithObject:root];
-    while ([q count]) {
-        GitFileTree *tree = [q firstObject];
-        [q removeObjectAtIndex:0];
-        [tree.mutableChildren sortUsingComparator:^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
-            return [[obj1 name] localizedStandardCompare:[obj2 name]];
-        }];
-        for (id child in tree.children) {
-            if ([child isKindOfClass:[GitFileTree class]]) {
-                [q addObject:child];
+    for (GitDiffFile *file in pathSorted) {
+        // ensure parents
+        id lastItem = file;
+        NSString *pp = file.path;
+        do {
+            pp = [pp stringByDeletingLastPathComponent];
+            GitFileTree *ancestor = parents[pp];
+            id nextAncestor = nil;
+            if (!ancestor) {
+                ancestor = [GitFileTree new];
+                ancestor.path = pp;
+                ancestor.dirname = [pp lastPathComponent];
+                parents[pp] = ancestor;
+                nextAncestor = ancestor;
             }
-        }
+            [ancestor.mutableChildren addObject:lastItem];
+            [lastItem setParentTree:ancestor];
+            lastItem = nextAncestor;
+        } while ([pp length] && lastItem);
     }
     
     self.fileTree = root;
