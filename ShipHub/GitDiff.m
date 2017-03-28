@@ -164,19 +164,6 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     return self;
 }
 
-static NSUInteger pathDepth(NSString *path) {
-    NSUInteger c = 0;
-    NSRange range = NSMakeRange(0, path.length);
-    NSRange found;
-    NSUInteger len = range.length;
-    while ((found = [path rangeOfString:@"/" options:0 range:range]).location != NSNotFound) {
-        c++;
-        range.location = found.location + found.length;
-        range.length = len - range.location;
-    }
-    return c;
-}
-
 - (void)buildFileTree {
     /*
      This method builds a file tree, suitable for presentation to the user.
