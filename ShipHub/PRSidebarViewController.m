@@ -60,6 +60,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [[_outline enclosingScrollView] setScrollerStyle:NSScrollerStyleOverlay];
     _showCommitsButton.enabled = NO;
     _commitLabel.stringValue = @"";
 }
