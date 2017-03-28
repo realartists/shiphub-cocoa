@@ -34,6 +34,7 @@ import 'util/media-reloader.js'
 
 import AvatarIMG from 'components/AvatarIMG.js'
 import Comment from 'components/comment/Comment.js'
+import CommitGroup from 'components/issue/commit-group.js'
 
 var EventIcon = React.createClass({
   propTypes: {
@@ -598,6 +599,10 @@ var Event = React.createClass({
   },
   
   render: function() {
+    if (this.props.event.event == 'committed') {
+      return h(CommitGroup, { commits: this.props.event.commits });
+    }
+  
     var className = "event";
     if (this.props.first) {
       className += " eventFirst";
@@ -752,7 +757,23 @@ var ActivityList = React.createClass({
       }
     });
     
-    // now filter rolled up labels
+    // roll up successive commits into a single event
+    var commitRollup = null;
+    eventsAndComments.forEach(function(e) {
+      if (e.event == "committed") {
+        if (commitRollup != null) {
+          commitRollup.commits.push(e);
+          e._rolledUp = true;
+        } else {
+          commitRollup = e;
+          e.commits = [e];
+        }
+      } else {
+        commitRollup = null;
+      }
+    });
+    
+    // now filter rolled up items
     eventsAndComments = eventsAndComments.filter(function(e) { 
       return !(e._rolledUp);
     });
