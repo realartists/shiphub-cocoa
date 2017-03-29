@@ -31,4 +31,7 @@
 - (IBAction)reload:(id)sender;
 - (IBAction)fixSpelling:(id)sender;
 
+- (CGRect)webContentRect;
+- (void)layoutSubviews;
+
 @end

@@ -138,8 +138,12 @@
     [self layoutSubviews];
 }
 
+- (CGRect)webContentRect {
+    return self.view.bounds;
+}
+
 - (void)layoutSubviews {
-    CGRect b = self.view.bounds;
+    CGRect b = [self webContentRect];
     if (self.findBarVisible) {
         CGRect f = self.findBarView.frame;
         f.origin.x = 0;

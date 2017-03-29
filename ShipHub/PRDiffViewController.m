@@ -17,6 +17,7 @@
 #import "JSON.h"
 #import "Account.h"
 #import "MarkdownFormattingController.h"
+#import "PRDiffFileBarViewController.h"
 #import "PRFindBarController.h"
 #import "WebKitExtras.h"
 
@@ -26,6 +27,7 @@
 
 @property MarkdownFormattingController *markdownFormattingController;
 @property PRFindBarController *findController;
+@property PRDiffFileBarViewController *fileBarController;
 
 @end
 
@@ -44,6 +46,25 @@
     _findController.delegate = self;
     
     [super loadView];
+    
+    _fileBarController = [PRDiffFileBarViewController new];
+    [self.view addSubview:_fileBarController.view];
+}
+
+- (CGRect)webContentRect {
+    CGRect b = self.view.bounds;
+    b.size.height -= _fileBarController.view.frame.size.height;
+    return b;
+}
+
+- (void)layoutSubviews {
+    CGRect b = self.view.bounds;
+    NSView *fbView = _fileBarController.view;
+    _fileBarController.view.frame = CGRectMake(0,
+                                               CGRectGetHeight(b) - fbView.frame.size.height,
+                                               CGRectGetWidth(b),
+                                               fbView.frame.size.height);
+    [super layoutSubviews];
 }
 
 - (void)setNextResponder:(NSResponder *)nextResponder {
@@ -156,6 +177,7 @@ static BOOL differentiateWithoutColor() {
     _diff = diff;
     _comments = [comments copy];
     _inReview = inReview;
+    _fileBarController.file = diffFile;
     
     BOOL needsDiffMapping = diff != pr.spanDiff;
     GitDiffFile *mappingFile = nil;

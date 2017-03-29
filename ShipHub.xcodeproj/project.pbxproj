@@ -175,6 +175,8 @@
 		1A563F7B1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
 		1A5B293B1D888C0A000C9F4B /* EmptyLabelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */; };
 		1A5B29421D89DCFA000C9F4B /* ProjectsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5B29411D89DCF9000C9F4B /* ProjectsViewController.m */; };
+		1A5F1A2D1E8C4F97003A16E4 /* PRDiffFileBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F1A2B1E8C4F97003A16E4 /* PRDiffFileBarViewController.m */; };
+		1A5F1A2E1E8C4F97003A16E4 /* PRDiffFileBarViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A5F1A2C1E8C4F97003A16E4 /* PRDiffFileBarViewController.xib */; };
 		1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694ADE1CA09E0800F73608 /* MetadataStore.m */; };
 		1A694AE01CA09E0800F73608 /* MetadataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694ADE1CA09E0800F73608 /* MetadataStore.m */; };
 		1A694AEA1CA09E6A00F73608 /* Repo.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694AE91CA09E6A00F73608 /* Repo.m */; };
@@ -690,6 +692,9 @@
 		1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmptyLabelView.m; sourceTree = "<group>"; };
 		1A5B29401D89DCF9000C9F4B /* ProjectsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectsViewController.h; sourceTree = "<group>"; };
 		1A5B29411D89DCF9000C9F4B /* ProjectsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProjectsViewController.m; sourceTree = "<group>"; };
+		1A5F1A2A1E8C4F97003A16E4 /* PRDiffFileBarViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDiffFileBarViewController.h; sourceTree = "<group>"; };
+		1A5F1A2B1E8C4F97003A16E4 /* PRDiffFileBarViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDiffFileBarViewController.m; sourceTree = "<group>"; };
+		1A5F1A2C1E8C4F97003A16E4 /* PRDiffFileBarViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRDiffFileBarViewController.xib; sourceTree = "<group>"; };
 		1A694ADD1CA09E0800F73608 /* MetadataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MetadataStore.h; sourceTree = "<group>"; };
 		1A694ADE1CA09E0800F73608 /* MetadataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MetadataStore.m; sourceTree = "<group>"; };
 		1A694AE81CA09E6A00F73608 /* Repo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Repo.h; sourceTree = "<group>"; };
@@ -1668,6 +1673,9 @@
 				1ADCCB141E84967300916FF7 /* PRCommitController.h */,
 				1ADCCB151E84967300916FF7 /* PRCommitController.m */,
 				1ADCCB161E84967300916FF7 /* PRCommitController.xib */,
+				1A5F1A2A1E8C4F97003A16E4 /* PRDiffFileBarViewController.h */,
+				1A5F1A2B1E8C4F97003A16E4 /* PRDiffFileBarViewController.m */,
+				1A5F1A2C1E8C4F97003A16E4 /* PRDiffFileBarViewController.xib */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request";
@@ -1938,6 +1946,7 @@
 				1A012E811D3EAC0E006CE5DF /* SaveSearchController.xib in Resources */,
 				1A7FD77F1D494A5C00B585E2 /* LabelModifyController.xib in Resources */,
 				1A012E9F1D3EE111006CE5DF /* SearchSheet.xib in Resources */,
+				1A5F1A2E1E8C4F97003A16E4 /* PRDiffFileBarViewController.xib in Resources */,
 				1A2FCCF81E68EADA0000F91B /* PRReviewChangesViewController.xib in Resources */,
 				1A3C5B251DDCE241005F9A01 /* WelcomeHelpController.xib in Resources */,
 			);
@@ -2143,6 +2152,7 @@
 				1AF349501CDA95F000A5BEB0 /* TimeSeries.m in Sources */,
 				1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */,
 				1A85A60D1E81EDDA004A4B23 /* PRFindBarController.m in Sources */,
+				1A5F1A2D1E8C4F97003A16E4 /* PRDiffFileBarViewController.m in Sources */,
 				1A5B29421D89DCFA000C9F4B /* ProjectsViewController.m in Sources */,
 				1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */,
 				1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */,
