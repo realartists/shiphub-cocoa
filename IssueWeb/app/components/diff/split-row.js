@@ -7,7 +7,7 @@ import diff_match_patch from 'diff-match-patch'
 import htmlEscape from 'html-escape';
 
 class SplitRow extends DiffRow {
-  constructor(leftLine, leftLineNum, rightLine, rightLineNum, diffIdx, rightDiffIdx, changed, addNewCommentHandler) {
+  constructor(leftLine, leftLineNum, rightLine, rightLineNum, diffIdx, rightDiffIdx, changed, colorblind, addNewCommentHandler) {
     super();
     
     this.leftLineNum = leftLineNum;
@@ -15,6 +15,7 @@ class SplitRow extends DiffRow {
     this.diffIdx = diffIdx;
     this.rightDiffIdx = rightDiffIdx;
     this.changed = changed;
+    this.colorblind = colorblind;
     this.addNewCommentHandler = addNewCommentHandler;
     
     var leftClasses = 'left codecol';
@@ -43,7 +44,36 @@ class SplitRow extends DiffRow {
     var right = this.right = h('td', {className:rightClasses});
     right.innerHTML = this.codeColContents(htmlEscape(rightLine||""));
     
-    var row = h('tr', {}, gutterLeft, left, gutterRight, right);
+    var row;
+    
+    if (colorblind) {
+      var cbLeft;
+      var cbRight;
+      
+      if (leftLine === undefined) {
+        cbLeft = h('td', {className:'cb cb-empty'});
+        cbRight = h('td', {className:'cb cb-plus'});
+        cbRight.innerHTML = '+';
+      } else if (rightLine === undefined) {
+        cbLeft = h('td', {className:'cb cb-minus'});
+        cbLeft.innerHTML = '-';
+        cbRight = h('td', {className:'cb cb-empty'});
+      } else if (changed) {
+        cbLeft = h('td', {className:'cb cb-changed'});
+        cbLeft.innerHTML = '-';
+        cbRight = h('td', {className:'cb cb-changed'});
+        cbRight.innerHTML = '+';
+      } else {
+        cbLeft = h('td', {className:'cb cb-empty'});
+        cbRight = h('td', {className:'cb cb-empty'});
+      }
+      
+      row = h('tr', {}, gutterLeft, cbLeft, left, gutterRight, cbRight, right);
+      
+    } else {
+      row = h('tr', {}, gutterLeft, left, gutterRight, right);
+    }
+    
     this.node = row;
     
     if (leftLine === undefined) {

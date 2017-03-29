@@ -87,6 +87,22 @@ table.diff {
   background: transparent;
 }
 
+.diff .cb {
+  background-color: white;
+  color: black;
+  font-family: menlo;
+  font-size: 11px;
+  font-weight: bold;
+  padding-left: 6px;
+  user-select: none;
+  cursor: default;
+  vertical-align: top;
+}
+
+.diff .cb::selection {
+  background: transparent;
+}
+
 .diff .codecol {
   padding-left: 8px;
   padding-right: 8px;
@@ -99,19 +115,23 @@ table.diff {
   width: 100%;
 }
 
-.diff .inserted-new {
+.diff .inserted-new,
+.diff .cb-plus {
   background-color: #E0FFDF;
 }
 
-.diff .deleted-original {
+.diff .deleted-original,
+.diff .cb-minus {
   background-color: #FFEDED;
 }
 
-.diff .changed-original {
+.diff .changed-original,
+.diff .cb-changed {
   background-color: #E7EEFA;
 }
 
-.diff .changed-new {
+.diff .changed-new,
+.diff .cb-changed {
   background-color: #E7EEFA;
 }
 

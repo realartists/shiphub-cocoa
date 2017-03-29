@@ -7,7 +7,7 @@ import diff_match_patch from 'diff-match-patch'
 import htmlEscape from 'html-escape';
 
 class UnifiedRow extends DiffRow {
-  constructor(mode, text, oldText, leftLineNum, rightLineNum, diffIdx, addNewCommentHandler) {
+  constructor(mode, text, oldText, leftLineNum, rightLineNum, diffIdx, colorblind, addNewCommentHandler) {
     super();
     
     this.mode = mode;
@@ -16,6 +16,7 @@ class UnifiedRow extends DiffRow {
     this.leftLineNum = leftLineNum;
     this.rightLineNum = rightLineNum;
     this.diffIdx = diffIdx;
+    this.colorblind = colorblind;
     this.addNewCommentHandler = addNewCommentHandler;
             
     var gutterLeft = h('td', { className:'gutter gutter-left' });
@@ -29,16 +30,29 @@ class UnifiedRow extends DiffRow {
     }
     
     var codeClasses = 'unified unified-codecol';
+    var cbClasses = 'cb';
     if (mode === '-') {
       codeClasses += ' deleted-original';
+      cbClasses += ' cb-minus';
     } else if (mode === '+') {
       codeClasses += ' inserted-new';
+      cbClasses += ' cb-plus';
+    } else {
+      cbClasses += ' cb-empty';
     }
+    
     var codeCell = this.codeCell = h('td', { className: codeClasses });
     
     codeCell.innerHTML = this.codeColContents(htmlEscape(text||""));
     
-    var row = h('tr', {}, gutterLeft, gutterRight, codeCell);
+    var row;
+    if (colorblind) {
+      var cbCol = h('td', {className:cbClasses});
+      cbCol.innerHTML = mode || '';
+      row = h('tr', {}, gutterLeft, gutterRight, cbCol, codeCell);
+    } else {
+      row = h('tr', {}, gutterLeft, gutterRight, codeCell);
+    }
     this.node = row;
     
     if (mode === '-') {

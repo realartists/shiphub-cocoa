@@ -66,6 +66,7 @@ class App {
     this.headSha = ""; // commit id of head of PR branch
     this.baseSha = ""; // commit id of base of PR branch
     this.me = ghost; // user object (used for adding new comments)
+    this.colorblind = false; // whether or not we need to use more than just color to differentiate changes lines
     
     // View state
     this.codeRows = []; // Array of SplitRow|UnifiedRow
@@ -240,6 +241,7 @@ class App {
           ri.diffIdx,
           ri.rightDiffIdx,
           ri.changed===true,
+          this.colorblind,
           this.insertComment.bind(this)
         );
       });
@@ -272,6 +274,7 @@ class App {
           ri.leftIdx,
           ri.rightIdx,
           ri.diffIdx,
+          this.colorblind,
           this.insertComment.bind(this)
         );
       });
@@ -286,7 +289,7 @@ class App {
     var rows = Array.from(codeRows);
     
     // add a trailing row to take up space for short diffs
-    var trailer = new TrailerRow(this.displayedDiffMode);    
+    var trailer = new TrailerRow(this.displayedDiffMode, this.colorblind);    
     rows.push(trailer);
     
     var rowNodes = rows.map((r) => r.node);
@@ -406,7 +409,20 @@ class App {
     }, {});
     
     // manipulate the DOM to reflect the ordering computed above
-    var colspan = this.displayedDiffMode == 'split' ? 4 : 3;
+    var colspan;
+    if (this.displayedDiffMode == 'split') {
+      if (this.colorblind) {
+        colspan = 6;
+      } else {
+        colspan = 4;
+      }
+    } else {
+      if (this.colorblind) {
+        colspan = 4;
+      } else {
+        colspan = 3;
+      }
+    }
     this.commentRows.forEach((cr) => {
       var node = cr.node;
       var currentPrev = node.previousSibling;

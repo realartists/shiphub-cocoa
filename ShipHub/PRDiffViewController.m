@@ -140,6 +140,10 @@
     [self.delegate diffViewController:self deleteReviewComment:comment];
 }
 
+static BOOL differentiateWithoutColor() {
+    return CFPreferencesGetAppBooleanValue(CFSTR("differentiateWithoutColor"), CFSTR("com.apple.universalaccess"), NULL);
+}
+
 - (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview scrollInfo:(NSDictionary *)scrollInfo
 {
     NSParameterAssert(comments);
@@ -187,6 +191,7 @@
                @"inReview": @(inReview),
                @"baseSha": pr.spanDiff.baseRev,
                @"headSha": pr.spanDiff.headRev,
+               @"colorblind" : @(differentiateWithoutColor()),
                @"me" : [JSON serializeObject:[Account me] withNameTransformer:[JSON underbarsAndIDNameTransformer]]
             };
             
