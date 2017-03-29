@@ -98,7 +98,7 @@
                 NSMutableDictionary *record = [NSMutableDictionary new];
                 
                 NSString *latestCommentURL = subject[@"latest_comment_url"];
-                if ([latestCommentURL rangeOfString:@"/issues/comments/"].location != NSNotFound) {
+                if ([latestCommentURL isKindOfClass:[NSString class]] && [latestCommentURL rangeOfString:@"/issues/comments/"].location != NSNotFound) {
                     int64_t commentIdentifier = [[subject[@"latest_comment_url"] lastPathComponent] longLongValue];
                     if (commentIdentifier != 0) {
                         record[@"commentIdentifier"] = @(commentIdentifier);
