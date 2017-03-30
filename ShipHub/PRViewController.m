@@ -115,7 +115,7 @@ static NSString *const MergeItemID = @"Merge";
     
     _issueItem = [[ButtonToolbarItem alloc] initWithItemIdentifier:IssueItemID];
     _issueItem.grayWhenDisabled = YES;
-    _issueItem.label = NSLocalizedString(@"Open Issue", nil);
+    _issueItem.label = NSLocalizedString(@"Conversation", nil);
     _issueItem.buttonImage = [NSImage imageNamed:@"Open Issue"];
     _issueItem.buttonImage.template = YES;
     _issueItem.target = self;
@@ -250,12 +250,12 @@ static NSString *const MergeItemID = @"Merge";
 
 - (NSArray<NSString *> *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
     return @[IssueItemID,
-             NavigationItemID,
              NSToolbarSpaceItemIdentifier,
              WorkingCopyItemID,
              NSToolbarSpaceItemIdentifier,
              MergeItemID,
              NSToolbarFlexibleSpaceItemIdentifier,
+             NavigationItemID,
              DiffViewModeID,
              ReviewChangesID];
 }
