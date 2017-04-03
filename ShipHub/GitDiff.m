@@ -334,15 +334,11 @@ static BOOL matchingHunkStart(NSString *a, NSString *b) {
         bRange[i] = [mb rangeAtIndex:i];
     }
     
-    NSInteger aLeftStartLine, aLeftRun, aRightStartLine, aRightRun;
-    NSInteger bLeftStartLine, bLeftRun, bRightStartLine, bRightRun;
+    NSInteger aLeftRun, aRightRun;
+    NSInteger bLeftRun, bRightRun;
     
-    aLeftStartLine = [[a substringWithRange:aRange[1]] integerValue];
-    bLeftStartLine = [[b substringWithRange:bRange[1]] integerValue];
     aLeftRun = aRange[2].location != NSNotFound ? [[a substringWithRange:aRange[2]] integerValue] : 1;
     bLeftRun = bRange[2].location != NSNotFound ? [[b substringWithRange:bRange[2]] integerValue] : 1;
-    aRightStartLine = [[a substringWithRange:aRange[3]] integerValue];
-    bRightStartLine = [[b substringWithRange:bRange[3]] integerValue];
     aRightRun = aRange[4].location != NSNotFound ? [[a substringWithRange:aRange[4]] integerValue] : 1;
     bRightRun = bRange[4].location != NSNotFound ? [[b substringWithRange:bRange[4]] integerValue] : 1;
     
