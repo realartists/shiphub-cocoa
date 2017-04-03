@@ -334,6 +334,9 @@
 		1AF567491D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF567451D665C5100611DBB /* LocalHidden+CoreDataProperties.m */; };
 		1AF5674A1D665C5100611DBB /* LocalHidden.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF567471D665C5100611DBB /* LocalHidden.m */; };
 		1AF5674B1D665C5100611DBB /* LocalHidden.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF567471D665C5100611DBB /* LocalHidden.m */; };
+		1AF975751E92D99100914460 /* NSData+Git.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF975741E92D99100914460 /* NSData+Git.m */; };
+		1AF9757C1E92DAD000914460 /* PRBinaryDiffViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF9757A1E92DACF00914460 /* PRBinaryDiffViewController.m */; };
+		1AF9757D1E92DAD000914460 /* PRBinaryDiffViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF9757B1E92DACF00914460 /* PRBinaryDiffViewController.xib */; };
 		1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22011CA6053B00B51CF6 /* IssueEvent.m */; };
 		1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
 		1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
@@ -909,6 +912,11 @@
 		1AF567451D665C5100611DBB /* LocalHidden+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalHidden+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AF567461D665C5100611DBB /* LocalHidden.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalHidden.h; sourceTree = "<group>"; };
 		1AF567471D665C5100611DBB /* LocalHidden.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalHidden.m; sourceTree = "<group>"; };
+		1AF975731E92D99100914460 /* NSData+Git.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Git.h"; sourceTree = "<group>"; };
+		1AF975741E92D99100914460 /* NSData+Git.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Git.m"; sourceTree = "<group>"; };
+		1AF975791E92DACF00914460 /* PRBinaryDiffViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBinaryDiffViewController.h; sourceTree = "<group>"; };
+		1AF9757A1E92DACF00914460 /* PRBinaryDiffViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBinaryDiffViewController.m; sourceTree = "<group>"; };
+		1AF9757B1E92DACF00914460 /* PRBinaryDiffViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRBinaryDiffViewController.xib; sourceTree = "<group>"; };
 		1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
 		1AFE21F01CA5EC3F00B51CF6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		1AFE21F91CA5EC3F00B51CF6 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
@@ -1460,6 +1468,8 @@
 				1A3D34561DAEF88100CDF167 /* NSError+Git.m */,
 				1A3D34581DB0147A00CDF167 /* NSString+Git.h */,
 				1A3D34591DB0147A00CDF167 /* NSString+Git.m */,
+				1AF975731E92D99100914460 /* NSData+Git.h */,
+				1AF975741E92D99100914460 /* NSData+Git.m */,
 			);
 			name = Git;
 			sourceTree = "<group>";
@@ -1676,6 +1686,9 @@
 				1A5F1A2A1E8C4F97003A16E4 /* PRDiffFileBarViewController.h */,
 				1A5F1A2B1E8C4F97003A16E4 /* PRDiffFileBarViewController.m */,
 				1A5F1A2C1E8C4F97003A16E4 /* PRDiffFileBarViewController.xib */,
+				1AF975791E92DACF00914460 /* PRBinaryDiffViewController.h */,
+				1AF9757A1E92DACF00914460 /* PRBinaryDiffViewController.m */,
+				1AF9757B1E92DACF00914460 /* PRBinaryDiffViewController.xib */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request";
@@ -1912,6 +1925,7 @@
 				1AF5673D1D627C2E00611DBB /* OAuthController.xib in Resources */,
 				1A38CA121D9363DE00655891 /* NewProjectController.xib in Resources */,
 				1AF5672D1D62427100611DBB /* WelcomeController.xib in Resources */,
+				1AF9757D1E92DAD000914460 /* PRBinaryDiffViewController.xib in Resources */,
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
 				1A38C9F71D9206C800655891 /* HiddenMilestoneViewController.xib in Resources */,
@@ -2023,6 +2037,7 @@
 				1A012E9A1D3EACB5006CE5DF /* ChevronButton.m in Sources */,
 				1A694B001CA0ABEB00F73608 /* MetadataItem.m in Sources */,
 				1A3AB3641D919F5E004BB768 /* AvatarManager.m in Sources */,
+				1AF9757C1E92DAD000914460 /* PRBinaryDiffViewController.m in Sources */,
 				1A012EC41D454097006CE5DF /* NoneLabelTemplate.m in Sources */,
 				1A0D87741CA9E25F0069782D /* JSON.m in Sources */,
 				1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */,
@@ -2154,6 +2169,7 @@
 				1A85A60D1E81EDDA004A4B23 /* PRFindBarController.m in Sources */,
 				1A5F1A2D1E8C4F97003A16E4 /* PRDiffFileBarViewController.m in Sources */,
 				1A5B29421D89DCFA000C9F4B /* ProjectsViewController.m in Sources */,
+				1AF975751E92D99100914460 /* NSData+Git.m in Sources */,
 				1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */,
 				1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */,
 				1A3AB35D1D90AE17004BB768 /* SubscriptionController.m in Sources */,

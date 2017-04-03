@@ -9,6 +9,7 @@
 #import "GitDiffInternal.h"
 
 #import "Extras.h"
+#import "NSData+Git.h"
 #import "NSError+Git.h"
 #import "NSString+Git.h"
 #import "GitRepoInternal.h"
@@ -255,10 +256,10 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     return f;
 }
 
-- (void)loadTextContents:(void (^)(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error))completion;
+- (void)loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion
 {
-    NSParameterAssert(completion);
-    NSAssert(!self.binary, nil);
+    NSParameterAssert(textCompletion);
+    NSParameterAssert(binaryCompletion);
     NSAssert(self.mode == DiffFileModeBlob || self.mode == DiffFileModeBlobExecutable, nil);
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
@@ -271,6 +272,9 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
         NSString *oldText = nil;
         NSString *patchText = nil;
         
+        NSData *newData = nil;
+        NSData *oldData = nil;
+        
         [_repo readLock];
         
         dispatch_block_t cleanup = ^{
@@ -281,36 +285,62 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
             
             [_repo unlock];
         };
-
+        
         #define CHK(X) \
         do { \
             int giterr = (X); \
             if (giterr) { \
                 cleanup(); \
                 NSError *err = [NSError gitError]; \
-                RunOnMain(^{ completion(nil, nil, nil, err); }); \
+                RunOnMain(^{ textCompletion(nil, nil, nil, err); }); \
             } \
         } while(0);
         
+        BOOL binary = self.binary; // this is not necessarily accurate, yet, we may have to look at the contents to figure out.
+        
         if (!git_oid_iszero(&_oldOid)) {
             CHK(git_blob_lookup(&oldBlob, _repo.repo, &_oldOid));
-            oldText = [NSString stringWithGitBlob:oldBlob];
+            binary = binary || git_blob_is_binary(oldBlob);
         }
         
         if (!git_oid_iszero(&_newOid)) {
             CHK(git_blob_lookup(&newBlob, _repo.repo, &_newOid));
-            newText = [NSString stringWithGitBlob:newBlob];
+            binary = binary || git_blob_is_binary(newBlob);
         }
         
-        CHK(git_patch_from_blobs(&gitPatch, oldBlob, NULL /*oldfilename*/, newBlob, NULL /*newfilename*/, NULL /* default diff options */));
-        CHK(git_patch_to_buf(&patchBuf, gitPatch));
-        patchText = [NSString stringWithGitBuf:&patchBuf];
+        if (oldBlob) {
+            if (binary) {
+                oldData = [NSData dataWithGitBlob:oldBlob];
+            } else {
+                oldText = [NSString stringWithGitBlob:oldBlob];
+            }
+        }
+        
+        if (newBlob) {
+            if (binary) {
+                newData = [NSData dataWithGitBlob:newBlob];
+            } else {
+                newText = [NSString stringWithGitBlob:newBlob];
+            }
+        }
+        
+        if (!binary) {
+            CHK(git_patch_from_blobs(&gitPatch, oldBlob, NULL /*oldfilename*/, newBlob, NULL /*newfilename*/, NULL /* default diff options */));
+            CHK(git_patch_to_buf(&patchBuf, gitPatch));
+            patchText = [NSString stringWithGitBuf:&patchBuf];
+        }
         
         cleanup();
         
         RunOnMain(^{
-            completion(oldText, newText, patchText, nil);
+            if (binary) {
+                binaryCompletion(oldData, newData, nil);
+            } else {
+                textCompletion(oldText, newText, patchText, nil);
+            }
         });
+        
+        #undef CHK
     });
 }
 
@@ -439,8 +469,7 @@ static NSArray *patchMapping(NSString *a, NSString *b) {
         }
         completion(map);
     } else {
-        [spanDiffFile loadTextContents:^(NSString *oldFile, NSString *newFile, NSString *spanPatch, NSError *error) {
-            
+        [spanDiffFile loadContentsAsText:^(NSString *a, NSString *b, NSString *spanPatch, NSError *error) {
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
                 
                 NSArray *mapping = patchMapping(patch, spanPatch);
@@ -450,6 +479,9 @@ static NSArray *patchMapping(NSString *a, NSString *b) {
                 });
                 
             });
+        } asBinary:^(NSData *oldFile, NSData *newFile, NSError *error) {
+            NSAssert(NO, @"Should not try to compute patch mapping on binary file");
+            completion(nil);
         }];
     }
 }

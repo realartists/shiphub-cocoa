@@ -18,6 +18,7 @@
 #import "Account.h"
 #import "MarkdownFormattingController.h"
 #import "PRDiffFileBarViewController.h"
+#import "PRBinaryDiffViewController.h"
 #import "PRFindBarController.h"
 #import "WebKitExtras.h"
 
@@ -28,6 +29,7 @@
 @property MarkdownFormattingController *markdownFormattingController;
 @property PRFindBarController *findController;
 @property PRDiffFileBarViewController *fileBarController;
+@property PRBinaryDiffViewController *binaryController;
 
 @end
 
@@ -64,6 +66,7 @@
                                                CGRectGetHeight(b) - fbView.frame.size.height,
                                                CGRectGetWidth(b),
                                                fbView.frame.size.height);
+    _binaryController.view.frame = [self webContentRect];
     [super layoutSubviews];
 }
 
@@ -197,10 +200,12 @@ static BOOL differentiateWithoutColor() {
     }
     
     NSInteger count = ++_loadCount;
-    [diffFile loadTextContents:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
+    [diffFile loadContentsAsText:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
         if (_loadCount != count) return;
         
         void (^complete)(id) = ^(id patchMapping) {
+            [self showTextDiff];
+            
             NSDictionary *state =
             @{ @"filename": diffFile.name,
                @"path": diffFile.path,
@@ -215,11 +220,11 @@ static BOOL differentiateWithoutColor() {
                @"headSha": pr.spanDiff.headRev,
                @"colorblind" : @(differentiateWithoutColor()),
                @"me" : [JSON serializeObject:[Account me] withNameTransformer:[JSON underbarsAndIDNameTransformer]]
-            };
+               };
             
             NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@);", [JSON stringifyObject:state]];
             [self evaluateJavaScript:js];
-
+            
             if (scrollInfo) {
                 [self navigate:scrollInfo];
             }
@@ -233,7 +238,35 @@ static BOOL differentiateWithoutColor() {
             complete(nil);
         }
         
+    } asBinary:^(NSData *oldFile, NSData *newFile, NSError *error) {
+        if (_loadCount != count) return;
+        
+        [self showBinaryDiff];
+        
+        [_binaryController setFile:diffFile oldData:oldFile newData:newFile];
     }];
+}
+
+- (BOOL)isShowingBinaryDiff {
+    return self.web.hidden;
+}
+
+- (void)showTextDiff {
+    if (self.web.hidden) {
+        self.web.hidden = NO;
+        [_binaryController.view removeFromSuperview];
+    }
+}
+
+- (void)showBinaryDiff {
+    if (!_binaryController) {
+        _binaryController = [PRBinaryDiffViewController new];
+    }
+    if (![_binaryController.view superview]) {
+        self.web.hidden = YES;
+        [self.view addSubview:_binaryController.view];
+        [self layoutSubviews];
+    }
 }
 
 - (void)reconfigureForReload {
@@ -271,8 +304,12 @@ static BOOL differentiateWithoutColor() {
 }
 
 - (void)navigate:(NSDictionary *)options {
-    NSString *js = [NSString stringWithFormat:@"window.scrollTo(%@);", [JSON stringifyObject:options]];
-    [self evaluateJavaScript:js];
+    if ([self isShowingBinaryDiff]) {
+        [self.delegate diffViewController:self continueNavigation:options];
+    } else {
+        NSString *js = [NSString stringWithFormat:@"window.scrollTo(%@);", [JSON stringifyObject:options]];
+        [self evaluateJavaScript:js];
+    }
 }
 
 #pragma mark - Text Finding
