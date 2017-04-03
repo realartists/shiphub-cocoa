@@ -35,14 +35,14 @@
     
     if (error) *error = nil;
     
-    git_object *baseObj = NULL;
-    git_object *headObj = NULL;
-    git_oid walkOid;
-    git_commit *walkCommit = NULL;
-    git_commit *parentCommit = NULL;
-    git_tree *walkTree = NULL;
-    git_tree *parentTree = NULL;
-    git_revwalk *walk = NULL;
+    __block git_object *baseObj = NULL;
+    __block git_object *headObj = NULL;
+    __block git_oid walkOid;
+    __block git_commit *walkCommit = NULL;
+    __block git_commit *parentCommit = NULL;
+    __block git_tree *walkTree = NULL;
+    __block git_tree *parentTree = NULL;
+    __block git_revwalk *walk = NULL;
     
     dispatch_block_t cleanup = ^{
         if (baseObj) git_object_free(baseObj);

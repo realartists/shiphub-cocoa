@@ -85,12 +85,12 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     
     if (error) *error = nil;
     
-    git_object *baseObj = NULL;
-    git_object *headObj = NULL;
-    git_commit *baseCommit = NULL;
-    git_commit *headCommit = NULL;
-    git_tree *baseTree = NULL;
-    git_tree *headTree = NULL;
+    __block git_object *baseObj = NULL;
+    __block git_object *headObj = NULL;
+    __block git_commit *baseCommit = NULL;
+    __block git_commit *headCommit = NULL;
+    __block git_tree *baseTree = NULL;
+    __block git_tree *headTree = NULL;
     
     dispatch_block_t cleanup = ^{
         if (baseObj) git_object_free(baseObj);
@@ -125,7 +125,7 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
 
 + (GitDiff *)diffWithRepo:(GitRepo *)repo fromTree:(git_tree *)baseTree fromRev:(NSString *)baseRev toTree:(git_tree *)headTree toRev:(NSString *)headRev error:(NSError *__autoreleasing *)error
 {
-    git_diff *diff = NULL;
+    __block git_diff *diff = NULL;
     
     dispatch_block_t cleanup = ^{
         if (diff) git_diff_free(diff);
@@ -263,9 +263,9 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     NSAssert(self.mode == DiffFileModeBlob || self.mode == DiffFileModeBlobExecutable, nil);
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        git_blob *newBlob = NULL;
-        git_blob *oldBlob = NULL;
-        git_patch *gitPatch = NULL;
+        __block git_blob *newBlob = NULL;
+        __block git_blob *oldBlob = NULL;
+        __block git_patch *gitPatch = NULL;
         __block git_buf patchBuf = {0};
         
         NSString *newText = nil;
