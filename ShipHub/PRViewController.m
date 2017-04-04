@@ -499,7 +499,7 @@ static NSString *const MergeItemID = @"Merge";
     
     PRReview *review = [_pendingReview copy] ?: [PRReview new];
     review.comments = _pendingComments;
-    review.status = PRReviewStatusPending;
+    review.state = PRReviewStatePending;
     
     [[DataStore activeStore] addReview:review inIssue:_pr.issue.fullIdentifier completion:^(PRReview *roundtrip, NSError *error) {
         if (roundtrip) {

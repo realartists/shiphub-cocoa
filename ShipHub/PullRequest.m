@@ -232,7 +232,7 @@
         mySubmittedReviews = [mySubmittedReviews arrayByMappingObjects:^id(id obj) {
             return [[PRReview alloc] initWithDictionary:obj comments:nil metadataStore:ms];
         }];
-        mySubmittedReviews = [mySubmittedReviews sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:NO]]];
+        mySubmittedReviews = [mySubmittedReviews sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"submittedAt" ascending:NO]]];
         submittedReview = [mySubmittedReviews firstObject];
         
         id myReview = [data firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"state = 'PENDING' AND user.id = %@", [[Account me] identifier]]];

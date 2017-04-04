@@ -60,12 +60,12 @@
 - (IBAction)submit:(id)sender {
     PRReview *review = [PRReview new];
     if (_commentButton.state == NSOnState) {
-        review.status = PRReviewStatusComment;
+        review.state = PRReviewStateComment;
     } else if (_approveButton.state == NSOnState) {
-        review.status = PRReviewStatusApprove;
+        review.state = PRReviewStateApprove;
     } else {
         NSAssert(_requestChangesButton.state == NSOnState, nil);
-        review.status = PRReviewStatusRequestChanges;
+        review.state = PRReviewStateRequestChanges;
     }
     review.body = _commentText.string;
     [self.delegate reviewChangesViewController:self submitReview:review];

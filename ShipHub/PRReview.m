@@ -28,8 +28,9 @@
         _identifier = d[@"id"];
         _user = [store accountWithIdentifier:d[@"user"][@"id"]];
         _body = d[@"body"];
-        _status = PRReviewStatusFromString(d[@"status"]);
+        _state = PRReviewStateFromString(d[@"state"]);
         _createdAt = [NSDate dateWithJSONString:d[@"created_at"]];
+        _submittedAt = [NSDate dateWithJSONString:d[@"submitted_at"]];
         _commitId = d[@"commit_id"];
         _comments = [comments copy];
     }
@@ -41,31 +42,54 @@
     copy->_identifier = _identifier;
     copy->_user = _user;
     copy->_body = [_body copy];
-    copy->_status = _status;
+    copy->_state = _state;
     copy->_comments = [_comments copy];
     copy->_createdAt = [NSDate date];
+    copy->_submittedAt = _submittedAt;
     return copy;
 }
 
 @end
 
-PRReviewStatus PRReviewStatusFromString(NSString *str) {
+PRReviewState PRReviewStateFromEventString(NSString *str) {
     if ([str isEqualToString:@"APPROVE"]) {
-        return PRReviewStatusApprove;
+        return PRReviewStateApprove;
     } else if ([str isEqualToString:@"REQUEST_CHANGES"]) {
-        return PRReviewStatusRequestChanges;
+        return PRReviewStateRequestChanges;
     } else if ([str isEqualToString:@"COMMENT"]) {
-        return PRReviewStatusComment;
+        return PRReviewStateComment;
     } else {
-        return PRReviewStatusPending;
+        return PRReviewStatePending;
     }
 }
 
-NSString *PRReviewStatusToString(PRReviewStatus st) {
+NSString *PRReviewStateToEventString(PRReviewState st) {
     switch (st) {
-        case PRReviewStatusPending: return @"PENDING";
-        case PRReviewStatusApprove: return @"APPROVE";
-        case PRReviewStatusRequestChanges: return @"REQUEST_CHANGES";
-        case PRReviewStatusComment: return @"COMMENT";
+        case PRReviewStatePending: return @"PENDING";
+        case PRReviewStateApprove: return @"APPROVE";
+        case PRReviewStateRequestChanges: return @"REQUEST_CHANGES";
+        case PRReviewStateComment: return @"COMMENT";
     }
 }
+
+PRReviewState PRReviewStateFromString(NSString *str) {
+    if ([str isEqualToString:@"APPROVED"]) {
+        return PRReviewStateApprove;
+    } else if ([str isEqualToString:@"CHANGES_REQUESTED"]) {
+        return PRReviewStateRequestChanges;
+    } else if ([str isEqualToString:@"COMMENTED"]) {
+        return PRReviewStateComment;
+    } else {
+        return PRReviewStatePending;
+    }
+}
+
+NSString *PRReviewStateToString(PRReviewState st) {
+    switch (st) {
+        case PRReviewStatePending: return @"PENDING";
+        case PRReviewStateApprove: return @"APPROVED";
+        case PRReviewStateRequestChanges: return @"CHANGES_REQUESTED";
+        case PRReviewStateComment: return @"COMMENTED";
+    }
+}
+

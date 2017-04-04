@@ -1960,8 +1960,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     dispatch_block_t postReview = ^{
         NSMutableDictionary *msg = [NSMutableDictionary new];
         if (review.body) msg[@"body"] = review.body;
-        if (review.status != PRReviewStatusPending) {
-            msg[@"event"] = PRReviewStatusToString(review.status);
+        if (review.state != PRReviewStatePending) {
+            msg[@"event"] = PRReviewStateToEventString(review.state);
         }
         if (review.comments.count) {
             msg[@"comments"] = [review.comments arrayByMappingObjects:^id(PRComment *obj) {
@@ -1991,7 +1991,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                                 completion(nil, err2);
                             });
                         } else {
-                            Class prCommentClass = review.status == PRReviewStatusPending ? [PendingPRComment class] : [PRComment class];
+                            Class prCommentClass = review.state == PRReviewStatePending ? [PendingPRComment class] : [PRComment class];
                             NSArray *comments = [data arrayByMappingObjects:^id(id obj) {
                                 return [[prCommentClass alloc] initWithDictionary:obj metadataStore:self.metadataStore];
                             }];

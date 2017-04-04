@@ -12,15 +12,18 @@
 @class PRComment;
 @class MetadataStore;
 
-typedef NS_ENUM(NSInteger, PRReviewStatus) {
-    PRReviewStatusPending = 0,
-    PRReviewStatusApprove,
-    PRReviewStatusRequestChanges,
-    PRReviewStatusComment,
+typedef NS_ENUM(NSInteger, PRReviewState) {
+    PRReviewStatePending = 0,
+    PRReviewStateApprove,
+    PRReviewStateRequestChanges,
+    PRReviewStateComment,
 };
 
-extern PRReviewStatus PRReviewStatusFromString(NSString *str);
-extern NSString *PRReviewStatusToString(PRReviewStatus st);
+extern PRReviewState PRReviewStateFromEventString(NSString *str);
+extern NSString *PRReviewStateToEventString(PRReviewState st);
+
+extern PRReviewState PRReviewStateFromString(NSString *str);
+extern NSString *PRReviewStateToString(PRReviewState st);
 
 @interface PRReview : NSObject <NSCopying>
 
@@ -29,9 +32,10 @@ extern NSString *PRReviewStatusToString(PRReviewStatus st);
 
 @property NSNumber *identifier;
 @property Account *user;
-@property PRReviewStatus status;
+@property PRReviewState state;
 @property NSString *body;
 @property NSDate *createdAt;
+@property NSDate *submittedAt;
 @property NSString *commitId;
 @property NSArray<PRComment *> *comments;
 
