@@ -1747,6 +1747,10 @@ CGRect IntegralRect(CGRect r) {
     return [self code] == NSURLErrorCancelled && [[self domain] isEqualToString:NSURLErrorDomain];
 }
 
++ (NSError *)cancelError {
+    return [NSError errorWithDomain:NSURLErrorDomain code:NSURLErrorCancelled userInfo:nil];
+}
+
 @end
 
 @implementation NSHTTPURLResponse (Extras)

@@ -16,6 +16,7 @@
 #import "IssueDocumentController.h"
 #import "IssueIdentifier.h"
 #import "ProgressSheet.h"
+#import "TrackingProgressSheet.h"
 #import "PRSidebarViewController.h"
 #import "PRDiffViewController.h"
 #import "PRComment.h"
@@ -385,10 +386,9 @@ static NSString *const MergeItemID = @"Merge";
     
     self.pendingComments = [NSMutableArray new];
     
-    ProgressSheet *sheet = [ProgressSheet new];
-    sheet.message = NSLocalizedString(@"Loading Pull Request", nil);
+    TrackingProgressSheet *sheet = [TrackingProgressSheet new];
     [sheet beginSheetInWindow:self.view.window];
-    [self.pr checkout:^(NSError *error) {
+    sheet.progress = [self.pr checkout:^(NSError *error) {
         [sheet endSheet];
         
         if (self.pr.myLastPendingReview) {
@@ -400,10 +400,16 @@ static NSString *const MergeItemID = @"Merge";
         _mergeItem.enabled = self.pr.canMerge;
         
         if (error) {
-            NSAlert *alert = [NSAlert new];
-            alert.messageText = NSLocalizedString(@"Unable to load pull request", nil);
-            alert.informativeText = [error localizedDescription];
-            [alert beginSheetModalForWindow:self.view.window completionHandler:nil];
+            if ([error isCancelError]) {
+                [[self.view window] close];
+            } else {
+                NSAlert *alert = [NSAlert new];
+                alert.messageText = NSLocalizedString(@"Unable to load pull request", nil);
+                alert.informativeText = [error localizedDescription];
+                [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+                    [[self.view window] close];
+                }];
+            }
         } else {
             _sidebarController.pr = self.pr;
         }

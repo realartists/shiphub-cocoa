@@ -8,6 +8,7 @@
 
 #import "GitRepoInternal.h"
 
+#import "Extras.h"
 #import "NSError+Git.h"
 
 #import <pthread.h>
@@ -95,6 +96,19 @@ static int credentialsCallback(git_cred **cred,
     return git_cred_userpass_plaintext_new(cred, [info[@"username"] UTF8String], [info[@"password"] UTF8String]);
 }
 
+static int progressCallback(const git_transfer_progress *stats, void *payload) {
+    NSDictionary *info = (__bridge NSDictionary *)payload;
+    NSProgress *progress = info[@"progress"];
+    if ([progress isCancelled]) {
+        return -1;
+    }
+    
+    progress.totalUnitCount = (NSInteger)stats->total_objects;
+    progress.completedUnitCount = (NSInteger)stats->received_objects;
+    return 0;
+}
+
+
 static int updateRefs(const char *ref_name, const char *remote_url, const git_oid *oid, unsigned int is_merge, void *payload) {
     GitRepo *repo = (__bridge GitRepo *)payload;
     
@@ -110,7 +124,7 @@ static int updateRefs(const char *ref_name, const char *remote_url, const git_oi
     return 0;
 }
 
-- (NSError *)fetchRemote:(NSURL *)remoteURL username:(NSString *)username password:(NSString *)password refs:(NSArray *)refs
+- (NSError *)fetchRemote:(NSURL *)remoteURL username:(NSString *)username password:(NSString *)password refs:(NSArray *)refs progress:(NSProgress *)progress
 {
     [self writeLock];
     
@@ -134,7 +148,10 @@ static int updateRefs(const char *ref_name, const char *remote_url, const git_oi
 #define CHK(X) \
     do { \
         int giterr = (X); \
-        if (giterr) { \
+        if (progress.cancelled) { \
+            cleanup(); \
+            return [NSError cancelError]; \
+        } else if (giterr) { \
             NSError *err = [NSError gitError]; \
             cleanup(); \
             return err; \
@@ -158,7 +175,7 @@ static int updateRefs(const char *ref_name, const char *remote_url, const git_oi
                           [[remoteURL description] UTF8String]);
     }
     
-    NSDictionary *payload = @{ @"username": username, @"password": password };
+    NSDictionary *payload = @{ @"username": username, @"password": password, @"progress" : progress };
     
     git_fetch_options opts = {
         .version = GIT_FETCH_OPTIONS_VERSION,
@@ -169,7 +186,7 @@ static int updateRefs(const char *ref_name, const char *remote_url, const git_oi
             .completion = NULL,
             .credentials = credentialsCallback,
             .certificate_check = NULL,
-            .transfer_progress = NULL,
+            .transfer_progress = progressCallback,
             .update_tips = NULL,
             .pack_progress = NULL,
             .push_transfer_progress = NULL,

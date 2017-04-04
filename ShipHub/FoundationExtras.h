@@ -343,6 +343,8 @@ void RunOnMain(dispatch_block_t);
 
 - (BOOL)isCancelError; // returns YES if this is a foundation level cancel error { NSURLErrorDomain, NSURLErrorCancelled }
 
++ (NSError *)cancelError;
+
 @end
 
 @interface NSHTTPURLResponse (Extras)

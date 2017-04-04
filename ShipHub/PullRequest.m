@@ -148,11 +148,14 @@
     // optimistically, see if we can find the PR without doing any network operations
     NSError *optimisticErr = [self loadSpanDiff];
     if (optimisticErr) {
+        progress.localizedDescription = NSLocalizedString(@"Fetching git objects", nil);
+        progress.completedUnitCount = 0;
+        progress.totalUnitCount = -1;
         
         DebugLog(@"Have to fetch refSpec %@ from %@", refSpec, remoteURLStr);
         
         // See https://github.com/blog/1270-easier-builds-and-deployments-using-git-over-https-and-oauth
-        error = [_repo fetchRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" refs:@[refSpec]];
+        error = [_repo fetchRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" refs:@[refSpec] progress:progress];
         if (error) return error;
         
         error = [self loadSpanDiff];
@@ -161,17 +164,25 @@
         DebugLog(@"Loaded span diff without network op");
     }
     
+    if (progress.cancelled) return [NSError cancelError];
+    
+    progress.localizedDescription = NSLocalizedString(@"Preparing diffs", nil);
+    progress.totalUnitCount = 3;
+    progress.completedUnitCount = 1;
+    
     error = [self loadCommits];
     if (error) {
         ErrLog(@"Error loading commits %@", error);
         return error;
     }
+    progress.completedUnitCount += 1;
     
     error = [self loadSpanDiffSinceLastSubmittedReview];
     if (error) {
         ErrLog(@"Error loading span diff since last submitted review: %@", error);
         return error;
     }
+    progress.completedUnitCount += 1;
     
     return error;
 }
@@ -245,11 +256,18 @@
     }];
     operations++;
     
+    progress.totalUnitCount = operations;
+    progress.completedUnitCount = 0;
+    progress.localizedDescription = NSLocalizedString(@"Loading pull request metadata", nil);
+    
     // wait for responses
-    while (operations != 0) {
+    while (operations != 0 && !progress.cancelled) {
         dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
         operations--;
+        progress.completedUnitCount += 1;
     }
+    
+    if (progress.cancelled) return [NSError cancelError];
     
     if (prError) return prError;
     if (commentsError) return commentsError;
