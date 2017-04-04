@@ -8,6 +8,8 @@
 
 #import "PRDocument.h"
 
+#import "Extras.h"
+
 @interface PRDocumentWindow : NSWindow
 
 @end
@@ -33,8 +35,10 @@
     return YES;
 }
 
-- (void)windowControllerDidLoadNib:(NSWindowController *)aController {
-    [super windowControllerDidLoadNib:aController];
+- (void)makeWindowControllers {
+    [super makeWindowControllers];
+    
+    NSWindowController *aController = [[self windowControllers] firstObject];
     NSWindow *window = aController.window;
     NSScreen *screen = window.screen ?: [NSScreen mainScreen];
     aController.contentViewController = self.prViewController;
@@ -81,6 +85,33 @@
 {
     if (object == _prViewController && [keyPath isEqualToString:@"title"]) {
         [self updateDocumentName];
+    }
+}
+
+#pragma mark -
+
+- (BOOL)window:(NSWindow *)window shouldPopUpDocumentPathMenu:(NSMenu *)menu {
+    return NO;
+}
+
+- (BOOL)window:(NSWindow *)window shouldDragDocumentWithEvent:(NSEvent *)event from:(NSPoint)dragImageLocation withPasteboard:(NSPasteboard *)pasteboard
+{
+    if (_prViewController.pr.issue.fullIdentifier) {
+        NSURL *URL = [_prViewController.pr gitHubFilesURL];
+        
+        [pasteboard clearContents];
+        NSAttributedString *attrStr = [[NSAttributedString alloc] initWithString:_prViewController.pr.issue.fullIdentifier attributes:@{NSLinkAttributeName: URL}];
+        [pasteboard writeObjects:@[[MultiRepresentationPasteboardData representationWithArray:@[attrStr, URL]]]];
+
+        NSButton *button = [window standardWindowButton:NSWindowDocumentIconButton];
+        CGPoint buttonInWindow = [button convertPoint:CGPointMake(0.0, button.frame.size.height) toView:nil];
+        NSImage *image = [[button image] copy];
+        image.size = button.frame.size;
+        
+        [window dragImage:image at:buttonInWindow offset:CGSizeZero event:event pasteboard:pasteboard source:self slideBack:YES];
+        return NO; // NO because we're handling the drag ourselves in order to get the image right. NSWindow will draw the wrong icon otherwise.
+    } else {
+        return NO;
     }
 }
 

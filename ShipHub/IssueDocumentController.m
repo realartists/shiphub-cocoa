@@ -162,7 +162,12 @@
     
     [[DataStore activeStore] loadFullIssue:issueIdentifier completion:^(Issue *issue, NSError *error) {
         if (issue) {
-            IssueDocument *doc = [self openUntitledDocumentAndDisplay:display error:NULL];
+            IssueDocument *doc = [self makeUntitledDocumentOfType:@"issue" error:NULL];
+            [self addDocument:doc];
+            [doc makeWindowControllers];
+            if (display) {
+                [doc showWindows];
+            }
             [doc.issueViewController setIssue:issue scrollToCommentWithIdentifier:commentIdentifier];
             [doc.issueViewController checkForIssueUpdates];
             [[DataStore activeStore] markIssueAsRead:issueIdentifier];

@@ -121,6 +121,9 @@ static NSString *reactionContentToEmoji(NSString *content);
     [bulkMenu addItemWithTitle:NSLocalizedString(@"Assignee", nil) action:@selector(bulkModifyAssignee:) keyEquivalent:@""];
     [bulkMenu addItemWithTitle:NSLocalizedString(@"State", nil) action:@selector(bulkModifyState:) keyEquivalent:@""];
     
+    [menu addItem:[NSMenuItem separatorItem]];
+    [menu addItemWithTitle:NSLocalizedString(@"View Code Changes", nil) action:@selector(viewCodeChanges:) keyEquivalent:@""];
+    
     _table.menu = menu;
 }
 
@@ -169,6 +172,15 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
                      @"width" : @46,
                      @"maxWidth" : @46,
                      @"minWidth" : @46 },
+                  
+                  @{ @"identifier" : @"pullRequest",
+                     @"title" : NSLocalizedString(@"PR", nil),
+                     @"formatter" : [BooleanDotFormatter formatterWithColor:[NSColor blackColor]],
+                     @"width" : @20,
+                     @"maxWidth" : @20,
+                     @"minWidth" : @20,
+                     @"centered" : @YES,
+                     @"cellClass" : @"PRIndicatorCell" },
                   
                   @{ @"identifier" : @"fullIdentifier",
                      @"title" : NSLocalizedString(@"Path", nil),
@@ -470,6 +482,20 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
     }
 }
 
+- (IBAction)viewCodeChanges:(id)sender {
+    NSArray *selected;
+    if ([sender menu] == _table.menu) {
+        selected = [self selectedItemsForMenu];
+    } else {
+        selected = [self selectedItems];
+    }
+    
+    Issue *i = [selected firstObject];
+    if (i.pullRequest) {
+        [[IssueDocumentController sharedDocumentController] openDiffWithIdentifier:i.fullIdentifier canOpenExternally:NO scrollToCommentWithIdentifier:nil completion:nil];
+    }
+}
+
 - (void)_makeColumns {
     _table.autosaveTableColumns = NO;
     
@@ -754,12 +780,13 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)item {
-    NSInteger selectedCount = 0;
-    if (item.menu == _table.menu) {
-        selectedCount = [[self selectedItemsForMenu] count];
+    NSArray *selected = nil;
+    if ([item containedInMenu:_table.menu]) {
+        selected = [self selectedItemsForMenu];
     } else {
-        selectedCount = [[self selectedItems] count];
+        selected = [self selectedItems];
     }
+    NSInteger selectedCount = [selected count];
     
     if (item.action == @selector(copyIssueNumber:)
         || item.action == @selector(copyIssueNumberWithTitle:)
@@ -780,6 +807,9 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
         || item.action == @selector(bulkModifyMilestone:))
     {
         return selectedCount > 0;
+    }
+    if (item.action == @selector(viewCodeChanges:)) {
+        return selectedCount == 1 && [[selected firstObject] pullRequest];
     }
     return YES;
 }
@@ -1155,11 +1185,17 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
 
 @end
 
-@interface ReadIndicatorCell : NSTextFieldCell
+@interface DotIndicatorCell : NSTextFieldCell
+
+- (NSColor *)dotColor;
 
 @end
 
-@implementation ReadIndicatorCell
+@implementation DotIndicatorCell
+
+- (NSColor *)dotColor {
+    return [NSColor extras_controlBlue];
+}
 
 - (void)drawInteriorWithFrame:(NSRect)cellFrame inView:(NSView *)controlView
 {
@@ -1181,11 +1217,31 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
         if (highlighted) {
             [[NSColor whiteColor] setFill];
         } else {
-            [[NSColor extras_controlBlue] setFill];
+            [[self dotColor] setFill];
         }
         
         [path fill];
     }
+}
+
+@end
+
+@interface ReadIndicatorCell : DotIndicatorCell
+
+@end
+
+@implementation ReadIndicatorCell
+
+@end
+
+@interface PRIndicatorCell : DotIndicatorCell
+
+@end
+
+@implementation PRIndicatorCell
+
+- (NSColor *)dotColor {
+    return [NSColor blackColor];
 }
 
 @end

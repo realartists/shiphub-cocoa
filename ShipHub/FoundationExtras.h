@@ -274,6 +274,14 @@ void RunOnMain(dispatch_block_t);
 
 @interface BooleanDotFormatter : NSFormatter
 
+#if TARGET_OS_IOS
++ (BooleanDotFormatter *)formatterWithColor:(UIColor *)color;
+@property UIColor *color;
+#else
++ (BooleanDotFormatter *)formatterWithColor:(NSColor *)color;
+@property NSColor *color;
+#endif
+
 @end
 
 @interface NSMutableAttributedString (Extras)

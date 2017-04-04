@@ -885,6 +885,19 @@ static CGFloat GetAttachmentWidth(void *ref) {
 
 @end
 
+@implementation NSMenuItem (AppKitExtras)
+
+- (BOOL)containedInMenu:(NSMenu *)menu {
+    NSMenu *parent = self.menu;
+    while (parent && parent != menu) {
+        parent = parent.supermenu;
+    }
+    return parent == menu;
+}
+
+@end
+
+
 @implementation FlippedView
 
 - (BOOL)isFlipped { return YES; }

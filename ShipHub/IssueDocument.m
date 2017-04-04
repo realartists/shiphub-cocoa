@@ -34,8 +34,10 @@
     }
 }
 
-- (void)windowControllerDidLoadNib:(NSWindowController *)aController {
-    [super windowControllerDidLoadNib:aController];
+- (void)makeWindowControllers {
+    [super makeWindowControllers];
+    
+    NSWindowController *aController = [[self windowControllers] firstObject];
     SEL setTabbingIdentifier = NSSelectorFromString(@"setTabbingIdentifier:");
     if ([aController.window respondsToSelector:setTabbingIdentifier]) {
 #pragma clang diagnostic push

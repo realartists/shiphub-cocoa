@@ -174,14 +174,23 @@ static const CGFloat marginBottom = 7.0;
     
     NSString *numStr = [NSString stringWithFormat:@"#%@", _issue.number];
     
-    CGSize numSize = [numStr sizeWithAttributes:numAttrs];
+    NSMutableAttributedString *numAttrStr = [NSMutableAttributedString new];
+    
+    if (_issue.pullRequest) {
+        NSDictionary *prAttrs = [sharedAttrs dictionaryByAddingEntriesFromDictionary:@{ NSFontAttributeName: [NSFont systemFontOfSize:11.0 weight:NSFontWeightBold] }];
+        [numAttrStr appendAttributes:prAttrs format:@"PR "];
+    }
+    
+    [numAttrStr appendAttributedString:[[NSAttributedString alloc] initWithString:numStr attributes:numAttrs]];
+    
+    CGSize numSize = [numAttrStr size];
     
     CGRect numRect = CGRectMake(CGRectGetMaxX(b) - numSize.width - marginRight,
                                 CGRectGetMaxY(b) - numSize.height - marginTop - 2.0,
                                 numSize.width,
                                 numSize.height);
     
-    [numStr drawInRect:numRect withAttributes:numAttrs];
+    [numAttrStr drawInRect:numRect];
     
     // Draw the date just under the number
     NSDate *date = nil;

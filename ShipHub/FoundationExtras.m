@@ -1337,6 +1337,17 @@ CGRect IntegralRect(CGRect r) {
 
 @implementation BooleanDotFormatter
 
+#if TARGET_OS_IOS
++ (BooleanDotFormatter *)formatterWithColor:(UIColor *)color;
+#else
++ (BooleanDotFormatter *)formatterWithColor:(NSColor *)color;
+#endif
+{
+    BooleanDotFormatter *f = [BooleanDotFormatter new];
+    f.color = color;
+    return f;
+}
+
 - (NSAttributedString *)attributedStringForObjectValue:(id)obj withDefaultAttributes:(NSDictionary<NSString *,id> *)attrs
 {
     NSString *base = [self stringForObjectValue:obj];
@@ -1361,9 +1372,9 @@ CGRect IntegralRect(CGRect r) {
     myAttrs[NSFontAttributeName] = font;
     
 #if TARGET_OS_IOS
-    myAttrs[NSForegroundColorAttributeName] = [UIColor extras_controlBlue];
+    myAttrs[NSForegroundColorAttributeName] = _color ?: [UIColor extras_controlBlue];
 #else
-    myAttrs[NSForegroundColorAttributeName] = [NSColor extras_controlBlue];
+    myAttrs[NSForegroundColorAttributeName] = _color ?: [NSColor extras_controlBlue];
 #endif
     
     return [[NSAttributedString alloc] initWithString:base attributes:myAttrs];

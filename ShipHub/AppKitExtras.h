@@ -194,6 +194,12 @@
 
 @end
 
+@interface NSMenuItem (AppKitExtras)
+
+- (BOOL)containedInMenu:(NSMenu *)menu; // returns YES if this item is in menu, or, recursively, is in a menu that's a submenu of menu
+
+@end
+
 @interface FlippedView : NSView
 
 @end
