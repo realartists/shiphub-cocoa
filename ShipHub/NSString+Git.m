@@ -10,6 +10,12 @@
 
 @implementation NSString (Git)
 
++ (NSString *)stringWithGitOid:(const git_oid *)oid {
+    char buf[GIT_OID_HEXSZ];
+    git_oid_fmt(buf, oid);
+    return [[NSString alloc] initWithBytes:buf length:GIT_OID_HEXSZ encoding:NSASCIIStringEncoding];
+}
+
 + (NSString *)stringWithGitBlob:(const git_blob *)blob {
     const void *rawContents = git_blob_rawcontent(blob);
     size_t rawContentsLength = git_blob_rawsize(blob);

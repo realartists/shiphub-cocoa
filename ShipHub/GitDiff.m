@@ -260,9 +260,9 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
 {
     NSParameterAssert(textCompletion);
     NSParameterAssert(binaryCompletion);
-    NSAssert(self.mode == DiffFileModeBlob || self.mode == DiffFileModeBlobExecutable, nil);
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        __block git_submodule *submodule = NULL;
         __block git_blob *newBlob = NULL;
         __block git_blob *oldBlob = NULL;
         __block git_patch *gitPatch = NULL;
@@ -278,6 +278,7 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
         [_repo readLock];
         
         dispatch_block_t cleanup = ^{
+            if (submodule) git_submodule_free(submodule);
             if (newBlob) git_blob_free(newBlob);
             if (oldBlob) git_blob_free(oldBlob);
             if (gitPatch) git_patch_free(gitPatch);
@@ -293,52 +294,75 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
                 cleanup(); \
                 NSError *err = [NSError gitError]; \
                 RunOnMain(^{ textCompletion(nil, nil, nil, err); }); \
+                return; \
             } \
         } while(0);
         
-        BOOL binary = self.binary; // this is not necessarily accurate, yet, we may have to look at the contents to figure out.
+        BOOL isSubmodule = self.mode == DiffFileModeCommit;
         
-        if (!git_oid_iszero(&_oldOid)) {
-            CHK(git_blob_lookup(&oldBlob, _repo.repo, &_oldOid));
-            binary = binary || git_blob_is_binary(oldBlob);
-        }
-        
-        if (!git_oid_iszero(&_newOid)) {
-            CHK(git_blob_lookup(&newBlob, _repo.repo, &_newOid));
-            binary = binary || git_blob_is_binary(newBlob);
-        }
-        
-        if (oldBlob) {
-            if (binary) {
-                oldData = [NSData dataWithGitBlob:oldBlob];
+        if (isSubmodule) {
+            if (!git_oid_iszero(&_oldOid)) {
+                oldText = [NSString stringWithGitOid:&_oldOid];
             } else {
-                oldText = [NSString stringWithGitBlob:oldBlob];
+                oldText = @"";
             }
-        }
-        
-        if (newBlob) {
-            if (binary) {
-                newData = [NSData dataWithGitBlob:newBlob];
+            
+            if (!git_oid_iszero(&_newOid)) {
+                newText = [NSString stringWithGitOid:&_newOid];
             } else {
-                newText = [NSString stringWithGitBlob:newBlob];
+                newText = @"";
             }
-        }
-        
-        if (!binary) {
-            CHK(git_patch_from_blobs(&gitPatch, oldBlob, NULL /*oldfilename*/, newBlob, NULL /*newfilename*/, NULL /* default diff options */));
-            CHK(git_patch_to_buf(&patchBuf, gitPatch));
-            patchText = [NSString stringWithGitBuf:&patchBuf];
+            
+            patchText = @"";
+            
+            RunOnMain(^{
+                textCompletion(oldText, newText, patchText, nil);
+            });
+        } else {
+            BOOL binary = self.binary; // this is not necessarily accurate, yet, we may have to look at the contents to figure out.
+            
+            if (!git_oid_iszero(&_oldOid)) {
+                CHK(git_blob_lookup(&oldBlob, _repo.repo, &_oldOid));
+                binary = binary || git_blob_is_binary(oldBlob);
+            }
+            
+            if (!git_oid_iszero(&_newOid)) {
+                CHK(git_blob_lookup(&newBlob, _repo.repo, &_newOid));
+                binary = binary || git_blob_is_binary(newBlob);
+            }
+            
+            if (oldBlob) {
+                if (binary) {
+                    oldData = [NSData dataWithGitBlob:oldBlob];
+                } else {
+                    oldText = [NSString stringWithGitBlob:oldBlob];
+                }
+            }
+            
+            if (newBlob) {
+                if (binary) {
+                    newData = [NSData dataWithGitBlob:newBlob];
+                } else {
+                    newText = [NSString stringWithGitBlob:newBlob];
+                }
+            }
+            
+            if (!binary) {
+                CHK(git_patch_from_blobs(&gitPatch, oldBlob, NULL /*oldfilename*/, newBlob, NULL /*newfilename*/, NULL /* default diff options */));
+                CHK(git_patch_to_buf(&patchBuf, gitPatch));
+                patchText = [NSString stringWithGitBuf:&patchBuf];
+            }
+            
+            RunOnMain(^{
+                if (binary) {
+                    binaryCompletion(oldData, newData, nil);
+                } else {
+                    textCompletion(oldText, newText, patchText, nil);
+                }
+            });
         }
         
         cleanup();
-        
-        RunOnMain(^{
-            if (binary) {
-                binaryCompletion(oldData, newData, nil);
-            } else {
-                textCompletion(oldText, newText, patchText, nil);
-            }
-        });
         
         #undef CHK
     });

@@ -12,6 +12,7 @@
 
 @interface NSString (Git)
 
++ (NSString *)stringWithGitOid:(const git_oid *)oid;
 + (NSString *)stringWithGitBlob:(const git_blob *)blob;
 + (NSString *)stringWithGitBuf:(const git_buf *)buf;
 
