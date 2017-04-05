@@ -167,6 +167,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         }
     }
     [self updateTitle];
+    [self scheduleNeedsSaveTimer];
     BOOL hidden = _issue == nil;
 
     self.web.hidden = hidden;
