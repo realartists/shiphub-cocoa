@@ -7,7 +7,7 @@ import diff_match_patch from 'diff-match-patch'
 import htmlEscape from 'html-escape';
 
 class UnifiedRow extends DiffRow {
-  constructor(mode, text, oldText, leftLineNum, rightLineNum, diffIdx, colorblind, addNewCommentHandler) {
+  constructor(mode, text, oldText, leftLineNum, rightLineNum, diffIdx, hunkNum, colorblind, addNewCommentHandler) {
     super();
     
     this.mode = mode;
@@ -16,6 +16,7 @@ class UnifiedRow extends DiffRow {
     this.leftLineNum = leftLineNum;
     this.rightLineNum = rightLineNum;
     this.diffIdx = diffIdx;
+    this.hunkNum = hunkNum;
     this.colorblind = colorblind;
     this.addNewCommentHandler = addNewCommentHandler;
             

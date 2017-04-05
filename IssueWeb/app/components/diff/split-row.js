@@ -7,12 +7,13 @@ import diff_match_patch from 'diff-match-patch'
 import htmlEscape from 'html-escape';
 
 class SplitRow extends DiffRow {
-  constructor(leftLine, leftLineNum, rightLine, rightLineNum, diffIdx, rightDiffIdx, changed, colorblind, addNewCommentHandler) {
+  constructor(leftLine, leftLineNum, rightLine, rightLineNum, diffIdx, hunkNum, rightDiffIdx, changed, colorblind, addNewCommentHandler) {
     super();
     
     this.leftLineNum = leftLineNum;
     this.rightLineNum = rightLineNum;
     this.diffIdx = diffIdx;
+    this.hunkNum = hunkNum;
     this.rightDiffIdx = rightDiffIdx;
     this.changed = changed;
     this.colorblind = colorblind;

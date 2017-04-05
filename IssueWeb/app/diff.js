@@ -57,7 +57,6 @@ class App {
     this.rightLines = []; // lines in rightText
     this.diffLines = []; // lines in diff
     this.diffIdxMapping = null; // null or array, mapping lines in diff to ultimate span diff where comments are defined
-    this.hunkIndexes = []; // indexes into diffLines that start with @@
     this.comments = []; // Array of PRComments
     this.inReview = false; // Whether or not comments are being buffered to submit in one go
     this.leftHighlight = null; // syntax highlighting
@@ -147,13 +146,11 @@ class App {
     // contain indexes into left, right, and diff, as well as some additional context
     var rowInfos = this.rowInfos = [];
     
-    // indexes into diff for lines that start with @@
-    var hunkIndexes = this.hunkIndexes = [];
-
     var leftIdx = 0;    // into leftLines
     var rightIdx = 0;   // into rightLines
     var diffIdx = 0;    // into diffLines
     var hunkQueue = 0;  // offset from end of rowInfos. implements a queue for lining up corresponding deletions and insertions
+    var hunkNum = -1;  // which hunk we're on
 
     // walk to the first hunk of the diff
     while (diffIdx < diffLines.length && !diffLines[diffIdx].startsWith("@@")) diffIdx++;
@@ -165,7 +162,7 @@ class App {
       if (diffLine.startsWith("@@")) {
         var {leftStartLine, leftRun, rightStartLine, rightRun} = parseDiffLine(diffLine);
         
-        hunkIndexes.push(diffIdx);
+        hunkNum++;
         
         hunkQueue = 0; // reset +/- queue
         
@@ -178,12 +175,12 @@ class App {
         hunkQueue = 0; // reset +/- queue
         
         // it's a context line
-        rowInfos.push({leftIdx, rightIdx, diffIdx:mapDiffIdx(diffIdx)});
+        rowInfos.push({leftIdx, rightIdx, diffIdx:mapDiffIdx(diffIdx), hunkNum});
         leftIdx++;
         rightIdx++;
       } else if (diffLine.startsWith("-")) {
         // the line exists in left, but no longer in right
-        rowInfos.push({leftIdx, diffIdx:mapDiffIdx(diffIdx)});
+        rowInfos.push({leftIdx, diffIdx:mapDiffIdx(diffIdx), hunkNum});
         leftIdx++;
         hunkQueue++;
       } else if (diffLine.startsWith("+")) {
@@ -196,10 +193,10 @@ class App {
             rowInfos[hunkIdx].changed = true;
             hunkQueue--;
           } else {
-            rowInfos.push({rightIdx, diffIdx:mapDiffIdx(diffIdx)});
+            rowInfos.push({rightIdx, diffIdx:mapDiffIdx(diffIdx), hunkNum});
           }
         } else /* unified */ {
-          var nextRow = {rightIdx, diffIdx:mapDiffIdx(diffIdx)};
+          var nextRow = {rightIdx, diffIdx:mapDiffIdx(diffIdx), hunkNum};
           if (hunkQueue) {
             // if we have an active hunk queue, note the context for intraline changes
             var hunkIdx = rowInfos.length - hunkQueue;
@@ -239,6 +236,7 @@ class App {
           ri.rightIdx==undefined?undefined:rightLines[ri.rightIdx],
           ri.rightIdx,
           ri.diffIdx,
+          ri.hunkNum,
           ri.rightDiffIdx,
           ri.changed===true,
           this.colorblind,
@@ -274,6 +272,7 @@ class App {
           ri.leftIdx,
           ri.rightIdx,
           ri.diffIdx,
+          ri.hunkNum,
           this.colorblind,
           this.insertComment.bind(this)
         );
@@ -719,14 +718,6 @@ class App {
     }
   }
   
-  _codeRowsAtHunkStarts() {
-    var hunkSet = new Set(this.hunkIndexes);
-    var hunkRows = this.codeRows.filter((row) => {
-      return hunkSet.has(row.diffIdx-1);
-    });
-    return hunkRows
-  }
-  
   /*
   options - {
     type: string, (comment|hunk)
@@ -736,20 +727,43 @@ class App {
   }
   */
   scrollTo(options) { 
-    var rows;
+    var commentBlocks = () => {
+      return this.commentRows.map((cr) => {
+        return { diffIdx: cr.diffIdx, startNode: cr.node, endNode: cr.node };
+      });
+    };
+    
+    var codeBlocks = () => {
+      var l = [];
+      var cur = null;
+      for (var i = 0; i < this.codeRows.length; i++) {
+        var cr = this.codeRows[i];
+        if (cr.hunkNum !== undefined) {
+          if (cur == null || cr.hunkNum != cur.hunkNum) {
+            cur = { diffIdx: cr.diffIdx, startNode: cr.node, hunkNum: cr.hunkNum };
+            l.push(cur);
+          }
+          cur.endNode = cr.node;
+        }
+      }
+      return l;
+    };
+  
+    var blocks;
     if (options.type === 'comment') {
-      rows = this.commentRows;
+      blocks = commentBlocks();
     } else if (options.type == 'hunk') {
-      rows = this._codeRowsAtHunkStarts();
+      blocks = codeBlocks();
     } else {
-      rows = this.commentRows.concat(this._codeRowsAtHunkStarts());
-      rows.sort((a, b) => {
+      blocks = commentBlocks().concat(codeBlocks());
+      blocks.sort((a, b) => {
         if (a.diffIdx < b.diffIdx) return -1;
         else if (a.diffIdx > b.diffIdx) return 1;
         else {
-          if ((a instanceof CommentRow) && !(b instanceof CommentRow)) {
+          // code row comes before comment row
+          if ("hunkNum" in a && !("hunkNum" in b)) {
             return -1;
-          } else if (!(a instanceof CommentRow) && (b instanceof CommentRow)) {
+          } else if (!("hunkNum" in a) && "hunkNum" in b) {
             return 1;
           } else {
             return 0;
@@ -770,21 +784,29 @@ class App {
       var above = [];
       var below = [];
       
-      for (var i = 0; i < rows.length; i++) {
-        var r = rows[i];
-        var offsetY = 0;
-        var n = r.node;
+      for (var i = 0; i < blocks.length; i++) {
+        var b = blocks[i];
+        var offsetTop = 0;
+        var n = b.startNode;
         while (n && n != this.table) {
-          offsetY += n.offsetTop;
+          offsetTop += n.offsetTop;
           n = n.offsetParent;
         }
+        n = b.endNode;
+        var offsetBottom = n.offsetHeight;
+        while (n && n != this.table) {
+          offsetBottom += n.offsetTop;
+          n = n.offsetParent;
+        }
+        b.offsetTop = offsetTop;
+        b.offsetBottom = offsetBottom;
         
-        if (offsetY < lineTop) {
+        if (offsetBottom < lineTop) {
           above.push(i);
-        } else if (offsetY > lineBottom) {
-          below.push(i);
-        } else {
+        } else if (offsetTop < lineBottom) {
           onscreen.push(i);
+        } else {
+          below.push(i);
         }
       }
       
@@ -793,27 +815,33 @@ class App {
         // scroll down
         if (atBottom) { }
         else if (onscreen.length > 1) next = onscreen[1];
+        else if (onscreen.length > 0 && blocks[onscreen[0]].offsetBottom > lineBottom) next = "pgdn";
         else if (below.length > 0) next = below[0];
       } else {
         // scroll up
         if (atTop) { }
+        else if (onscreen.length > 0 && blocks[onscreen[0]].offsetTop < lineTop) next = "pgup";
         else if (above.length > 0) next = above[above.length-1];
       }
       
-      if (next !== undefined) {
-        rows[next].node.scrollIntoView({behavior: "smooth"});
+      if (next === "pgup") {
+        window.scrollBy(0, -visibleHeight);
+      } else if (next === "pgdn") {
+        window.scrollBy(0, visibleHeight);
+      } else if (next !== undefined) {
+        blocks[next].startNode.scrollIntoView({behavior: "smooth"});
       } else {
         window.scrollContinuation.postMessage(options);
       }
     } else if (options.first) {
-      if (rows.length) {
-        rows[0].node.scrollIntoView();
+      if (blocks.length) {
+        blocks[0].startNode.scrollIntoView();
       } else {
         window.scroll(0, 0);
       }
     } else if (options.last) {
-      if (rows.length) {
-        rows[rows.length-1].node.scrollIntoView();
+      if (blocks.length) {
+        blocks[blocks.length-1].endNode.scrollIntoView();
       } else {
         window.scroll(0, scrollableHeight - visibleHeight);
       }
