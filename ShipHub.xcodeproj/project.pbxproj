@@ -841,7 +841,6 @@
 		1ADEA3891E4E86C30033F51A /* DiffViewModeItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DiffViewModeItem.m; sourceTree = "<group>"; };
 		1ADED9CE1D95AA590093A098 /* RateDampener.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RateDampener.h; sourceTree = "<group>"; };
 		1ADED9CF1D95AA590093A098 /* RateDampener.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RateDampener.m; sourceTree = "<group>"; };
-		1ADED9D51DA71EE20093A098 /* git */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; name = git; path = ext/git; sourceTree = "<group>"; };
 		1ADED9DF1DAC47310093A098 /* PRViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRViewController.h; sourceTree = "<group>"; };
 		1ADED9E01DAC47310093A098 /* PRViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRViewController.m; sourceTree = "<group>"; };
 		1ADED9E41DAC47CF0093A098 /* PullRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PullRequest.h; sourceTree = "<group>"; };
@@ -1118,7 +1117,6 @@
 			isa = PBXGroup;
 			children = (
 				1A3D34471DAEE73E00CDF167 /* libgit2.dylib */,
-				1ADED9D51DA71EE20093A098 /* git */,
 				1AB038541D5D390E005093B9 /* Sparkle.framework */,
 				28BF03C21D1C582E00F22638 /* FontAwesome.otf */,
 				1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */,
