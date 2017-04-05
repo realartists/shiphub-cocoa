@@ -222,6 +222,9 @@
 }
 
 - (void)openIssuesWithIdentifiers:(NSArray *)issueIdentifiers {
+    if ([issueIdentifiers count] > 10) {
+        issueIdentifiers = [issueIdentifiers subarrayWithRange:NSMakeRange(0, 10)];
+    }
     SEL addTabbedSEL = NSSelectorFromString(@"addTabbedWindow:ordered:");
     if ([NSWindow instancesRespondToSelector:addTabbedSEL]) {
         // realartists/shiphub-cocoa#270 Opening multiple issues at once should open them in tabs on Sierra
