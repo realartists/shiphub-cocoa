@@ -811,6 +811,9 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
     if (item.action == @selector(viewCodeChanges:)) {
         return selectedCount == 1 && [[selected firstObject] pullRequest];
     }
+    if (item.action == @selector(markAsReadFromMenu:)) {
+        return [selected containsObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"unread = YES"]];
+    }
     return YES;
 }
 
