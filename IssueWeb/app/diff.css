@@ -107,12 +107,14 @@ table.diff {
   padding-left: 8px;
   padding-right: 8px;
   width: 50%;
+  cursor: text;
 }
 
 .diff .unified-codecol {
   padding-left: 8px;
   padding-right: 8px;
   width: 100%;
+  cursor: text;
 }
 
 .diff .inserted-new,
