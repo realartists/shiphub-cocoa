@@ -371,7 +371,11 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
     } else {
         GitDiffFile *file = item;
         NSString *filename = [item name];
-        cell.imageView.image = [[NSWorkspace sharedWorkspace] iconForFileType:[filename pathExtension]];
+        if (file.mode == DiffFileModeCommit) {
+            cell.imageView.image = [NSImage imageNamed:@"Submodule"];
+        } else {
+            cell.imageView.image = [[NSWorkspace sharedWorkspace] iconForFileType:[filename pathExtension]];
+        }
         cell.filename = filename;
         
         NSString *opTooltip = nil;
