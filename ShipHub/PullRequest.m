@@ -372,6 +372,18 @@
     return _issue.title;
 }
 
+- (NSString *)headDescription {
+    if ([_info[@"head"][@"repo"][@"full_name"] isEqualToString:_info[@"base"][@"repo"][@"full_name"]]) {
+        return _info[@"head"][@"ref"];
+    } else {
+        return [NSString stringWithFormat:@"%@:%@", _info[@"head"][@"repo"][@"full_name"], _info[@"head"][@"ref"]];
+    }
+}
+
+- (NSString *)baseDescription {
+    return [NSString stringWithFormat:@"%@:%@", _info[@"base"][@"repo"][@"full_name"], _info[@"base"][@"ref"]];
+}
+
 - (BOOL)canMerge {
     id mergeable = _info[@"mergeable"];
     id merged = _info[@"merged"];

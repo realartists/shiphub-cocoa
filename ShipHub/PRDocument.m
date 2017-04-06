@@ -40,6 +40,7 @@
     
     NSWindowController *aController = [[self windowControllers] firstObject];
     NSWindow *window = aController.window;
+    window.titleVisibility = NSWindowTitleHidden;
     NSScreen *screen = window.screen ?: [NSScreen mainScreen];
     aController.contentViewController = self.prViewController;
     [window setFrame:screen.visibleFrame display:NO];

@@ -10,6 +10,7 @@
 
 #import "Account.h"
 #import "ButtonToolbarItem.h"
+#import "CustomToolbarItem.h"
 #import "Extras.h"
 #import "PullRequest.h"
 #import "GitDiff.h"
@@ -34,6 +35,14 @@ static NSString *const NavigationItemID = @"Navigation";
 static NSString *const IssueItemID = @"Issue";
 static NSString *const WorkingCopyItemID = @"WorkingCopy";
 static NSString *const MergeItemID = @"Merge";
+static NSString *const StatusItemID = @"Status";
+
+@interface StatusToolbarItem : CustomToolbarItem
+
+@property (nonatomic, copy) NSString *stringValue;
+@property (nonatomic, copy) NSAttributedString *attributedStringValue;
+
+@end
 
 @interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, PRMergeViewControllerDelegate, NSToolbarDelegate> {
     NSToolbar *_toolbar;
@@ -55,6 +64,7 @@ static NSString *const MergeItemID = @"Merge";
 @property ButtonToolbarItem *issueItem;
 @property ButtonToolbarItem *workingCopyItem;
 @property ButtonToolbarItem *mergeItem;
+@property StatusToolbarItem *statusItem;
 
 @property PRReviewChangesViewController *reviewChangesController;
 @property NSPopover *reviewChangesPopover;
@@ -99,6 +109,7 @@ static NSString *const MergeItemID = @"Merge";
     [view setContentView:_splitController.view];
     
     DiffViewModeItem *diffItem = _diffViewModeItem = [[DiffViewModeItem alloc] initWithItemIdentifier:DiffViewModeID];
+    diffItem.toolTip = NSLocalizedString(@"Diff Mode", nil);
     diffItem.mode = defaultDiffMode;
     diffItem.target = self;
     diffItem.action = @selector(changeDiffViewMode:);
@@ -106,17 +117,19 @@ static NSString *const MergeItemID = @"Merge";
     ButtonToolbarItem *reviewChangesItem = _reviewChangesItem = [[ButtonToolbarItem alloc] initWithItemIdentifier:ReviewChangesID];
     reviewChangesItem.grayWhenDisabled = YES;
     reviewChangesItem.label = NSLocalizedString(@"Send Review", nil);
+    reviewChangesItem.toolTip = NSLocalizedString(@"Send Review", nil);
     reviewChangesItem.buttonImage = [NSImage imageNamed:@"Review changes"];
     reviewChangesItem.buttonImage.template = YES;
     reviewChangesItem.target = self;
     reviewChangesItem.action = @selector(reviewChanges:);
     
     _navigationItem = [[PRNavigationToolbarItem alloc] initWithItemIdentifier:NavigationItemID];
+    _navigationItem.toolTip = NSLocalizedString(@"Navigation", nil);
     _navigationItem.target = self;
     
     _issueItem = [[ButtonToolbarItem alloc] initWithItemIdentifier:IssueItemID];
     _issueItem.grayWhenDisabled = YES;
-    _issueItem.label = NSLocalizedString(@"Conversation", nil);
+    _issueItem.label = _issueItem.toolTip = NSLocalizedString(@"Conversation", nil);
     _issueItem.buttonImage = [NSImage imageNamed:@"Open Issue"];
     _issueItem.buttonImage.template = YES;
     _issueItem.target = self;
@@ -124,7 +137,7 @@ static NSString *const MergeItemID = @"Merge";
     
     _workingCopyItem = [[ButtonToolbarItem alloc] initWithItemIdentifier:WorkingCopyItemID];
     _workingCopyItem.grayWhenDisabled = YES;
-    _workingCopyItem.label = NSLocalizedString(@"Clone PR", nil);
+    _workingCopyItem.label = _workingCopyItem.toolTip = NSLocalizedString(@"Clone PR", nil);
     _workingCopyItem.buttonImage = [NSImage imageNamed:@"Terminal"];
     _workingCopyItem.buttonImage.template = YES;
     _workingCopyItem.target = self;
@@ -132,13 +145,16 @@ static NSString *const MergeItemID = @"Merge";
     
     _mergeItem = [[ButtonToolbarItem alloc] initWithItemIdentifier:MergeItemID];
     _mergeItem.grayWhenDisabled = YES;
-    _mergeItem.label = NSLocalizedString(@"Merge", nil);
+    _mergeItem.label = _mergeItem.toolTip = NSLocalizedString(@"Merge", nil);
     _mergeItem.buttonImage = [NSImage imageNamed:@"Merge"];
     _mergeItem.buttonImage.template = YES;
     _mergeItem.target = self;
     _mergeItem.action = @selector(merge:);
     
+    _statusItem = [[StatusToolbarItem alloc] initWithItemIdentifier:StatusItemID];
+    
     _toolbar = [[NSToolbar alloc] initWithIdentifier:@"PRViewController"];
+    _toolbar.displayMode = NSToolbarDisplayModeIconOnly;
     _toolbar.delegate = self;
     
     self.view = view;
@@ -244,6 +260,8 @@ static NSString *const MergeItemID = @"Merge";
         return _workingCopyItem;
     } else if ([itemIdentifier isEqualToString:MergeItemID]) {
         return _mergeItem;
+    } else if ([itemIdentifier isEqualToString:StatusItemID]) {
+        return _statusItem;
     } else {
         return [[NSToolbarItem alloc] initWithItemIdentifier:itemIdentifier];
     }
@@ -251,10 +269,10 @@ static NSString *const MergeItemID = @"Merge";
 
 - (NSArray<NSString *> *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
     return @[IssueItemID,
-             NSToolbarSpaceItemIdentifier,
              WorkingCopyItemID,
-             NSToolbarSpaceItemIdentifier,
              MergeItemID,
+             NSToolbarFlexibleSpaceItemIdentifier,
+             StatusItemID,
              NSToolbarFlexibleSpaceItemIdentifier,
              NavigationItemID,
              DiffViewModeID,
@@ -263,6 +281,24 @@ static NSString *const MergeItemID = @"Merge";
 
 - (NSArray<NSString *> *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar {
     return [self toolbarDefaultItemIdentifiers:toolbar];
+}
+
+#pragma mark - Status Item
+
+- (void)updateStatusItem {
+    NSMutableAttributedString *str = [NSMutableAttributedString new];
+    NSFont *font1 = [NSFont systemFontOfSize:11.0];
+    NSFont *font2 = [NSFont fontWithName:@"menlo" size:10.0];
+    [str appendAttributes:@{ NSFontAttributeName : font1 } format:NSLocalizedString(@"PR #%@: %@ wants to merge ", nil), self.pr.issue.number, self.pr.issue.originator.login];
+    [str appendAttributes:@{ NSFontAttributeName : font2 } format:@"%@", self.pr.headDescription];
+    [str appendAttributes:@{ NSFontAttributeName : font1 } format:NSLocalizedString(@" into ", nil)];
+    [str appendAttributes:@{ NSFontAttributeName : font2 } format:@"%@", self.pr.baseDescription];
+    
+    NSMutableParagraphStyle *para = [NSMutableParagraphStyle new];
+    para.lineBreakMode = NSLineBreakByTruncatingHead;
+    [str addAttribute:NSParagraphStyleAttributeName value:para range:NSMakeRange(0, str.length)];
+    
+    _statusItem.attributedStringValue = str;
 }
 
 #pragma mark - Navigation
@@ -384,6 +420,8 @@ static NSString *const MergeItemID = @"Merge";
     self.pr = [[PullRequest alloc] initWithIssue:issue];
     self.title = [NSString stringWithFormat:NSLocalizedString(@"Code Changes for %@ %@", nil), issue.fullIdentifier, issue.title];
     
+    _statusItem.stringValue = [NSString stringWithFormat:NSLocalizedString(@"Loading changes for %@ %@ …", nil), issue.fullIdentifier, issue.title];
+    
     self.pendingComments = [NSMutableArray new];
     
     TrackingProgressSheet *sheet = [TrackingProgressSheet new];
@@ -411,6 +449,7 @@ static NSString *const MergeItemID = @"Merge";
                 }];
             }
         } else {
+            [self updateStatusItem];
             _sidebarController.pr = self.pr;
         }
         
@@ -681,6 +720,90 @@ static NSString *const MergeItemID = @"Merge";
             }
         }];
     }
+}
+
+@end
+
+
+@interface StatusTextField : NSTextField
+
+@end
+
+@interface StatusTextFieldCell : NSTextFieldCell
+
+@end
+
+@interface StatusToolbarItem ()
+
+@property NSTextField *labelView;
+
+@end
+
+@implementation StatusToolbarItem
+
+- (void)configureView {
+    _labelView = [[StatusTextField alloc] initWithFrame:CGRectMake(0, 0, 700.0, 28.0)];
+    _labelView.editable = NO;
+    _labelView.selectable = NO;
+    _labelView.font = [NSFont systemFontOfSize:11.0];
+    _labelView.autoresizingMask = NSViewWidthSizable;
+    _labelView.lineBreakMode = NSLineBreakByTruncatingHead;
+    self.view = _labelView;
+    self.minSize = CGSizeMake(200.0, 28.0);
+    self.maxSize = CGSizeMake(700.0, 28.0);
+}
+
+- (void)setStringValue:(NSString *)stringValue {
+    _labelView.stringValue = stringValue ?: @"";
+    _labelView.toolTip = stringValue;
+}
+
+- (NSString *)stringValue {
+    return _labelView.stringValue;
+}
+
+- (void)setAttributedStringValue:(NSAttributedString *)attributedStringValue {
+    _labelView.attributedStringValue = attributedStringValue;
+    _labelView.toolTip = attributedStringValue.string;
+}
+
+- (NSAttributedString *)attributedStringValue {
+    return _labelView.attributedStringValue;
+}
+
+@end
+
+@implementation StatusTextField
+
++ (Class)cellClass { return [StatusTextFieldCell class]; }
+
+@end
+
+@implementation StatusTextFieldCell
+
+// https://red-sweater.com/blog/148/what-a-difference-a-cell-makes
+- (NSRect)drawingRectForBounds:(NSRect)rect {
+    // Get the parent's idea of where we should draw
+    NSRect newRect = [super drawingRectForBounds:rect];
+    
+    // Get our ideal size for current text
+    NSSize textSize = [self cellSizeForBounds:rect];
+    
+    // Center that in the proposed rect
+    float heightDelta = newRect.size.height - textSize.height;
+    if (heightDelta > 0)
+    {
+        newRect.size.height -= heightDelta;
+        newRect.origin.y += (heightDelta / 2);
+    }
+    
+    // Add a little left and right padding
+    newRect = CGRectInset(newRect, 8.0, 0.0);
+    
+    // fudge down a little bit (no idea why)
+    newRect.origin.y += 1.0;
+    
+    return newRect;
 }
 
 @end

@@ -48,6 +48,9 @@ typedef NS_ENUM(NSInteger, PRMergeStrategy) {
 @property (readonly) NSString *mergeTitle; // default title on merge
 @property (readonly) NSString *mergeMessage;  // default message on merge
 
+@property (readonly) NSString *headDescription; // e.g. james/1234 or realartists/test:james/1234
+@property (readonly) NSString *baseDescription; // e.g. realartists/test:master
+
 - (void)mergeComments:(NSArray<PRComment *> *)comments;
 - (void)deleteComments:(NSArray<PRComment *> *)comments;
 
