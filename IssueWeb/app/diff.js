@@ -975,6 +975,7 @@ window.updateDiff = function(diffState) {
 };
 
 window.setDiffMode = function(newDiffMode) {
+  window.getSelection().removeAllRanges();
   app.setDiffMode(newDiffMode);
 };
 
