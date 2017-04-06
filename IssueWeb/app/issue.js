@@ -1022,7 +1022,7 @@ var RepoField = React.createClass({
   },
   
   canEdit: function() {
-    this.props.issue.number == null && !(this.props.issue.pull_request);
+    return this.props.issue.number == null && !(this.props.issue.pull_request);
   },
   
   needsSave: function() {
