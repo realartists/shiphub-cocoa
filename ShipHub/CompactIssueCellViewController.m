@@ -444,7 +444,7 @@ static const CGFloat marginBottom = 7.0;
     
     // Draw the unread indicator, if necessary
     if (_issue.unread) {
-        CGRect issueRect = CGRectMake(0, 0, 2.0, CGRectGetHeight(b));
+        CGRect issueRect = CGRectMake(0, 0, 3.0, CGRectGetHeight(b));
         [[NSColor extras_controlBlue] setFill];
         NSRectFill(issueRect);
     }
