@@ -247,6 +247,7 @@
 		1AB038501D5C013A005093B9 /* HockeySDK.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB0384B1D5C0117005093B9 /* HockeySDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AB038551D5D390E005093B9 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB038541D5D390E005093B9 /* Sparkle.framework */; };
 		1AB038591D5D391B005093B9 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB038541D5D390E005093B9 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1AB2438E1E97075C0062628C /* clonepr.sh in Resources */ = {isa = PBXBuildFile; fileRef = 1AB2438D1E97075C0062628C /* clonepr.sh */; };
 		1AB503E91D2471EF0097875C /* NSFileWrapper+ImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */; };
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */; };
@@ -813,6 +814,7 @@
 		1AB038521D5D0E22005093B9 /* cihub.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = cihub.sh; sourceTree = "<group>"; };
 		1AB038541D5D390E005093B9 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = ext/Sparkle.framework; sourceTree = "<group>"; };
 		1AB238AB1E64A9720059D772 /* app */ = {isa = PBXFileReference; lastKnownFileType = folder; path = app; sourceTree = "<group>"; };
+		1AB2438D1E97075C0062628C /* clonepr.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = clonepr.sh; sourceTree = "<group>"; };
 		1AB503E71D2471EF0097875C /* NSFileWrapper+ImageExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileWrapper+ImageExtras.h"; sourceTree = "<group>"; };
 		1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileWrapper+ImageExtras.m"; sourceTree = "<group>"; };
 		1AC01D941DC9087B00920C3F /* npm-shrinkwrap.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "npm-shrinkwrap.json"; sourceTree = "<group>"; };
@@ -1680,6 +1682,7 @@
 				1A4353531E73762A00C5F5AB /* PRMergeViewController.m */,
 				1A4353541E73762A00C5F5AB /* PRMergeViewController.xib */,
 				1A2FCD221E7314320000F91B /* clonepr.applescript */,
+				1AB2438D1E97075C0062628C /* clonepr.sh */,
 				1AE8775B1E786774008AB0AD /* PRCreateController.h */,
 				1AE8775C1E786774008AB0AD /* PRCreateController.m */,
 				1AE8775D1E786774008AB0AD /* PRCreateController.xib */,
@@ -1940,6 +1943,7 @@
 				1A3AB35E1D90AE17004BB768 /* SubscriptionController.xib in Resources */,
 				1A4353561E73762A00C5F5AB /* PRMergeViewController.xib in Resources */,
 				1AF567381D625E2300611DBB /* WebAuthController.xib in Resources */,
+				1AB2438E1E97075C0062628C /* clonepr.sh in Resources */,
 				1A012E7E1D3EAC0E006CE5DF /* SearchEditorViewController.xib in Resources */,
 				1A86763F1E94165E00ACE932 /* TrackingProgressSheet.xib in Resources */,
 				1AD956B41D0B5654002B1259 /* DownloadBarViewController.xib in Resources */,

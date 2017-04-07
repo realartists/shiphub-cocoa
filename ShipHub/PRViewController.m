@@ -214,18 +214,17 @@ static NSString *const StatusItemID = @"Status";
     [_mergePopover showRelativeToRect:_mergeItem.view.bounds ofView:_mergeItem.view preferredEdge:NSRectEdgeMinY];
 }
 
+static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
+{
+    NSString *replMe = [NSString stringWithFormat:@"%@=''", var];
+    NSString *replWith = [NSString stringWithFormat:@"%@='%@'", var, val];
+    
+    [shTemplate replaceOccurrencesOfString:replMe withString:replWith options:0 range:NSMakeRange(0, shTemplate.length)];
+}
+
 - (IBAction)workingCopy:(id)sender {
-    NSURL *scriptURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"clonepr" withExtension:@"scpt"];
-    
-    NSDictionary *asError = nil;
-    NSAppleScript *as = [[NSAppleScript alloc] initWithContentsOfURL:scriptURL error:&asError];
-    
-    NSError *scriptError = [NSAppleScript errorWithErrorDictionary:asError];
-    
-    if (scriptError) {
-        [self presentError:scriptError];
-        return;
-    }
+    NSURL *shTemplateURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"clonepr" withExtension:@"sh"];
+    NSMutableString *shTemplate = [[NSMutableString alloc] initWithContentsOfURL:shTemplateURL encoding:NSUTF8StringEncoding error:NULL];
     
     NSString *issueIdentifier = _pr.issue.fullIdentifier;
     NSString *repoName = [issueIdentifier issueRepoName];
@@ -236,12 +235,41 @@ static NSString *const StatusItemID = @"Status";
     NSString *baseRev = _pr.spanDiff.baseRev;
     NSString *headRev = _pr.spanDiff.headRev;
     
-    NSArray *params = @[ issueIdentifier, repoName, repoPath, remoteURL, refName, branchName, baseRev, headRev ];
+    SetWCVar(shTemplate, @"REPO_NAME", repoName);
+    SetWCVar(shTemplate, @"REPO_PATH", repoPath);
+    SetWCVar(shTemplate, @"REMOTE_URL", remoteURL);
+    SetWCVar(shTemplate, @"REF_NAME", refName);
+    SetWCVar(shTemplate, @"BRANCH_NAME", branchName);
+    SetWCVar(shTemplate, @"BASE_REV", baseRev);
+    SetWCVar(shTemplate, @"HEAD_REV", headRev);
     
-    scriptError = [as callSubroutine:@"do_clone" withParams:params];
-    
-    if (scriptError) {
-        [self presentError:scriptError];
+    char buf[MAXPATHLEN];
+    snprintf(buf, sizeof(buf), "%sclonepr.XXXXXX.sh", [NSTemporaryDirectory() UTF8String]);
+    if (-1 != mkstemps(buf, 3)) {
+        NSString *shPath = [NSString stringWithUTF8String:buf];
+        [shTemplate writeToFile:shPath atomically:NO encoding:NSUTF8StringEncoding error:NULL];
+        
+        NSURL *scriptURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"clonepr" withExtension:@"scpt"];
+        
+        NSDictionary *asError = nil;
+        NSAppleScript *as = [[NSAppleScript alloc] initWithContentsOfURL:scriptURL error:&asError];
+        
+        NSError *scriptError = [NSAppleScript errorWithErrorDictionary:asError];
+        
+        if (scriptError) {
+            [self presentError:scriptError];
+            return;
+        }
+        
+        NSArray *params = @[ shPath ];
+        
+        scriptError = [as callSubroutine:@"do_clone" withParams:params];
+        
+        if (scriptError) {
+            [self presentError:scriptError];
+        }
+    } else {
+        ErrLog(@"Unable to create temp file for clonepr.sh: %d %s", errno, strerror(errno));
     }
 }
 
