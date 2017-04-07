@@ -394,6 +394,13 @@
     return !isMerged && isMergeable;
 }
 
+- (BOOL)isMerged {
+    id merged = _info[@"merged"];
+    
+    BOOL isMerged = [merged respondsToSelector:@selector(boolValue)] && [merged boolValue];
+    return isMerged;
+}
+
 - (void)performMergeWithMethod:(PRMergeStrategy)strat
                          title:(NSString *)title
                        message:(NSString *)message

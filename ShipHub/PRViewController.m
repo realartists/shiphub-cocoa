@@ -182,7 +182,6 @@ static NSString *const StatusItemID = @"Status";
     
     if (!_reviewChangesController) {
         _reviewChangesController = [PRReviewChangesViewController new];
-        _reviewChangesController.myPR = [_pr.issue.originator.identifier isEqualToNumber:[[Account me] identifier]];
         _reviewChangesController.delegate = self;
     }
     
@@ -190,6 +189,7 @@ static NSString *const StatusItemID = @"Status";
     _reviewChangesPopover.contentViewController = _reviewChangesController;
     _reviewChangesPopover.behavior = NSPopoverBehaviorSemitransient;
     
+    _reviewChangesController.pr = _pr;
     _reviewChangesController.numberOfPendingComments = _pendingComments.count;
     
     [_reviewChangesPopover showRelativeToRect:_reviewChangesItem.view.bounds ofView:_reviewChangesItem.view preferredEdge:NSRectEdgeMinY];

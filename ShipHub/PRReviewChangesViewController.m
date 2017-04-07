@@ -8,7 +8,10 @@
 
 #import "PRReviewChangesViewController.h"
 
+#import "Account.h"
+#import "Issue.h"
 #import "PRReview.h"
+#import "PullRequest.h"
 
 @interface PRReviewChangesViewController ()
 
@@ -23,14 +26,28 @@
 
 @implementation PRReviewChangesViewController
 
-- (void)setMyPR:(BOOL)myPR {
+- (void)setPr:(PullRequest *)pr {
     [self view];
-    _myPR = myPR;
+    _pr = pr;
     
-    _approveButton.enabled = !myPR;
-    _approveButton.toolTip = myPR ? NSLocalizedString(@"GitHub does not allow you to approve your own pull request.", nil) : nil;
-    _requestChangesButton.enabled = !myPR;
-    _requestChangesButton.toolTip = myPR ? NSLocalizedString(@"GitHub does not allow you to request changes on your own pull request.", nil) : nil;
+    BOOL myPR = [_pr.issue.originator.identifier isEqualToNumber:[[Account me] identifier]];
+    BOOL merged = pr.merged;
+    
+    if (myPR) {
+        _approveButton.enabled = NO;
+        _approveButton.toolTip = NSLocalizedString(@"GitHub does not allow you to approve your own pull request.", nil);
+        _requestChangesButton.enabled = NO;
+        _requestChangesButton.toolTip = NSLocalizedString(@"GitHub does not allow you to request changes on your own pull request.", nil);
+    } else if (merged) {
+        _approveButton.enabled = NO;
+        _requestChangesButton.enabled = NO;
+        _approveButton.toolTip = _requestChangesButton.toolTip = NSLocalizedString(@"Pull request already merged.", nil);
+    } else {
+        _approveButton.enabled = YES;
+        _requestChangesButton.enabled = YES;
+        _approveButton.toolTip = nil;
+        _requestChangesButton.toolTip = nil;
+    }
 }
 
 - (void)setNumberOfPendingComments:(NSInteger)numberOfPendingComments {

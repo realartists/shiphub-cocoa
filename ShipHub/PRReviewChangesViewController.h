@@ -9,6 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class PRReview;
+@class PullRequest;
 
 @protocol PRReviewChangesViewControllerDelegate;
 
@@ -16,7 +17,7 @@
 
 @property (weak) id<PRReviewChangesViewControllerDelegate> delegate;
 
-@property (nonatomic, getter=isMyPR) BOOL myPR; // you can only comment on your own PR, not accept or reject.
+@property (nonatomic) PullRequest *pr; // the state of the PR controls what types of reviews can be submitted.
 
 @property (nonatomic) NSInteger numberOfPendingComments;
 
