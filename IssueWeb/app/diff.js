@@ -700,6 +700,7 @@ class App {
       cr.setHasNewComment(true, diffIdx);
       this.commentRows.push(cr);
       this.positionComments();
+      this.updateMiniMapRegions();
     }
   }
   
@@ -709,6 +710,7 @@ class App {
       var cr = this.commentRows[crIdx];
       cr.node.remove();
       this.commentRows.splice(crIdx, 1);
+      this.updateMiniMapRegions();
     }
   }
   
