@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12118" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12118"/>
         <capability name="box content view" minToolsVersion="7.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -56,7 +56,7 @@
                                                 <rect key="frame" x="1" y="1" width="324" height="17"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fd4-Wj-L7o">
+                                                    <textField verticalHuggingPriority="750" fixedFrame="YES" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fd4-Wj-L7o">
                                                         <rect key="frame" x="0.0" y="1" width="145" height="14"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="HEADER CELL" id="kRc-mT-2bg">
@@ -82,7 +82,7 @@
                                                         </constraints>
                                                         <imageCell key="cell" refusesFirstResponder="YES" imageScaling="proportionallyDown" image="NSActionTemplate" id="dGw-S6-xD0"/>
                                                     </imageView>
-                                                    <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SUQ-c7-fYn" userLabel="File Label">
+                                                    <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="SUQ-c7-fYn" userLabel="File Label">
                                                         <rect key="frame" x="25" y="0.0" width="267" height="17"/>
                                                         <textFieldCell key="cell" lineBreakMode="truncatingMiddle" sendsActionOnEndEditing="YES" title="Table View Cell" id="gMk-xq-U8k">
                                                             <font key="font" metaFont="system"/>
@@ -199,9 +199,9 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pHW-AZ-Kd6">
-                                <rect key="frame" x="4" y="3" width="279" height="17"/>
-                                <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="All Commits (2)" id="LEh-lV-O3J">
-                                    <font key="font" metaFont="system"/>
+                                <rect key="frame" x="4" y="3" width="279" height="16"/>
+                                <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="All Commits (2)" id="LEh-lV-O3J">
+                                    <font key="font" metaFont="system" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -219,7 +219,7 @@
                         </subviews>
                         <constraints>
                             <constraint firstItem="B0e-5c-fdp" firstAttribute="leading" secondItem="pHW-AZ-Kd6" secondAttribute="trailing" constant="8" id="H3M-Op-LdR"/>
-                            <constraint firstItem="pHW-AZ-Kd6" firstAttribute="top" secondItem="SUT-NG-Vr2" secondAttribute="top" constant="2" id="J5H-c6-5rV"/>
+                            <constraint firstItem="pHW-AZ-Kd6" firstAttribute="top" secondItem="SUT-NG-Vr2" secondAttribute="top" constant="3" id="J5H-c6-5rV"/>
                             <constraint firstItem="B0e-5c-fdp" firstAttribute="top" secondItem="SUT-NG-Vr2" secondAttribute="top" constant="2" id="QHV-Rv-fL7"/>
                             <constraint firstAttribute="trailing" secondItem="B0e-5c-fdp" secondAttribute="trailing" constant="5" id="eTO-iB-1eD"/>
                             <constraint firstItem="pHW-AZ-Kd6" firstAttribute="leading" secondItem="SUT-NG-Vr2" secondAttribute="leading" constant="6" id="g76-sd-bGq"/>
