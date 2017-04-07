@@ -678,6 +678,7 @@ class App {
     if (this.inReview) {
       window.queueReviewComment.postMessage(comment);
     } else {
+      comment.pending_id = "single." + comment.pending_id;
       window.addSingleComment.postMessage(comment);
     }
   }
