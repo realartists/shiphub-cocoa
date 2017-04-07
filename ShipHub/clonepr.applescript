@@ -10,9 +10,6 @@ end waitfor
 on do_clone(scriptPath)
 	tell application "Terminal"
 		activate
-		set mytab to do script ""
-		my waitfor(mytab)
         do script "source '" & scriptPath & "'"
-		my waitfor(mytab)
 	end tell
 end do_clone
