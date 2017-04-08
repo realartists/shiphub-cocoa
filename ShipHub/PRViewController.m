@@ -37,6 +37,8 @@ static NSString *const WorkingCopyItemID = @"WorkingCopy";
 static NSString *const MergeItemID = @"Merge";
 static NSString *const StatusItemID = @"Status";
 
+static NSString *const TBNavigateItemID = @"TBNavigate";
+
 @interface StatusToolbarItem : CustomToolbarItem
 
 @property (nonatomic, copy) NSString *stringValue;
@@ -44,7 +46,7 @@ static NSString *const StatusItemID = @"Status";
 
 @end
 
-@interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, PRMergeViewControllerDelegate, NSToolbarDelegate> {
+@interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, PRMergeViewControllerDelegate, NSToolbarDelegate, NSTouchBarDelegate> {
     NSToolbar *_toolbar;
 }
 
@@ -164,6 +166,43 @@ static NSString *const StatusItemID = @"Status";
     [super viewDidAppear];
     
     [_diffController focus];
+}
+
+#pragma mark - Touch Bar
+
+- (NSTouchBar *)makeTouchBar {
+    NSTouchBar *tb = [NSTouchBar new];
+    tb.customizationIdentifier = @"diff";
+    tb.delegate = self;
+    tb.defaultItemIdentifiers = @[TBNavigateItemID, NSTouchBarItemIdentifierOtherItemsProxy];
+    
+    return tb;
+}
+
+- (nullable NSTouchBarItem *)touchBar:(NSTouchBar *)touchBar makeItemForIdentifier:(NSTouchBarItemIdentifier)identifier
+{
+    if ([identifier isEqualToString:TBNavigateItemID]) {
+        NSImage *downArrow = [NSImage imageNamed:@"DownArrow"];
+        downArrow.template = YES;
+        NSImage *upArrow = [NSImage imageNamed:@"UpArrow"];
+        upArrow.template = YES;
+        
+        NSSegmentedControl *seg = [NSSegmentedControl segmentedControlWithImages:@[upArrow, downArrow] trackingMode:NSSegmentSwitchTrackingMomentary target:self action:@selector(tbNavigate:)];
+        
+        NSCustomTouchBarItem *item = [[NSCustomTouchBarItem alloc] initWithIdentifier:identifier];
+        item.view = seg;
+        
+        return item;
+    }
+    return nil;
+}
+
+- (IBAction)tbNavigate:(id)sender {
+    NSInteger seg = [sender selectedSegment];
+    switch (seg) {
+        case 0: [self previousThing:sender]; break;
+        case 1: [self nextThing:sender]; break;
+    }
 }
 
 #pragma mark - Toolbar Actions
