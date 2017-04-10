@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="11759" systemVersion="16D32" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="12141" systemVersion="16D32" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
     <entity name="LocalAccount" representedClassName="LocalAccount" syncable="YES">
         <attribute name="avatarURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
@@ -14,6 +14,7 @@
         <relationship name="closedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="closedBy" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="comments" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalComment" inverseName="user" inverseEntity="LocalComment" syncable="YES"/>
         <relationship name="createdProjects" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalProject" inverseName="creator" inverseEntity="LocalProject" syncable="YES"/>
+        <relationship name="mergedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="mergedBy" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="orgs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="users" inverseEntity="LocalAccount" syncable="YES"/>
         <relationship name="originatedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="originator" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="projects" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalProject" inverseName="organization" inverseEntity="LocalProject" syncable="YES"/>
@@ -59,14 +60,22 @@
         <relationship name="repository" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="hidden" inverseEntity="LocalRepo" syncable="YES"/>
     </entity>
     <entity name="LocalIssue" representedClassName="LocalIssue" syncable="YES">
+        <attribute name="base" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="body" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="closed" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="closedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
+        <attribute name="head" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="locked" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
+        <attribute name="maintainerCanModify" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mergeable" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mergeCommitSha" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="merged" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mergedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="number" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="pullRequest" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="pullRequestIdentifier" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="shipReactionSummary" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
@@ -76,6 +85,7 @@
         <relationship name="comments" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalComment" inverseName="issue" inverseEntity="LocalComment" syncable="YES"/>
         <relationship name="events" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalEvent" inverseName="issue" inverseEntity="LocalEvent" syncable="YES"/>
         <relationship name="labels" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalLabel" inverseName="issues" inverseEntity="LocalLabel" syncable="YES"/>
+        <relationship name="mergedBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="mergedIssues" inverseEntity="LocalAccount" syncable="YES"/>
         <relationship name="milestone" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalMilestone" inverseName="issues" inverseEntity="LocalMilestone" syncable="YES"/>
         <relationship name="notification" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalNotification" inverseName="issue" inverseEntity="LocalNotification" syncable="YES"/>
         <relationship name="originator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="originatedIssues" inverseEntity="LocalAccount" syncable="YES">
@@ -185,11 +195,12 @@
         <attribute name="data" optional="YES" attributeType="Binary" syncable="YES"/>
     </entity>
     <elements>
+        <element name="LocalAccount" positionX="0" positionY="0" width="128" height="375"/>
         <element name="LocalBilling" positionX="9" positionY="153" width="128" height="75"/>
         <element name="LocalComment" positionX="0" positionY="0" width="128" height="150"/>
         <element name="LocalEvent" positionX="0" positionY="0" width="128" height="180"/>
         <element name="LocalHidden" positionX="9" positionY="153" width="128" height="75"/>
-        <element name="LocalIssue" positionX="0" positionY="0" width="128" height="390"/>
+        <element name="LocalIssue" positionX="0" positionY="0" width="128" height="525"/>
         <element name="LocalLabel" positionX="0" positionY="0" width="128" height="120"/>
         <element name="LocalMilestone" positionX="0" positionY="0" width="128" height="225"/>
         <element name="LocalNotification" positionX="9" positionY="153" width="128" height="165"/>
@@ -199,6 +210,5 @@
         <element name="LocalReaction" positionX="9" positionY="153" width="128" height="135"/>
         <element name="LocalRepo" positionX="0" positionY="0" width="128" height="270"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
-        <element name="LocalAccount" positionX="0" positionY="0" width="128" height="360"/>
     </elements>
 </model>

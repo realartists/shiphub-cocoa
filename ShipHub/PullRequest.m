@@ -51,6 +51,10 @@
     return _info[@"head"][@"sha"];
 }
 
+- (NSString *)headSha {
+    return [self _headRev];
+}
+
 // runs on a background queue
 - (NSError *)loadSpanDiff {
     NSError *err = nil;

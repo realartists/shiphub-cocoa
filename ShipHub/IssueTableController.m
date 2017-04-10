@@ -21,6 +21,9 @@
 @interface MultipleAssigneesFormatter : NSFormatter
 @end
 
+@interface PRRefFormatter : NSFormatter
+@end
+
 static NSString *reactionContentToEmoji(NSString *content);
 
 @interface ReactionSummaryFormatter : NSFormatter
@@ -173,15 +176,6 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
                      @"maxWidth" : @46,
                      @"minWidth" : @46 },
                   
-                  @{ @"identifier" : @"pullRequest",
-                     @"title" : NSLocalizedString(@"PR", nil),
-                     @"formatter" : [BooleanDotFormatter formatterWithColor:[NSColor blackColor]],
-                     @"width" : @20,
-                     @"maxWidth" : @20,
-                     @"minWidth" : @20,
-                     @"centered" : @YES,
-                     @"cellClass" : @"PRIndicatorCell" },
-                  
                   @{ @"identifier" : @"fullIdentifier",
                      @"title" : NSLocalizedString(@"Path", nil),
                      @"width" : @180,
@@ -253,6 +247,32 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
                      @"sortDescriptor" : [NSSortDescriptor sortDescriptorWithKey:@"self" ascending:YES selector:@selector(labelsCompare:)],
                      @"minWidth" : @100,
                      @"maxWidth" : @10000 },
+                  
+                  @{ @"identifier" : @"pullRequest",
+                     @"title" : NSLocalizedString(@"PR", nil),
+                     @"formatter" : [BooleanDotFormatter formatterWithColor:[NSColor blackColor]],
+                     @"width" : @20,
+                     @"maxWidth" : @20,
+                     @"minWidth" : @20,
+                     @"centered" : @YES,
+                     @"cellClass" : @"PRIndicatorCell" },
+                  
+                  @{ @"identifier" : @"mergedAt",
+                     @"formatter" : [NSDateFormatter shortDateAndTimeFormatter],
+                     @"title" : NSLocalizedString(@"Date Merged", nil),
+                     @"width" : @130 },
+                  
+                  @{ @"identifier" : @"head.ref",
+                     @"title" : NSLocalizedString(@"PR Head Ref", nil),
+                     @"minWidth": @50,
+                     @"maxWidth": @250,
+                     @"width": @130 },
+                  
+                  @{ @"identifier" : @"base.ref",
+                     @"title" : NSLocalizedString(@"PR Base Ref", nil),
+                     @"minWidth": @50,
+                     @"maxWidth": @250,
+                     @"width": @130 },
                   
                   @{ @"identifier" : @"reactionSummary",
                      @"menuGroup" : NSLocalizedString(@"Reactions", nil),

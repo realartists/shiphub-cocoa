@@ -43,10 +43,18 @@
 @property (readonly) NSDictionary<NSString *, NSNumber *> *reactionSummary;
 @property (readonly) NSInteger reactionsCount; // computed from reactionSummary, not the array of reactions
 @property (readonly) BOOL unread;
-@property (readonly) BOOL pullRequest;
 
-@property (readonly) NSDictionary *prBaseInfo;
-@property (readonly) NSDictionary *prHeadInfo;
+@property (readonly) BOOL pullRequest;
+@property (readonly) NSNumber *pullRequestIdentifier;
+@property (readonly) NSNumber *maintainerCanModify;
+@property (readonly) NSNumber *mergeable;
+@property (readonly) NSString *mergeCommitSha;
+@property (readonly) NSNumber *merged;
+@property (readonly) NSDate *mergedAt;
+@property (readonly) Account *mergedBy;
+
+@property (readonly) NSDictionary *base;
+@property (readonly) NSDictionary *head;
 
 // events and comments are conditionally populated.
 // if they're just nonexistent, then they will be empty arrays.

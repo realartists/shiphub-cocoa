@@ -44,6 +44,8 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
 @property (nonatomic, copy) NSString *stringValue;
 @property (nonatomic, copy) NSAttributedString *attributedStringValue;
 
+@property (nonatomic) SEL clickAction;
+
 @end
 
 @interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, PRMergeViewControllerDelegate, NSToolbarDelegate, NSTouchBarDelegate> {
@@ -68,6 +70,8 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
 @property ButtonToolbarItem *mergeItem;
 @property StatusToolbarItem *statusItem;
 
+@property BOOL outOfDate; // YES if self.pr.head.sha != latest head sha available from GitHub
+
 @property PRReviewChangesViewController *reviewChangesController;
 @property NSPopover *reviewChangesPopover;
 
@@ -79,6 +83,10 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
 @end
 
 @implementation PRViewController
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 - (NSToolbar *)toolbar {
     [self view];
@@ -154,12 +162,19 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
     _mergeItem.action = @selector(merge:);
     
     _statusItem = [[StatusToolbarItem alloc] initWithItemIdentifier:StatusItemID];
+    _statusItem.target = self;
     
     _toolbar = [[NSToolbar alloc] initWithIdentifier:@"PRViewController"];
     _toolbar.displayMode = NSToolbarDisplayModeIconOnly;
     _toolbar.delegate = self;
     
     self.view = view;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:DataStoreDidUpdateProblemsNotification object:nil];
 }
 
 - (void)viewDidAppear {
@@ -496,6 +511,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     sheet.progress = [self.pr checkout:^(NSError *error) {
         [sheet endSheet];
         
+        _outOfDate = NO;
+        
         if (self.pr.myLastPendingReview) {
             _inReview = YES;
             _pendingReview = self.pr.myLastPendingReview;
@@ -528,7 +545,75 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     
 }
 
-#pragma mark -
+#pragma mark - Updated Git Push Handling
+
+- (void)issueDidUpdate:(NSNotification *)note {
+    if (!_pr) return;
+    if ([note object] == [DataStore activeStore]) {
+        NSArray *updated = note.userInfo[DataStoreUpdatedProblemsKey];
+        if ([updated containsObject:_pr.issue.fullIdentifier]) {
+            [[DataStore activeStore] loadFullIssue:_pr.issue.fullIdentifier completion:^(Issue *issue, NSError *error) {
+                if (issue) {
+                    [self checkForUpdatedPushes:issue];
+                }
+            }];
+        }
+    }
+}
+
+- (void)checkForUpdatedPushes:(Issue *)updatedIssue {
+    NSString *issueHeadSha = updatedIssue.head[@"sha"];
+    NSString *currentHeadSha = _pr.headSha;
+    
+    if (![NSObject object:issueHeadSha isEqual:currentHeadSha]) {
+        _outOfDate = YES;
+        _statusItem.clickAction = @selector(statusItemClicked:);
+        
+        NSMutableAttributedString *str = [NSMutableAttributedString new];
+        
+        NSFont *font = [NSFont systemFontOfSize:11.0];
+        NSFont *bold = [NSFont boldSystemFontOfSize:11.0];
+        NSFont *fixed = [NSFont fontWithName:@"menlo" size:10.0];
+        
+        [str appendAttributes:@{ NSFontAttributeName : font } format:NSLocalizedString(@"PR #%@: ", nil), self.pr.issue.fullIdentifier];
+        
+        [str appendAttributes:@{ NSFontAttributeName : bold } format:NSLocalizedString(@"New commits available on ", nil)];
+        
+        [str appendAttributes:@{ NSFontAttributeName : fixed } format:NSLocalizedString(@"%@ ", nil), self.pr.headDescription];
+        
+        [str appendAttributes:@{ NSFontAttributeName: bold, NSUnderlineStyleAttributeName : @(NSUnderlineStyleSingle) } format:NSLocalizedString(@"Click to Reload", nil)];
+        
+        NSMutableParagraphStyle *para = [NSMutableParagraphStyle new];
+        para.lineBreakMode = NSLineBreakByTruncatingHead;
+        [str addAttribute:NSParagraphStyleAttributeName value:para range:NSMakeRange(0, str.length)];
+        
+        _statusItem.attributedStringValue = str;
+    }
+}
+
+- (void)statusItemClicked:(id)sender {
+    if (_outOfDate) {
+        _outOfDate = NO;
+        _statusItem.clickAction = nil;
+        
+        dispatch_block_t work = ^{
+            [[DataStore activeStore] loadFullIssue:_pr.issue.fullIdentifier completion:^(Issue *issue, NSError *error) {
+                if (issue) {
+                    [self loadForIssue:issue];
+                }
+            }];
+        };
+        
+        if (_pendingReviewTimer) {
+            _statusItem.stringValue = [NSString stringWithFormat:NSLocalizedString(@"PR #%@: Saving pending review …", nil), self.pr.issue.fullIdentifier];
+            [self savePendingReviewWithCompletion:work];
+        } else {
+            work();
+        }
+    }
+}
+
+#pragma mark - Error Handling
 
 - (BOOL)presentError:(NSError *)error {
     NSAlert *alert = [NSAlert new];
@@ -558,6 +643,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
         }
     }];
 }
+
+#pragma mark - Comments and Reviews
 
 - (NSArray *)allComments {
     return [_pr.prComments arrayByAddingObjectsFromArray:_pendingComments];
@@ -591,17 +678,18 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     Trace();
     
     // note that the timer will keep us alive so even if the window closes, we should be able to do the save anyway
-    NSTimer *newTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(savePendingReview:) userInfo:nil repeats:NO];
+    NSTimer *newTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(savePendingReviewTimerFired:) userInfo:nil repeats:NO];
     if (_pendingReviewTimer) {
         [_pendingReviewTimer invalidate];
     }
     _pendingReviewTimer = newTimer;
 }
 
-- (void)savePendingReview:(NSTimer *)timer {
-    Trace();
-    
-    _pendingReviewTimer = nil;
+- (void)savePendingReviewWithCompletion:(dispatch_block_t)completion {
+    if (_pendingReviewTimer) {
+        [_pendingReviewTimer invalidate];
+        _pendingReviewTimer = nil;
+    }
     
     PRReview *review = [_pendingReview copy] ?: [PRReview new];
     review.comments = _pendingComments;
@@ -612,9 +700,19 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
             _pendingReview = roundtrip;
         }
         if (error) {
-            ErrLog(@"Error background saving pending review: %@", error);
+            ErrLog(@"Error saving pending review: %@", error);
+        }
+        
+        if (completion) {
+            completion();
         }
     }];
+}
+
+- (void)savePendingReviewTimerFired:(NSTimer *)timer {
+    Trace();
+    
+    [self savePendingReviewWithCompletion:nil];
 }
 
 #pragma mark - PRSidebarViewControllerDelegate
@@ -794,6 +892,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 
 @interface StatusTextField : NSTextField
 
+@property (nonatomic) SEL clickAction;
+
 @end
 
 @interface StatusTextFieldCell : NSTextFieldCell
@@ -802,7 +902,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 
 @interface StatusToolbarItem ()
 
-@property NSTextField *labelView;
+@property StatusTextField *labelView;
 
 @end
 
@@ -838,11 +938,39 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     return _labelView.attributedStringValue;
 }
 
+- (void)setClickAction:(SEL)clickAction {
+    _labelView.clickAction = clickAction;
+}
+
 @end
 
 @implementation StatusTextField
 
 + (Class)cellClass { return [StatusTextFieldCell class]; }
+
+- (void)performClick:(id)sender {
+    [self onClick];
+}
+
+- (void)mouseDown:(NSEvent *)event {
+    [self onClick];
+}
+
+- (void)onClick {
+    [self sendAction:self.clickAction to:self.target];
+}
+
+- (void)setClickAction:(SEL)clickAction {
+    _clickAction = clickAction;
+    [self.window invalidateCursorRectsForView:self];
+}
+
+- (void)resetCursorRects {
+    [super resetCursorRects];
+    if (_clickAction) {
+        [self addCursorRect:self.bounds cursor:[NSCursor pointingHandCursor]];
+    }
+}
 
 @end
 

@@ -404,10 +404,10 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
         body = [tipCommit substringFromIndex:[title length]];
     }
     
-    NSDictionary *base = @{ @"repoFullName" : destRepoFullName,
-                            @"branchName" : destBranchName };
-    NSDictionary *head = @{ @"repoFullName" : _selectedPush.repoFullName,
-                            @"branchName" : _selectedPush.branchName };
+    NSDictionary *base = @{ @"repo" : @{ @"full_name" : destRepoFullName },
+                            @"ref" : destBranchName };
+    NSDictionary *head = @{ @"repo" : @{ @"full_name" : _selectedPush.repoFullName },
+                            @"ref" : _selectedPush.branchName };
     
     Issue *prTemplate = [[Issue alloc] initPRWithTitle:title repo:r body:body baseInfo:base headInfo:head];
     

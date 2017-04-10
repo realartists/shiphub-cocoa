@@ -48,8 +48,6 @@
         _updatedAt = li.updatedAt;
         _closedAt = li.closedAt;
         _locked = [li.locked boolValue];
-#define GO_FAST 1
-#if GO_FAST
         static NSArray *assigneesSort = nil;
         static NSArray *labelsSort = nil;
         static dispatch_once_t onceToken;
@@ -83,21 +81,7 @@
         
         _milestone = [ms objectWithManagedObject:li.milestone];
         _repository = [ms objectWithManagedObject:li.repository];
-#else
-        _assignees = [[li.assignees array] arrayByMappingObjects:^id(LocalAccount *obj) {
-            return [ms accountWithIdentifier:obj.identifier];
-        }];
-        _originator = [ms accountWithIdentifier:li.originator.identifier];
-        _closedBy = [ms accountWithIdentifier:li.closedBy.identifier];
-        NSArray *loadedLabels = [[li.labels allObjects] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"name != nil && color != nil"]];
-        _labels = [[loadedLabels arrayByMappingObjects:^id(id obj) {
-            return [[Label alloc] initWithLocalItem:obj];
-        }] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"name" ascending:YES selector:@selector(localizedStandardCompare:)]]];
-        _milestone = [ms milestoneWithIdentifier:li.milestone.identifier];
-        _repository = [ms repoWithIdentifier:li.repository.identifier];
-#endif
         _reactionSummary = (id)(li.shipReactionSummary);
-        _pullRequest = [li.pullRequest boolValue];
         
         for (NSNumber *v in _reactionSummary.allValues) {
             _reactionsCount += v.integerValue;
@@ -106,6 +90,19 @@
         _unread = [li.notification.unread boolValue];
         
         _fullIdentifier = [NSString issueIdentifierWithOwner:_repository.owner.login repo:_repository.name number:li.number];
+        
+        _pullRequest = [li.pullRequest boolValue];
+        if (_pullRequest) {
+            _pullRequestIdentifier = li.pullRequestIdentifier;
+            _maintainerCanModify = li.maintainerCanModify;
+            _mergeable = li.mergeable;
+            _mergeCommitSha = li.mergeCommitSha;
+            _merged = li.merged;
+            _mergedAt = li.mergedAt;
+            _mergedBy = [ms objectWithManagedObject:li.mergedBy];
+            _base = (id)(li.base);
+            _head = (id)(li.head);
+        }
         
         BOOL includeECs = [options[IssueOptionIncludeEventsAndComments] boolValue];
         if (includeECs) {
@@ -192,8 +189,8 @@
         _title = [title copy] ?: @"";
         _repository = repo;
         _pullRequest = YES;
-        _prBaseInfo = baseInfo;
-        _prHeadInfo = headInfo;
+        _base = baseInfo;
+        _head = headInfo;
     }
     return self;
 }

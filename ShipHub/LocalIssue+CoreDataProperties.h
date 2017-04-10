@@ -51,6 +51,17 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) LocalNotification *notification;
 @property (nullable, nonatomic, retain) NSSet<LocalReaction *> *reactions;
 
+@property (nullable, nonatomic, retain) NSNumber *pullRequestIdentifier;
+@property (nullable, nonatomic, retain) NSNumber *maintainerCanModify;
+@property (nullable, nonatomic, retain) NSNumber *mergeable;
+@property (nullable, nonatomic, retain) NSString *mergeCommitSha;
+@property (nullable, nonatomic, retain) NSNumber *merged;
+@property (nullable, nonatomic, retain) NSDate *mergedAt;
+@property (nullable, nonatomic, retain) LocalAccount *mergedBy;
+
+@property (nullable, nonatomic, retain) id<NSCoding> base;
+@property (nullable, nonatomic, retain) id<NSCoding> head;
+
 @end
 
 @interface LocalIssue (CoreDataGeneratedAccessors)

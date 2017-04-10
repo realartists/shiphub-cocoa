@@ -43,6 +43,7 @@ typedef NS_ENUM(NSInteger, PRMergeStrategy) {
 @property (readonly) NSString *bareRepoPath;
 @property (readonly) NSURL *githubRemoteURL;
 @property (readonly) NSString *headRefSpec;
+@property (readonly) NSString *headSha;
 @property (readonly) BOOL canMerge;
 @property (readonly, getter=isMerged) BOOL merged;
 

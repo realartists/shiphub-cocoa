@@ -264,13 +264,13 @@ class IssueState {
     if (isPR) {
       url = `https://api.github.com/repos/${owner}/${repo}/pulls`;
       var head;
-      var [headOwner, headRepo] = issue.pr_head_info.repo_full_name.split(/\//);
-      if (issue.pr_head_info.repo_full_name == `${owner}/${repo}`) {
-        head = issue.pr_head_info.branch_name;
+      var [headOwner, headRepo] = issue.head.repo.full_name.split(/\//);
+      if (issue.head.repo.full_name == `${owner}/${repo}`) {
+        head = issue.head.ref;
       } else if (headOwner == owner) {
-        head = headOwner + ":" + issue.pr_head_info.branch_name;
+        head = headOwner + ":" + issue.head.ref;
       } else {
-        head = issue.pr_head_info.repo_full_name + ":" + issue.pr_head_info.branch_name;
+        head = issue.head.repo.full_name + ":" + issue.head.ref;
       }
       request = api(url, {
         headers: { 
@@ -286,7 +286,7 @@ class IssueState {
           milestone: keypath(issue, "milestone.number"),
           labels: issue.labels.map((l) => l.name),
           head: head,
-          base: issue.pr_base_info.branch_name
+          base: issue.base.ref
         })
       });
     } else {
