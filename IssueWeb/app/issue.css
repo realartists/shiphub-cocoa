@@ -302,6 +302,17 @@ span.eventTitle {
   font-weight: bold;
 }
 
+span.eventBranch {
+  background-color: #F7F7F7;
+  border-radius: 2px;
+  font-size: 9pt;
+  font-family: menlo, consolas, monaco, sans-serif;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
 span.issueState {
   border-radius: 2px;
   color: white;

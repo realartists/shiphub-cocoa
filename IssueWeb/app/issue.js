@@ -403,8 +403,21 @@ var ClosedEventDescription = React.createClass({
 var ConvertedNoteToIssueDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    console.log("event", this.props.event);
     return h("span", {}, "created this issue from a note");
+  }
+});
+
+var HeadRefDeletedDescription = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+  render: function() {
+    console.log("event", this.props.event);
+    var issue = IssueState.current.issue;
+    var headRef = issue.head.ref;
+    if (headRef) {
+      return h("span", {}, "deleted the ", h("span", {className:"eventBranch"}, headRef), " branch");
+    } else {
+      return h("span", {}, "deleted the pull request branch");
+    }
   }
 });
       
@@ -429,6 +442,7 @@ var ClassForEventDescription = function(event) {
     case "closed": return ClosedEventDescription;
     case "cross-referenced": return CrossReferencedEventDescription;
     case "converted_note_to_issue": return ConvertedNoteToIssueDescription;
+    case "head_ref_deleted": return HeadRefDeletedDescription;
     default: return UnknownEventDescription
   }
 }
