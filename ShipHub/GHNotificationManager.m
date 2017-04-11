@@ -51,6 +51,7 @@
         dispatch_resume(_timer);
         
         _pager = [[RequestPager alloc] initWithAuth:store.auth queue:_q];
+        _pager.pageLimit = 10;
         
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mocDidChange:) name:NSManagedObjectContextObjectsDidChangeNotification object:nil];
         

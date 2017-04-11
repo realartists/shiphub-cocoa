@@ -30,6 +30,7 @@
     if (self = [super init]) {
         self.auth = auth;
         self.q = queue;
+        self.pageLimit = 100;
     }
     return self;
 }
@@ -222,6 +223,8 @@ function pagedFetch(url) /* => Promise */ {
             if (secondPageMatch && lastPageMatch) {
                 NSInteger secondIdx = [[nextPageURLStr substringWithRange:[secondPageMatch rangeAtIndex:1]] integerValue];
                 NSInteger lastIdx = [[lastPageURLStr substringWithRange:[lastPageMatch rangeAtIndex:1]] integerValue];
+                
+                lastIdx = MIN(lastIdx, self.pageLimit);
                 
                 for (NSInteger i = secondIdx; i <= lastIdx; i++) {
                     NSString *pageURLStr = [nextPageURLStr stringByReplacingCharactersInRange:[secondPageMatch rangeAtIndex:1] withString:[NSString stringWithFormat:@"%td", i]];

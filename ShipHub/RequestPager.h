@@ -16,6 +16,8 @@
 - (id)initWithAuth:(Auth *)auth; // callbacks will be on a private serial queue
 - (id)initWithAuth:(Auth *)auth queue:(dispatch_queue_t)queue; // callbacks will be on queue
 
+@property NSInteger pageLimit; // default = 100
+
 - (NSMutableURLRequest *)get:(NSString *)endpoint;
 - (NSMutableURLRequest *)get:(NSString *)endpoint params:(NSDictionary *)params;
 - (NSMutableURLRequest *)get:(NSString *)endpoint params:(NSDictionary *)params headers:(NSDictionary *)headers;
