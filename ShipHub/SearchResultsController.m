@@ -218,4 +218,26 @@
     [self.view.window makeFirstResponder:_table.view];
 }
 
+- (id)supplementalTargetForAction:(SEL)action sender:(id)sender {
+    id target = [super supplementalTargetForAction:action sender:sender];
+    
+    if (target != nil) {
+        return target;
+    }
+    
+    NSViewController *right = [self table];
+    target = [NSApp targetForAction:action to:right from:sender];
+    
+    if (![target respondsToSelector:action]) {
+        target = [target supplementalTargetForAction:action sender:sender];
+    }
+    
+    if ([target respondsToSelector:action]) {
+        return target;
+    }
+    
+    return nil;
+}
+
+
 @end

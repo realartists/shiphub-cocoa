@@ -1745,9 +1745,6 @@ static NSString *const TBSearchItemId = @"TBSearch";
         id selectedItem = [_outlineView selectedItem];
         id repr = [selectedItem representedObject];
         return [repr isKindOfClass:[CustomQuery class]] && [repr isMine];
-    } else if (menuItem.action == @selector(copy:)) {
-        return [[self activeResultsController] respondsToSelector:@selector(copy:)]
-        && (![[self activeResultsController] respondsToSelector:@selector(validateMenuItem:)] || [[self activeResultsController] validateMenuItem:menuItem]);
     } else if (menuItem.action == @selector(deleteProject:)) {
         return [self canDeleteProject];
     } else if (menuItem.action == @selector(addNewProject:)) {
@@ -1755,7 +1752,28 @@ static NSString *const TBSearchItemId = @"TBSearch";
     }
     return YES;
 }
-        
+
+- (id)supplementalTargetForAction:(SEL)action sender:(id)sender {
+    id target = [super supplementalTargetForAction:action sender:sender];
+    
+    if (target != nil) {
+        return target;
+    }
+    
+    NSViewController *right = [self activeRightController];
+    target = [NSApp targetForAction:action to:right from:sender];
+    
+    if (![target respondsToSelector:action]) {
+        target = [target supplementalTargetForAction:action sender:sender];
+    }
+    
+    if ([target respondsToSelector:action]) {
+        return target;
+    }
+    
+    return nil;
+}
+
 #pragma mark -
 
 - (IBAction)showList:(id)sender {
@@ -1786,12 +1804,6 @@ static NSString *const TBSearchItemId = @"TBSearch";
 
 - (IBAction)showChartOptions:(id)sender {
     [_chartController configure:sender];
-}
-
-- (IBAction)copy:(id)sender {
-    if ([[self activeResultsController] respondsToSelector:@selector(copy:)]) {
-        [(id)[self activeResultsController] copy:sender];
-    }
 }
 
 #pragma mark -
