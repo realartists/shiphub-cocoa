@@ -21,6 +21,7 @@
 
 @interface PRPullDestination : NSObject
 
+@property (nonatomic, copy) NSNumber *repoID;
 @property (nonatomic, copy) NSString *repoFullName;
 @property (nonatomic, copy) NSArray *upstreamRepoFullNames;
 @property (nonatomic, copy) NSString *defaultBranchName;
@@ -168,6 +169,18 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
         return;
     }
     
+    // take only the latest events for a given repoFullName/branchName pair
+    NSMutableSet *seen = [NSMutableSet new];
+    NSMutableArray *uniqueEvs = [NSMutableArray new];
+    for (PRPushEvent *ev in evs) {
+        NSString *pair = [NSString stringWithFormat:@"%@:%@", ev.repoFullName, ev.branchName];
+        if (![seen containsObject:pair]) {
+            [seen addObject:pair];
+            [uniqueEvs addObject:ev];
+        }
+    }
+    evs = uniqueEvs;
+    
     NSArray *needTips = [evs filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"type == %ld", PRPushEventTypeCreateBranch]];
     if (needTips.count > 0) {
         RequestPager *pager = [self pager];
@@ -280,6 +293,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
         NSString *repoFullName = repoInfo[@"full_name"];
         PRPullDestination *dest = [PRPullDestination new];
         dest.repoFullName = repoFullName;
+        dest.repoID = repoInfo[@"id"];
         NSMutableArray *upstreams = [NSMutableArray new];
         if (repoInfo[@"source"]) {
             NSString *name = repoInfo[@"source"][@"full_name"];
@@ -343,18 +357,63 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
         }]];
     }
     
-    // filter events with empty destinations
-    events = [events filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"destinations.@count > 0"]];
+    NSMutableSet *uniqueDestinationRepoIDs = [NSMutableSet new];
+    for (PRPushEvent *ev in events) {
+        for (PRPullDestination *dest in ev.destinations) {
+            [uniqueDestinationRepoIDs addObject:dest.repoID];
+        }
+    }
     
+    // filter events that already have an open issue
+    NSPredicate *issuesPredicate = [NSPredicate predicateWithFormat:@"state = 'open' AND pullRequest = YES AND repository.identifier IN %@", uniqueDestinationRepoIDs];
+    [[DataStore activeStore] issuesMatchingPredicate:issuesPredicate completion:^(NSArray<Issue *> *issues, NSError *error) {
+        
+        if (error) {
+            [self handleLoadError:error];
+        } else {
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                static NSString *const pairFormat = @"%@:%@<%@:%@";
+                
+                NSMutableSet *existingPRs = [NSMutableSet new];
+                for (Issue *i in issues) {
+                    // destRepoFullName:destBranch<srcRepoFullName:srcBranch
+                    NSString *pair = [NSString stringWithFormat:pairFormat,
+                                      i.base[@"repo"][@"fullName"], i.base[@"ref"],
+                                      i.head[@"repo"][@"fullName"], i.head[@"ref"]];
+                    [existingPRs addObject:pair];
+                };
+                
+                for (PRPushEvent *ev in events) {
+                    // filter out any destinations where the default branch already has a pull request to it
+                    ev.destinations = [ev.destinations filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(PRPullDestination *dest, NSDictionary<NSString *,id> * _Nullable bindings) {
+                        
+                        NSString *pair = [NSString stringWithFormat:pairFormat,
+                                          dest.repoFullName, dest.defaultBranchName,
+                                          ev.repoFullName, ev.branchName];
+                        
+                        return ![existingPRs containsObject:pair];
+                    }]];
+                }
+                
+                // filter events with empty destinations
+                NSArray *filteredEvents = [events filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"destinations.@count > 0"]];
+                
+                RunOnMain(^{
+                    [self continueWithFullEvents:filteredEvents];
+                });
+                
+            });
+        }
+        
+    }];
+}
+
+- (void)continueWithFullEvents:(NSArray *)events {
     if (events.count == 0) {
         [self handleEmpty];
         return;
     }
     
-    [self continueWithFullEvents:events];
-}
-
-- (void)continueWithFullEvents:(NSArray *)events {
     [_progressIndicator stopAnimation:nil];
     _loading = NO;
     _refreshButton.hidden = NO;
