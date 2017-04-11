@@ -86,6 +86,7 @@ var EventIcon = React.createClass({
         break;
       case "referenced":
       case "merged":
+      case "head_ref_deleted":
         icon = "git-square";
         break;
       case "cross-referenced":
