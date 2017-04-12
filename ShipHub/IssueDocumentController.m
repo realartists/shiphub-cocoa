@@ -55,7 +55,8 @@
     if (menuItem.action == @selector(openDocument:)) {
         return NO;
     } else if (menuItem.action == @selector(cloneIssue:)) {
-        return [self keyOrSelectedProblem] != nil;
+        Issue *i = [self keyOrSelectedProblem];
+        return i != nil && i.pullRequest == NO;
     }
     return [super validateMenuItem:menuItem];
 }
