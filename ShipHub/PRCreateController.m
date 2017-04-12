@@ -189,40 +189,67 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
             return [pager get:endpoint];
         }];
         
-        [pager jsonTasks:refRequests completion:^(NSArray *json, NSError *err) {
+        [pager tasks:refRequests completion:^(NSArray<URLSessionResult *> *results) {
             
-            if (err) {
-                RunOnMain(^{
-                    [self handleLoadError:err];
-                });
-            } else {
-                
-                NSArray *commitRequests = [json arrayByMappingObjects:^id(NSDictionary *obj) {
-                    return [pager get:obj[@"object"][@"url"]];
-                }];
-                
-                [pager jsonTasks:commitRequests completion:^(NSArray *commits, NSError *err2) {
-                    
-                    if (err2) {
-                        RunOnMain(^{
-                            [self handleLoadError:err];
-                        });
-                        return;
-                    }
-                    
-                    NSUInteger i = 0;
-                    for (PRPushEvent *pr in needTips) {
-                        NSDictionary *commit = commits[i];
-                        pr.tipCommitMessage = commit[@"message"];
-                        i++;
-                    }
-                    
+            NSMutableIndexSet *failedIdxes = [NSMutableIndexSet new];
+            NSUInteger c = results.count;
+            NSMutableArray *json = [NSMutableArray new];
+            
+            for (NSUInteger i = 0; i < c; i++) {
+                URLSessionResult *r = results[i];
+                if (r.error) {
+                    // network error
                     RunOnMain(^{
-                        [self continueFetchingRepoInfoForEvents:evs];
+                        [self handleLoadError:r.error];
                     });
-                }];
-                
+                    return;
+                } else if (((NSHTTPURLResponse *)r.response).statusCode >= 400) {
+                    // missing ref error
+                    [failedIdxes addIndex:i];
+                } else {
+                    [json addObject:r.json];
+                }
             }
+            
+            NSArray *filteredEvs = evs;
+            NSArray *filteredNeedTips = needTips;
+            
+            if ([failedIdxes count]) {
+                NSMutableArray *mutableNeedTips = [needTips mutableCopy];
+                NSArray *failedEvs = [mutableNeedTips objectsAtIndexes:failedIdxes];
+                [mutableNeedTips removeObjectsAtIndexes:failedIdxes];
+                NSMutableArray *mutableEvs = [evs mutableCopy];
+                [mutableEvs removeObjectsInArray:failedEvs];
+                
+                filteredNeedTips = mutableNeedTips;
+                filteredEvs = mutableEvs;
+            }
+            
+            NSArray *commitRequests = [json arrayByMappingObjects:^id(NSDictionary *obj) {
+                return [pager get:obj[@"object"][@"url"]];
+            }];
+            
+            [pager jsonTasks:commitRequests completion:^(NSArray *commits, NSError *err2) {
+                
+                if (err2) {
+                    RunOnMain(^{
+                        [self handleLoadError:err2];
+                    });
+                    return;
+                }
+                
+                NSUInteger i = 0;
+                for (PRPushEvent *pr in filteredNeedTips) {
+                    NSDictionary *commit = commits[i];
+                    pr.tipCommitMessage = commit[@"message"];
+                    i++;
+                }
+                
+                RunOnMain(^{
+                    [self continueFetchingRepoInfoForEvents:filteredEvs];
+                });
+            }];
+            
         }];
         
     } else {
