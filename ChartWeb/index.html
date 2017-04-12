@@ -62,15 +62,25 @@
     
     var data = { intervals: [] };
     
-    function loadChart() {
+    function loadChart() {    
         var chartKVs = null;
         if ("partitions" in data) {
+            if (chart._ship_currentData) {
+                previouslyDisabled = new Set(chart._ship_currentData.filter(function(s) {
+                    return !!(s.disabled)
+                }).map(function(s) {
+                    return s.key;
+                }));
+            } else {
+                var previouslyDisabled = new Set();
+            }
             chartKVs = data.partitions.map(function(p) {
                 return { 
                     key : p.key, 
                     values : p.intervals.map(function(i) { 
                         return [i.startDate, i.count]; 
-                    }) 
+                    }),
+                    disabled: previouslyDisabled.has(p.key)
                 };
             });
             chart.showLegend(true);
@@ -80,6 +90,8 @@
             chart.showLegend(false);
             d3.select(".nv-legend").style("display", "none")
         }
+    
+        chart._ship_currentData = chartKVs;
     
         d3.select('#chart1 svg')
             .datum(chartKVs)
