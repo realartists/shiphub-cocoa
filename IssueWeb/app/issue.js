@@ -413,7 +413,7 @@ var HeadRefDeletedDescription = React.createClass({
   render: function() {
     console.log("event", this.props.event);
     var issue = IssueState.current.issue;
-    var headRef = issue.head.ref;
+    var headRef = keypath(issue, "head.ref");
     if (headRef) {
       return h("span", {}, "deleted the ", h("span", {className:"eventBranch"}, headRef), " branch");
     } else {
