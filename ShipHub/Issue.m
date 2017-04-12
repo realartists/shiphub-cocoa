@@ -135,6 +135,19 @@
             LocalNotification *ln = li.notification;
             _notification = [[IssueNotification alloc] initWithLocalNotification:ln];
         }
+        
+        BOOL includeReviewRequests = [options[IssueOptionIncludeRequestedReviewers] boolValue];
+        if (includeReviewRequests) {
+            NSMutableArray *requests = [NSMutableArray arrayWithCapacity:li.requestedReviewers.count];
+            for (LocalAccount *la in li.requestedReviewers) {
+                Account *a = [ms objectWithManagedObject:la];
+                if (a) {
+                    [requests addObject:a];
+                }
+            }
+            [requests sortUsingDescriptors:assigneesSort];
+            _requestedReviewers = requests;
+        }
     }
     return self;
 }
@@ -229,3 +242,4 @@
 NSString const* IssueOptionIncludeEventsAndComments = @"IssueOptionIncludeEventsAndComments";
 NSString const* IssueOptionIncludeUpNextPriority = @"IssueOptionIncludeUpNextPriority";
 NSString const* IssueOptionIncludeNotification = @"IssueOptionIncludeNotification";
+NSString const* IssueOptionIncludeRequestedReviewers = @"IssueOptionIncludeRequestedReviewers";

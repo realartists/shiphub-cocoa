@@ -63,6 +63,8 @@
 @property (readonly) NSArray<IssueComment *> *comments;
 @property (readonly) NSArray<Reaction*> *reactions;
 
+@property (readonly) NSArray<Account *> *requestedReviewers; // conditionally populated
+
 // Up Next priority is conditionally populated.
 @property (readonly) NSNumber *upNextPriority;
 
@@ -86,3 +88,5 @@
 extern NSString const* IssueOptionIncludeEventsAndComments;
 extern NSString const* IssueOptionIncludeUpNextPriority;
 extern NSString const* IssueOptionIncludeNotification;
+extern NSString const* IssueOptionIncludeRequestedReviewers;
+

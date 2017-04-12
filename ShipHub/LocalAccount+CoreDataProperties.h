@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSSet<LocalIssue *> *originatedIssues;
 @property (nullable, nonatomic, retain) NSSet<LocalReaction *> *reactions;
 @property (nullable, nonatomic, retain) NSSet<LocalProject *> *createdProjects;
+@property (nullable, nonatomic, retain) NSSet<LocalIssue *> *reviewRequests;
 
 @property (nullable, nonatomic, retain) NSNumber *shipNeedsWebhookHelp;
 @property (nullable, nonatomic, retain) NSSet<LocalAccount *> *users;
@@ -111,6 +112,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeProjectsObject:(LocalProject *)value;
 - (void)addProjects:(NSSet<LocalProject *> *)values;
 - (void)removeProjects:(NSSet<LocalProject *> *)values;
+
+- (void)addReviewRequestsObject:(LocalIssue *)value;
+- (void)removeReviewRequestsObject:(LocalIssue *)value;
+- (void)addReviewRequests:(NSSet<LocalIssue *> *)values;
+- (void)removeReviewRequests:(NSSet<LocalIssue *> *)values;
 
 @end
 

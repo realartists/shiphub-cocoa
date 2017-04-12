@@ -1451,7 +1451,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         LocalIssue *i = [entities firstObject];
         
         if (i) {
-            Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore options:@{IssueOptionIncludeEventsAndComments:@YES}];
+            Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore options:@{IssueOptionIncludeEventsAndComments:@YES, IssueOptionIncludeRequestedReviewers:@YES}];
             dispatch_async(dispatch_get_main_queue(), ^{
                 completion(issue, nil);
             });

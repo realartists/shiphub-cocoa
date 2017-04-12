@@ -58,6 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSNumber *merged;
 @property (nullable, nonatomic, retain) NSDate *mergedAt;
 @property (nullable, nonatomic, retain) LocalAccount *mergedBy;
+@property (nullable, nonatomic, retain) NSSet<LocalAccount *> *requestedReviewers;
 
 @property (nullable, nonatomic, retain) id<NSCoding> base;
 @property (nullable, nonatomic, retain) id<NSCoding> head;
@@ -100,6 +101,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeAssigneesObject:(LocalAccount *)value;
 - (void)addAssignees:(NSOrderedSet<LocalAccount *> *)values;
 - (void)removeAssignees:(NSOrderedSet<LocalAccount *> *)values;
+
+- (void)addRequestedReviewersObject:(LocalAccount *)value;
+- (void)removeRequestedReviewersObject:(LocalAccount *)value;
+- (void)addRequestedReviewers:(NSOrderedSet<LocalAccount *> *)values;
+- (void)removeRequestedReviewers:(NSOrderedSet<LocalAccount *> *)values;
 
 - (void)addReactionObject:(LocalReaction *)value;
 - (void)removeReactionObject:(LocalReaction *)value;

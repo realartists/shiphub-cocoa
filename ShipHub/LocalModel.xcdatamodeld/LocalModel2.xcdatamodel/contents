@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="12141" systemVersion="16D32" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="12141" systemVersion="16E195" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
     <entity name="LocalAccount" representedClassName="LocalAccount" syncable="YES">
         <attribute name="avatarURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
@@ -21,6 +21,7 @@
         <relationship name="queries" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalQuery" inverseName="author" inverseEntity="LocalQuery" syncable="YES"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalReaction" inverseName="user" inverseEntity="LocalReaction" syncable="YES"/>
         <relationship name="repos" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalRepo" inverseName="owner" inverseEntity="LocalRepo" syncable="YES"/>
+        <relationship name="reviewRequests" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="requestedReviewers" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="upNext" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalPriority" inverseName="user" inverseEntity="LocalPriority" syncable="YES"/>
         <relationship name="users" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="orgs" inverseEntity="LocalAccount" syncable="YES"/>
     </entity>
@@ -95,6 +96,7 @@
         </relationship>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalReaction" inverseName="issue" inverseEntity="LocalReaction" syncable="YES"/>
         <relationship name="repository" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="issues" inverseEntity="LocalRepo" syncable="YES"/>
+        <relationship name="requestedReviewers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="reviewRequests" inverseEntity="LocalAccount" syncable="YES"/>
         <relationship name="upNext" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalPriority" inverseName="issue" inverseEntity="LocalPriority" syncable="YES"/>
         <compoundIndexes>
             <compoundIndex>
@@ -195,12 +197,12 @@
         <attribute name="data" optional="YES" attributeType="Binary" syncable="YES"/>
     </entity>
     <elements>
-        <element name="LocalAccount" positionX="0" positionY="0" width="128" height="375"/>
+        <element name="LocalAccount" positionX="0" positionY="0" width="128" height="390"/>
         <element name="LocalBilling" positionX="9" positionY="153" width="128" height="75"/>
         <element name="LocalComment" positionX="0" positionY="0" width="128" height="150"/>
         <element name="LocalEvent" positionX="0" positionY="0" width="128" height="180"/>
         <element name="LocalHidden" positionX="9" positionY="153" width="128" height="75"/>
-        <element name="LocalIssue" positionX="0" positionY="0" width="128" height="525"/>
+        <element name="LocalIssue" positionX="0" positionY="0" width="128" height="540"/>
         <element name="LocalLabel" positionX="0" positionY="0" width="128" height="120"/>
         <element name="LocalMilestone" positionX="0" positionY="0" width="128" height="225"/>
         <element name="LocalNotification" positionX="9" positionY="153" width="128" height="165"/>

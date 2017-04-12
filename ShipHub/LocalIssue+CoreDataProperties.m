@@ -50,6 +50,7 @@
 @dynamic merged;
 @dynamic mergedAt;
 @dynamic mergedBy;
+@dynamic requestedReviewers;
 
 @dynamic base;
 @dynamic head;

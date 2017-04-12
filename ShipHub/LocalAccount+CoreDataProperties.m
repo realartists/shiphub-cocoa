@@ -31,6 +31,7 @@
 @dynamic originatedIssues;
 @dynamic reactions;
 @dynamic createdProjects;
+@dynamic reviewRequests;
 
 @dynamic shipNeedsWebhookHelp;
 @dynamic users;
