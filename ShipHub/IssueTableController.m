@@ -710,7 +710,7 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
     NSUInteger maxCols = [cols count];
     for (NSTableColumn *column in cols) {
         NSString *value = @"--";
-        if ([column.identifier isEqualToString:@"unread"]) {
+        if ([@[@"unread", @"reactionSummary"] containsObject:column.identifier]) {
             i++;
             continue;
         } else {
