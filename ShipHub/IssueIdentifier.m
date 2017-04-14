@@ -58,11 +58,17 @@
     return [NSString stringWithFormat:@"%@/%@#%lld", ownerLogin, repoName, number.longLongValue];
 }
 
+#define OWNER_OR_NAME_VALID_CHARS @"[^/ ]+"
+
 + (NSRegularExpression *)issueIdentifierRE {
     static NSRegularExpression *re = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        re = [NSRegularExpression regularExpressionWithPattern:@"\\w[\\w\\-\\d]*/\\w[\\w\\-\\d]*#\\d+" options:0 error:NULL];
+        re = [NSRegularExpression regularExpressionWithPattern:
+              OWNER_OR_NAME_VALID_CHARS
+              @"/"
+              OWNER_OR_NAME_VALID_CHARS
+              @"#\\d+" options:0 error:NULL];
     });
     return re;
 }
@@ -71,7 +77,12 @@
     static NSRegularExpression *re = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        re = [NSRegularExpression regularExpressionWithPattern:@"http(?:s?)://[\\w\\.\\-\\d]+/\\w[\\w\\-\\d]*/\\w[\\w\\-\\d]*/issues/\\d+" options:0 error:NULL];
+        re = [NSRegularExpression regularExpressionWithPattern:
+              @"http(?:s?)://[\\w\\.\\-\\d]+/"
+              OWNER_OR_NAME_VALID_CHARS
+              @"/"
+              OWNER_OR_NAME_VALID_CHARS
+              @"/issues/\\d+" options:0 error:NULL];
     });
     return re;
 }
