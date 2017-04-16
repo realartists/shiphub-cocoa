@@ -49,7 +49,7 @@
     chart.forceY(0);
 
     chart.useInteractiveGuideline(true);
-    var ll = navigator.language;
+    var ll = navigator.language.toLowerCase();
     var mdy = { "en-us" : true }
     if (ll in mdy) {
         chart.xAxis.tickFormat(function(d) { return d3.time.format('%m/%d')(new Date(d)); });
