@@ -11,7 +11,10 @@ import CommitBullet from '../../../image/CommitBullet.png'
 class CommitGroupHeader extends React.Component {
   render() {
     var commits = this.props.commits;
-    var user = (commits.length > 0 && (commits[0].committer || commits[0].author)) || { name: "Ghost", email: "" }
+    
+    var user = (commits.length > 0 && (commits[0].committer || commits[0].author)) || { name: "Ghost", email: "" }    
+    var hasOthers = commits.some((x) => (x.committer || x.author || { email: "" }).email !== user.email);
+    
     var timestamp = commits.length > 0 ? commits[0].created_at : new Date();
     var desc = "";
     if (commits.length == 1) {
@@ -20,9 +23,12 @@ class CommitGroupHeader extends React.Component {
       desc = ` added ${commits.length} commits `;
     }
     
+    
+    
     return h('div', { className:'commitGroupHeader' },
-      h('img', { width: "32", height: "32", className: 'commitGroupIcon', src: CommitAvatar }),
+      h('span', { className: 'commitGroupIcon fa fa-git-square' }),
       h('span', {className:'commitGroupAuthor', title:user.email}, user.name),
+      hasOthers ? h('span', {className:'commitGroupOthers'}, ' and others') : "",
       h('span', {className:'commitGroupTimeAgo'}, desc),
       h(TimeAgo, {className:'commentTimeAgo', live:true, date:timestamp}),
     );

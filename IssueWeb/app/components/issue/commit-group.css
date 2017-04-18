@@ -24,9 +24,12 @@ div.commitGroupHeader {
   font-size: 10pt;
   border-bottom: 1px solid #EFEFEF;
 }
-div.commitGroupHeader img {
+span.commitGroupIcon {
+  display: inline-block;
   margin-right: 12px;
-  background-color: #F0F0F0;
+  margin-top: -2px;
+  font-size: 36px;
+  color: #555555;
   float: left;
 }
 span.commitGroupAuthor {
