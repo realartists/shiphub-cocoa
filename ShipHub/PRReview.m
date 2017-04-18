@@ -12,6 +12,9 @@
 #import "Extras.h"
 #import "MetadataStore.h"
 #import "PRComment.h"
+#import "LocalAccount.h"
+#import "LocalPRReview.h"
+#import "LocalPRComment.h"
 
 @implementation PRReview
 
@@ -33,6 +36,22 @@
         _submittedAt = [NSDate dateWithJSONString:d[@"submitted_at"]];
         _commitId = d[@"commit_id"];
         _comments = [comments copy];
+    }
+    return self;
+}
+
+- (id)initWithLocalReview:(LocalPRReview *)lprr metadataStore:(MetadataStore *)store {
+    if (self = [super init]) {
+        _identifier  = lprr.identifier;
+        _user = [store objectWithManagedObject:lprr.user];
+        _body = lprr.body;
+        _state = PRReviewStateFromString(lprr.state);
+        _createdAt = lprr.createdAt;
+        _submittedAt = lprr.submittedAt;
+        _commitId = lprr.commitId;
+        _comments = [[[lprr.comments allObjects] arrayByMappingObjects:^id(LocalPRComment *lc) {
+            return [[PRComment alloc] initWithLocalPRComment:lc metadataStore:store];
+        }] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]]];
     }
     return self;
 }

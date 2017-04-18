@@ -11,6 +11,10 @@
 #import "Extras.h"
 #import "MetadataStore.h"
 #import "Account.h"
+#import "Reaction.h"
+#import "LocalPRComment.h"
+#import "LocalPRReview.h"
+#import "MetadataStoreInternal.h"
 
 @implementation PRComment
 
@@ -41,6 +45,33 @@ static NSNumber *getNum(NSDictionary *d, NSString *field) {
         self.user = [store accountWithIdentifier:d[@"user"][@"id"]];
         
         // TODO: Reactions
+    }
+    return self;
+}
+
+- (id)initWithLocalPRComment:(LocalPRComment *)lc metadataStore:(MetadataStore *)ms
+{
+    if (self = [super init]) {
+        self.body = lc.body;
+        self.createdAt = lc.createdAt;
+        self.identifier = lc.identifier;
+        self.updatedAt = lc.updatedAt;
+        self.user = [ms accountWithLocalAccount:lc.user];
+        self.reactions = [[lc.reactions allObjects] arrayByMappingObjects:^id(id obj) {
+            return [[Reaction alloc] initWithLocalReaction:obj metadataStore:ms];
+        }];
+        
+        _pullRequestReviewId = lc.review.identifier;
+        _diffHunk = lc.diffHunk;
+        _path = lc.path;
+        _position = lc.position;
+        _originalPosition = lc.originalPosition;
+        _commitId = lc.commitId;
+        _originalCommitId = lc.originalCommitId;
+        _inReplyTo = lc.inReplyTo;
+        
+        // re-fault the comment to avoid retain cycle with the review
+        [[lc managedObjectContext] refreshObject:lc mergeChanges:NO];
     }
     return self;
 }

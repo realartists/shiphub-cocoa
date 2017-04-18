@@ -147,6 +147,10 @@
 		1A3D345F1DB0380300CDF167 /* PRSidebarViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A3D345D1DB0380300CDF167 /* PRSidebarViewController.xib */; };
 		1A3D34621DB0528200CDF167 /* PRDiffViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D34611DB0528200CDF167 /* PRDiffViewController.m */; };
 		1A3D34681DB05F5E00CDF167 /* IssueWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3D34671DB05F5E00CDF167 /* IssueWebController.m */; };
+		1A4329731EA69ED800A93A2C /* LocalPRComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4329721EA69ED800A93A2C /* LocalPRComment.m */; };
+		1A4329741EA69ED800A93A2C /* LocalPRComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4329721EA69ED800A93A2C /* LocalPRComment.m */; };
+		1A4329771EA69F2800A93A2C /* LocalPRReview.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4329761EA69F2800A93A2C /* LocalPRReview.m */; };
+		1A4329781EA69F2800A93A2C /* LocalPRReview.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4329761EA69F2800A93A2C /* LocalPRReview.m */; };
 		1A4353551E73762A00C5F5AB /* PRMergeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4353531E73762A00C5F5AB /* PRMergeViewController.m */; };
 		1A4353561E73762A00C5F5AB /* PRMergeViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A4353541E73762A00C5F5AB /* PRMergeViewController.xib */; };
 		1A48BB4D1D80D8BF001E761E /* UserNotificationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A48BB4C1D80D8BF001E761E /* UserNotificationManager.m */; };
@@ -659,6 +663,10 @@
 		1A3D34661DB05F5E00CDF167 /* IssueWebController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWebController.h; sourceTree = "<group>"; };
 		1A3D34671DB05F5E00CDF167 /* IssueWebController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWebController.m; sourceTree = "<group>"; };
 		1A3D34691DB05F9D00CDF167 /* IssueWebControllerInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IssueWebControllerInternal.h; sourceTree = "<group>"; };
+		1A4329711EA69ED800A93A2C /* LocalPRComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPRComment.h; sourceTree = "<group>"; };
+		1A4329721EA69ED800A93A2C /* LocalPRComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalPRComment.m; sourceTree = "<group>"; };
+		1A4329751EA69F2800A93A2C /* LocalPRReview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPRReview.h; sourceTree = "<group>"; };
+		1A4329761EA69F2800A93A2C /* LocalPRReview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalPRReview.m; sourceTree = "<group>"; };
 		1A4353521E73762A00C5F5AB /* PRMergeViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRMergeViewController.h; sourceTree = "<group>"; };
 		1A4353531E73762A00C5F5AB /* PRMergeViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRMergeViewController.m; sourceTree = "<group>"; };
 		1A4353541E73762A00C5F5AB /* PRMergeViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRMergeViewController.xib; sourceTree = "<group>"; };
@@ -1379,6 +1387,10 @@
 				1A38CA021D934EF800655891 /* LocalProject+CoreDataProperties.m */,
 				1A38CA031D934EF800655891 /* LocalProject.h */,
 				1A38CA041D934EF800655891 /* LocalProject.m */,
+				1A4329711EA69ED800A93A2C /* LocalPRComment.h */,
+				1A4329721EA69ED800A93A2C /* LocalPRComment.m */,
+				1A4329751EA69F2800A93A2C /* LocalPRReview.h */,
+				1A4329761EA69F2800A93A2C /* LocalPRReview.m */,
 			);
 			name = CoreData;
 			sourceTree = "<group>";
@@ -2093,6 +2105,7 @@
 				1A694B4B1CA367E300F73608 /* Issue.m in Sources */,
 				1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */,
 				1AE09BEE1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
+				1A4329731EA69ED800A93A2C /* LocalPRComment.m in Sources */,
 				1A3618EF1C8FC3DB008C11CB /* Reachability.m in Sources */,
 				1A3AB3541D9095BA004BB768 /* LocalBilling.m in Sources */,
 				1A3AB3591D909F80004BB768 /* BillingToolbarItem.m in Sources */,
@@ -2205,6 +2218,7 @@
 				1A012E921D3EAC47006CE5DF /* MilestoneRowTemplate.m in Sources */,
 				1A2C05C91E3BFAD100F993AF /* AssigneeNotContainsTemplate.m in Sources */,
 				1A0D59EB1CA4AA3A004F2578 /* IssueDocument.m in Sources */,
+				1A4329771EA69F2800A93A2C /* LocalPRReview.m in Sources */,
 				1AE09BF81C97687E00C5AC35 /* LocalRelationship.m in Sources */,
 				1A7FD77E1D494A5C00B585E2 /* LabelModifyController.m in Sources */,
 				1A7FD7701D492E9E00B585E2 /* BulkModifyController.m in Sources */,
@@ -2219,6 +2233,7 @@
 				1A20CFFC1D52A82B00F412DE /* LocalReaction+CoreDataProperties.m in Sources */,
 				1A3AB3531D9095BA004BB768 /* LocalBilling+CoreDataProperties.m in Sources */,
 				1AF567491D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */,
+				1A4329781EA69F2800A93A2C /* LocalPRReview.m in Sources */,
 				1AE09BF11C97687E00C5AC35 /* LocalRepo.m in Sources */,
 				1AE09BF91C97687E00C5AC35 /* LocalRelationship.m in Sources */,
 				1AE09BFF1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
@@ -2235,6 +2250,7 @@
 				1A694B4C1CA367E300F73608 /* Issue.m in Sources */,
 				1A38CA0C1D93506600655891 /* Project.m in Sources */,
 				1AE09C031C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,
+				1A4329741EA69ED800A93A2C /* LocalPRComment.m in Sources */,
 				1AE09C181C9779BB00C5AC35 /* Defaults.m in Sources */,
 				1AE09BF71C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
 				1A51086B1D319ED000905D4D /* RequestPager.m in Sources */,

@@ -20,6 +20,8 @@
 @class LocalPriority;
 @class LocalNotification;
 @class LocalReaction;
+@class LocalPRComment;
+@class LocalPRReview;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,6 +64,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nullable, nonatomic, retain) id<NSCoding> base;
 @property (nullable, nonatomic, retain) id<NSCoding> head;
+
+@property (nullable, nonatomic, retain) NSSet<LocalPRReview *> *reviews;
+@property (nullable, nonatomic, retain) NSSet<LocalPRComment *> *prComments;
 
 @end
 
@@ -111,6 +116,17 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeReactionObject:(LocalReaction *)value;
 - (void)addReactions:(NSSet<LocalReaction *> *)values;
 - (void)removeReactions:(NSSet<LocalReaction *> *)values;
+
+- (void)addReviewsObject:(LocalPRReview *)value;
+- (void)removeReviewsObject:(LocalPRReview *)value;
+- (void)addReviews:(NSSet<LocalPRReview *> *)values;
+- (void)removeReviews:(NSSet<LocalPRReview *> *)values;
+
+- (void)addPrCommentsObject:(LocalPRComment *)value;
+- (void)removePrCommentsObject:(LocalPRComment *)value;
+- (void)addPrComments:(NSSet<LocalPRComment *> *)values;
+- (void)removePrComments:(NSSet<LocalPRComment *> *)values;
+
 
 @end
 

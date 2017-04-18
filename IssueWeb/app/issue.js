@@ -804,7 +804,7 @@ var ActivityList = React.createClass({
               key:(e.id?(e.id+"-"+i):""+i), 
               event:e, 
               first:(i==0 || a[i-1].event == undefined),
-              last:(next!=undefined && next.event==undefined),
+              last:(next!=undefined && (next.event==undefined || next.event=='committed')),
               veryLast:(next==undefined)
             });
           } else {

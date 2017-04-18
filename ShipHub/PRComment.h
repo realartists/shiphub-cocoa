@@ -10,6 +10,8 @@
 
 #import "IssueComment.h"
 
+@class LocalPRComment;
+
 @interface PRComment : IssueComment
 
 @property NSNumber *pullRequestReviewId;
@@ -22,6 +24,7 @@
 @property NSNumber *inReplyTo;
 
 - (id)initWithDictionary:(NSDictionary *)d metadataStore:(MetadataStore *)store;
+- (id)initWithLocalPRComment:(LocalPRComment *)lc metadataStore:(MetadataStore *)store;
 
 @end
 

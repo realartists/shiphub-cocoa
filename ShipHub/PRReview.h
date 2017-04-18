@@ -10,6 +10,7 @@
 
 @class Account;
 @class PRComment;
+@class LocalPRReview;
 @class MetadataStore;
 
 typedef NS_ENUM(NSInteger, PRReviewState) {
@@ -29,6 +30,7 @@ extern NSString *PRReviewStateToString(PRReviewState st);
 
 - (id)init;
 - (id)initWithDictionary:(NSDictionary *)d comments:(NSArray<PRComment *> *)comments metadataStore:(MetadataStore *)store;
+- (id)initWithLocalReview:(LocalPRReview *)lprr metadataStore:(MetadataStore *)store;
 
 @property NSNumber *identifier;
 @property Account *user;

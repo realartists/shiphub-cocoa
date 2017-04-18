@@ -16,6 +16,8 @@
 @class IssueComment;
 @class IssueNotification;
 @class Reaction;
+@class PRReview;
+@class PRComment;
 
 @class LocalIssue;
 @class MetadataStore;
@@ -62,6 +64,9 @@
 @property (readonly) NSArray<IssueEvent *> *events;
 @property (readonly) NSArray<IssueComment *> *comments;
 @property (readonly) NSArray<Reaction*> *reactions;
+
+@property (readonly) NSArray<PRReview *> *reviews; // comments that are associated with a review
+@property (readonly) NSArray<PRComment *> *prComments; // comments that are not associated with a review
 
 @property (readonly) NSArray<Account *> *requestedReviewers; // conditionally populated
 

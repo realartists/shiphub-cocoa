@@ -55,4 +55,7 @@
 @dynamic base;
 @dynamic head;
 
+@dynamic reviews;
+@dynamic prComments;
+
 @end

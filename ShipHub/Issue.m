@@ -17,6 +17,8 @@
 #import "LocalLabel.h"
 #import "LocalPriority.h"
 #import "LocalNotification.h"
+#import "LocalPRReview.h"
+#import "LocalPRComment.h"
 
 #import "Repo.h"
 #import "Account.h"
@@ -27,6 +29,8 @@
 #import "IssueIdentifier.h"
 #import "IssueNotification.h"
 #import "Reaction.h"
+#import "PRReview.h"
+#import "PRComment.h"
 
 #import "MetadataStore.h"
 
@@ -122,6 +126,21 @@
             _reactions = [[li.reactions allObjects] arrayByMappingObjects:^id(id obj) {
                 return [[Reaction alloc] initWithLocalReaction:obj metadataStore:ms];
             }];
+            
+            if (_pullRequest) {
+                NSMutableSet *singleComments = [NSMutableSet setWithSet:li.prComments];
+                NSMutableArray *reviews = [NSMutableArray arrayWithCapacity:li.reviews.count];
+                for (LocalPRReview *lr in li.reviews) {
+                    [singleComments minusSet:lr.comments];
+                    PRReview *r = [[PRReview alloc] initWithLocalReview:lr metadataStore:ms];
+                    [reviews addObject:r];
+                }
+                
+                _prComments = [[singleComments allObjects] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]]];
+                
+                [reviews sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"submittedAt" ascending:YES]]];
+                _reviews = reviews;
+            }
         }
         
         BOOL includePriority = [options[IssueOptionIncludeUpNextPriority] boolValue];
