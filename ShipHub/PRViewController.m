@@ -70,7 +70,8 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
 @property ButtonToolbarItem *mergeItem;
 @property StatusToolbarItem *statusItem;
 
-@property BOOL outOfDate; // YES if self.pr.head.sha != latest head sha available from GitHub
+@property (getter=isLoading) BOOL loading;
+@property (getter=isOutOfDate) BOOL outOfDate; // YES if self.pr.head.sha != latest head sha available from GitHub
 
 @property PRReviewChangesViewController *reviewChangesController;
 @property NSPopover *reviewChangesPopover;
@@ -499,6 +500,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 #pragma mark -
 
 - (void)loadForIssue:(Issue *)issue {
+    _loading = YES;
     self.pr = [[PullRequest alloc] initWithIssue:issue];
     self.title = [NSString stringWithFormat:NSLocalizedString(@"Code Changes for %@ %@", nil), issue.fullIdentifier, issue.title];
     
@@ -511,6 +513,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     sheet.progress = [self.pr checkout:^(NSError *error) {
         [sheet endSheet];
         
+        _loading = NO;
         _outOfDate = NO;
         
         if (self.pr.myLastPendingReview) {
@@ -548,7 +551,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 #pragma mark - Updated Git Push Handling
 
 - (void)issueDidUpdate:(NSNotification *)note {
-    if (!_pr) return;
+    if (!_pr || _loading) return;
     if ([note object] == [DataStore activeStore]) {
         NSArray *updated = note.userInfo[DataStoreUpdatedProblemsKey];
         if ([updated containsObject:_pr.issue.fullIdentifier]) {
