@@ -680,7 +680,7 @@ static BOOL representedObjectEquals(id repr, id val) {
     id closed = [self closedInPredicate:_predicate];
     
     [_state.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
-        m.state = [m.representedObject isEqual: closed] ? NSOnState: NSOffState;
+        m.state = representedObjectEquals(m.representedObject, closed) ? NSOnState: NSOffState;
     }];
     
     if (closed == nil) {
