@@ -22,6 +22,10 @@
 
 #import <WebKit/WebKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
+#import <objc/runtime.h>
+#import <dlfcn.h>
+
+static void fixWebViewInputText();
 
 @interface IssueWebView : WebView
 
@@ -70,6 +74,7 @@
 }
 
 - (void)commonInit {
+    fixWebViewInputText();
     _useWebpackDevServer = [[NSUserDefaults standardUserDefaults] boolForKey:@"UseWebpackDevServer"];
 }
 
@@ -826,3 +831,75 @@
 
 @end
 
+/* 
+ realartists/shiphub-cocoa#352 Adding emojis from the popover style emoji picker doesn't work
+ 
+ This is some real nasty swizzling to work around a WebKitLegacy bug.
+ From interrogation with the debugger, I learned two things:
+ 
+ 1. The popover style emoji picker sends attributed strings with
+    NSTextInputReplacementRangeAttributeName.
+ 
+    This doesn't seem to affect anything that WebKit does, but it
+    is a way to tell the difference between the popover picker
+    and the panel picker
+ 
+ 2. If insertText is called while the WebView isn't the key view,
+    it will drop the insertion on the floor. When the popover emoji
+    picker is in front, it (or more accurately, its search field) is
+    the the key view.
+ 
+ The trick is to delay insertText: a moment when using the popover
+ emoji picker, long enough for the popover to dismiss and the key
+ view to return to the WebView.
+*/
+@interface NSObject (FixWebViewInputText)
+
+- (void)ship_fixInsertText:(NSAttributedString *)str;
+
+@end
+
+static void fixWebViewInputText()
+{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        Class class = NSClassFromString(@"WebHTMLView");
+        
+        SEL originalSelector = NSSelectorFromString(@"insertText:");
+        SEL swizzledSelector = @selector(ship_fixInsertText:);
+        
+        Method originalMethod = class_getInstanceMethod(class, originalSelector);
+        Method swizzledMethod = class_getInstanceMethod(class, swizzledSelector);
+        
+        BOOL didAddMethod =
+        class_addMethod(class,
+                        originalSelector,
+                        method_getImplementation(swizzledMethod),
+                        method_getTypeEncoding(swizzledMethod));
+        
+        if (didAddMethod) {
+            class_replaceMethod(class,
+                                swizzledSelector,
+                                method_getImplementation(originalMethod),
+                                method_getTypeEncoding(originalMethod));
+        } else {
+            method_exchangeImplementations(originalMethod, swizzledMethod);
+        }
+    });
+}
+
+@implementation NSObject (FixWebViewInputText)
+
+- (void)ship_fixInsertText:(id)str {
+    static NSString *const replRangeAttr = @"NSTextInputReplacementRangeAttributeName";
+    NSRange range;
+    if ([str isKindOfClass:[NSAttributedString class]] && [str attribute:replRangeAttr atIndex:0 effectiveRange:&range]) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self ship_fixInsertText:str];
+        });
+    } else {
+        [self ship_fixInsertText:str];
+    }
+}
+
+@end
