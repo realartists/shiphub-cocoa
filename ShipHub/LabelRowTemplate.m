@@ -122,7 +122,7 @@
     NSString *labelName = [rhs expressionValueWithObject:nil context:NULL];
     
     NSInteger idx = [[self popUp] indexOfItemWithTitle:labelName];
-    if (idx == NSNotFound) {
+    if (idx == -1) {
         [[self popUp] addItemWithTitle:labelName];
         [[self popUp] selectItemWithTitle:labelName];
     } else {
