@@ -71,5 +71,5 @@ BOOL DefaultsHasCustomShipHost() {
 }
 
 extern BOOL DefaultsPullRequestsEnabled() {
-    return [[Defaults defaults] boolForKey:DefaultsPullRequestsEnabledKey];
+    return YES;
 }
