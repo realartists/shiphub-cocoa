@@ -18,6 +18,7 @@ typedef NS_ENUM(NSInteger, PRReviewState) {
     PRReviewStateApprove,
     PRReviewStateRequestChanges,
     PRReviewStateComment,
+    PRReviewStateDismiss
 };
 
 extern PRReviewState PRReviewStateFromEventString(NSString *str);

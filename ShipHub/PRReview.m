@@ -77,6 +77,8 @@ PRReviewState PRReviewStateFromEventString(NSString *str) {
         return PRReviewStateRequestChanges;
     } else if ([str isEqualToString:@"COMMENT"]) {
         return PRReviewStateComment;
+    } else if ([str isEqualToString:@"DISMISS"]) {
+        return PRReviewStateDismiss;
     } else {
         return PRReviewStatePending;
     }
@@ -88,6 +90,7 @@ NSString *PRReviewStateToEventString(PRReviewState st) {
         case PRReviewStateApprove: return @"APPROVE";
         case PRReviewStateRequestChanges: return @"REQUEST_CHANGES";
         case PRReviewStateComment: return @"COMMENT";
+        case PRReviewStateDismiss: return @"DISMISS";
     }
 }
 
@@ -98,6 +101,8 @@ PRReviewState PRReviewStateFromString(NSString *str) {
         return PRReviewStateRequestChanges;
     } else if ([str isEqualToString:@"COMMENTED"]) {
         return PRReviewStateComment;
+    } else if ([str isEqualToString:@"DISMISSED"]) {
+        return PRReviewStateDismiss;
     } else {
         return PRReviewStatePending;
     }
@@ -109,6 +114,7 @@ NSString *PRReviewStateToString(PRReviewState st) {
         case PRReviewStateApprove: return @"APPROVED";
         case PRReviewStateRequestChanges: return @"CHANGES_REQUESTED";
         case PRReviewStateComment: return @"COMMENTED";
+        case PRReviewStateDismiss: return @"DISMISSED";
     }
 }
 
