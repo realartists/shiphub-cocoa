@@ -21,6 +21,7 @@
 #import "Reachability.h"
 
 #import <WebKit/WebKit.h>
+#import <dlfcn.h>
 
 @class IssueWeb2View;
 
@@ -34,6 +35,8 @@
 @property (copy) NSString *dragPasteboardName;
 
 @property (nonatomic, weak) id<IssueWeb2ViewUIDelegate> UIDelegate;
+
+@property (nonatomic, getter=isRubberBandingEnabled) BOOL rubberBandingEnabled;
 
 @end
 
@@ -100,6 +103,7 @@
     _config.preferences = prefs;
     
     _web = [[IssueWeb2View alloc] initWithFrame:CGRectMake(0, 0, 600, 600) configuration:_config];
+    _web.rubberBandingEnabled = NO;
     _web.UIDelegate = self;
     _web.navigationDelegate = self;
     
@@ -882,6 +886,19 @@
 
 @end
 
+typedef void *WKPageRef;
+
+typedef bool (*_ship_WKPageVerticalRubberBandingIsEnabled)(WKPageRef);
+typedef void (*_ship_WKPageSetEnableVerticalRubberBanding)(WKPageRef, bool enableVerticalRubberBanding);
+typedef bool (*_ship_WKPageHorizontalRubberBandingIsEnabled)(WKPageRef);
+typedef void (*_ship_WKPageSetEnableHorizontalRubberBanding)(WKPageRef, bool enableHorizontalRubberBanding);
+
+@interface WKWebView (RubberBandingHacks)
+
+@property (readonly) WKPageRef _pageForTesting;
+
+@end
+
 @implementation IssueWeb2View
 
 @dynamic UIDelegate;
@@ -904,6 +921,44 @@
 - (BOOL)performDragOperation:(id<NSDraggingInfo>)sender {
     self.dragPasteboardName = [[sender draggingPasteboard] name];
     return [super performDragOperation:sender];
+}
+
+static _ship_WKPageVerticalRubberBandingIsEnabled _rbVIsEnabled;
+static _ship_WKPageSetEnableVerticalRubberBanding _rbVSetEnabled;
+static _ship_WKPageHorizontalRubberBandingIsEnabled _rbHIsEnabled;
+static _ship_WKPageSetEnableHorizontalRubberBanding _rbHSetEnabled;
+
+static void configurePageRefSPI() {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        void *wk = dlopen("/System/Library/Frameworks/WebKit.framework/WebKit", RTLD_LAZY);
+        if (wk) {
+            _rbVIsEnabled = dlsym(wk, "WKPageVerticalRubberBandingIsEnabled");
+            _rbVSetEnabled = dlsym(wk, "WKPageSetEnableVerticalRubberBanding");
+            _rbHIsEnabled = dlsym(wk, "WKPageHorizontalRubberBandingIsEnabled");
+            _rbHSetEnabled = dlsym(wk, "WKPageSetEnableHorizontalRubberBanding");
+        }
+    });
+}
+
+- (BOOL)isRubberBandingEnabled {
+    if ([self respondsToSelector:@selector(_pageForTesting)]) {
+        configurePageRefSPI();
+        if (_rbVIsEnabled) {
+            return _rbVIsEnabled([self _pageForTesting]);
+        }
+    }
+    return YES;
+}
+
+- (void)setRubberBandingEnabled:(BOOL)rubberBandingEnabled {
+    if ([self respondsToSelector:@selector(_pageForTesting)]) {
+        configurePageRefSPI();
+        if (_rbVSetEnabled && _rbHSetEnabled) {
+            _rbVSetEnabled([self _pageForTesting], rubberBandingEnabled);
+            _rbHSetEnabled([self _pageForTesting], rubberBandingEnabled);
+        }
+    }
 }
 
 @end
