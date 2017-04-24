@@ -399,6 +399,61 @@ static BOOL matchingHunkStart(NSString *a, NSString *b) {
     return aLeftRun == bLeftRun && aRightRun == bRightRun;
 }
 
+static BOOL matchingHunks(NSArray *aLines, NSArray *bLines, NSInteger aIdx, NSInteger bIdx, NSInteger aLineCount, NSInteger bLineCount, NSInteger *aAdvance, NSInteger *bAdvance, NSRange *aMatchRange, NSRange *bMatchRange)
+{
+    *aAdvance = 1;
+    *bAdvance = 0;
+    
+    *aMatchRange = NSMakeRange(NSNotFound, 0);
+    *bMatchRange = NSMakeRange(NSNotFound, 0);
+    
+    NSInteger aSave = aIdx;
+    NSInteger bSave = bIdx;
+    
+    while (bIdx < bLineCount) {
+        aIdx = aSave;
+        if (![bLines[bIdx] hasPrefix:@"@@"]) {
+            bIdx++;
+        } else if (matchingHunkStart(aLines[aIdx], bLines[bIdx])) {
+            aMatchRange->location = aIdx;
+            bMatchRange->location = bIdx;
+            
+            aIdx++;
+            bIdx++;
+            
+            // we have a matching hunk start.
+            // now find out if the hunks match exactly.
+            while (1)
+            {
+                if ((aIdx == aLineCount || [aLines[aIdx] length] == 0 || [aLines[aIdx] hasPrefix:@"@@"])
+                    && (bIdx == bLineCount || [bLines[bIdx] length] == 0 || [bLines[bIdx] hasPrefix:@"@@"]))
+                {
+                    // we've matched the whole hunk
+                    *aAdvance = aIdx - aSave;
+                    *bAdvance = bIdx - bSave;
+                    
+                    aMatchRange->length = aIdx - aMatchRange->location;
+                    bMatchRange->length = bIdx - bMatchRange->location;
+                    
+                    return YES;
+                } else if ([aLines[aIdx] isEqualToString:bLines[bIdx]]) {
+                    // we're making progress
+                    aIdx++;
+                    bIdx++;
+                } else {
+                    // this hunk is not a match, go on to the next hunk in b
+                    bIdx++;
+                    break;
+                }
+            }
+        } else {
+            bIdx++;
+        }
+    }
+    
+    return NO;
+}
+
 static NSArray *patchMapping(NSString *a, NSString *b) {
     NSArray *aLines = [a componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
     NSArray *bLines = [b componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
@@ -430,47 +485,21 @@ static NSArray *patchMapping(NSString *a, NSString *b) {
     
     // for each hunk in a, see if we can find it in b
     while (aIdx < aLineCount) {
-        NSString *aLine = aLines[aIdx];
-        
-        if ([aLine hasPrefix:@"@@"]) {
-            NSInteger bSave = bIdx;
+        if ([aLines[aIdx] hasPrefix:@"@@"]) {
+            NSInteger aAdvance, bAdvance;
+            NSRange aMatchRange, bMatchRange;
             
-            // see if we can find a matching hunk header in b
-            while (bIdx < bLineCount && !matchingHunkStart(aLine, bLines[bIdx])) bIdx++;
-            
-            if (bIdx != bLineCount) {
-                // found candidate hunk match in b
-                // walk a and b forward to see if we can match all the way
-                
-                NSInteger aSave = aIdx;
-                
-                while (aIdx < aLineCount
-                       && bIdx < bLineCount
-                       && [aLines[aIdx] isEqualToString:bLines[bIdx]]) {
-                    aIdx++;
-                    bIdx++;
-                }
-                
-                if (((aIdx < aLineCount && [aLines[aIdx] hasPrefix:@"@@"]) || aIdx == aLineCount)
-                    && ((bIdx < bLineCount && [bLines[bIdx] hasPrefix:@"@@"]) || bIdx == bLineCount))
+            if (matchingHunks(aLines, bLines, aIdx, bIdx, aLineCount, bLineCount, &aAdvance, &bAdvance, &aMatchRange, &bMatchRange)) {
+                for (NSInteger aMap = aMatchRange.location, bMap = bMatchRange.location, m = 0; m < aMatchRange.length; aMap++, bMap++, m++)
                 {
-                    // preceding hunk from aSave to aIdx is a match. map it.
-                    for (NSInteger aMap = aSave, bMap = bSave; aMap < aIdx; aMap++, bMap++) {
-                        map[aMap] = @(bMap);
-                    }
-                } else {
-                    // couldn't find a match in b for the hunk in a.
-                    // restore bIdx to allow for re-searching this hunk in b again.
-                    // meanwhile, aIdx is advanced past this hunk in a.
-                    bIdx = bSave;
+                    map[aMap] = @(bMap);
                 }
-                
+                aIdx += aAdvance;
+                bIdx += bAdvance;
             } else {
-                // couldn't find a match. this hunk in a is unmatcheable. skip it.
-                while (aIdx < aLineCount && [aLines[aIdx] hasPrefix:@"@@"]) aIdx++;
-                
-                // reset bIdx to where it was.
-                bIdx = bSave;
+                // there was no hunk in b that could match the hunk starting at aIdx
+                // leave bIdx where it was and bump aIdx
+                aIdx++;
             }
         } else {
             aIdx++; // skip this line in a

@@ -68,9 +68,14 @@
     CFAbsoluteTime start = CFAbsoluteTimeGetCurrent();
     NSError *err = nil;
     _commits = [GitCommit commitLogFrom:[self _baseRev] to:[self _headRev] inRepo:_repo error:&err];
+    
+    if (!err) {
+        _spanDiff = [GitCommit spanFromCommitRangeStart:[_commits firstObject] end:[_commits lastObject] error:&err];
+    }
     CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
+    
 #if DEBUG
-    DebugLog(@"Loaded %td commits in %.3fs", _commits.count, (end-start));
+    DebugLog(@"Loaded %td commits and span diff in %.3fs", _commits.count, (end-start));
 #else
     (void)start;
     (void)end;
@@ -147,10 +152,11 @@
     
     // See https://help.github.com/articles/checking-out-pull-requests-locally/
     NSString *refSpec = [NSString stringWithFormat:@"pull/%@/head", _issue.number];
+    NSString *baseRefSpec = _info[@"base"][@"ref"];
     _headRefSpec = refSpec;
     
     // optimistically, see if we can find the PR without doing any network operations
-    NSError *optimisticErr = [self loadSpanDiff];
+    NSError *optimisticErr = [self loadCommits];
     if (optimisticErr) {
         progress.localizedDescription = NSLocalizedString(@"Fetching git objects", nil);
         progress.completedUnitCount = 0;
@@ -159,27 +165,21 @@
         DebugLog(@"Have to fetch refSpec %@ from %@", refSpec, remoteURLStr);
         
         // See https://github.com/blog/1270-easier-builds-and-deployments-using-git-over-https-and-oauth
-        error = [_repo fetchRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" refs:@[refSpec] progress:progress];
+        error = [_repo fetchRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" refs:@[refSpec, baseRefSpec] progress:progress];
         if (error) return error;
         
-        error = [self loadSpanDiff];
+        error = [self loadCommits];
+        
         if (error) return error;
     } else {
-        DebugLog(@"Loaded span diff without network op");
+        DebugLog(@"Loaded commits without network op");
     }
     
     if (progress.cancelled) return [NSError cancelError];
     
     progress.localizedDescription = NSLocalizedString(@"Preparing diffs", nil);
-    progress.totalUnitCount = 3;
+    progress.totalUnitCount = 2;
     progress.completedUnitCount = 1;
-    
-    error = [self loadCommits];
-    if (error) {
-        ErrLog(@"Error loading commits %@", error);
-        return error;
-    }
-    progress.completedUnitCount += 1;
     
     error = [self loadSpanDiffSinceLastSubmittedReview];
     if (error) {

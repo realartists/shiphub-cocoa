@@ -136,8 +136,14 @@
 }
 
 - (void)commitController:(PRCommitController *)cc didSelectCommit:(GitCommit *)commit {
-    _activeCommit = commit;
-    self.activeDiff = commit.diff;
+    [commit loadDiff:^(GitDiff *diff, NSError *err) {
+        if (!err) {
+            _activeCommit = commit;
+            self.activeDiff = diff;
+        } else {
+            [self presentError:err];
+        }
+    }];
     [_commitPopover close];
 }
 

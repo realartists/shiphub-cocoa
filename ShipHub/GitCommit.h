@@ -19,8 +19,11 @@
 @property (readonly) NSDate *date;
 @property (readonly) NSString *message;
 
-@property (readonly) GitDiff *diff;
+- (void)loadDiff:(void (^)(GitDiff *diff, NSError *err))completion;
 
 + (NSArray<GitCommit *> *)commitLogFrom:(NSString *)baseRev to:(NSString *)headRev inRepo:(GitRepo *)repo error:(NSError *__autoreleasing *)error;
+
+// should be called from a background thread
++ (GitDiff *)spanFromCommitRangeStart:(GitCommit *)start end:(GitCommit *)end error:(NSError *__autoreleasing *)error;
 
 @end

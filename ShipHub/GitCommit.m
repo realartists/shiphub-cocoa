@@ -17,7 +17,11 @@
 
 @interface GitCommit ()
 
-- (id)initWithDiff:(GitDiff *)diff commit:(git_commit *)commit;
+- (id)initWithRepo:(GitRepo *)repo commit:(git_commit *)commit;
+
+@property (readonly) GitDiff *diff;
+@property (readonly) GitRepo *repo;
+@property (readonly) git_commit *commit;
 
 @end
 
@@ -39,18 +43,12 @@
     __block git_object *headObj = NULL;
     __block git_oid walkOid;
     __block git_commit *walkCommit = NULL;
-    __block git_commit *parentCommit = NULL;
-    __block git_tree *walkTree = NULL;
-    __block git_tree *parentTree = NULL;
     __block git_revwalk *walk = NULL;
     
     dispatch_block_t cleanup = ^{
         if (baseObj) git_object_free(baseObj);
         if (headObj) git_object_free(headObj);
         if (walkCommit) git_commit_free(walkCommit);
-        if (parentCommit) git_commit_free(parentCommit);
-        if (walkTree) git_tree_free(walkTree);
-        if (parentTree) git_tree_free(parentTree);
         if (walk) git_revwalk_free(walk);
         
         [repo unlock];
@@ -81,58 +79,31 @@
     while ((git_revwalk_next(&walkOid, walk)) == 0) {
         CHK(git_commit_lookup(&walkCommit, repo.repo, &walkOid));
         
-        const git_oid *commitOid = git_commit_id(walkCommit);
-        
-        CHK(git_commit_parent(&parentCommit, walkCommit, 0));
-        
-        const git_oid *parentOid = git_commit_id(parentCommit);
-        
-        char commitRevBuf[GIT_OID_HEXSZ+1];
-        char parentRevBuf[GIT_OID_HEXSZ+1];
-        
-        git_oid_tostr(commitRevBuf, sizeof(commitRevBuf), commitOid);
-        git_oid_tostr(parentRevBuf, sizeof(parentRevBuf), parentOid);
-        
-        NSString *commitRev = [NSString stringWithUTF8String:commitRevBuf];
-        NSString *parentRev = [NSString stringWithUTF8String:parentRevBuf];
-        
-        CHK(git_commit_tree(&walkTree, walkCommit));
-        CHK(git_commit_tree(&parentTree, parentCommit));
-        
-        NSError *diffError = nil;
-        GitDiff *commitDiff = [GitDiff diffWithRepo:repo fromTree:parentTree fromRev:parentRev toTree:walkTree toRev:commitRev error:&diffError];
-        
-        if (diffError) {
-            cleanup();
-            if (error) {
-                *error = diffError;
-                return nil;
-            }
-        }
-        
-        GitCommit *commit = [[GitCommit alloc] initWithDiff:commitDiff commit:walkCommit];
+        GitCommit *commit = [[GitCommit alloc] initWithRepo:repo commit:walkCommit];
         
         [commits addObject:commit];
-        
-        git_tree_free(walkTree);
-        walkTree = NULL;
-        
-        git_tree_free(parentTree);
-        parentTree = NULL;
-        
-        git_commit_free(walkCommit);
-        walkCommit = NULL;
     }
     
     cleanup();
+
+#undef CHK
     
     return commits;
 }
 
-- (id)initWithDiff:(GitDiff *)diff commit:(git_commit *)commit {
+- (id)initWithRepo:(GitRepo *)repo commit:(git_commit *)commit {
     if (self = [super init]) {
-        _diff = diff;
-        _rev = diff.headRev;
+        _repo = repo;
+        _commit = commit;
+        
+        const git_oid *commitOid = git_commit_id(commit);
+        
+        char commitRevBuf[GIT_OID_HEXSZ+1];
+        git_oid_tostr(commitRevBuf, sizeof(commitRevBuf), commitOid);
+        
+        NSString *commitRev = [NSString stringWithUTF8String:commitRevBuf];
+        _rev = commitRev;
+        
         const git_signature *author = git_commit_author(commit);
         _authorName = [NSString stringWithUTF8String:author->name ?: ""];
         _authorEmail = [NSString stringWithUTF8String:author->email ?: ""];
@@ -145,12 +116,166 @@
     return self;
 }
 
+- (void)dealloc {
+    if (_commit) {
+        git_commit_free(_commit);
+    }
+}
+
 - (NSString *)description {
     return [NSString stringWithFormat:
             @"commit %@ (%@ %p)\n"
             @"Author: %@ <%@>\n"
             @"Date:   %@\n\n"
             @"%@\n\n", self.rev, NSStringFromClass([self class]), self, self.authorName, self.authorEmail, self.date, self.message];
+}
+
+- (GitDiff *)_loadDiffWithError:(NSError *__autoreleasing *)outError {
+    if (outError)
+        *outError = nil;
+    
+    if (_diff)
+        return _diff;
+    
+    __block git_commit *parentCommit = NULL;
+    __block git_tree *commitTree = NULL;
+    __block git_tree *parentTree = NULL;
+    
+    [_repo readLock];
+    
+    dispatch_block_t cleanup = ^{
+        if (parentCommit) git_commit_free(parentCommit);
+        if (parentTree) git_tree_free(parentTree);
+        if (commitTree) git_tree_free(commitTree);
+        
+        [_repo unlock];
+    };
+    
+    #define CHK(X) \
+    do { \
+        int giterr = (X); \
+        if (giterr) { \
+            NSError *error = [NSError gitError]; \
+            if (outError) *outError = error; \
+            cleanup(); \
+            return nil; \
+        } \
+    } while (0);
+    
+    const git_oid *commitOid = git_commit_id(_commit);
+    
+    CHK(git_commit_parent(&parentCommit, _commit, 0));
+    
+    const git_oid *parentOid = git_commit_id(parentCommit);
+    
+    char commitRevBuf[GIT_OID_HEXSZ+1];
+    char parentRevBuf[GIT_OID_HEXSZ+1];
+    
+    git_oid_tostr(commitRevBuf, sizeof(commitRevBuf), commitOid);
+    git_oid_tostr(parentRevBuf, sizeof(parentRevBuf), parentOid);
+    
+    NSString *commitRev = [NSString stringWithUTF8String:commitRevBuf];
+    NSString *parentRev = [NSString stringWithUTF8String:parentRevBuf];
+    
+    CHK(git_commit_tree(&commitTree, _commit));
+    CHK(git_commit_tree(&parentTree, parentCommit));
+    
+    NSError *diffError = nil;
+    _diff = [GitDiff diffWithRepo:_repo fromTree:parentTree fromRev:parentRev toTree:commitTree toRev:commitRev error:&diffError];
+    
+    cleanup();
+    
+    #undef CHK
+    
+    if (*outError) *outError = diffError;
+    return _diff;
+}
+
+- (void)loadDiff:(void (^)(GitDiff *, NSError *err))completion
+{
+    if (_diff) {
+        RunOnMain(^{
+            completion(_diff, nil);
+        });
+    }
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSError *error = nil;
+        _diff = [self _loadDiffWithError:&error];
+        
+        RunOnMain(^{
+            completion(_diff, error);
+        });
+    });
+}
+
++ (GitDiff *)spanFromCommitRangeStart:(GitCommit *)start end:(GitCommit *)end error:(NSError *__autoreleasing *)outError {
+    NSAssert(![NSThread isMainThread], @"shouldn't call this from the main thread");
+    NSParameterAssert(start);
+    NSParameterAssert(end);
+    
+    if (outError)
+        *outError = nil;
+    
+    if (start == end) {
+        return [start _loadDiffWithError:outError];
+    }
+    
+    __block git_commit *parentCommit = NULL;
+    __block git_tree *startTree = NULL;
+    __block git_tree *endTree = NULL;
+    
+    GitRepo *repo = start.repo;
+    
+    [repo readLock];
+    
+    dispatch_block_t cleanup = ^{
+        if (parentCommit) git_commit_free(parentCommit);
+        if (startTree) git_tree_free(startTree);
+        if (endTree) git_tree_free(endTree);
+        
+        [repo unlock];
+    };
+    
+    #define CHK(X) \
+    do { \
+        int giterr = (X); \
+        if (giterr) { \
+            NSError *error = [NSError gitError]; \
+            if (outError) *outError = error; \
+            cleanup(); \
+            return nil; \
+        } \
+    } while (0);
+
+    const git_oid *headOid = git_commit_id(end.commit);
+    
+    CHK(git_commit_parent(&parentCommit, start.commit, 0));
+    
+    const git_oid *parentOid = git_commit_id(parentCommit);
+    
+    char headRevBuf[GIT_OID_HEXSZ+1];
+    char parentRevBuf[GIT_OID_HEXSZ+1];
+    
+    git_oid_tostr(headRevBuf, sizeof(headRevBuf), headOid);
+    git_oid_tostr(parentRevBuf, sizeof(parentRevBuf), parentOid);
+    
+    NSString *headRev = [NSString stringWithUTF8String:headRevBuf];
+    NSString *parentRev = [NSString stringWithUTF8String:parentRevBuf];
+    
+    CHK(git_commit_tree(&endTree, end.commit));
+    CHK(git_commit_tree(&startTree, parentCommit));
+    
+    NSError *diffError = nil;
+    GitDiff *diff = [GitDiff diffWithRepo:repo fromTree:startTree fromRev:parentRev toTree:endTree toRev:headRev error:&diffError];
+    
+    cleanup();
+    
+#undef CHK
+    
+    if (*outError) *outError = diffError;
+    return diff;
+
 }
 
 @end
