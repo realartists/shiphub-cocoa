@@ -55,6 +55,10 @@
     return [self _headRev];
 }
 
+- (NSString *)baseSha {
+    return [self _baseRev];
+}
+
 // runs on a background queue
 - (NSError *)loadSpanDiff {
     NSError *err = nil;
@@ -70,7 +74,7 @@
     _commits = [GitCommit commitLogFrom:[self _baseRev] to:[self _headRev] inRepo:_repo error:&err];
     
     if (!err) {
-        _spanDiff = [GitCommit spanFromCommitRangeStart:[_commits firstObject] end:[_commits lastObject] error:&err];
+        _spanDiff = [GitDiff diffWithRepo:_repo fromMergeBaseOfStart:[self _baseRev] to:[self _headRev] error:&err];
     }
     CFAbsoluteTime end = CFAbsoluteTimeGetCurrent();
     

@@ -123,6 +123,57 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     return result;
 }
 
++ (GitDiff *)diffWithRepo:(GitRepo *)repo fromMergeBaseOfStart:(NSString *)baseRev to:(NSString *)headRev error:(NSError *__autoreleasing *)error
+{
+    NSParameterAssert(repo);
+    NSParameterAssert(baseRev);
+    NSParameterAssert(headRev);
+    
+    [repo readLock];
+    
+    if (error) *error = nil;
+    
+    __block git_object *baseObj = NULL;
+    __block git_object *headObj = NULL;
+    __block git_commit *mergeBaseCommit = NULL;
+    __block git_commit *headCommit = NULL;
+    __block git_tree *mergeBaseTree = NULL;
+    __block git_tree *headTree = NULL;
+    
+    dispatch_block_t cleanup = ^{
+        if (baseObj) git_object_free(baseObj);
+        if (headObj) git_object_free(headObj);
+        if (mergeBaseCommit) git_commit_free(mergeBaseCommit);
+        if (headCommit) git_commit_free(headCommit);
+        if (mergeBaseTree) git_tree_free(mergeBaseTree);
+        if (headTree) git_tree_free(headTree);
+        [repo unlock];
+    };
+    
+    CHK(git_revparse_single(&baseObj, repo.repo, [baseRev UTF8String]));
+    CHK(git_revparse_single(&headObj, repo.repo, [headRev UTF8String]));
+    
+    git_oid mergeBaseOid;
+    CHK(git_merge_base(&mergeBaseOid, repo.repo, git_object_id(baseObj), git_object_id(headObj)));
+    
+    CHK(git_commit_lookup(&mergeBaseCommit, repo.repo, &mergeBaseOid));
+    CHK(git_commit_lookup(&headCommit, repo.repo, git_object_id(headObj)));
+    
+    CHK(git_commit_tree(&mergeBaseTree, mergeBaseCommit));
+    CHK(git_commit_tree(&headTree, headCommit));
+    
+    NSError *diffErr = nil;
+    GitDiff *result = [GitDiff diffWithRepo:repo fromTree:mergeBaseTree fromRev:baseRev toTree:headTree toRev:headRev error:&diffErr];
+    
+    if (diffErr && error) {
+        *error = diffErr;
+    }
+    
+    cleanup();
+    
+    return result;
+}
+
 + (GitDiff *)diffWithRepo:(GitRepo *)repo fromTree:(git_tree *)baseTree fromRev:(NSString *)baseRev toTree:(git_tree *)headTree toRev:(NSString *)headRev error:(NSError *__autoreleasing *)error
 {
     __block git_diff *diff = NULL;

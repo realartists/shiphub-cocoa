@@ -68,6 +68,10 @@ typedef void (^GitDiffFileBinaryCompletion)(NSData *oldFile, NSData *newFile, NS
 
 @interface GitDiff : NSObject
 
+// equivalent to git diff baseRev...headRev
++ (GitDiff *)diffWithRepo:(GitRepo *)repo fromMergeBaseOfStart:(NSString *)baseRev to:(NSString *)headRev error:(NSError *__autoreleasing *)error;
+
+// equivalent to git diff baseRev..headRev
 + (GitDiff *)diffWithRepo:(GitRepo *)repo from:(NSString *)baseRev to:(NSString *)headRev error:(NSError *__autoreleasing *)error;
 
 + (GitDiff *)emptyDiffAtRev:(NSString *)rev;

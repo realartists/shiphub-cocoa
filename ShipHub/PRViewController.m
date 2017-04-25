@@ -287,8 +287,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     NSString *remoteURL = [_pr.githubRemoteURL description];
     NSString *refName = [NSString stringWithFormat:@"pull/%@/head", [issueIdentifier issueNumber]];
     NSString *branchName = [NSString stringWithFormat:@"pull/%@", [issueIdentifier issueNumber]];
-    NSString *baseRev = _pr.spanDiff.baseRev;
-    NSString *headRev = _pr.spanDiff.headRev;
+    NSString *baseRev = _pr.baseSha;
+    NSString *headRev = _pr.headSha;
     
     SetWCVar(shTemplate, @"REPO_NAME", repoName);
     SetWCVar(shTemplate, @"REPO_PATH", repoPath);
