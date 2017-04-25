@@ -387,6 +387,10 @@ class AbstractComment extends React.Component {
     if (!this.props.comment) {
       outerClass += ' addComment';
     }
+    
+    if (this.props.className) {
+      outerClass = this.props.className;
+    }
 
     return h('div', {className:outerClass},
       this.renderHeader(),

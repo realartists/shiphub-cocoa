@@ -167,6 +167,7 @@ static const NSInteger CurrentLocalModelVersion = 11;
 @property (strong) GHNotificationManager *ghNotificationManager;
 
 @property (strong) NSManagedObjectModel *mom;
+@property (strong) NSDictionary *syncEntityToMomEntity;
 @property (strong) NSManagedObjectContext *writeMoc;
 @property (strong) NSMutableArray<ReadOnlyManagedObjectContext *> *readMocs;
 @property (strong) NSPersistentStore *persistentStore;
@@ -326,6 +327,16 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSURL *momURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"LocalModel" withExtension:@"momd"];
     _mom = [[NSManagedObjectModel alloc] initWithContentsOfURL:momURL];
     NSAssert(_mom, @"Must load mom from %@", momURL);
+    
+    NSMutableDictionary *syncEntityToMomEntity = [NSMutableDictionary new];
+    for (NSEntityDescription *entityDesc in _mom.entities) {
+        NSString *entityName = entityDesc.name;
+        if ([entityName hasPrefix:@"Local"]) {
+            NSString *syncName = [[entityName substringFromIndex:5] lowercaseString];
+            syncEntityToMomEntity[syncName] = entityName;
+        }
+    }
+    _syncEntityToMomEntity = syncEntityToMomEntity;
     
     _persistentCoordinator = [[NSPersistentStoreCoordinator alloc] initWithManagedObjectModel:_mom];
     NSAssert(_persistentCoordinator, @"Must load coordinator");
@@ -878,8 +889,8 @@ static NSString *const LastUpdated = @"LastUpdated";
                     if (rel.destinationEntity.abstract) {
                         NSString *type = populate[@"type"];
                         if (type) {
-                            relName = [NSString stringWithFormat:@"Local%@", [type PascalCase]];
-                            if (!_mom.entitiesByName[relName]) {
+                            relName = _syncEntityToMomEntity[type];
+                            if (!relName) {
                                 for (NSEntityDescription *sub in rel.destinationEntity.subentities) {
                                     NSString *jsonType = sub.userInfo[@"jsonType"];
                                     if ([jsonType isEqualToString:type]) {
@@ -888,10 +899,11 @@ static NSString *const LastUpdated = @"LastUpdated";
                                     }
                                 }
                             }
-                            if (!_mom.entitiesByName[relName]) {
+                            #if DEBUG
+                            if (!relName) {
                                 DebugLog(@"Cannot resolve concrete entity for abstract relationship %@ (%@)", rel, populate);
-                                relName = nil;
                             }
+                            #endif
                         } else {
                             DebugLog(@"Cannot resolve concrete entity for abstract relationship %@", rel);
                             relName = nil;
@@ -912,13 +924,17 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
 }
 
+- (NSString *)entityNameForSyncName:(NSString *)syncName {
+    return _syncEntityToMomEntity[syncName];
+}
+
 // Must be called on _moc. Does not call save. Does not update sync version
 - (void)writeSyncObjects:(NSArray<SyncEntry *> *)objs {
     
     for (SyncEntry *e in objs) {
         NSString *type = e.entityName;
-        NSString *entityName = [NSString stringWithFormat:@"Local%@", [type PascalCase]];
-        if (_mom.entitiesByName[entityName] == nil) {
+        NSString *entityName = _syncEntityToMomEntity[type];
+        if (!entityName) {
             DebugLog(@"Received unknown sync type: %@", type);
             continue;
         }
@@ -985,9 +1001,10 @@ static NSString *const LastUpdated = @"LastUpdated";
     for (NSArray *part in entriesByEntity) {
         SyncEntry *r = part[0];
         NSString *type = r.entityName;
-        NSString *entityName = [NSString stringWithFormat:@"Local%@", [type PascalCase]];
+        NSString *entityName = _syncEntityToMomEntity[type];
+        if (!entityName) continue;
         NSEntityDescription *entity = _mom.entitiesByName[entityName];
-        if (!entity) continue;
+        NSAssert(entity != nil, @"must find entity");
         
         for (SyncEntry *e in part) {
             note(entityName, e.data[@"identifier"]);

@@ -35,6 +35,7 @@ import 'util/media-reloader.js'
 import AvatarIMG from 'components/AvatarIMG.js'
 import Comment from 'components/comment/Comment.js'
 import CommitGroup from 'components/issue/commit-group.js'
+import Review from 'components/issue/review.js'
 
 var EventIcon = React.createClass({
   propTypes: {
@@ -288,8 +289,13 @@ var ReferencedEventDescription = React.createClass({
   
   render: function() {
     var [committish, commitURL] = expandCommit(this.props.event);
+  
+    var thisIssue = "issue";
+    if (IssueState.current.issue.pull_request) {
+      thisIssue = "pull request";
+    }
 
-    var parts = ["referenced this issue in commit ",
+    var parts = [`referenced this ${thisIssue} in commit `,
                  h("a", {key: "shaLink", className: "shaLink", href:commitURL, target:"_blank"}, committish)];
 
     if (this.props.event.ship_commit_author &&
@@ -308,7 +314,7 @@ var ReferencedEventDescription = React.createClass({
         key: "willCloseOnMerge",
         className: "fa fa-code-fork", 
         style: { paddingLeft: "4px", paddingRight: "1px" },
-        title: "This issue will close once this commit is merged"}
+        title: `This ${thisIssue} will close once this commit is merged`}
       );
       parts.push(closeInfo);
     }
@@ -343,13 +349,15 @@ var CrossReferencedEventDescription = React.createClass({
 
     var referencedRepoName = `${urlParts.owner}/${urlParts.repo}`;
     var repoName = IssueState.current.repoOwner + "/" + IssueState.current.repoName;
+    
+    var thisIssue = IssueState.current.issue.pull_request ? "pull request" : "issue";
 
     if (repoName === referencedRepoName) {
-      return h("span", {}, "referenced this issue");
+      return h("span", {}, `referenced this ${thisIssue}`);
     } else {
       // Only bother to show the repo name if the reference comes from another repo.
       return h("span", {},
-               "referenced this issue in ",
+               `referenced this ${thisIssue} in `,
                h("b", {}, referencedRepoName)
               );
     }
@@ -361,7 +369,7 @@ var MergedEventDescription = React.createClass({
   render: function() {
     var [committish, commitURL] = expandCommit(this.props.event);
     return h("span", {},
-      "merged this request with commit ",
+      "merged this pull request with commit ",
       h("a", {href:commitURL, target:"_blank"}, committish)
     );
   }
@@ -370,6 +378,8 @@ var MergedEventDescription = React.createClass({
 var ClosedEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
+    var thisIssue = IssueState.current.issue.pull_request ? "pull request" : "issue";
+  
     if (typeof(this.props.event.commit_id) === "string") {
       var [committish, commitURL] = expandCommit(this.props.event);
 
@@ -385,7 +395,7 @@ var ClosedEventDescription = React.createClass({
       }
 
       return h("span", {key:"with"},
-        "closed this issue with commit ",
+        `closed this ${thisIssue} with commit `,
         h("a",
           {
             className: "shaLink",
@@ -396,7 +406,7 @@ var ClosedEventDescription = React.createClass({
         authoredBy
       );
     } else {
-      return h("span", {key:"without"}, "closed this issue");
+      return h("span", {key:"without"}, `closed this ${thisIssue}`);
     }
   }
 });
@@ -702,14 +712,101 @@ var ActivityList = React.createClass({
       created_at: this.props.issue.created_at || new Date().toISOString(),
       reactions: this.props.issue.reactions
     };
-    
+
     // need to merge events and comments together into one array, ordered by date
-    var eventsAndComments = (!!(firstComment.id) || this.props.issue.savePending) ? [firstComment] : [];
+    var activity = (!!(firstComment.id) || this.props.issue.savePending) ? [firstComment] : [];
     
-    eventsAndComments = eventsAndComments.concat(this.props.issue.events || []);
-    eventsAndComments = eventsAndComments.concat(this.props.issue.comments || []);
+    activity = activity.concat(this.props.issue.events || []);
+    activity = activity.concat(this.props.issue.comments || []);
     
-    eventsAndComments = eventsAndComments.sort(function(a, b) {
+    // prepare reviews and prcomments
+    if (this.props.issue.pull_request) {
+      // create dummy reviews for all of the comments that are not already in a review
+      var moreReviews = (this.props.issue.pr_comments||[]).filter((c) => {
+        return {
+          user: c.user,
+          state: 3, /* comment */
+          submitted_at: c.created_at,
+          comments: [c]
+        };
+      });
+      
+      var allReviews = moreReviews.concat(this.props.issue.reviews||[]);
+      
+      // link up comment replies
+      var allPRComments = allReviews.reduce((accum, review) => {
+        return accum.concat(review.comments||[]);
+      }, []);
+      
+      allPRComments.sort((a, b) => {
+        var da = new Date(a.created_at);
+        var db = new Date(b.created_at);
+        
+        if (da < db) return -1;
+        else if (da > db) return 1;
+        else return 0;
+      });
+      
+      var prCommentsByPosition = {};
+      var prCommentsByOriginalPosition = {};
+      
+      var cpos = (c) => {
+        if (c.position !== null) {
+          return `${c.commit_id}/${c.path}#${c.position}`;
+        }
+        return null;
+      }
+      
+      var opos = (c) => {
+        if (c.original_position !== null) {
+          return `${c.original_commit_id}/${c.path}#${c.original_position}`;
+        }
+      };
+      
+      allPRComments.forEach((c) => { 
+        var p = cpos(c);
+        var op = opos(c);
+        
+        if (!(p in prCommentsByPosition)) {
+          prCommentsByPosition[p] = c;
+        }
+        
+        if (!(op in prCommentsByOriginalPosition)) {
+          prCommentsByOriginalPosition[op] = c;
+        }
+      });
+      
+      allPRComments.forEach((c) => {
+        var p = cpos(c);
+        var op = opos(c);
+        
+        var pparent = prCommentsByPosition[p];
+        var opparent = prCommentsByOriginalPosition[p];
+        
+        if (pparent) {
+          if (pparent != c) {
+            c.in_reply_to = pparent.id;
+            if (!pparent.replies) pparent.replies = [];
+            pparent.replies.push(c);
+          }
+        } else if (opparent) {
+          if (opparent != c) {
+            c.in_reply_to = opparent.id;
+            if (!opparent.replies) opparent.replies = [];
+            opparent.replies.push(c);
+          }
+        }
+      });
+      
+      // eliminate reviews that contain no body and no non-reply comments
+      allReviews = allReviews.filter(r => {
+        return (r.body != false || r.comments.find(c => !c.in_reply_to));
+      });
+      
+      activity = activity.concat(allReviews.map(r => Object.assign({}, r, {review:true})));
+    }        
+        
+    activity = activity.sort(function(a, b) {
       if (a == firstComment && b == firstComment) {
         return 0;
       } else if (a == firstComment) {
@@ -718,8 +815,8 @@ var ActivityList = React.createClass({
         return 1;
       }
       
-      var da = new Date(a.created_at);
-      var db = new Date(b.created_at);
+      var da = new Date(a.submitted_at||a.created_at);
+      var db = new Date(b.submitted_at||b.created_at);
       if (da < db) {
         return -1;
       } else if (db < da) {
@@ -736,13 +833,14 @@ var ActivityList = React.createClass({
     });
     
     // need to filter certain types of events from displaying
-    eventsAndComments = eventsAndComments.filter(function(e) {
+    activity = activity.filter(function(e) {
       if (e.event == undefined) {
         return true;
       } else {
         switch (e.event) {
           case "subscribed": return false;
           case "mentioned": return false; // mention events are beyond worthless in the GitHub API
+          case "reviewed": return false; // use reviews for this instead.
           case "referenced": return e.commit_id != null;
           default: return true;
         }
@@ -751,7 +849,7 @@ var ActivityList = React.createClass({
     
     // roll up successive label elements into a single event
     var labelRollup = null;
-    eventsAndComments.forEach(function(e) {
+    activity.forEach(function(e) {
       if (e.event == "labeled" || e.event == "unlabeled") {
         if (labelRollup != null) {
           if (labelRollup.event == e.event 
@@ -774,7 +872,7 @@ var ActivityList = React.createClass({
     
     // roll up successive commits into a single event
     var commitRollup = null;
-    eventsAndComments.forEach(function(e) {
+    activity.forEach(function(e) {
       if (e.event == "committed") {
         if (commitRollup != null) {
           commitRollup.commits.push(e);
@@ -789,15 +887,22 @@ var ActivityList = React.createClass({
     });
     
     // now filter rolled up items
-    eventsAndComments = eventsAndComments.filter(function(e) { 
+    activity = activity.filter(function(e) { 
       return !(e._rolledUp);
     });
     
-    var counter = { c: 0, e: 0 };
+    var counter = { c: 0, e: 0, r: 0 };
     return h('div', {className:'activityContainer'},
       h('div', {className:'activityList'}, 
-        eventsAndComments.map(function(e, i, a) {
-          if (e.event != undefined) {
+        activity.map(function(e, i, a) {
+          if (e.review) {
+            counter.r = counter.r + 1;
+            return h(Review, {
+              key:(e.id?("r"+e.id+"-"+i):"r"+i),
+              ref:"review."+i,
+              review:e
+            });
+          } else if (e.event != undefined) {
             counter.e = counter.e + 1;
             var next = a[i+1];
             return h(Event, {
@@ -2281,6 +2386,14 @@ function setInColumnBrowser(inBrowser) {
   var commentRule = findCSSRule('div.comment');
   commentRule.style.borderLeft = inBrowser ? commentRule.style.borderTop : '0px';
   commentRule.style.borderRight = inBrowser ? commentRule.style.borderTop : '0px';
+  
+  var reviewRule = findCSSRule('div.review');
+  reviewRule.style.borderLeft = inBrowser ? reviewRule.style.borderTop : '0px';
+  reviewRule.style.borderRight = inBrowser ? reviewRule.style.borderTop : '0px';
+  
+  var commitGroupRule = findCSSRule('div.commitGroup');
+  commitGroupRule.style.borderLeft = inBrowser ? commitGroupRule.style.borderTop : '0px';
+  commitGroupRule.style.borderRight = inBrowser ? commitGroupRule.style.borderTop : '0px';
   
   var headerRule = findCSSRule('div.IssueHeader');
   headerRule.style.borderLeft = inBrowser ? headerRule.style.borderBottom : '0px';

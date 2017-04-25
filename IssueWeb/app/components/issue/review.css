@@ -1,0 +1,85 @@
+div.review {
+  background-color: white;
+  border: 1px solid #D6D5D5;
+  border-left: 0px;
+  border-right: 0px;
+  padding-left: 10px;
+  padding-right: 10px;
+  overflow: hidden;
+  margin-top: 16px;
+  font-family: -apple-system, Helvetica, Arial, Sans-Serif; 
+  font-size: 10pt;
+  line-height: 150%;
+  box-shadow: 0px 5px 8px #CCC;
+}
+
+div.reviewHeader {
+  height: 32px;
+  margin-top: 6px;
+  padding-bottom: 6px;
+  margin-left: 12px;
+  margin-right: 12px;
+  vertical-align: middle;
+  line-height: 32px;
+  font-size: 10pt;
+  border-bottom: 1px solid #EFEFEF;
+}
+
+span.reviewIcon {
+  display: inline-block;
+  margin-right: 11px;
+  font-size: 24px;
+  width: 32px;
+  height: 32px;
+  background-color: #555555;
+  border-radius: 6px;
+  float: left;
+  text-align: center;
+  vertical-align: middle;
+}
+
+span.reviewIcon i {
+  position: relative;
+  top: -2px;
+}
+
+div.reviewHeader img.avatar {
+  border-radius: 4px;
+  background-color: #F0F0F0;
+  width: 16px;
+  height: 16px;
+  margin-right: 4px;
+  vertical-align: middle;
+  margin-bottom: 6px;
+}
+
+span.reviewAuthor {
+  color: #555555;
+  font-weight: bold;
+  cursor: default;
+}
+span.reviewAuthor:hover {
+  text-decoration: underline;
+}
+
+span.reviewTimeAgo {
+  color: #767676;
+}
+
+span.reviewAction {
+  color: #767676;
+}
+
+div.reviewComment {
+  background-color: white;
+  border: 0px;
+  border-left: 0px;
+  border-right: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
+  overflow: hidden;
+  font-family: -apple-system, Helvetica, Arial, Sans-Serif; 
+  font-size: 10pt;
+  line-height: 150%;
+  box-shadow: initial;
+}

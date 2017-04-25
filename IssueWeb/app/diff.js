@@ -18,32 +18,9 @@ import TrailerRow from 'components/diff/trailer-row.js'
 import ghost from 'util/ghost.js'
 import escapeStringForRegex from 'util/escape-regex.js'
 import 'util/media-reloader.js'
+import { splitLines, parseDiffLine } from 'util/diff-util.js'
 
 var HighlightWorker = require('worker!./highlight-worker.js');
-
-function splitLines(text) {
-  return text.split(/\r\n|\r|\n/);
-}
-
-function parseDiffLine(diffLine) {
-  var m = diffLine.match(/@@ \-(\d+)(?:,(\d+))? \+(\d+)(?:,(\d+))? @@/);
-  if (!m) {
-    throw "Invalid diff line " + diffLine;
-  }
-  var leftStartLine, leftRun, rightStartLine, rightRun;
-  if (m.length == 3) {
-    leftStartLine = parseInt(m[1]);
-    leftRun = 1;
-    rightStartLine = parseInt(m[2]);
-    rightRun = 1;
-  } else {
-    leftStartLine = parseInt(m[1]);
-    leftRun = parseInt(m[2]);
-    rightStartLine = parseInt(m[3]);
-    rightRun = parseInt(m[4]);
-  }
-  return {leftStartLine, leftRun, rightStartLine, rightRun};
-}
 
 class App {
   constructor(root) {  
