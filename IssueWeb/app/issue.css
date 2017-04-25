@@ -110,6 +110,12 @@ select.IssueState {
   margin: 0px;
 }
 
+span.MilestoneDueDate {
+  font-size: 9pt;
+  color: #A9A9A9;
+  white-space: nowrap;
+}
+
 i.toggleMultiAssignee {
   cursor: default;
   -webkit-user-select: none;

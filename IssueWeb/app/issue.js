@@ -1218,20 +1218,31 @@ var MilestoneField = React.createClass({
     var canAddNew = !!this.props.issue._bare_repo;
     var opts = IssueState.current.milestones.map((m) => m.title);
     var matcher = Completer.SubstrMatcher(opts);
+    var dueDate = keypath(this.props.issue, "milestone.due_on");
+    if (dueDate) {
+      dueDate = new Date(dueDate);
+      dueDate = `Due ${dueDate.toLocaleDateString()}`;
+    }
     
-    return h('div', {className: 'IssueInput MilestoneField'},
-      h(HeaderLabel, {title:"Milestone"}),
-      h(Completer, {
-        ref: 'completer',
-        placeholder: 'Backlog',
-        onChange: this.milestoneChanged,
-        onEnter: this.onEnter,
-        newItem: canAddNew ? 'New Milestone' : undefined,
-        onAddNew: canAddNew ? this.onAddNew : undefined,
-        value: keypath(this.props.issue, "milestone.title"),
-        matcher: matcher
-      })
-    );
+    var comps = [];
+    comps.push(h(HeaderLabel, {key:'milestoneLabel', title:"Milestone"}));
+    comps.push(h(Completer, {
+      ref: 'completer',
+      key: 'milestoneCompleter',
+      placeholder: 'Backlog',
+      onChange: this.milestoneChanged,
+      onEnter: this.onEnter,
+      newItem: canAddNew ? 'New Milestone' : undefined,
+      onAddNew: canAddNew ? this.onAddNew : undefined,
+      value: keypath(this.props.issue, "milestone.title"),
+      matcher: matcher
+    }));
+    
+    if (dueDate) {
+      comps.push(h('span', {key:'milestoneDueDate', className: 'MilestoneDueDate'}, dueDate));
+    }
+
+    return h('div', {className: 'IssueInput MilestoneField'}, comps);
   }
 });
 
