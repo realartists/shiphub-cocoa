@@ -70,6 +70,10 @@ span.reviewAction {
   color: #767676;
 }
 
+div.reviewSummaryPlaceholder {
+  height: 12px;
+}
+
 div.reviewComment {
   background-color: white;
   border: 0px;

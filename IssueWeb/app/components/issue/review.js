@@ -126,6 +126,8 @@ class Review extends React.Component {
     comps.push(h(ReviewHeader, { key:"header", review: this.props.review }));
     if (hasSummary) {
       comps.push(h(ReviewSummary, { key:"summary", review: this.props.review }));
+    } else {
+      comps.push(h('div', { key:'summaryPlaceholder', className: 'reviewSummaryPlaceholder' }));
     }
     comps = comps.concat(sortedComments.map((c) => h(ReviewCommentBlock, { key:c.id, review: this.props.review, comment: c })));
     
