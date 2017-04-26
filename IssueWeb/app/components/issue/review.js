@@ -97,12 +97,43 @@ class ReviewCodeComment extends ReviewAbstractComment {
 }
 
 class ReviewCommentBlock extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    this.state = { collapsed: this.canCollapse() }
+  }
+  
+  canCollapse() {
+    return (this.props.comment.position === undefined);
+  }
+  
+  onCollapse() {
+    var canCollapse = this.canCollapse();
+    if (canCollapse) {
+      this.setState(Object.assign({}, this.state, {collapsed:!this.state.collapsed}));
+    } else if (this.state.collapsed) {
+      this.setState(Object.assign({}, this.state, {collapsed:false}));
+    }
+  }
+  
   render() {
     var comps = [];
-    if (!this.props.comment.in_reply_to) {
-      comps.push(h(DiffHunk, { key:"diff", comment: this.props.comment }));
-    }
-    comps.push(h(ReviewCodeComment, { key:"comment", className: 'reviewComment', comment: this.props.comment }));
+    var canCollapse = this.canCollapse();
+    var collapsed = this.state.collapsed;
+    
+    console.log("ReviewCommentBlock collapsed", collapsed);
+
+    comps.push(h(DiffHunk, { 
+      key:"diff", 
+      comment: this.props.comment,
+      canCollapse: canCollapse,
+      collapsed: collapsed,
+      onCollapse: this.onCollapse.bind(this) 
+    }));
+    
+    if (!collapsed) {
+      comps.push(h(ReviewCodeComment, { key:"comment", className: 'reviewComment', comment: this.props.comment }));
+    } 
     
     return h('div', { className:'reviewCommentBlock' }, comps);
   }
@@ -112,7 +143,7 @@ class Review extends React.Component {
   render() {
     var hasSummary = this.props.review.body && this.props.review.body.trim().length > 0;
     
-    var sortedComments = Array.from(this.props.review.comments);
+    var sortedComments = Array.from(this.props.review.comments).filter(c => !(c.in_reply_to));
     sortedComments.sort((a, b) => {
       var da = new Date(a.created_at);
       var db = new Date(b.created_at);

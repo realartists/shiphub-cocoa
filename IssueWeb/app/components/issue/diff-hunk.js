@@ -9,10 +9,26 @@ import './diff-hunk.css'
 
 class DiffHunkHeader extends React.Component {
   render() {  
+    var comps = [];
+    
+    comps.push(h('span', {key:'filename', className:'DiffHunkFilename'}, this.props.comment.path));
+    
+    if (this.props.canCollapse) {
+      if (this.props.collapsed) {
+        comps.push(h('a', {key: 'collapse', className:'DiffHunkCollapse',onClick:this.props.onCollapse}, 
+          "show outdated ",
+          h('i', {className:'fa fa-expand'})
+        ));
+      } else {
+        comps.push(h('a', {key: 'expand', className:'DiffHunkCollapse',onClick:this.props.onCollapse}, 
+          "hide outdated ",
+          h('i', {className:'fa fa-compress'})
+        ));
+      }
+    }
+  
     return h('tr', {},
-      h('th', {colSpan:3},
-        h('span', {className:'DiffHunkFilename'}, this.props.comment.path),
-      )
+      h('th', {colSpan:3}, comps)
     );
   }
 }
@@ -60,12 +76,16 @@ class DiffHunkContextLine extends React.Component {
 class DiffHunk extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     return nextProps.comment.diff_hunk != this.props.comment.diff_hunk
-        || nextProps.comment.path != this.props.comment.path;
+        || nextProps.comment.path != this.props.comment.path
+        || nextProps.collapsed != this.props.collapsed
+        || nextProps.canCollapse != this.props.canCollapse
   }
   
   render() {
-    console.log(this.props.comment);
-    
+    var canCollapse = this.props.canCollapse;
+    var collapsed = this.props.collapsed;
+    var onCollapse = this.props.onCollapse;
+  
     var diffLines = splitLines(this.props.comment.diff_hunk);
     
     var diffIdx = 0;    // into lines
@@ -184,9 +204,14 @@ class DiffHunk extends React.Component {
     
     return h('table', {className:'diffHunk'},
       h('thead', {}, 
-        h(DiffHunkHeader, {comment:this.props.comment})
+        h(DiffHunkHeader, {
+          comment:this.props.comment,
+          canCollapse,
+          collapsed,
+          onCollapse
+        })
       ),
-      h('tbody', {}, body)
+      h('tbody', {}, collapsed ? [] : body)
     ); 
   }
 }

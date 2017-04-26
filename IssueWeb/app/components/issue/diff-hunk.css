@@ -110,3 +110,25 @@ table.diffHunk .char-changed {
 table.diffHunk .spacer {
   background-color: #EEE;
 }
+
+a.DiffHunkCollapse {
+  cursor: default;
+  margin-right: 20px;
+  font-family: -apple-system, Helvetica, Arial, Sans-Serif; 
+  font-size: 11px;
+  color: #555;
+  -webkit-user-select: none;
+  user-select: none;
+  float: right;
+}
+
+a.DiffHunkCollapse:hover {
+  color: #0085E4;
+  text-decoration: none;
+}
+
+a.DiffHunkCollapse::selection {
+  background: transparent;
+}
+
+
