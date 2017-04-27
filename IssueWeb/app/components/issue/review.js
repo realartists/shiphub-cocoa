@@ -74,20 +74,19 @@ class ReviewAbstractComment extends AbstractComment {
   loginCompletions() {
     return IssueState.current.allLoginCompletions
   }
-  renderHeader() /* overridden */ {
-    return h('span', {});
-  }
 }
 
 class ReviewSummaryComment extends ReviewAbstractComment {
-  
+  renderHeader() /* overridden */ {
+    return h('span', {});
+  }
 }
 
 class ReviewSummary extends React.Component {
   render() {
     return h(ReviewSummaryComment, {
       comment: this.props.review,
-      className: 'reviewComment'
+      className: 'comment reviewComment'
     });
   }
 }
@@ -132,8 +131,22 @@ class ReviewCommentBlock extends React.Component {
     }));
     
     if (!collapsed) {
-      comps.push(h(ReviewCodeComment, { key:"comment", className: 'reviewComment', comment: this.props.comment }));
-    } 
+      comps.push(h(ReviewCodeComment, { 
+        key:"comment", 
+        className: 'comment reviewComment', 
+        comment: this.props.comment,
+        elideHeaderAction: true 
+      }));
+      
+      (this.props.comment.replies||[]).forEach((c, i) => {
+        comps.push(h(ReviewCodeComment, { 
+          key:"reply."+(c.id||i), 
+          className: 'comment reviewComment', 
+          comment: c,
+          elideHeaderAction: true 
+        }));
+      });
+    }
     
     return h('div', { className:'reviewCommentBlock' }, comps);
   }

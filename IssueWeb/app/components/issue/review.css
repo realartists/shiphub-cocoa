@@ -85,5 +85,42 @@ div.reviewComment {
   font-family: -apple-system, Helvetica, Arial, Sans-Serif; 
   font-size: 10pt;
   line-height: 150%;
-  box-shadow: initial;
+  box-shadow: initial;  
+  margin-top: 0px;
+}
+
+div.reviewComment div.commentHeader {
+  height: 16px;
+  margin-top: 10px;
+  padding-bottom: 2px;
+  margin-left: 12px;
+  margin-right: 12px;
+  vertical-align: middle;
+  line-height: 16px;
+  font-size: 10pt;
+  border-bottom: 0px;
+}
+
+div.reviewComment div.commentHeader img {
+  width: 16px;
+  height: 16px;
+}
+
+div.reviewComment div.commentBody > p {
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+div.reviewComment div.commentHeader .addReactionClose {
+  position: relative;
+  top: -10px;
+}
+
+div.reviewComment div.commentControls {
+/*   transition: opacity 200ms ease-in-out; */
+  opacity: 0.0;
+}
+
+div.reviewComment:hover div.commentControls {
+  opacity: 1.0;
 }

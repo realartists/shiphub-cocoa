@@ -12,10 +12,13 @@ var CommentHeader = React.createClass({
     if (this.props.first) {
       desc = " filed ";
     }
+    if (this.props.elideAction) {
+      desc = " ";
+    }
     return h('div', {className:'commentHeader'},
       h(AvatarIMG, {user:user, size:32}),
       h('span', {className:'commentAuthor'}, user.login),
-      h('span', {className:'commentTimeAgo'}, desc),
+      h('span', {className:'commented'}, desc),
       h(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
       (this.props.comment.pending_id && !this.props.comment.pending_id.startsWith("single."))?h('span', {className:'commentPending'}, 'Pending'):"",
       h(CommentControls, this.props)

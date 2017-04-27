@@ -298,6 +298,7 @@ class AbstractComment extends React.Component {
       return h(CommentHeader, {
         ref:'header',
         comment:this.props.comment, 
+        elideAction: this.props.elideHeaderAction,
         first:this.props.first,
         editing:this.state.editing,
         hasContents:this.state.code.trim().length>0,

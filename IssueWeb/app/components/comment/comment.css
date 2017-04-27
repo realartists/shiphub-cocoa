@@ -130,6 +130,10 @@ span.commentTimeAgo {
   color: #767676;
 }
 
+span.commented {
+  color: #767676;
+}
+
 span.commentPending {
   color: #555555;
   font-weight: bold;
@@ -201,7 +205,7 @@ div.comment .addCommentLabel {
 .CodeMirror-focused .CodeMirror-selected { background: Highlight; }
 .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: Highlight; }
 
-div.comment .commentFooter {
+div.commentFooter {
   text-align: right;
   height: 40px;
   border-top: 1px dotted #ECECEC;
