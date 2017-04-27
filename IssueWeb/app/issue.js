@@ -722,7 +722,7 @@ var ActivityList = React.createClass({
     // prepare reviews and prcomments
     if (this.props.issue.pull_request) {
       // create dummy reviews for all of the comments that are not already in a review
-      var moreReviews = (this.props.issue.pr_comments||[]).filter((c) => {
+      var moreReviews = (this.props.issue.pr_comments||[]).map((c) => {
         return {
           user: c.user,
           state: 3, /* comment */
@@ -761,6 +761,7 @@ var ActivityList = React.createClass({
         if (c.original_position !== null) {
           return `${c.original_commit_id}/${c.path}#${c.original_position}`;
         }
+        return null;
       };
       
       allPRComments.forEach((c) => { 
@@ -800,7 +801,7 @@ var ActivityList = React.createClass({
       
       // eliminate reviews that contain no body and no non-reply comments
       allReviews = allReviews.filter(r => {
-        return (r.body != false || r.comments.find(c => !c.in_reply_to));
+        return ((r.body||"").length > 0 || r.comments.find(c => !c.in_reply_to));
       });
       
       activity = activity.concat(allReviews.map(r => Object.assign({}, r, {review:true})));

@@ -136,7 +136,11 @@
                     [reviews addObject:r];
                 }
                 
-                _prComments = [[singleComments allObjects] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]]];
+                NSArray *prComments = [[singleComments allObjects] arrayByMappingObjects:^id(id obj) {
+                    return [[PRComment alloc] initWithLocalPRComment:obj metadataStore:ms];
+                }];
+                
+                _prComments = [prComments sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]]];
                 
                 [reviews sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"submittedAt" ascending:YES]]];
                 _reviews = reviews;

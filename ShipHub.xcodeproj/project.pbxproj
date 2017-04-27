@@ -44,8 +44,8 @@
 		1A0D59EB1CA4AA3A004F2578 /* IssueDocument.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59E91CA4AA3A004F2578 /* IssueDocument.m */; };
 		1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A0D59EA1CA4AA3A004F2578 /* IssueDocument.xib */; };
 		1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */; };
-		1A0D87741CA9E25F0069782D /* JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.m */; };
-		1A0D87751CA9E25F0069782D /* JSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.m */; };
+		1A0D87741CA9E25F0069782D /* JSON.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.mm */; };
+		1A0D87751CA9E25F0069782D /* JSON.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.mm */; };
 		1A20CFF31D52A3E800F412DE /* LocalReaction+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF01D52A3E800F412DE /* LocalReaction+CoreDataProperties.m */; };
 		1A20CFF41D52A3E800F412DE /* LocalReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF21D52A3E800F412DE /* LocalReaction.m */; };
 		1A20CFFA1D52A81F00F412DE /* Reaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF91D52A81F00F412DE /* Reaction.m */; };
@@ -518,7 +518,7 @@
 		1A0D59ED1CA4ABF5004F2578 /* IssueDocumentController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueDocumentController.h; sourceTree = "<group>"; };
 		1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueDocumentController.m; sourceTree = "<group>"; };
 		1A0D87721CA9E25F0069782D /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSON.h; sourceTree = "<group>"; };
-		1A0D87731CA9E25F0069782D /* JSON.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSON.m; sourceTree = "<group>"; };
+		1A0D87731CA9E25F0069782D /* JSON.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JSON.mm; sourceTree = "<group>"; };
 		1A20CFEF1D52A3E800F412DE /* LocalReaction+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalReaction+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1A20CFF01D52A3E800F412DE /* LocalReaction+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalReaction+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1A20CFF11D52A3E800F412DE /* LocalReaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalReaction.h; sourceTree = "<group>"; };
@@ -1227,7 +1227,7 @@
 				1A694B3A1CA3451D00F73608 /* NSPredicate+Extras.h */,
 				1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */,
 				1A0D87721CA9E25F0069782D /* JSON.h */,
-				1A0D87731CA9E25F0069782D /* JSON.m */,
+				1A0D87731CA9E25F0069782D /* JSON.mm */,
 				1AD956B51D0B75AD002B1259 /* MultiDownloadProgress.h */,
 				1AD956B61D0B75AD002B1259 /* MultiDownloadProgress.m */,
 				1AD9ECC71D188E6800E9FAFC /* FilterButton.h */,
@@ -2062,7 +2062,7 @@
 				1A3AB3641D919F5E004BB768 /* AvatarManager.m in Sources */,
 				1AF9757C1E92DAD000914460 /* PRBinaryDiffViewController.m in Sources */,
 				1A012EC41D454097006CE5DF /* NoneLabelTemplate.m in Sources */,
-				1A0D87741CA9E25F0069782D /* JSON.m in Sources */,
+				1A0D87741CA9E25F0069782D /* JSON.mm in Sources */,
 				1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */,
 				1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */,
 				1AF3497B1CDAC1E900A5BEB0 /* ChartConfig.m in Sources */,
@@ -2238,7 +2238,7 @@
 				1AE09BF91C97687E00C5AC35 /* LocalRelationship.m in Sources */,
 				1AE09BFF1C97687E00C5AC35 /* LocalEvent+CoreDataProperties.m in Sources */,
 				1AE09C161C9779B000C5AC35 /* Auth.m in Sources */,
-				1A0D87751CA9E25F0069782D /* JSON.m in Sources */,
+				1A0D87751CA9E25F0069782D /* JSON.mm in Sources */,
 				1A5604E21CD7FFC100ACF0DF /* AttachmentManager.m in Sources */,
 				1A012ED51D46EC55006CE5DF /* WSSyncConnection.m in Sources */,
 				1AE09C171C9779B300C5AC35 /* Keychain.m in Sources */,

@@ -25,6 +25,7 @@
 
 - (id)initWithDictionary:(NSDictionary *)d metadataStore:(MetadataStore *)store;
 - (id)initWithLocalPRComment:(LocalPRComment *)lc metadataStore:(MetadataStore *)store;
+- (id)initWithLocalComment:(LocalComment *)lc metadataStore:(MetadataStore *)ms NS_UNAVAILABLE;
 
 @end
 

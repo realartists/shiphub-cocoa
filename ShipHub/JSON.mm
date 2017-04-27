@@ -12,8 +12,24 @@
 
 #import <objc/runtime.h>
 #import <JavaScriptCore/JavaScriptCore.h>
+#import <unordered_set>
+
+typedef std::unordered_set<void *> ObjSet;
 
 @implementation JSON
+
+static BOOL pushCycleObj(id obj, ObjSet &cycleDetector) {
+    if (cycleDetector.find((__bridge void *)obj) != cycleDetector.end()) {
+        NSCAssert(NO, @"JSON serialization cycle found on object: %@", obj);
+        return NO;
+    }
+    cycleDetector.insert((__bridge void *)obj);
+    return YES;
+}
+
+static void popCycleObj(id obj, ObjSet &cycleDetector) {
+    cycleDetector.erase((__bridge void *)obj);
+}
 
 static void enumerateProperties(id obj, void (^block)(NSString *propName)) {
     
@@ -41,12 +57,12 @@ static void enumerateProperties(id obj, void (^block)(NSString *propName)) {
     }
 }
 
-static id serializeProperties(id obj, JSONNameTransformer nt) {
+static id serializeProperties(id obj, JSONNameTransformer nt, ObjSet &cycleDetector) {
     NSMutableDictionary *d = [NSMutableDictionary new];
     enumerateProperties(obj, ^(NSString *propName) {
         id p = [obj valueForKey:propName];
         if (p) {
-            d[nt(propName)] = serializeObject(p, nt);
+            d[nt(propName)] = serializeObject(p, nt, cycleDetector);
         }
     });
     return d;
@@ -58,21 +74,37 @@ static id serializeProperties(id obj, JSONNameTransformer nt) {
 #define UINSColor NSColor
 #endif
 
-static id serializeObject(id obj, JSONNameTransformer nt) {
+static id withCycleDetector(ObjSet &cycleDetector, id obj, id (^work)()) {
+    if (pushCycleObj(obj, cycleDetector)) {
+        id ret = work();
+        popCycleObj(obj, cycleDetector);
+        return ret;
+    } else {
+        return [NSNull null];
+    }
+}
+
+static id serializeObject(id obj, JSONNameTransformer nt, ObjSet &cycleDetector) {
     if ([obj isKindOfClass:[NSArray class]]) {
-        return [obj arrayByMappingObjects:^id(id o) {
-            id v = serializeObject(o, nt);
-            NSCAssert(v != nil, nil);
-            return v;
-        }];
+        return withCycleDetector(cycleDetector, obj, ^{
+            return [obj arrayByMappingObjects:^id(id o) {
+                id v = serializeObject(o, nt, cycleDetector);
+                NSCAssert(v != nil, nil);
+                return v;
+            }];
+        });
     } else if ([obj isKindOfClass:[NSSet class]]) {
-        return serializeObject([obj allObjects], nt);
+        return withCycleDetector(cycleDetector, obj, ^id{
+            return serializeObject([obj allObjects], nt, cycleDetector);
+        });
     } else if ([obj isKindOfClass:[NSDictionary class]]) {
-        NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:[obj count]];
-        for (NSString *k in obj) {
-            d[nt(k)] = serializeObject(obj[k], nt);
-        }
-        return d;
+        return withCycleDetector(cycleDetector, obj, ^id{
+            NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:[obj count]];
+            for (NSString *k in obj) {
+                d[nt(k)] = serializeObject(obj[k], nt, cycleDetector);
+            }
+            return d;
+        });
     } else if ([obj isKindOfClass:[NSNumber class]]) {
         return obj;
     } else if ([obj isKindOfClass:[NSValue class]]) {
@@ -90,9 +122,13 @@ static id serializeObject(id obj, JSONNameTransformer nt) {
     } else if (obj == [NSNull null]) {
         return obj;
     } else if ([obj respondsToSelector:@selector(JSONDescription)]) {
-        return serializeObject([obj JSONDescription], nt);
+        return withCycleDetector(cycleDetector, obj, ^id{
+            return serializeObject([obj JSONDescription], nt, cycleDetector);
+        });
     } else if (obj) {
-        return serializeProperties(obj, nt);
+        return withCycleDetector(cycleDetector, obj, ^id{
+            return serializeProperties(obj, nt, cycleDetector);
+        });
     } else {
         return [NSNull null];
     }
@@ -138,14 +174,16 @@ static NSString *stringifyJSONObject(id obj) {
 + (id)stringifyObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer {
     if (!src) return @"null";
     
-    id json = serializeObject(src, nameTransformer);
+    ObjSet cycleDetector;
+    id json = serializeObject(src, nameTransformer, cycleDetector);
     return stringifyJSONObject(json);
 }
 
 + (id)serializeObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer {
     if (!src) return [NSNull null];
     
-    id obj = serializeObject(src, nameTransformer);
+    ObjSet cycleDetector;
+    id obj = serializeObject(src, nameTransformer, cycleDetector);
     return obj;
 }
 
@@ -156,7 +194,8 @@ static NSString *stringifyJSONObject(id obj) {
 + (id)JSRepresentableValueFromSerializedObject:(id)src withNameTransformer:(JSONNameTransformer)nameTransformer {
     if (!src) return [NSNull null];
     
-    id js = serializeObject(src, nameTransformer);
+    ObjSet cycleDetector;
+    id js = serializeObject(src, nameTransformer, cycleDetector);
     return js;
 }
 
