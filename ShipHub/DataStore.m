@@ -39,6 +39,7 @@
 #import "LocalReaction.h"
 #import "LocalHidden.h"
 #import "LocalProject.h"
+#import "LocalCommitStatus.h"
 
 #import "Account.h"
 #import "Issue.h"
@@ -51,6 +52,8 @@
 #import "Project.h"
 #import "PRComment.h"
 #import "PRReview.h"
+#import "IssueEvent.h"
+#import "CommitStatus.h"
 
 #import "Error.h"
 
@@ -1453,6 +1456,35 @@ static NSString *const LastUpdated = @"LastUpdated";
     return fetchRequest;
 }
 
+- (void)loadCommitStatusesForIssue:(Issue *)i reader:(NSManagedObjectContext *)moc {
+    NSMutableArray *refs = [NSMutableArray new];
+    for (IssueEvent *event in i.events) {
+        if ([event.event isEqualToString:@"committed"]) {
+            NSString *sha = event.extra[@"sha"];
+            if (sha) {
+                [refs addObject:sha];
+            }
+        }
+    }
+    
+    if (refs.count) {
+        NSFetchRequest *statusFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalCommitStatus"];
+        statusFetch.predicate = [NSPredicate predicateWithFormat:@"reference IN %@", refs];
+        
+        NSError *err = nil;
+        NSArray *statuses = [moc executeFetchRequest:statusFetch error:&err];
+        if (err) {
+            ErrLog(@"%@", err);
+            return;
+        }
+        
+        MetadataStore *ms = self.metadataStore;
+        i.commitStatuses = [statuses arrayByMappingObjects:^id(LocalCommitStatus *lcs) {
+            return [[CommitStatus alloc] initWithLocalCommitStatus:lcs metadataStore:ms];
+        }];
+    }
+}
+
 - (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion {
     NSParameterAssert(issueIdentifier);
     
@@ -1469,6 +1501,9 @@ static NSString *const LastUpdated = @"LastUpdated";
         
         if (i) {
             Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore options:@{IssueOptionIncludeEventsAndComments:@YES, IssueOptionIncludeRequestedReviewers:@YES}];
+            if (issue.pullRequest) {
+                [self loadCommitStatusesForIssue:issue reader:moc];
+            }
             dispatch_async(dispatch_get_main_queue(), ^{
                 completion(issue, nil);
             });

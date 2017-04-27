@@ -266,3 +266,4 @@ NSString const* IssueOptionIncludeEventsAndComments = @"IssueOptionIncludeEvents
 NSString const* IssueOptionIncludeUpNextPriority = @"IssueOptionIncludeUpNextPriority";
 NSString const* IssueOptionIncludeNotification = @"IssueOptionIncludeNotification";
 NSString const* IssueOptionIncludeRequestedReviewers = @"IssueOptionIncludeRequestedReviewers";
+NSString const* IssueOptionIncludeCommitStatuses = @"IssueOptionIncludeCommitStatuses";

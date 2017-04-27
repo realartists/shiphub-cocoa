@@ -256,6 +256,10 @@
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */; };
 		1AC619721D232E9A00FE1E76 /* LocalPriority.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC619701D232E9A00FE1E76 /* LocalPriority.m */; };
+		1ACA836B1EB26B6600386B12 /* LocalCommitStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ACA836A1EB26B6600386B12 /* LocalCommitStatus.m */; };
+		1ACA836C1EB26B6600386B12 /* LocalCommitStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ACA836A1EB26B6600386B12 /* LocalCommitStatus.m */; };
+		1ACA837A1EB28C2800386B12 /* CommitStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ACA83791EB28C2800386B12 /* CommitStatus.m */; };
+		1ACA837B1EB28C2800386B12 /* CommitStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ACA83791EB28C2800386B12 /* CommitStatus.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
 		1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AD956B31D0B5654002B1259 /* DownloadBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD956B11D0B5654002B1259 /* DownloadBarViewController.m */; };
@@ -830,6 +834,10 @@
 		1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalPriority+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AC6196F1D232E9A00FE1E76 /* LocalPriority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPriority.h; sourceTree = "<group>"; };
 		1AC619701D232E9A00FE1E76 /* LocalPriority.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalPriority.m; sourceTree = "<group>"; };
+		1ACA83691EB26B6600386B12 /* LocalCommitStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalCommitStatus.h; sourceTree = "<group>"; };
+		1ACA836A1EB26B6600386B12 /* LocalCommitStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalCommitStatus.m; sourceTree = "<group>"; };
+		1ACA83781EB28C2800386B12 /* CommitStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommitStatus.h; sourceTree = "<group>"; };
+		1ACA83791EB28C2800386B12 /* CommitStatus.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommitStatus.m; sourceTree = "<group>"; };
 		1AD0DBBF1C80EE9800CEE314 /* ServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerConnection.h; sourceTree = "<group>"; };
 		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 		1AD470DA1C99FC2C0050AE4B /* GHSyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHSyncConnection.h; sourceTree = "<group>"; };
@@ -1313,6 +1321,8 @@
 				1A20CFF91D52A81F00F412DE /* Reaction.m */,
 				1A48BB511D80DED6001E761E /* IssueNotification.h */,
 				1A48BB521D80DED6001E761E /* IssueNotification.m */,
+				1ACA83781EB28C2800386B12 /* CommitStatus.h */,
+				1ACA83791EB28C2800386B12 /* CommitStatus.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -1391,6 +1401,8 @@
 				1A4329721EA69ED800A93A2C /* LocalPRComment.m */,
 				1A4329751EA69F2800A93A2C /* LocalPRReview.h */,
 				1A4329761EA69F2800A93A2C /* LocalPRReview.m */,
+				1ACA83691EB26B6600386B12 /* LocalCommitStatus.h */,
+				1ACA836A1EB26B6600386B12 /* LocalCommitStatus.m */,
 			);
 			name = CoreData;
 			sourceTree = "<group>";
@@ -2104,6 +2116,7 @@
 				1A2305DD1C7F84D80034C871 /* Error.m in Sources */,
 				1A694B4B1CA367E300F73608 /* Issue.m in Sources */,
 				1AD9ECC31D14990100E9FAFC /* FilterBarViewController.m in Sources */,
+				1ACA837A1EB28C2800386B12 /* CommitStatus.m in Sources */,
 				1AE09BEE1C97687E00C5AC35 /* LocalRepo+CoreDataProperties.m in Sources */,
 				1A4329731EA69ED800A93A2C /* LocalPRComment.m in Sources */,
 				1A3618EF1C8FC3DB008C11CB /* Reachability.m in Sources */,
@@ -2118,6 +2131,7 @@
 				1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */,
 				1A51086E1D31A11A00905D4D /* GHNotificationManager.m in Sources */,
 				1A694B251CA341D500F73608 /* SearchFieldToolbarItem.m in Sources */,
+				1ACA836B1EB26B6600386B12 /* LocalCommitStatus.m in Sources */,
 				1A51085F1D317AB400905D4D /* LocalNotification.m in Sources */,
 				1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */,
 				1AF567401D62831900611DBB /* HelloController.m in Sources */,
@@ -2253,6 +2267,7 @@
 				1A4329741EA69ED800A93A2C /* LocalPRComment.m in Sources */,
 				1AE09C181C9779BB00C5AC35 /* Defaults.m in Sources */,
 				1AE09BF71C97687E00C5AC35 /* LocalRelationship+CoreDataProperties.m in Sources */,
+				1ACA837B1EB28C2800386B12 /* CommitStatus.m in Sources */,
 				1A51086B1D319ED000905D4D /* RequestPager.m in Sources */,
 				1A694AF71CA09EAD00F73608 /* Label.m in Sources */,
 				1AE09BEB1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
@@ -2304,6 +2319,7 @@
 				1AE09C011C97687E00C5AC35 /* LocalEvent.m in Sources */,
 				1AE09C1C1C9779C400C5AC35 /* SyncConnection.m in Sources */,
 				1AE09C151C97687E00C5AC35 /* LocalComment.m in Sources */,
+				1ACA836C1EB26B6600386B12 /* LocalCommitStatus.m in Sources */,
 				1A3AB3491D907712004BB768 /* Billing.m in Sources */,
 				1A3BEBAA1E492CD000CBFBEF /* MapLocalModel1to2.xcmappingmodel in Sources */,
 				1A0D59CD1CA46926004F2578 /* IssueIdentifier.m in Sources */,

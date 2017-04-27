@@ -13,6 +13,7 @@
         <relationship name="assignedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="assignees" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="closedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="closedBy" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="comments" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalComment" inverseName="user" inverseEntity="LocalComment" syncable="YES"/>
+        <relationship name="commitStatuses" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalCommitStatus" inverseName="creator" inverseEntity="LocalCommitStatus" syncable="YES"/>
         <relationship name="createdProjects" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalProject" inverseName="creator" inverseEntity="LocalProject" syncable="YES"/>
         <relationship name="mergedIssues" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="mergedBy" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="orgs" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="users" inverseEntity="LocalAccount" syncable="YES"/>
@@ -39,6 +40,22 @@
         <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="comments" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalReaction" inverseName="comment" inverseEntity="LocalReaction" syncable="YES"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="comments" inverseEntity="LocalAccount" syncable="YES"/>
+    </entity>
+    <entity name="LocalCommitStatus" syncable="YES">
+        <attribute name="context" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
+        <attribute name="reference" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
+        <attribute name="state" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="statusDescription" optional="YES" attributeType="String" syncable="YES">
+            <userInfo>
+                <entry key="jsonKey" value="description"/>
+            </userInfo>
+        </attribute>
+        <attribute name="targetUrl" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <relationship name="creator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="commitStatuses" inverseEntity="LocalAccount" syncable="YES"/>
+        <relationship name="repository" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="commitStatuses" inverseEntity="LocalRepo" syncable="YES"/>
     </entity>
     <entity name="LocalEvent" representedClassName="LocalEvent" syncable="YES">
         <attribute name="commitId" optional="YES" attributeType="String" syncable="YES"/>
@@ -219,6 +236,7 @@
         <attribute name="repoDescription" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="shipNeedsWebhookHelp" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="assignees" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="assignable" inverseEntity="LocalAccount" syncable="YES"/>
+        <relationship name="commitStatuses" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalCommitStatus" inverseName="repository" inverseEntity="LocalCommitStatus" syncable="YES"/>
         <relationship name="hidden" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="LocalHidden" inverseName="repository" inverseEntity="LocalHidden" syncable="YES"/>
         <relationship name="issues" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalIssue" inverseName="repository" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="labels" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalLabel" inverseName="repo" inverseEntity="LocalLabel" syncable="YES"/>
@@ -230,7 +248,7 @@
         <attribute name="data" optional="YES" attributeType="Binary" syncable="YES"/>
     </entity>
     <elements>
-        <element name="LocalAccount" positionX="0" positionY="0" width="128" height="420"/>
+        <element name="LocalAccount" positionX="0" positionY="0" width="128" height="435"/>
         <element name="LocalBilling" positionX="9" positionY="153" width="128" height="75"/>
         <element name="LocalComment" positionX="0" positionY="0" width="128" height="150"/>
         <element name="LocalEvent" positionX="0" positionY="0" width="128" height="180"/>
@@ -239,13 +257,14 @@
         <element name="LocalLabel" positionX="0" positionY="0" width="128" height="120"/>
         <element name="LocalMilestone" positionX="0" positionY="0" width="128" height="225"/>
         <element name="LocalNotification" positionX="9" positionY="153" width="128" height="165"/>
+        <element name="LocalPRComment" positionX="9" positionY="153" width="128" height="270"/>
         <element name="LocalPriority" positionX="0" positionY="0" width="128" height="90"/>
         <element name="LocalProject" positionX="9" positionY="153" width="128" height="180"/>
+        <element name="LocalPRReview" positionX="18" positionY="162" width="128" height="180"/>
         <element name="LocalQuery" positionX="9" positionY="153" width="128" height="105"/>
         <element name="LocalReaction" positionX="9" positionY="153" width="128" height="150"/>
-        <element name="LocalRepo" positionX="0" positionY="0" width="128" height="270"/>
+        <element name="LocalRepo" positionX="0" positionY="0" width="128" height="285"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
-        <element name="LocalPRComment" positionX="9" positionY="153" width="128" height="270"/>
-        <element name="LocalPRReview" positionX="18" positionY="162" width="128" height="180"/>
+        <element name="LocalCommitStatus" positionX="9" positionY="153" width="128" height="195"/>
     </elements>
 </model>

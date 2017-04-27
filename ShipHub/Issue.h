@@ -18,6 +18,7 @@
 @class Reaction;
 @class PRReview;
 @class PRComment;
+@class CommitStatus;
 
 @class LocalIssue;
 @class MetadataStore;
@@ -69,6 +70,8 @@
 @property (readonly) NSArray<PRComment *> *prComments; // comments that are not associated with a review
 
 @property (readonly) NSArray<Account *> *requestedReviewers; // conditionally populated
+
+@property NSArray<CommitStatus *> *commitStatuses; // conditionally populated
 
 // Up Next priority is conditionally populated.
 @property (readonly) NSNumber *upNextPriority;
