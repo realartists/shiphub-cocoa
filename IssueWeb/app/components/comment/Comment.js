@@ -185,7 +185,7 @@ class Comment extends AbstractComment {
     if (!this.props.comment || this.state.editing) {
       this.updateCode(newBody);
     } else {
-      this.setState(Object.assign({}, this.state, {pendingTaskBody: newBody}));
+      this.setState(Object.assign({}, this.state, {pendingEditBody: newBody}));
       
       var owner = IssueState.current.repoOwner;
       var repo = IssueState.current.repoName;
@@ -197,7 +197,7 @@ class Comment extends AbstractComment {
             
       promiseQueue(q, () => {
         var currentId = keypath(this.props, "comment.id") || "";
-        if (currentId == initialId && newBody != this.state.pendingTaskBody) {
+        if (currentId == initialId && newBody != this.state.pendingEditBody) {
           // let's just jump ahead to the next thing, we're already stale.
           return Promise.resolve();
         }
@@ -211,8 +211,8 @@ class Comment extends AbstractComment {
           body: JSON.stringify(patch)
         });
         var end = () => {
-          if (this.state.pendingTaskBody == newBody) {
-            this.setState(Object.assign({}, this.state, {pendingTaskBody: null}));
+          if (this.state.pendingEditBody == newBody) {
+            this.setState(Object.assign({}, this.state, {pendingEditBody: null}));
           }
         };
         return new Promise((resolve, reject) => {

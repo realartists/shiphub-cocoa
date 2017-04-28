@@ -124,3 +124,50 @@ div.reviewComment div.commentControls {
 div.reviewComment:hover div.commentControls {
   opacity: 1.0;
 }
+
+div.reviewAddReply {
+  border: 1px solid #CCC;
+  margin-left: 12px;
+  margin-right: 12px;
+  padding: 0px;
+  border-radius: 3px;
+  height: 22px;
+  margin-bottom: 16px;
+  margin-top: 2px;
+  cursor: text;
+  -webkit-user-select: none;
+  user-select: none;
+  box-shadow: inset 0px 0px 3px #DDD;
+}
+
+div.reviewAddReply img {
+  margin: 3px;
+  float: left;
+}
+
+div.reviewAddReply span {
+  color: #767676;
+  position: relative;
+  top: 1px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+div.reviewCodeCommentSavingReply {
+  border: 1px solid #CCC;
+  color: #767676;
+  margin-left: 12px;
+  margin-right: 12px;
+  padding: 3px;
+  border-radius: 3px;
+  height: 22px;
+  margin-bottom: 16px;
+  margin-top: 2px;
+  cursor: text;
+  -webkit-user-select: none;
+  user-select: none;
+  box-shadow: inset 0px 0px 3px #DDD;
+  
+}
+
+

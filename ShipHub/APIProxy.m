@@ -18,6 +18,7 @@
 #import "MetadataStore.h"
 #import "Repo.h"
 #import "Account.h"
+#import "PRComment.h"
 
 @interface ProxyRequest : NSMutableURLRequest
 
@@ -250,6 +251,15 @@
      BIND(@"GET /repos/:owner/:repo/labels",
           getLabels:owner:repo:),
      
+     BIND(@"POST /repos/:owner/:repo/pulls/:number/comments",
+          postPRComment:owner:repo:number:),
+     
+     BIND(@"PATCH /repos/:owner/:repo/pulls/comments/:id",
+          editPRComment:owner:repo:commentIdentifier:),
+     
+     BIND(@"DELETE /repos/:owner/:repo/pulls/comments/:id",
+          deletePRComment:owner:repo:commentIdentifier:),
+     
      BIND(@"GET /user",
           getUser:)
      };
@@ -284,6 +294,43 @@
     NSString *identifier = [NSString issueIdentifierWithOwner:owner repo:repo number:number];
     [[DataStore activeStore] postComment:request.bodyJSON[@"body"] inIssue:identifier completion:^(IssueComment *comment, NSError *error) {
         [self yield:comment err:error];
+    }];
+}
+
+- (void)postPRComment:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo number:(id)number
+{
+    DataStore *ds = [DataStore activeStore];
+    NSString *identifier = [NSString issueIdentifierWithOwner:owner repo:repo number:number];
+    PRComment *comment = [[PRComment alloc] initWithDictionary:request.bodyJSON metadataStore:ds.metadataStore];
+    [ds addSingleReviewComment:comment inIssue:identifier completion:^(PRComment *roundtrip, NSError *error) {
+        [self yield:roundtrip err:error];
+    }];
+}
+
+- (void)editPRComment:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo commentIdentifier:(id)commentIdentifier
+{
+    DataStore *ds = [DataStore activeStore];
+    PRComment *edit = [PRComment new];
+    edit.identifier = commentIdentifier;
+    edit.body = [request.bodyJSON objectForKey:@"body"];
+    
+    NSString *issueIdentifier = [NSString issueIdentifierWithOwner:owner repo:repo number:@0 /* number doesn't matter */];
+    
+    [ds editReviewComment:edit inIssue:issueIdentifier completion:^(PRComment *roundtrip, NSError *error) {
+        [self yield:roundtrip err:error];
+    }];
+}
+
+- (void)deletePRComment:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo commentIdentifier:(id)commentIdentifier
+{
+    DataStore *ds = [DataStore activeStore];
+    PRComment *c = [PRComment new];
+    c.identifier = commentIdentifier;
+    
+    NSString *issueIdentifier = [NSString issueIdentifierWithOwner:owner repo:repo number:@0 /* number doesn't matter */];
+    
+    [ds deleteReviewComment:c inIssue:issueIdentifier completion:^(NSError *error) {
+        [self yield:nil err:error];
     }];
 }
 

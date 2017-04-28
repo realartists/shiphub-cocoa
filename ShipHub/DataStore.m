@@ -40,6 +40,8 @@
 #import "LocalHidden.h"
 #import "LocalProject.h"
 #import "LocalCommitStatus.h"
+#import "LocalPRComment.h"
+#import "LocalPRReview.h"
 
 #import "Account.h"
 #import "Issue.h"
@@ -1187,6 +1189,21 @@ static NSString *const LastUpdated = @"LastUpdated";
             if (identifier) {
                 [changed addObject:identifier];
             }
+        } else if ([obj isKindOfClass:[LocalPRReview class]]) {
+            LocalPRReview *lpr = obj;
+            NSString *identifier = lpr.issue.fullIdentifier;
+            if (identifier) {
+                [changed addObject:identifier];
+            }
+        } else if ([obj isKindOfClass:[LocalPRComment class]]) {
+            LocalPRComment *prc = obj;
+            NSString *identifier = prc.issue.fullIdentifier;
+            if (!identifier) {
+                identifier = prc.review.issue.fullIdentifier;
+            }
+            if (identifier) {
+                [changed addObject:identifier];
+            }
         }
     }];
     
@@ -1992,7 +2009,32 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/comments", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
     [self.serverConnection perform:@"POST" on:endpoint body:msg completion:^(id jsonResponse, NSError *error) {
         PRComment *roundtrip = error == nil ? [[PRComment alloc] initWithDictionary:jsonResponse metadataStore:self.metadataStore] : nil;
-        // TODO: Persist to database
+        if (roundtrip) {
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
+                id identifier = roundtrip.identifier;
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRComment"];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
+                LocalPRComment *prc = [[moc executeFetchRequest:fetch error:NULL] firstObject];
+                
+                NSFetchRequest *fetchIssue = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+                fetchIssue.predicate = [self predicateForIssueIdentifiers:@[issueIdentifier]];
+                
+                LocalIssue *li = [[moc executeFetchRequest:fetchIssue error:NULL] firstObject];
+                
+                if (!prc) {
+                    prc = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPRComment" inManagedObjectContext:moc];
+                    [prc mergeAttributesFromDictionary:d];
+                    [self updateRelationshipsOn:prc fromSyncDict:d];
+                    [prc setIssue:li];
+                } else {
+                    [prc mergeAttributesFromDictionary:d];
+                }
+                
+                [moc save:NULL];
+            }];
+            
+        }
         RunOnMain(^{
             completion(roundtrip, error);
         });
@@ -2095,8 +2137,25 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/comments/%@", [issueIdentifier issueRepoFullName], [comment identifier]];
     
     [self.serverConnection perform:@"PATCH" on:endpoint body:msg completion:^(id jsonResponse, NSError *error) {
-        // TODO: Update DB
         PRComment *roundtrip = error == nil ? [[PRComment alloc] initWithDictionary:jsonResponse metadataStore:self.metadataStore] : nil;
+        
+        if (roundtrip) {
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRComment"];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", comment.identifier];
+                
+                LocalPRComment *prc = [[moc executeFetchRequest:fetch error:NULL] firstObject];
+                
+                if (prc) {
+                    id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
+                    [prc mergeAttributesFromDictionary:d];
+                    [self updateRelationshipsOn:prc fromSyncDict:d];
+                    
+                    [moc save:NULL];
+                }
+            }];
+        }
+        
         RunOnMain(^{
             completion(roundtrip, error);
         });
@@ -2114,7 +2173,19 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/comments/%@", [issueIdentifier issueRepoFullName], [comment identifier]];
     
     [self.serverConnection perform:@"DELETE" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
-        // TODO: Update DB
+        
+        [self performWrite:^(NSManagedObjectContext *moc) {
+            NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRComment"];
+            fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", comment.identifier];
+            
+            NSArray *a = [moc executeFetchRequest:fetch error:NULL];
+            for (LocalPRComment *prc in a) {
+                [moc deleteObject:prc];
+            }
+            
+            [moc save:NULL];
+        }];
+        
         RunOnMain(^{
             completion(error);
         });

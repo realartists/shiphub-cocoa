@@ -37,7 +37,6 @@ class DiffHunkLine extends React.Component {
   render() {
     var contents = this.props.lineHighlighted;
     var line = this.props.line;
-    console.log(contents);
     if (!contents.endsWith('\n')) { 
       contents = contents + '\n';
     }

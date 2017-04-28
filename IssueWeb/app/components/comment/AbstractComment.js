@@ -52,7 +52,7 @@ class AbstractComment extends React.Component {
       code: "",
       previewing: false,
       uploadCount: 0,
-      pendingTaskBody: null
+      pendingEditBody: null
     };
   }
 
@@ -103,7 +103,7 @@ class AbstractComment extends React.Component {
   
   componentWillReceiveProps(nextProps) {
     if (this.state.editing && nextProps.comment && this.props.comment && nextProps.comment.id != this.props.comment.id) {
-      this.setState(Object.assign({}, this.state, {editing: false, pendingTaskBody: null}));
+      this.setState(Object.assign({}, this.state, {editing: false, pendingEditBody: null}));
     }
   }
   
@@ -242,7 +242,11 @@ class AbstractComment extends React.Component {
   
   save() { 
     return this.waitForUploads().then(() => {
-      return this._save()
+      try {
+        return this._save();
+      } catch (ex) {
+        console.error(ex);
+      }
     });
   }
   
@@ -381,7 +385,7 @@ class AbstractComment extends React.Component {
     }
   
     var showEditor = this.state.editing && !this.state.previewing;
-    var body = this.state.editing ? this.state.code : (this.state.pendingTaskBody || this.props.comment.body);
+    var body = this.state.editing ? this.state.code : (this.state.pendingEditBody || this.props.comment.body);
     
     var outerClass = 'comment';
     

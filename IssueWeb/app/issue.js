@@ -675,11 +675,14 @@ var ActivityList = React.createClass({
       if (k.indexOf("comment.") == 0) {
         var c = this.refs[k];
         comments.push(c);
+      } else if (k.indexOf("review.") == 0) {
+        var r = this.refs[k];
+        comments.push(...r.allComments());
       }
     }
     return comments;
   },
-  
+    
   needsSave: function() {
     var comments = this.allComments();
     return comments.length > 0 && comments.reduce((a, x) => a || x.needsSave(), false);
@@ -733,10 +736,16 @@ var ActivityList = React.createClass({
       
       var allReviews = moreReviews.concat(this.props.issue.reviews||[]);
       
-      // link up comment replies
+      // find all of the comments
       var allPRComments = allReviews.reduce((accum, review) => {
         return accum.concat(review.comments||[]);
       }, []);
+      
+      // reset computed state
+      allPRComments.forEach(c => {
+        delete c.in_reply_to;
+        delete c.replies;
+      });
       
       allPRComments.sort((a, b) => {
         var da = new Date(a.created_at);
@@ -744,9 +753,12 @@ var ActivityList = React.createClass({
         
         if (da < db) return -1;
         else if (da > db) return 1;
+        else if (a.id < b.id) return -1;
+        else if (a.id > b.id) return 1;
         else return 0;
       });
       
+      // link up comment replies
       var prCommentsByPosition = {};
       var prCommentsByOriginalPosition = {};
       

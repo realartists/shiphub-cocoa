@@ -362,6 +362,31 @@ class IssueState {
     return this.applyCommentDelete(c.id);
   }
   
+  deletePRComment(comment) {
+    if (!comment.id) return;
+    
+    // delete the comment from our state
+    this.state.issue.pr_comments = this.state.issue.pr_comments.filter(c => c.id != comment.id);
+    this.state.issue.reviews.forEach(r => {
+      r.comments = r.comments.filter(c => c.id != comment.id);
+    });
+    this._renderState();
+    
+    var owner = this.repoOwner;
+    var repo = this.repoName;
+    var num = this.issueNumber;
+    
+    if (num != null) {
+      var url = `https://api.github.com/repos/${owner}/${repo}/pulls/comments/${comment.id}`
+      var request = api(url, { 
+        method: "DELETE"
+      });
+      return request;
+    } else {
+      return Promise.reject("Issue does not exist.");
+    }
+  }
+  
   addComment(body) {
     var now = new Date().toISOString();
     this.state.issue.comments.push({
