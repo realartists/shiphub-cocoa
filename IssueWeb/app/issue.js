@@ -711,7 +711,7 @@ var ActivityList = React.createClass({
       body: this.props.issue.body,
       user: this.props.issue.user,
       id: this.props.issue.id,
-      updated_at: this.props.issue.updated_at || new Date().toISOString(),
+      updated_at: this.props.issue.created_at || new Date().toISOString(), /* use created_at to prevent showing edited on the body */
       created_at: this.props.issue.created_at || new Date().toISOString(),
       reactions: this.props.issue.reactions
     };

@@ -134,6 +134,10 @@ span.commented {
   color: #767676;
 }
 
+span.commentEdited {
+  color: #767676;
+}
+
 span.commentPending {
   color: #555555;
   font-weight: bold;

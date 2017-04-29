@@ -15,12 +15,16 @@ var CommentHeader = React.createClass({
     if (this.props.elideAction) {
       desc = " ";
     }
+    
+    var pending = this.props.comment.pending_id && !this.props.comment.pending_id.startsWith("single.");
+    var edited = !pending && this.props.comment.created_at != this.props.comment.updated_at;
     return h('div', {className:'commentHeader'},
       h(AvatarIMG, {user:user, size:32}),
       h('span', {className:'commentAuthor'}, user.login),
       h('span', {className:'commented'}, desc),
       h(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.comment.created_at}),
-      (this.props.comment.pending_id && !this.props.comment.pending_id.startsWith("single."))?h('span', {className:'commentPending'}, 'Pending'):"",
+      pending ? h('span', {className:'commentPending'}, 'Pending') : "",
+      edited ? h('span', {className:'commentEdited', title:`Edited ${TimeAgoString(this.props.comment.updated_at)}`}, ' • edited') : "",
       h(CommentControls, this.props)
     );
   }
