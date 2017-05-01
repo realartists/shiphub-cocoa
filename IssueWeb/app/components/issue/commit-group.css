@@ -45,31 +45,47 @@ span.commitGroupTimeAgo {
   color: #767676;
 }
 
-div.commitBody {
+table.commitGroupTable {
   position: relative;
+  border: 0px;
+  border-collapse: collapse;
   margin-top: 12px;
-  margin-left: 12px;
-  margin-right: 12px;
   margin-bottom: 12px;
+  margin-left: 21px;
+  margin-right: 10px;
 }
 
-div.commitBody::before {
+table.commitGroupTable::before {
   position: absolute;
   top: 10px;
-  bottom: 10px;
-  left: 5px;
+  bottom: 5px;
+  left: 6px;
   display: block;
   width: 2px;
   content: "";
   background-color: #DDD;
 }
 
-div.commitItem {
-  height: 25px;
-  max-height: 25px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
+table.commitGroupTable td {
+  vertical-align: top;
+}
+
+td.commitItemMessage {
+  width: 100%;
+  max-width: 100%;
+}
+
+i.commitStatusIconPending,
+i.commitStatusIconUnknown {
+  color: #767676;
+}
+
+i.commitStatusIconSuccess {
+  color: green;
+}
+
+i.commitStatusIconFailure {
+  color: red;
 }
 
 img.commitItemBullet {

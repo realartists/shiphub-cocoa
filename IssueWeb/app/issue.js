@@ -34,7 +34,7 @@ import 'util/media-reloader.js'
 
 import AvatarIMG from 'components/AvatarIMG.js'
 import Comment from 'components/comment/Comment.js'
-import CommitGroup from 'components/issue/commit-group.js'
+import CommitGroup, { getSubjectAndBodyFromCommitMessage } from 'components/issue/commit-group.js'
 import Review from 'components/issue/review.js'
 
 var EventIcon = React.createClass({
@@ -531,34 +531,10 @@ var CommitInfoEventBody = React.createClass({
     clickEvent.preventDefault();
   },
 
-  getSubjectAndBodyFromMessage: function(message) {
-    // GitHub never shows more than the first 69 characters
-    // of a commit message without truncation.
-    const maxSubjectLength = 69;
-    var subject;
-    var body;
-
-    var lines = message.split(/\n/);
-    var firstLine = lines[0];
-
-    if (firstLine.length > maxSubjectLength) {
-      subject = firstLine.substr(0, maxSubjectLength) + "\u2026";
-      body = "\u2026" + message.substr(maxSubjectLength).trim();
-    } else if (lines.length > 1) {
-      subject = firstLine;
-      body = lines.slice(1).join("\n").trim();
-    } else {
-      subject = message;
-      body = null;
-    }
-
-    return [subject, body];
-  },
-
   render: function() {
     var commitMessage = this.props.event.ship_commit_message || "";
     var message = commitMessage.trim();
-    const [subject, body] = this.getSubjectAndBodyFromMessage(message);
+    const [subject, body] = getSubjectAndBodyFromCommitMessage(message);
 
     var bodyContent = null;
     if (this.state.showBody && body) {
@@ -625,7 +601,10 @@ var Event = React.createClass({
   
   render: function() {
     if (this.props.event.event == 'committed') {
-      return h(CommitGroup, { commits: this.props.event.commits });
+      return h(CommitGroup, { 
+        commits: this.props.event.commits,
+        issue: this.props.issue 
+      });
     }
   
     var className = "event";
@@ -707,25 +686,27 @@ var ActivityList = React.createClass({
   },
   
   render: function() {        
+    var issue = this.props.issue;
+  
     var firstComment = {
-      body: this.props.issue.body,
-      user: this.props.issue.user,
-      id: this.props.issue.id,
-      updated_at: this.props.issue.created_at || new Date().toISOString(), /* use created_at to prevent showing edited on the body */
-      created_at: this.props.issue.created_at || new Date().toISOString(),
-      reactions: this.props.issue.reactions
+      body: issue.body,
+      user: issue.user,
+      id: issue.id,
+      updated_at: issue.created_at || new Date().toISOString(), /* use created_at to prevent showing edited on the body */
+      created_at: issue.created_at || new Date().toISOString(),
+      reactions: issue.reactions
     };
 
     // need to merge events and comments together into one array, ordered by date
-    var activity = (!!(firstComment.id) || this.props.issue.savePending) ? [firstComment] : [];
+    var activity = (!!(firstComment.id) || issue.savePending) ? [firstComment] : [];
     
-    activity = activity.concat(this.props.issue.events || []);
-    activity = activity.concat(this.props.issue.comments || []);
+    activity = activity.concat(issue.events || []);
+    activity = activity.concat(issue.comments || []);
     
     // prepare reviews and prcomments
-    if (this.props.issue.pull_request) {
+    if (issue.pull_request) {
       // create dummy reviews for all of the comments that are not already in a review
-      var moreReviews = (this.props.issue.pr_comments||[]).map((c) => {
+      var moreReviews = (issue.pr_comments||[]).map((c) => {
         return {
           user: c.user,
           state: 3, /* comment */
@@ -734,7 +715,7 @@ var ActivityList = React.createClass({
         };
       });
       
-      var allReviews = moreReviews.concat(this.props.issue.reviews||[]);
+      var allReviews = moreReviews.concat(issue.reviews||[]);
       
       // find all of the comments
       var allPRComments = allReviews.reduce((accum, review) => {
@@ -923,7 +904,8 @@ var ActivityList = React.createClass({
               event:e, 
               first:(i==0 || a[i-1].event == undefined),
               last:(next!=undefined && (next.event==undefined || next.event=='committed')),
-              veryLast:(next==undefined)
+              veryLast:(next==undefined),
+              issue:issue
             });
           } else {
             counter.c = counter.c + 1;
