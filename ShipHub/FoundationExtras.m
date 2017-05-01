@@ -751,15 +751,43 @@ static inline uint8_t h2b(uint8_t v) {
     return all;
 }
 
+- (id)_ship_handleComputedJSON:(NSString *)computeSelector key:(NSString *)key dict:(NSDictionary *)d {
+    SEL sel = NSSelectorFromString(computeSelector);
+    NSMethodSignature *sig = [self methodSignatureForSelector:sel];
+    
+    NSAssert(sig != nil, @"%@ must implement %@ as defined for computeJSON userInfo key for Core Data attribute %@",
+             self, computeSelector, key);
+    
+    NSAssert(sig.numberOfArguments == 4, @"-[%@ %@] must take exactly 2 arguments: propertyKey: and dictionary:", NSStringFromClass([self class]), computeSelector);
+    
+    NSInvocation *ivk = [NSInvocation invocationWithMethodSignature:sig];
+    ivk.target = self;
+    ivk.selector = sel;
+    [ivk setArgument:&key atIndex:2];
+    [ivk setArgument:&d atIndex:3];
+    
+    [ivk invoke];
+    
+    void *ret = NULL;
+    [ivk getReturnValue:&ret];
+    
+    id val = (__bridge id)ret;
+    
+    return val;
+}
+
 - (void)mergeAttributesFromDictionary:(NSDictionary *)d onlyIfChanged:(BOOL)onlyIfChanged {
     NSDictionary *attributes = self.entity.attributesByName;
     for (NSString *key in [attributes allKeys]) {
         NSAttributeDescription *desc = attributes[key];
         NSString *dictKey = desc.userInfo[@"jsonKey"];
+        NSString *computeSelector = nil;
         if (!dictKey) dictKey = key;
         id val = nil;
         if ([key isEqualToString:@"rawJSON"]) {
             val = [NSJSONSerialization dataWithJSONObject:d options:0 error:NULL];
+        } else if ((computeSelector = desc.userInfo[@"computeJSON"]) != nil) {
+            val = [self _ship_handleComputedJSON:computeSelector key:key dict:d];
         } else {
             val = d[dictKey];
         }

@@ -15,7 +15,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LocalEvent : NSManagedObject
 
-// Insert code here to declare functionality of your managed object subclass
+- (id)computeCommitIdForProperty:(NSString *)propertyKey inDictionary:(NSDictionary *)d;
 
 @end
 

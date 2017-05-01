@@ -11,6 +11,11 @@
 
 @implementation LocalEvent
 
-// Insert code here to add functionality to your managed object subclass
+- (id)computeCommitIdForProperty:(NSString *)propertyKey inDictionary:(NSDictionary *)d
+{
+    id v = d[@"commitId"];
+    if (!v) v = d[@"sha"];
+    return v;
+}
 
 @end

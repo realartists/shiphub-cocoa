@@ -133,8 +133,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  9: realartists/shiphub-cocoa#378 Support user => org transitions (non-lightweight-migration 1to2)
  10: Migration in step 9 could disassociate repos from their owners.
  11: realartists/shiphub-cocoa#424 Workaround rdar://30838212 CalendarUI.framework defines unprefixed category methods on NSDate
+ 12: realartists/shiphub-cocoa#520 Updated mocDidChange: for LocalCommitStatus
  */
-static const NSInteger CurrentLocalModelVersion = 11;
+static const NSInteger CurrentLocalModelVersion = 12;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
@@ -388,6 +389,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     BOOL needsDateFunctionRename = previousStoreVersion < 11;
     
+    BOOL needsEventCommitId = previousStoreVersion < 12;
+    
     NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @(!needsHeavyweightMigration) };
     
     NSPersistentStore *store = _persistentStore = [_persistentCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:@"Default" URL:storeURL options:options error:&err];
@@ -541,6 +544,23 @@ static NSString *const LastUpdated = @"LastUpdated";
                     }
                     [newPredicate appendString:[oldPredicate substringFromIndex:lastOffset]];
                     q.predicate = newPredicate;
+                }
+            }
+            
+            [_writeMoc save:NULL];
+        }];
+    }
+    
+    if (needsEventCommitId) {
+        [_writeMoc performBlockAndWait:^{
+            NSFetchRequest *eventFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalEvent"];
+            eventFetch.predicate = [NSPredicate predicateWithFormat:@"event = 'committed'"];
+            
+            NSArray *events = [_writeMoc executeFetchRequest:eventFetch error:NULL];
+            for (LocalEvent *ev in events) {
+                @autoreleasepool {
+                    NSDictionary *d = [NSJSONSerialization JSONObjectWithData:ev.rawJSON options:0 error:NULL];
+                    ev.commitId = d[@"sha"];
                 }
             }
             
@@ -1165,6 +1185,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 
 - (NSArray *)changedIssueIdentifiers:(NSNotification *)note {
     NSMutableSet *changed = [NSMutableSet new];
+    __block NSMutableSet *changedCommitStatusShas = nil;
     
     [note enumerateModifiedObjects:^(id obj, CoreDataModificationType modType, BOOL *stop) {
         if ([obj isKindOfClass:[LocalIssue class]]) {
@@ -1204,8 +1225,32 @@ static NSString *const LastUpdated = @"LastUpdated";
             if (identifier) {
                 [changed addObject:identifier];
             }
+        } else if ([obj isKindOfClass:[LocalCommitStatus class]]) {
+            if (!changedCommitStatusShas) {
+                changedCommitStatusShas = [NSMutableSet new];
+            }
+            [changedCommitStatusShas addObject:[obj reference]];
         }
     }];
+    
+    if (changedCommitStatusShas.count) {
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+        fetch.resultType = NSDictionaryResultType;
+        fetch.propertiesToFetch = @[@"repository.fullName", @"number"];
+        fetch.returnsDistinctResults = YES;
+        // This is "ANY events.commitId IN %@" rewritten for CoreData's convenience.
+        fetch.predicate = [NSPredicate predicateWithFormat:@"repository.fullName != nil AND count(SUBQUERY(events.commitId, $cid, $cid != nil AND $cid IN %@)) > 0", changedCommitStatusShas];
+        NSError *err = nil;
+        NSArray *matched = [_writeMoc executeFetchRequest:fetch error:&err];
+        if (err) {
+            ErrLog(@"%@", err);
+        }
+        
+        for (NSDictionary *rd in matched) {
+            NSString *fullIdentifier = [NSString stringWithFormat:@"%@#%lld", rd[@"repository.fullName"], [rd[@"number"] longLongValue]];
+            [changed addObject:fullIdentifier];
+        }
+    }
     
     return changed.count > 0 ? [changed allObjects] : nil;
 }

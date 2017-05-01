@@ -41,7 +41,7 @@
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalReaction" inverseName="comment" inverseEntity="LocalReaction" syncable="YES"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="comments" inverseEntity="LocalAccount" syncable="YES"/>
     </entity>
-    <entity name="LocalCommitStatus" syncable="YES">
+    <entity name="LocalCommitStatus" representedClassName="LocalCommitStatus" syncable="YES">
         <attribute name="context" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
@@ -58,7 +58,11 @@
         <relationship name="repository" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="commitStatuses" inverseEntity="LocalRepo" syncable="YES"/>
     </entity>
     <entity name="LocalEvent" representedClassName="LocalEvent" syncable="YES">
-        <attribute name="commitId" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="commitId" optional="YES" attributeType="String" indexed="YES" syncable="YES">
+            <userInfo>
+                <entry key="computeJSON" value="computeCommitIdForProperty:inDictionary:"/>
+            </userInfo>
+        </attribute>
         <attribute name="commitURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="event" optional="YES" attributeType="String" syncable="YES"/>
@@ -251,6 +255,7 @@
         <element name="LocalAccount" positionX="0" positionY="0" width="128" height="435"/>
         <element name="LocalBilling" positionX="9" positionY="153" width="128" height="75"/>
         <element name="LocalComment" positionX="0" positionY="0" width="128" height="150"/>
+        <element name="LocalCommitStatus" positionX="9" positionY="153" width="128" height="195"/>
         <element name="LocalEvent" positionX="0" positionY="0" width="128" height="180"/>
         <element name="LocalHidden" positionX="9" positionY="153" width="128" height="75"/>
         <element name="LocalIssue" positionX="0" positionY="0" width="128" height="570"/>
@@ -265,6 +270,5 @@
         <element name="LocalReaction" positionX="9" positionY="153" width="128" height="150"/>
         <element name="LocalRepo" positionX="0" positionY="0" width="128" height="285"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
-        <element name="LocalCommitStatus" positionX="9" positionY="153" width="128" height="195"/>
     </elements>
 </model>
