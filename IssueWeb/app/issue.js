@@ -34,7 +34,7 @@ import 'util/media-reloader.js'
 
 import AvatarIMG from 'components/AvatarIMG.js'
 import Comment from 'components/comment/Comment.js'
-import CommitGroup, { getSubjectAndBodyFromCommitMessage } from 'components/issue/commit-group.js'
+import { CommitGroup, CommitStatuses, getSubjectAndBodyFromCommitMessage, findLatestCommitStatuses } from 'components/issue/commit-group.js'
 import Review from 'components/issue/review.js'
 
 var EventIcon = React.createClass({
@@ -578,10 +578,30 @@ var CommitInfoEventBody = React.createClass({
   },
 });
 
+var MergedEventBody = React.createClass({
+  propTypes: { 
+    event: React.PropTypes.object.isRequired,
+    issue: React.PropTypes.object.isRequired 
+  },
+  
+  render: function() {
+    var [committish, commitUrl] = expandCommit(this.props.event);
+    var statuses = this.props.issue.commit_statuses.filter(cs => cs.reference == committish);
+    statuses = findLatestCommitStatuses(statuses);
+    
+    if (statuses.length > 0) {
+      return h(CommitStatuses, {statuses, commitUrl});
+    } else {
+      return h('span', {});
+    }
+  }
+});
+
 var ClassForEventBody = function(event) {
   switch (event.event) {
     case "cross-referenced": return CrossReferencedEventBody;
     case "referenced": return CommitInfoEventBody;
+    case "merged": return MergedEventBody;
     case "closed":
       if (typeof(event.commit_id) === "string") {
         return CommitInfoEventBody;
@@ -595,6 +615,7 @@ var ClassForEventBody = function(event) {
 var Event = React.createClass({
   propTypes: {
     event: React.PropTypes.object.isRequired,
+    issue: React.PropTypes.object.isRequired,
     last: React.PropTypes.bool,
     veryLast: React.PropTypes.bool
   },
@@ -637,7 +658,7 @@ var Event = React.createClass({
           h(ClassForEventDescription(this.props.event), {event: this.props.event}),
           " ",
           h(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at})),
-        eventBodyClass ? h(eventBodyClass, {event: this.props.event}) : null
+        eventBodyClass ? h(eventBodyClass, {event: this.props.event, issue: this.props.issue}) : null
       )
     );
   }

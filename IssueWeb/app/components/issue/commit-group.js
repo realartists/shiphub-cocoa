@@ -12,7 +12,7 @@ import './commit-group.css'
 import CommitAvatar from '../../../image/CommitAvatar.png'
 import CommitBullet from '../../../image/CommitBullet.png'
 
-export function getSubjectAndBodyFromCommitMessage(message) {
+function getSubjectAndBodyFromCommitMessage(message) {
   // GitHub never shows more than the first 69 characters
   // of a commit message without truncation.
   const maxSubjectLength = 69;
@@ -34,6 +34,37 @@ export function getSubjectAndBodyFromCommitMessage(message) {
   }
 
   return [subject, body];
+}
+
+function findLatestCommitStatuses(statuses) {
+  statuses = Array.from(statuses);
+
+  // sort statuses by (reference, context, updated_at DESC, [identifier])
+  statuses.sort((a, b) => {
+    var da, db;
+    if (a.reference < b.reference) return -1;
+    else if (a.reference > b.reference) return 1;
+    else if (a.context < b.context) return -1;
+    else if (a.context > b.context) return 1;
+    else if ((da = new Date(a.updated_at)) > (db = new Date(b.updated_at))) return -1;
+    else if (da < db) return 1;
+    else if (a.identifier < b.identifier) return -1;
+    else if (a.identifier > b.identifier) return 1;
+    else return 0;
+  });
+  
+  // reduce statuses such that we only have the latest status per unique (reference, context)
+  statuses = statuses.reduce((accum, status) => {
+    if (accum.length == 0) return [status];
+    var prev = accum[accum.length-1];
+    if (prev.reference != status.reference || prev.context != status.context) {
+      return accum.concat([status]);
+    } else {
+      return accum;
+    }
+  }, []);
+  
+  return statuses;
 }
 
 class CommitGroupHeader extends React.Component {
@@ -76,8 +107,6 @@ class CommitStatuses extends React.Component {
       return h('i', { className: 'fa fa-question-circle commitStatusIconUnknown' });
     }
   }
-  
-  
   
   overallStateForStatuses() {
     function stateToPriority(state) {
@@ -218,30 +247,8 @@ class CommitGroup extends React.Component {
     // only care about statuses for commits in this push
     var statuses = this.props.issue.commit_statuses.filter(cs => commitShas.has(cs.reference));
     
-    // sort statuses by (reference, context, updated_at DESC, [identifier])
-    statuses.sort((a, b) => {
-      var da, db;
-      if (a.reference < b.reference) return -1;
-      else if (a.reference > b.reference) return 1;
-      else if (a.context < b.context) return -1;
-      else if (a.context > b.context) return 1;
-      else if ((da = new Date(a.updated_at)) > (db = new Date(b.updated_at))) return -1;
-      else if (da < db) return 1;
-      else if (a.identifier < b.identifier) return -1;
-      else if (a.identifier > b.identifier) return 1;
-      else return 0;
-    });
-    
-    // reduce statuses such that we only have the latest status per unique (reference, context)
-    statuses = statuses.reduce((accum, status) => {
-      if (accum.length == 0) return [status];
-      var prev = accum[accum.length-1];
-      if (prev.reference != status.reference || prev.context != status.context) {
-        return accum.concat([status]);
-      } else {
-        return accum;
-      }
-    }, []);
+    // eliminate obsolete statuses
+    statuses = findLatestCommitStatuses(statuses);
         
     var statusesBySha = {};
     statuses.forEach(cs => {
@@ -263,4 +270,9 @@ class CommitGroup extends React.Component {
   }
 }
 
-export default CommitGroup;
+export { 
+  CommitStatuses, 
+  CommitGroup,
+  getSubjectAndBodyFromCommitMessage,
+  findLatestCommitStatuses,
+}
