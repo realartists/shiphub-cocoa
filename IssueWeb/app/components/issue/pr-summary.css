@@ -1,0 +1,69 @@
+div.PRSummary {
+  width: 100%;
+/*   background-color: red; */
+  display: inline-block; 
+}
+
+span.PRSummaryRef {
+  font-family: menlo, consolas, monaco, sans-serif;
+  font-size: 12px;
+}
+
+div.PRSummaryCommitStatus {
+  display: inline-block;
+  white-space: nowrap;
+/*   background-color: blue; */
+}
+
+i.PRSummaryCommitStatusCaret {
+  position: relative;
+  top: 2px;
+  color: #BBB;
+}
+
+div.PRSummaryCommitStatuses {
+  display: block;
+}
+
+table.PRSummaryCommitStatusTable {
+  margin-left: 80px;
+  width: calc(100% - 80px);
+  min-width: calc(100% - 80px);
+}
+
+table.PRSummaryCommitStatusTable tr {
+  border-bottom: 1px solid #ECECEC;
+}
+
+table.PRSummaryCommitStatusTable tr:last-child {
+  border-bottom: 0px;
+}
+
+table.PRSummaryCommitStatusTable td {
+  vertical-align: top;
+}
+
+td.PRSummaryCommitTableStatus {
+
+}
+
+td.PRSummaryCommitTableContext {
+  white-space: nowrap;
+  overflow: ellipsis;
+}
+
+td.PRSummaryCommitTableStatusDescription {
+  color: #A9A9A9;
+  width: 100%;
+}
+
+td.PRSummaryCommitTableLink a {
+  color: #BBB;
+  text-decoration: none;
+}
+
+td.PRSummaryCommitTableLink a:hover {
+  text-decoration: none;
+}
+
+

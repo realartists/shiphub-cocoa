@@ -17,12 +17,14 @@ window.$ = $;
 window.jQuery = $;
 window.jquery = $;
 
+import { HeaderLabel, HeaderSeparator } from 'components/issue/issue-header.js'
 import Completer from 'components/issue/completer.js'
 import SmartInput from 'components/issue/smart-input.js'
 import { emojify, emojifyReaction } from 'util/emojify.js'
 import { githubLinkify } from 'util/github-linkify.js'
 import LabelPicker from 'components/issue/label-picker.js'
 import AssigneesPicker from 'components/issue/assignees-picker.js'
+import PRSummary from 'components/issue/pr-summary.js'
 import { TimeAgo, TimeAgoString } from 'components/time-ago.js'
 import { api } from 'util/api-proxy.js'
 import { promiseQueue } from 'util/promise-queue.js'
@@ -953,20 +955,6 @@ var IssueIdentifier = React.createClass({
         "#" + this.props.issue.number
       )
     );
-  }
-});
-
-var HeaderLabel = React.createClass({
-  propTypes: { title: React.PropTypes.string },
-  
-  render: function() {
-    return h('span', {className:'HeaderLabel'}, this.props.title + ": ");
-  }
-});
-
-var HeaderSeparator = React.createClass({
-  render: function() {
-    return h('div', {className:'HeaderSeparator'});
   }
 });
 
@@ -2016,6 +2004,11 @@ var Header = React.createClass({
              h(AssigneeField, {key:"assignee", ref:"assignee", issue: this.props.issue, focusNext:this.focusNext}),
              h(HeaderSeparator, {key:"sep3"}),
              h(IssueLabels, {key:"labels", ref:"labels", issue: this.props.issue}));
+             
+    if (this.props.issue.pull_request) {
+      els.push(h(HeaderSeparator, {key:"sep4", style:{marginTop:"-0px"}}),
+               h(PRSummary, {key:"prsummary", ref:"prsummary", issue: this.props.issue}));
+    }
   
     return h('div', {className: 'IssueHeader'}, els);
   }

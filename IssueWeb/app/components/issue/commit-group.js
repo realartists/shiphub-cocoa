@@ -125,18 +125,39 @@ class CommitStatuses extends React.Component {
       else return accum;
     }, "");
   }
+  
+  onClick(evt) {
+    this.props.onClick(evt);
+    evt.preventDefault();
+  }
 
   render() {
     var statuses = this.props.statuses;
     
+    var onClick = this.props.onClick;
+    
     if (statuses.length == 1) {
       var status = statuses[0];
       var title = status.statusDescription;
-      return h('a', { className:'commitStatuses', title: status.status_description, href:status.target_url },
+      var opts = { className:'commitStatuses', title: status.status_description };
+      if (onClick) {
+        opts.href = '#';
+        opts.onClick = this.onClick.bind(this);
+      } else {
+        opts.href = status.target_url;
+      }
+      return h('a', opts,
         this.iconForState(status.state)
       );
     } else {
-      return h('a', { className:'commitStatuses', title: 'Click to view multiple commit statuses', href: this.props.commitUrl },
+      var opts = { className:'commitStatuses', title: 'Click to view multiple commit statuses' };
+      if (onClick) {
+        opts.href = '#';
+        opts.onClick = this.onClick.bind(this);
+      } else {
+        opts.href = this.props.commitUrl;
+      }
+      return h('a', opts,
         this.iconForState(this.overallStateForStatuses())
       );
     }
