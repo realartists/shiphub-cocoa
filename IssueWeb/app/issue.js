@@ -86,9 +86,12 @@ var EventIcon = React.createClass({
         icon = "pencil-square";
         break;
       case "referenced":
-      case "merged":
       case "head_ref_deleted":
         icon = "git-square";
+        break;
+      case "merged":
+        icon = "git-square";
+        color = "purple";
         break;
       case "cross-referenced":
         icon = "hand-o-right";
@@ -1390,11 +1393,19 @@ var StateField = React.createClass({
     if (isNewIssue) {
       return h('span');
     }
+    
+    var merged = this.props.issue.merged;
   
-    return h('select', {className:'IssueState', value:this.props.issue.state, onChange:this.stateChanged},
-      h('option', {value: 'open'}, "Open"),
-      h('option', {value: 'closed'}, "Closed")
-    );
+    if (merged) {
+      return h('select', {className:'IssueState', value:'merged', disabled:true},
+        h('option', {value: 'merged'}, "Merged"),
+      );
+    } else {
+      return h('select', {className:'IssueState', value:this.props.issue.state, onChange:this.stateChanged},
+        h('option', {value: 'open'}, "Open"),
+        h('option', {value: 'closed'}, "Closed")
+      );
+    }
   }
 });
 
