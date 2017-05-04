@@ -816,6 +816,19 @@ var ActivityList = React.createClass({
       }
     });
     
+    // roll up any consecutive "merged" and then "closed" events
+    if (issue.pull_request) {
+      activity = activity.reduce((accum, e) => {
+        if (accum.length == 0) return [e];
+        var prev = accum[accum.length-1];
+        if (prev.event == "merged" && e.event == "closed") return accum;
+        else {
+          accum.push(e);
+          return accum;
+        }
+      }, []);
+    }
+    
     // now filter rolled up items
     activity = activity.filter(function(e) { 
       return !(e._rolledUp);
