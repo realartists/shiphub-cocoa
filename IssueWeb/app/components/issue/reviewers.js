@@ -159,10 +159,12 @@ class Reviewers extends React.Component {
       var da, db;
       if (a.user.id < b.user.id) return -1;
       else if (a.user.id > b.user.id) return 1;
-      else if ((da = new Date(a.created_at)) < (db = new Date(b.created_at))) return 1;
+      else if ((da = new Date(a.submitted_at||a.created_at)) < (db = new Date(b.submitted_at||b.created_at))) return 1;
       else if (da > db) return -1;
       else return 0;
     });
+    
+    console.log("reviews.1", reviews);
     
     // reduce reviews such that we only have the latest review for each user
     reviews = reviews.reduce((accum, review) => {
@@ -174,6 +176,8 @@ class Reviewers extends React.Component {
         return accum;
       }
     }, []);
+    
+    console.log("reviews.2", reviews);
     
     var reviewed = new Set();
     reviews.forEach(r => {

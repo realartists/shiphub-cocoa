@@ -24,6 +24,7 @@ import { emojify, emojifyReaction } from 'util/emojify.js'
 import { githubLinkify } from 'util/github-linkify.js'
 import LabelPicker from 'components/issue/label-picker.js'
 import AssigneesPicker from 'components/issue/assignees-picker.js'
+import { ReviewState } from 'components/issue/review-state.js'
 import PRSummary from 'components/issue/pr-summary.js'
 import Reviewers from 'components/issue/reviewers.js'
 import { TimeAgo, TimeAgoString } from 'components/time-ago.js'
@@ -2114,9 +2115,18 @@ var App = React.createClass({
       }
     });
     
-    // eliminate reviews that contain no body and no non-reply comments
+    // eliminate comment reviews that contain no body and no non-reply comments
     allReviews = allReviews.filter(r => {
-      return ((r.body||"").length > 0 || r.comments.find(c => !c.in_reply_to));
+      var hasBody = (r.body||"").length > 0;
+      if (hasBody) return true;
+      
+      var isNonComment = !(r.state == ReviewState.Pending || r.state == ReviewState.Comment);
+      if (isNonComment) return true;
+      
+      var hasNonReplyComments = r.comments.find(c => !c.in_reply_to);
+      if (hasNonReplyComments) return true;
+      
+      return false;
     });
     
     return allReviews;

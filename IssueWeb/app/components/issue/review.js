@@ -22,7 +22,12 @@ class ReviewHeader extends React.Component {
     
     var { icon, action, bg } = reviewStateToUI(this.props.review.state);
     
-    return h('div', { className: 'reviewHeader' },
+    var style = {};
+    if (this.props.empty) {
+      style.borderBottom = "0px";
+    }
+    
+    return h('div', { className: 'reviewHeader', style },
       h('span', { className:'reviewIcon', style: { backgroundColor: bg } },
         h('i', { className: `fa ${icon} fa-inverse`})
       ),
@@ -408,10 +413,13 @@ class Review extends React.Component {
     if (this.props.review.id) {
       id = `review.${this.props.review.id}`
     }
-    comps.push(h(ReviewHeader, { key:"header", review: this.props.review }));
+    
+    var noBodyAndNoComments = !hasSummary && sortedComments.length == 0;
+    
+    comps.push(h(ReviewHeader, { key:"header", review: this.props.review, empty: noBodyAndNoComments }));
     if (hasSummary) {
       comps.push(h(ReviewSummary, { key:"summary", ref:"summary", review: this.props.review }));
-    } else {
+    } else if (sortedComments.length) {
       comps.push(h('div', { key:'summaryPlaceholder', className: 'reviewSummaryPlaceholder' }));
     }
     comps = comps.concat(sortedComments.map((c) => h(ReviewCommentBlock, { 
