@@ -200,10 +200,13 @@ class Reviewers extends React.Component {
       else if (al > bl) return 1;
       else return 0;
     });
+    
+    var existingReviewers = items.map(i => i.user);
+    existingReviewers.push(this.props.issue.user); // github doesn't allow the originator of a PR to be a reviewer
   
     return h('div', {className:'IssueReviewers'},
       h(HeaderLabel, {title:"Reviewers"}),
-      h(AddReviewer, {ref:"add", existingReviewers:items.map(i => i.user), addReviewer:this.addReviewer.bind(this)}),
+      h(AddReviewer, {ref:"add", existingReviewers, addReviewer:this.addReviewer.bind(this)}),
       items.map((i, j) => h(ReviewAtom, { 
         item: i, 
         key:`atom.${i.user.id}`, 

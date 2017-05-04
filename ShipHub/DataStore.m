@@ -2361,7 +2361,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             return;
         }
         
-        if ([i.pr.updatedAt compare:updatedAt] == NSOrderedAscending) {
+        if ([i.pr.updatedAt compare:updatedAt] != NSOrderedDescending) {
             i.pr.requestedReviewers = [NSSet setWithArray:[moc executeFetchRequest:accountsFetch error:NULL]];
             i.pr.updatedAt = updatedAt;
             [moc save:NULL];
