@@ -88,18 +88,18 @@ class ReviewAtom extends React.Component {
       icon = 'fa-question-circle';
       bg = '#999';
       del = h('span', {className:'ReviewerDelete Clickable', onClick:this.onDeleteClick.bind(this)}, 
-        h('i', {className:'fa fa-trash-o'})
+        h('i', {className:'fa fa-times'})
       );
-      Object.assign(style, {borderTopRightRadius:"0px", borderBottomRightRadius:"0px", cursor:"default"});
+      Object.assign(style, {cursor:"default"});
     }
     style.backgroundColor = bg;
     
     return h("span", {className:"ReviewersAtomContainer"},
       h("span", {className:"ReviewsAtom", style:style, onClick:click},
         h('i', {className:`fa ${icon}`, style:{marginRight: '4px'}}),
-        this.props.item.user.login
-      ),
-      del
+        this.props.item.user.login,
+        del
+      )
     );
   }
 }

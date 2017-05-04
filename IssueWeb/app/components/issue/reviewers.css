@@ -39,17 +39,11 @@ span.ReviewsAtom {
 }
 
 span.ReviewerDelete {
-  padding-left: 6px;
-  padding-right: 6px;
+  padding-left: 8px;
+  padding-right: 0px;
   cursor: default;
-  padding-top: 4px;
-  padding-bottom: 3px;
   font-weight: normal;
   font-size: 8pt;
-  border-top-right-radius: 2px;
-  border-bottom-right-radius: 2px;
-  color: white;
-  background-color: #333;
   -webkit-user-select: none;
 }
 

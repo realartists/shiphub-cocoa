@@ -214,18 +214,18 @@ var Label = React.createClass({
     var extra = [];
     var style = {backgroundColor:"#"+this.props.label.color, color:textColor};
     
+    var del = null;
     if (this.props.canDelete) {
-      extra.push(h('span', {className:'LabelDelete Clickable', onClick:this.onDeleteClick}, 
-        h('i', {className:'fa fa-trash-o'})
-      ));
-      style = Object.assign({}, style, {borderTopRightRadius:"0px", borderBottomRightRadius:"0px"});
+      del = h('span', {className:'LabelDelete Clickable', onClick:this.onDeleteClick}, 
+        h('i', {className:'fa fa-times'})
+      );
     }
     
     return h("span", {className:"LabelContainer"},
       h("span", {className:"label", style:style},
-        this.props.label.name
+        this.props.label.name,
+        del
       ),
-      ...extra
     );
   }
 });
