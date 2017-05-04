@@ -42,6 +42,7 @@
 #import "LocalCommitStatus.h"
 #import "LocalPRComment.h"
 #import "LocalPRReview.h"
+#import "LocalPullRequest.h"
 
 #import "Account.h"
 #import "Issue.h"
@@ -134,8 +135,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  10: Migration in step 9 could disassociate repos from their owners.
  11: realartists/shiphub-cocoa#424 Workaround rdar://30838212 CalendarUI.framework defines unprefixed category methods on NSDate
  12: realartists/shiphub-cocoa#520 Updated mocDidChange: for LocalCommitStatus
+ 13: Break out PRs into their own entity
  */
-static const NSInteger CurrentLocalModelVersion = 12;
+static const NSInteger CurrentLocalModelVersion = 13;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
@@ -882,6 +884,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                 NSDictionary *updates = relatedLookup[relatedID];
                 if (updates && populate) {
                     [relObj mergeAttributesFromDictionary:updates];
+                    [self updateRelationshipsOn:relObj fromSyncDict:updates];
                 }
                 [relatedObjs addObject:relObj];
             }
@@ -908,6 +911,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                     [obj setValue:relObj forKey:key onlyIfChanged:YES];
                     if (populate && !noPopulate) {
                         [relObj mergeAttributesFromDictionary:populate];
+                        [self updateRelationshipsOn:relObj fromSyncDict:populate];
                     }
                 } else {
                     NSString *relName = rel.destinationEntity.name;
@@ -940,6 +944,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                         relObj = [self insertManagedObjectWithIdentifier:relatedID entityName:relName];
                         if (populate) {
                             [relObj mergeAttributesFromDictionary:populate];
+                            [self updateRelationshipsOn:relObj fromSyncDict:populate];
                         }
                         [obj setValue:relObj forKey:key];
                     }
@@ -2289,20 +2294,20 @@ static NSString *const LastUpdated = @"LastUpdated";
     [self.serverConnection perform:@"POST" on:endpoint body:createMsg completion:^(id jsonResponse, NSError *error) {
         
         if (!error) {
-            NSMutableDictionary *myJSON = [[JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
-            myJSON[@"prIdentifier"] = myJSON[@"identifier"];
-            [myJSON removeObjectForKey:@"identifier"];
+            NSDictionary *createdPR = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
             
-            // need to discover the issue identifier, because github has only given us the pr id right now
-            NSString *issueEndpoint = [NSString stringWithFormat:@"/repos/%@/issues/%@", r.fullName, myJSON[@"number"]];
+            // need to discover the issue info, because github has only given us the pr info right now
+            NSString *issueEndpoint = [NSString stringWithFormat:@"/repos/%@/issues/%@", r.fullName, prJSON[@"number"]];
             [self.serverConnection perform:@"GET" on:issueEndpoint body:nil completion:^(id issueBody, NSError *issueError) {
                 
                 if (!issueError) {
-                    [myJSON addEntriesFromDictionary:[JSON parseObject:issueBody withNameTransformer:[JSON githubToCocoaNameTransformer]]];
-                    myJSON[@"repository"] = r.identifier;
-                    DebugLog(@"Storing json: %@", myJSON);
-                    [self storeSingleSyncObject:myJSON type:@"issue" completion:^{
-                        id issueIdentifier = [NSString stringWithFormat:@"%@#%@", r.fullName, myJSON[@"number"]];
+                    NSMutableDictionary *issueJSON = [[JSON parseObject:issueBody withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
+                    
+                    issueJSON[@"pr"] = createdPR;
+                    issueJSON[@"repository"] = r.identifier;
+                    DebugLog(@"Storing json: %@", issueJSON);
+                    [self storeSingleSyncObject:issueJSON type:@"issue" completion:^{
+                        id issueIdentifier = [NSString stringWithFormat:@"%@#%@", r.fullName, issueJSON[@"number"]];
                         [self loadFullIssue:issueIdentifier completion:completion];
                     }];
                 } else {
@@ -2356,16 +2361,16 @@ static NSString *const LastUpdated = @"LastUpdated";
             return;
         }
         
-        if ([i.updatedAt compare:updatedAt] == NSOrderedAscending) {
-            i.requestedReviewers = [NSSet setWithArray:[moc executeFetchRequest:accountsFetch error:NULL]];
-            i.updatedAt = updatedAt;
+        if ([i.pr.updatedAt compare:updatedAt] == NSOrderedAscending) {
+            i.pr.requestedReviewers = [NSSet setWithArray:[moc executeFetchRequest:accountsFetch error:NULL]];
+            i.pr.updatedAt = updatedAt;
             [moc save:NULL];
             
             RunOnMain(^{
                 completion(roundtripLogins, nil);
             });
         } else {
-            NSArray *currentLogins = [i.requestedReviewers.allObjects arrayByMappingObjects:^id(id obj) {
+            NSArray *currentLogins = [i.pr.requestedReviewers.allObjects arrayByMappingObjects:^id(id obj) {
                 return [obj login];
             }];
             RunOnMain(^{

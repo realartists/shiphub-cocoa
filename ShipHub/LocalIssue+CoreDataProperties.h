@@ -22,6 +22,7 @@
 @class LocalReaction;
 @class LocalPRComment;
 @class LocalPRReview;
+@class LocalPullRequest;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -53,20 +54,10 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) LocalNotification *notification;
 @property (nullable, nonatomic, retain) NSSet<LocalReaction *> *reactions;
 
-@property (nullable, nonatomic, retain) NSNumber *pullRequestIdentifier;
-@property (nullable, nonatomic, retain) NSNumber *maintainerCanModify;
-@property (nullable, nonatomic, retain) NSNumber *mergeable;
-@property (nullable, nonatomic, retain) NSString *mergeCommitSha;
-@property (nullable, nonatomic, retain) NSNumber *merged;
-@property (nullable, nonatomic, retain) NSDate *mergedAt;
-@property (nullable, nonatomic, retain) LocalAccount *mergedBy;
-@property (nullable, nonatomic, retain) NSSet<LocalAccount *> *requestedReviewers;
-
-@property (nullable, nonatomic, retain) id<NSCoding> base;
-@property (nullable, nonatomic, retain) id<NSCoding> head;
-
 @property (nullable, nonatomic, retain) NSSet<LocalPRReview *> *reviews;
 @property (nullable, nonatomic, retain) NSSet<LocalPRComment *> *prComments;
+
+@property (nullable, nonatomic, retain) LocalPullRequest *pr;
 
 @end
 
@@ -106,11 +97,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)removeAssigneesObject:(LocalAccount *)value;
 - (void)addAssignees:(NSOrderedSet<LocalAccount *> *)values;
 - (void)removeAssignees:(NSOrderedSet<LocalAccount *> *)values;
-
-- (void)addRequestedReviewersObject:(LocalAccount *)value;
-- (void)removeRequestedReviewersObject:(LocalAccount *)value;
-- (void)addRequestedReviewers:(NSOrderedSet<LocalAccount *> *)values;
-- (void)removeRequestedReviewers:(NSOrderedSet<LocalAccount *> *)values;
 
 - (void)addReactionObject:(LocalReaction *)value;
 - (void)removeReactionObject:(LocalReaction *)value;

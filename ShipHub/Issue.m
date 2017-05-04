@@ -19,6 +19,7 @@
 #import "LocalNotification.h"
 #import "LocalPRReview.h"
 #import "LocalPRComment.h"
+#import "LocalPullRequest.h"
 
 #import "Repo.h"
 #import "Account.h"
@@ -97,15 +98,16 @@
         
         _pullRequest = [li.pullRequest boolValue];
         if (_pullRequest) {
-            _pullRequestIdentifier = li.pullRequestIdentifier;
-            _maintainerCanModify = li.maintainerCanModify;
-            _mergeable = li.mergeable;
-            _mergeCommitSha = li.mergeCommitSha;
-            _merged = li.merged;
-            _mergedAt = li.mergedAt;
-            _mergedBy = [ms objectWithManagedObject:li.mergedBy];
-            _base = (id)(li.base);
-            _head = (id)(li.head);
+            LocalPullRequest *lpr = li.pr;
+            _pullRequestIdentifier = lpr.identifier;
+            _maintainerCanModify = lpr.maintainerCanModify;
+            _mergeable = lpr.mergeable;
+            _mergeCommitSha = lpr.mergeCommitSha;
+            _merged = lpr.merged;
+            _mergedAt = lpr.mergedAt;
+            _mergedBy = [ms objectWithManagedObject:lpr.mergedBy];
+            _base = (id)(lpr.base);
+            _head = (id)(lpr.head);
         }
         
         BOOL includeECs = [options[IssueOptionIncludeEventsAndComments] boolValue];
@@ -161,8 +163,8 @@
         
         BOOL includeReviewRequests = [options[IssueOptionIncludeRequestedReviewers] boolValue];
         if (includeReviewRequests) {
-            NSMutableArray *requests = [NSMutableArray arrayWithCapacity:li.requestedReviewers.count];
-            for (LocalAccount *la in li.requestedReviewers) {
+            NSMutableArray *requests = [NSMutableArray arrayWithCapacity:li.pr.requestedReviewers.count];
+            for (LocalAccount *la in li.pr.requestedReviewers) {
                 Account *a = [ms objectWithManagedObject:la];
                 if (a) {
                     [requests addObject:a];

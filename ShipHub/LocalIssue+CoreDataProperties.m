@@ -43,19 +43,9 @@
 @dynamic notification;
 @dynamic reactions;
 
-@dynamic pullRequestIdentifier;
-@dynamic maintainerCanModify;
-@dynamic mergeable;
-@dynamic mergeCommitSha;
-@dynamic merged;
-@dynamic mergedAt;
-@dynamic mergedBy;
-@dynamic requestedReviewers;
-
-@dynamic base;
-@dynamic head;
-
 @dynamic reviews;
 @dynamic prComments;
+
+@dynamic pr;
 
 @end

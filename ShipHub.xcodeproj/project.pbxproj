@@ -246,6 +246,8 @@
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsView.m */; };
 		1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */; };
+		1AAA72601EBAFF9B00E77A65 /* LocalPullRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AAA725F1EBAFF9B00E77A65 /* LocalPullRequest.m */; };
+		1AAA72611EBAFF9B00E77A65 /* LocalPullRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AAA725F1EBAFF9B00E77A65 /* LocalPullRequest.m */; };
 		1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB038451D5AB7EC005093B9 /* IssueWaiter.m */; };
 		1AB0384F1D5C011D005093B9 /* HockeySDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB0384B1D5C0117005093B9 /* HockeySDK.framework */; };
 		1AB038501D5C013A005093B9 /* HockeySDK.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB0384B1D5C0117005093B9 /* HockeySDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -815,6 +817,8 @@
 		1A9905171CE11A0700EAA474 /* LabelsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelsView.m; sourceTree = "<group>"; };
 		1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompactIssueCellViewController.h; sourceTree = "<group>"; };
 		1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompactIssueCellViewController.m; sourceTree = "<group>"; };
+		1AAA725E1EBAFF9B00E77A65 /* LocalPullRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPullRequest.h; sourceTree = "<group>"; };
+		1AAA725F1EBAFF9B00E77A65 /* LocalPullRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalPullRequest.m; sourceTree = "<group>"; };
 		1AB038441D5AB7EC005093B9 /* IssueWaiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWaiter.h; sourceTree = "<group>"; };
 		1AB038451D5AB7EC005093B9 /* IssueWaiter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWaiter.m; sourceTree = "<group>"; };
 		1AB038491D5C0117005093B9 /* CHANGELOG */ = {isa = PBXFileReference; lastKnownFileType = text; path = CHANGELOG; sourceTree = "<group>"; };
@@ -1403,6 +1407,8 @@
 				1A4329761EA69F2800A93A2C /* LocalPRReview.m */,
 				1ACA83691EB26B6600386B12 /* LocalCommitStatus.h */,
 				1ACA836A1EB26B6600386B12 /* LocalCommitStatus.m */,
+				1AAA725E1EBAFF9B00E77A65 /* LocalPullRequest.h */,
+				1AAA725F1EBAFF9B00E77A65 /* LocalPullRequest.m */,
 			);
 			name = CoreData;
 			sourceTree = "<group>";
@@ -2192,6 +2198,7 @@
 				1AE09C141C97687E00C5AC35 /* LocalComment.m in Sources */,
 				1AF567341D62487200611DBB /* WebAuthController.m in Sources */,
 				1A38CA0B1D93506600655891 /* Project.m in Sources */,
+				1AAA72601EBAFF9B00E77A65 /* LocalPullRequest.m in Sources */,
 				1A012E931D3EAC47006CE5DF /* PopUpMetadataRowTemplate.m in Sources */,
 				1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */,
 				1A38CA051D934EF800655891 /* LocalProject+CoreDataProperties.m in Sources */,
@@ -2290,6 +2297,7 @@
 				1A51086F1D31A11A00905D4D /* GHNotificationManager.m in Sources */,
 				1A694B011CA0ABEB00F73608 /* MetadataItem.m in Sources */,
 				1A694B431CA34B9000F73608 /* LabelButton.m in Sources */,
+				1AAA72611EBAFF9B00E77A65 /* LocalPullRequest.m in Sources */,
 				1A38CA061D934EF800655891 /* LocalProject+CoreDataProperties.m in Sources */,
 				1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */,
 				1A694B3D1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */,
