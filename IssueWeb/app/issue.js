@@ -25,6 +25,7 @@ import { githubLinkify } from 'util/github-linkify.js'
 import LabelPicker from 'components/issue/label-picker.js'
 import AssigneesPicker from 'components/issue/assignees-picker.js'
 import PRSummary from 'components/issue/pr-summary.js'
+import Reviewers from 'components/issue/reviewers.js'
 import { TimeAgo, TimeAgoString } from 'components/time-ago.js'
 import { api } from 'util/api-proxy.js'
 import { promiseQueue } from 'util/promise-queue.js'
@@ -671,7 +672,8 @@ var Event = React.createClass({
 
 var ActivityList = React.createClass({
   propTypes: {
-    issue: React.PropTypes.object.isRequired
+    issue: React.PropTypes.object.isRequired,
+    allReviews: React.PropTypes.array
   },
   
   allComments: function() {
@@ -729,102 +731,9 @@ var ActivityList = React.createClass({
     activity = activity.concat(issue.events || []);
     activity = activity.concat(issue.comments || []);
     
-    // prepare reviews and prcomments
-    if (issue.pull_request) {
-      // create dummy reviews for all of the comments that are not already in a review
-      var moreReviews = (issue.pr_comments||[]).map((c) => {
-        return {
-          user: c.user,
-          state: 3, /* comment */
-          submitted_at: c.created_at,
-          comments: [c]
-        };
-      });
-      
-      var allReviews = moreReviews.concat(issue.reviews||[]);
-      
-      // find all of the comments
-      var allPRComments = allReviews.reduce((accum, review) => {
-        return accum.concat(review.comments||[]);
-      }, []);
-      
-      // reset computed state
-      allPRComments.forEach(c => {
-        delete c.in_reply_to;
-        delete c.replies;
-      });
-      
-      allPRComments.sort((a, b) => {
-        var da = new Date(a.created_at);
-        var db = new Date(b.created_at);
-        
-        if (da < db) return -1;
-        else if (da > db) return 1;
-        else if (a.id < b.id) return -1;
-        else if (a.id > b.id) return 1;
-        else return 0;
-      });
-      
-      // link up comment replies
-      var prCommentsByPosition = {};
-      var prCommentsByOriginalPosition = {};
-      
-      var cpos = (c) => {
-        if (c.position !== null) {
-          return `${c.commit_id}/${c.path}#${c.position}`;
-        }
-        return null;
-      }
-      
-      var opos = (c) => {
-        if (c.original_position !== null) {
-          return `${c.original_commit_id}/${c.path}#${c.original_position}`;
-        }
-        return null;
-      };
-      
-      allPRComments.forEach((c) => { 
-        var p = cpos(c);
-        var op = opos(c);
-        
-        if (!(p in prCommentsByPosition)) {
-          prCommentsByPosition[p] = c;
-        }
-        
-        if (!(op in prCommentsByOriginalPosition)) {
-          prCommentsByOriginalPosition[op] = c;
-        }
-      });
-      
-      allPRComments.forEach((c) => {
-        var p = cpos(c);
-        var op = opos(c);
-        
-        var pparent = prCommentsByPosition[p];
-        var opparent = prCommentsByOriginalPosition[p];
-        
-        if (pparent) {
-          if (pparent != c) {
-            c.in_reply_to = pparent.id;
-            if (!pparent.replies) pparent.replies = [];
-            pparent.replies.push(c);
-          }
-        } else if (opparent) {
-          if (opparent != c) {
-            c.in_reply_to = opparent.id;
-            if (!opparent.replies) opparent.replies = [];
-            opparent.replies.push(c);
-          }
-        }
-      });
-      
-      // eliminate reviews that contain no body and no non-reply comments
-      allReviews = allReviews.filter(r => {
-        return ((r.body||"").length > 0 || r.comments.find(c => !c.in_reply_to));
-      });
-      
-      activity = activity.concat(allReviews.map(r => Object.assign({}, r, {review:true})));
-    }        
+    if (this.props.allReviews) {
+      activity = activity.concat(this.props.allReviews.map(r => Object.assign({}, r, {review:true})));       
+    }
         
     activity = activity.sort(function(a, b) {
       if (a == firstComment && b == firstComment) {
@@ -1898,6 +1807,7 @@ var IssueLabels = React.createClass({
 var Header = React.createClass({
   propTypes: { 
     issue: React.PropTypes.object,
+    allReviews: React.PropTypes.array,
     onIssueTemplate: React.PropTypes.func
   },
   
@@ -2008,6 +1918,12 @@ var Header = React.createClass({
     if (this.props.issue.pull_request) {
       els.push(h(HeaderSeparator, {key:"sep4", style:{marginTop:"-0px"}}),
                h(PRSummary, {key:"prsummary", ref:"prsummary", issue: this.props.issue}));
+      
+      if (this.props.issue.number) {
+        els.push(h(HeaderSeparator, {key:"sep5"}),
+                 h(Reviewers, {key:"reviewers", ref:"reviewers", issue: this.props.issue, allReviews:this.props.allReviews}));
+      }
+               
     }
   
     return h('div', {className: 'IssueHeader'}, els);
@@ -2087,9 +2003,11 @@ var App = React.createClass({
   
   render: function() {
     var issue = this.props.issue;
+    
+    var allReviews = this.normalizeReviews();
 
-    var header = h(Header, {ref:"header", issue: issue, onIssueTemplate:this.onIssueTemplate});
-    var activity = h(ActivityList, {key:issue["id"], ref:"activity", issue:issue});
+    var header = h(Header, {ref:"header", issue:issue, allReviews:allReviews, onIssueTemplate:this.onIssueTemplate});
+    var activity = h(ActivityList, {key:issue["id"], ref:"activity", issue:issue, allReviews:allReviews});
     var addComment = h(Comment, {ref:"addComment", key:"addComment"});
     
     var issueElement = h('div', {},
@@ -2099,6 +2017,109 @@ var App = React.createClass({
     );
         
     return issueElement;
+  },
+  
+  normalizeReviews: function() {
+    // prepare reviews and prcomments
+    var issue = this.props.issue;
+    
+    if (!issue.pull_request) {
+      return [];
+    }
+  
+    // create dummy reviews for all of the comments that are not already in a review
+    var moreReviews = (issue.pr_comments||[]).map((c) => {
+      return {
+        user: c.user,
+        state: 3, /* comment */
+        submitted_at: c.created_at,
+        comments: [c]
+      };
+    });
+    
+    var allReviews = moreReviews.concat(issue.reviews||[]);
+    
+    // find all of the comments
+    var allPRComments = allReviews.reduce((accum, review) => {
+      return accum.concat(review.comments||[]);
+    }, []);
+    
+    // reset computed state
+    allPRComments.forEach(c => {
+      delete c.in_reply_to;
+      delete c.replies;
+    });
+    
+    allPRComments.sort((a, b) => {
+      var da = new Date(a.created_at);
+      var db = new Date(b.created_at);
+      
+      if (da < db) return -1;
+      else if (da > db) return 1;
+      else if (a.id < b.id) return -1;
+      else if (a.id > b.id) return 1;
+      else return 0;
+    });
+    
+    // link up comment replies
+    var prCommentsByPosition = {};
+    var prCommentsByOriginalPosition = {};
+    
+    var cpos = (c) => {
+      if (c.position !== null) {
+        return `${c.commit_id}/${c.path}#${c.position}`;
+      }
+      return null;
+    }
+    
+    var opos = (c) => {
+      if (c.original_position !== null) {
+        return `${c.original_commit_id}/${c.path}#${c.original_position}`;
+      }
+      return null;
+    };
+    
+    allPRComments.forEach((c) => { 
+      var p = cpos(c);
+      var op = opos(c);
+      
+      if (!(p in prCommentsByPosition)) {
+        prCommentsByPosition[p] = c;
+      }
+      
+      if (!(op in prCommentsByOriginalPosition)) {
+        prCommentsByOriginalPosition[op] = c;
+      }
+    });
+    
+    allPRComments.forEach((c) => {
+      var p = cpos(c);
+      var op = opos(c);
+      
+      var pparent = prCommentsByPosition[p];
+      var opparent = prCommentsByOriginalPosition[p];
+      
+      if (pparent) {
+        if (pparent != c) {
+          c.in_reply_to = pparent.id;
+          if (!pparent.replies) pparent.replies = [];
+          pparent.replies.push(c);
+        }
+      } else if (opparent) {
+        if (opparent != c) {
+          c.in_reply_to = opparent.id;
+          if (!opparent.replies) opparent.replies = [];
+          opparent.replies.push(c);
+        }
+      }
+    });
+    
+    // eliminate reviews that contain no body and no non-reply comments
+    allReviews = allReviews.filter(r => {
+      return ((r.body||"").length > 0 || r.comments.find(c => !c.in_reply_to));
+    });
+    
+    return allReviews;
   },
   
   onIssueTemplate: function(template) {

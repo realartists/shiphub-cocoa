@@ -92,11 +92,11 @@ var AssigneesPicker = React.createClass({
       h(Completer, {
         value: "",
         ref: 'completer',
-        placeholder: "Add Assignee",
+        placeholder: this.props.placeholder||"Add Assignee",
         onEnter: this.onAdd,
         onChange: this.onChange,
         matcher: matcher,
-      }),
+      }),      
       h('i', {className: 'fa fa-user-plus AddAssignee Clickable',
         onClick: this.onPlusClick,
         onMouseDown: this.onPlusMouseDown,

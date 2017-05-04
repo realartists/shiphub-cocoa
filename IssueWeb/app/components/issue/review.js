@@ -12,43 +12,15 @@ import { promiseQueue } from 'util/promise-queue.js'
 import IssueState from 'issue-state.js'
 import { api } from 'util/api-proxy.js'
 import { storeCommentDraft, clearCommentDraft, getCommentDraft } from 'util/draft-storage.js'
+import { reviewStateToUI } from './review-state.js'
 
 import './review.css'
-
-// See PRReviewState enum in PRReview.m
-var ReviewState = {
-  Pending: 0,
-  Approve: 1,
-  RequestChanges: 2,
-  Comment: 3,
-  Dismiss: 4
-}
 
 class ReviewHeader extends React.Component {
   render() {
     var user = this.props.review.user || ghost;
     
-    var icon, action, bg = '#555';
-    switch (this.props.review.state) {
-      case ReviewState.Pending:
-        icon = 'fa-commenting';
-        action = 'saved a pending review';
-        break;
-      case ReviewState.Approve:
-        icon = 'fa-thumbs-up';
-        action = 'approved these changes';
-        bg = 'green';
-        break;
-      case ReviewState.RequestChanges:
-        icon = 'fa-thumbs-down'
-        action = 'requested changes';
-        bg = 'red';
-        break;
-      case ReviewState.Comment:
-        icon = 'fa-comments';
-        action = 'reviewed';
-        break;
-    }
+    var { icon, action, bg } = reviewStateToUI(this.props.review.state);
     
     return h('div', { className: 'reviewHeader' },
       h('span', { className:'reviewIcon', style: { backgroundColor: bg } },
@@ -432,6 +404,10 @@ class Review extends React.Component {
     });
     
     var comps = [];
+    var id = null;
+    if (this.props.review.id) {
+      id = `review.${this.props.review.id}`
+    }
     comps.push(h(ReviewHeader, { key:"header", review: this.props.review }));
     if (hasSummary) {
       comps.push(h(ReviewSummary, { key:"summary", ref:"summary", review: this.props.review }));
@@ -446,7 +422,7 @@ class Review extends React.Component {
       comment: c 
     })));
     
-    return h('div', { className: 'review' }, comps);
+    return h('div', { className: 'review', id:id }, comps);
   }
 }
 

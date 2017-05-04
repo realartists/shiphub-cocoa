@@ -481,6 +481,68 @@ class IssueState {
       });
     });
   }
+  
+  addReviewer(user) {
+    if (!user) {
+      return Promise.reject("User not specified");
+    }
+    if (!this.issue.pull_request) {
+      return Promise.reject("Cannot add reviewer on non-PR");
+    }
+    
+    if (this.issue.requested_reviewers.find(rv => rv.id == user.id)) {
+      return Promise.resolve();
+    }
+    
+    // eagerly patch the issue
+    this.issue.requested_reviewers.push(user);
+    this._renderState();
+    
+    var url = `https://api.github.com/repos/${this.repoOwner}/${this.repoName}/pulls/${this.issue.number}/requested_reviewers`;
+    return promiseQueue('applyPatch', () => {
+      var request = api(url, {
+        method: 'POST',
+        body: JSON.stringify({reviewers:[user.login]})
+      });
+      return new Promise((resolve, reject) => {
+        request.then((body) => {
+          resolve();
+        }).catch((err) => {
+          console.error("Add reviewer failed", err);
+          reject(err);
+        });
+      });
+    });
+  }
+  
+  deleteReviewer(user) {
+    if (!user) {
+      return Promise.reject("User not specified");
+    }
+    if (!this.issue.pull_request) {
+      return Promise.reject("Cannot delete reviewer on non-PR");
+    }
+    
+    // eagerly patch the issue
+    this.issue.requested_reviewers = (this.issue.reviewers||[]).filter(u => u.id != user.id);
+    this._renderState();
+    
+    var url = `https://api.github.com/repos/${this.repoOwner}/${this.repoName}/pulls/${this.issue.number}/requested_reviewers`;
+    return promiseQueue('applyPatch', () => {
+      var request = api(url, {
+        method: 'DELETE',
+        body: JSON.stringify({reviewers:[user.login]})
+      });
+      return new Promise((resolve, reject) => {
+        request.then((body) => {
+          resolve();
+        }).catch((err) => {
+          console.error("Delete reviewer failed", err);
+          reject(err);
+        });
+      });
+    });
+  }
 }
 
 var _current = new IssueState();

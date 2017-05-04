@@ -131,6 +131,10 @@
 
 - (void)saveNewPullRequest:(NSDictionary *)prJSON inRepo:(Repo *)r completion:(void (^)(Issue *issue, NSError *error))completion;
 
+- (void)addRequestedReviewers:(NSArray *)logins inIssue:(NSString *)issueIdentifier completion:(void (^)(NSArray<NSString *> *reviewerLogins, NSError *error))completion;
+
+- (void)removeRequestedReviewers:(NSArray *)logins inIssue:(NSString *)issueIdentifier completion:(void (^)(NSArray<NSString *> *reviewerLogins, NSError *error))completion;
+
 @end
 
 @interface DataStore (CustomQuery)

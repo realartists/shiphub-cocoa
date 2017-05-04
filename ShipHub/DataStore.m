@@ -2322,6 +2322,101 @@ static NSString *const LastUpdated = @"LastUpdated";
     [[Analytics sharedInstance] track:@"Create Pull Request"];
 }
 
+- (void)_handleRequestedReviewersResponse:(NSDictionary *)d issueIdentifier:(NSString *)issueIdentifier completion:(void (^)(NSArray<NSString *> *reviewerLogins, NSError *error))completion
+{
+    NSDate *updatedAt = [NSDate dateWithJSONString:d[@"updated_at"]];
+    NSArray *roundtripAccounts = [d[@"requested_reviewers"] arrayByMappingObjects:^id(id obj) {
+        return [obj objectForKey:@"id"];
+    }];
+    NSArray *roundtripLogins = [d[@"requested_reviewers"] arrayByMappingObjects:^id(id obj) {
+        return [obj objectForKey:@"login"];
+    }];
+    
+    [self performWrite:^(NSManagedObjectContext *moc) {
+        NSFetchRequest *issueFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+        issueFetch.predicate = [self predicateForIssueIdentifiers:@[issueIdentifier]];
+        NSFetchRequest *accountsFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalAccount"];
+        accountsFetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", roundtripAccounts];
+        
+        NSError *err = nil;
+        LocalIssue *i = [[moc executeFetchRequest:issueFetch error:&err] firstObject];
+        
+        if (err) {
+            ErrLog(@"%@", err);
+            RunOnMain(^{
+                completion(nil, err);
+            });
+            return;
+        }
+        
+        if (!i) {
+            RunOnMain(^{
+                completion(nil, [NSError shipErrorWithCode:ShipErrorCodeProblemDoesNotExist]);
+            });
+            return;
+        }
+        
+        if ([i.updatedAt compare:updatedAt] == NSOrderedAscending) {
+            i.requestedReviewers = [NSSet setWithArray:[moc executeFetchRequest:accountsFetch error:NULL]];
+            i.updatedAt = updatedAt;
+            [moc save:NULL];
+            
+            RunOnMain(^{
+                completion(roundtripLogins, nil);
+            });
+        } else {
+            NSArray *currentLogins = [i.requestedReviewers.allObjects arrayByMappingObjects:^id(id obj) {
+                return [obj login];
+            }];
+            RunOnMain(^{
+                completion(currentLogins, nil);
+            });
+        }
+    }];
+}
+
+- (void)addRequestedReviewers:(NSArray *)logins inIssue:(NSString *)issueIdentifier completion:(void (^)(NSArray<NSString *> *reviewerLogins, NSError *error))completion
+{
+    NSParameterAssert(logins);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/requested_reviewers", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
+    NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
+    NSDictionary *body = @{ @"reviewers": logins };
+    
+    [self.serverConnection perform:@"POST" on:endpoint headers:headers body:body completion:^(id jsonResponse, NSError *error) {
+        if (error) {
+            RunOnMain(^{
+                completion(nil, error);
+            });
+        } else {
+            [self _handleRequestedReviewersResponse:jsonResponse issueIdentifier:issueIdentifier completion:completion];
+        }
+    }];
+}
+
+- (void)removeRequestedReviewers:(NSArray *)logins inIssue:(NSString *)issueIdentifier completion:(void (^)(NSArray<NSString *> *reviewerLogins, NSError *error))completion
+{
+    NSParameterAssert(logins);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/requested_reviewers", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
+    NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
+    NSDictionary *body = @{ @"reviewers": logins };
+    
+    [self.serverConnection perform:@"DELETE" on:endpoint headers:headers body:body completion:^(id jsonResponse, NSError *error) {
+        if (error) {
+            RunOnMain(^{
+                completion(nil, error);
+            });
+        } else {
+            [self _handleRequestedReviewersResponse:jsonResponse issueIdentifier:issueIdentifier completion:completion];
+        }
+    }];
+}
+
 #pragma mark - Metadata Mutation
 
 - (void)addLabel:(NSDictionary *)label

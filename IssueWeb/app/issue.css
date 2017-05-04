@@ -304,6 +304,11 @@ span.LabelDelete {
   -webkit-user-select: none;
 }
 
+span.LabelDelete i {
+  position: relative;
+  top: -1px;
+}
+
 span.eventTitle {
   font-weight: bold;
 }
@@ -438,6 +443,7 @@ span.AssigneesPicker .tt-hint {
 }
 
 div.IssueLabels {
+  margin-top: -1px;
   line-height: 24px;
   min-height: 26px;
 }

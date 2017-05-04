@@ -3,6 +3,7 @@ import React, { createElement as h } from 'react'
 import { HeaderLabel, HeaderSeparator } from './issue-header.js'
 import { CommitStatuses, findLatestCommitStatuses } from './commit-group.js'
 import ghost from 'util/ghost.js'
+import { keypath, setKeypath } from 'util/keypath.js'
 
 import './pr-summary.css'
 
@@ -47,16 +48,16 @@ class PRSummary extends React.Component {
   }
 
   render() {
-    var statuses = this.props.issue.commit_statuses;
-    var tot = this.props.issue.head.sha;
+    var statuses = this.props.issue.commit_statuses||[];
+    var tot = keypath(this.props.issue, "head.sha");
     statuses = statuses.filter(cs => cs.reference = tot);
     statuses = findLatestCommitStatuses(statuses);
     
-    var headRepo = this.props.issue.head.repo.full_name;
-    var baseRepo = this.props.issue.base.repo.full_name;
+    var headRepo = keypath(this.props.issue, "head.repo.full_name");
+    var baseRepo = keypath(this.props.issue, "base.repo.full_name");
     
-    var headBranch = this.props.issue.head.ref;
-    var baseBranch = this.props.issue.base.ref;
+    var headBranch = keypath(this.props.issue, "head.ref");
+    var baseBranch = keypath(this.props.issue, "base.ref");
     
     var summary;
     var author = (this.props.issue.user||ghost).login;

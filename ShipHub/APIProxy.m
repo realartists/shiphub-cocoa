@@ -260,6 +260,12 @@
      BIND(@"DELETE /repos/:owner/:repo/pulls/comments/:id",
           deletePRComment:owner:repo:commentIdentifier:),
      
+     BIND(@"POST /repos/:owner/:repo/pulls/:number/requested_reviewers",
+          addRequestedReviewers:owner:repo:number:),
+     
+     BIND(@"DELETE /repos/:owner/:repo/pulls/:number/requested_reviewers",
+          removeRequestedReviewers:owner:repo:number:),
+     
      BIND(@"GET /user",
           getUser:)
      };
@@ -460,6 +466,18 @@
 - (void)getUser:(ProxyRequest *)request
 {
     [self yield:[Account me] err:nil];
+}
+
+- (void)addRequestedReviewers:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo number:(id)number {
+    [[DataStore activeStore] addRequestedReviewers:request.bodyJSON[@"reviewers"] inIssue:[NSString issueIdentifierWithOwner:owner repo:repo number:number] completion:^(NSArray<NSString *> *reviewerLogins, NSError *error) {
+        [self yield:reviewerLogins err:error];
+    }];
+}
+
+- (void)removeRequestedReviewers:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo number:(id)number {
+    [[DataStore activeStore] removeRequestedReviewers:request.bodyJSON[@"reviewers"] inIssue:[NSString issueIdentifierWithOwner:owner repo:repo number:number] completion:^(NSArray<NSString *> *reviewerLogins, NSError *error) {
+        [self yield:reviewerLogins err:error];
+    }];
 }
 
 @end

@@ -1,0 +1,60 @@
+div.IssueReviewers {
+  margin-top: -1px;
+  line-height: 24px;
+  min-height: 26px;
+}
+
+div.IssueReviewers .tt-menu {
+  line-height: 150%;
+}
+
+div.IssueReviewers span.AssigneesPicker {
+  margin-right: 4px;
+}
+
+div.IssueReviewers .ReviewersAtomContainer {
+  position: relative;
+  top: -2px;
+  white-space: nowrap;
+  margin-right: 4px;
+}
+
+div.IssueReviewers i.AddAssignee {
+  position: relative;
+  top: -2px;
+  margin: 0px;
+  padding: 1px;
+  margin-right: 4px;
+}
+
+span.ReviewsAtom {
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  border-radius: 2px;
+  font-weight: bold;
+  color: white;
+  -webkit-user-select: none;
+}
+
+span.ReviewerDelete {
+  padding-left: 6px;
+  padding-right: 6px;
+  cursor: default;
+  padding-top: 4px;
+  padding-bottom: 3px;
+  font-weight: normal;
+  font-size: 8pt;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+  color: white;
+  background-color: #333;
+  -webkit-user-select: none;
+}
+
+span.ReviewerDelete i {
+  position: relative;
+  top: -1px;
+}
+
