@@ -289,7 +289,10 @@ static uint64_t ServerHelloMinimumVersion = 2;
         return;
     }
     
-    DebugLog(@"Received msg: %@", msg);
+#if DEBUG
+    fprintf(stderr, "%s WSSyncConnection received message: %s\n", [[[NSDate date] description] UTF8String], [[msg description] UTF8String]);
+#endif
+    
     
     NSString *type = msg[MessageFieldType];
     
