@@ -2297,7 +2297,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             NSDictionary *createdPR = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
             
             // need to discover the issue info, because github has only given us the pr info right now
-            NSString *issueEndpoint = [NSString stringWithFormat:@"/repos/%@/issues/%@", r.fullName, prJSON[@"number"]];
+            NSString *issueEndpoint = [NSString stringWithFormat:@"/repos/%@/issues/%@", r.fullName, createdPR[@"number"]];
             [self.serverConnection perform:@"GET" on:issueEndpoint body:nil completion:^(id issueBody, NSError *issueError) {
                 
                 if (!issueError) {
