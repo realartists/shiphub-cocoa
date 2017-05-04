@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import "PRMergeStrategy.h"
+
 @class Account;
 @class Auth;
 @class Billing;
@@ -134,6 +136,8 @@
 - (void)addRequestedReviewers:(NSArray *)logins inIssue:(NSString *)issueIdentifier completion:(void (^)(NSArray<NSString *> *reviewerLogins, NSError *error))completion;
 
 - (void)removeRequestedReviewers:(NSArray *)logins inIssue:(NSString *)issueIdentifier completion:(void (^)(NSArray<NSString *> *reviewerLogins, NSError *error))completion;
+
+- (void)mergePullRequest:(NSString *)issueIdentifier strategy:(PRMergeStrategy)strat title:(NSString *)title message:(NSString *)message completion:(void (^)(Issue *issue, NSError *error))completion;
 
 @end
 

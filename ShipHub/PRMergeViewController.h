@@ -9,12 +9,14 @@
 #import <Cocoa/Cocoa.h>
 
 #import "PullRequest.h"
+#import "Issue.h"
 
 @protocol PRMergeViewControllerDelegate;
 
 @interface PRMergeViewController : NSViewController
 
 @property (nonatomic) PullRequest *pr;
+@property (nonatomic) Issue *issue;
 
 @property (weak) id<PRMergeViewControllerDelegate> delegate;
 

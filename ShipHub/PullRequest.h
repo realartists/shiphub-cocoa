@@ -8,17 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
+#import "PRMergeStrategy.h"
+
 @class Issue;
 @class GitDiff;
 @class GitCommit;
 @class PRComment;
 @class PRReview;
-
-typedef NS_ENUM(NSInteger, PRMergeStrategy) {
-    PRMergeStrategyMerge = 0,
-    PRMergeStrategySquash,
-    PRMergeStrategyRebase
-};
 
 @interface PullRequest : NSObject
 

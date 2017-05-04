@@ -106,6 +106,11 @@
             _merged = lpr.merged;
             _mergedAt = lpr.mergedAt;
             _mergedBy = [ms objectWithManagedObject:lpr.mergedBy];
+            _additions = lpr.additions;
+            _deletions = lpr.deletions;
+            _changedFiles = lpr.changedFiles;
+            _commits = lpr.commits;
+            _rebaseable = lpr.rebaseable;
             _base = (id)(lpr.base);
             _head = (id)(lpr.head);
         }

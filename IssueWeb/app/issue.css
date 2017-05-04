@@ -132,6 +132,7 @@ i.toggleMultiAssignee {
 
 .AssigneesPicker {
   display: inline-block;
+  line-height: 150%;
 }
 
 .AssigneesPicker i.AddAssignee {

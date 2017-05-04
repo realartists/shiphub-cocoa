@@ -819,6 +819,7 @@
 		1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompactIssueCellViewController.m; sourceTree = "<group>"; };
 		1AAA725E1EBAFF9B00E77A65 /* LocalPullRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPullRequest.h; sourceTree = "<group>"; };
 		1AAA725F1EBAFF9B00E77A65 /* LocalPullRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalPullRequest.m; sourceTree = "<group>"; };
+		1AAA72621EBBE5E200E77A65 /* PRMergeStrategy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRMergeStrategy.h; sourceTree = "<group>"; };
 		1AB038441D5AB7EC005093B9 /* IssueWaiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWaiter.h; sourceTree = "<group>"; };
 		1AB038451D5AB7EC005093B9 /* IssueWaiter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWaiter.m; sourceTree = "<group>"; };
 		1AB038491D5C0117005093B9 /* CHANGELOG */ = {isa = PBXFileReference; lastKnownFileType = text; path = CHANGELOG; sourceTree = "<group>"; };
@@ -1708,6 +1709,7 @@
 				1A2FCCF41E68EADA0000F91B /* PRReviewChangesViewController.h */,
 				1A2FCCF51E68EADA0000F91B /* PRReviewChangesViewController.m */,
 				1A2FCCF61E68EADA0000F91B /* PRReviewChangesViewController.xib */,
+				1AAA72621EBBE5E200E77A65 /* PRMergeStrategy.h */,
 				1A4353521E73762A00C5F5AB /* PRMergeViewController.h */,
 				1A4353531E73762A00C5F5AB /* PRMergeViewController.m */,
 				1A4353541E73762A00C5F5AB /* PRMergeViewController.xib */,

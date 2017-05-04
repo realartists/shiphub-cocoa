@@ -55,13 +55,13 @@
     
     if ([tableItem respondsToSelector:@selector(setMinimumThickness:)]) {
         tableItem.minimumThickness = 200.0;
-        issueItem.minimumThickness = 440.0;
+        issueItem.minimumThickness = 520.0;
     }
     
     [_splitController addSplitViewItem:tableItem];
     [_splitController addSplitViewItem:issueItem];
     
-    NSView *view = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
+    NSView *view = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 750, 600)];
     [view setContentView:_splitController.view];
     self.view = view;
     

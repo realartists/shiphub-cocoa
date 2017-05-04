@@ -23,5 +23,10 @@
 @dynamic createdAt;
 @dynamic updatedAt;
 @dynamic issue;
+@dynamic additions;
+@dynamic deletions;
+@dynamic commits;
+@dynamic rebaseable;
+@dynamic changedFiles;
 
 @end

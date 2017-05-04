@@ -24,11 +24,7 @@ class Comment extends AbstractComment {
   repoOwner() { return IssueState.current.repoOwner; }
   
   repoName() { return IssueState.current.repoName; }
-  
-  shouldShowCommentPRBar() { 
-    return !!(IssueState.current.issue.pull_request) && IssueState.current.issue.number > 0;
-  }
-  
+    
   saveDraftState() {
     var issue = this.issue();
     var isNewIssue = this.isNewIssue();

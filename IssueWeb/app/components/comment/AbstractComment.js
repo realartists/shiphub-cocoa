@@ -39,7 +39,6 @@ import AddCommentUploadProgress from './AddCommentUploadProgress.js'
 import CommentControls from './CommentControls.js'
 import CommentReactions from './CommentReactions.js'
 import CommentHeader from './CommentHeader.js'
-import CommentPRBar from './CommentPRBar.js'
 import CommentBody from './CommentBody.js'
 import CommentButtonBar from './CommentButtonBar.js'
 
@@ -71,8 +70,6 @@ class AbstractComment extends React.Component {
   repoOwner() { throw "not implemented"; }
   
   repoName() { throw "not implemented"; }
-  
-  shouldShowCommentPRBar() { throw "not implemented"; }
   
   saveDraftState() { throw "not implemented"; }
   
@@ -351,14 +348,6 @@ class AbstractComment extends React.Component {
           return h(AddCommentFooter, footerProps);
         }
       }
-    } else if (this.props.first && this.shouldShowCommentPRBar()) {
-      return h(CommentPRBar, {
-        key:"pr", 
-        comment:this.props.comment,
-        issue:this.issue(), 
-        me: this.me(),
-        onToggleReaction:this.toggleReaction.bind(this)
-      });
     } else if ((this.props.buttons||[]).length > 0) {
       return h(CommentButtonBar, {
         key:"buttons", 

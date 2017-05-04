@@ -7,9 +7,9 @@ import AvatarIMG from 'components/AvatarIMG.js'
 import { TimeAgo, TimeAgoString } from 'components/time-ago.js'
 import ghost from 'util/ghost.js'
 import { githubLinkify } from 'util/github-linkify.js'
+import { PRReviewChangesButton } from './pr-actions-bar.js'
 
 import './commit-group.css'
-import CommitAvatar from '../../../image/CommitAvatar.png'
 import CommitBullet from '../../../image/CommitBullet.png'
 
 function getSubjectAndBodyFromCommitMessage(message) {
@@ -91,6 +91,9 @@ class CommitGroupHeader extends React.Component {
       hasOthers ? h('span', {className:'commitGroupOthers'}, ' and others') : "",
       h('span', {className:'commitGroupTimeAgo'}, desc),
       h(TimeAgo, {className:'commentTimeAgo', live:true, date:timestamp}),
+      h('div', { style: { 'display': 'inline-block', 'float': 'right' } },
+        h(PRReviewChangesButton, {})
+      )
     );
   }
 }

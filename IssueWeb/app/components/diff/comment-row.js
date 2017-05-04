@@ -43,8 +43,6 @@ class Comment extends AbstractComment {
     return this.issueIdentifierParts().repoName;
   }
   
-  shouldShowCommentPRBar() { return false; }
-  
   saveDraftState() { }
   restoreDraftState() { }
   

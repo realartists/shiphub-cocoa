@@ -1,0 +1,87 @@
+.PRActionsBar {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.PRActionsBarButtons {
+  text-align: right;
+}
+
+.PRActionsBarButton {
+  display: inline-block;
+  
+  line-height: 150%;
+  font-weight: 500;
+  
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  
+  color: #555;
+  border: 1px solid #555;
+  border-radius: 3px;
+  
+  cursor: default;
+  -webkit-user-select: none;
+  white-space: nowrap;
+    
+  margin-left: 10px;
+}
+
+.PRReviewChangesButton {
+  color: #0085E4;
+  border: 1px solid #0085E4;
+}
+
+.PRMergeChangesButton {
+  color: green;
+  border: 1px solid green;
+}
+
+.PRMergeChangesButton img {
+  position: relative;
+  top: 4px;
+  margin-right: 6px;
+}
+
+.PRActionsBarButton:active {
+  opacity: 0.7;
+}
+
+.PRMergeChangesButtonDisabled {
+  color: #CCC;
+  border: 1px solid #CCC;
+}
+
+.PRMergeChangesButtonDisabled:active {
+  opacity: 1.0;
+}
+
+.PRChangeSummary {
+  float: left;
+  font-size: 12px;
+  line-height: 14px;
+  padding-top: 2px;
+  cursor: default;
+}
+
+.PRChangedFiles {
+  color: #555;
+}
+
+.PRChangedLines {
+
+}
+
+.PRChangedLinesLabel {
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.PRChangeBox {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 1px;
+}

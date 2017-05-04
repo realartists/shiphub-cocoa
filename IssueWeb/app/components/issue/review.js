@@ -46,7 +46,6 @@ class ReviewAbstractComment extends AbstractComment {
   canClose() { return false; }
   repoOwner() { return IssueState.current.repoOwner; }
   repoName() { return IssueState.current.repoName; }
-  shouldShowCommentPRBar() { return false; }
   saveDraftState() { }
   restoreDraftState() { }
   loginCompletions() {

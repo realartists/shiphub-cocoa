@@ -1230,6 +1230,12 @@ static NSString *const LastUpdated = @"LastUpdated";
             if (identifier) {
                 [changed addObject:identifier];
             }
+        } else if ([obj isKindOfClass:[LocalPullRequest class]]) {
+            LocalPullRequest *pr = obj;
+            NSString *identifier = pr.issue.fullIdentifier;
+            if (identifier) {
+                [changed addObject:identifier];
+            }
         } else if ([obj isKindOfClass:[LocalCommitStatus class]]) {
             if (!changedCommitStatusShas) {
                 changedCommitStatusShas = [NSMutableSet new];
@@ -2419,6 +2425,80 @@ static NSString *const LastUpdated = @"LastUpdated";
         } else {
             [self _handleRequestedReviewersResponse:jsonResponse issueIdentifier:issueIdentifier completion:completion];
         }
+    }];
+}
+
+- (void)mergePullRequest:(NSString *)issueIdentifier strategy:(PRMergeStrategy)strat title:(NSString *)title message:(NSString *)message completion:(void (^)(Issue *issue, NSError *error))completion
+{
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    [self loadFullIssue:issueIdentifier completion:^(Issue *initIssue, NSError *loadErr) {
+        
+        if (![initIssue mergeable]) {
+            RunOnMain(^{
+                completion(nil, [NSError shipErrorWithCode:ShipErrorCodeCannotMergePRError]);
+            });
+        }
+        
+        NSMutableDictionary *msg = [NSMutableDictionary new];
+        msg[@"sha"] = initIssue.head[@"sha"];
+        switch (strat) {
+            case PRMergeStrategyMerge:
+                msg[@"merge_method"] = @"merge";
+                break;
+            case PRMergeStrategyRebase:
+                msg[@"merge_method"] = @"rebase";
+                break;
+            case PRMergeStrategySquash:
+                msg[@"merge_method"] = @"squash";
+                break;
+        }
+        if (title) {
+            msg[@"commit_title"] = title;
+        }
+        if (message) {
+            msg[@"commit_message"] = message;
+        }
+
+        ServerConnection *conn = [[DataStore activeStore] serverConnection];
+        NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/merge", issueIdentifier.issueRepoFullName, issueIdentifier.issueNumber];
+        
+        NSDictionary *headers = @{ @"Accept": @"application/vnd.github.polaris-preview+json" };
+        
+        [conn perform:@"PUT" on:endpoint headers:headers body:msg completion:^(id jsonResponse, NSError *error) {
+            if (error && [error.domain isEqualToString:ShipErrorDomain]) {
+                NSInteger httpStatus = [error.userInfo[ShipErrorUserInfoHTTPResponseCodeKey] integerValue];
+                if (httpStatus == 405) {
+                    error = [NSError shipErrorWithCode:ShipErrorCodeCannotMergePRError];
+                } else if (httpStatus == 409) {
+                    error = [NSError shipErrorWithCode:ShipErrorCodeCannotMergePRError localizedMessage:@"Head branch was modified. Reload and try the merge again."];
+                }
+            }
+            
+            if (error) {
+                RunOnMain(^{
+                    completion(nil, error);
+                });
+                return;
+            }
+            
+            NSDictionary *prDict = jsonResponse;
+            
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                NSFetchRequest *prFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+                prFetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", initIssue.identifier];
+                
+                LocalIssue *li = [[moc executeFetchRequest:prFetch error:NULL] firstObject];
+                BOOL didMerge = [prDict[@"merged"] boolValue];
+                li.pr.merged = @(didMerge);
+                li.state = didMerge ? @"closed" : @"open";
+                
+                [moc save:NULL];
+                
+                [self loadFullIssue:issueIdentifier completion:completion];
+            }];
+        }];
     }];
 }
 

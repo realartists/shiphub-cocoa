@@ -53,6 +53,11 @@
 @property (readonly) NSNumber *mergeable;
 @property (readonly) NSString *mergeCommitSha;
 @property (readonly) NSNumber *merged;
+@property (readonly) NSNumber *additions;
+@property (readonly) NSNumber *deletions;
+@property (readonly) NSNumber *changedFiles;
+@property (readonly) NSNumber *commits;
+@property (readonly) NSNumber *rebaseable;
 @property (readonly) NSDate *mergedAt;
 @property (readonly) Account *mergedBy;
 

@@ -9,6 +9,7 @@
 #import "PRMergeViewController.h"
 
 #import "Extras.h"
+#import "Repo.h"
 
 @interface PRMergeViewController ()
 
@@ -33,6 +34,15 @@
         _pr = pr;
         _titleField.stringValue = [pr mergeTitle] ?: @"";
         _messageView.string = [pr mergeMessage] ?: @"";
+    }
+}
+
+- (void)setIssue:(Issue *)i {
+    [self view];
+    if (_issue != i) {
+        _issue = i;
+        _titleField.stringValue = i != nil ? [NSString stringWithFormat:@"Merge pull request #%@ from %@/%@", i.number, i.repository.fullName, i.head[@"ref"]] : @"";
+        _messageView.string = i.title ?: @"";
     }
 }
 

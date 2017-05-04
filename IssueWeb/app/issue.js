@@ -27,6 +27,7 @@ import AssigneesPicker from 'components/issue/assignees-picker.js'
 import { ReviewState } from 'components/issue/review-state.js'
 import PRSummary from 'components/issue/pr-summary.js'
 import Reviewers from 'components/issue/reviewers.js'
+import { PRActionsBar } from 'components/issue/pr-actions-bar.js'
 import { TimeAgo, TimeAgoString } from 'components/time-ago.js'
 import { api } from 'util/api-proxy.js'
 import { promiseQueue } from 'util/promise-queue.js'
@@ -1808,10 +1809,19 @@ var IssueLabels = React.createClass({
   },
   
   render: function() {
+    var labels = Array.from(this.props.issue.labels);
+    labels.sort((a, b) => {
+      var an = a.name.toLowerCase();
+      var bn = b.name.toLowerCase();
+      if (an < bn) return -1;
+      else if (an > bn) return 1;
+      else return 0;
+    });
+  
     return h('div', {className:'IssueLabels'},
       h(HeaderLabel, {title:"Labels"}),
       h(AddLabel, {issue: this.props.issue, ref:"add"}),
-      this.props.issue.labels.map((l, i) => { 
+      labels.map((l, i) => { 
         return [" ", h(Label, {key:i, label:l, canDelete:true, onDelete: this.deleteLabel})];
       }).reduce(function(c, v) { return c.concat(v); }, [])
     );
@@ -1930,12 +1940,14 @@ var Header = React.createClass({
              h(IssueLabels, {key:"labels", ref:"labels", issue: this.props.issue}));
              
     if (this.props.issue.pull_request) {
-      els.push(h(HeaderSeparator, {key:"sep4", style:{marginTop:"-0px"}}),
+      els.push(h(HeaderSeparator, {key:"sep4", style:{marginTop:"1px"}}),
                h(PRSummary, {key:"prsummary", ref:"prsummary", issue: this.props.issue}));
       
       if (this.props.issue.number) {
         els.push(h(HeaderSeparator, {key:"sep5"}),
                  h(Reviewers, {key:"reviewers", ref:"reviewers", issue: this.props.issue, allReviews:this.props.allReviews}));
+        els.push(h(HeaderSeparator, {key:"sep6", style:{marginTop:"1px"}}),
+                 h(PRActionsBar, {key:"practions", ref:"practions", issue: this.props.issue}));
       }
                
     }

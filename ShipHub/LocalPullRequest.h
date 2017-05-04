@@ -16,10 +16,16 @@
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSNumber *maintainerCanModify;
 @property (nullable, nonatomic, retain) NSNumber *mergeable;
+@property (nullable, nonatomic, retain) NSNumber *rebaseable;
 @property (nullable, nonatomic, retain) NSString *mergeCommitSha;
 @property (nullable, nonatomic, retain) NSNumber *merged;
 @property (nullable, nonatomic, retain) NSDate *mergedAt;
 @property (nullable, nonatomic, retain) LocalAccount *mergedBy;
+@property (nullable, nonatomic, retain) NSNumber *additions;
+@property (nullable, nonatomic, retain) NSNumber *changedFiles;
+@property (nullable, nonatomic, retain) NSNumber *deletions;
+@property (nullable, nonatomic, retain) NSNumber *commits;
+
 @property (nullable, nonatomic, retain) NSSet<LocalAccount *> *requestedReviewers;
 
 @property (nullable, nonatomic, retain) id<NSCoding> base;

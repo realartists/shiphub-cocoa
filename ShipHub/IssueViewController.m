@@ -30,6 +30,8 @@
 #import "Account.h"
 #import "WebKitExtras.h"
 #import "MarkdownFormattingController.h"
+#import "PRMergeViewController.h"
+#import "ProgressSheet.h"
 
 #import <WebKit/WebKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
@@ -40,7 +42,7 @@ NSString *const IssueViewControllerNeedsSaveDidChangeNotification = @"IssueViewC
 NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave";
 
 
-@interface IssueViewController () <MarkdownFormattingControllerDelegate> {
+@interface IssueViewController () <MarkdownFormattingControllerDelegate, PRMergeViewControllerDelegate> {
     NSMutableDictionary *_saveCompletions;
     NSTimer *_needsSaveTimer;
     
@@ -50,6 +52,9 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 
 @property NSTimer *markAsReadTimer;
 @property IBOutlet MarkdownFormattingController *markdownFormattingController;
+
+@property PRMergeViewController *mergeController;
+@property NSPopover *mergePopover;
 
 @end
 
@@ -290,6 +295,14 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         [weakSelf handleNewMilestoneWithName:name owner:owner repo:repo completionCallback:completionCallback];
     } forProperty:@"newMilestone"];
     
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf handleDiffViewer:msg];
+    } name:@"diffViewer"];
+    
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf handleMergePopover:msg];
+    } name:@"mergePopover"];
+    
     [_markdownFormattingController registerJavaScriptAPI:windowObject];
 
     NSString *setupJS =
@@ -429,6 +442,63 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         } else {
             id jsRepr = [JSON JSRepresentableValueFromSerializedObject:createdMilestones withNameTransformer:[JSON underbarsAndIDNameTransformer]];
             [completionCallback callWithArguments:@[jsRepr]];
+        }
+    }];
+}
+
+- (void)handleDiffViewer:(NSDictionary *)msg {
+    IssueDocumentController *docController = [IssueDocumentController sharedDocumentController];
+    [docController openDiffWithIdentifier:self.issue.fullIdentifier canOpenExternally:NO scrollToCommentWithIdentifier:nil completion:nil];
+}
+
+- (void)handleMergePopover:(NSDictionary *)msg {
+    NSDictionary *bbox = msg[@"bbox"];
+    
+    CGRect r = CGRectMake([bbox[@"left"] doubleValue],
+                          [bbox[@"top"] doubleValue],
+                          [bbox[@"width"] doubleValue],
+                          [bbox[@"height"] doubleValue]);
+    
+    
+    
+    if (_mergePopover.shown) {
+        [_mergePopover close];
+        return;
+    }
+    
+    if (!_mergeController) {
+        _mergeController = [PRMergeViewController new];
+        _mergeController.delegate = self;
+    }
+    if (![_mergeController.issue.fullIdentifier isEqualToString:self.issue.fullIdentifier]) {
+        _mergeController.issue = self.issue;
+    }
+
+    _mergePopover = [[NSPopover alloc] init];
+    _mergePopover.contentViewController = _mergeController;
+    _mergePopover.behavior = NSPopoverBehaviorSemitransient;
+    
+    [_mergePopover showRelativeToRect:r ofView:self.web.mainFrame.frameView.documentView preferredEdge:NSRectEdgeMinY];
+}
+
+#pragma mark - PRMergeViewControllerDelegate
+
+- (void)mergeViewController:(PRMergeViewController *)vc didSubmitWithTitle:(NSString *)title message:(NSString *)message strategy:(PRMergeStrategy)strat
+{
+    [_mergePopover close];
+    _mergePopover = nil;
+    _mergeController = nil;
+    
+    ProgressSheet *progress = [ProgressSheet new];
+    progress.message = NSLocalizedString(@"Merging", nil);
+    [progress beginSheetInWindow:self.view.window];
+    
+    [[DataStore activeStore] mergePullRequest:self.issue.fullIdentifier strategy:strat title:title message:message completion:^(Issue *issue, NSError *error) {
+        [progress endSheet];
+        if (error) {
+            [self presentError:error];
+        } else {
+            self.issue = issue;
         }
     }];
 }

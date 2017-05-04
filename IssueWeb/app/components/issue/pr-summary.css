@@ -18,6 +18,7 @@ div.PRSummaryCommitStatus {
 i.PRSummaryCommitStatusCaret {
   position: relative;
   top: 2px;
+  padding-left: 2px;
   color: #BBB;
 }
 
