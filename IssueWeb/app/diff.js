@@ -730,6 +730,24 @@ class App {
       }
       return l;
     };
+    
+    var computeBlockBounds = (b) => {
+        var offsetTop = 0;
+        var n = b.startNode;
+        while (n && n != this.table) {
+          offsetTop += n.offsetTop;
+          n = n.offsetParent;
+        }
+        n = b.endNode;
+        var offsetBottom = n.offsetHeight;
+        while (n && n != this.table) {
+          offsetBottom += n.offsetTop;
+          n = n.offsetParent;
+        }
+        b.offsetTop = offsetTop;
+        b.offsetBottom = offsetBottom;
+        return { offsetTop, offsetBottom };
+    };
   
     var blocks;
     if (options.type === 'comment') {
@@ -754,38 +772,25 @@ class App {
       });
     }
     
-    if (options.direction) {
-      var scrollableHeight = this.table.scrollHeight;
-      var visibleHeight = this.miniMap.canvas.clientHeight;
-      var lineTop = window.scrollY;
-      var lineBottom = lineTop + visibleHeight;
-      var atBottom = Math.abs(lineTop - (scrollableHeight - visibleHeight)) < 1.0;
-      var atTop = lineTop < 1.0;
-      
+    var scrollableHeight = this.table.scrollHeight;
+    var visibleHeight = this.miniMap.canvas.clientHeight;
+    var lineTop = window.scrollY;
+    var lineBottom = lineTop + visibleHeight;
+    var atBottom = Math.abs(lineTop - (scrollableHeight - visibleHeight)) < 1.0;
+    var atTop = lineTop < 1.0;
+    
+    if (options.direction) {      
       var onscreen = [];
       var above = [];
       var below = [];
       
       for (var i = 0; i < blocks.length; i++) {
         var b = blocks[i];
-        var offsetTop = 0;
-        var n = b.startNode;
-        while (n && n != this.table) {
-          offsetTop += n.offsetTop;
-          n = n.offsetParent;
-        }
-        n = b.endNode;
-        var offsetBottom = n.offsetHeight;
-        while (n && n != this.table) {
-          offsetBottom += n.offsetTop;
-          n = n.offsetParent;
-        }
-        b.offsetTop = offsetTop;
-        b.offsetBottom = offsetBottom;
+        computeBlockBounds(b);
         
-        if (offsetBottom < lineTop) {
+        if (b.offsetBottom < lineTop) {
           above.push(i);
-        } else if (offsetTop < lineBottom) {
+        } else if (b.offsetTop < lineBottom) {
           onscreen.push(i);
         } else {
           below.push(i);
@@ -823,7 +828,9 @@ class App {
       }
     } else if (options.last) {
       if (blocks.length) {
-        blocks[blocks.length-1].endNode.scrollIntoView();
+        var block = blocks[blocks.length-1];
+        computeBlockBounds(block);
+        window.scroll(0, Math.max(0, (block.offsetBottom + 20.0) - visibleHeight));
       } else {
         window.scroll(0, scrollableHeight - visibleHeight);
       }
