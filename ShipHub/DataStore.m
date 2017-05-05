@@ -2502,6 +2502,37 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
+- (void)deletePullRequestBranch:(Issue *)issue completion:(void (^)(NSError *error))completion {
+    NSParameterAssert(issue);
+    NSParameterAssert(issue.head[@"ref"]);
+    
+    NSString *baseRepo = issue.base[@"repo"][@"fullName"];
+    NSString *headRepo = issue.base[@"repo"][@"fullName"];
+    NSString *headBranch = issue.head[@"ref"];
+    NSString *headDefaultBranch = issue.head[@"repo"][@"defaultBranch"];
+    
+    if (!headBranch
+        || ![baseRepo isEqualToString:headRepo]
+        || [headBranch isEqualToString:headDefaultBranch])
+    {
+        if (completion) {
+            completion([NSError shipErrorWithCode:ShipErrorCodeInternalInconsistencyError]);
+        }
+        return;
+    }
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/git/refs/heads/%@", baseRepo, [headBranch stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLPathAllowedCharacterSet]]];
+    
+    [self.serverConnection perform:@"DELETE" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
+        DebugLog(@"Delete branch %@:%@ finished with response: %@ error: %@", headRepo, headBranch, jsonResponse, error);
+        if (completion) {
+            RunOnMain(^{
+                completion(error);
+            });
+        }
+    }];
+}
+
 #pragma mark - Metadata Mutation
 
 - (void)addLabel:(NSDictionary *)label

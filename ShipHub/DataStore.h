@@ -139,6 +139,8 @@
 
 - (void)mergePullRequest:(NSString *)issueIdentifier strategy:(PRMergeStrategy)strat title:(NSString *)title message:(NSString *)message completion:(void (^)(Issue *issue, NSError *error))completion;
 
+- (void)deletePullRequestBranch:(Issue *)issue completion:(void (^)(NSError *error))completion;
+
 @end
 
 @interface DataStore (CustomQuery)

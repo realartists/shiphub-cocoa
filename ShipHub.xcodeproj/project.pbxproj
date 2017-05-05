@@ -248,6 +248,8 @@
 		1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */; };
 		1AAA72601EBAFF9B00E77A65 /* LocalPullRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AAA725F1EBAFF9B00E77A65 /* LocalPullRequest.m */; };
 		1AAA72611EBAFF9B00E77A65 /* LocalPullRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AAA725F1EBAFF9B00E77A65 /* LocalPullRequest.m */; };
+		1AAA72661EBC337B00E77A65 /* PRPostMergeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AAA72641EBC337B00E77A65 /* PRPostMergeController.m */; };
+		1AAA72671EBC337B00E77A65 /* PRPostMergeController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AAA72651EBC337B00E77A65 /* PRPostMergeController.xib */; };
 		1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB038451D5AB7EC005093B9 /* IssueWaiter.m */; };
 		1AB0384F1D5C011D005093B9 /* HockeySDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB0384B1D5C0117005093B9 /* HockeySDK.framework */; };
 		1AB038501D5C013A005093B9 /* HockeySDK.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB0384B1D5C0117005093B9 /* HockeySDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -820,6 +822,9 @@
 		1AAA725E1EBAFF9B00E77A65 /* LocalPullRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPullRequest.h; sourceTree = "<group>"; };
 		1AAA725F1EBAFF9B00E77A65 /* LocalPullRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalPullRequest.m; sourceTree = "<group>"; };
 		1AAA72621EBBE5E200E77A65 /* PRMergeStrategy.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PRMergeStrategy.h; sourceTree = "<group>"; };
+		1AAA72631EBC337B00E77A65 /* PRPostMergeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRPostMergeController.h; sourceTree = "<group>"; };
+		1AAA72641EBC337B00E77A65 /* PRPostMergeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRPostMergeController.m; sourceTree = "<group>"; };
+		1AAA72651EBC337B00E77A65 /* PRPostMergeController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRPostMergeController.xib; sourceTree = "<group>"; };
 		1AB038441D5AB7EC005093B9 /* IssueWaiter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWaiter.h; sourceTree = "<group>"; };
 		1AB038451D5AB7EC005093B9 /* IssueWaiter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWaiter.m; sourceTree = "<group>"; };
 		1AB038491D5C0117005093B9 /* CHANGELOG */ = {isa = PBXFileReference; lastKnownFileType = text; path = CHANGELOG; sourceTree = "<group>"; };
@@ -1713,6 +1718,9 @@
 				1A4353521E73762A00C5F5AB /* PRMergeViewController.h */,
 				1A4353531E73762A00C5F5AB /* PRMergeViewController.m */,
 				1A4353541E73762A00C5F5AB /* PRMergeViewController.xib */,
+				1AAA72631EBC337B00E77A65 /* PRPostMergeController.h */,
+				1AAA72641EBC337B00E77A65 /* PRPostMergeController.m */,
+				1AAA72651EBC337B00E77A65 /* PRPostMergeController.xib */,
 				1A2FCD221E7314320000F91B /* clonepr.applescript */,
 				1AB2438D1E97075C0062628C /* clonepr.sh */,
 				1AE8775B1E786774008AB0AD /* PRCreateController.h */,
@@ -1965,6 +1973,7 @@
 				1A7FD77A1D493B0400B585E2 /* ProgressSheet.xib in Resources */,
 				1AF5673D1D627C2E00611DBB /* OAuthController.xib in Resources */,
 				1A38CA121D9363DE00655891 /* NewProjectController.xib in Resources */,
+				1AAA72671EBC337B00E77A65 /* PRPostMergeController.xib in Resources */,
 				1AF5672D1D62427100611DBB /* WelcomeController.xib in Resources */,
 				1AF9757D1E92DAD000914460 /* PRBinaryDiffViewController.xib in Resources */,
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
@@ -2229,6 +2238,7 @@
 				1A7FD7831D497C1700B585E2 /* AssigneeModifyController.m in Sources */,
 				1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */,
 				1A012EB01D443EBD006CE5DF /* LocalQuery+CoreDataProperties.m in Sources */,
+				1AAA72661EBC337B00E77A65 /* PRPostMergeController.m in Sources */,
 				1A86763E1E94165E00ACE932 /* TrackingProgressSheet.m in Sources */,
 				1AF349771CDAC1E900A5BEB0 /* ChartConfigController.m in Sources */,
 				1A0D59D51CA4A8D1004F2578 /* IssueViewController.m in Sources */,

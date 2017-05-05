@@ -27,6 +27,7 @@
 #import "PRReviewChangesViewController.h"
 #import "PRNavigationToolbarItem.h"
 #import "PRMergeViewController.h"
+#import "PRPostMergeController.h"
 
 static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
 static NSString *const DiffViewModeID = @"DiffViewMode";
@@ -783,7 +784,12 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
                 [self merge:nil];
             } fail:nil];
         } else {
-            [[self.view window] close];
+            PRPostMergeController *postMerge = [PRPostMergeController new];
+            postMerge.issue = _pr.issue;
+            
+            [postMerge beginSheetModalForWindow:self.view.window completion:^{
+                [[self.view window] close];
+            }];
         }
     }];
 }

@@ -32,6 +32,7 @@
 #import "MarkdownFormattingController.h"
 #import "PRMergeViewController.h"
 #import "ProgressSheet.h"
+#import "PRPostMergeController.h"
 
 #import <WebKit/WebKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
@@ -499,6 +500,10 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
             [self presentError:error];
         } else {
             self.issue = issue;
+            PRPostMergeController *postMerge = [PRPostMergeController new];
+            postMerge.issue = issue;
+            
+            [postMerge beginSheetModalForWindow:self.view.window completion:nil];
         }
     }];
 }
