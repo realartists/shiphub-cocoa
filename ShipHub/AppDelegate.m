@@ -199,6 +199,8 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 
 - (BOOL)handleURL:(NSURL *)URL atAppLaunch:(BOOL)atAppLaunch
 {
+    DebugLog(@"handleURL:%@", URL);
+    
     if (!URL) return YES;
     
     if ([[URL scheme] isEqualToString:@"ship+github"]) {

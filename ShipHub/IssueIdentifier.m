@@ -26,7 +26,7 @@
     NSString *path = [components path];
     
     NSArray *pathParts = [path componentsSeparatedByString:@"/"];
-    if (pathParts.count != 5 || !([pathParts[3] isEqualToString:@"issues"] || [pathParts[3] isEqualToString:@"pull"])) {
+    if (pathParts.count < 5 || !([pathParts[3] isEqualToString:@"issues"] || [pathParts[3] isEqualToString:@"pull"])) {
         return nil;
     }
     
@@ -82,7 +82,7 @@
               OWNER_OR_NAME_VALID_CHARS
               @"/"
               OWNER_OR_NAME_VALID_CHARS
-              @"/issues/\\d+" options:0 error:NULL];
+              @"/(?:issues|pull)/\\d+(?:/files(?:/[A-Fa-f0-9]*)?)?" options:0 error:NULL];
     });
     return re;
 }
@@ -248,7 +248,9 @@
         @try {
             NSURL *URL = [[NSURL alloc] initWithString:substr];
             NSString *issueIdentifier = [NSString issueIdentifierWithGitHubURL:URL];
-            [identifiers addObject:issueIdentifier];
+            if (issueIdentifier) {
+                [identifiers addObject:issueIdentifier];
+            }
         } @catch (id exc) { }
     }];
     return identifiers;
