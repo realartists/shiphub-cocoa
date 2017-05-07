@@ -13,7 +13,11 @@ class PRChangeSummary extends React.Component {
   render() {
     var issue = this.props.issue;
     
-    var changedFiles = issue.changed_files||0;
+    if (!Number.isInteger(issue.changed_files) /* we don't have the summary loaded yet */) {
+      return h('div', {className:'PRChangeSummary'});
+    }
+    
+    var changedFiles = issue.changed_files;
     var additions = issue.additions||0;
     var deletions = issue.deletions||0;
     var linesChanged = additions+deletions;
