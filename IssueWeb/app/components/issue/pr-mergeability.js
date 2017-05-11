@@ -41,7 +41,7 @@ class PRMergeabilitySection extends React.Component {
     var icon;
     if (parts) {
       var total = parts.reduce((accum, p) => accum + p.count, 0);
-      var green = parts.filter(p => p.color != greenColor).length;
+      var green = parts.filter(p => p.color == greenColor).reduce((accum, p) => accum + p.count, 0);
       
       if (total == green) {
         icon = h(PRMergeabilityIcon, { state:"ok" });

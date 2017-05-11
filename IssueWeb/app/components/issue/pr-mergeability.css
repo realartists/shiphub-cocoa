@@ -66,20 +66,26 @@ div.PRMergeabilitySectionText {
 }
 
 div.PRMergeabilitySectionHeading {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   font-size: 15px;
   font-weight: bold;
-  line-height: 15px;
-  max-height: 15px;
-  height: 15px;
+  line-height: 17px;
+  max-height: 17px;
+  height: 17px;
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis 
 } 
 
 div.PRMergeabilitySectionSubheading {
   font-size: 13px;
-  line-height: 13px;
-  height: 13px;
-  max-height: 13px;
+  line-height: 15px;
+  height: 15px;
+  max-height: 15px;
   color: #555;
+  white-space: nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis 
 }
 
 div.PRMergeabilitySection i.PRMergeabilityIcon {
