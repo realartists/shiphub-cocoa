@@ -160,7 +160,8 @@ button.PRMergeabilityMergeStatusConflictsButton {
 }
 
 div.PRMergeabilityStatusesTableContainer {
-  padding-left: 40px;
+  margin-right: -3px;
+  padding-left: 37px;
   padding-bottom: 4px;
   border-bottom: 1px dotted #ECECEC;
 }
