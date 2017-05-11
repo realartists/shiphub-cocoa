@@ -102,6 +102,7 @@
             _pullRequestIdentifier = lpr.identifier;
             _maintainerCanModify = lpr.maintainerCanModify;
             _mergeable = lpr.mergeable;
+            _mergeableState = lpr.mergeableState;
             _mergeCommitSha = lpr.mergeCommitSha;
             _merged = lpr.merged;
             _mergedAt = lpr.mergedAt;

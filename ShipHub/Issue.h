@@ -51,6 +51,7 @@
 @property (readonly) NSNumber *pullRequestIdentifier;
 @property (readonly) NSNumber *maintainerCanModify;
 @property (readonly) NSNumber *mergeable;
+@property (readonly) NSString *mergeableState;
 @property (readonly) NSString *mergeCommitSha;
 @property (readonly) NSNumber *merged;
 @property (readonly) NSNumber *additions;

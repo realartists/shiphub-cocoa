@@ -543,6 +543,39 @@ class IssueState {
       });
     });
   }
+  
+  dismissReview(id, reason) {
+    if (!id) {
+      return Promise.reject("id not specified");
+    }
+    if (!reason) {
+      return Promise.reject("reason not specified");
+    }
+    
+    // eagerly dismiss the review
+    this.issue.reviews = Array.from(this.issue.reviews).map(r => {
+      if (r.id == id) {
+        r.state = 4; /* dismissed */
+      }
+    });
+    this._renderState();
+    
+    var url = `https://api.github.com/repos/${this.repoOwner}/${this.repoName}/pulls/${this.issue.number}/reviews/${id}/dismissals`;
+    return promiseQueue('applyPatch', () => {
+      var request = api(url, {
+        method: 'PUT',
+        body: JSON.stringify({message:reason})
+      });
+      return new Promise((resolve, reject) => {
+        request.then((body) => {
+          resolve();
+        }).catch((err) => {
+          console.error("Dismiss review failed", err);
+          reject(err);
+        });
+      });
+    });
+  }
 }
 
 var _current = new IssueState();

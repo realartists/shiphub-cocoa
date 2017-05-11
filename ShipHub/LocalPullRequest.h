@@ -16,6 +16,7 @@
 @property (nullable, nonatomic, retain) NSNumber *identifier;
 @property (nullable, nonatomic, retain) NSNumber *maintainerCanModify;
 @property (nullable, nonatomic, retain) NSNumber *mergeable;
+@property (nullable, nonatomic, retain) NSString *mergeableState;
 @property (nullable, nonatomic, retain) NSNumber *rebaseable;
 @property (nullable, nonatomic, retain) NSString *mergeCommitSha;
 @property (nullable, nonatomic, retain) NSNumber *merged;

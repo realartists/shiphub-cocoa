@@ -128,14 +128,22 @@
     }
 }
 
-- (NSURL *)issueGitHubURL {
+- (NSURL *)_issueURLWithPathPart:(NSString *)pathPart {
     AuthAccount *account = [[[DataStore activeStore] auth] account];
     NSString *host = [account.ghHost stringByReplacingOccurrencesOfString:@"api." withString:@""] ?: @"github.com";
     
     
-    NSString *URLStr = [NSString stringWithFormat:@"https://%@/%@/%@/issues/%@", host, [self issueRepoOwner], [self issueRepoName], [self issueNumber]];
+    NSString *URLStr = [NSString stringWithFormat:@"https://%@/%@/%@/%@/%@", host, [self issueRepoOwner], [self issueRepoName], pathPart, [self issueNumber]];
     
     return [NSURL URLWithString:URLStr];
+}
+
+- (NSURL *)issueGitHubURL {
+    return [self _issueURLWithPathPart:@"issues"];
+}
+
+- (NSURL *)pullRequestGitHubURL {
+    return [self _issueURLWithPathPart:@"pull"];
 }
 
 #if TARGET_OS_MAC

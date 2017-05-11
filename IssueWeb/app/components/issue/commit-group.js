@@ -67,6 +67,29 @@ function findLatestCommitStatuses(statuses) {
   return statuses;
 }
 
+class CommitStatusTableRow extends React.Component {
+  render() {
+    return h('tr', {},
+      h('td', {className:'CommitTableStatus'}, h(CommitStatuses, {statuses:[this.props.status]})),
+      h('td', {className:'CommitTableContext'}, this.props.status.context),
+      h('td', {className:'CommitTableStatusDescription'}, this.props.status.status_description),
+      h('td', {className:'CommitTableLink'},
+        h('a', {href:this.props.status.target_url, className:'fa fa-arrow-circle-right'})
+      )
+    );
+  }
+}
+
+class CommitStatusTable extends React.Component {
+  render() {
+    return h('table', {className:'CommitStatusTable'},
+      h('tbody', {},
+        this.props.statuses.map(cs => h(CommitStatusTableRow, {key:cs.id, status:cs}))
+      )
+    );
+  }
+}
+
 class CommitGroupHeader extends React.Component {
   render() {
     var commits = this.props.commits;
@@ -104,7 +127,7 @@ class CommitStatuses extends React.Component {
       return h('i', { className: 'fa fa-clock-o commitStatusIconPending' });
     } else if (state == 'success') {
       return h('i', { className: 'fa fa-check commitStatusIconSuccess' });
-    } else if (state == 'failure') {
+    } else if (state == 'failure' || state == 'error') {
       return h('i', { className: 'fa fa-times-circle commitStatusIconFailure' });
     } else {
       return h('i', { className: 'fa fa-question-circle commitStatusIconUnknown' });
@@ -116,6 +139,7 @@ class CommitStatuses extends React.Component {
       switch(state) {
         case 'success': return 1;
         case 'pending': return 2;
+        case 'error':
         case 'failure': return 3;
         default: return 0;
       }
@@ -297,6 +321,7 @@ class CommitGroup extends React.Component {
 export { 
   CommitStatuses, 
   CommitGroup,
+  CommitStatusTable,
   getSubjectAndBodyFromCommitMessage,
   findLatestCommitStatuses,
 }

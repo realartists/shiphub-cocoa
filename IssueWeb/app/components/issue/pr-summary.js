@@ -1,34 +1,11 @@
 import React, { createElement as h } from 'react'
 
 import { HeaderLabel, HeaderSeparator } from './issue-header.js'
-import { CommitStatuses, findLatestCommitStatuses } from './commit-group.js'
+import { CommitStatuses, findLatestCommitStatuses, CommitStatusTable } from './commit-group.js'
 import ghost from 'util/ghost.js'
 import { keypath, setKeypath } from 'util/keypath.js'
 
 import './pr-summary.css'
-
-class CommitStatusTableRow extends React.Component {
-  render() {
-    return h('tr', {},
-      h('td', {className:'PRSummaryCommitTableStatus'}, h(CommitStatuses, {statuses:[this.props.status]})),
-      h('td', {className:'PRSummaryCommitTableContext'}, this.props.status.context),
-      h('td', {className:'PRSummaryCommitTableStatusDescription'}, this.props.status.status_description),
-      h('td', {className:'PRSummaryCommitTableLink'},
-        h('a', {href:this.props.status.target_url, className:'fa fa-arrow-circle-right'})
-      )
-    );
-  }
-}
-
-class CommitStatusTable extends React.Component {
-  render() {
-    return h('table', {className:'PRSummaryCommitStatusTable'},
-      h('tbody', {},
-        this.props.statuses.map(cs => h(CommitStatusTableRow, {key:cs.id, status:cs}))
-      )
-    );
-  }
-}
 
 class PRSummary extends React.Component {
   constructor(props) {
@@ -62,16 +39,16 @@ class PRSummary extends React.Component {
     var summary;
     var author = (this.props.issue.user||ghost).login;
     
-    var baseRef;
+    var headRef;
     if (headRepo != baseRepo) {
-      baseRef = `${headRepo}:headBranch`;
+      headRef = `${headRepo}:headBranch`;
     } else {
-      baseRef = headBranch;
+      headRef = headBranch;
     }
     
     summary = h('div', {key:'summary', className:'PRSummary'},
       `${author} wants to merge `,
-      h('span', {className:'PRSummaryRef'}, baseRef),
+      h('span', {className:'PRSummaryRef'}, headRef),
       ' into ',
       h('span', {className:'PRSummaryRef'}, baseBranch)
     );

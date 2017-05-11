@@ -131,6 +131,8 @@
 
 - (void)deleteReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion;
 
+- (void)dismissReview:(NSNumber *)reviewID message:(NSString *)message inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion;
+
 - (void)saveNewPullRequest:(NSDictionary *)prJSON inRepo:(Repo *)r completion:(void (^)(Issue *issue, NSError *error))completion;
 
 - (void)addRequestedReviewers:(NSArray *)logins inIssue:(NSString *)issueIdentifier completion:(void (^)(NSArray<NSString *> *reviewerLogins, NSError *error))completion;

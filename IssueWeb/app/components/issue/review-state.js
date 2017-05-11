@@ -22,15 +22,19 @@ export default function reviewStateToUI(state) {
     case ReviewState.RequestChanges:
       icon = 'fa-thumbs-down'
       action = 'requested changes';
-      bg = 'red';
+      bg = '#CB2431';
       break;
     case ReviewState.Comment:
       icon = 'fa-comments';
       action = 'reviewed';
       break;
-    case ReviewState.Dismissed:
+    case ReviewState.Dismiss:
       icon = 'fa-ban';
       action = 'added a review that was dismissed';
+      break;
+    default:
+      icon = 'fa-clock-o';
+      action = 'was requested for review';
       break;
   }
   return { icon, action, bg };

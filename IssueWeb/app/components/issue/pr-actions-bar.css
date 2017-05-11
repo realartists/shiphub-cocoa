@@ -32,11 +32,13 @@
 .PRReviewChangesButton {
   color: #0085E4;
   border: 1px solid #0085E4;
+  white-space: nowrap;
 }
 
 .PRMergeChangesButton {
-  color: green;
-  border: 1px solid green;
+  color: #2CBE4E;
+  border: 1px solid #2CBE4E;
+  white-space: nowrap;
 }
 
 .PRMergeChangesButton img {

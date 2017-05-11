@@ -2250,6 +2250,44 @@ static NSString *const LastUpdated = @"LastUpdated";
     [[Analytics sharedInstance] track:@"Delete PR Comment"];
 }
 
+- (void)dismissReview:(NSNumber *)reviewID message:(NSString *)message inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion
+{
+    NSParameterAssert(reviewID);
+    NSParameterAssert(message);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    // PUT /repos/:owner/:repo/pulls/:number/reviews/:id/dismissals
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/reviews/%@/dismissals", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber], reviewID];
+    
+    NSDictionary *body = @{ @"message": message };
+    
+    [self.serverConnection perform:@"PUT" on:endpoint body:body completion:^(id jsonResponse, NSError *error) {
+        if (error) {
+            RunOnMain(^{
+                completion(error);
+            });
+        } else {
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRReview"];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", reviewID];
+                
+                LocalPRReview *lpr = [[moc executeFetchRequest:fetch error:NULL] firstObject];
+                if (lpr) {
+                    id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
+                    [lpr mergeAttributesFromDictionary:d];
+                    
+                    [moc save:NULL];
+                }
+                
+                RunOnMain(^{
+                    completion(nil);
+                });
+            }];
+        }
+    }];
+}
+
 - (void)saveNewPullRequest:(NSDictionary *)prJSON inRepo:(Repo *)r completion:(void (^)(Issue *issue, NSError *error))completion {
     NSParameterAssert(prJSON);
     NSParameterAssert(r);

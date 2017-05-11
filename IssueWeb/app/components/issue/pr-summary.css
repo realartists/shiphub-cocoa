@@ -26,45 +26,4 @@ div.PRSummaryCommitStatuses {
   display: block;
 }
 
-table.PRSummaryCommitStatusTable {
-  margin-left: 80px;
-  width: calc(100% - 80px);
-  min-width: calc(100% - 80px);
-}
-
-table.PRSummaryCommitStatusTable tr {
-  border-bottom: 1px solid #ECECEC;
-}
-
-table.PRSummaryCommitStatusTable tr:last-child {
-  border-bottom: 0px;
-}
-
-table.PRSummaryCommitStatusTable td {
-  vertical-align: top;
-}
-
-td.PRSummaryCommitTableStatus {
-
-}
-
-td.PRSummaryCommitTableContext {
-  white-space: nowrap;
-  overflow: ellipsis;
-}
-
-td.PRSummaryCommitTableStatusDescription {
-  color: #A9A9A9;
-  width: 100%;
-}
-
-td.PRSummaryCommitTableLink a {
-  color: #BBB;
-  text-decoration: none;
-}
-
-td.PRSummaryCommitTableLink a:hover {
-  text-decoration: none;
-}
-
 

@@ -304,6 +304,10 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         [weakSelf handleMergePopover:msg];
     } name:@"mergePopover"];
     
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf handleEditConflicts:msg];
+    } name:@"editConflicts"];
+    
     [_markdownFormattingController registerJavaScriptAPI:windowObject];
 
     NSString *setupJS =
@@ -452,6 +456,12 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     [docController openDiffWithIdentifier:self.issue.fullIdentifier canOpenExternally:NO scrollToCommentWithIdentifier:nil completion:nil];
 }
 
+- (void)handleEditConflicts:(NSDictionary *)msg {
+    NSURL *URL = [[[self issue] fullIdentifier] pullRequestGitHubURL];
+    URL = [URL URLByAppendingPathComponent:@"conflicts"];
+    [[NSWorkspace sharedWorkspace] openURL:URL];
+}
+
 - (void)handleMergePopover:(NSDictionary *)msg {
     NSDictionary *bbox = msg[@"bbox"];
     
@@ -460,6 +470,15 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
                           [bbox[@"width"] doubleValue],
                           [bbox[@"height"] doubleValue]);
     
+    NSView *docView = self.web.mainFrame.frameView.documentView;
+    NSScrollView *scrollView = [docView enclosingScrollView];
+    
+    r = [docView convertRect:r toView:self.view];
+    
+    // sadly, WebView is dumb and doesn't account for scrolling in coordinate conversions.
+    // sigh.
+    r.origin.x -= scrollView.documentVisibleRect.origin.x;
+    r.origin.y -= scrollView.documentVisibleRect.origin.y;
     
     
     if (_mergePopover.shown) {
@@ -479,7 +498,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     _mergePopover.contentViewController = _mergeController;
     _mergePopover.behavior = NSPopoverBehaviorSemitransient;
     
-    [_mergePopover showRelativeToRect:r ofView:self.web.mainFrame.frameView.documentView preferredEdge:NSRectEdgeMinY];
+    [_mergePopover showRelativeToRect:r ofView:self.view preferredEdge:NSRectEdgeMinY];
 }
 
 #pragma mark - PRMergeViewControllerDelegate

@@ -41,6 +41,7 @@ import AvatarIMG from 'components/AvatarIMG.js'
 import Comment from 'components/comment/Comment.js'
 import { CommitGroup, CommitStatuses, getSubjectAndBodyFromCommitMessage, findLatestCommitStatuses } from 'components/issue/commit-group.js'
 import Review from 'components/issue/review.js'
+import PRMergeability from 'components/issue/pr-mergeability.js'
 
 var EventIcon = React.createClass({
   propTypes: {
@@ -2034,11 +2035,13 @@ var App = React.createClass({
 
     var header = h(Header, {ref:"header", issue:issue, allReviews:allReviews, onIssueTemplate:this.onIssueTemplate});
     var activity = h(ActivityList, {key:issue["id"], ref:"activity", issue:issue, allReviews:allReviews});
+    var mergeChecklist = issue.pull_request ? h(PRMergeability, {key:'mergeability', issue:issue, allReviews:allReviews}) : null;
     var addComment = h(Comment, {ref:"addComment", key:"addComment"});
     
     var issueElement = h('div', {},
       header,
       activity,
+      mergeChecklist,
       addComment
     );
         
@@ -2475,6 +2478,10 @@ function setInColumnBrowser(inBrowser) {
   headerRule.style.borderLeft = inBrowser ? headerRule.style.borderBottom : '0px';
   headerRule.style.borderRight = inBrowser ? headerRule.style.borderBottom : '0px';
   headerRule.style.borderTop = inBrowser ? headerRule.style.borderBottom : '0px';
+  
+  var mergeRule = findCSSRule('div.PRMergeability');
+  mergeRule.style.borderLeft = inBrowser ? commitGroupRule.style.borderTop : '0px';
+  mergeRule.style.borderRight = inBrowser ? commitGroupRule.style.borderTop : '0px';
 }
 
 window.setInColumnBrowser = setInColumnBrowser;

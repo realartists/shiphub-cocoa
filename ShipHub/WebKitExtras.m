@@ -70,7 +70,12 @@
 }
 
 - (void)postMessage:(WebScriptObject *)msg {
-    self.block([[msg JSValue] toDictionary]);
+    @try {
+        self.block([[msg JSValue] toDictionary]);
+    } @catch (id exc) {
+        ErrLog(@"%@", exc);
+    }
 }
 
 @end
+

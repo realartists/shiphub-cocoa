@@ -75,18 +75,20 @@ class ReviewAtom extends React.Component {
   }
   
   render() {
-    var icon, bg, del, click;
+    var icon, bg, del, click, title;
     var style = { color: 'white' };
     if (this.props.item.review) {
       var reviewUI = reviewStateToUI(this.props.item.review.state);
       icon = reviewUI.icon;
       bg = reviewUI.bg;
+      title = reviewUI.action;
       Object.assign(style, {cursor:"pointer"});
       click = this.jump.bind(this);
     } else {
       click = null;
       icon = 'fa-question-circle';
       bg = '#999';
+      title = "review requested";
       del = h('span', {className:'ReviewerDelete Clickable', onClick:this.onDeleteClick.bind(this)}, 
         h('i', {className:'fa fa-times'})
       );
@@ -95,7 +97,7 @@ class ReviewAtom extends React.Component {
     style.backgroundColor = bg;
     
     return h("span", {className:"ReviewersAtomContainer"},
-      h("span", {className:"ReviewsAtom", style:style, onClick:click},
+      h("span", {className:"ReviewsAtom", style:style, onClick:click, title},
         h('i', {className:`fa ${icon}`, style:{marginRight: '4px'}}),
         this.props.item.user.login,
         del
@@ -149,10 +151,11 @@ class Reviewers extends React.Component {
     return Promise.resolve();
   }
   
-  render() {
+  // return { user, review? } for all users who have submitted reviews or had them requested
+  static latestReviews(issue, allReviews) {
     var items = [];
     
-    var reviews = this.props.allReviews.filter(r => !!r.id);
+    var reviews = allReviews.filter(r => !!r.id);
     
     // find the most recent reviews for each user
     reviews.sort((a, b) => {
@@ -163,8 +166,6 @@ class Reviewers extends React.Component {
       else if (da > db) return -1;
       else return 0;
     });
-    
-    console.log("reviews.1", reviews);
     
     // reduce reviews such that we only have the latest review for each user
     reviews = reviews.reduce((accum, review) => {
@@ -177,17 +178,14 @@ class Reviewers extends React.Component {
       }
     }, []);
     
-    console.log("reviews.2", reviews);
-    
     var reviewed = new Set();
     reviews.forEach(r => {
-      console.log("r", r);
       reviewed.add(r.user.id);
       items.push({user:r.user, review:r});
     });
     
     // add in any requested reviewers who haven't reviewed
-    this.props.issue.requested_reviewers.forEach(u => {
+    issue.requested_reviewers.forEach(u => {
       if (!reviewed.has(u.id)) {
         items.push({user:u});
       }
@@ -200,7 +198,13 @@ class Reviewers extends React.Component {
       else if (al > bl) return 1;
       else return 0;
     });
-    
+        
+    return items;
+  }
+  
+  render() {
+    var items = Reviewers.latestReviews(this.props.issue, this.props.allReviews);
+  
     var existingReviewers = items.map(i => i.user);
     existingReviewers.push(this.props.issue.user); // github doesn't allow the originator of a PR to be a reviewer
   

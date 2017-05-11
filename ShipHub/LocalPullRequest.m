@@ -13,6 +13,7 @@
 @dynamic identifier;
 @dynamic maintainerCanModify;
 @dynamic mergeable;
+@dynamic mergeableState;
 @dynamic mergeCommitSha;
 @dynamic merged;
 @dynamic mergedAt;

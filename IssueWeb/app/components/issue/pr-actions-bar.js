@@ -86,15 +86,24 @@ class PRMergeChangesButton extends React.Component {
   
   render() {
     var issue = IssueState.current.issue;
+    
+    var closed = issue.state == 'closed';
+    var mergeable = issue.mergeable;
+    
     var canMerge = issue.mergeable && issue.state == 'open';
     
-    if (canMerge) {
+    if (closed) {
+      return h('span', {});
+    } else if (!mergeable) {
+      return h('div', {ref:'button', className:'PRActionsBarButton PRMergeChangesButton PRMergeChangesButtonDisabled'},
+        h('img', {src:PRMergeIconDisabled}),
+        "Merge ..."
+      );
+    } else {
       return h('div', {ref:'button', className:'PRActionsBarButton PRMergeChangesButton', onClick:this.click.bind(this)},
         h('img', {src:PRMergeIcon}),
         "Merge ..."
       );
-    } else {
-      return h('span', {});
     }
   }
 }
@@ -123,4 +132,4 @@ class PRActionsBar extends React.Component {
   }
 }
 
-export { PRActionsBar, PRReviewChangesButton };
+export { PRActionsBar, PRReviewChangesButton, PRMergeChangesButton };

@@ -266,6 +266,9 @@
      BIND(@"DELETE /repos/:owner/:repo/pulls/:number/requested_reviewers",
           removeRequestedReviewers:owner:repo:number:),
      
+     BIND(@"PUT /repos/:owner/:repo/pulls/:number/reviews/:id/dismissals",
+          dismissReview:owner:repo:number:reviewID:),
+     
      BIND(@"GET /user",
           getUser:)
      };
@@ -477,6 +480,15 @@
 - (void)removeRequestedReviewers:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo number:(id)number {
     [[DataStore activeStore] removeRequestedReviewers:request.bodyJSON[@"reviewers"] inIssue:[NSString issueIdentifierWithOwner:owner repo:repo number:number] completion:^(NSArray<NSString *> *reviewerLogins, NSError *error) {
         [self yield:reviewerLogins err:error];
+    }];
+}
+
+- (void)dismissReview:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo number:(id)number reviewID:(id)reviewID {
+    NSNumber *reviewNumber = [NSNumber numberWithLongLong:[reviewID longLongValue]];
+    NSString *message = [request.bodyJSON objectForKey:@"message"];
+    
+    [[DataStore activeStore] dismissReview:reviewNumber message:message inIssue:[NSString issueIdentifierWithOwner:owner repo:repo number:number] completion:^(NSError *error) {
+        [self yield:nil err:error];
     }];
 }
 

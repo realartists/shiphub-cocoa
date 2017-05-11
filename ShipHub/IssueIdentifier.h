@@ -26,6 +26,7 @@
 - (NSNumber *)issueNumber;
 
 - (NSURL *)issueGitHubURL;
+- (NSURL *)pullRequestGitHubURL;
 
 #if TARGET_OS_MAC
 - (void)copyIssueIdentifierToPasteboard:(NSPasteboard *)pboard;

@@ -170,4 +170,8 @@ div.reviewCodeCommentSavingReply {
   
 }
 
-
+a.reviewToggle {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}

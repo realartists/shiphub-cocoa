@@ -12,7 +12,7 @@ import { promiseQueue } from 'util/promise-queue.js'
 import IssueState from 'issue-state.js'
 import { api } from 'util/api-proxy.js'
 import { storeCommentDraft, clearCommentDraft, getCommentDraft } from 'util/draft-storage.js'
-import { reviewStateToUI } from './review-state.js'
+import { ReviewState, reviewStateToUI } from './review-state.js'
 
 import './review.css'
 
@@ -27,14 +27,35 @@ class ReviewHeader extends React.Component {
       style.borderBottom = "0px";
     }
     
+    var info;
+    var iconStyle = {};
+    if (this.props.review.state == ReviewState.Dismiss) {
+      iconStyle.position = 'relative';
+      iconStyle.top = '0px';
+      info = [
+        h('span', { key:'dismiss_action', className: 'reviewAction' }, ' added a review '),
+        h(TimeAgo, { key:'dismiss_time', className:'commentTimeAgo', live:true, date:this.props.review.submitted_at||this.props.review.created_at}),
+        h('span', { key:'dismiss_action2', className: 'reviewAction' }, ' that was dismissed. '),
+        h('a', { 
+          key:'toggle', 
+          className:'reviewToggle',
+          onClick:this.props.toggleCollapsed
+        }, this.props.collapsed ? 'Show Review' : 'Hide Review')
+      ];
+    } else {
+      info = [
+        h('span', { key:'action', className: 'reviewAction' }, ` ${action} `),
+        h(TimeAgo, { key:'time', className:'commentTimeAgo', live:true, date:this.props.review.submitted_at||this.props.review.created_at})
+      ];
+    }
+    
     return h('div', { className: 'reviewHeader', style },
       h('span', { className:'reviewIcon', style: { backgroundColor: bg } },
-        h('i', { className: `fa ${icon} fa-inverse`})
+        h('i', { className: `fa ${icon} fa-inverse`, style:iconStyle})
       ),
       h(AvatarIMG, { className: 'reviewAuthorIcon', user:user, size:16 }),
       h('span', { className: 'reviewAuthor' }, user.login),
-      h('span', { className: 'reviewAction' }, ` ${action} `),
-      h(TimeAgo, {className:'commentTimeAgo', live:true, date:this.props.review.submitted_at||this.props.review.created_at})
+      info
     );
   }
 }
@@ -371,6 +392,13 @@ class ReviewCommentBlock extends React.Component {
 }
 
 class Review extends React.Component {
+  constructor(props) {
+    super(props);
+    
+    this.state = { collapsed: this.props.review.state == ReviewState.Dismiss };
+  }
+
+
   allComments() {
     var comments = [];
     if (this.refs.summary) {
@@ -390,6 +418,11 @@ class Review extends React.Component {
     }
     
     IssueState.current.deletePRComment(comment);
+  }
+  
+  toggleCollapsed(evt) {
+    this.setState({collapsed:!this.state.collapsed});
+    evt.preventDefault();
   }
 
   render() {
@@ -415,19 +448,28 @@ class Review extends React.Component {
     
     var noBodyAndNoComments = !hasSummary && sortedComments.length == 0;
     
-    comps.push(h(ReviewHeader, { key:"header", review: this.props.review, empty: noBodyAndNoComments }));
-    if (hasSummary) {
-      comps.push(h(ReviewSummary, { key:"summary", ref:"summary", review: this.props.review }));
-    } else if (sortedComments.length) {
-      comps.push(h('div', { key:'summaryPlaceholder', className: 'reviewSummaryPlaceholder' }));
-    }
-    comps = comps.concat(sortedComments.map((c) => h(ReviewCommentBlock, { 
-      key:c.id, 
-      ref:"commentBlock."+c.id,
+    comps.push(h(ReviewHeader, { 
+      key:"header", 
       review: this.props.review, 
-      deleteComment: this.deleteComment.bind(this),
-      comment: c 
-    })));
+      empty: this.state.collapsed||noBodyAndNoComments,
+      collapsed: this.state.collapsed,
+      toggleCollapsed: this.toggleCollapsed.bind(this)
+    }));
+    
+    if (!this.state.collapsed) {
+      if (hasSummary) {
+        comps.push(h(ReviewSummary, { key:"summary", ref:"summary", review: this.props.review }));
+      } else if (sortedComments.length) {
+        comps.push(h('div', { key:'summaryPlaceholder', className: 'reviewSummaryPlaceholder' }));
+      }
+      comps = comps.concat(sortedComments.map((c) => h(ReviewCommentBlock, { 
+        key:c.id, 
+        ref:"commentBlock."+c.id,
+        review: this.props.review, 
+        deleteComment: this.deleteComment.bind(this),
+        comment: c 
+      })));
+    }
     
     return h('div', { className: 'review', id:id }, comps);
   }

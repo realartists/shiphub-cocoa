@@ -21,6 +21,8 @@ div.commitGroupHeader {
   margin-right: 12px;
   vertical-align: middle;
   line-height: 32px;
+  max-height: 39px;
+  overflow: hidden;
   font-size: 10pt;
   border-bottom: 1px solid #EFEFEF;
 }
@@ -81,11 +83,11 @@ i.commitStatusIconUnknown {
 }
 
 i.commitStatusIconSuccess {
-  color: green;
+  color: #2CBE4E;
 }
 
 i.commitStatusIconFailure {
-  color: red;
+  color: #CB2431;
 }
 
 img.commitItemBullet {
@@ -111,4 +113,46 @@ span.commitItemMsg {
   font-size: 9pt;
   font-family: menlo, consolas, monaco, sans-serif;
   
+}
+
+table.PRSummaryCommitStatusTable {
+  margin-left: 80px;
+  width: calc(100% - 80px);
+  min-width: calc(100% - 80px);
+}
+
+table.CommitStatusTable tr {
+  border-bottom: 1px solid #ECECEC;
+}
+
+table.CommitStatusTable tr:last-child {
+  border-bottom: 0px;
+}
+
+table.CommitStatusTable td {
+  vertical-align: top;
+}
+
+td.CommitTableStatus {
+
+}
+
+td.CommitTableContext {
+  white-space: nowrap;
+  overflow: ellipsis;
+  padding-right: 4px;
+}
+
+td.CommitTableStatusDescription {
+  color: #A9A9A9;
+  width: 100%;
+}
+
+td.CommitTableLink a {
+  color: #BBB;
+  text-decoration: none;
+}
+
+td.CommitTableLink a:hover {
+  text-decoration: none;
 }

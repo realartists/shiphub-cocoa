@@ -217,6 +217,7 @@
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="maintainerCanModify" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="mergeable" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="mergeableState" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="mergeCommitSha" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="merged" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="mergedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -277,7 +278,7 @@
         <element name="LocalPriority" positionX="0" positionY="0" width="128" height="90"/>
         <element name="LocalProject" positionX="9" positionY="153" width="128" height="180"/>
         <element name="LocalPRReview" positionX="18" positionY="162" width="128" height="180"/>
-        <element name="LocalPullRequest" positionX="9" positionY="153" width="128" height="315"/>
+        <element name="LocalPullRequest" positionX="9" positionY="153" width="128" height="330"/>
         <element name="LocalQuery" positionX="9" positionY="153" width="128" height="105"/>
         <element name="LocalReaction" positionX="9" positionY="153" width="128" height="150"/>
         <element name="LocalRepo" positionX="0" positionY="0" width="128" height="285"/>
