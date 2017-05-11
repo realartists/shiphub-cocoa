@@ -176,6 +176,7 @@
         [self.delegate commitControllerDidSelectSinceReviewSpanDiff:self];
     } else if (row > 3) {
         GitCommit *commit = _pr.commits[row-4];
+        DebugLog(@"Commit %p", commit);
         [self.delegate commitController:self didSelectCommit:commit];
     }
     [_table.animator selectRowIndexes:[NSIndexSet indexSet] byExtendingSelection:NO];

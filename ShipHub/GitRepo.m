@@ -211,4 +211,140 @@ static int updateRefs(const char *ref_name, const char *remote_url, const git_oi
     return nil;
 }
 
+- (NSError *)pushRemote:(NSURL *)remoteURL username:(NSString *)username password:(NSString *)password newBranchWithProposedName:(NSString *)branchName revertingCommit:(NSString *)mergeCommitSha fromBranch:(NSString *)sourceBranch progress:(NSProgress *)progress
+{
+    [self writeLock];
+    
+    __block git_remote *remote = NULL;
+    __block git_commit *mergeCommit = NULL;
+    __block git_commit *sourceBranchHeadCommit = NULL;
+    __block git_index *revertIdx = NULL;
+    __block git_reference *newBranch = NULL;
+    __block git_tree *revertTree = NULL;
+    __block git_signature *authorSig = NULL;
+    __block git_signature *committerSig = NULL;
+    __block git_strarray refspecs = {0};
+    
+    git_oid branchHeadOid;
+    git_oid mergeCommitOid;
+    git_oid revertTreeOid;
+    git_oid revertCommitOid;
+    
+    dispatch_block_t cleanup = ^{
+        if (remote) git_remote_free(remote);
+        if (sourceBranchHeadCommit) git_commit_free(sourceBranchHeadCommit);
+        if (mergeCommit) git_commit_free(mergeCommit);
+        if (revertIdx) git_index_free(revertIdx);
+        if (newBranch) git_reference_free(newBranch);
+        if (revertTree) git_tree_free(revertTree);
+        if (authorSig) git_signature_free(authorSig);
+        if (committerSig) git_signature_free(committerSig);
+        if (refspecs.strings) {
+            for (size_t i = 0; i < refspecs.count; i++) {
+                free(refspecs.strings[i]);
+            }
+            free(refspecs.strings);
+        }
+
+        [self unlock];
+    };
+    
+#define CHK(X) \
+    do { \
+        int giterr = (X); \
+        if (progress.cancelled) { \
+            cleanup(); \
+            return [NSError cancelError]; \
+        } else if (giterr) { \
+            NSError *err = [NSError gitError]; \
+            cleanup(); \
+            return err; \
+        } \
+    } while (0);
+
+    // make sure that we have the github remote.
+    // this just asserts that fetch has run.
+    CHK(git_remote_lookup(&remote, _repo, "github"));
+    
+    CHK(git_reference_name_to_id(&branchHeadOid, _repo, [[NSString stringWithFormat:@"refs/remotes/github/%@", sourceBranch] UTF8String]));
+    CHK(git_commit_lookup(&sourceBranchHeadCommit, _repo, &branchHeadOid));
+    
+    // see if we can find mergeCommit
+    CHK(git_oid_fromstrp(&mergeCommitOid, [mergeCommitSha UTF8String]));
+    CHK(git_commit_lookup_prefix(&mergeCommit, _repo, &mergeCommitOid, [mergeCommitSha length]));
+    
+    // create an in memory index reverting mergeCommit
+    CHK(git_revert_commit(&revertIdx, _repo, mergeCommit, sourceBranchHeadCommit, 1, NULL));
+    
+    // try to write the index to the repo
+    CHK(git_index_write_tree_to(&revertTreeOid, revertIdx, _repo));
+    
+    CHK(git_tree_lookup(&revertTree, _repo, &revertTreeOid));
+    
+    // delete the branch if it already exists
+    git_branch_lookup(&newBranch, _repo, [branchName UTF8String], GIT_BRANCH_LOCAL);
+    if (newBranch) {
+        CHK(git_branch_delete(newBranch));
+        newBranch = NULL;
+    }
+    
+    // create the branch
+    CHK(git_branch_create(&newBranch, _repo, [branchName UTF8String], sourceBranchHeadCommit, 0));
+    
+    if (0 != git_signature_default(&authorSig, _repo)) {
+        CHK(git_signature_dup(&authorSig, git_commit_author(mergeCommit)));
+        authorSig->when.offset = (int)([[NSTimeZone localTimeZone] secondsFromGMT] / 60);
+        authorSig->when.time = [[NSDate date] timeIntervalSince1970];
+    }
+    if (0 != git_signature_default(&committerSig, _repo)) {
+        CHK(git_signature_dup(&committerSig, git_commit_committer(mergeCommit)));
+        committerSig->when.offset = (int)([[NSTimeZone localTimeZone] secondsFromGMT] / 60);
+        committerSig->when.time = [[NSDate date] timeIntervalSince1970];
+    }
+    
+    // write the revert index as a commit to newBranch
+    CHK(git_commit_create(&revertCommitOid,
+                          _repo,
+                          [[NSString stringWithFormat:@"refs/heads/%@", branchName] UTF8String],
+                          git_commit_author(mergeCommit),
+                          git_commit_committer(mergeCommit),
+                          "UTF8",
+                          [[NSString stringWithFormat:@"Revert %s", git_commit_message(mergeCommit)?:"merge commit"] UTF8String],
+                          revertTree,
+                          1,
+                          (const git_commit **)&mergeCommit));
+    
+    // build refspecs to push
+    refspecs.strings = malloc(sizeof(char *) * 1);
+    refspecs.count = 1;
+    refspecs.strings[0] = strdup([[NSString stringWithFormat:@"+refs/heads/%@", branchName] UTF8String]);
+    
+    NSDictionary *payload = @{ @"username": username, @"password": password, @"progress" : progress };
+    
+    git_push_options opts = {
+        .version = GIT_PUSH_OPTIONS_VERSION,
+        .pb_parallelism = 0,
+        .callbacks = {
+            .version = GIT_REMOTE_CALLBACKS_VERSION,
+            .sideband_progress = NULL,
+            .completion = NULL,
+            .credentials = credentialsCallback,
+            .certificate_check = NULL,
+            .transfer_progress = progressCallback,
+            .update_tips = NULL,
+            .pack_progress = NULL,
+            .push_transfer_progress = NULL,
+            .push_update_reference = NULL,
+            .push_negotiation = NULL,
+            .transport = NULL,
+            .payload = (__bridge void *)payload,
+        }
+    };
+    
+    CHK(git_remote_push(remote, &refspecs, &opts));
+    
+    cleanup();
+    return nil;
+}
+
 @end

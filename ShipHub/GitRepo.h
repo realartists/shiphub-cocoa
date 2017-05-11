@@ -19,4 +19,9 @@
 // synchronously fetch remote. Acquires writeLock for the duration.
 - (NSError *)fetchRemote:(NSURL *)remoteURL username:(NSString *)username password:(NSString *)password refs:(NSArray *)refs progress:(NSProgress *)progress;
 
+// synchronously create a branch with proposed name and revert commit
+// and then push it to the remote.
+
+- (NSError *)pushRemote:(NSURL *)remoteURL username:(NSString *)username password:(NSString *)password newBranchWithProposedName:(NSString *)branchName revertingCommit:(NSString *)mergeCommit fromBranch:(NSString *)sourceBranch progress:(NSProgress *)progress;
+
 @end

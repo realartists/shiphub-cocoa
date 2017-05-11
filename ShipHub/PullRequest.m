@@ -464,4 +464,89 @@
     }];
 }
 
+- (NSError *)_revertMerge:(NSString *)mergeCommit prTemplate:(Issue *__autoreleasing *)prTemplate progress:(NSProgress *)progress
+{
+    Auth *auth = [[DataStore activeStore] auth];
+    RequestPager *pager = [[RequestPager alloc] initWithAuth:auth];
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    NSInteger operations = 0;
+    
+    __block NSDictionary *prInfo = nil;
+    __block NSError *prError = nil;
+    
+    NSString *pullEndpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@", _issue.repository.fullName, _issue.number];
+    [pager fetchSingleObject:[pager get:pullEndpoint] completion:^(NSDictionary *obj, NSError *err) {
+        prError = err;
+        prInfo = obj;
+        dispatch_semaphore_signal(sema);
+    }];
+    operations++;
+    
+    while (operations != 0 && !progress.cancelled) {
+        dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+        operations--;
+        progress.completedUnitCount += 1;
+    }
+    
+    if (progress.cancelled) return [NSError cancelError];
+    
+    NSString *reposDir = [@"~/Library/RealArtists/Ship2/git" stringByExpandingTildeInPath];
+    NSString *dir = [NSString stringWithFormat:@"%@/%@", reposDir, _issue.repository.fullName];
+    
+    NSError *error = nil;
+    GitRepo *repo = [[self class] repoAtPath:dir error:&error];
+    if (error) {
+        return error;
+    }
+    
+    NSString *remoteURLStr = prInfo[@"base"][@"clone_url"];
+    
+    if (remoteURLStr) {
+        _githubRemoteURL = [NSURL URLWithString:remoteURLStr];
+    }
+    
+    NSString *baseRefSpec = prInfo[@"base"][@"ref"];
+
+    error = [repo fetchRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" refs:@[baseRefSpec] progress:progress];
+    
+    if (error) return error;
+    
+    NSString *headBranch = prInfo[@"head"][@"ref"];
+    if (![prInfo[@"head"][@"repo"][@"full_name"] isEqualToString:prInfo[@"base"][@"repo"][@"full_name"]]) {
+        headBranch = [NSString stringWithFormat:@"%@/%@", prInfo[@"head"][@"repo"][@"full_name"], headBranch];
+    }
+    
+    NSString *newBranch = [NSString stringWithFormat:@"revert-%@-%@", _issue.number, headBranch];
+    error = [repo pushRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" newBranchWithProposedName:newBranch revertingCommit:mergeCommit fromBranch:baseRefSpec progress:progress];
+    
+    if (error) return error;
+    
+    NSDictionary *headInfo = @{ @"repo" : @{ @"full_name" : _issue.repository.fullName }, @"ref" : newBranch };
+    
+    *prTemplate = [[Issue alloc] initPRWithTitle:[NSString stringWithFormat:@"Revert %@", _issue.title] repo:_issue.repository body:@"" baseInfo:prInfo[@"base"] headInfo:headInfo];
+    
+    return nil;
+}
+
+- (NSProgress *)revertMerge:(NSString *)mergeCommit withCompletion:(void (^)(Issue *prTemplate, NSError *error))completion
+{
+    NSParameterAssert(mergeCommit);
+    NSParameterAssert(completion);
+    
+    NSProgress *progress = [NSProgress indeterminateProgress];
+    progress.completedUnitCount = 0;
+    progress.totalUnitCount = 1;
+    progress.localizedDescription = NSLocalizedString(@"Preparing new branch for revert commit", nil);
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        Issue *prTemplate = nil;
+        NSError *err = [self _revertMerge:mergeCommit prTemplate:&prTemplate progress:progress];
+        RunOnMain(^{
+            completion(prTemplate, err);
+        });
+    });
+    
+    return progress;
+}
+
 @end

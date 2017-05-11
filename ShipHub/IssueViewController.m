@@ -32,6 +32,7 @@
 #import "MarkdownFormattingController.h"
 #import "PRMergeViewController.h"
 #import "ProgressSheet.h"
+#import "TrackingProgressSheet.h"
 #import "PRPostMergeController.h"
 
 #import <WebKit/WebKit.h>
@@ -308,6 +309,10 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         [weakSelf handleEditConflicts:msg];
     } name:@"editConflicts"];
     
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf handleRevertMergeCommit:msg];
+    } name:@"revertMergeCommit"];
+    
     [_markdownFormattingController registerJavaScriptAPI:windowObject];
 
     NSString *setupJS =
@@ -460,6 +465,50 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     NSURL *URL = [[[self issue] fullIdentifier] pullRequestGitHubURL];
     URL = [URL URLByAppendingPathComponent:@"conflicts"];
     [[NSWorkspace sharedWorkspace] openURL:URL];
+}
+
+- (void)handleRevertMergeCommit:(NSDictionary *)msg {
+    Trace();
+    
+    NSString *commit = msg[@"commit"];
+    
+    NSAlert *alert = [NSAlert new];
+    alert.messageText = NSLocalizedString(@"Revert Pull Request?", nil);
+    alert.informativeText = NSLocalizedString(@"This will create a new branch with a revert of the merge commit in it, and then will propose a new pull request to merge the revert back to the base branch", nil);
+    
+    [alert addButtonWithTitle:NSLocalizedString(@"Revert", nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+    
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertFirstButtonReturn) {
+            [self revertMergeCommit:commit];
+        }
+    }];
+}
+
+- (void)revertMergeCommit:(NSString *)commit {
+    TrackingProgressSheet *sheet = [TrackingProgressSheet new];
+    [sheet beginSheetInWindow:self.view.window];
+    
+    PullRequest *pr = [[PullRequest alloc] initWithIssue:self.issue];
+    
+    sheet.progress = [pr revertMerge:commit withCompletion:^(Issue *prTemplate, NSError *error) {
+        [sheet endSheet];
+        
+        if (error) {
+            if (![error isCancelError]) {
+                NSAlert *alert = [NSAlert new];
+                alert.messageText = NSLocalizedString(@"Failed to create branch to revert merge commit", nil);
+                alert.informativeText = [error localizedDescription];
+                
+                [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+                
+                [alert beginSheetModalForWindow:self.view.window completionHandler:nil];
+            }
+        } else {
+            [[IssueDocumentController sharedDocumentController] newDocumentWithIssueTemplate:prTemplate];
+        }
+    }];
 }
 
 - (void)handleMergePopover:(NSDictionary *)msg {

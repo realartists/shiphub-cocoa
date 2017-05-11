@@ -21,7 +21,7 @@
 
 @property (readonly) GitDiff *diff;
 @property (readonly) GitRepo *repo;
-@property (readonly) git_commit *commit;
+@property (readonly) git_oid *commitOid;
 
 @end
 
@@ -94,9 +94,10 @@
 - (id)initWithRepo:(GitRepo *)repo commit:(git_commit *)commit {
     if (self = [super init]) {
         _repo = repo;
-        _commit = commit;
-        
         const git_oid *commitOid = git_commit_id(commit);
+        
+        _commitOid = malloc(sizeof(git_oid));
+        git_oid_cpy(_commitOid, commitOid);
         
         char commitRevBuf[GIT_OID_HEXSZ+1];
         git_oid_tostr(commitRevBuf, sizeof(commitRevBuf), commitOid);
@@ -117,8 +118,9 @@
 }
 
 - (void)dealloc {
-    if (_commit) {
-        git_commit_free(_commit);
+    if (_commitOid) {
+        free(_commitOid);
+        _commitOid = NULL;
     }
 }
 
@@ -137,6 +139,7 @@
     if (_diff)
         return _diff;
     
+    __block git_commit *commit = NULL;
     __block git_commit *parentCommit = NULL;
     __block git_tree *commitTree = NULL;
     __block git_tree *parentTree = NULL;
@@ -144,6 +147,7 @@
     [_repo readLock];
     
     dispatch_block_t cleanup = ^{
+        if (commit) git_commit_free(commit);
         if (parentCommit) git_commit_free(parentCommit);
         if (parentTree) git_tree_free(parentTree);
         if (commitTree) git_tree_free(commitTree);
@@ -162,9 +166,11 @@
         } \
     } while (0);
     
-    const git_oid *commitOid = git_commit_id(_commit);
+    const git_oid *commitOid = _commitOid;
     
-    CHK(git_commit_parent(&parentCommit, _commit, 0));
+    CHK(git_commit_lookup(&commit, _repo.repo, commitOid));
+    
+    CHK(git_commit_parent(&parentCommit, commit, 0));
     
     const git_oid *parentOid = git_commit_id(parentCommit);
     
@@ -177,7 +183,7 @@
     NSString *commitRev = [NSString stringWithUTF8String:commitRevBuf];
     NSString *parentRev = [NSString stringWithUTF8String:parentRevBuf];
     
-    CHK(git_commit_tree(&commitTree, _commit));
+    CHK(git_commit_tree(&commitTree, commit));
     CHK(git_commit_tree(&parentTree, parentCommit));
     
     NSError *diffError = nil;
@@ -221,6 +227,8 @@
         return [start _loadDiffWithError:outError];
     }
     
+    __block git_commit *startCommit = NULL;
+    __block git_commit *endCommit = NULL;
     __block git_commit *parentCommit = NULL;
     __block git_tree *startTree = NULL;
     __block git_tree *endTree = NULL;
@@ -230,6 +238,8 @@
     [repo readLock];
     
     dispatch_block_t cleanup = ^{
+        if (startCommit) git_commit_free(startCommit);
+        if (endCommit) git_commit_free(endCommit);
         if (parentCommit) git_commit_free(parentCommit);
         if (startTree) git_tree_free(startTree);
         if (endTree) git_tree_free(endTree);
@@ -248,9 +258,12 @@
         } \
     } while (0);
 
-    const git_oid *headOid = git_commit_id(end.commit);
+    CHK(git_commit_lookup(&startCommit, start.repo.repo, start.commitOid));
+    CHK(git_commit_lookup(&endCommit, end.repo.repo, end.commitOid));
     
-    CHK(git_commit_parent(&parentCommit, start.commit, 0));
+    const git_oid *headOid = end.commitOid;
+    
+    CHK(git_commit_parent(&parentCommit, startCommit, 0));
     
     const git_oid *parentOid = git_commit_id(parentCommit);
     
@@ -263,7 +276,7 @@
     NSString *headRev = [NSString stringWithUTF8String:headRevBuf];
     NSString *parentRev = [NSString stringWithUTF8String:parentRevBuf];
     
-    CHK(git_commit_tree(&endTree, end.commit));
+    CHK(git_commit_tree(&endTree, endCommit));
     CHK(git_commit_tree(&startTree, parentCommit));
     
     NSError *diffError = nil;

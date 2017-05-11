@@ -58,4 +58,6 @@
                        message:(NSString *)message
                     completion:(void (^)(NSError *))completion;
 
+- (NSProgress *)revertMerge:(NSString *)mergeCommit withCompletion:(void (^)(Issue *prTemplate, NSError *error))completion;
+
 @end

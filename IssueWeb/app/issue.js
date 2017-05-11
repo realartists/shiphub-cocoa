@@ -606,6 +606,30 @@ var MergedEventBody = React.createClass({
   }
 });
 
+var MergedEventActions = React.createClass({
+  propTypes: { 
+    event: React.PropTypes.object.isRequired,
+    issue: React.PropTypes.object.isRequired 
+  },
+    
+  revert: function(evt, commit) {
+    window.revertMergeCommit.postMessage({commit});
+    evt.preventDefault();
+  },
+  
+  render: function() {
+    var [committish, commitUrl] = expandCommit(this.props.event);
+    
+    return h('div', { className:"EventActions" },
+      h('button', { 
+        type:"button", 
+        className: "EventActionButton MergedEventRevertButton", 
+        onClick:evt => this.revert(evt, committish)
+      }, "Revert" )
+    );
+  }
+});
+
 var ClassForEventBody = function(event) {
   switch (event.event) {
     case "cross-referenced": return CrossReferencedEventBody;
@@ -617,6 +641,13 @@ var ClassForEventBody = function(event) {
       } else {
         return null;
       }
+    default: return null;
+  }
+}
+
+var ClassForEventActions = function(event) {
+  switch (event.event) {
+    case "merged": return MergedEventActions;
     default: return null;
   }
 }
@@ -657,17 +688,22 @@ var Event = React.createClass({
     }
 
     var eventBodyClass = ClassForEventBody(this.props.event);
+    var actionsClass = ClassForEventActions(this.props.event);
 
     return h('div', {className:className},
       h(EventIcon, {event: this.props.event.event }),
-      h("div", {className: "eventContent"},
-        h("div", {},
-          h(EventUser, {user: user}),
-          " ",
-          h(ClassForEventDescription(this.props.event), {event: this.props.event}),
-          " ",
-          h(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at})),
-        eventBodyClass ? h(eventBodyClass, {event: this.props.event, issue: this.props.issue}) : null
+      h('div', {className: "eventBlock"},
+        h("div", {className: "eventContent"},
+          h("div", {},
+            h(EventUser, {user: user}),
+            " ",
+            h(ClassForEventDescription(this.props.event), {event: this.props.event}),
+            " ",
+            h(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at}),
+          ),
+          eventBodyClass ? h(eventBodyClass, {event: this.props.event, issue: this.props.issue}) : null
+        ),
+        actionsClass ? h(actionsClass, {event: this.props.event, issue: this.props.issue}) : null
       )
     );
   }
