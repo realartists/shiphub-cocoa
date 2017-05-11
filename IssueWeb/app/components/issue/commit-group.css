@@ -25,7 +25,23 @@ div.commitGroupHeader {
   overflow: hidden;
   font-size: 10pt;
   border-bottom: 1px solid #EFEFEF;
+  display: flex;
+  white-space: nowrap;
+  overflow: hidden;
 }
+
+div.commitGroupHeaderDetails {
+  flex-shrink: 1;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+div.commitGroupHeaderActions {
+  flex-shrink: 0;
+}
+
 span.commitGroupIcon {
   display: inline-block;
   margin-right: 12px;

@@ -109,12 +109,14 @@ class CommitGroupHeader extends React.Component {
     }
     
     return h('div', { className:'commitGroupHeader' },
-      h('span', { className: 'commitGroupIcon fa fa-git-square' }),
-      h('span', {className:'commitGroupAuthor', title:user.email}, user.name),
-      hasOthers ? h('span', {className:'commitGroupOthers'}, ' and others') : "",
-      h('span', {className:'commitGroupTimeAgo'}, desc),
-      h(TimeAgo, {className:'commentTimeAgo', live:true, date:timestamp}),
-      h('div', { style: { 'display': 'inline-block', 'float': 'right' } },
+      h('div', { className:'commitGroupHeaderDetails' },
+        h('span', { className: 'commitGroupIcon fa fa-git-square' }),
+        h('span', {className:'commitGroupAuthor', title:user.email}, user.name),
+        hasOthers ? h('span', {className:'commitGroupOthers'}, ' and others') : "",
+        h('span', {className:'commitGroupTimeAgo'}, desc),
+        h(TimeAgo, {className:'commentTimeAgo', live:true, date:timestamp}),
+      ),
+      h('div', { className:'commitGroupHeaderActions' },
         h(PRReviewChangesButton, {})
       )
     );
