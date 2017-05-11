@@ -438,8 +438,12 @@ class PRMergeabilityMergeStatus extends React.Component {
         "Resolve Conflicts"
       );
     }
+    
+    var parts = [ { color: redColor, count: state == "error" ? 1 : 0, },
+                  { color: yellowColor, count: state == "pending" ? 1 : 0 },
+                  { color: greenColor, count: state == "ok" ? 1 : 0 } ];
   
-    return h(PRMergeabilitySection, { state, heading, subheading },
+    return h(PRMergeabilitySection, { state, heading, subheading, parts },
       button
     );
   }
