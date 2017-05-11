@@ -247,9 +247,9 @@ class PRMergeabilityReviewers extends React.Component {
     items.forEach((ri, idx) => {
       if (!ri.review) count.pending++;
       else switch (ri.review.state) {
-        case ReviewState.Pending: count.pending++;
-        case ReviewState.Approve: count.approve++;
-        case ReviewState.RequestChanges: count.requestChanges++;
+        case ReviewState.Pending: count.pending++; break;
+        case ReviewState.Approve: count.approve++; break;
+        case ReviewState.RequestChanges: count.requestChanges++; break;
       } 
     });
     
@@ -426,11 +426,11 @@ class PRMergeabilityMergeStatus extends React.Component {
       state = "pending";
       heading = "Test merge pending";
       subheading = `Computing mergeability of ${headRef} into ${baseBranch} ...`;
-    } else if (mergeable) {
+    } else if (mergeable || mergeable_state != "dirty") {
       state = "ok";
       heading = "This branch is up-to-date with the base branch";
       subheading = "Merging can be performed automatically";
-    } else /* (mergeable_state == 'dirty') */ {
+    } else {
       state = "error";
       heading = "This branch has conflicts that must be resolved";
       subheading = `Resolve the conflicts and push your changes to ${headRef}`;
