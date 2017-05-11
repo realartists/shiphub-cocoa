@@ -104,22 +104,28 @@ class MiniMap {
   }
   
   draw() {
-    var canvasWidth = this.canvas.width;
-    var canvasHeight = this.canvas.height;
+    var scale = window.devicePixelRatio
+  
+    var canvasWidth = this.canvas.width / scale;
+    var canvasHeight = this.canvas.height / scale;
     
     var actualWidth = this.canvas.clientWidth;
     var actualHeight = this.canvas.clientHeight;
     
     if (actualWidth != canvasWidth) {
-      this.canvas.width = actualWidth;
+      this.canvas.width = actualWidth * scale;
       canvasWidth = actualWidth;
     }
     if (actualHeight != canvasHeight) {
-      this.canvas.height = actualHeight;
+      this.canvas.height = actualHeight * scale;
       canvasHeight = actualHeight;
     }
         
     var ctx = this.canvas.getContext("2d");
+
+    ctx.save();
+    ctx.scale(scale, scale);
+    
     var scrollableWidth = this.scrollable.scrollWidth;
     var scrollableHeight = this.scrollable.scrollHeight;
     
@@ -175,6 +181,8 @@ class MiniMap {
     y = Math.min(canvasHeight - h, y);
 
     ctx.fillRect(x, y, w, h);
+    
+    ctx.restore();
   }
 }
 
