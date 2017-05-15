@@ -46,7 +46,15 @@ class MiniMap {
     scrollTop = Math.max(0, scrollTop);
     scrollTop = Math.min(scrollableHeight - visibleHeight, scrollTop);
     
-    window.scroll(0, scrollTop);
+    this.nextTop = scrollTop;
+    if (!this.needsScroll) {
+      this.needsScroll = true;
+      window.requestAnimationFrame(() => {
+        this.needsScroll = false;
+        window.scroll(0, this.nextTop);
+        this.draw();
+      });
+    }
   }
   
   mouseDown(e) {
@@ -85,8 +93,9 @@ class MiniMap {
     if (this.needsDisplay) return;
     this.needsDisplay = true;
     window.requestAnimationFrame(() => {
-      this.needsDisplay = false;
-      this.draw();
+      if (this.needsDisplay) {
+        this.draw();
+      }
     });
   }
   
@@ -104,6 +113,8 @@ class MiniMap {
   }
   
   draw() {
+    this.needsDisplay = false;
+    
     var scale = window.devicePixelRatio
   
     var canvasWidth = this.canvas.width / scale;
@@ -137,7 +148,6 @@ class MiniMap {
         
     // fill the context with the background color
     ctx.fillStyle = this.backgroundColor();
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
     
     // draw all of the regions
