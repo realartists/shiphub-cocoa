@@ -12,6 +12,7 @@
 #import "LocalReaction.h"
 
 @class LocalAccount;
+@class LocalPRComment;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -23,6 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) LocalAccount *user;
 @property (nullable, nonatomic, retain) LocalIssue *issue;
 @property (nullable, nonatomic, retain) LocalComment *comment;
+@property (nullable, nonatomic, retain) LocalPRComment *prComment;
 
 @end
 

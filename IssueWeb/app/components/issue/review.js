@@ -259,6 +259,22 @@ class ReviewCodeComment extends ReviewAbstractComment {
       });
     });
   }
+  
+  addReaction(reaction) {
+    var existing = this.findReaction(reaction);
+    if (!existing) {
+      IssueState.current.addPRCommentReaction(this.props.comment.id, reaction);
+    }
+  }
+  
+  toggleReaction(reaction) {
+    var existing = this.findReaction(reaction);
+    if (existing) {
+      IssueState.current.deletePRCommentReaction(this.props.comment.id, existing.id);
+    } else {
+      IssueState.current.addPRCommentReaction(this.props.comment.id, reaction);
+    }
+  }
 }
 
 class ReviewCodeReplyComment extends ReviewCodeComment {

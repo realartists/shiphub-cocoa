@@ -19,5 +19,6 @@
 @dynamic user;
 @dynamic issue;
 @dynamic comment;
+@dynamic prComment;
 
 @end

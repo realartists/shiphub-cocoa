@@ -476,7 +476,81 @@ class IssueState {
       request.then((body) => {
         resolve();
       }).catch((err) => {
+        console.error("Delete reaction failed", err);
+        reject(err);
+      });
+    });
+  }
+  
+  _prCommentWithId(prCommentId) {
+    var singleComments = this.state.issue.pr_comments;
+    var reviews = this.state.issue.reviews;
+    var allReviewComments = reviews.reduce((accum, r) => {
+      return accum.concat(r.comments||[]);
+    }, []);
+    var allComments = singleComments.concat(allReviewComments);
+    var c = allComments.find(c => c.id == prCommentId);
+    return c;
+  }
+  
+  addPRCommentReaction(prCommentId, reactionContent) {
+    var reaction = {
+      id: "new",
+      user: this.state.me,
+      content: reactionContent,
+      created_at: new Date().toISOString()
+    };
+    
+    var owner = this.repoOwner;
+    var repo = this.repoName;
+    var num = this.issueNumber;
+    
+    var url = `https://api.github.com/repos/${owner}/${repo}/pulls/comments/${prCommentId}/reactions`;
+    var c = this._prCommentWithId(prCommentId);
+    
+    // eagerly add the reaction
+    c.reactions.push(reaction);
+    
+    this._renderState();
+    
+    var request = api(url, {
+      method: 'POST',
+      body: JSON.stringify({content: reactionContent})
+    });
+    
+    return new Promise((resolve, reject) => {
+      request.then((body) => {
+        this.mergeIssueChanges(owner, repo, num, () => {
+          reaction.id = body.id;
+          this._renderState();
+        });
+        resolve();
+      }).catch((err) => {
         console.error("Add reaction failed", err);
+        reject(err);
+      });
+    });
+  }
+  
+  deletePRCommentReaction(prCommentId, reactionID) {
+    if (reactionID === "new") {
+      console.log("Cannot delete pending reaction");
+      return;
+    }
+    
+    var c = this._prCommentWithId(prCommentId);
+    c.reactions = c.reactions.filter(r => r.id !== reactionID);
+    this._renderState();
+    
+    var url = `https://api.github.com/reactions/${reactionID}`
+    var request = api(url, {
+      method: 'DELETE'
+    });
+    return new Promise((resolve, reject) => {
+      request.then((body) => {
+        resolve();
+      }).catch((err) => {
+        console.error("Delete reaction failed", err);
         reject(err);
       });
     });

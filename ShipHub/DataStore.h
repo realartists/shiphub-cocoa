@@ -143,6 +143,8 @@
 
 - (void)deletePullRequestBranch:(Issue *)issue completion:(void (^)(NSError *error))completion;
 
+- (void)postPRCommentReaction:(NSString *)reactionContent inRepoFullName:(NSString *)repoFullName inPRComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion;
+
 @end
 
 @interface DataStore (CustomQuery)

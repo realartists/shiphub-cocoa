@@ -230,6 +230,12 @@
      BIND(@"DELETE /reactions/:id",
           deleteReaction:reactionIdentifier:),
      
+     BIND(@"POST /repos/:owner/:repo/pulls/comments/:id/reactions",
+          postPRCommentReaction:owner:repo:commentIdentifier:),
+     
+     BIND(@"DELETE /reactions/:id",
+          deleteReaction:reactionIdentifier:),
+     
      BIND(@"GET /repos/:owner/:repo/issues/:number",
           getIssue:owner:repo:number:),
      
@@ -383,6 +389,15 @@
     NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
     NSString *content = request.bodyJSON[@"content"];
     [[DataStore activeStore] postCommentReaction:content inRepoFullName:[NSString stringWithFormat:@"%@/%@", owner, repo] inComment:commentNumber completion:^(Reaction *reaction, NSError *error) {
+        [self yield:reaction err:error];
+    }];
+}
+
+- (void)postPRCommentReaction:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo commentIdentifier:(NSString *)commentIdentifier
+{
+    NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
+    NSString *content = request.bodyJSON[@"content"];
+    [[DataStore activeStore] postPRCommentReaction:content inRepoFullName:[NSString stringWithFormat:@"%@/%@", owner, repo] inPRComment:commentNumber completion:^(Reaction *reaction, NSError *error) {
         [self yield:reaction err:error];
     }];
 }

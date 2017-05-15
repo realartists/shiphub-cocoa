@@ -1212,6 +1212,9 @@ static NSString *const LastUpdated = @"LastUpdated";
             if (!identifier) {
                 identifier = lr.comment.issue.fullIdentifier;
             }
+            if (!identifier) {
+                identifier = lr.prComment.issue.fullIdentifier ?: lr.prComment.review.issue.fullIdentifier;
+            }
             if (identifier) {
                 [changed addObject:identifier];
             }
@@ -1989,6 +1992,83 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 
     [[Analytics sharedInstance] track:@"Post Comment Reaction"];
+}
+
+- (void)postPRCommentReaction:(NSString *)reactionContent inRepoFullName:(NSString *)repoFullName inPRComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
+{
+    NSParameterAssert(reactionContent);
+    NSParameterAssert(commentIdentifier);
+    NSParameterAssert(completion);
+    
+    // POST /repos/:owner/:repo/issues/comments/:id/reactions
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/comments/%@/reactions", repoFullName, commentIdentifier];
+    [self.serverConnection perform:@"POST" on:endpoint headers:@{@"Accept":@"application/vnd.github.squirrel-girl-preview"} body:@{@"content": reactionContent} completion:^(id jsonResponse, NSError *error) {
+        void (^fail)(NSError *) = ^(NSError *reason) {
+            RunOnMain(^{
+                completion(nil, reason);
+            });
+        };
+        
+        if (!error) {
+            id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
+            NSString *identifier = d[@"identifier"];
+            
+            if (!identifier) {
+                fail([NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse]);
+                return;
+            }
+            
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                NSFetchRequest *fetchComment = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRComment"];
+                fetchComment.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
+                
+                NSError *cdErr = nil;
+                LocalPRComment *comment = [[moc executeFetchRequest:fetchComment error:&cdErr] firstObject];
+                if (cdErr) {
+                    ErrLog(@"%@", cdErr);
+                    fail(cdErr);
+                    return;
+                }
+                
+                NSFetchRequest *reactionFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalReaction"];
+                reactionFetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
+                
+                LocalReaction *lr = [[moc executeFetchRequest:reactionFetch error:&cdErr] firstObject];
+                
+                if (cdErr) {
+                    ErrLog(@"%@", cdErr);
+                    fail(cdErr);
+                    return;
+                }
+                
+                if (lr) {
+                    [lr mergeAttributesFromDictionary:d];
+                } else {
+                    lr = [NSEntityDescription insertNewObjectForEntityForName:@"LocalReaction" inManagedObjectContext:moc];
+                    [lr mergeAttributesFromDictionary:d];
+                    [self updateRelationshipsOn:lr fromSyncDict:d];
+                    [lr setPrComment:comment];
+                }
+                
+                [moc save:&cdErr];
+                if (cdErr) {
+                    ErrLog(@"%@", cdErr);
+                    fail(cdErr);
+                    return;
+                }
+                
+                Reaction *r = [[Reaction alloc] initWithLocalReaction:lr metadataStore:self.metadataStore];
+                
+                RunOnMain(^{
+                    completion(r, nil);
+                });
+            }];
+        } else {
+            fail(error);
+        }
+    }];
+    
+    [[Analytics sharedInstance] track:@"Post PR Comment Reaction"];
 }
 
 - (void)deleteReaction:(NSNumber *)reactionIdentifier completion:(void (^)(NSError *error))completion
