@@ -2115,6 +2115,15 @@ var App = React.createClass({
       delete c.replies;
     });
     
+    // mark all pending comments as such
+    allReviews.forEach(r => {
+      if (r.state == ReviewState.Pending) {
+        r.comments.forEach(c => {
+          c.pending_id = `${c.id}`;
+        });
+      }
+    });
+    
     allPRComments.sort((a, b) => {
       var da = new Date(a.created_at);
       var db = new Date(b.created_at);
@@ -2158,6 +2167,8 @@ var App = React.createClass({
     });
     
     allPRComments.forEach((c) => {
+      if (c.pending_id) return;
+      
       var p = cpos(c);
       var op = opos(c);
       
@@ -2184,7 +2195,7 @@ var App = React.createClass({
       var hasBody = (r.body||"").length > 0;
       if (hasBody) return true;
       
-      var isNonComment = !(r.state == ReviewState.Pending || r.state == ReviewState.Comment);
+      var isNonComment = r.state != ReviewState.Comment;
       if (isNonComment) return true;
       
       var hasNonReplyComments = r.comments.find(c => !c.in_reply_to);

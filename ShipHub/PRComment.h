@@ -31,6 +31,9 @@
 
 @interface PendingPRComment : PRComment
 
+- (id)initWithPRComment:(PRComment *)prc;
+
 @property NSString *pendingId;
+@property NSNumber *assignedId;
 
 @end

@@ -28,13 +28,15 @@
 - (void)scrollToComment:(PRComment *)comment;
 - (void)navigate:(NSDictionary *)options; // See diff.js: App.scrollTo() docstring for options
 
+- (void)setComments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview;
+
 - (void)focus;
 
 @property (nonatomic, readonly) PullRequest *pr;
 @property (nonatomic, readonly) GitDiffFile *diffFile;
 @property (nonatomic, readonly) GitDiff *diff;
 @property (readonly, getter=isInReview) BOOL inReview;
-@property (nonatomic) NSArray<PRComment *> *comments;
+@property (nonatomic, readonly) NSArray<PRComment *> *comments;
 
 @property (nonatomic, assign) DiffViewMode mode;
 

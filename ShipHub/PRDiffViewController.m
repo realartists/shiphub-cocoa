@@ -274,11 +274,11 @@ static BOOL differentiateWithoutColor() {
     [self setMode:_mode];
 }
 
-- (void)setComments:(NSArray<PRComment *> *)comments {
+- (void)setComments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview {
     NSParameterAssert(comments);
     
     _comments = [comments copy];
-    NSString *js = [NSString stringWithFormat:@"window.updateComments(%@);", [JSON stringifyObject:comments withNameTransformer:[JSON underbarsAndIDNameTransformer]]];
+    NSString *js = [NSString stringWithFormat:@"window.updateComments(%@, %s);", [JSON stringifyObject:comments withNameTransformer:[JSON underbarsAndIDNameTransformer]], inReview?"true":"false"];
     [self evaluateJavaScript:js];
 }
 

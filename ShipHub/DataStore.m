@@ -2260,9 +2260,8 @@ static NSString *const LastUpdated = @"LastUpdated";
                                 completion(nil, err2);
                             });
                         } else {
-                            Class prCommentClass = review.state == PRReviewStatePending ? [PendingPRComment class] : [PRComment class];
                             NSArray *comments = [data arrayByMappingObjects:^id(id obj) {
-                                return [[prCommentClass alloc] initWithDictionary:obj metadataStore:self.metadataStore];
+                                return [[PRComment alloc] initWithDictionary:obj metadataStore:self.metadataStore];
                             }];
                             
                             PRReview *roundtrip = [[PRReview alloc] initWithDictionary:jsonResponse comments:comments metadataStore:self.metadataStore];
@@ -2293,7 +2292,10 @@ static NSString *const LastUpdated = @"LastUpdated";
     if (review.identifier) {
         // first we have to delete the existing review, because GitHub is lame like that
         [self deletePendingReview:review inIssue:issueIdentifier completion:^(NSError *error) {
-            postReview(); // try to post regardless of whether or not the delete failed
+            // wait a second, otherwise GitHub will bug out and complain that we have an active pending review
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                postReview(); // try to post regardless of whether or not the delete failed
+            });
         }];
     } else {
         postReview();

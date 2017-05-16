@@ -50,6 +50,9 @@
 @property (readonly) NSString *headDescription; // e.g. james/1234 or realartists/test:james/1234
 @property (readonly) NSString *baseDescription; // e.g. realartists/test:master
 
+// returns YES if lightweight update was possible, no if a new PullRequest object and checkout needs to happen.
+- (BOOL)lightweightMergeUpdatedIssue:(Issue *)issue;
+
 - (void)mergeComments:(NSArray<PRComment *> *)comments;
 - (void)deleteComments:(NSArray<PRComment *> *)comments;
 

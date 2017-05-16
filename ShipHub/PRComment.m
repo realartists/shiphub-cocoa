@@ -81,10 +81,32 @@ static NSNumber *getNum(NSDictionary *d, NSString *field) {
 @implementation PendingPRComment
 
 - (id)initWithDictionary:(NSDictionary *)d metadataStore:(MetadataStore *)store {
-    
     if (self = [super initWithDictionary:d metadataStore:store]) {
         _pendingId = d[@"pending_id"] ?: [d[@"id"] description];
+        _assignedId = d[@"id"];
         self.identifier = nil;
+    }
+    return self;
+}
+
+- (id)initWithPRComment:(PRComment *)prc {
+    if (self = [super init]) {
+        _pendingId = [prc.identifier description];
+        _assignedId = prc.identifier;
+        
+        self.body = prc.body;
+        self.createdAt = prc.createdAt;
+        self.updatedAt = prc.updatedAt;
+        self.user = prc.user;
+        self.reactions = prc.reactions;
+        self.pullRequestReviewId = prc.pullRequestReviewId;
+        self.diffHunk = prc.diffHunk;
+        self.path = prc.path;
+        self.position = prc.position;
+        self.originalPosition = prc.originalPosition;
+        self.commitId = prc.commitId;
+        self.originalCommitId = prc.originalCommitId;
+        self.inReplyTo = prc.inReplyTo;
     }
     return self;
 }

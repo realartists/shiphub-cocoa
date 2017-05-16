@@ -199,16 +199,10 @@
 - (NSError *)checkoutWithProgress:(NSProgress *)progress {
     Auth *auth = [[DataStore activeStore] auth];
     RequestPager *pager = [[RequestPager alloc] initWithAuth:auth];
-    MetadataStore *ms = [[DataStore activeStore] metadataStore];
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     
     __block NSDictionary *prInfo = nil;
-    __block NSArray<PRComment *> *comments = nil;
     __block NSError *prError = nil;
-    __block NSError *commentsError = nil;
-    __block PRReview *review = nil;
-    __block PRReview *submittedReview = nil;
-    __block NSError *reviewError = nil;
     
     NSInteger operations = 0;
     
@@ -217,50 +211,6 @@
         prError = err;
         prInfo = obj;
         dispatch_semaphore_signal(sema);
-    }];
-    operations++;
-    
-    NSString *commentsEndpoint = [pullEndpoint stringByAppendingPathComponent:@"comments"];
-    [pager fetchPaged:[pager get:commentsEndpoint] completion:^(NSArray *data, NSError *err) {
-        comments = [data arrayByMappingObjects:^id(id obj) {
-            return [[PRComment alloc] initWithDictionary:obj metadataStore:ms];
-        }];
-        commentsError = err;
-        dispatch_semaphore_signal(sema);
-    }];
-    operations++;
-    
-    NSDictionary *reviewsHeaders = @{@"Accept":@"application/vnd.github.black-cat-preview+json"};
-    NSString *reviewsEndpoint = [pullEndpoint stringByAppendingPathComponent:@"reviews"];
-    
-    [pager fetchPaged:[pager get:reviewsEndpoint params:nil headers:reviewsHeaders] completion:^(NSArray *data, NSError *err) {
-        // See if we can find our own PRReview(s) in here
-        
-        NSArray *mySubmittedReviews = [data filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"state != 'PENDING' AND user.id = %@", [[Account me] identifier]]];
-        mySubmittedReviews = [mySubmittedReviews arrayByMappingObjects:^id(id obj) {
-            return [[PRReview alloc] initWithDictionary:obj comments:nil metadataStore:ms];
-        }];
-        mySubmittedReviews = [mySubmittedReviews sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"submittedAt" ascending:NO]]];
-        submittedReview = [mySubmittedReviews firstObject];
-        
-        id myReview = [data firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"state = 'PENDING' AND user.id = %@", [[Account me] identifier]]];
-        if (myReview) {
-            NSString *reviewCommentsEndpoint = [reviewsEndpoint stringByAppendingFormat:@"/%@/comments", myReview[@"id"]];
-            [pager fetchPaged:[pager get:reviewCommentsEndpoint params:nil headers:reviewsHeaders] completion:^(NSArray *rcs, NSError *err2) {
-                if (rcs) {
-                    rcs = [rcs arrayByMappingObjects:^id(id obj) {
-                        return [[PendingPRComment alloc] initWithDictionary:obj metadataStore:ms];
-                    }];
-                    review = [[PRReview alloc] initWithDictionary:myReview comments:rcs metadataStore:ms];
-                } else {
-                    reviewError = err2;
-                }
-                dispatch_semaphore_signal(sema);
-            }];
-        } else {
-            reviewError = err;
-            dispatch_semaphore_signal(sema);
-        }
     }];
     operations++;
     
@@ -278,13 +228,9 @@
     if (progress.cancelled) return [NSError cancelError];
     
     if (prError) return prError;
-    if (commentsError) return commentsError;
-    if (reviewError) return reviewError;
     
     _info = prInfo;
-    _prComments = comments;
-    _myLastPendingReview = review;
-    _myLastSubmittedReview = submittedReview;
+    [self lightweightMergeUpdatedIssue:_issue];
     
     return [self cloneWithProgress:progress];
 }
@@ -350,6 +296,40 @@
 
 - (NSURL *)gitHubFilesURL {
     return [[self class] gitHubFilesURLForIssueIdentifier:_issue.fullIdentifier];
+}
+
+- (BOOL)lightweightMergeUpdatedIssue:(Issue *)updatedIssue {
+    NSArray *sortedReviews = [updatedIssue.reviews sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"identifier" ascending:NO]]];
+    
+    _myLastSubmittedReview = [sortedReviews firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"state != %ld AND user.identifier = %@", PRReviewStatePending, [[Account me] identifier]]];
+    
+    _myLastPendingReview = [sortedReviews firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"state = %ld AND user.identifier = %@", PRReviewStatePending, [[Account me] identifier]]];
+    
+    NSMutableArray *allSubmittedComments = [NSMutableArray new];
+    [allSubmittedComments addObjectsFromArray:updatedIssue.prComments?:@[]];
+    
+    for (PRReview *r in updatedIssue.reviews) {
+        if (r.state != PRReviewStatePending) {
+            [allSubmittedComments addObjectsFromArray:r.comments?:@[]];
+        }
+    }
+    
+    [allSubmittedComments sortUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]]];
+    
+    _prComments = allSubmittedComments;
+    
+    NSMutableDictionary *mInfo = [_info mutableCopy];
+    mInfo[@"mergeable"] = updatedIssue.mergeable;
+    mInfo[@"merged"] = updatedIssue.merged;
+    _info = mInfo;
+    
+    NSString *issueHeadSha = updatedIssue.head[@"sha"];
+    NSString *currentHeadSha = self.headSha;
+    
+    // check equality of head.sha
+    // if it's the same, then lightweight update was possible
+    // if it's changed, we're gonna have to do a new checkout
+    return [NSObject object:issueHeadSha isEqual:currentHeadSha];
 }
 
 - (void)mergeComments:(NSArray<PRComment *> *)comments {

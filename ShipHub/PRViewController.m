@@ -520,7 +520,9 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
         if (self.pr.myLastPendingReview) {
             _inReview = YES;
             _pendingReview = self.pr.myLastPendingReview;
-            [_pendingComments addObjectsFromArray:_pendingReview.comments];
+            [_pendingComments addObjectsFromArray:[_pendingReview.comments arrayByMappingObjects:^id(id obj) {
+                return [[PendingPRComment alloc] initWithPRComment:obj];
+            }]];
         }
         
         _mergeItem.enabled = self.pr.canMerge;
@@ -558,18 +560,15 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
         if ([updated containsObject:_pr.issue.fullIdentifier]) {
             [[DataStore activeStore] loadFullIssue:_pr.issue.fullIdentifier completion:^(Issue *issue, NSError *error) {
                 if (issue) {
-                    [self checkForUpdatedPushes:issue];
+                    [self mergeUpdatedIssue:issue];
                 }
             }];
         }
     }
 }
 
-- (void)checkForUpdatedPushes:(Issue *)updatedIssue {
-    NSString *issueHeadSha = updatedIssue.head[@"sha"];
-    NSString *currentHeadSha = _pr.headSha;
-    
-    if (![NSObject object:issueHeadSha isEqual:currentHeadSha]) {
+- (void)mergeUpdatedIssue:(Issue *)updatedIssue {
+    if (![self.pr lightweightMergeUpdatedIssue:updatedIssue]) {
         _outOfDate = YES;
         _statusItem.clickAction = @selector(statusItemClicked:);
         
@@ -593,6 +592,22 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
         
         _statusItem.attributedStringValue = str;
     }
+    
+    _pendingReview = self.pr.myLastPendingReview;
+    
+    // recompute pending comments
+    NSMutableArray *pendingComments = [[_pendingComments filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"assignedId = nil"]] mutableCopy];
+    
+    _inReview = _pendingReview != nil || pendingComments.count > 0;
+    
+    for (PRComment *prc in self.pr.myLastPendingReview.comments) {
+        [pendingComments addObject:[[PendingPRComment alloc] initWithPRComment:prc]];
+    }
+    _pendingComments = pendingComments;
+    
+    _mergeItem.enabled = self.pr.canMerge;
+    
+    [self reloadComments];
 }
 
 - (void)statusItemClicked:(id)sender {
@@ -665,9 +680,9 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 }
 
 - (void)reloadComments {
-    _reviewChangesItem.badgeString = _pendingComments.count > 0 ? [NSString localizedStringWithFormat:@"%td", _pendingComments.count] : @"";
+    _reviewChangesItem.badgeString = _inReview && _pendingComments.count > 0 ? [NSString localizedStringWithFormat:@"%td", _pendingComments.count] : @"";
     [_sidebarController setAllComments:[self allComments]];
-    [_diffController setComments:[self commentsForSelectedFile]];
+    [_diffController setComments:[self commentsForSelectedFile] inReview:_inReview];
 }
 
 - (void)scrollToComment:(PRComment *)comment {
@@ -680,6 +695,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 
 - (void)scheduleSavePendingReview {
     Trace();
+    
+    NSAssert([NSThread isMainThread], nil);
     
     // note that the timer will keep us alive so even if the window closes, we should be able to do the save anyway
     NSTimer *newTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(savePendingReviewTimerFired:) userInfo:nil repeats:NO];
@@ -702,6 +719,19 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     [[DataStore activeStore] addReview:review inIssue:_pr.issue.fullIdentifier completion:^(PRReview *roundtrip, NSError *error) {
         if (roundtrip) {
             _pendingReview = roundtrip;
+            [_pendingComments removeObjectsInArray:review.comments];
+            NSMutableSet *lookup = [NSMutableSet new];
+            for (PRComment *prc in _pendingComments) {
+                if (prc.identifier) {
+                    [lookup addObject:prc.identifier];
+                }
+            }
+            for (PRComment *prc in roundtrip.comments) {
+                if (prc.identifier && ![lookup containsObject:prc.identifier]) {
+                    [_pendingComments addObject:[[PendingPRComment alloc] initWithPRComment:prc]];
+                }
+            }
+            [self reloadComments];
         }
         if (error) {
             ErrLog(@"Error saving pending review: %@", error);

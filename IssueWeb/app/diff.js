@@ -436,7 +436,8 @@ class App {
     return diffIdx;
   }
   
-  updateComments(comments) {
+  updateComments(comments, inReview) {
+    this.inReview = inReview;
     this.comments = comments;
     var existingRows = this.commentRows;
     

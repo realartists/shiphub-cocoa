@@ -67,7 +67,7 @@
     
     NSMutableURLRequest *request = [self requestWithHost:_auth.account.shipHost endpoint:endpoint authenticated:YES headers:headers];
     request.HTTPMethod = method;
-    if (![method isEqualToString:@"GET"] || ![method isEqualToString:@"HEAD"]) {
+    if (!([method isEqualToString:@"GET"] || [method isEqualToString:@"HEAD"])) {
         request.cachePolicy = NSURLRequestReloadIgnoringCacheData;
     }
     
