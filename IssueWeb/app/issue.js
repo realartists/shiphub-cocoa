@@ -83,7 +83,7 @@ var EventIcon = React.createClass({
         break;
       case "locked":
         icon = "lock";
-        pushX = "2";
+        pushX = "2px";
         break;
       case "unlocked":
         icon = "unlock";
@@ -105,6 +105,11 @@ var EventIcon = React.createClass({
       case "converted_note_to_issue":
         icon = "trello";
         break;
+      case "review_requested":
+      case "review_request_removed":
+        icon = "eye";
+        pushX = "-2px";
+        break;
       default:
         console.log("unknown event", this.props.event);
         icon = "exclamation-circle";
@@ -113,7 +118,8 @@ var EventIcon = React.createClass({
     
     var opts = {className:"eventIcon fa fa-" + icon, style: {}};
     if (pushX != 0) {
-      opts.style.paddingLeft = pushX;
+      opts.style.position = "relative";
+      opts.style.left = pushX;
     }
     if (color) {
       opts.style.color = color;
@@ -430,7 +436,6 @@ var ConvertedNoteToIssueDescription = React.createClass({
 var HeadRefDeletedDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
-    console.log("event", this.props.event);
     var issue = IssueState.current.issue;
     var headRef = keypath(issue, "head.ref");
     if (headRef) {
@@ -440,10 +445,31 @@ var HeadRefDeletedDescription = React.createClass({
     }
   }
 });
-      
+
+var ReviewRequestedEventDescription = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+  render: function() {
+    return h('span', {},
+      'requested a review from ',
+      h(EventUser, {user:this.props.event.requested_reviewer})
+    );
+  }
+});
+
+var ReviewRequestRemovedEventDescription = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+  render: function() {
+    return h('span', {},
+      'removed requested review from ',
+      h(EventUser, {user:this.props.event.requested_reviewer})
+    );
+  }
+});
+
 var UnknownEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
+    console.log("Unknown event", this.props.event);
     return h("span", {}, this.props.event.event);
   }
 });
@@ -463,6 +489,8 @@ var ClassForEventDescription = function(event) {
     case "cross-referenced": return CrossReferencedEventDescription;
     case "converted_note_to_issue": return ConvertedNoteToIssueDescription;
     case "head_ref_deleted": return HeadRefDeletedDescription;
+    case "review_requested": return ReviewRequestedEventDescription;
+    case "review_request_removed": return ReviewRequestRemovedEventDescription;
     default: return UnknownEventDescription
   }
 }
@@ -809,6 +837,7 @@ var ActivityList = React.createClass({
           case "subscribed": return false;
           case "mentioned": return false; // mention events are beyond worthless in the GitHub API
           case "reviewed": return false; // use reviews for this instead.
+          case "review_dismissed": return false; // use reviews for this instead.
           case "referenced": return e.commit_id != null;
           default: return true;
         }

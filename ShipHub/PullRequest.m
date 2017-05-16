@@ -403,44 +403,8 @@
         return;
     }
     
-    NSMutableDictionary *msg = [NSMutableDictionary new];
-    msg[@"sha"] = _spanDiff.headRev;
-    switch (strat) {
-        case PRMergeStrategyMerge:
-            msg[@"merge_method"] = @"merge";
-            break;
-        case PRMergeStrategyRebase:
-            msg[@"merge_method"] = @"rebase";
-            break;
-        case PRMergeStrategySquash:
-            msg[@"merge_method"] = @"squash";
-            break;
-    }
-    if (title) {
-        msg[@"commit_title"] = title;
-    }
-    if (message) {
-        msg[@"commit_message"] = message;
-    }
-    
-    ServerConnection *conn = [[DataStore activeStore] serverConnection];
-    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/merge", _issue.fullIdentifier.issueRepoFullName, _issue.fullIdentifier.issueNumber];
-    
-    NSDictionary *headers = @{ @"Accept": @"application/vnd.github.polaris-preview+json" };
-    
-    [conn perform:@"PUT" on:endpoint headers:headers body:msg completion:^(id jsonResponse, NSError *error) {
-        if (error && [error.domain isEqualToString:ShipErrorDomain]) {
-            NSInteger httpStatus = [error.userInfo[ShipErrorUserInfoHTTPResponseCodeKey] integerValue];
-            if (httpStatus == 405) {
-                error = [NSError shipErrorWithCode:ShipErrorCodeCannotMergePRError];
-            } else if (httpStatus == 409) {
-                error = [NSError shipErrorWithCode:ShipErrorCodeCannotMergePRError localizedMessage:@"Head branch was modified. Reload and try the merge again."];
-            }
-        }
-        
-        RunOnMain(^{
-            completion(error);
-        });
+    [[DataStore activeStore] mergePullRequest:_issue.fullIdentifier strategy:strat title:title message:message completion:^(Issue *issue, NSError *error) {
+        completion(error);
     }];
 }
 
