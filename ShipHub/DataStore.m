@@ -2659,9 +2659,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         [conn perform:@"PUT" on:endpoint headers:headers body:msg completion:^(id jsonResponse, NSError *error) {
             if (error && [error.domain isEqualToString:ShipErrorDomain]) {
                 NSInteger httpStatus = [error.userInfo[ShipErrorUserInfoHTTPResponseCodeKey] integerValue];
-                if (httpStatus == 405) {
-                    error = [NSError shipErrorWithCode:ShipErrorCodeCannotMergePRError];
-                } else if (httpStatus == 409) {
+                if (httpStatus == 409) {
                     error = [NSError shipErrorWithCode:ShipErrorCodeCannotMergePRError localizedMessage:@"Head branch was modified. Reload and try the merge again."];
                 }
             }

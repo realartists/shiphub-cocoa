@@ -763,6 +763,16 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 
 #pragma mark -
 
+- (BOOL)presentError:(NSError *)error {
+    NSAlert *alert = [NSAlert new];
+    alert.alertStyle = NSCriticalAlertStyle;
+    alert.messageText = [error localizedDescription] ?: [error description] ?: @"";
+    [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+    
+    [alert beginSheetModalForWindow:self.view.window completionHandler:nil];
+    return YES;
+}
+
 - (void)presentError:(NSError *)error withRetry:(dispatch_block_t)retry fail:(dispatch_block_t)fail {
     NSAlert *alert = [NSAlert new];
     alert.alertStyle = NSCriticalAlertStyle;

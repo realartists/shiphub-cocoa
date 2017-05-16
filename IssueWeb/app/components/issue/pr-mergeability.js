@@ -426,6 +426,13 @@ class PRMergeabilityMergeStatus extends React.Component {
       state = "pending";
       heading = "Test merge pending";
       subheading = `Computing mergeability of ${headRef} into ${baseBranch} ...`;
+    } else if (mergeable_state == 'blocked') {
+      state = "error";
+      heading = "Merging is blocked";
+      subheading = h('a', {
+        href:`https://github.com/${baseRepo}/settings/branches/${encodeURI(baseBranch)}`
+      },
+      `View branch protections`);
     } else if (mergeable || mergeable_state != "dirty") {
       state = "ok";
       heading = "This branch is up-to-date with the base branch";
