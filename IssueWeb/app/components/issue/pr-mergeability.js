@@ -205,9 +205,17 @@ class PRMergeabilityReviewers extends React.Component {
   constructor(props) {
     super(props);
     
-    var hasPendingOrRequestChanges = props.reviewItems.some(r => !r.review || r.review.state == ReviewState.RequestChanges);
-    
-    this.state = { expanded: hasPendingOrRequestChanges };
+    this.state = { expanded: this.shouldStartExpanded(props) };
+  }
+  
+  shouldStartExpanded(props) {
+    return props.reviewItems.some(r => !r.review || r.review.state == ReviewState.RequestChanges);
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    if (this.props.issue.id != nextProps.issue.id) {
+      this.setState({expanded: this.shouldStartExpanded(nextProps)});
+    }
   }
   
   toggleExpanded() {
@@ -302,7 +310,17 @@ class PRMergeabilityStatuses extends React.Component {
   constructor(props) {
     super(props);
     
-    this.state = { expanded: props.statuses.some(cs => cs.state != 'success' ) };
+    this.state = { expanded: this.shouldStartExpanded(props) };
+  }
+  
+  shouldStartExpanded(props) {
+    return props.statuses.some(cs => cs.state != 'success' );
+  }
+  
+  componentWillReceiveProps(nextProps) {
+    if (this.props.issue.id != nextProps.issue.id) {
+      this.setState({expanded: this.shouldStartExpanded(nextProps)});
+    }
   }
   
   toggleExpanded() {
@@ -475,6 +493,7 @@ class PRMergeability extends React.Component {
       this.props.allReviews.filter(r => r.state != ReviewState.Pending)
     );
   
+    var issue = this.props.issue;
     var statuses = this.props.issue.commit_statuses||[];
     var tot = keypath(this.props.issue, "head.sha");
     statuses = statuses.filter(cs => cs.reference = tot);
@@ -483,10 +502,10 @@ class PRMergeability extends React.Component {
     return h('div', {className:'PRMergeability'},
       h(PRMergeabilityHeader, {issue:this.props.issue, statuses, reviewItems}),
       h('div', {className:'PRMergeabilityBody'},
-        h(PRMergeabilityReviewers, {issue:this.props.issue, reviewItems}),
-        h(PRMergeabilityStatuses, {statuses}),
-        h(PRMergeabilityMergeStatus, {issue:this.props.issue}),
-        h(PRMergeabilityActions, {issue:this.props.issue})
+        h(PRMergeabilityReviewers, {issue, reviewItems}),
+        h(PRMergeabilityStatuses, {issue, statuses}),
+        h(PRMergeabilityMergeStatus, {issue}),
+        h(PRMergeabilityActions, {issue})
       )
     );
   }
