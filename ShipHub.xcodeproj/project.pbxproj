@@ -951,8 +951,6 @@
 		1AF9757B1E92DACF00914460 /* PRBinaryDiffViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRBinaryDiffViewController.xib; sourceTree = "<group>"; };
 		1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
 		1AFE21F01CA5EC3F00B51CF6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		1AFE21F91CA5EC3F00B51CF6 /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
-		1AFE21FA1CA5EC3F00B51CF6 /* index_bundle.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = index_bundle.js; sourceTree = "<group>"; };
 		1AFE21FB1CA5EC3F00B51CF6 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
 		1AFE21FC1CA5EC3F00B51CF6 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		1AFE21FD1CA5EC3F00B51CF6 /* webpack.config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = webpack.config.js; sourceTree = "<group>"; };
@@ -1778,30 +1776,12 @@
 				1AC01D941DC9087B00920C3F /* npm-shrinkwrap.json */,
 				1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */,
 				1AFE21F01CA5EC3F00B51CF6 /* .gitignore */,
-				1AFE21F11CA5EC3F00B51CF6 /* app */,
-				1AFE21F81CA5EC3F00B51CF6 /* dist */,
 				1AFE21FB1CA5EC3F00B51CF6 /* package.json */,
 				1AFE21FC1CA5EC3F00B51CF6 /* README.md */,
 				1AFE21FD1CA5EC3F00B51CF6 /* webpack.config.js */,
 			);
 			path = IssueWeb;
 			sourceTree = SOURCE_ROOT;
-		};
-		1AFE21F11CA5EC3F00B51CF6 /* app */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = app;
-			sourceTree = "<group>";
-		};
-		1AFE21F81CA5EC3F00B51CF6 /* dist */ = {
-			isa = PBXGroup;
-			children = (
-				1AFE21F91CA5EC3F00B51CF6 /* index.html */,
-				1AFE21FA1CA5EC3F00B51CF6 /* index_bundle.js */,
-			);
-			path = dist;
-			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 

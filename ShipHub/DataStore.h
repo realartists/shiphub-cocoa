@@ -125,6 +125,8 @@
 
 - (void)addReview:(PRReview *)review inIssue:(NSString *)issueIdentifier completion:(void (^)(PRReview *review, NSError *error))completion;
 
+- (void)deletePendingReview:(PRReview *)review inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion;
+
 - (void)editReview:(PRReview *)review inIssue:(NSString *)issueIdentifier completion:(void (^)(PRReview *review, NSError *error))completion;
 
 - (void)editReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(PRComment *comment, NSError *error))completion;

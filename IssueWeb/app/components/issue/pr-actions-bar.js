@@ -6,8 +6,9 @@ import { keypath, setKeypath } from 'util/keypath.js'
 import IssueState from 'issue-state.js'
 
 import './pr-actions-bar.css'
-import PRMergeIcon from '../../../image/MergeIcon.svg'
-import PRMergeIconDisabled from '../../../image/MergeIconDisabled.svg'
+import PRMergeIcon from 'raw-loader!../../../image/MergeIcon.txt'
+
+console.log("PRMergeIcon", PRMergeIcon);
 
 class PRChangeSummary extends React.Component {
   render() {
@@ -95,13 +96,13 @@ class PRMergeChangesButton extends React.Component {
     if (closed) {
       return h('span', {});
     } else if (!mergeable) {
-      return h('div', {ref:'button', className:'PRActionsBarButton PRMergeChangesButton PRMergeChangesButtonDisabled'},
-        h('img', {src:PRMergeIconDisabled}),
+      return h('button', {type:'button', ref:'button', className:'ActionButton PRActionsBarButton PRMergeChangesButton PRMergeChangesButtonDisabled'},
+        h('span', {dangerouslySetInnerHTML:{__html:PRMergeIcon}}),
         "Merge ..."
       );
     } else {
-      return h('div', {ref:'button', className:'PRActionsBarButton PRMergeChangesButton', onClick:this.click.bind(this)},
-        h('img', {src:PRMergeIcon}),
+      return h('button', {type:'button', ref:'button', className:'ActionButton PRActionsBarButton PRMergeChangesButton', onClick:this.click.bind(this)},
+        h('span', {dangerouslySetInnerHTML:{__html:PRMergeIcon}}),
         "Merge ..."
       );
     }
@@ -114,7 +115,7 @@ class PRReviewChangesButton extends React.Component {
   }
   
   render() {
-    return h('div', {className:'PRActionsBarButton PRReviewChangesButton', onClick:this.click.bind(this)},
+    return h('button', {type:'button', className:'ActionButton PRActionsBarButton PRReviewChangesButton', onClick:this.click.bind(this)},
       "Review Changes"
     );
   }

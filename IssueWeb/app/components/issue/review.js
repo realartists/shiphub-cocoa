@@ -27,7 +27,8 @@ class ReviewHeader extends React.Component {
       style.borderBottom = "0px";
     }
     
-    var info;
+    var info = null;
+    var actions = null;
     var iconStyle = {};
     if (this.props.review.state == ReviewState.Dismiss) {
       iconStyle.position = 'relative';
@@ -42,6 +43,20 @@ class ReviewHeader extends React.Component {
           onClick:this.props.toggleCollapsed
         }, this.props.collapsed ? 'Show Review' : 'Hide Review')
       ];
+    } else if (this.props.review.state == ReviewState.Pending) {
+      info = [
+        h('span', { key:'action', className: 'reviewAction' }, ` ${action}`)
+      ];
+      actions = [
+        h('button',
+          { key:'delete_review', type:'button', className: 'ActionButton reviewDeletePendingButton', onClick: this.props.deletePendingReview },
+          'Delete Review'
+        ),
+        h('button', 
+          { key:'submit_review', type:'button', className: 'ActionButton reviewSubmitPendingButton', onClick: this.props.submitPendingReview },
+          'Send Review'
+        )
+      ];
     } else {
       info = [
         h('span', { key:'action', className: 'reviewAction' }, ` ${action} `),
@@ -50,12 +65,17 @@ class ReviewHeader extends React.Component {
     }
     
     return h('div', { className: 'reviewHeader', style },
-      h('span', { className:'reviewIcon', style: { backgroundColor: bg } },
-        h('i', { className: `fa ${icon} fa-inverse`, style:iconStyle})
+      h('div', { className: 'reviewHeaderDetails' },
+        h('span', { className:'reviewIcon', style: { backgroundColor: bg } },
+          h('i', { className: `fa ${icon} fa-inverse`, style:iconStyle})
+        ),
+        h(AvatarIMG, { className: 'reviewAuthorIcon', user:user, size:16 }),
+        h('span', { className: 'reviewAuthor' }, user.login),
+        info
       ),
-      h(AvatarIMG, { className: 'reviewAuthorIcon', user:user, size:16 }),
-      h('span', { className: 'reviewAuthor' }, user.login),
-      info
+      h('div', { className:'reviewHeaderActions' },
+        actions
+      )
     );
   }
 }
@@ -440,6 +460,20 @@ class Review extends React.Component {
     this.setState({collapsed:!this.state.collapsed});
     evt.preventDefault();
   }
+  
+  submitPendingReview(evt) {
+    var el = evt.target;
+    var bbox = el.getBoundingClientRect();
+    window.submitPendingReview.postMessage({bbox});  
+    evt.preventDefault();
+  }
+  
+  deletePendingReview(evt) {
+    var el = evt.target;
+    var bbox = el.getBoundingClientRect();
+    window.deletePendingReview.postMessage({bbox});
+    evt.preventDefault();
+  }
 
   render() {
     var hasSummary = this.props.review.body && this.props.review.body.trim().length > 0;
@@ -469,7 +503,9 @@ class Review extends React.Component {
       review: this.props.review, 
       empty: this.state.collapsed||noBodyAndNoComments,
       collapsed: this.state.collapsed,
-      toggleCollapsed: this.toggleCollapsed.bind(this)
+      toggleCollapsed: this.toggleCollapsed.bind(this),
+      submitPendingReview: this.submitPendingReview.bind(this),
+      deletePendingReview: this.deletePendingReview.bind(this)
     }));
     
     if (!this.state.collapsed) {

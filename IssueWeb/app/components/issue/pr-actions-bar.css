@@ -7,57 +7,32 @@
   text-align: right;
 }
 
-.PRActionsBarButton {
-  display: inline-block;
-  
-  line-height: 150%;
-  font-weight: 500;
-  
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  
-  color: #555;
-  border: 1px solid #555;
-  border-radius: 3px;
-  
-  cursor: default;
-  -webkit-user-select: none;
-  white-space: nowrap;
-    
-  margin-left: 10px;
-}
-
-.PRReviewChangesButton {
-  color: #0085E4;
-  border: 1px solid #0085E4;
-  white-space: nowrap;
-}
-
-.PRMergeChangesButton {
+button.PRMergeChangesButton {
   color: #2CBE4E;
   border: 1px solid #2CBE4E;
-  white-space: nowrap;
 }
 
-.PRMergeChangesButton img {
-  position: relative;
-  top: 4px;
-  margin-right: 6px;
+button.PRMergeChangesButton:active {
+  background-color: #2CBE4E;
+  border: 1px solid transparent;
+  color: white;
 }
 
-.PRActionsBarButton:active {
-  opacity: 0.7;
-}
-
-.PRMergeChangesButtonDisabled {
+button.PRMergeChangesButtonDisabled {
   color: #CCC;
   border: 1px solid #CCC;
 }
 
-.PRMergeChangesButtonDisabled:active {
-  opacity: 1.0;
+button.PRMergeChangesButtonDisabled:active {
+  background-color: transparent;
+  color: #CCC;
+  border: 1px solid #CCC;
+}
+
+.PRMergeChangesButton svg {
+  position: relative;
+  top: 3px;
+  margin-right: 2px;
 }
 
 .PRChangeSummary {

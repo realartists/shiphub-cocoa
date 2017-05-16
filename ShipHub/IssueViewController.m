@@ -34,6 +34,8 @@
 #import "ProgressSheet.h"
 #import "TrackingProgressSheet.h"
 #import "PRPostMergeController.h"
+#import "PRReviewChangesViewController.h"
+#import "PRReview.h"
 
 #import <WebKit/WebKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
@@ -44,7 +46,7 @@ NSString *const IssueViewControllerNeedsSaveDidChangeNotification = @"IssueViewC
 NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave";
 
 
-@interface IssueViewController () <MarkdownFormattingControllerDelegate, PRMergeViewControllerDelegate> {
+@interface IssueViewController () <MarkdownFormattingControllerDelegate, PRMergeViewControllerDelegate, PRReviewChangesViewControllerDelegate> {
     NSMutableDictionary *_saveCompletions;
     NSTimer *_needsSaveTimer;
     
@@ -57,6 +59,9 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 
 @property PRMergeViewController *mergeController;
 @property NSPopover *mergePopover;
+
+@property PRReviewChangesViewController *reviewChangesController;
+@property NSPopover *reviewChangesPopover;
 
 @end
 
@@ -313,6 +318,14 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         [weakSelf handleRevertMergeCommit:msg];
     } name:@"revertMergeCommit"];
     
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf handleSubmitPendingReview:msg];
+    } name:@"submitPendingReview"];
+    
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf handleDeletePendingReview:msg];
+    } name:@"deletePendingReview"];
+    
     [_markdownFormattingController registerJavaScriptAPI:windowObject];
 
     NSString *setupJS =
@@ -511,9 +524,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     }];
 }
 
-- (void)handleMergePopover:(NSDictionary *)msg {
-    NSDictionary *bbox = msg[@"bbox"];
-    
+- (void)showPopover:(NSPopover *)popover relativeToDOMBBox:(NSDictionary *)bbox {
     CGRect r = CGRectMake([bbox[@"left"] doubleValue],
                           [bbox[@"top"] doubleValue],
                           [bbox[@"width"] doubleValue],
@@ -529,6 +540,77 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     r.origin.x -= scrollView.documentVisibleRect.origin.x;
     r.origin.y -= scrollView.documentVisibleRect.origin.y;
     
+    [popover showRelativeToRect:r ofView:self.view preferredEdge:NSRectEdgeMinY];
+}
+
+- (PRReview *)existingPendingReview {
+    PRReview *pendingReview = [self.issue.reviews firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"state = %ld", PRReviewStatePending]];
+    return pendingReview;
+}
+
+- (void)handleSubmitPendingReview:(NSDictionary *)msg {
+    NSDictionary *bbox = msg[@"bbox"];
+    
+    if (_reviewChangesPopover.shown) {
+        [_reviewChangesPopover close];
+        return;
+    }
+    
+    PRReview *pendingReview = [self existingPendingReview];
+    if (!pendingReview) return;
+    
+    if (!_reviewChangesController) {
+        _reviewChangesController = [PRReviewChangesViewController new];
+        _reviewChangesController.delegate = self;
+    }
+    
+    _reviewChangesPopover = [[NSPopover alloc] init];
+    _reviewChangesPopover.contentViewController = _reviewChangesController;
+    _reviewChangesPopover.behavior = NSPopoverBehaviorSemitransient;
+    
+    PullRequest *pr = [[PullRequest alloc] initWithIssue:self.issue];
+    _reviewChangesController.pr = pr;
+    
+    _reviewChangesController.numberOfPendingComments = pendingReview.comments.count;
+    
+    [self showPopover:_reviewChangesPopover relativeToDOMBBox:bbox];
+}
+
+- (void)handleDeletePendingReview:(NSDictionary *)msg {
+    NSAlert *alert = [NSAlert new];
+    alert.messageText = NSLocalizedString(@"Delete Pending Review?", nil);
+    alert.informativeText = NSLocalizedString(@"This will delete your pending review and all associated comments. This operation cannot be undone.", nil);
+    
+    [alert addButtonWithTitle:NSLocalizedString(@"Delete", nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+    
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertFirstButtonReturn) {
+            [self deletePendingReview];
+        }
+    }];
+}
+
+- (void)deletePendingReview {
+    PRReview *pending = [self existingPendingReview];
+    if (pending) {
+        ProgressSheet *progress = [ProgressSheet new];
+        progress.message = NSLocalizedString(@"Deleting review", nil);
+        [progress beginSheetInWindow:self.view.window];
+        
+        [[DataStore activeStore] deletePendingReview:pending inIssue:self.issue.fullIdentifier completion:^(NSError *error) {
+            [progress endSheet];
+            if (error) {
+                [self presentError:error withRetry:^{
+                    [self deletePendingReview];
+                } fail:nil];
+            }
+        }];
+    }
+}
+
+- (void)handleMergePopover:(NSDictionary *)msg {
+    NSDictionary *bbox = msg[@"bbox"];
     
     if (_mergePopover.shown) {
         [_mergePopover close];
@@ -547,7 +629,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     _mergePopover.contentViewController = _mergeController;
     _mergePopover.behavior = NSPopoverBehaviorSemitransient;
     
-    [_mergePopover showRelativeToRect:r ofView:self.view preferredEdge:NSRectEdgeMinY];
+    [self showPopover:_mergePopover relativeToDOMBBox:bbox];
 }
 
 #pragma mark - PRMergeViewControllerDelegate
@@ -573,6 +655,32 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
             
             [postMerge beginSheetModalForWindow:self.view.window completion:nil];
         }
+    }];
+}
+
+#pragma mark - PRReviewChangesViewControllerDelegate
+
+- (void)reviewChangesViewController:(PRReviewChangesViewController *)vc submitReview:(PRReview *)review {
+    [_reviewChangesPopover close];
+    _reviewChangesPopover = nil;
+    _reviewChangesController = nil;
+    
+    ProgressSheet *progress = [ProgressSheet new];
+    progress.message = NSLocalizedString(@"Sending review", nil);
+    [progress beginSheetInWindow:self.view.window];
+    
+    PRReview *existingPendingReview = [self existingPendingReview];
+    review.comments = existingPendingReview.comments;
+    if (existingPendingReview) {
+        review.identifier = existingPendingReview.identifier;
+    }
+    [[DataStore activeStore] addReview:review inIssue:self.issue.fullIdentifier completion:^(PRReview *roundtrip, NSError *error) {
+        [progress endSheet];
+        if (error) {
+            [self presentError:error withRetry:^{
+                [self reviewChangesViewController:nil submitReview:review];
+            } fail:nil];
+        } // else DataStore will update the model and things will proceed as usual
     }];
 }
 
@@ -651,6 +759,25 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 
 - (void)takeFocus {
     [self evaluateJavaScript:@"focusIssue()"];
+}
+
+#pragma mark -
+
+- (void)presentError:(NSError *)error withRetry:(dispatch_block_t)retry fail:(dispatch_block_t)fail {
+    NSAlert *alert = [NSAlert new];
+    alert.alertStyle = NSCriticalAlertStyle;
+    alert.messageText = NSLocalizedString(@"Unable to save changes", nil);
+    alert.informativeText = [error localizedDescription] ?: @"";
+    [alert addButtonWithTitle:NSLocalizedString(@"Retry", nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"Discard Changes", nil)];
+    
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertFirstButtonReturn) {
+            if (retry) retry();
+        } else {
+            if (fail) fail();
+        }
+    }];
 }
 
 @end

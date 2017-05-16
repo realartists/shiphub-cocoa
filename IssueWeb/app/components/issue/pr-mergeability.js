@@ -463,7 +463,10 @@ class PRMergeability extends React.Component {
       return h('span', {}); // we're closed. go home.
     }
     
-    var reviewItems = Reviewers.latestReviews(this.props.issue, this.props.allReviews);
+    var reviewItems = Reviewers.latestReviews(
+      this.props.issue, 
+      this.props.allReviews.filter(r => r.state != ReviewState.Pending)
+    );
   
     var statuses = this.props.issue.commit_statuses||[];
     var tot = keypath(this.props.issue, "head.sha");

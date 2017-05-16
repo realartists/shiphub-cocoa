@@ -21,8 +21,31 @@ div.reviewHeader {
   margin-right: 12px;
   vertical-align: middle;
   line-height: 32px;
+  max-height: 39px;
+  overflow: hidden;
   font-size: 10pt;
   border-bottom: 1px solid #EFEFEF;
+  display: flex;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+div.reviewHeaderDetails {
+  flex-shrink: 1;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+div.reviewHeaderActions {
+  flex-shrink: 0;
+}
+
+button.reviewDeletePendingButton {
+  color: #555;
+  border: 1px solid #555;
+  font-weight: 400;
 }
 
 span.reviewIcon {

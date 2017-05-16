@@ -623,7 +623,7 @@ var MergedEventActions = React.createClass({
     return h('div', { className:"EventActions" },
       h('button', { 
         type:"button", 
-        className: "EventActionButton MergedEventRevertButton", 
+        className: "ActionButton EventActionButton MergedEventRevertButton", 
         onClick:evt => this.revert(evt, committish)
       }, "Revert" )
     );

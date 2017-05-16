@@ -18,34 +18,39 @@ var AddCommentFooter = React.createClass({
     }
     
     if (this.props.canClose) {
-      contents.push(h('div', {
+      contents.push(h('button', {
+        type:'button',
         key:'close', 
         title: '⌘⇧⏎',
-        className:'Clickable addCommentButton addCommentCloseButton', 
+        className:'ActionButton addCommentButton addCommentCloseButton', 
         onClick:this.props.onClose}, 
         'Close Issue'
       ));
     } else if (this.props.editingExisting||this.props.canCancel) {
-      contents.push(h('div', {
+      contents.push(h('button', {
+        type:'button',
         key:'cancel', 
-        className:'Clickable addCommentButton addCommentCloseButton', 
+        className:'ActionButton addCommentButton addCommentCloseButton', 
         onClick:this.props.onCancel}, 
         'Cancel'
       ));
     }
     
     if (canSave) {
-      contents.push(h('div', {
+      contents.push(h('button', {
+        type:'button',
         key:'save', 
         title: '⌘S',
-        className:'Clickable addCommentButton addCommentSaveButton', 
+        className:'ActionButton addCommentButton addCommentSaveButton', 
         onClick:this.props.onSave}, 
         (this.props.editingExisting ? 'Update' : (isNewIssue ? 'Save' : 'Comment'))
       ));
     } else {
-      contents.push(h('div', {
+      contents.push(h('button', {
+        type:'button',
         key:'save', 
-        className:'Clickable addCommentButton addCommentSaveButton addCommentSaveButtonDisabled'}, 
+        disabled:true,
+        className:'ActionButton addCommentButton addCommentSaveButton addCommentSaveButtonDisabled'}, 
         (this.props.editingExisting ? 'Update' : (isNewIssue ? 'Save' : 'Comment'))
       ));
     }

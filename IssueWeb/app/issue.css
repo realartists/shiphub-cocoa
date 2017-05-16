@@ -592,34 +592,13 @@ div.EventActions {
   overflow: hidden;
 }
 
+@import url(./action-button.css);
+
 button.EventActionButton {
   line-height: 100%;
   font-weight: 400;
-  
-  padding-left: 8px;
-  padding-right: 8px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  
-  color: #0085E4;
-  border: 1px solid #0085E4;
-  border-radius: 3px;
-  
-  cursor: default;
-  -webkit-user-select: none;
-  white-space: nowrap;
-    
-  margin-left: 10px;
-  
-  background-color: transparent;
+  font-size: 11px;
   
   position: relative;
   top: -2px;
 }
-
-button.EventActionButton:active {
-  background-color: #0085E4;
-  border: 1px solid transparent;
-  color: white;
-}
-

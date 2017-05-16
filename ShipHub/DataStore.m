@@ -2185,7 +2185,43 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(issueIdentifier);
     NSParameterAssert(completion);
     
-    NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
+    void (^saveReview)(NSDictionary *, NSArray *) = ^(NSDictionary *reviewJson, NSArray *reviewCommentsJson) {
+        [self performWrite:^(NSManagedObjectContext *moc) {
+            NSFetchRequest *fetchIssue = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+            fetchIssue.predicate = [self predicateForIssueIdentifiers:@[issueIdentifier]];
+            
+            LocalIssue *li = [[moc executeFetchRequest:fetchIssue error:NULL] firstObject];
+            
+            if (li) {
+                NSMutableDictionary *reviewObj = [[JSON parseObject:reviewJson withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
+                reviewObj[@"issue"] = li.identifier;
+                
+                NSArray *commentsObjs = [JSON parseObject:reviewCommentsJson?:@[] withNameTransformer:[JSON githubToCocoaNameTransformer]];
+                
+                NSMutableArray *syncObjs = [NSMutableArray arrayWithCapacity:1 + commentsObjs.count];
+                SyncEntry *re = [SyncEntry new];
+                re.action = SyncEntryActionSet;
+                re.entityName = @"prreview";
+                re.data = reviewObj;
+                [syncObjs addObject:re];
+                
+                for (NSDictionary *commentObj in commentsObjs) {
+                    NSMutableDictionary *mc = [commentObj mutableCopy];
+                    mc[@"review"] = reviewObj[@"identifier"];
+                    
+                    SyncEntry *ce = [SyncEntry new];
+                    ce.action = SyncEntryActionSet;
+                    ce.entityName = @"prcomment";
+                    ce.data = mc;
+                    [syncObjs addObject:ce];
+                }
+                
+                [self writeSyncObjects:syncObjs];
+                
+                [moc save:NULL];
+            }
+        }];
+    };
     
     dispatch_block_t postReview = ^{
         NSMutableDictionary *msg = [NSMutableDictionary new];
@@ -2203,6 +2239,9 @@ static NSString *const LastUpdated = @"LastUpdated";
                 return c;
             }];
         }
+        
+        
+        NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
         
         NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/reviews", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
         
@@ -2228,6 +2267,8 @@ static NSString *const LastUpdated = @"LastUpdated";
                             
                             PRReview *roundtrip = [[PRReview alloc] initWithDictionary:jsonResponse comments:comments metadataStore:self.metadataStore];
                             
+                            saveReview(jsonResponse, data);
+                            
                             RunOnMain(^{
                                 completion(roundtrip, nil);
                             });
@@ -2236,6 +2277,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                     
                 } else {
                     PRReview *roundtrip = [[PRReview alloc] initWithDictionary:jsonResponse comments:nil metadataStore:self.metadataStore];
+                    saveReview(jsonResponse, nil);
                     RunOnMain(^{
                         completion(roundtrip, nil);
                     });
@@ -2250,9 +2292,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     if (review.identifier) {
         // first we have to delete the existing review, because GitHub is lame like that
-        NSString *deleteEndpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/reviews/%@", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber], review.identifier];
-        
-        [self.serverConnection perform:@"DELETE" on:deleteEndpoint headers:headers body:nil completion:^(id jsonResponse, NSError *error) {
+        [self deletePendingReview:review inIssue:issueIdentifier completion:^(NSError *error) {
             postReview(); // try to post regardless of whether or not the delete failed
         }];
     } else {
@@ -2260,6 +2300,36 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
     
     [[Analytics sharedInstance] track:@"Post PR Review"];
+}
+
+- (void)deletePendingReview:(PRReview *)review inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion {
+    NSString *deleteEndpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/reviews/%@", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber], review.identifier];
+    
+    NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
+    
+    [self.serverConnection perform:@"DELETE" on:deleteEndpoint headers:headers body:nil completion:^(id jsonResponse, NSError *error) {
+        if (!error) {
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRReview"];
+                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", review.identifier];
+                
+                LocalPRReview *lpr = [[moc executeFetchRequest:fetch error:NULL] firstObject];
+                
+                if (lpr) {
+                    [moc deleteObject:lpr];
+                    [moc save:NULL];
+                }
+                
+                RunOnMain(^{
+                    completion(nil);
+                });
+            }];
+        } else {
+            RunOnMain(^{
+                completion(error);
+            });
+        }
+    }];
 }
 
 - (void)editReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(PRComment *comment, NSError *error))completion

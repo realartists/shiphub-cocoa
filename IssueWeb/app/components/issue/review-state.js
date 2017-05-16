@@ -12,7 +12,7 @@ export default function reviewStateToUI(state) {
   switch (state) {
     case ReviewState.Pending:
       icon = 'fa-commenting';
-      action = 'saved a pending review';
+      action = 'has a pending review';
       break;
     case ReviewState.Approve:
       icon = 'fa-thumbs-up';

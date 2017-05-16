@@ -191,3 +191,5 @@ table.diff {
 .selecting-right th.left *::selection {
   background: transparent;
 }
+
+@import url(./action-button.css);
