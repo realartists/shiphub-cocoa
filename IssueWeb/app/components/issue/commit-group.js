@@ -261,9 +261,19 @@ class CommitGroup extends React.Component {
     var commits = Array.from(this.props.commits);
     
     var commitShas = new Set();
+    
+    // unique commits
+    var uniqueCommits = [];
+    commits.forEach(c => {
+      if (!commitShas.has(c.sha)) {
+        commitShas.add(c.sha);
+        uniqueCommits.push(c);
+      }
+    });
+    commits = uniqueCommits;
+    
     var commitsBySha = {};
     commits.forEach(c => {
-      commitShas.add(c.sha);
       commitsBySha[c.sha] = c;
     });
     
