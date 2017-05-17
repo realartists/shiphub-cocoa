@@ -206,6 +206,8 @@
     
     NSInteger operations = 0;
     
+    [[DataStore activeStore] checkForIssueUpdates:_issue.fullIdentifier];
+    
     NSString *pullEndpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@", _issue.repository.fullName, _issue.number];
     [pager fetchSingleObject:[pager get:pullEndpoint] completion:^(NSDictionary *obj, NSError *err) {
         prError = err;
