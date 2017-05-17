@@ -259,7 +259,14 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 }
 
 - (void)updatePullRequestMenuVisibility {
-    NSDocument *keyDocument = [[IssueDocumentController sharedDocumentController] currentDocument];
+    NSWindow *keyWindow = [NSApp keyWindow];
+    NSDocument *keyDocument = keyWindow?[[IssueDocumentController sharedDocumentController] documentForWindow:keyWindow]:nil;
+    
+    BOOL active = [NSApp isActive];
+    if (!active) {
+        keyDocument = nil;
+    }
+    
     _pullRequestMenu.hidden = ![keyDocument isKindOfClass:[PRDocument class]];
 }
 
