@@ -6,9 +6,7 @@ import { keypath, setKeypath } from 'util/keypath.js'
 import IssueState from 'issue-state.js'
 
 import './pr-actions-bar.css'
-import PRMergeIcon from 'raw-loader!../../../image/MergeIcon.txt'
-
-console.log("PRMergeIcon", PRMergeIcon);
+import PRMergeIcon from '!!raw!../../../image/MergeIcon.svg'
 
 class PRChangeSummary extends React.Component {
   render() {
