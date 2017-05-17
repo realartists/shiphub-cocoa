@@ -101,6 +101,11 @@ div.commentBody img, video {
   max-width: 100%;
   height: auto;
 }
+div.commentBody img.emoji {
+  display: inline;
+  position: relative;
+  top: 2px;
+}
 div.commentHeader {
   height: 32px;
   margin-top: 6px;
