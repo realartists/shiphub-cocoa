@@ -1,7 +1,7 @@
 export function githubLinkify(owner, repo, text) {
   var issues = /(^|[^\&<>])([\w+\-\d]+)?\/?([\w+\-\d]+)?#(\d+)/g;
   var mentions = /(^| )@([\w+\-\d]+)/g;
-  var hashes = /([\w+\-\d]+\/)?([\w+\-\d]+@)?([A-Fa-f0-9]{7,40})/g;
+  var hashes = /([\w+\-\d]+\/)?([\w+\-\d]+@)?([A-Fa-f0-9]{7,40})(?=[^g-zG-Z]|$)/g;
 
   try {
     return text.replace(issues, function(g0, g1, g2, g3, g4) {
