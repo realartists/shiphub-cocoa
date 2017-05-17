@@ -2169,14 +2169,14 @@ var App = React.createClass({
     var prCommentsByOriginalPosition = {};
     
     var cpos = (c) => {
-      if (c.position !== null) {
+      if (Number.isInteger(c.position)) {
         return `${c.commit_id}/${c.path}#${c.position}`;
       }
       return null;
     }
     
     var opos = (c) => {
-      if (c.original_position !== null) {
+      if (Number.isInteger(c.original_position)) {
         return `${c.original_commit_id}/${c.path}#${c.original_position}`;
       }
       return null;
@@ -2186,11 +2186,11 @@ var App = React.createClass({
       var p = cpos(c);
       var op = opos(c);
       
-      if (!(p in prCommentsByPosition)) {
+      if (p && !(p in prCommentsByPosition)) {
         prCommentsByPosition[p] = c;
       }
       
-      if (!(op in prCommentsByOriginalPosition)) {
+      if (op && !(op in prCommentsByOriginalPosition)) {
         prCommentsByOriginalPosition[op] = c;
       }
     });
