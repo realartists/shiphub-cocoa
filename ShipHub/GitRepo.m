@@ -117,7 +117,9 @@ static int updateRefs(const char *ref_name, const char *remote_url, const git_oi
     for (NSString *candidateRef in fetchRefs) {
         if (strcmp(ref_name, [[@"refs/" stringByAppendingString:candidateRef] UTF8String]) == 0) {
             git_reference *newRef = NULL;
-            return git_reference_create(&newRef, repo.repo, ref_name, oid, 1, "fetch");
+            int ret = git_reference_create(&newRef, repo.repo, ref_name, oid, 1, "fetch");
+            if (newRef) git_reference_free(newRef);
+            return ret;
         }
     }
     
@@ -342,6 +344,74 @@ static int updateRefs(const char *ref_name, const char *remote_url, const git_oi
     };
     
     CHK(git_remote_push(remote, &refspecs, &opts));
+    
+    cleanup();
+    return nil;
+    
+#undef CHK
+}
+
+- (BOOL)hasRef:(NSString *)refName error:(NSError *__autoreleasing *)outError
+{
+    if (outError) *outError = nil;
+    
+    [self writeLock];
+    
+    __block git_reference *ref = NULL;
+    
+    int result = git_reference_lookup(&ref, _repo, [refName UTF8String]);
+    
+    if (result != GIT_ENOTFOUND && result != 0) {
+        if (outError) {
+            *outError = [NSError gitError];
+        }
+    }
+    
+    return result == 0;
+}
+
+- (NSError *)updateRef:(NSString *)refName toSha:(NSString *)sha {
+    [self writeLock];
+    
+    NSString *fullName = [NSString stringWithFormat:@"refs/%@", refName];
+    
+    __block git_commit *commit = NULL;
+    __block git_reference *ref = NULL;
+
+    git_oid oid = {0};
+    git_oid refOid = {0};
+    
+    dispatch_block_t cleanup = ^{
+        if (commit) git_commit_free(commit);
+        if (ref) git_reference_free(ref);
+        
+        [self unlock];
+    };
+    
+#define CHK(X) \
+    do { \
+        int giterr = (X); \
+        if (giterr) { \
+            NSError *err = [NSError gitError]; \
+            cleanup(); \
+            return err; \
+        } \
+    } while (0);
+    
+    CHK(git_oid_fromstr(&oid, [sha UTF8String]));
+    
+    if (0 == git_reference_name_to_id(&refOid, _repo, [fullName UTF8String]) && 0 == git_oid_cmp(&oid, &refOid))
+    {
+        // all set.
+        cleanup();
+        return nil;
+    }
+    
+    // still here? ok, we gotta update it.
+    
+    CHK(git_commit_lookup(&commit, _repo, &oid));
+    
+    CHK(git_reference_create(&ref, _repo, [fullName UTF8String], &oid, 1, "update"));
     
     cleanup();
     return nil;

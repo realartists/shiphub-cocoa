@@ -24,4 +24,10 @@
 
 - (NSError *)pushRemote:(NSURL *)remoteURL username:(NSString *)username password:(NSString *)password newBranchWithProposedName:(NSString *)branchName revertingCommit:(NSString *)mergeCommit fromBranch:(NSString *)sourceBranch progress:(NSProgress *)progress;
 
+// synchronously check if ref is in repo
+- (BOOL)hasRef:(NSString *)refName error:(NSError *__autoreleasing *)error;
+
+// create or update refName to point to sha. sha must exist as an object in the repo.
+- (NSError *)updateRef:(NSString *)refName toSha:(NSString *)sha;
+
 @end

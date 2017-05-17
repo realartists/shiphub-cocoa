@@ -159,9 +159,12 @@
     NSString *baseRefSpec = _info[@"base"][@"ref"];
     _headRefSpec = refSpec;
     
+    // see if we can find the head ref
+    BOOL hasHeadRef = [_repo hasRef:refSpec error:NULL];
+    
     // optimistically, see if we can find the PR without doing any network operations
-    NSError *optimisticErr = [self loadCommits];
-    if (optimisticErr) {
+    NSError *optimisticErr = hasHeadRef ? [self loadCommits] : nil;
+    if (!hasHeadRef || optimisticErr) {
         progress.localizedDescription = NSLocalizedString(@"Fetching git objects", nil);
         progress.completedUnitCount = 0;
         progress.totalUnitCount = -1;
@@ -170,6 +173,10 @@
         
         // See https://github.com/blog/1270-easier-builds-and-deployments-using-git-over-https-and-oauth
         error = [_repo fetchRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" refs:@[refSpec, baseRefSpec] progress:progress];
+        if (error) return error;
+        
+        error = [_repo updateRef:refSpec toSha:[self headSha]];
+        
         if (error) return error;
         
         error = [self loadCommits];
