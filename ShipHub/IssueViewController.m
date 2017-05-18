@@ -488,7 +488,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     
     NSAlert *alert = [NSAlert new];
     alert.messageText = NSLocalizedString(@"Revert Pull Request?", nil);
-    alert.informativeText = NSLocalizedString(@"This will create a new branch with a revert of the merge commit in it, and then will propose a new pull request to merge the revert back to the base branch", nil);
+    alert.informativeText = NSLocalizedString(@"This will create a new branch with a revert of the merge commit in it, and then will propose a new pull request to merge the revert back to the base branch.", nil);
     
     [alert addButtonWithTitle:NSLocalizedString(@"Revert", nil)];
     [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
