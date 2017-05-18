@@ -211,6 +211,22 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
     }
 }
 
+- (void)resetAllFilters {
+    BOOL hadFilter = NO;
+    if (_filterField.stringValue.length) {
+        _filterField.stringValue = @"";
+        hadFilter = YES;
+    }
+    if (_commentFilterButton.state != NSOffState) {
+        _commentFilterButton.state = NSOffState;
+        hadFilter = YES;
+    }
+    
+    if (hadFilter) {
+        [self updateFilteredDiff];
+    }
+}
+
 - (void)selectFirstItem {
     GitDiffFile *first = [_inorderFiles firstObject];
     if (first) {
@@ -297,6 +313,20 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
             [self selectFile:_inorderFiles[idx]];
         }
     }
+}
+
+- (BOOL)selectFileAtPath:(NSString *)path {
+    if (!path) return NO;
+    
+    [self resetAllFilters];
+    GitDiffFile *file = [_inorderFiles firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"path = %@", path]];
+    
+    if (file) {
+        [self selectFile:file];
+        return YES;
+    }
+    
+    return NO;
 }
 
 - (IBAction)commentFilterButtonToggled:(id)sender {

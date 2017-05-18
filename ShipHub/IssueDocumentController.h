@@ -21,7 +21,7 @@
 
 - (void)newDocumentWithURL:(NSURL *)URL;
 - (void)newDocumentWithIssueTemplate:(Issue *)issueTemplate;
-- (void)openDiffWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier completion:(void (^)(PRDocument *doc))completion;
+- (void)openDiffWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally scrollInfo:(NSDictionary *)scrollInfo completion:(void (^)(PRDocument *doc))completion;
 
 - (IBAction)newPullRequest:(id)sender;
 

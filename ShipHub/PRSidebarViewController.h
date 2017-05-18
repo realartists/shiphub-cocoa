@@ -35,6 +35,8 @@
 - (IBAction)nextCommentedFile:(id)sender;
 - (IBAction)previousCommentedFile:(id)sender;
 
+- (BOOL)selectFileAtPath:(NSString *)path;
+
 - (IBAction)filterInNavigator:(id)sender;
 
 @end

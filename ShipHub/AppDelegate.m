@@ -231,7 +231,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
             [[IssueDocumentController sharedDocumentController] openIssueWithIdentifier:issueIdentifier canOpenExternally:YES scrollToCommentWithIdentifier:commentIdentifier completion:nil];
             return YES;
         } else if (diffIdentifier) {
-            [[IssueDocumentController sharedDocumentController] openDiffWithIdentifier:diffIdentifier canOpenExternally:YES scrollToCommentWithIdentifier:reviewCommentIdentifier completion:nil];
+            [[IssueDocumentController sharedDocumentController] openDiffWithIdentifier:diffIdentifier canOpenExternally:YES scrollInfo:nil completion:nil];
             return YES;
         }
     }

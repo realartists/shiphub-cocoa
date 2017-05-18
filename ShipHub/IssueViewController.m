@@ -471,7 +471,8 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 
 - (void)handleDiffViewer:(NSDictionary *)msg {
     IssueDocumentController *docController = [IssueDocumentController sharedDocumentController];
-    [docController openDiffWithIdentifier:self.issue.fullIdentifier canOpenExternally:NO scrollToCommentWithIdentifier:nil completion:nil];
+    NSDictionary *scrollInfo = msg[@"scrollInfo"];
+    [docController openDiffWithIdentifier:self.issue.fullIdentifier canOpenExternally:NO scrollInfo:scrollInfo completion:nil];
 }
 
 - (void)handleEditConflicts:(NSDictionary *)msg {

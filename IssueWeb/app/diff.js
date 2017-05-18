@@ -701,15 +701,36 @@ class App {
     }
   }
   
+  scrollToLine(line, left) {
+    var cr = this.codeRows.find(cr => {
+      if (left) {
+        return cr.leftLineNum === line;
+      } else {
+        return cr.rightLineNum === line;
+      }
+    });
+    if (cr) {
+      cr.node.scrollIntoViewIfNeeded();
+    }
+  }
+  
   /*
   options - {
-    type: string, (comment|hunk)
+    type: string, (comment|hunk|line)
     direction: int, 1 (down) or -1 (up)
     first: boolean, go to item at top of file
     last: boolean, go to the item at the bottom of the file
+    
+    line specific options:
+    left: line is in left or right
   }
   */
   scrollTo(options) { 
+    if (options.type === "line") {
+      this.scrollToLine(options.line, options.left);
+      return;
+    }
+  
     var commentBlocks = () => {
       return this.commentRows.map((cr) => {
         return { diffIdx: cr.diffIdx, startNode: cr.node, endNode: cr.node };

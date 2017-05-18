@@ -76,6 +76,14 @@ table.diffHunk .gutter::selection {
   background: transparent;
 }
 
+table.diffHunk .gutter-navigable {
+  cursor: pointer;
+}
+
+table.diffHunk .gutter-navigable:hover {
+  color: #737373;
+}
+
 table.diffHunk .unified-codecol {
   padding-left: 8px;
   padding-right: 8px;

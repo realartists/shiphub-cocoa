@@ -187,13 +187,13 @@
     }];
 }
 
-- (void)openDiffWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier completion:(void (^)(PRDocument *doc))completion
+- (void)openDiffWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally scrollInfo:(NSDictionary *)scrollInfo completion:(void (^)(PRDocument *doc))completion;
 {
     for (PRDocument *doc in [self diffDocuments]) {
         if ([[doc.prViewController.pr.issue fullIdentifier] isEqual:issueIdentifier]) {
             [doc showWindows];
-            if (commentIdentifier) {
-                [doc.prViewController scrollToCommentWithIdentifier:commentIdentifier];
+            if (scrollInfo) {
+                [doc.prViewController scrollToLineInfo:scrollInfo];
             }
             return;
         }
@@ -206,7 +206,7 @@
             [doc makeWindowControllers];
             [doc showWindows];
             [doc.prViewController loadForIssue:issue];
-            [doc.prViewController scrollToCommentWithIdentifier:commentIdentifier];
+            if (scrollInfo) [doc.prViewController scrollToLineInfo:scrollInfo];
             
             if (completion) {
                 completion(doc);

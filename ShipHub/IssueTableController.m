@@ -512,7 +512,7 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
     
     Issue *i = [selected firstObject];
     if (i.pullRequest) {
-        [[IssueDocumentController sharedDocumentController] openDiffWithIdentifier:i.fullIdentifier canOpenExternally:NO scrollToCommentWithIdentifier:nil completion:nil];
+        [[IssueDocumentController sharedDocumentController] openDiffWithIdentifier:i.fullIdentifier canOpenExternally:NO scrollInfo:nil completion:nil];
     }
 }
 

@@ -382,17 +382,29 @@ class ReviewCommentBlock extends React.Component {
     );
   }
   
+  onLineClick(line, left) {
+    var info = { type: "line",
+                 path: this.props.comment.path,
+                 sha: this.props.comment.commit_id,
+                 line,
+                 left };
+    window.diffViewer.postMessage({scrollInfo: info});
+  }
+  
   render() {
     var comps = [];
     var canCollapse = this.canCollapse();
     var collapsed = this.state.collapsed;
+    
+    var onLineClick = canCollapse ? null : this.onLineClick.bind(this);
     
     comps.push(h(DiffHunk, { 
       key:"diff", 
       comment: this.props.comment,
       canCollapse: canCollapse,
       collapsed: collapsed,
-      onCollapse: this.onCollapse.bind(this) 
+      onCollapse: this.onCollapse.bind(this),
+      onLineClick
     }));
     
     if (!collapsed) {

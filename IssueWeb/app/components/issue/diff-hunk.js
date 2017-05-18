@@ -50,9 +50,30 @@ class DiffHunkLine extends React.Component {
     } else {
       contents = " " + contents;
     }
+        
+    var leftLineProps = {className:'gutter'};
+    var rightLineProps = {className:'gutter'};
+    
+    if (Number.isInteger(this.props.leftLineNum) &&
+        this.props.onLineClick) {
+      leftLineProps.className += ' gutter-navigable';
+      leftLineProps.onClick = (evt) => {
+        this.props.onLineClick(this.props.leftLineNum, true /*left*/);
+        evt.preventDefault();
+      };
+    }
+    if (Number.isInteger(this.props.rightLineNum) &&
+        this.props.onLineClick) {
+      rightLineProps.className += ' gutter-navigable';
+      rightLineProps.onClick = (evt) => {
+        this.props.onLineClick(this.props.rightLineNum, false /*!left*/);
+        evt.preventDefault();
+      };
+    }
+    
     return h('tr', {className:'DiffHunkLine'},
-      h('td', {className:'gutter'}, this.props.leftLineNum || ""),
-      h('td', {className:'gutter'}, this.props.rightLineNum || ""),
+      h('td', leftLineProps, this.props.leftLineNum || ""),
+      h('td', rightLineProps, this.props.rightLineNum || ""),
       h('td', {className},
         h('pre', {dangerouslySetInnerHTML: { __html: contents } })
       )
@@ -81,6 +102,7 @@ class DiffHunk extends React.Component {
   }
   
   render() {
+    var onLineClick = this.props.onLineClick;
     var canCollapse = this.props.canCollapse;
     var collapsed = this.props.collapsed;
     var onCollapse = this.props.onCollapse;
@@ -195,7 +217,7 @@ class DiffHunk extends React.Component {
       lineInfo.splice(0, lineInfo.length - 4);
       truncated = true;
     }    
-    var body = lineInfo.map((li, i) => h(DiffHunkLine, Object.assign({}, {key:""+i}, li)));
+    var body = lineInfo.map((li, i) => h(DiffHunkLine, Object.assign({}, {key:""+i, onLineClick}, li)));
 
     if (!truncated) {
       body.splice(0, 0, h(DiffHunkContextLine, {key:'ctx', ctxLine}))

@@ -392,6 +392,20 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     [idc openIssueWithIdentifier:_pr.issue.fullIdentifier];
 }
 
+- (void)scrollToLineInfo:(NSDictionary *)info {
+    
+    
+    NSAssert([info[@"type"] isEqualToString:@"line"], nil);
+    if (_loading) {
+        _nextScrollInfo = info;
+    } else if ([_sidebarController.selectedFile.path isEqualToString:info[@"path"]]) {
+        [_diffController navigate:info];
+    } else {
+        _nextScrollInfo = info;
+        [_sidebarController selectFileAtPath:info[@"path"]];
+    }
+}
+
 - (IBAction)nextFile:(id)sender {
     [_sidebarController nextFile:self];
 }
@@ -517,6 +531,12 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
         _loading = NO;
         _outOfDate = NO;
         
+        NSDictionary *nextScroll = nil;
+        if ([_nextScrollInfo[@"type"] isEqualToString:@"line"]) {
+            nextScroll = _nextScrollInfo;
+        }
+        _nextScrollInfo = nil;
+        
         if (self.pr.myLastPendingReview) {
             _inReview = YES;
             _pendingReview = self.pr.myLastPendingReview;
@@ -544,6 +564,10 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
         }
         
         [self reloadComments];
+        
+        if (nextScroll) {
+            [self scrollToLineInfo:nextScroll];
+        }
     }];
 }
 

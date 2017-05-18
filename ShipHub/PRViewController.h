@@ -17,7 +17,7 @@
 
 @property (nonatomic, strong) PullRequest *pr;
 
-- (void)scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier;
+- (void)scrollToLineInfo:(NSDictionary *)lineInfo;// @{ @"type": @"line", @"line": @(123), @"left": @(YES), @"path": @"...", @"sha": @"..." }
 
 @property (readonly) NSToolbar *toolbar; // toolbar for the window we're in
 
