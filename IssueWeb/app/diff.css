@@ -43,6 +43,8 @@ table.diff {
   line-height: 13px;
   min-height: 13px; /* for empty lines */
   width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .diff .gutter {
