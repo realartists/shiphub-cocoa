@@ -2289,7 +2289,14 @@ static NSString *const LastUpdated = @"LastUpdated";
         }];
     };
     
-    if (review.identifier) {
+    if (review.state == PRReviewStatePending) {
+        [self deleteAllPendingReviewsInIssue:issueIdentifier completion:^(NSError *error) {
+            // wait a second, otherwise GitHub will bug out and complain that we have an active pending review
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                postReview(); // try to post regardless of whether or not the delete failed
+            });
+        }];
+    } else if (review.identifier) {
         // first we have to delete the existing review, because GitHub is lame like that
         [self deletePendingReview:review inIssue:issueIdentifier completion:^(NSError *error) {
             // wait a second, otherwise GitHub will bug out and complain that we have an active pending review
@@ -2302,6 +2309,44 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
     
     [[Analytics sharedInstance] track:@"Post PR Review"];
+}
+
+- (void)deleteAllPendingReviewsInIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion {
+    RequestPager *pager = [[RequestPager alloc] initWithAuth:self.auth];
+    
+    NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/reviews", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
+    
+    [pager fetchPaged:[pager get:endpoint params:nil headers:headers] completion:^(NSArray *data, NSError *err) {
+        if (err) {
+            RunOnMain(^{
+                completion(err);
+            });
+        } else {
+            // find the pending review and kill it
+            NSArray *pending = [data filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"user.id = %@ AND state = 'PENDING'", [[Account me] identifier]]];
+            
+            if (pending.count) {
+                dispatch_group_t group = dispatch_group_create();
+                __block NSError *groupError = nil;
+                for (NSDictionary *reviewDict in pending) {
+                    dispatch_group_enter(group);
+                    PRReview *review = [[PRReview alloc] initWithDictionary:reviewDict comments:nil metadataStore:self.metadataStore];
+                    [self deletePendingReview:review inIssue:issueIdentifier completion:^(NSError *error) {
+                        if (error && !groupError) groupError = error;
+                        dispatch_group_leave(group);
+                    }];
+                }
+                dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+                    completion(groupError);
+                });
+            } else {
+                RunOnMain(^{
+                    completion(nil);
+                });
+            }
+        }
+    }];
 }
 
 - (void)deletePendingReview:(PRReview *)review inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion {

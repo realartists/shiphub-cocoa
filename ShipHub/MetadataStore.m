@@ -62,13 +62,22 @@ static BOOL IsMetadataObject(id obj) {
 }
 
 static BOOL IsImportantUserChange(LocalAccount *lu) {
-    static NSSet *ignoredKeys;
+//    assignable
+//    orgs
+//    projects
+//    repos
+//    users
+//    
+    static NSSet *allowedRelKeys;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        ignoredKeys = [NSSet setWithObjects:@"actedEvents", @"assignedEvents", @"assignedIssues", @"closedIssues", @"comments", @"originatedIssues", @"reactions", @"issues", nil];
+        allowedRelKeys = [NSSet setWithObjects:@"assignable", @"orgs", @"projects", @"repos", @"users", nil];
     });
     for (NSString *key in lu.changedValues) {
-        return ![ignoredKeys containsObject:key];
+        BOOL isRelationship = lu.entity.relationshipsByName[key] != nil;
+        if (!isRelationship || [allowedRelKeys containsObject:key]) {
+            return YES;
+        }
     }
     return NO;
 }

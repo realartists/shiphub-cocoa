@@ -395,6 +395,7 @@ class ReviewCommentBlock extends React.Component {
     var comps = [];
     var canCollapse = this.canCollapse();
     var collapsed = this.state.collapsed;
+    var canReply = this.props.review.state != ReviewState.Pending;
     
     var onLineClick = canCollapse ? null : this.onLineClick.bind(this);
     
@@ -428,10 +429,12 @@ class ReviewCommentBlock extends React.Component {
         }));
       });
       
-      if (this.state.hasReply) {
-        comps.push(this.renderReply());
-      } else {
-        comps.push(this.renderClickToReply());
+      if (canReply) {
+        if (this.state.hasReply) {
+          comps.push(this.renderReply());
+        } else {
+          comps.push(this.renderClickToReply());
+        }
       }
     }
     

@@ -42,6 +42,7 @@ typedef void (^GitDiffFileBinaryCompletion)(NSData *oldFile, NSData *newFile, NS
 
 @property (readonly) DiffFileOperation operation;
 @property (readonly) DiffFileMode mode;
+@property (readonly) DiffFileMode oldMode;
 
 @property (readonly, weak) GitFileTree *parentTree;
 

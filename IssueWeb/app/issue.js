@@ -798,8 +798,9 @@ var ActivityList = React.createClass({
     activity = activity.concat(issue.events || []);
     activity = activity.concat(issue.comments || []);
     
+    var pendingReview = null;
     if (this.props.allReviews) {
-      activity = activity.concat(this.props.allReviews.map(r => Object.assign({}, r, {review:true})));       
+      activity = activity.concat(this.props.allReviews.map(r => Object.assign({}, r, {review:true})));
     }
         
     activity = activity.sort(function(a, b) {
@@ -809,6 +810,20 @@ var ActivityList = React.createClass({
         return -1;
       } else if (b == firstComment) {
         return 1;
+      }
+      
+      // sort pending reviews to the end
+      if (a.review && a.review.state == ReviewState.Pending) {
+        if (a == b) return 0;
+        else if (b.review && b.review.state == ReviewState.Pending) {
+          if (a.review.id < b.review.id) return -1;
+          else if (a.review.id > b.review.id) return 1;
+          else return 0;
+        } else {
+          return 1;
+        }
+      } else if (b.review && b.review.state == ReviewState.Pending) {
+        return -1;
       }
       
       var da = new Date(a.submitted_at||a.created_at);

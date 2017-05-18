@@ -28,6 +28,7 @@
 
 @property DiffFileOperation operation;
 @property DiffFileMode mode;
+@property DiffFileMode oldMode;
 
 @property (readwrite, weak) GitFileTree *parentTree;
 
@@ -185,7 +186,7 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     CHK(git_diff_tree_to_tree(&diff, repo.repo, baseTree, headTree, NULL));
     
     git_diff_find_options opts = GIT_DIFF_FIND_OPTIONS_INIT;
-    opts.flags = GIT_DIFF_FIND_RENAMES | GIT_DIFF_FIND_COPIES;
+    opts.flags = GIT_DIFF_FIND_RENAMES;
     CHK(git_diff_find_similar(diff, &opts));
     
     NSMutableArray *files = [NSMutableArray new];
@@ -298,6 +299,7 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     f.newOid = delta->new_file.id;
     f.oldOid = delta->old_file.id;
     f.mode = (DiffFileMode)delta->new_file.mode;
+    f.oldMode = delta->old_file.mode;
     if (f.mode == DiffFileModeUnreadable) { /* deleted in new */
         f.mode = (DiffFileMode)delta->old_file.mode;
     }

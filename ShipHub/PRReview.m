@@ -118,3 +118,5 @@ NSString *PRReviewStateToString(PRReviewState st) {
     }
 }
 
+NSString *const PRReviewDeletedExplicitlyNotification = @"PRReviewDeletedExplicitlyNotification";
+NSString *const PRReviewDeletedInIssueIdentifierKey = @"PRReviewDeletedInIssueIdentifierKey";

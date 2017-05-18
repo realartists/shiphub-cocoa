@@ -43,3 +43,6 @@ extern NSString *PRReviewStateToString(PRReviewState st);
 @property NSArray<PRComment *> *comments;
 
 @end
+
+extern NSString *const PRReviewDeletedExplicitlyNotification;
+extern NSString *const PRReviewDeletedInIssueIdentifierKey;

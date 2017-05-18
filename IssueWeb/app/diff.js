@@ -980,7 +980,7 @@ window.updateDiff = function(diffState) {
   app.saveDraftComments();
   app.clearComments();
   app.updateDiff(diffState)
-  app.updateComments(diffState.comments);
+  app.updateComments(diffState.comments, diffState.inReview);
 };
 
 window.setDiffMode = function(newDiffMode) {
@@ -988,8 +988,8 @@ window.setDiffMode = function(newDiffMode) {
   app.setDiffMode(newDiffMode);
 };
 
-window.updateComments = function(comments) {
-  app.updateComments(comments);
+window.updateComments = function(comments, inReview) {
+  app.updateComments(comments, inReview);
 };
 
 window.scrollToCommentId = function(commentId) {

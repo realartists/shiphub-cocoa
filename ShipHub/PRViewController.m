@@ -49,6 +49,12 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
 
 @end
 
+@interface PendingCommentKey : NSObject <NSCopying>
+
+- (id)initWithPendingPRComment:(PendingPRComment *)prc;
+
+@end
+
 @interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, PRMergeViewControllerDelegate, NSToolbarDelegate, NSTouchBarDelegate> {
     NSToolbar *_toolbar;
 }
@@ -177,6 +183,7 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
     [super viewDidLoad];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:DataStoreDidUpdateProblemsNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingReviewDidDelete:) name:PRReviewDeletedExplicitlyNotification object:nil];
 }
 
 - (void)viewDidAppear {
@@ -575,6 +582,16 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     
 }
 
+#pragma mark - Explicit Pending PR Delete 
+/* from IssueViewController */
+
+- (void)pendingReviewDidDelete:(NSNotification *)note {
+    _pendingReview = nil;
+    _pendingComments = [NSMutableArray new];
+    _inReview = NO;
+    [self reloadComments];
+}
+
 #pragma mark - Updated Git Push Handling
 
 - (void)issueDidUpdate:(NSNotification *)note {
@@ -619,14 +636,26 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     
     _pendingReview = self.pr.myLastPendingReview;
     
-    // recompute pending comments
-    NSMutableArray *pendingComments = [[_pendingComments filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"assignedId = nil"]] mutableCopy];
+    // merge in any new comments from pendingReview.
+    // the tricky part is that their identifiers can't be used, since they rev
+    // every time we save a review, so we have to merge them in by comparing the content of the comments
+    
+    NSMutableArray *allPending = [_pendingComments mutableCopy];
+    for (PRComment *prc in _pendingReview.comments) {
+        [allPending addObject:[[PendingPRComment alloc] initWithPRComment:prc]];
+    }
+    
+    NSMutableArray *pendingComments = [NSMutableArray new];
+    NSMutableSet *pendingCommentKeys = [NSMutableSet new];
+    for (PendingPRComment *prc in allPending) {
+        PendingCommentKey *key = [[PendingCommentKey alloc] initWithPendingPRComment:prc];
+        if (![pendingCommentKeys containsObject:key]) {
+            [pendingCommentKeys addObject:key];
+            [pendingComments addObject:prc];
+        }
+    }
     
     _inReview = _pendingReview != nil || pendingComments.count > 0;
-    
-    for (PRComment *prc in self.pr.myLastPendingReview.comments) {
-        [pendingComments addObject:[[PendingPRComment alloc] initWithPRComment:prc]];
-    }
     _pendingComments = pendingComments;
     
     _mergeItem.enabled = self.pr.canMerge;
@@ -737,25 +766,12 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     }
     
     PRReview *review = [_pendingReview copy] ?: [PRReview new];
-    review.comments = _pendingComments;
+    review.comments = [_pendingComments copy];
     review.state = PRReviewStatePending;
     
     [[DataStore activeStore] addReview:review inIssue:_pr.issue.fullIdentifier completion:^(PRReview *roundtrip, NSError *error) {
         if (roundtrip) {
             _pendingReview = roundtrip;
-            [_pendingComments removeObjectsInArray:review.comments];
-            NSMutableSet *lookup = [NSMutableSet new];
-            for (PRComment *prc in _pendingComments) {
-                if (prc.identifier) {
-                    [lookup addObject:prc.identifier];
-                }
-            }
-            for (PRComment *prc in roundtrip.comments) {
-                if (prc.identifier && ![lookup containsObject:prc.identifier]) {
-                    [_pendingComments addObject:[[PendingPRComment alloc] initWithPRComment:prc]];
-                }
-            }
-            [self reloadComments];
         }
         if (error) {
             ErrLog(@"Error saving pending review: %@", error);
@@ -1062,6 +1078,46 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     newRect.origin.y += 1.0;
     
     return newRect;
+}
+
+@end
+
+@implementation PendingCommentKey {
+    NSString *_body;
+    NSString *_path;
+    NSNumber *_position;
+}
+
+- (id)initWithPendingPRComment:(PendingPRComment *)prc {
+    if (self = [super init]) {
+        _body = prc.body;
+        _path = prc.path;
+        _position = prc.position;
+    }
+    return self;
+}
+
+- (id)copyWithZone:(NSZone *)zone {
+    return self;
+}
+
+- (BOOL)isEqual:(id)object {
+    if ([object isKindOfClass:[PendingCommentKey class]]) {
+        PendingCommentKey *b = (id)object;
+        return
+            [NSObject object:_position isEqual:b->_position] &&
+            [NSObject object:_path isEqual:b->_path] &&
+            [NSObject object:_body isEqual:b->_body];
+    }
+    return NO;
+}
+
+- (NSUInteger)hash {
+    NSUInteger hash = 1;
+    hash = hash * 33 + [_body hash];
+    hash = hash * 33 + [_path hash];
+    hash = hash * 33 + [_position hash];
+    return hash;
 }
 
 @end
