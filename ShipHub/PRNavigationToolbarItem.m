@@ -49,15 +49,13 @@
     [[_segmented cell] setToolTip:NSLocalizedString(@"Previous Thing (⌃⌘↑)", nil) forSegment:0];
     
     NSMenu *nextMenu = [NSMenu new];
-    [nextMenu addItemWithTitle:NSLocalizedString(@"Next Change", nil) action:@selector(nextChange:) keyEquivalent:@"d"];
-    [nextMenu addItemWithTitle:NSLocalizedString(@"Next Comment", nil) action:@selector(nextComment:) keyEquivalent:@"m"];
+    [nextMenu addItemWithTitle:NSLocalizedString(@"Next Change", nil) action:@selector(nextChange:) keyEquivalent:@""];
+    [nextMenu addItemWithTitle:NSLocalizedString(@"Next Comment", nil) action:@selector(nextComment:) keyEquivalent:@""];
     [nextMenu addItemWithTitle:NSLocalizedString(@"Next File", nil) action:@selector(nextFile:) keyEquivalent:@"]"];
     
     NSMenu *prevMenu = [NSMenu new];
-    NSMenuItem *item = [prevMenu addItemWithTitle:NSLocalizedString(@"Previous Change", nil) action:@selector(previousChange:) keyEquivalent:@"d"];
-    item.keyEquivalentModifierMask = NSShiftKeyMask;
-    item = [prevMenu addItemWithTitle:NSLocalizedString(@"Previous Comment", nil) action:@selector(previousComment:) keyEquivalent:@"m"];
-    item.keyEquivalentModifierMask = NSShiftKeyMask;
+    NSMenuItem *item = [prevMenu addItemWithTitle:NSLocalizedString(@"Previous Change", nil) action:@selector(previousChange:) keyEquivalent:@""];
+    item = [prevMenu addItemWithTitle:NSLocalizedString(@"Previous Comment", nil) action:@selector(previousComment:) keyEquivalent:@""];
     [prevMenu addItemWithTitle:NSLocalizedString(@"Previous File", nil) action:@selector(previousFile:) keyEquivalent:@"["];
     
     [_segmented setMenu:nextMenu forSegment:1];
