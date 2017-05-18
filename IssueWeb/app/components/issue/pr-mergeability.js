@@ -5,7 +5,7 @@ import { keypath, setKeypath } from 'util/keypath.js'
 import IssueState from 'issue-state.js'
 import { PRMergeChangesButton } from './pr-actions-bar.js'
 import Reviewers from './reviewers.js'
-import { ReviewState, reviewStateToUI } from './review-state.js'
+import { ReviewState, ReviewStateColors, reviewStateToUI } from './review-state.js'
 import { CommitStatuses, findLatestCommitStatuses, CommitStatusTable } from './commit-group.js'
 import ghost from 'util/ghost.js'
 import AvatarIMG from '../AvatarIMG.js'
@@ -14,9 +14,9 @@ import DonutGraph from './donut-graph.js'
 import './pr-mergeability.css'
 import PRMergeAvatar from '../../../image/MergeAvatar.svg'
 
-var redColor = '#CB2431';
-var greenColor = "#2CBE4E";
-var yellowColor = '#FFC500';
+var redColor = ReviewStateColors.Red;
+var greenColor = ReviewStateColors.Green;
+var yellowColor = ReviewStateColors.Yellow;
 
 class PRMergeabilitySection extends React.Component {
   render() {

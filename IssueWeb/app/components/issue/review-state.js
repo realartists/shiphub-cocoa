@@ -5,7 +5,13 @@ var ReviewState = {
   RequestChanges: 2,
   Comment: 3,
   Dismiss: 4
-}
+};
+
+var ReviewStateColors = {
+  Red: '#CB2431',
+  Green: "#2CBE4E",
+  Yellow: '#FFC500'
+};
 
 export default function reviewStateToUI(state) {
   var icon, action, bg = '#555';
@@ -17,12 +23,12 @@ export default function reviewStateToUI(state) {
     case ReviewState.Approve:
       icon = 'fa-thumbs-up';
       action = 'approved these changes';
-      bg = 'green';
+      bg = ReviewStateColors.Green;
       break;
     case ReviewState.RequestChanges:
       icon = 'fa-thumbs-down'
       action = 'requested changes';
-      bg = '#CB2431';
+      bg = ReviewStateColors.Red;
       break;
     case ReviewState.Comment:
       icon = 'fa-comments';
@@ -40,6 +46,6 @@ export default function reviewStateToUI(state) {
   return { icon, action, bg };
 }
 
-export { ReviewState, reviewStateToUI };
+export { ReviewState, reviewStateToUI, ReviewStateColors };
 
 
