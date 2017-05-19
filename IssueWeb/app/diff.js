@@ -651,7 +651,8 @@ class App {
     }
     comment.path = this.path;
     comment.commit_id = this.headSha;
-    comment.original_commit_id = this.baseSha;
+    
+    this.updateComments(this.comments.concat([comment]), this.inReview);
         
     if (this.inReview) {
       window.queueReviewComment.postMessage(comment);

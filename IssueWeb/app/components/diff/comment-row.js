@@ -365,6 +365,7 @@ class CommentRow extends DiffRow {
   }
   
   didCancelReply() {
+    this.hasNewComment = false;
     if (this.prComments.length == 0) {
       this.delegate.cancelInsertComment(this.diffIdx);
     }

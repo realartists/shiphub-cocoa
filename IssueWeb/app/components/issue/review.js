@@ -491,6 +491,7 @@ class Review extends React.Component {
   }
 
   render() {
+    var pending = this.props.review.state == ReviewState.Pending;  
     var hasSummary = this.props.review.body && this.props.review.body.trim().length > 0;
     
     var sortedComments = Array.from(this.props.review.comments).filter(c => !(c.in_reply_to));
@@ -512,6 +513,10 @@ class Review extends React.Component {
     }
     
     var noBodyAndNoComments = !hasSummary && sortedComments.length == 0;
+    
+    if (pending && noBodyAndNoComments) {
+      return h('span', {}); // hide pending reviews with no comments and no body
+    }
     
     comps.push(h(ReviewHeader, { 
       key:"header", 
