@@ -13,6 +13,7 @@
 
 @class LocalAccount;
 @class LocalPRComment;
+@class LocalCommitComment;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -25,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) LocalIssue *issue;
 @property (nullable, nonatomic, retain) LocalComment *comment;
 @property (nullable, nonatomic, retain) LocalPRComment *prComment;
+@property (nullable, nonatomic, retain) LocalCommitComment *commitComment;
 
 @end
 

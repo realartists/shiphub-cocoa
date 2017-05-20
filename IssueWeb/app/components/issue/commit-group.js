@@ -206,6 +206,7 @@ class Commit extends React.Component {
   }
 
   render() {
+    var hasComments = (this.props.commit.sha in this.props.commitCommentsBySha);
     var message = this.props.commit.message;
     const [subject, body] = getSubjectAndBodyFromCommitMessage(message);
     var statuses = this.props.statuses;
@@ -240,12 +241,19 @@ class Commit extends React.Component {
         );
     }
       
+    var commentIcon = null;
+    if (hasComments) {
+      commentIcon = h('a', {href:this.props.commit.html_url+"#comments", style:{marginLeft:'2px'}},
+        h('i', {className:'fa fa-comments-o'})
+      );
+    }
+      
     return h('tr', { className: 'commitGroupRow' },
       h('td', {},
         h('img', { className:'commitItemBullet', src:CommitBullet, width: "12", height: "12"}),
       ),
       h('td', {className:'commitItemMessage', colSpan:hasStatuses?1:2},
-        subject, expander, h('br', {}), bodyContent
+        subject, expander, commentIcon, h('br', {}), bodyContent
       ),
       hasStatuses ? h('td', {}, h(CommitStatuses, {statuses, commitUrl: this.props.commit.html_url })) : null,
       h('td', {},
@@ -259,6 +267,7 @@ class CommitGroup extends React.Component {
   render() {
     var issue = this.props.issue;
     var commits = Array.from(this.props.commits);
+    var commitCommentsBySha = this.props.commitCommentsBySha;
     
     var commitShas = new Set();
     
@@ -318,12 +327,12 @@ class CommitGroup extends React.Component {
       statusesBySha[cs.reference].push(cs);
     });
     
-    return h('div', { className:'commitGroup' },
+    return h('div', { className:'BlockItem commitGroup' },
       h(CommitGroupHeader, { commits: this.props.commits }),
       
       h('table', {className:'commitGroupTable'},
         h('tbody', {}, 
-          commits.map((commit) => h(Commit, { key:commit.sha, commit, statuses: statusesBySha[commit.sha], issue:issue }))
+          commits.map((commit) => h(Commit, { key:commit.sha, commit, statuses: statusesBySha[commit.sha], issue, commitCommentsBySha }))
         )
       )
     );

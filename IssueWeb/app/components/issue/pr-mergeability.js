@@ -499,7 +499,7 @@ class PRMergeability extends React.Component {
     statuses = statuses.filter(cs => cs.reference = tot);
     statuses = findLatestCommitStatuses(statuses);
   
-    return h('div', {className:'PRMergeability'},
+    return h('div', {className:'BlockItem PRMergeability'},
       h(PRMergeabilityHeader, {issue:this.props.issue, statuses, reviewItems}),
       h('div', {className:'PRMergeabilityBody'},
         h(PRMergeabilityReviewers, {issue, reviewItems}),

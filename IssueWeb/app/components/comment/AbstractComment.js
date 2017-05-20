@@ -376,7 +376,7 @@ class AbstractComment extends React.Component {
     var showEditor = this.state.editing && !this.state.previewing;
     var body = this.state.editing ? this.state.code : (this.state.pendingEditBody || this.props.comment.body);
     
-    var outerClass = 'comment';
+    var outerClass = 'BlockItem comment';
     
     if (!this.props.comment) {
       outerClass += ' addComment';

@@ -14,6 +14,8 @@ var CommentHeader = React.createClass({
     }
     if (this.props.elideAction) {
       desc = " ";
+    } else if (this.props.action) {
+      desc = this.props.action;
     }
     
     var pending = this.props.comment.pending_id && !this.props.comment.pending_id.startsWith("single.");

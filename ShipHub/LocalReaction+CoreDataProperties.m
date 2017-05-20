@@ -20,5 +20,6 @@
 @dynamic issue;
 @dynamic comment;
 @dynamic prComment;
+@dynamic commitComment;
 
 @end
