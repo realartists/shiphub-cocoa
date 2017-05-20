@@ -39,6 +39,7 @@ import 'util/media-reloader.js'
 
 import AvatarIMG from 'components/AvatarIMG.js'
 import Comment from 'components/comment/Comment.js'
+import CommitComment from 'components/issue/commit-comment.js'
 import { CommitGroup, CommitStatuses, getSubjectAndBodyFromCommitMessage, findLatestCommitStatuses } from 'components/issue/commit-group.js'
 import Review from 'components/issue/review.js'
 import PRMergeability from 'components/issue/pr-mergeability.js'
@@ -692,7 +693,8 @@ var Event = React.createClass({
     if (this.props.event.event == 'committed') {
       return h(CommitGroup, { 
         commits: this.props.event.commits,
-        issue: this.props.issue 
+        issue: this.props.issue,
+        commitCommentsBySha: this.props.commitCommentsBySha
       });
     }
   
@@ -752,6 +754,9 @@ var ActivityList = React.createClass({
       } else if (k.indexOf("review.") == 0) {
         var r = this.refs[k];
         comments.push(...r.allComments());
+      } else if (k.indexOf("commitComment.") == 0) {
+        var c = this.refs[k];
+        comments.push(c);
       }
     }
     return comments;
@@ -782,6 +787,8 @@ var ActivityList = React.createClass({
   
   render: function() {        
     var issue = this.props.issue;
+    
+    var commitCommentsBySha = this.props.commitCommentsBySha;
   
     var firstComment = {
       body: issue.body,
@@ -797,6 +804,7 @@ var ActivityList = React.createClass({
     
     activity = activity.concat(issue.events || []);
     activity = activity.concat(issue.comments || []);
+    activity = activity.concat(issue.commit_comments || []);
     
     var pendingReview = null;
     if (this.props.allReviews) {
@@ -916,7 +924,7 @@ var ActivityList = React.createClass({
       return !(e._rolledUp);
     });
     
-    var counter = { c: 0, e: 0, r: 0 };
+    var counter = { c: 0, e: 0, r: 0, cc: 0 };
     return h('div', {className:'activityContainer'},
       h('div', {className:'activityList'}, 
         activity.map(function(e, i, a) {
@@ -936,8 +944,12 @@ var ActivityList = React.createClass({
               first:(i==0 || a[i-1].event == undefined),
               last:(next!=undefined && (next.event==undefined || next.event=='committed')),
               veryLast:(next==undefined),
-              issue:issue
+              issue:issue,
+              commitCommentsBySha
             });
+          } else if (e.commit_id != undefined) {
+            counter.cc = counter.cc + 1;
+            return h(CommitComment, {key:(e.id?(e.id+"-"+i):""+i), ref:"commitComment." + i, comment:e})
           } else {
             counter.c = counter.c + 1;
             return h(Comment, {key:(e.id?(e.id+"-"+i):""+i), ref:"comment." + i, comment:e, first:i==0, commentIdx:counter.c-1})
@@ -2112,10 +2124,11 @@ var App = React.createClass({
     var issue = this.props.issue;
     
     var allReviews = this.normalizeReviews();
+    var commitCommentsBySha = this.commitCommentsBySha();
 
     var header = h(Header, {ref:"header", issue:issue, allReviews:allReviews, onIssueTemplate:this.onIssueTemplate});
-    var activity = h(ActivityList, {key:issue["id"], ref:"activity", issue:issue, allReviews:allReviews});
-    var mergeChecklist = issue.pull_request ? h(PRMergeability, {key:'mergeability', issue:issue, allReviews:allReviews}) : null;
+    var activity = h(ActivityList, {key:issue["id"], ref:"activity", issue, allReviews, commitCommentsBySha});
+    var mergeChecklist = issue.pull_request ? h(PRMergeability, {key:'mergeability', issue, allReviews}) : null;
     var addComment = h(Comment, {ref:"addComment", key:"addComment"});
     
     var issueElement = h('div', {},
@@ -2126,6 +2139,19 @@ var App = React.createClass({
     );
         
     return issueElement;
+  },
+  
+  commitCommentsBySha: function() {
+    var issue = this.props.issue;
+    var lookup = {};
+    (issue.commit_comments||[]).forEach(cc => {
+      if (lookup[cc.commit_id]) {
+        lookup[cc.commit_id].push(cc);
+      } else {
+        lookup[cc.commit_id] = [cc];
+      }
+    });
+    return lookup;
   },
   
   normalizeReviews: function() {
@@ -2553,26 +2579,14 @@ function setInColumnBrowser(inBrowser) {
   var body = document.getElementsByTagName('body')[0];
   body.style.padding = inBrowser ? '14px' : '0px';
   
-  var commentRule = findCSSRule('div.comment');
-  commentRule.style.borderLeft = inBrowser ? commentRule.style.borderTop : '0px';
-  commentRule.style.borderRight = inBrowser ? commentRule.style.borderTop : '0px';
-  
-  var reviewRule = findCSSRule('div.review');
-  reviewRule.style.borderLeft = inBrowser ? reviewRule.style.borderTop : '0px';
-  reviewRule.style.borderRight = inBrowser ? reviewRule.style.borderTop : '0px';
-  
-  var commitGroupRule = findCSSRule('div.commitGroup');
-  commitGroupRule.style.borderLeft = inBrowser ? commitGroupRule.style.borderTop : '0px';
-  commitGroupRule.style.borderRight = inBrowser ? commitGroupRule.style.borderTop : '0px';
-  
+  var blockItemRule = findCSSRule('div.BlockItem');
+  blockItemRule.style.borderLeft = inBrowser ? blockItemRule.style.borderTop : '0px';
+  blockItemRule.style.borderRight = inBrowser ? blockItemRule.style.borderTop : '0px';
+    
   var headerRule = findCSSRule('div.IssueHeader');
   headerRule.style.borderLeft = inBrowser ? headerRule.style.borderBottom : '0px';
   headerRule.style.borderRight = inBrowser ? headerRule.style.borderBottom : '0px';
   headerRule.style.borderTop = inBrowser ? headerRule.style.borderBottom : '0px';
-  
-  var mergeRule = findCSSRule('div.PRMergeability');
-  mergeRule.style.borderLeft = inBrowser ? commitGroupRule.style.borderTop : '0px';
-  mergeRule.style.borderRight = inBrowser ? commitGroupRule.style.borderTop : '0px';
 }
 
 window.setInColumnBrowser = setInColumnBrowser;

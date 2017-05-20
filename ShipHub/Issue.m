@@ -6,7 +6,7 @@
 //  Copyright © 2016 Real Artists, Inc. All rights reserved.
 //
 
-#import "Issue.h"
+#import "IssueInternal.h"
 
 #import "Extras.h"
 
@@ -34,6 +34,13 @@
 #import "PRComment.h"
 
 #import "MetadataStore.h"
+
+@interface Issue ()
+
+@property (readwrite) NSArray<CommitStatus *> *commitStatuses;
+@property (readwrite) NSArray<CommitComment *> *commitComments;
+
+@end
 
 @implementation Issue
 

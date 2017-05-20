@@ -387,6 +387,29 @@ class IssueState {
     }
   }
   
+  deleteCommitComment(comment) {
+    if (!comment.id) return;
+    
+    // delete the comment from our state
+    this.state.issue.commit_comments = this.state.issue.commit_comments.filter(c => c.id != comment.id);
+    this._renderState();
+    
+    var owner = this.repoOwner;
+    var repo = this.repoName;
+    var num = this.issueNumber;
+    
+    if (num != null) {
+      // DELETE /repos/:owner/:repo/comments/:id
+      var url = `https://api.github.com/repos/${owner}/${repo}/comments/${comment.id}`
+      var request = api(url, { 
+        method: "DELETE"
+      });
+      return request;
+    } else {
+      return Promise.reject("Issue does not exist.");
+    }
+  }
+  
   addComment(body) {
     var now = new Date().toISOString();
     this.state.issue.comments.push({
@@ -556,6 +579,74 @@ class IssueState {
     });
   }
   
+  _commitCommentWithId(id) {
+    return this.state.issue.commit_comments.find(c => c.id == id);
+  }
+  
+  addCommitCommentReaction(id, reactionContent) {
+    var reaction = {
+      id: "new",
+      user: this.state.me,
+      content: reactionContent,
+      created_at: new Date().toISOString()
+    };
+    
+    var owner = this.repoOwner;
+    var repo = this.repoName;
+    var num = this.issueNumber;
+    
+    // POST /repos/:owner/:repo/comments/:id/reactions
+    var url = `https://api.github.com/repos/${owner}/${repo}/comments/${id}/reactions`;
+    var c = this._commitCommentWithId(id);
+    
+    // eagerly add the reaction
+    c.reactions.push(reaction);
+    
+    this._renderState();
+    
+    var request = api(url, {
+      method: 'POST',
+      body: JSON.stringify({content: reactionContent})
+    });
+    
+    return new Promise((resolve, reject) => {
+      request.then((body) => {
+        this.mergeIssueChanges(owner, repo, num, () => {
+          reaction.id = body.id;
+          this._renderState();
+        });
+        resolve();
+      }).catch((err) => {
+        console.error("Add reaction failed", err);
+        reject(err);
+      });
+    });
+  }
+  
+  deleteCommitCommentReaction(id, reactionID) {
+    if (reactionID === "new") {
+      console.log("Cannot delete pending reaction");
+      return;
+    }
+    
+    var c = this._commitCommentWithId(id);
+    c.reactions = c.reactions.filter(r => r.id !== reactionID);
+    this._renderState();
+    
+    var url = `https://api.github.com/reactions/${reactionID}`
+    var request = api(url, {
+      method: 'DELETE'
+    });
+    return new Promise((resolve, reject) => {
+      request.then((body) => {
+        resolve();
+      }).catch((err) => {
+        console.error("Delete reaction failed", err);
+        reject(err);
+      });
+    });
+  }
+  
   addReviewer(user) {
     if (!user) {
       return Promise.reject("User not specified");
@@ -650,6 +741,8 @@ class IssueState {
       });
     });
   }
+  
+  
 }
 
 var _current = new IssueState();

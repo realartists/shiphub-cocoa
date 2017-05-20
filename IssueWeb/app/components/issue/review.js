@@ -543,7 +543,7 @@ class Review extends React.Component {
       })));
     }
     
-    return h('div', { className: 'review', id:id }, comps);
+    return h('div', { className: 'BlockItem review', id:id }, comps);
   }
 }
 

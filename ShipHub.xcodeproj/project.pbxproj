@@ -256,6 +256,10 @@
 		1AB038551D5D390E005093B9 /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB038541D5D390E005093B9 /* Sparkle.framework */; };
 		1AB038591D5D391B005093B9 /* Sparkle.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1AB038541D5D390E005093B9 /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1AB2438E1E97075C0062628C /* clonepr.sh in Resources */ = {isa = PBXBuildFile; fileRef = 1AB2438D1E97075C0062628C /* clonepr.sh */; };
+		1AB478581ECF937D006002DB /* LocalCommitComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB478571ECF937D006002DB /* LocalCommitComment.m */; };
+		1AB478591ECF937D006002DB /* LocalCommitComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB478571ECF937D006002DB /* LocalCommitComment.m */; };
+		1AB4785F1ECF9526006002DB /* CommitComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB4785E1ECF9525006002DB /* CommitComment.m */; };
+		1AB478601ECF9526006002DB /* CommitComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB4785E1ECF9525006002DB /* CommitComment.m */; };
 		1AB503E91D2471EF0097875C /* NSFileWrapper+ImageExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */; };
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */; };
@@ -837,6 +841,11 @@
 		1AB038541D5D390E005093B9 /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = ext/Sparkle.framework; sourceTree = "<group>"; };
 		1AB238AB1E64A9720059D772 /* app */ = {isa = PBXFileReference; lastKnownFileType = folder; path = app; sourceTree = "<group>"; };
 		1AB2438D1E97075C0062628C /* clonepr.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = clonepr.sh; sourceTree = "<group>"; };
+		1AB478561ECF937D006002DB /* LocalCommitComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalCommitComment.h; sourceTree = "<group>"; };
+		1AB478571ECF937D006002DB /* LocalCommitComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalCommitComment.m; sourceTree = "<group>"; };
+		1AB4785D1ECF9525006002DB /* CommitComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommitComment.h; sourceTree = "<group>"; };
+		1AB4785E1ECF9525006002DB /* CommitComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CommitComment.m; sourceTree = "<group>"; };
+		1AB478611ECFAE55006002DB /* IssueInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IssueInternal.h; sourceTree = "<group>"; };
 		1AB503E71D2471EF0097875C /* NSFileWrapper+ImageExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSFileWrapper+ImageExtras.h"; sourceTree = "<group>"; };
 		1AB503E81D2471EF0097875C /* NSFileWrapper+ImageExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSFileWrapper+ImageExtras.m"; sourceTree = "<group>"; };
 		1AC01D941DC9087B00920C3F /* npm-shrinkwrap.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "npm-shrinkwrap.json"; sourceTree = "<group>"; };
@@ -1316,6 +1325,7 @@
 				1A694AFE1CA0ABEB00F73608 /* MetadataItem.h */,
 				1A694AFF1CA0ABEB00F73608 /* MetadataItem.m */,
 				1A694B491CA367E300F73608 /* Issue.h */,
+				1AB478611ECFAE55006002DB /* IssueInternal.h */,
 				1A694B4A1CA367E300F73608 /* Issue.m */,
 				1A0D59CA1CA46926004F2578 /* IssueIdentifier.h */,
 				1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */,
@@ -1323,6 +1333,8 @@
 				1AFE22011CA6053B00B51CF6 /* IssueEvent.m */,
 				1AFE22031CA6069300B51CF6 /* IssueComment.h */,
 				1AFE22041CA6069300B51CF6 /* IssueComment.m */,
+				1AB4785D1ECF9525006002DB /* CommitComment.h */,
+				1AB4785E1ECF9525006002DB /* CommitComment.m */,
 				1A012EA61D443CFC006CE5DF /* CustomQuery.h */,
 				1A012EA71D443CFC006CE5DF /* CustomQuery.m */,
 				1A20CFF81D52A81F00F412DE /* Reaction.h */,
@@ -1413,6 +1425,8 @@
 				1ACA836A1EB26B6600386B12 /* LocalCommitStatus.m */,
 				1AAA725E1EBAFF9B00E77A65 /* LocalPullRequest.h */,
 				1AAA725F1EBAFF9B00E77A65 /* LocalPullRequest.m */,
+				1AB478561ECF937D006002DB /* LocalCommitComment.h */,
+				1AB478571ECF937D006002DB /* LocalCommitComment.m */,
 			);
 			name = CoreData;
 			sourceTree = "<group>";
@@ -2081,6 +2095,7 @@
 				1A4353551E73762A00C5F5AB /* PRMergeViewController.m in Sources */,
 				1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
+				1AB4785F1ECF9526006002DB /* CommitComment.m in Sources */,
 				1A012EA81D443CFC006CE5DF /* CustomQuery.m in Sources */,
 				1A694B101CA3413700F73608 /* ResultsController.m in Sources */,
 				1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
@@ -2131,6 +2146,7 @@
 				1ACA836B1EB26B6600386B12 /* LocalCommitStatus.m in Sources */,
 				1A51085F1D317AB400905D4D /* LocalNotification.m in Sources */,
 				1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */,
+				1AB478581ECF937D006002DB /* LocalCommitComment.m in Sources */,
 				1AF567401D62831900611DBB /* HelloController.m in Sources */,
 				1AE09C0C1C97687E00C5AC35 /* LocalLabel.m in Sources */,
 				1A3AB3521D9095BA004BB768 /* LocalBilling+CoreDataProperties.m in Sources */,
@@ -2245,6 +2261,7 @@
 			files = (
 				1A20CFFC1D52A82B00F412DE /* LocalReaction+CoreDataProperties.m in Sources */,
 				1A3AB3531D9095BA004BB768 /* LocalBilling+CoreDataProperties.m in Sources */,
+				1AB478591ECF937D006002DB /* LocalCommitComment.m in Sources */,
 				1AF567491D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */,
 				1A4329781EA69F2800A93A2C /* LocalPRReview.m in Sources */,
 				1AE09BF11C97687E00C5AC35 /* LocalRepo.m in Sources */,
@@ -2280,6 +2297,7 @@
 				1AE09C051C97687E00C5AC35 /* LocalAccount.m in Sources */,
 				1A51085E1D317AB300905D4D /* LocalNotification+CoreDataProperties.m in Sources */,
 				1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */,
+				1AB478601ECF9526006002DB /* CommitComment.m in Sources */,
 				1AE09C211C9779DE00C5AC35 /* Logging.m in Sources */,
 				1AFE22071CA6069600B51CF6 /* IssueEvent.m in Sources */,
 				1A3BEBA61E490CBF00CBFBEF /* MapAccount1to2.m in Sources */,

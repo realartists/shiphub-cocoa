@@ -45,7 +45,7 @@
 #import "LocalPullRequest.h"
 
 #import "Account.h"
-#import "Issue.h"
+#import "IssueInternal.h"
 #import "IssueComment.h"
 #import "IssueIdentifier.h"
 #import "Repo.h"
@@ -57,6 +57,7 @@
 #import "PRReview.h"
 #import "IssueEvent.h"
 #import "CommitStatus.h"
+#import "CommitComment.h"
 
 #import "Error.h"
 
@@ -136,8 +137,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  11: realartists/shiphub-cocoa#424 Workaround rdar://30838212 CalendarUI.framework defines unprefixed category methods on NSDate
  12: realartists/shiphub-cocoa#520 Updated mocDidChange: for LocalCommitStatus
  13: Break out PRs into their own entity
+ 14: Introduce LocalCommitComment
  */
-static const NSInteger CurrentLocalModelVersion = 13;
+static const NSInteger CurrentLocalModelVersion = 14;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
@@ -1532,7 +1534,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     return fetchRequest;
 }
 
-- (void)loadCommitStatusesForIssue:(Issue *)i reader:(NSManagedObjectContext *)moc {
+- (void)loadCommitStatusesAndCommentsForIssue:(Issue *)i localIssue:(LocalIssue *)li reader:(NSManagedObjectContext *)moc {
     NSMutableArray *refs = [NSMutableArray new];
     for (IssueEvent *event in i.events) {
         if ([event.event isEqualToString:@"committed"]) {
@@ -1545,7 +1547,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     if (refs.count) {
         NSFetchRequest *statusFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalCommitStatus"];
-        statusFetch.predicate = [NSPredicate predicateWithFormat:@"reference IN %@", refs];
+        statusFetch.predicate = [NSPredicate predicateWithFormat:@"repository = %@ AND reference IN %@", li.repository, refs];
         
         NSError *err = nil;
         NSArray *statuses = [moc executeFetchRequest:statusFetch error:&err];
@@ -1557,6 +1559,19 @@ static NSString *const LastUpdated = @"LastUpdated";
         MetadataStore *ms = self.metadataStore;
         i.commitStatuses = [statuses arrayByMappingObjects:^id(LocalCommitStatus *lcs) {
             return [[CommitStatus alloc] initWithLocalCommitStatus:lcs metadataStore:ms];
+        }];
+        
+        NSFetchRequest *commitCommentFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalCommitComment"];
+        commitCommentFetch.predicate = [NSPredicate predicateWithFormat:@"repository = %@ AND commitId IN %@", li.repository, refs];
+        
+        NSArray *commitComments = [moc executeFetchRequest:commitCommentFetch error:&err];
+        if (err) {
+            ErrLog(@"%@", err);
+            return;
+        }
+        
+        i.commitComments = [commitComments arrayByMappingObjects:^id(id obj) {
+            return [[CommitComment alloc] initWithLocalCommitComment:obj metadataStore:ms];
         }];
     }
 }
@@ -1578,7 +1593,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         if (i) {
             Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore options:@{IssueOptionIncludeEventsAndComments:@YES, IssueOptionIncludeRequestedReviewers:@YES}];
             if (issue.pullRequest) {
-                [self loadCommitStatusesForIssue:issue reader:moc];
+                [self loadCommitStatusesAndCommentsForIssue:issue localIssue:i reader:moc];
             }
             dispatch_async(dispatch_get_main_queue(), ^{
                 completion(issue, nil);
