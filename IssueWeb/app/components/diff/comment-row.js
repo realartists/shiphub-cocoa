@@ -230,7 +230,9 @@ class CommentList extends React.Component {
         me:this.props.me,
         onCancel:this.cancelReply.bind(this),
         didRender:this.props.didRender,
-        inReplyTo:commentsLength>0?this.props.comments[commentsLength-1]:undefined,
+        /* send in_reply_to to the first comment in the chain, otherwise a bug
+           in the GitHub web UI will prevent it from rendering */
+        inReplyTo:commentsLength>0?this.props.comments[0]:undefined,
         commentDelegate:this.props.commentDelegate,
         didSave:this.cancelReply.bind(this),
         diffIdx:this.props.diffIdx

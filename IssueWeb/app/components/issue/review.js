@@ -361,15 +361,19 @@ class ReviewCommentBlock extends React.Component {
   }
     
   renderReply() {
-    var lastComment = (this.props.comment.replies||[]).length > 0 
-                      ? this.props.comment.replies[this.props.comment.replies.length-1]
-                      : this.props.comment;
+//     var lastComment = (this.props.comment.replies||[]).length > 0 
+//                       ? this.props.comment.replies[this.props.comment.replies.length-1]
+//                       : this.props.comment;
+
+    // send in_reply_to to the first comment, not the last, as a GitHub bug
+    // prevents the comments from rendering correctly on the web UI if we don't
+    // do it this way.
                       
     return h(ReviewCodeReplyComment, {
       key:'add',
       ref:'addComment',
       onCancel:this.cancelReply.bind(this),
-      inReplyTo:lastComment,
+      inReplyTo:this.props.comment,
       didSaveNewReply:this.didSaveNewReply.bind(this),
       className: 'comment reviewComment', 
     });
