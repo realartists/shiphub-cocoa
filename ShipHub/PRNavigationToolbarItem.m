@@ -54,8 +54,8 @@
     [nextMenu addItemWithTitle:NSLocalizedString(@"Next File", nil) action:@selector(nextFile:) keyEquivalent:@"]"];
     
     NSMenu *prevMenu = [NSMenu new];
-    NSMenuItem *item = [prevMenu addItemWithTitle:NSLocalizedString(@"Previous Change", nil) action:@selector(previousChange:) keyEquivalent:@""];
-    item = [prevMenu addItemWithTitle:NSLocalizedString(@"Previous Comment", nil) action:@selector(previousComment:) keyEquivalent:@""];
+    [prevMenu addItemWithTitle:NSLocalizedString(@"Previous Change", nil) action:@selector(previousChange:) keyEquivalent:@""];
+    [prevMenu addItemWithTitle:NSLocalizedString(@"Previous Comment", nil) action:@selector(previousComment:) keyEquivalent:@""];
     [prevMenu addItemWithTitle:NSLocalizedString(@"Previous File", nil) action:@selector(previousFile:) keyEquivalent:@"["];
     
     [_segmented setMenu:nextMenu forSegment:1];
