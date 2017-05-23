@@ -2243,7 +2243,7 @@ var App = React.createClass({
       var op = opos(c);
       
       var pparent = prCommentsByPosition[p];
-      var opparent = prCommentsByOriginalPosition[p];
+      var opparent = prCommentsByOriginalPosition[op];
       
       if (pparent) {
         if (pparent != c) {
