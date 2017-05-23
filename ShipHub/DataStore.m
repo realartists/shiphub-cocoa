@@ -1195,6 +1195,15 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSMutableSet *changed = [NSMutableSet new];
     __block NSMutableSet *changedCommitStatusShas = nil;
     
+    void (^addSha)(NSString *) = ^(NSString *sha) {
+        if (sha) {
+            if (!changedCommitStatusShas) {
+                changedCommitStatusShas = [NSMutableSet new];
+            }
+            [changedCommitStatusShas addObject:sha];
+        }
+    };
+    
     [note enumerateModifiedObjects:^(id obj, CoreDataModificationType modType, BOOL *stop) {
         if ([obj isKindOfClass:[LocalIssue class]]) {
             NSString *identifier = [obj fullIdentifier];
@@ -1211,6 +1220,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             }
         } else if ([obj isKindOfClass:[LocalReaction class]]) {
             LocalReaction *lr = obj;
+            addSha(lr.commitComment.commitId);
             NSString *identifier = lr.issue.fullIdentifier;
             if (!identifier) {
                 identifier = lr.comment.issue.fullIdentifier;
@@ -1243,10 +1253,9 @@ static NSString *const LastUpdated = @"LastUpdated";
                 [changed addObject:identifier];
             }
         } else if ([obj isKindOfClass:[LocalCommitStatus class]]) {
-            if (!changedCommitStatusShas) {
-                changedCommitStatusShas = [NSMutableSet new];
-            }
-            [changedCommitStatusShas addObject:[obj reference]];
+            addSha([obj reference]);
+        } else if ([obj isKindOfClass:[LocalCommitComment class]]) {
+            addSha([obj commitId]);
         }
     }];
     
