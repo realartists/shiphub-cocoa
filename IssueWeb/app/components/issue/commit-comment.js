@@ -102,6 +102,7 @@ class CommitComment extends AbstractComment {
       var end = () => {
         if (this.state.pendingEditBody == newBody) {
           this.setState(Object.assign({}, this.state, {pendingEditBody: null}));
+          window.documentEditedHelper.postMessage({});
         }
       };
       return new Promise((resolve, reject) => {

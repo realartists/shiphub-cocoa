@@ -25,6 +25,7 @@
 @class ServerConnection;
 @class PRComment;
 @class PRReview;
+@class CommitComment;
 
 @interface DataStore : NSObject
 
@@ -131,7 +132,11 @@
 
 - (void)editReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(PRComment *comment, NSError *error))completion;
 
+- (void)editCommitComment:(NSNumber *)commentIdentifier body:(NSString *)newCommentBody inRepoFullName:(NSString *)repoFullName completion:(void (^)(CommitComment *comment, NSError *error))completion;
+
 - (void)deleteReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion;
+
+- (void)deleteCommitComment:(NSNumber *)commentIdentifier inRepoFullName:(NSString *)repoFullName completion:(void (^)(NSError *error))completion;
 
 - (void)dismissReview:(NSNumber *)reviewID message:(NSString *)message inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion;
 
@@ -146,6 +151,8 @@
 - (void)deletePullRequestBranch:(Issue *)issue completion:(void (^)(NSError *error))completion;
 
 - (void)postPRCommentReaction:(NSString *)reactionContent inRepoFullName:(NSString *)repoFullName inPRComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion;
+
+- (void)postCommitCommentReaction:(NSString *)reactionContent inRepoFullName:(NSString *)repoFullName inComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion;
 
 @end
 

@@ -227,11 +227,11 @@
      BIND(@"POST /repos/:owner/:repo/issues/comments/:id/reactions",
           postCommentReaction:owner:repo:commentIdentifier:),
      
-     BIND(@"DELETE /reactions/:id",
-          deleteReaction:reactionIdentifier:),
-     
      BIND(@"POST /repos/:owner/:repo/pulls/comments/:id/reactions",
           postPRCommentReaction:owner:repo:commentIdentifier:),
+     
+     BIND(@"POST /repos/:owner/:repo/comments/:id/reactions",
+          postCommitCommentReaction:owner:repo:commentIdentifier:),
      
      BIND(@"DELETE /reactions/:id",
           deleteReaction:reactionIdentifier:),
@@ -263,8 +263,14 @@
      BIND(@"PATCH /repos/:owner/:repo/pulls/comments/:id",
           editPRComment:owner:repo:commentIdentifier:),
      
+     BIND(@"PATCH /repos/:owner/:repo/comments/:id",
+          editCommitComment:owner:repo:commentIdentifier:),
+     
      BIND(@"DELETE /repos/:owner/:repo/pulls/comments/:id",
           deletePRComment:owner:repo:commentIdentifier:),
+     
+     BIND(@"DELETE /repos/:owner/:repo/comments/:id",
+          deleteCommitComment:owner:repo:commentIdentifier:),
      
      BIND(@"POST /repos/:owner/:repo/pulls/:number/requested_reviewers",
           addRequestedReviewers:owner:repo:number:),
@@ -326,13 +332,24 @@
 {
     DataStore *ds = [DataStore activeStore];
     PRComment *edit = [PRComment new];
-    edit.identifier = commentIdentifier;
+    edit.identifier = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];;
     edit.body = [request.bodyJSON objectForKey:@"body"];
     
     NSString *issueIdentifier = [NSString issueIdentifierWithOwner:owner repo:repo number:@0 /* number doesn't matter */];
     
     [ds editReviewComment:edit inIssue:issueIdentifier completion:^(PRComment *roundtrip, NSError *error) {
         [self yield:roundtrip err:error];
+    }];
+}
+
+- (void)editCommitComment:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo commentIdentifier:(id)commentIdentifier
+{
+    DataStore *ds = [DataStore activeStore];
+    NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
+    NSString *body = [request.bodyJSON objectForKey:@"body"];
+    
+    [ds editCommitComment:commentNumber body:body inRepoFullName:[NSString stringWithFormat:@"%@/%@", owner, repo] completion:^(CommitComment *comment, NSError *error) {
+        [self yield:comment err:error];
     }];
 }
 
@@ -345,6 +362,16 @@
     NSString *issueIdentifier = [NSString issueIdentifierWithOwner:owner repo:repo number:@0 /* number doesn't matter */];
     
     [ds deleteReviewComment:c inIssue:issueIdentifier completion:^(NSError *error) {
+        [self yield:nil err:error];
+    }];
+}
+
+- (void)deleteCommitComment:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo commentIdentifier:(id)commentIdentifier
+{
+    DataStore *ds = [DataStore activeStore];
+    NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
+    
+    [ds deleteCommitComment:commentNumber inRepoFullName:[NSString stringWithFormat:@"%@/%@", owner, repo] completion:^(NSError *error) {
         [self yield:nil err:error];
     }];
 }
@@ -398,6 +425,16 @@
     NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
     NSString *content = request.bodyJSON[@"content"];
     [[DataStore activeStore] postPRCommentReaction:content inRepoFullName:[NSString stringWithFormat:@"%@/%@", owner, repo] inPRComment:commentNumber completion:^(Reaction *reaction, NSError *error) {
+        [self yield:reaction err:error];
+    }];
+}
+
+- (void)postCommitCommentReaction:(ProxyRequest *)request owner:(NSString *)owner repo:(NSString *)repo commentIdentifier:(NSString *)commentIdentifier
+{
+    NSNumber *commentNumber = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
+    NSString *content = request.bodyJSON[@"content"];
+    
+    [[DataStore activeStore] postCommitCommentReaction:content inRepoFullName:[NSString stringWithFormat:@"%@/%@", owner, repo] inComment:commentNumber completion:^(Reaction *reaction, NSError *error) {
         [self yield:reaction err:error];
     }];
 }

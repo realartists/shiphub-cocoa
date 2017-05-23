@@ -40,6 +40,7 @@
 #import "LocalHidden.h"
 #import "LocalProject.h"
 #import "LocalCommitStatus.h"
+#import "LocalCommitComment.h"
 #import "LocalPRComment.h"
 #import "LocalPRReview.h"
 #import "LocalPullRequest.h"
@@ -1698,26 +1699,19 @@ static NSString *const LastUpdated = @"LastUpdated";
     [[Analytics sharedInstance] track:@"Issue Created"];
 }
 
-- (void)deleteComment:(NSNumber *)commentIdentifier inRepoFullName:(NSString *)repoFullName completion:(void (^)(NSError *error))completion
+- (void)_deleteComment:(NSNumber *)commentIdentifier endpoint:(NSString *)endpoint entityClass:(Class)entityClass completion:(void (^)(NSError *error))completion
 {
-    NSParameterAssert(commentIdentifier);
-    NSParameterAssert(repoFullName);
-    NSParameterAssert(completion);
-    
-    // DELETE /repos/:owner/:repo/issues/comments/:commentIdentifier
-    
-    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/comments/%@", repoFullName, commentIdentifier];
     [self.serverConnection perform:@"DELETE" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
         if (!error) {
             
             [self performWrite:^(NSManagedObjectContext *moc) {
-                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:NSStringFromClass(entityClass)];
                 
                 fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
                 fetch.fetchLimit = 1;
                 
                 NSError *err = nil;
-                LocalComment *lc = [[moc executeFetchRequest:fetch error:&err] firstObject];;
+                id lc = [[moc executeFetchRequest:fetch error:&err] firstObject];;
                 
                 if (err) {
                     ErrLog(@"%@", err);
@@ -1733,8 +1727,21 @@ static NSString *const LastUpdated = @"LastUpdated";
             completion(error);
         });
     }];
+    
+    [[Analytics sharedInstance] track:[NSString stringWithFormat:@"Delete %@", [NSStringFromClass(entityClass) substringFromIndex:[@"Local" length]]]];
+}
 
-    [[Analytics sharedInstance] track:@"Delete Comment"];
+- (void)deleteComment:(NSNumber *)commentIdentifier inRepoFullName:(NSString *)repoFullName completion:(void (^)(NSError *error))completion
+{
+    NSParameterAssert(commentIdentifier);
+    NSParameterAssert(repoFullName);
+    NSParameterAssert(completion);
+    
+    // DELETE /repos/:owner/:repo/issues/comments/:commentIdentifier
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/comments/%@", repoFullName, commentIdentifier];
+    
+    [self _deleteComment:commentIdentifier endpoint:endpoint entityClass:[LocalComment class] completion:completion];
 }
 
 - (void)postComment:(NSString *)body inIssue:(NSString *)issueIdentifier completion:(void (^)(IssueComment *comment, NSError *error))completion
@@ -1807,52 +1814,64 @@ static NSString *const LastUpdated = @"LastUpdated";
     [[Analytics sharedInstance] track:@"Post Comment"];
 }
 
+- (void)_editComment:(NSNumber *)commentIdentifier body:(NSString *)newCommentBody endpoint:(NSString *)endpoint entityClass:(Class)entityClass makeModel:(__kindof IssueComment *(^)(id localComment))makeModel completion:(void (^)(id comment, NSError *error))completion
+{
+    NSParameterAssert(entityClass);
+    NSParameterAssert(makeModel);
+    NSParameterAssert(endpoint);
+    NSParameterAssert(commentIdentifier);
+    NSParameterAssert(newCommentBody);
+    NSParameterAssert(completion);
+    
+    [self.serverConnection perform:@"PATCH" on:endpoint body:@{ @"body" : newCommentBody } completion:^(id jsonResponse, NSError *error) {
+         if (!error) {
+             [self performWrite:^(NSManagedObjectContext *moc) {
+                 NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:NSStringFromClass(entityClass)];
+                 fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
+                 fetch.fetchLimit = 1;
+                 
+                 NSError *err = nil;
+                 id lc = [[moc executeFetchRequest:fetch error:&err] firstObject];
+                 if (err) ErrLog(@"%@", err);
+                 
+                 id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
+                 
+                 id ic = nil;
+                 if (lc) {
+                     [lc mergeAttributesFromDictionary:d];
+                     [self updateRelationshipsOn:lc fromSyncDict:d];
+                     ic = makeModel(lc);
+                     err = nil;
+                     [moc save:&err];
+                     if (err) ErrLog(@"%@", err);
+                 }
+                 
+                 RunOnMain(^{
+                     completion(ic, nil);
+                 });
+             }];
+         } else {
+             RunOnMain(^{
+                 completion(nil, error);
+             });
+         }
+    }];
+    
+    [[Analytics sharedInstance] track:[NSString stringWithFormat:@"Edit %@", [NSStringFromClass(entityClass) substringFromIndex:[@"Local" length]]]];
+}
+
 - (void)editComment:(NSNumber *)commentIdentifier body:(NSString *)newCommentBody inRepoFullName:(NSString *)repoFullName completion:(void (^)(IssueComment *comment, NSError *error))completion
 {
     NSParameterAssert(commentIdentifier);
-    NSParameterAssert(newCommentBody);
     NSParameterAssert(repoFullName);
-    NSParameterAssert(completion);
     
     // PATCH /repos/:owner/:repo/issues/comments/:commentIdentifier
     
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/comments/%@", repoFullName, commentIdentifier];
     
-    [self.serverConnection perform:@"PATCH" on:endpoint body:@{ @"body" : newCommentBody } completion:^(id jsonResponse, NSError *error)
-    {
-        if (!error) {
-            [self performWrite:^(NSManagedObjectContext *moc) {
-                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
-                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
-                fetch.fetchLimit = 1;
-                
-                NSError *err = nil;
-                LocalComment *lc = [[moc executeFetchRequest:fetch error:&err] firstObject];
-                if (err) ErrLog(@"%@", err);
-                
-                id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
-                
-                IssueComment *ic = nil;
-                if (lc) {
-                    [lc mergeAttributesFromDictionary:d];
-                    ic = [[IssueComment alloc] initWithLocalComment:lc metadataStore:self.metadataStore];
-                    err = nil;
-                    [moc save:&err];
-                    if (err) ErrLog(@"%@", err);
-                }
-                
-                RunOnMain(^{
-                    completion(ic, nil);
-                });
-            }];
-        } else {
-            RunOnMain(^{
-                completion(nil, error);
-            });
-        }
-    }];
-
-    [[Analytics sharedInstance] track:@"Edit Comment"];
+    [self _editComment:commentIdentifier body:newCommentBody endpoint:endpoint entityClass:[LocalComment class] makeModel:^(id localComment) {
+        return [[IssueComment alloc] initWithLocalComment:localComment metadataStore:self.metadataStore];
+    } completion:completion];
 }
 
 - (void)postIssueReaction:(NSString *)reactionContent inIssue:(id)issueFullIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
@@ -1932,14 +1951,12 @@ static NSString *const LastUpdated = @"LastUpdated";
     [[Analytics sharedInstance] track:@"Post Issue Reaction"];
 }
 
-- (void)postCommentReaction:(NSString *)reactionContent inRepoFullName:(NSString *)repoFullName inComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
+- (void)_postCommentReaction:(NSString *)reactionContent endpoint:(NSString *)endpoint inComment:(NSNumber *)commentIdentifier commentEntity:(Class)entityClass relationshipSetter:(SEL)relationshipSetter completion:(void (^)(Reaction *reaction, NSError *error))completion
 {
     NSParameterAssert(reactionContent);
     NSParameterAssert(commentIdentifier);
     NSParameterAssert(completion);
     
-    // POST /repos/:owner/:repo/issues/comments/:id/reactions
-    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/comments/%@/reactions", repoFullName, commentIdentifier];
     [self.serverConnection perform:@"POST" on:endpoint headers:@{@"Accept":@"application/vnd.github.squirrel-girl-preview"} body:@{@"content": reactionContent} completion:^(id jsonResponse, NSError *error) {
         void (^fail)(NSError *) = ^(NSError *reason) {
             RunOnMain(^{
@@ -1957,11 +1974,11 @@ static NSString *const LastUpdated = @"LastUpdated";
             }
             
             [self performWrite:^(NSManagedObjectContext *moc) {
-                NSFetchRequest *fetchComment = [NSFetchRequest fetchRequestWithEntityName:@"LocalComment"];
+                NSFetchRequest *fetchComment = [NSFetchRequest fetchRequestWithEntityName:NSStringFromClass(entityClass)];
                 fetchComment.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
                 
                 NSError *cdErr = nil;
-                LocalComment *comment = [[moc executeFetchRequest:fetchComment error:&cdErr] firstObject];
+                id comment = [[moc executeFetchRequest:fetchComment error:&cdErr] firstObject];
                 if (cdErr) {
                     ErrLog(@"%@", cdErr);
                     fail(cdErr);
@@ -1985,7 +2002,10 @@ static NSString *const LastUpdated = @"LastUpdated";
                     lr = [NSEntityDescription insertNewObjectForEntityForName:@"LocalReaction" inManagedObjectContext:moc];
                     [lr mergeAttributesFromDictionary:d];
                     [self updateRelationshipsOn:lr fromSyncDict:d];
-                    [lr setComment:comment];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+                    [lr performSelector:relationshipSetter withObject:comment];
+#pragma clang diagnostic pop
                 }
                 
                 [moc save:&cdErr];
@@ -2005,85 +2025,29 @@ static NSString *const LastUpdated = @"LastUpdated";
             fail(error);
         }
     }];
+    
+    [[Analytics sharedInstance] track:[NSString stringWithFormat:@"Post %@ Reaction", [NSStringFromClass(entityClass) substringFromIndex:[@"Local" length]]]];
+}
 
-    [[Analytics sharedInstance] track:@"Post Comment Reaction"];
+- (void)postCommentReaction:(NSString *)reactionContent inRepoFullName:(NSString *)repoFullName inComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
+{
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/comments/%@/reactions", repoFullName, commentIdentifier];
+    
+    [self _postCommentReaction:reactionContent endpoint:endpoint inComment:commentIdentifier commentEntity:[LocalComment class] relationshipSetter:@selector(setComment:) completion:completion];
 }
 
 - (void)postPRCommentReaction:(NSString *)reactionContent inRepoFullName:(NSString *)repoFullName inPRComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
 {
-    NSParameterAssert(reactionContent);
-    NSParameterAssert(commentIdentifier);
-    NSParameterAssert(completion);
-    
-    // POST /repos/:owner/:repo/issues/comments/:id/reactions
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/comments/%@/reactions", repoFullName, commentIdentifier];
-    [self.serverConnection perform:@"POST" on:endpoint headers:@{@"Accept":@"application/vnd.github.squirrel-girl-preview"} body:@{@"content": reactionContent} completion:^(id jsonResponse, NSError *error) {
-        void (^fail)(NSError *) = ^(NSError *reason) {
-            RunOnMain(^{
-                completion(nil, reason);
-            });
-        };
-        
-        if (!error) {
-            id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
-            NSString *identifier = d[@"identifier"];
-            
-            if (!identifier) {
-                fail([NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse]);
-                return;
-            }
-            
-            [self performWrite:^(NSManagedObjectContext *moc) {
-                NSFetchRequest *fetchComment = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRComment"];
-                fetchComment.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier];
-                
-                NSError *cdErr = nil;
-                LocalPRComment *comment = [[moc executeFetchRequest:fetchComment error:&cdErr] firstObject];
-                if (cdErr) {
-                    ErrLog(@"%@", cdErr);
-                    fail(cdErr);
-                    return;
-                }
-                
-                NSFetchRequest *reactionFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalReaction"];
-                reactionFetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", identifier];
-                
-                LocalReaction *lr = [[moc executeFetchRequest:reactionFetch error:&cdErr] firstObject];
-                
-                if (cdErr) {
-                    ErrLog(@"%@", cdErr);
-                    fail(cdErr);
-                    return;
-                }
-                
-                if (lr) {
-                    [lr mergeAttributesFromDictionary:d];
-                } else {
-                    lr = [NSEntityDescription insertNewObjectForEntityForName:@"LocalReaction" inManagedObjectContext:moc];
-                    [lr mergeAttributesFromDictionary:d];
-                    [self updateRelationshipsOn:lr fromSyncDict:d];
-                    [lr setPrComment:comment];
-                }
-                
-                [moc save:&cdErr];
-                if (cdErr) {
-                    ErrLog(@"%@", cdErr);
-                    fail(cdErr);
-                    return;
-                }
-                
-                Reaction *r = [[Reaction alloc] initWithLocalReaction:lr metadataStore:self.metadataStore];
-                
-                RunOnMain(^{
-                    completion(r, nil);
-                });
-            }];
-        } else {
-            fail(error);
-        }
-    }];
     
-    [[Analytics sharedInstance] track:@"Post PR Comment Reaction"];
+    [self _postCommentReaction:reactionContent endpoint:endpoint inComment:commentIdentifier commentEntity:[LocalPRComment class] relationshipSetter:@selector(setPrComment:) completion:completion];
+}
+
+- (void)postCommitCommentReaction:(NSString *)reactionContent inRepoFullName:(NSString *)repoFullName inComment:(NSNumber *)commentIdentifier completion:(void (^)(Reaction *reaction, NSError *error))completion
+{
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/comments/%@/reactions", repoFullName, commentIdentifier];
+    
+    [self _postCommentReaction:reactionContent endpoint:endpoint inComment:commentIdentifier commentEntity:[LocalCommitComment class] relationshipSetter:@selector(setCommitComment:) completion:completion];
 }
 
 - (void)deleteReaction:(NSNumber *)reactionIdentifier completion:(void (^)(NSError *error))completion
@@ -2401,35 +2365,26 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(issueIdentifier);
     NSParameterAssert(completion);
     
-    NSDictionary *msg = @{ @"body" : comment.body };
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/comments/%@", [issueIdentifier issueRepoFullName], [comment identifier]];
     
-    [self.serverConnection perform:@"PATCH" on:endpoint body:msg completion:^(id jsonResponse, NSError *error) {
-        PRComment *roundtrip = error == nil ? [[PRComment alloc] initWithDictionary:jsonResponse metadataStore:self.metadataStore] : nil;
-        
-        if (roundtrip) {
-            [self performWrite:^(NSManagedObjectContext *moc) {
-                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRComment"];
-                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", comment.identifier];
-                
-                LocalPRComment *prc = [[moc executeFetchRequest:fetch error:NULL] firstObject];
-                
-                if (prc) {
-                    id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
-                    [prc mergeAttributesFromDictionary:d];
-                    [self updateRelationshipsOn:prc fromSyncDict:d];
-                    
-                    [moc save:NULL];
-                }
-            }];
-        }
-        
-        RunOnMain(^{
-            completion(roundtrip, error);
-        });
-    }];
+    [self _editComment:comment.identifier body:comment.body endpoint:endpoint entityClass:[LocalPRComment class] makeModel:^__kindof IssueComment *(id localComment) {
+        return [[PRComment alloc] initWithLocalPRComment:localComment metadataStore:self.metadataStore];
+    } completion:completion];
+}
+
+- (void)editCommitComment:(NSNumber *)commentIdentifier body:(NSString *)newCommentBody inRepoFullName:(NSString *)repoFullName completion:(void (^)(CommitComment *comment, NSError *error))completion
+{
+    NSParameterAssert(commentIdentifier);
+    NSParameterAssert(repoFullName);
     
-    [[Analytics sharedInstance] track:@"Edit PR Comment"];
+    // PATCH /repos/:owner/:repo/comments/:commentIdentifier
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/comments/%@", repoFullName, commentIdentifier];
+    
+    [self _editComment:commentIdentifier body:newCommentBody endpoint:endpoint entityClass:[LocalCommitComment class] makeModel:^(id localComment) {
+        return [[CommitComment alloc] initWithLocalCommitComment:localComment metadataStore:self.metadataStore];
+    } completion:completion];
+    
 }
 
 - (void)deleteReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion
@@ -2440,26 +2395,14 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/comments/%@", [issueIdentifier issueRepoFullName], [comment identifier]];
     
-    [self.serverConnection perform:@"DELETE" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
-        
-        [self performWrite:^(NSManagedObjectContext *moc) {
-            NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRComment"];
-            fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", comment.identifier];
-            
-            NSArray *a = [moc executeFetchRequest:fetch error:NULL];
-            for (LocalPRComment *prc in a) {
-                [moc deleteObject:prc];
-            }
-            
-            [moc save:NULL];
-        }];
-        
-        RunOnMain(^{
-            completion(error);
-        });
-    }];
+    [self _deleteComment:comment.identifier endpoint:endpoint entityClass:[LocalPRComment class] completion:completion];
+}
+
+- (void)deleteCommitComment:(NSNumber *)commentIdentifier inRepoFullName:(NSString *)repoFullName completion:(void (^)(NSError *error))completion
+{
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/comments/%@", repoFullName, commentIdentifier];
     
-    [[Analytics sharedInstance] track:@"Delete PR Comment"];
+    [self _deleteComment:commentIdentifier endpoint:endpoint entityClass:[LocalCommitComment class] completion:completion];
 }
 
 - (void)dismissReview:(NSNumber *)reviewID message:(NSString *)message inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion
