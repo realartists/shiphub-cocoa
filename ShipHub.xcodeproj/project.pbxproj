@@ -242,6 +242,31 @@
 		1A85A60E1E81EDDA004A4B23 /* PRFindBarController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A85A60C1E81EDDA004A4B23 /* PRFindBarController.xib */; };
 		1A86763E1E94165E00ACE932 /* TrackingProgressSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A86763C1E94165E00ACE932 /* TrackingProgressSheet.m */; };
 		1A86763F1E94165E00ACE932 /* TrackingProgressSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A86763D1E94165E00ACE932 /* TrackingProgressSheet.xib */; };
+		1A91E1C91ED3978500C9BA50 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A91E1C81ED3978500C9BA50 /* AppDelegate.m */; };
+		1A91E1CC1ED3978500C9BA50 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A91E1CB1ED3978500C9BA50 /* main.m */; };
+		1A91E1D11ED3978500C9BA50 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1A91E1D01ED3978500C9BA50 /* Assets.xcassets */; };
+		1A91E1DD1ED397DD00C9BA50 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A91E1DC1ED397DD00C9BA50 /* MainMenu.xib */; };
+		1A91E1E01ED3A00800C9BA50 /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2217B91C7E7B92006460E2 /* SocketRocket.framework */; };
+		1A91E1E31ED3A01100C9BA50 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A91E1E21ED3A01100C9BA50 /* libsqlite3.tbd */; };
+		1A91E1E41ED3A01500C9BA50 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
+		1A91E1E61ED3A03900C9BA50 /* SocketRocket.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2217B91C7E7B92006460E2 /* SocketRocket.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1A91E1E71ED3A0BA00C9BA50 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305D81C7F80EA0034C871 /* Defaults.m */; };
+		1A91E1E81ED3A0BA00C9BA50 /* Error.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305DC1C7F84D80034C871 /* Error.m */; };
+		1A91E1E91ED3A0BA00C9BA50 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
+		1A91E1EA1ED3A0BA00C9BA50 /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
+		1A91E1EB1ED3A0BA00C9BA50 /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
+		1A91E1EC1ED3A0BA00C9BA50 /* Auth.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217DA1C7E99A1006460E2 /* Auth.m */; };
+		1A91E1ED1ED3A0BA00C9BA50 /* Keychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217D71C7E981D006460E2 /* Keychain.m */; };
+		1A91E1EF1ED3A0BA00C9BA50 /* FoundationExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F11C7FC2E10034C871 /* FoundationExtras.m */; };
+		1A91E1F01ED3A0BA00C9BA50 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
+		1A91E1F11ED3A0BA00C9BA50 /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
+		1A91E1F21ED3A0BA00C9BA50 /* Logging.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217D01C7E80CE006460E2 /* Logging.m */; };
+		1A91E1F31ED3A0BA00C9BA50 /* CAExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A415A1C8F603E0043DAF0 /* CAExtras.m */; };
+		1A91E1F41ED3A0BA00C9BA50 /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
+		1A91E1F51ED3A0BA00C9BA50 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EE1C8FC3DB008C11CB /* Reachability.m */; };
+		1A91E1F61ED3A0BA00C9BA50 /* NSPredicate+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B3B1CA3451D00F73608 /* NSPredicate+Extras.m */; };
+		1A91E1F71ED3A0BA00C9BA50 /* JSON.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.mm */; };
+		1A91E1F81ED3A13900C9BA50 /* WebSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A38C9FB1D9339D400655891 /* WebSession.m */; };
 		1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */; };
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsView.m */; };
@@ -421,6 +446,13 @@
 			remoteGlobalIDString = F668C87F153E91210044DBAC;
 			remoteInfo = SocketRocketOSX;
 		};
+		1A91E1DE1ED3A00300C9BA50 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = F668C87F153E91210044DBAC;
+			remoteInfo = SocketRocketOSX;
+		};
 		1AD956C51D0BCFF6002B1259 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1A2217861C7E7B14006460E2 /* Project object */;
@@ -441,6 +473,17 @@
 				1AB038591D5D391B005093B9 /* Sparkle.framework in Copy Frameworks */,
 				1AB038501D5C013A005093B9 /* HockeySDK.framework in Copy Frameworks */,
 				1A2217C51C7E7BCE006460E2 /* SocketRocket.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A91E1E51ED3A02700C9BA50 /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				1A91E1E61ED3A03900C9BA50 /* SocketRocket.framework in Copy Frameworks */,
 			);
 			name = "Copy Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -813,6 +856,14 @@
 		1A86763B1E94165E00ACE932 /* TrackingProgressSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrackingProgressSheet.h; sourceTree = "<group>"; };
 		1A86763C1E94165E00ACE932 /* TrackingProgressSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrackingProgressSheet.m; sourceTree = "<group>"; };
 		1A86763D1E94165E00ACE932 /* TrackingProgressSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TrackingProgressSheet.xib; sourceTree = "<group>"; };
+		1A91E1C51ED3978500C9BA50 /* ShipWebsocketTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShipWebsocketTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1A91E1C71ED3978500C9BA50 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		1A91E1C81ED3978500C9BA50 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		1A91E1CB1ED3978500C9BA50 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		1A91E1D01ED3978500C9BA50 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		1A91E1D51ED3978500C9BA50 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		1A91E1DC1ED397DD00C9BA50 /* MainMenu.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = MainMenu.xib; sourceTree = "<group>"; };
+		1A91E1E21ED3A01100C9BA50 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		1A9905061CDBC93A00EAA474 /* Issue3PaneTableController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Issue3PaneTableController.h; sourceTree = "<group>"; };
 		1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Issue3PaneTableController.m; sourceTree = "<group>"; };
 		1A99050C1CDBC98900EAA474 /* IssueTableControllerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueTableControllerPrivate.h; sourceTree = "<group>"; };
@@ -1005,6 +1056,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1A91E1C21ED3978500C9BA50 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A91E1E41ED3A01500C9BA50 /* libz.tbd in Frameworks */,
+				1A91E1E31ED3A01100C9BA50 /* libsqlite3.tbd in Frameworks */,
+				1A91E1E01ED3A00800C9BA50 /* SocketRocket.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -1094,7 +1155,9 @@
 				1A2217A21C7E7B78006460E2 /* ext */,
 				1AB038511D5D0E22005093B9 /* scripts */,
 				1A3C5B501DDD012F005F9A01 /* AccountTool */,
+				1A91E1C61ED3978500C9BA50 /* ShipWebsocketTest */,
 				1A22178F1C7E7B14006460E2 /* Products */,
+				1A91E1E11ED3A01000C9BA50 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -1104,6 +1167,7 @@
 				1A22178E1C7E7B14006460E2 /* Ship.app */,
 				1A3618FA1C9383CF008C11CB /* ShipHubTests.xctest */,
 				1A3C5B4F1DDD012F005F9A01 /* AccountTool.app */,
+				1A91E1C51ED3978500C9BA50 /* ShipWebsocketTest.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1646,6 +1710,35 @@
 			name = "Bulk Modify";
 			sourceTree = "<group>";
 		};
+		1A91E1C61ED3978500C9BA50 /* ShipWebsocketTest */ = {
+			isa = PBXGroup;
+			children = (
+				1A91E1C71ED3978500C9BA50 /* AppDelegate.h */,
+				1A91E1C81ED3978500C9BA50 /* AppDelegate.m */,
+				1A91E1DC1ED397DD00C9BA50 /* MainMenu.xib */,
+				1A91E1D01ED3978500C9BA50 /* Assets.xcassets */,
+				1A91E1D51ED3978500C9BA50 /* Info.plist */,
+				1A91E1CA1ED3978500C9BA50 /* Supporting Files */,
+			);
+			path = ShipWebsocketTest;
+			sourceTree = "<group>";
+		};
+		1A91E1CA1ED3978500C9BA50 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				1A91E1CB1ED3978500C9BA50 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		1A91E1E11ED3A01000C9BA50 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1A91E1E21ED3A01100C9BA50 /* libsqlite3.tbd */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		1AB038481D5C0117005093B9 /* HockeySDK-Mac */ = {
 			isa = PBXGroup;
 			children = (
@@ -1876,6 +1969,25 @@
 			productReference = 1A3C5B4F1DDD012F005F9A01 /* AccountTool.app */;
 			productType = "com.apple.product-type.application";
 		};
+		1A91E1C41ED3978500C9BA50 /* ShipWebsocketTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1A91E1DB1ED3978500C9BA50 /* Build configuration list for PBXNativeTarget "ShipWebsocketTest" */;
+			buildPhases = (
+				1A91E1C11ED3978500C9BA50 /* Sources */,
+				1A91E1C21ED3978500C9BA50 /* Frameworks */,
+				1A91E1C31ED3978500C9BA50 /* Resources */,
+				1A91E1E51ED3A02700C9BA50 /* Copy Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				1A91E1DF1ED3A00300C9BA50 /* PBXTargetDependency */,
+			);
+			name = ShipWebsocketTest;
+			productName = ShipWebsocketTest;
+			productReference = 1A91E1C51ED3978500C9BA50 /* ShipWebsocketTest.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1893,6 +2005,10 @@
 					};
 					1A3C5B4E1DDD012F005F9A01 = {
 						CreatedOnToolsVersion = 8.1;
+						ProvisioningStyle = Automatic;
+					};
+					1A91E1C41ED3978500C9BA50 = {
+						CreatedOnToolsVersion = 8.3.2;
 						ProvisioningStyle = Automatic;
 					};
 					1AD956BE1D0BCFBA002B1259 = {
@@ -1923,6 +2039,7 @@
 				1A3618F91C9383CF008C11CB /* ShipHubTests */,
 				1AD956BE1D0BCFBA002B1259 /* IssueWeb */,
 				1A3C5B4E1DDD012F005F9A01 /* AccountTool */,
+				1A91E1C41ED3978500C9BA50 /* ShipWebsocketTest */,
 			);
 		};
 /* End PBXProject section */
@@ -2025,6 +2142,15 @@
 			files = (
 				1A3C5B581DDD012F005F9A01 /* Assets.xcassets in Resources */,
 				1A3C5B5B1DDD012F005F9A01 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		1A91E1C31ED3978500C9BA50 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A91E1D11ED3978500C9BA50 /* Assets.xcassets in Resources */,
+				1A91E1DD1ED397DD00C9BA50 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2362,6 +2488,32 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		1A91E1C11ED3978500C9BA50 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1A91E1F81ED3A13900C9BA50 /* WebSession.m in Sources */,
+				1A91E1E71ED3A0BA00C9BA50 /* Defaults.m in Sources */,
+				1A91E1E81ED3A0BA00C9BA50 /* Error.m in Sources */,
+				1A91E1E91ED3A0BA00C9BA50 /* ServerConnection.m in Sources */,
+				1A91E1EA1ED3A0BA00C9BA50 /* SyncConnection.m in Sources */,
+				1A91E1EB1ED3A0BA00C9BA50 /* WSSyncConnection.m in Sources */,
+				1A91E1EC1ED3A0BA00C9BA50 /* Auth.m in Sources */,
+				1A91E1ED1ED3A0BA00C9BA50 /* Keychain.m in Sources */,
+				1A91E1EF1ED3A0BA00C9BA50 /* FoundationExtras.m in Sources */,
+				1A91E1F01ED3A0BA00C9BA50 /* AppKitExtras.m in Sources */,
+				1A91E1F11ED3A0BA00C9BA50 /* WebKitExtras.m in Sources */,
+				1A91E1F21ED3A0BA00C9BA50 /* Logging.m in Sources */,
+				1A91E1F31ED3A0BA00C9BA50 /* CAExtras.m in Sources */,
+				1A91E1F41ED3A0BA00C9BA50 /* KSReachability.m in Sources */,
+				1A91E1F51ED3A0BA00C9BA50 /* Reachability.m in Sources */,
+				1A91E1F61ED3A0BA00C9BA50 /* NSPredicate+Extras.m in Sources */,
+				1A91E1F71ED3A0BA00C9BA50 /* JSON.mm in Sources */,
+				1A91E1CC1ED3978500C9BA50 /* main.m in Sources */,
+				1A91E1C91ED3978500C9BA50 /* AppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -2374,6 +2526,11 @@
 			isa = PBXTargetDependency;
 			name = SocketRocketOSX;
 			targetProxy = 1A2217BE1C7E7BAF006460E2 /* PBXContainerItemProxy */;
+		};
+		1A91E1DF1ED3A00300C9BA50 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SocketRocketOSX;
+			targetProxy = 1A91E1DE1ED3A00300C9BA50 /* PBXContainerItemProxy */;
 		};
 		1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2592,6 +2749,41 @@
 			};
 			name = Release;
 		};
+		1A91E1D61ED3978500C9BA50 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CODE_SIGN_ENTITLEMENTS = "ShipHub/entitlements-Debug.plist";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREFIX_HEADER = "$(PROJECT_DIR)/ShipHub/ShipHub-Prefix.pch";
+				INFOPLIST_FILE = ShipWebsocketTest/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipWebsocketTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		1A91E1D71ED3978500C9BA50 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PREFIX_HEADER = "$(PROJECT_DIR)/ShipHub/ShipHub-Prefix.pch";
+				INFOPLIST_FILE = ShipWebsocketTest/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				PRODUCT_BUNDLE_IDENTIFIER = com.realartists.ShipWebsocketTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 		1AD956BF1D0BCFBA002B1259 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2652,6 +2844,15 @@
 			buildConfigurations = (
 				1A3C5B5D1DDD012F005F9A01 /* Debug */,
 				1A3C5B5E1DDD012F005F9A01 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1A91E1DB1ED3978500C9BA50 /* Build configuration list for PBXNativeTarget "ShipWebsocketTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1A91E1D61ED3978500C9BA50 /* Debug */,
+				1A91E1D71ED3978500C9BA50 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
