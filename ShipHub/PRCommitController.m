@@ -31,7 +31,9 @@
 
 @end
 
-@interface PRCommitController () <NSTableViewDelegate, NSTableViewDataSource>
+@interface PRCommitController () <NSTableViewDelegate, NSTableViewDataSource> {
+    BOOL _showLastViewed;
+}
 
 @property IBOutlet NSTableView *table;
 
@@ -53,14 +55,32 @@
 - (void)setPr:(PullRequest *)pr {
     if (_pr != pr) {
         _pr = pr;
+        
+        BOOL haveLastView = _pr.spanDiffSinceMyLastView != nil;
+        BOOL changedSinceMyLastView = haveLastView && ![_pr.spanDiffSinceMyLastView.baseRev isEqualToString:_pr.spanDiffSinceMyLastView.headRev];
+        
+        _showLastViewed = haveLastView && changedSinceMyLastView;
+        
         [_table reloadData];
     }
 }
 
 #pragma mark NSTableViewDataSource
 
+- (NSInteger)firstCommitRow {
+    return _showLastViewed ? 5 : 4;
+}
+
+- (NSInteger)commitsHeaderRow {
+    return _showLastViewed ? 4 : 3;
+}
+
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
-    return 4 + _pr.commits.count;
+    return [self firstCommitRow] + _pr.commits.count;
+}
+
+- (NSInteger)lastViewedRow {
+    return _showLastViewed ? 3 : -1;
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row
@@ -103,12 +123,36 @@
         }
         
         return span2;
-    } else if (row == 3) {
+    } else if (row == [self lastViewedRow]) {
+        PRSpanCellView *span3 = [tableView makeViewWithIdentifier:@"SpanCell" owner:self];
+        
+        BOOL haveLastView = _pr.spanDiffSinceMyLastView != nil;
+        BOOL changedSinceMyLastView = haveLastView && ![_pr.spanDiffSinceMyLastView.baseRev isEqualToString:_pr.spanDiffSinceMyLastView.headRev];
+        
+        span3.enabled = changedSinceMyLastView;
+        
+        span3.titleField.stringValue = NSLocalizedString(@"Show changes since you last viewed", nil);
+        
+        if (!haveLastView) {
+            span3.subtitleField.stringValue = NSLocalizedString(@"You are viewing this pull request for the first time", nil);
+        } else if (haveLastView && !changedSinceMyLastView) {
+            span3.subtitleField.stringValue = NSLocalizedString(@"No new changes", nil);
+        } else {
+            NSInteger filesChanged = _pr.spanDiffSinceMyLastReview.allFiles.count;
+            if (filesChanged == 1) {
+                span3.subtitleField.stringValue = NSLocalizedString(@"1 file changed", nil);
+            } else {
+                span3.subtitleField.stringValue = [NSString localizedStringWithFormat:NSLocalizedString(@"%td files changed", nil), filesChanged];
+            }
+        }
+        
+        return span3;
+    } else if (row == [self commitsHeaderRow]) {
         NSTableCellView *header2 = [tableView makeViewWithIdentifier:@"HeaderCell" owner:self];
         header2.textField.stringValue = NSLocalizedString(@"Select Commit", nil);
         return header2;
     } else {
-        GitCommit *commit = _pr.commits[row-4];
+        GitCommit *commit = _pr.commits[row-[self firstCommitRow]];
         PRCommitCellView *cell = [tableView makeViewWithIdentifier:@"CommitCell" owner:self];
         cell.committishField.stringValue = [commit.rev substringToIndex:7];
         cell.dateField.stringValue = [commit.date shortUserInterfaceString];
@@ -128,9 +172,9 @@
 - (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
     if (row == 0) {
         return 17.0;
-    } else if (row < 3) {
+    } else if (row < [self commitsHeaderRow]) {
         return 40.0;
-    } else if (row == 3) {
+    } else if (row == [self commitsHeaderRow]) {
         return 17.0;
     } else {
         if (!_sizingCell) {
@@ -140,7 +184,7 @@
                                        0.0,
                                        tableView.bounds.size.width - (tableView.intercellSpacing.width * 2.0),
                                        100.0);
-        GitCommit *commit = _pr.commits[row-4];
+        GitCommit *commit = _pr.commits[row-[self firstCommitRow]];
         _sizingCell.messageField.stringValue = [commit.message trim] ?: @"";
         CGSize size = _sizingCell.messageField.fittingSize;
         return size.height + 41.0;
@@ -148,7 +192,7 @@
 }
 
 - (BOOL)tableView:(NSTableView *)tableView isGroupRow:(NSInteger)row {
-    return row == 0 || row == 3;
+    return row == 0 || row == [self commitsHeaderRow];
 }
 
 - (BOOL)tableView:(NSTableView *)tableView shouldSelectRow:(NSInteger)row {
@@ -159,7 +203,10 @@
     } else if (row == 2) {
         PRSpanCellView *span2 = [tableView viewAtColumn:0 row:row makeIfNecessary:NO];
         return span2.enabled;
-    } else if (row == 3) {
+    } else if (row == [self lastViewedRow]) {
+        PRSpanCellView *span3 = [tableView viewAtColumn:0 row:row makeIfNecessary:NO];
+        return span3.enabled;
+    } else if (row == [self commitsHeaderRow]) {
         return NO;
     } else {
         return YES;
@@ -174,8 +221,10 @@
         [self.delegate commitControllerDidSelectSpanDiff:self];
     } else if (row == 2) {
         [self.delegate commitControllerDidSelectSinceReviewSpanDiff:self];
-    } else if (row > 3) {
-        GitCommit *commit = _pr.commits[row-4];
+    } else if (row == [self lastViewedRow]) {
+        [self.delegate commitControllerDidSelectSinceLastViewSpanDiff:self];
+    } else if (row >= [self firstCommitRow]) {
+        GitCommit *commit = _pr.commits[row-[self firstCommitRow]];
         DebugLog(@"Commit %p", commit);
         [self.delegate commitController:self didSelectCommit:commit];
     }

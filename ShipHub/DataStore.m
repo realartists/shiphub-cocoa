@@ -44,6 +44,7 @@
 #import "LocalPRComment.h"
 #import "LocalPRReview.h"
 #import "LocalPullRequest.h"
+#import "LocalPRHistory.h"
 
 #import "Account.h"
 #import "IssueInternal.h"
@@ -139,8 +140,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  12: realartists/shiphub-cocoa#520 Updated mocDidChange: for LocalCommitStatus
  13: Break out PRs into their own entity
  14: Introduce LocalCommitComment
+ 15: Introduce LocalPRHistory
  */
-static const NSInteger CurrentLocalModelVersion = 14;
+static const NSInteger CurrentLocalModelVersion = 15;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
@@ -3605,6 +3607,53 @@ static NSString *const LastUpdated = @"LastUpdated";
             if (completion) {
                 completion(myQueries);
             }
+        });
+    }];
+}
+
+#pragma mark - Pull Request Extras
+
+- (void)storeLastViewedHeadSha:(NSString *)headSha forPullRequestIdentifier:(NSString *)issueIdentifier completion:(void (^)(NSString *lastSha, NSError *error))completion
+{
+    NSParameterAssert(headSha);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    dispatch_queue_t cbq = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    
+    [self performWrite:^(NSManagedObjectContext *moc) {
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRHistory"];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"issueFullIdentifier = %@", issueIdentifier];
+        fetch.fetchLimit = 1;
+        
+        NSError *error = nil;
+        LocalPRHistory *result = [[moc executeFetchRequest:fetch error:&error] firstObject];
+        
+        if (error) {
+            ErrLog(@"%@", error);
+            dispatch_async(cbq, ^{
+                completion(nil, error);
+            });
+            return;
+        }
+        
+        if (!result) {
+            result = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPRHistory" inManagedObjectContext:moc];
+            result.issueFullIdentifier = issueIdentifier;
+        }
+        
+        NSString *lastSha = result.sha;
+        
+        if (![lastSha isEqualToString:headSha]) {
+            result.sha = headSha;
+            [moc save:&error];
+            if (error) {
+                ErrLog(@"%@", error);
+            }
+        }
+        
+        dispatch_async(cbq, ^{
+            completion(lastSha, error);
         });
     }];
 }

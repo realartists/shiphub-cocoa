@@ -107,6 +107,37 @@
     return nil;
 }
 
+- (NSError *)loadSpanDiffSinceLastView {
+    NSString *headSha = [self headSha];
+    
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    __block NSString *myLastSha = nil;
+    
+    [[DataStore activeStore] storeLastViewedHeadSha:[self _headRev] forPullRequestIdentifier:[_issue fullIdentifier] completion:^(NSString *lastSha, NSError *error) {
+        myLastSha = lastSha;
+        dispatch_semaphore_signal(sema);
+    }];
+    
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+    
+    GitDiff *span = nil;
+    if (myLastSha) {
+        if ([headSha isEqualToString:myLastSha]) {
+            span = [GitDiff emptyDiffAtRev:headSha];
+        } else {
+            NSError *error = nil;
+            span = [GitDiff diffWithRepo:_repo from:myLastSha to:[self headSha] error:&error];
+            if (error) {
+                // force push most likely
+                span = _spanDiff;
+            }
+        }
+    }
+    _spanDiffSinceMyLastView = span;
+    
+    return nil;
+}
+
 + (GitRepo *)repoAtPath:(NSString *)path error:(NSError *__autoreleasing *)error {
     // TODO: Garbage collect old repos
     
@@ -189,7 +220,7 @@
     if (progress.cancelled) return [NSError cancelError];
     
     progress.localizedDescription = NSLocalizedString(@"Preparing diffs", nil);
-    progress.totalUnitCount = 2;
+    progress.totalUnitCount = 3;
     progress.completedUnitCount = 1;
     
     error = [self loadSpanDiffSinceLastSubmittedReview];
@@ -197,6 +228,15 @@
         ErrLog(@"Error loading span diff since last submitted review: %@", error);
         return error;
     }
+    
+    progress.completedUnitCount += 1;
+    
+    error = [self loadSpanDiffSinceLastView];
+    if (error) {
+        ErrLog(@"Error loading span diff since last view: %@", error);
+        return error;
+    }
+    
     progress.completedUnitCount += 1;
     
     return error;

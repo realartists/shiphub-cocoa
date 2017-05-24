@@ -33,6 +33,7 @@
 @property (readonly) NSArray<PRComment *> *prComments;
 @property (readonly) GitDiff *spanDiff;
 @property (readonly) GitDiff *spanDiffSinceMyLastReview;
+@property (readonly) GitDiff *spanDiffSinceMyLastView;
 @property (readonly) NSArray<GitCommit *> *commits;
 @property (readonly) PRReview *myLastSubmittedReview;
 @property (readonly) PRReview *myLastPendingReview;

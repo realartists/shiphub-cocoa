@@ -95,6 +95,8 @@
         _commitLabel.stringValue = [NSString localizedStringWithFormat:NSLocalizedString(@"All Commits (%tu)", nil), _pr.commits.count];
     } else if (self.activeDiff == _pr.spanDiffSinceMyLastReview) {
         _commitLabel.stringValue = NSLocalizedString(@"Changes since your last review", nil);
+    } else if (self.activeDiff == _pr.spanDiffSinceMyLastView) {
+        _commitLabel.stringValue = NSLocalizedString(@"Changes since you last viewed", nil);
     } else if (self.activeCommit) {
         _commitLabel.stringValue = [_activeCommit.message trim];
     } else {
@@ -132,6 +134,12 @@
 - (void)commitControllerDidSelectSinceReviewSpanDiff:(PRCommitController *)cc {
     _activeCommit = nil;
     self.activeDiff = _pr.spanDiffSinceMyLastReview;
+    [_commitPopover close];
+}
+
+- (void)commitControllerDidSelectSinceLastViewSpanDiff:(PRCommitController *)cc {
+    _activeCommit = nil;
+    self.activeDiff = _pr.spanDiffSinceMyLastView;
     [_commitPopover close];
 }
 

@@ -78,6 +78,8 @@
 - (void)insertIntoUpNext:(NSArray<NSString *> *)issueIdentifiers aboveIssueIdentifier:(NSString *)aboveIssueIdentifier completion:(void (^)(NSError *error))completion;
 - (void)removeFromUpNext:(NSArray<NSString *> *)issueIdentifiers completion:(void (^)(NSError *error))completion;
 
+- (void)storeLastViewedHeadSha:(NSString *)headSha forPullRequestIdentifier:(NSString *)issueIdentifier completion:(void (^)(NSString *lastSha, NSError *error))completion; // completion called on arbitrary dispatch queue, not main queue like most DataStore methods
+
 @end
 
 @interface DataStore (MetadataMutations)

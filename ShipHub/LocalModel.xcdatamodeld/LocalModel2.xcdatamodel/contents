@@ -205,6 +205,10 @@
         <relationship name="review" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalPRReview" inverseName="comments" inverseEntity="LocalPRReview" syncable="YES"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="prComments" inverseEntity="LocalAccount" syncable="YES"/>
     </entity>
+    <entity name="LocalPRHistory" representedClassName="LocalPRHistory" syncable="YES">
+        <attribute name="issueFullIdentifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
+        <attribute name="sha" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
     <entity name="LocalPriority" representedClassName="LocalPriority" syncable="YES">
         <attribute name="priority" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="upNext" inverseEntity="LocalIssue" syncable="YES"/>
@@ -312,5 +316,6 @@
         <element name="LocalReaction" positionX="9" positionY="153" width="128" height="165"/>
         <element name="LocalRepo" positionX="0" positionY="0" width="128" height="300"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="LocalPRHistory" positionX="9" positionY="153" width="128" height="75"/>
     </elements>
 </model>

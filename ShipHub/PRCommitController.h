@@ -25,6 +25,7 @@
 
 - (void)commitControllerDidSelectSpanDiff:(PRCommitController *)cc;
 - (void)commitControllerDidSelectSinceReviewSpanDiff:(PRCommitController *)cc;
+- (void)commitControllerDidSelectSinceLastViewSpanDiff:(PRCommitController *)cc;
 - (void)commitController:(PRCommitController *)cc didSelectCommit:(GitCommit *)commit;
 
 @end
