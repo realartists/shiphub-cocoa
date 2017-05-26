@@ -487,7 +487,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
     NSString *title = [commitLines firstObject];
     NSString *body = nil;
     if ([commitLines count] > 1) {
-        body = [tipCommit substringFromIndex:[title length]];
+        body = [[tipCommit substringFromIndex:[title length]] trim];
     }
     
     NSDictionary *base = @{ @"repo" : @{ @"full_name" : destRepoFullName },
