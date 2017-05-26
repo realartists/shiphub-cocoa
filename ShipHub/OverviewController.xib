@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12120"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -72,7 +72,7 @@
                                                                     <rect key="frame" x="1" y="1" width="248" height="20"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
-                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" translatesAutoresizingMaskIntoConstraints="NO" id="IFa-42-FMa">
+                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IFa-42-FMa">
                                                                             <rect key="frame" x="0.0" y="3" width="247" height="17"/>
                                                                             <constraints>
                                                                                 <constraint firstAttribute="height" constant="17" id="c6K-gg-bpE"/>
@@ -101,7 +101,7 @@
                                                                             <rect key="frame" x="0.0" y="0.0" width="24" height="24"/>
                                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="GQD-rR-tjz"/>
                                                                         </imageView>
-                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" translatesAutoresizingMaskIntoConstraints="NO" id="8de-3j-wiG">
+                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="8de-3j-wiG">
                                                                             <rect key="frame" x="25" y="4" width="223" height="17"/>
                                                                             <constraints>
                                                                                 <constraint firstAttribute="height" constant="17" id="7Dp-OO-8Gp"/>
@@ -133,7 +133,7 @@
                                                                             <rect key="frame" x="0.0" y="0.0" width="24" height="24"/>
                                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="B9y-3B-hN0"/>
                                                                         </imageView>
-                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" translatesAutoresizingMaskIntoConstraints="NO" id="Ilo-vp-Qzg">
+                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ilo-vp-Qzg">
                                                                             <rect key="frame" x="25" y="4" width="194" height="17"/>
                                                                             <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Count Cell" id="AXI-ey-FZ0">
                                                                                 <font key="font" metaFont="system"/>
@@ -178,7 +178,7 @@
                                                                             <rect key="frame" x="0.0" y="0.0" width="24" height="24"/>
                                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="alf-4R-EDU"/>
                                                                         </imageView>
-                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" translatesAutoresizingMaskIntoConstraints="NO" id="2U4-dc-6B4">
+                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="2U4-dc-6B4">
                                                                             <rect key="frame" x="25" y="4" width="195" height="17"/>
                                                                             <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Milestone Cell" id="znc-2z-3h3">
                                                                                 <font key="font" metaFont="system"/>
@@ -217,7 +217,7 @@
                                                                             <rect key="frame" x="0.0" y="0.0" width="24" height="24"/>
                                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="zTq-ql-Iaq"/>
                                                                         </imageView>
-                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" translatesAutoresizingMaskIntoConstraints="NO" id="t3H-ik-FAM">
+                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="t3H-ik-FAM">
                                                                             <rect key="frame" x="25" y="4" width="202" height="17"/>
                                                                             <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Owner Cell" id="4ME-Ca-CWK">
                                                                                 <font key="font" metaFont="system"/>
@@ -319,7 +319,7 @@
                                             <userDefinedRuntimeAttribute type="image" keyPath="backgroundImage" value="NSAddTemplate"/>
                                         </userDefinedRuntimeAttributes>
                                     </popUpButton>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wQb-ml-E1J" customClass="NetworkStatusTextField">
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wQb-ml-E1J" customClass="NetworkStatusTextField">
                                         <rect key="frame" x="18" y="5" width="215" height="14"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="14" id="hcj-QQ-NcZ"/>
@@ -329,6 +329,9 @@
                                             <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
+                                        <connections>
+                                            <action selector="showNetworkStatusSheetIfNeeded:" target="-2" id="8US-R0-uKu"/>
+                                        </connections>
                                     </textField>
                                 </subviews>
                                 <constraints>

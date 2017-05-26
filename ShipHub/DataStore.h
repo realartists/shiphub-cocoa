@@ -44,7 +44,9 @@
 @property (nonatomic, readonly, getter=isOffline) BOOL offline;
 
 @property (readonly) NSDate *lastUpdated;
-@property (readonly) double issueSyncProgress;
+@property (readonly, getter=isSyncConnectionActive) BOOL syncConnectionActive;
+@property (readonly) double logSyncProgress;
+@property (readonly) double spiderProgress;
 @property (readonly) NSDate *rateLimitedUntil;
 
 @property (nonatomic, readonly, getter=isMigrating) BOOL migrating;

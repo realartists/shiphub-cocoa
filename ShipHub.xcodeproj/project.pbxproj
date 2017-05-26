@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1A0075C51ED85DC300EB7A1B /* NetworkStatusWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0075C31ED85DC300EB7A1B /* NetworkStatusWindowController.m */; };
+		1A0075C61ED85DC300EB7A1B /* NetworkStatusWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A0075C41ED85DC300EB7A1B /* NetworkStatusWindowController.xib */; };
 		1A012E7C1D3EAC0E006CE5DF /* SearchEditor.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E741D3EAC0E006CE5DF /* SearchEditor.m */; };
 		1A012E7D1D3EAC0E006CE5DF /* SearchEditorViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012E761D3EAC0E006CE5DF /* SearchEditorViewController.m */; };
 		1A012E7E1D3EAC0E006CE5DF /* SearchEditorViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A012E771D3EAC0E006CE5DF /* SearchEditorViewController.xib */; };
@@ -475,6 +477,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1A0075C21ED85DC300EB7A1B /* NetworkStatusWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NetworkStatusWindowController.h; sourceTree = "<group>"; };
+		1A0075C31ED85DC300EB7A1B /* NetworkStatusWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NetworkStatusWindowController.m; sourceTree = "<group>"; };
+		1A0075C41ED85DC300EB7A1B /* NetworkStatusWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NetworkStatusWindowController.xib; sourceTree = "<group>"; };
 		1A012E731D3EAC0E006CE5DF /* SearchEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchEditor.h; sourceTree = "<group>"; };
 		1A012E741D3EAC0E006CE5DF /* SearchEditor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SearchEditor.m; sourceTree = "<group>"; };
 		1A012E751D3EAC0E006CE5DF /* SearchEditorViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchEditorViewController.h; sourceTree = "<group>"; };
@@ -1605,6 +1610,9 @@
 				1A694B211CA341D500F73608 /* NetworkStateWindow.m */,
 				1A694B221CA341D500F73608 /* NetworkStatusTextField.h */,
 				1A694B231CA341D500F73608 /* NetworkStatusTextField.m */,
+				1A0075C21ED85DC300EB7A1B /* NetworkStatusWindowController.h */,
+				1A0075C31ED85DC300EB7A1B /* NetworkStatusWindowController.m */,
+				1A0075C41ED85DC300EB7A1B /* NetworkStatusWindowController.xib */,
 				1A694B3E1CA34B9000F73608 /* LabelButton.h */,
 				1A694B3F1CA34B9000F73608 /* LabelButton.m */,
 				1A694B401CA34B9000F73608 /* DeemphasizedRowView.h */,
@@ -1987,6 +1995,7 @@
 				1AB2438E1E97075C0062628C /* clonepr.sh in Resources */,
 				1A012E7E1D3EAC0E006CE5DF /* SearchEditorViewController.xib in Resources */,
 				1A86763F1E94165E00ACE932 /* TrackingProgressSheet.xib in Resources */,
+				1A0075C61ED85DC300EB7A1B /* NetworkStatusWindowController.xib in Resources */,
 				1AD956B41D0B5654002B1259 /* DownloadBarViewController.xib in Resources */,
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
 				1A012E7F1D3EAC0E006CE5DF /* SearchEditor.strings in Resources */,
@@ -2171,6 +2180,7 @@
 				1A2305D91C7F80EA0034C871 /* Defaults.m in Sources */,
 				1A694B421CA34B9000F73608 /* LabelButton.m in Sources */,
 				1AE09C001C97687E00C5AC35 /* LocalEvent.m in Sources */,
+				1A0075C51ED85DC300EB7A1B /* NetworkStatusWindowController.m in Sources */,
 				1AE09C041C97687E00C5AC35 /* LocalAccount.m in Sources */,
 				1A694B241CA341D500F73608 /* CustomToolbarItem.m in Sources */,
 				1A694B281CA341D500F73608 /* SearchField.m in Sources */,

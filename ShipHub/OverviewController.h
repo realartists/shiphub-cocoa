@@ -25,6 +25,8 @@
 
 - (IBAction)unhideItem:(id)sender;
 
+- (IBAction)showNetworkStatusSheetIfNeeded:(id)sender;
+
 #if !INCOMPLETE
 - (IBAction)showDownloads:(id)sender;
 - (void)openQuery:(CustomQuery *)query;

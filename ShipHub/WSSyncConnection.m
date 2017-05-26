@@ -37,6 +37,7 @@ static NSString *const MessageRateLimit = @"ratelimit";
 
 // Shared Message fields
 static NSString *const MessageFieldVersions = @"versions";
+static NSString *const MessageFieldSpiderProgress = @"spiderProgress";
 
 // Hello Message fields
 static NSString *const MessageFieldClient = @"client";
@@ -63,6 +64,9 @@ static NSString *const MessageFieldBillingTrialEndDate = @"trialEndDate";
 
 // Rate Limit Message fields
 static NSString *const MessageFieldRateLimitedUntil = @"until";
+
+// Spider Progress fields
+static NSString *const MessageFieldProgress = @"progress";
 
 typedef NS_ENUM(uint8_t, MessageHeader) {
     MessageHeaderPlainText = 0,
@@ -308,15 +312,25 @@ static uint64_t ServerHelloMinimumVersion = 2;
         NSString *purgeIdentifier = msg[MessageFieldPurgeIdentifier];
         NSDictionary *upgrade = msg[MessageFieldUpgrade];
         
+        NSDictionary *spiderProgress = msg[MessageFieldSpiderProgress];
+        id spiderProgressNumber = ([spiderProgress isKindOfClass:[NSDictionary class]] ? spiderProgress[MessageFieldProgress] : nil) ?: @(1.0);
+        [self.delegate syncConnection:self updateSpiderProgress:[spiderProgressNumber doubleValue]];
+        
         BOOL mustUpgrade = [upgrade[@"required"] boolValue];
         if (mustUpgrade) {
             [self.delegate syncConnectionRequiresSoftwareUpdate:self];
             [self disconnect];
+            return;
         }
         
         if ([self.delegate syncConnection:self didReceivePurgeIdentifier:purgeIdentifier]) {
             [self reset];
+            return;
         }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self.delegate syncConnectionDidConnect:self];
+        });
     } else if ([type isEqualToString:MessageSync]) {
         _syncVersions = msg[MessageFieldVersions];
         
@@ -335,11 +349,16 @@ static uint64_t ServerHelloMinimumVersion = 2;
         double progress = 1.0;
         if (_logEntryTotalRemaining > 0) {
             progress = (double)(_logEntryTotalRemaining - remaining) / (double)_logEntryTotalRemaining;
+            progress = MIN(progress, 1.0);
+            progress = MAX(progress, 0.0);
         }
+        
+        NSDictionary *spiderProgress = msg[MessageFieldSpiderProgress];
+        id spiderProgressNumber = ([spiderProgress isKindOfClass:[NSDictionary class]] ? spiderProgress[MessageFieldProgress] : nil) ?: @(1.0);
         
         self.logEntriesRemaining = remaining;
                 
-        [self.delegate syncConnection:self receivedEntries:entries versions:_syncVersions progress:progress];
+        [self.delegate syncConnection:self receivedEntries:entries versions:_syncVersions logProgress:progress spiderProgress:[spiderProgressNumber doubleValue]];
     } else if ([type isEqualToString:MessageBilling]) {
         [self.delegate syncConnection:self didReceiveBillingUpdate:msg];
     } else if ([type isEqualToString:MessageRateLimit]) {
@@ -360,10 +379,6 @@ static uint64_t ServerHelloMinimumVersion = 2;
         _lastViewedIssueIdentifier = nil;
         [self sendMessage:msg];
     }
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self.delegate syncConnectionDidConnect:self];
-    });
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didFailWithError:(NSError *)error {

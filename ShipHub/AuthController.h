@@ -26,6 +26,6 @@
 
 @protocol AuthControllerDelegate <NSObject>
 
-- (void)authController:(AuthController *)controller authenticated:(Auth *)auth;
+- (void)authController:(AuthController *)controller authenticated:(Auth *)auth newAccount:(BOOL)isNewAccount;
 
 @end

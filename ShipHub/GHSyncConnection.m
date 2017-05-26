@@ -431,7 +431,7 @@ static id accountsWithRepos(NSArray *accounts, NSArray *repos) {
     
     _syncVersions = [_syncVersions dictionaryByAddingEntriesFromDictionary:version] ?: version;
     
-    [self.delegate syncConnection:self receivedEntries:syncObjs versions:_syncVersions progress:1.0];
+    [self.delegate syncConnection:self receivedEntries:syncObjs versions:_syncVersions logProgress:1.0 spiderProgress:1.0];
 }
 
 - (void)updateIssue:(id)issueIdentifier {

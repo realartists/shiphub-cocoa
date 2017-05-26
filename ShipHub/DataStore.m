@@ -162,7 +162,6 @@ static const NSInteger CurrentLocalModelVersion = 15;
     NSInteger _initialSyncProgress;
     
     BOOL _sentNetworkActivityBegan;
-    double _issueSyncProgress;
     
     dispatch_queue_t _dbq;
     dispatch_queue_t _readMocsQ;
@@ -1135,7 +1134,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
 }
 
-- (void)syncConnection:(SyncConnection *)sync receivedEntries:(NSArray<SyncEntry *> *)entries versions:(NSDictionary *)versions progress:(double)progress
+- (void)syncConnection:(SyncConnection *)sync receivedEntries:(NSArray<SyncEntry *> *)entries versions:(NSDictionary *)versions logProgress:(double)progress spiderProgress:(double)spiderProgress
 {
     NSDictionary *identifiers = [self identifiersInSyncEntries:entries];
     
@@ -1154,15 +1153,25 @@ static NSString *const LastUpdated = @"LastUpdated";
         if (error) ErrLog("%@", error);
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            _issueSyncProgress = progress;
+            _logSyncProgress = progress;
+            _spiderProgress = spiderProgress;
             [self postNotification:DataStoreDidUpdateProgressNotification userInfo:nil];
         });
     }];
 }
 
+- (void)syncConnection:(SyncConnection *)sync updateSpiderProgress:(double)spiderProgress {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        _spiderProgress = spiderProgress;
+        [self postNotification:DataStoreDidUpdateProgressNotification userInfo:nil];
+    });
+}
+
 - (void)syncConnectionWillConnect:(SyncConnection *)sync {
     dispatch_async(dispatch_get_main_queue(), ^{
-        _issueSyncProgress = 0.0;
+        _logSyncProgress = -1.0;
+        _spiderProgress = -1.0;
+        _syncConnectionActive = NO;
         [self postNotification:DataStoreDidUpdateProgressNotification userInfo:nil];
     });
 }
@@ -1181,14 +1190,17 @@ static NSString *const LastUpdated = @"LastUpdated";
         }
     }];
     dispatch_async(dispatch_get_main_queue(), ^{
-        _issueSyncProgress = 1.0;
+        _logSyncProgress = 1.0;
+        _syncConnectionActive = YES;
         [self postNotification:DataStoreDidUpdateProgressNotification userInfo:nil];
     });
 }
 
 - (void)syncConnectionDidDisconnect:(SyncConnection *)sync {
     dispatch_async(dispatch_get_main_queue(), ^{
-        _issueSyncProgress = 1.0;
+        _syncConnectionActive = NO;
+        _logSyncProgress = -1.0;
+        _spiderProgress = -1.0;
         [self postNotification:DataStoreDidUpdateProgressNotification userInfo:nil];
     });
 }

@@ -60,12 +60,13 @@
     BOOL reachabilityInited = [[Reachability sharedInstance] receivedFirstUpdate];
     
     BOOL offline = !online && reachabilityInited;
-    NSDate *lastUpdated = [[DataStore activeStore] lastUpdated];
-    NSDate *rateLimited = [[DataStore activeStore] rateLimitedUntil];
+    DataStore *store = [DataStore activeStore];
+    NSDate *lastUpdated = [store lastUpdated];
+    NSDate *rateLimited = [store rateLimitedUntil];
     NSString *since = [lastUpdated shortUserInterfaceString];
-    double progress = [[DataStore activeStore] issueSyncProgress];
-    
-    DebugLog(@"lastUpdated: %@ progress: %.0f%%", lastUpdated, progress * 100.0);
+    BOOL connected = [store isSyncConnectionActive];
+    double logProgress = [store logSyncProgress];
+    double spiderProgress = [store spiderProgress];
     
     if (offline) {
         if (since) {
@@ -75,17 +76,29 @@
         }
     } else if (rateLimited) {
         self.stringValue = [NSString stringWithFormat:NSLocalizedString(@"Limited Until %@", nil), [rateLimited shortUserInterfaceString]];
-    } else if (progress == 0.0) {
+    } else if (!connected) {
         if (since) {
             self.stringValue = [NSString stringWithFormat:NSLocalizedString(@"Last Updated %@", nil), since];
         } else {
             self.stringValue = NSLocalizedString(@"Connecting ...", nil);
         }
-    } else if (progress < 1.0) {
-        self.stringValue = [NSString stringWithFormat:NSLocalizedString(@"Syncing %.0f%% ...", nil), (progress * 100.0)];
+    } else if (spiderProgress < 0.0) {
+        self.stringValue = NSLocalizedString(@"Fetching Repo List", nil);
+    } else if (spiderProgress < 1.0) {
+        self.stringValue = [NSString stringWithFormat:NSLocalizedString(@"Loading %.0f%% ...", nil), (spiderProgress * 100.0)];
+    } else if (logProgress < 0.0) {
+        self.stringValue = NSLocalizedString(@"Connecting ...", nil);
+    } else if (logProgress < 1.0) {
+        self.stringValue = [NSString stringWithFormat:NSLocalizedString(@"Syncing %.0f%% ...", nil), (logProgress * 100.0)];
     } else {
         self.stringValue = @"";
     }
+    
+    DebugLog(@"lastUpdated: %@ logProgress: %.0f%% spiderProgress: %.0f%% stringValue:%@", lastUpdated, logProgress * 100.0, spiderProgress * 100.0, self.stringValue);
 }
 
+- (void)mouseUp:(NSEvent *)event {
+    [super mouseUp:event];
+    [self sendAction:self.action to:self.target];
+}
 @end

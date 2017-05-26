@@ -158,7 +158,7 @@
 
 - (void)finishWithAuth:(Auth *)auth {
     AuthController *ac = (AuthController *)self.view.window.delegate;
-    [ac.delegate authController:ac authenticated:auth];
+    [ac.delegate authController:ac authenticated:auth newAccount:YES];
 }
 
 - (void)resetUI {

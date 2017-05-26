@@ -314,13 +314,16 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     }
 }
 
-- (void)authController:(AuthController *)controller authenticated:(Auth *)auth {
+- (void)authController:(AuthController *)controller authenticated:(Auth *)auth newAccount:(BOOL)isNewAccount {
     Trace();
     
     [controller close];
     self.auth = auth;
     
     [self configureDataStoreAndShowUI];
+    if (isNewAccount) {
+        [[self defaultOverviewController] showNetworkStatusSheetIfNeeded:nil];
+    }
     [self rebuildAccountMenu];
     [self showWelcomeIfNeeded];
 }
@@ -389,7 +392,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 didCloseAllForAccountChange:(BOOL)didCloseAll
                contextInfo:(void *)contextInfo {
     if (_nextAuth) {
-        [self authController:nil authenticated:_nextAuth];
+        [self authController:nil authenticated:_nextAuth newAccount:NO];
         _nextAuth = nil;
     } else {
         _auth = nil;

@@ -45,6 +45,7 @@
 #import "HiddenMilestoneViewController.h"
 #import "ProjectsViewController.h"
 #import "ProgressSheet.h"
+#import "NetworkStatusWindowController.h"
 
 //#import "OutboxViewController.h"
 //#import "AttachmentProgressViewController.h"
@@ -137,9 +138,7 @@ static NSString *const TBSearchItemId = @"TBSearch";
 @property NSString *nextNodeToSelect;
 @property BOOL nodeSelectionProgrammaticallyInitiated;
 
-#if !INCOMPLETE
-@property ProblemProgressController *initialSyncController;
-#endif
+@property NetworkStatusWindowController *statusSheet;
 
 @property UnsubscribedRepoController *unsubscribedRepoController;
 @property HiddenRepoViewController *hiddenRepoController;
@@ -2152,6 +2151,15 @@ static NSString *const TBSearchItemId = @"TBSearch";
 
 - (void)makeResultsFirstResponder {
     [[self activeResultsController] takeFocus];
+}
+
+#pragma mark -
+
+- (IBAction)showNetworkStatusSheetIfNeeded:(id)sender {
+    if (!_statusSheet) {
+        _statusSheet = [NetworkStatusWindowController new];
+    }
+    [_statusSheet beginSheetInWindowIfNeeded:_outlineView.window];
 }
 
 @end
