@@ -478,8 +478,8 @@ class AbstractComment extends React.Component {
         }
         
         var found = options.words.
-        filter((w) => w.slice(0, term.length) == term).
-        map(function(w) { return { text: w, hint: hint } })
+          filter((w) => w.slice(0, term.length).toLowerCase() == term.toLowerCase()).
+          map(function(w) { return { text: w, hint: hint } })
         
         if (found.length) {
           var ret = {list: found, from: wordRange.anchor, to: wordRange.head};
@@ -493,7 +493,7 @@ class AbstractComment extends React.Component {
       };
       
       // Show assignees and emoji completions on @ or : press
-      cm.on('change', function(cm, change) {
+      cm.on('change', (cm, change) => {
         if (!cm.hasFocus()) return;
         var cursor = cm.getCursor();
         var mode = cm.getModeAt(cursor);
