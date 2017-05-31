@@ -34,6 +34,7 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
         case ShipErrorCodeInternalInconsistencyError: return NSLocalizedString(@"Internal inconsistency error. Consider removing the contents of ~/Library/RealArtists and restarting the application.", nil);
         case ShipErrorCodeGitCloneError: return NSLocalizedString(@"Unable to clone the repository", nil);
         case ShipErrorCodeCannotMergePRError: return NSLocalizedString(@"The Pull Request branch cannot be cleanly merged into the default repository branch", nil);
+        case ShipErrorCodeCannotUpdatePRBranchError: return NSLocalizedString(@"Unable to update the pull request branch", nil);
         default: return NSLocalizedString(@"Unexpected Error", nil);
     }
 }

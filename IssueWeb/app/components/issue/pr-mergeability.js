@@ -414,6 +414,11 @@ class PRMergeabilityMergeStatus extends React.Component {
     evt.preventDefault();
   }
   
+  updateBranch(evt) {
+    window.updateBranch.postMessage({});
+    evt.preventDefault();
+  }
+  
   render() {
     var state = "ok";
     var msg = "";
@@ -451,6 +456,17 @@ class PRMergeabilityMergeStatus extends React.Component {
         href:`https://github.com/${baseRepo}/settings/branches/${encodeURI(baseBranch)}`
       },
       `View branch protections`);
+    } else if (mergeable_state == 'behind') {
+      state = "error";
+      heading = "Branch out of date";
+      subheading = `${headRef} is behind ${baseBranch}. Merge or rebase to update.`;
+      
+      if (headRepo == baseRepo) {
+        button = h('button', { className:'PRMergeabilityMergeStatusUpdateBranchButton', onClick:this.updateBranch.bind(this) },
+          "Update Branch"
+        );
+      }
+      
     } else if (mergeable || mergeable_state != "dirty") {
       state = "ok";
       heading = "This branch is up-to-date with the base branch";

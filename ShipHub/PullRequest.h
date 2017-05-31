@@ -64,4 +64,6 @@
 
 - (NSProgress *)revertMerge:(NSString *)mergeCommit withCompletion:(void (^)(Issue *prTemplate, NSError *error))completion;
 
+- (NSProgress *)updateBranchFromBaseWithCompletion:(void (^)(NSError *error))completion;
+
 @end

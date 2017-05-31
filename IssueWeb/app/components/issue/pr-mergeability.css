@@ -149,7 +149,8 @@ div.PRMergeabilityActions {
   margin-top: 12px;
 }
 
-button.PRMergeabilityMergeStatusConflictsButton {
+button.PRMergeabilityMergeStatusConflictsButton,
+button.PRMergeabilityMergeStatusUpdateBranchButton {
   padding-top: 4px;
   padding-bottom: 4px;
   padding-left: 8px;

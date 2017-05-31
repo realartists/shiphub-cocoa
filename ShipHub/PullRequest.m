@@ -492,7 +492,7 @@
         return error;
     }
     
-    NSString *remoteURLStr = prInfo[@"base"][@"clone_url"];
+    NSString *remoteURLStr = prInfo[@"base"][@"repo"][@"clone_url"];
     
     if (remoteURLStr) {
         _githubRemoteURL = [NSURL URLWithString:remoteURLStr];
@@ -541,5 +541,88 @@
     
     return progress;
 }
+
+- (NSError *)_updateBranchFromBaseWithProgress:(NSProgress *)progress {
+    Auth *auth = [[DataStore activeStore] auth];
+    RequestPager *pager = [[RequestPager alloc] initWithAuth:auth];
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    NSInteger operations = 0;
+    
+    __block NSDictionary *prInfo = nil;
+    __block NSError *prError = nil;
+    
+    NSString *pullEndpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@", _issue.repository.fullName, _issue.number];
+    [pager fetchSingleObject:[pager get:pullEndpoint] completion:^(NSDictionary *obj, NSError *err) {
+        prError = err;
+        prInfo = obj;
+        dispatch_semaphore_signal(sema);
+    }];
+    operations++;
+    
+    while (operations != 0 && !progress.cancelled) {
+        dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+        operations--;
+        progress.completedUnitCount += 1;
+    }
+    
+    if (progress.cancelled) return [NSError cancelError];
+    
+    NSString *reposDir = [@"~/Library/RealArtists/Ship2/git" stringByExpandingTildeInPath];
+    NSString *dir = [NSString stringWithFormat:@"%@/%@", reposDir, _issue.repository.fullName];
+    
+    NSError *error = nil;
+    GitRepo *repo = [[self class] repoAtPath:dir error:&error];
+    if (error) {
+        return error;
+    }
+    
+    NSString *remoteURLStr = prInfo[@"base"][@"repo"][@"clone_url"];
+    NSString *headURLStr = prInfo[@"head"][@"repo"][@"clone_url"];
+    
+    if (![remoteURLStr isEqualToString:headURLStr]) {
+        return [NSError shipErrorWithCode:ShipErrorCodeCannotUpdatePRBranchError];
+    }
+    
+    if (remoteURLStr) {
+        _githubRemoteURL = [NSURL URLWithString:remoteURLStr];
+    }
+    
+    NSString *baseRefSpec = prInfo[@"base"][@"ref"];
+    NSString *headRefSpec = prInfo[@"head"][@"ref"];
+    
+    error = [repo fetchRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" refs:@[baseRefSpec, headRefSpec] progress:progress];
+    
+    if (error) return error;
+    
+    error = [repo updateRef:headRefSpec toSha:prInfo[@"head"][@"sha"]];
+    
+    if (error) return error;
+    
+    error = [repo mergeBranch:baseRefSpec intoBranch:headRefSpec pushToRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" progress:progress];
+    
+    if (error) return error;
+    
+    return nil;
+}
+
+- (NSProgress *)updateBranchFromBaseWithCompletion:(void (^)(NSError *error))completion
+{
+    NSParameterAssert(completion);
+    
+    NSProgress *progress = [NSProgress indeterminateProgress];
+    progress.completedUnitCount = 0;
+    progress.totalUnitCount = 1;
+    progress.localizedDescription = NSLocalizedString(@"Merging branch", nil);
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        NSError *err = [self _updateBranchFromBaseWithProgress:progress];
+        RunOnMain(^{
+            completion(err);
+        });
+    });
+    
+    return progress;
+}
+
 
 @end

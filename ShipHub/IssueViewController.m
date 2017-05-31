@@ -315,6 +315,10 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     } name:@"editConflicts"];
     
     [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf handleUpdateBranch:msg];
+    } name:@"updateBranch"];
+    
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
         [weakSelf handleRevertMergeCommit:msg];
     } name:@"revertMergeCommit"];
     
@@ -479,6 +483,62 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     NSURL *URL = [[[self issue] fullIdentifier] pullRequestGitHubURL];
     URL = [URL URLByAppendingPathComponent:@"conflicts"];
     [[NSWorkspace sharedWorkspace] openURL:URL];
+}
+
+
+- (void)handleUpdateBranch:(NSDictionary *)msg {
+    static NSString *DefaultsKey = @"SuppressMergeUpdateWarning";
+    
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:DefaultsKey]) {
+        NSAlert *alert = [NSAlert new];
+        
+        alert.messageText = NSLocalizedString(@"Update Branch?", nil);
+        alert.informativeText = [NSString stringWithFormat:NSLocalizedString(@"This action will merge %@ into %@, creating a merge commit in the process.", nil), self.issue.base[@"ref"], self.issue.head[@"ref"]];
+        
+        alert.showsSuppressionButton = YES;
+        
+        [alert addButtonWithTitle:NSLocalizedString(@"Update Branch", nil)];
+        [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+        
+        [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+            if (returnCode == NSAlertFirstButtonReturn) {
+            
+                BOOL suppress = [[alert suppressionButton] state] == NSOnState;
+                if (suppress) {
+                    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:DefaultsKey];
+                }
+                
+                [self updateBranchFromBase];
+            }
+        }];
+    } else {
+        [self updateBranchFromBase];
+    }
+}
+
+- (void)updateBranchFromBase {
+    TrackingProgressSheet *sheet = [TrackingProgressSheet new];
+    [sheet beginSheetInWindow:self.view.window];
+    
+    PullRequest *pr = [[PullRequest alloc] initWithIssue:self.issue];
+    
+    sheet.progress = [pr updateBranchFromBaseWithCompletion:^(NSError *error) {
+        [sheet endSheet];
+        
+        if (error) {
+            if (![error isCancelError]) {
+                NSAlert *alert = [NSAlert new];
+                alert.messageText = NSLocalizedString(@"Failed to merge changes into branch", nil);
+                alert.informativeText = [error localizedDescription];
+                
+                [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+                
+                [alert beginSheetModalForWindow:self.view.window completionHandler:nil];
+            }
+        } else {
+            [self checkForIssueUpdates];
+        }
+    }];
 }
 
 - (void)handleRevertMergeCommit:(NSDictionary *)msg {
