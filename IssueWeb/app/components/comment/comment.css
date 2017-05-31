@@ -77,6 +77,10 @@ div.commentBody h1 {
   padding-bottom: 6px;
   border-bottom: 1px solid #eee;
 }
+div.commentBody h2 {
+  padding-bottom: 4px;
+  border-bottom: 1px solid #eee;
+}
 div.commentBody blockquote {
   margin: 0;
   padding: 0 15px;
