@@ -1,3 +1,10 @@
+function shortenCommittish(committish) {
+  if (committish.length == 40) {
+    return committish.slice(0, 7);
+  }
+  return committish;
+}
+
 export function githubLinkify(owner, repo, text) {
   var issues = /(^|[^\&<>])([\w+\-\d]+)?\/?([\w+\-\d]+)?#(\d+)/g;
   var mentions = /(^| )@([\w+\-\d]+)/g;
@@ -16,11 +23,11 @@ export function githubLinkify(owner, repo, text) {
       return g1 + '<a class="mentionLink" href="https://github.com/' + g2 + '">' + g0.substr(g1.length) + "</a>";
     }).replace(hashes, function(g0, g1, g2, g3) {
       if (g1 && g2) {
-        return '<a class="shaLink" href="https://github.com/' + g1.slice(0, -1) + '/' + g2.slice(0, -1) + '/commit/' + g3 + '">' + g1 + g2 + g3.slice(0, 7) + "</a>";
+        return '<a class="shaLink" href="https://github.com/' + g1.slice(0, -1) + '/' + g2.slice(0, -1) + '/commit/' + g3 + '">' + g1 + g2 + shortenCommittish(g3) + "</a>";
       } else if (g2) {
-        return '<a class="shaLink" href="https://github.com/' + owner + '/' + repo + '/commit/' + g3 + '">' + g2 + g3.slice(0, 7) + "</a>";
+        return '<a class="shaLink" href="https://github.com/' + owner + '/' + repo + '/commit/' + g3 + '">' + g2 + shortenCommittish(g3) + "</a>";
       } else {
-        return '<a class="shaLink" href="https://github.com/' + owner + '/' + repo + '/commit/' + g3 + '">' + g3.slice(0, 7) + "</a>";
+        return '<a class="shaLink" href="https://github.com/' + owner + '/' + repo + '/commit/' + g3 + '">' + shortenCommittish(g3) + "</a>";
       }
     });
   } catch (ex) {
