@@ -309,7 +309,8 @@ class AbstractComment extends React.Component {
         beginEditing:this.beginEditing.bind(this),
         cancelEditing:this.cancelEditing.bind(this),
         deleteComment:this.deleteComment.bind(this),
-        addReaction:this.addReaction.bind(this)
+        addReaction:this.addReaction.bind(this),
+        needsSave:this.needsSave.bind(this)
       });
     } else {
       return h(AddCommentHeader, {
