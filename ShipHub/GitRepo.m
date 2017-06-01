@@ -103,8 +103,10 @@ static int progressCallback(const git_transfer_progress *stats, void *payload) {
         return -1;
     }
     
-    progress.totalUnitCount = (NSInteger)stats->total_objects;
-    progress.completedUnitCount = (NSInteger)stats->received_objects;
+    @autoreleasepool {
+        progress.totalUnitCount = (NSInteger)stats->total_objects;
+        progress.completedUnitCount = (NSInteger)stats->received_objects;
+    }
     return 0;
 }
 
