@@ -69,11 +69,16 @@ function findLatestCommitStatuses(statuses) {
 
 class CommitStatusTableRow extends React.Component {
   render() {
-    return h('tr', {},
-      h('td', {className:'CommitTableStatus'}, h(CommitStatuses, {statuses:[this.props.status]})),
-      h('td', {className:'CommitTableContext'}, this.props.status.context),
-      h('td', {className:'CommitTableStatusDescription'}, this.props.status.status_description),
-      h('td', {className:'CommitTableLink'},
+    return h('div', {className:'CommitStatusTableRow'},
+      h('div', {className:'CommitTableStatus'},
+        h(CommitStatuses, {statuses:[this.props.status]})
+      ),
+      h('div', {className:'CommitTableStatusInfo', title:`${this.props.status.context} — ${this.props.status.status_description}`},
+        h('span', {className:'CommitTableStatusContext'}, this.props.status.context),
+        h('span', {className:'CommitTableStatusContextSeparator'}, ' — '),
+        h('span', {className:'CommitTableStatusDescription'}, this.props.status.status_description)
+      ),
+      h('div', {className:'CommitTableLink'},
         h('a', {href:this.props.status.target_url, className:'fa fa-arrow-circle-right'})
       )
     );
@@ -82,10 +87,8 @@ class CommitStatusTableRow extends React.Component {
 
 class CommitStatusTable extends React.Component {
   render() {
-    return h('table', {className:'CommitStatusTable'},
-      h('tbody', {},
-        this.props.statuses.map(cs => h(CommitStatusTableRow, {key:cs.id, status:cs}))
-      )
+    return h('div', {className:'CommitStatusTable'},
+      this.props.statuses.map(cs => h(CommitStatusTableRow, {key:cs.id, status:cs}))
     );
   }
 }

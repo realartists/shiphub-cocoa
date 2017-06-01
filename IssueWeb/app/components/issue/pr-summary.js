@@ -27,7 +27,7 @@ class PRSummary extends React.Component {
   render() {
     var statuses = this.props.issue.commit_statuses||[];
     var tot = keypath(this.props.issue, "head.sha");
-    statuses = statuses.filter(cs => cs.reference = tot);
+    statuses = statuses.filter(cs => cs.reference == tot);
     statuses = findLatestCommitStatuses(statuses);
     
     var headRepo = keypath(this.props.issue, "head.repo.full_name");

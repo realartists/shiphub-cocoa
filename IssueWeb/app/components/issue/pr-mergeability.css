@@ -157,12 +157,9 @@ button.PRMergeabilityMergeStatusUpdateBranchButton {
   padding-right: 8px;
 }
 
-div.PRMergeabilityStatusesTableContainer {
-  margin-right: -3px;
-  padding-left: 37px;
-  padding-top: 4px;
-  padding-bottom: 4px;
-  border-bottom: 1px dotted #ECECEC;
+div.PRMergeabilityStatusesTableContainer div.CommitStatusTableRow {
+  background-color: #FAFBFC;
+  border-bottom: 1px solid #E1E4E8;
 }
 
 div.PRMergeabilityReviewDismiss {

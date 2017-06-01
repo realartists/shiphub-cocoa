@@ -512,7 +512,7 @@ class PRMergeability extends React.Component {
     var issue = this.props.issue;
     var statuses = this.props.issue.commit_statuses||[];
     var tot = keypath(this.props.issue, "head.sha");
-    statuses = statuses.filter(cs => cs.reference = tot);
+    statuses = statuses.filter(cs => cs.reference == tot);
     statuses = findLatestCommitStatuses(statuses);
   
     return h('div', {className:'BlockItem PRMergeability'},

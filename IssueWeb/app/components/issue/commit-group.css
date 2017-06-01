@@ -120,44 +120,52 @@ span.commitItemMsg {
   
 }
 
-table.PRSummaryCommitStatusTable {
-  margin-left: 80px;
-  width: calc(100% - 80px);
-  min-width: calc(100% - 80px);
-}
-
-table.CommitStatusTable tr {
-  border-bottom: 1px solid #ECECEC;
-}
-
-table.CommitStatusTable tr:last-child {
-  border-bottom: 0px;
-}
-
-table.CommitStatusTable td {
-  vertical-align: top;
-}
-
-td.CommitTableStatus {
+div.CommitStatusTable {
 
 }
 
-td.CommitTableContext {
+div.CommitStatusTableRow {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 7px;
+  padding-right: 7px;
+  display: flex;
   white-space: nowrap;
-  overflow: ellipsis;
-  padding-right: 4px;
+  overflow: hidden;
 }
 
-td.CommitTableStatusDescription {
+div.CommitTableStatus {
+  margin-right: 22px;
+  flex-shrink: 1;
+}
+
+div.CommitTableStatusInfo {
+  flex-grow: 2;
+  flex-shrink: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 8px;
+}
+
+div.CommitTableLink {
+  flex-shrink: 1;
+}
+
+span.CommitTableStatusContext {
+  font-weight: bold;
+}
+
+span.CommitTableStatusDescription,
+span.CommitTableStatusContextSeparator {
   color: #555;
-  width: 100%;
 }
 
-td.CommitTableLink a {
+div.CommitTableLink a {
   color: #BBB;
   text-decoration: none;
 }
 
-td.CommitTableLink a:hover {
+div.CommitTableLink a:hover {
   text-decoration: none;
 }
