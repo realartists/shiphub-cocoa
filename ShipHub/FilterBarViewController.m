@@ -500,6 +500,20 @@
     
     [menu addItem:[NSMenuItem separatorItem]];
     
+    m = [menu addItemWithTitle:NSLocalizedString(@"Issues with All Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
+    m.representedObject = @"ALL";
+    m.target = self;
+    
+    m = [menu addItemWithTitle:NSLocalizedString(@"Issues with Any Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
+    m.representedObject = @"ANY";
+    m.target = self;
+    
+    m = [menu addItemWithTitle:NSLocalizedString(@"Issues with None of the Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
+    m.representedObject = @"NONE";
+    m.target = self;
+
+    [menu addItem:[NSMenuItem separatorItem]];
+    
     NSArray *labels = [[allLabels allObjects] sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
     
     for (NSString *label in labels) {
@@ -525,19 +539,6 @@
         m.image = swatch;
     }
     
-    [menu addItem:[NSMenuItem separatorItem]];
-    
-    m = [menu addItemWithTitle:NSLocalizedString(@"Issues with All Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
-    m.representedObject = @"ALL";
-    m.target = self;
-    
-    m = [menu addItemWithTitle:NSLocalizedString(@"Issues with Any Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
-    m.representedObject = @"ANY";
-    m.target = self;
-    
-    m = [menu addItemWithTitle:NSLocalizedString(@"Issues with None of the Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
-    m.representedObject = @"NONE";
-    m.target = self;
     
     _label.menu = menu;
     
@@ -722,7 +723,7 @@ static BOOL representedObjectEquals(id repr, id val) {
         }
     }];
     
-    NSMenuItem *lastSeparator = _label.menu.itemArray[_label.menu.itemArray.count - 4];
+    NSMenuItem *lastSeparator = _label.menu.itemArray[2];
     lastSeparator.hidden = labels.count == 0;
     
     if (!labels) {
@@ -851,15 +852,14 @@ static BOOL representedObjectEquals(id repr, id val) {
         s.state = NSOnState;
     } else {
         NSArray *itemArray = _label.menu.itemArray;
-        NSUInteger count = itemArray.count;
         
         s.state = s.state == NSOnState ? NSOffState : NSOnState;
         
         NSMenuItem *noFilter = itemArray[0];
         NSMenuItem *unlabeled = itemArray[1];
-        NSMenuItem *all = itemArray[count-3];
-        NSMenuItem *any = itemArray[count-2];
-        NSMenuItem *none = itemArray[count-1];
+        NSMenuItem *all = itemArray[3];
+        NSMenuItem *any = itemArray[4];
+        NSMenuItem *none = itemArray[5];
         
         NSMutableArray *selectedLabels = [NSMutableArray new];
         

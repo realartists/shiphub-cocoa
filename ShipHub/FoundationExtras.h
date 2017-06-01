@@ -126,6 +126,7 @@
 - (NSArray *)arrayByMappingObjects:(id (^)(id obj))transformer;
 - (BOOL)containsObjectMatchingPredicate:(NSPredicate *)predicate;
 - (id)firstObjectMatchingPredicate:(NSPredicate *)predicate;
+- (id)lastObjectMatchingPredicate:(NSPredicate *)predicate;
 
 - (NSArray *)filteredArrayUsingPredicate:(NSPredicate *)predicate limit:(NSUInteger)limit;
 

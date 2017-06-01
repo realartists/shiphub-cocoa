@@ -558,6 +558,16 @@ static inline uint8_t h2b(uint8_t v) {
     return nil;
 }
 
+- (id)lastObjectMatchingPredicate:(NSPredicate *)predicate {
+    NSEnumerator *e = self.reverseObjectEnumerator;
+    for (id obj in e) {
+        if ([predicate evaluateWithObject:obj]) {
+            return obj;
+        }
+    }
+    return nil;
+}
+
 - (NSArray *)filteredArrayUsingPredicate:(NSPredicate *)predicate limit:(NSUInteger)limit {
     if (limit == 0) return nil;
     
