@@ -731,21 +731,22 @@ class App {
       this.scrollToLine(options.line, options.left);
       return;
     }
-  
+    
     var commentBlocks = () => {
       return this.commentRows.map((cr) => {
-        return { diffIdx: cr.diffIdx, startNode: cr.node, endNode: cr.node };
+        return { diffIdx: cr.diffIdx, startNode: cr.node, endNode: cr.node, type:'comment' };
       });
     };
     
-    var codeBlocks = () => {
+    var codeBlocks = (cuts) => {
+      cuts = cuts?new Set(cuts):new Set();
       var l = [];
       var cur = null;
       for (var i = 0; i < this.codeRows.length; i++) {
         var cr = this.codeRows[i];
         if (cr.hunkNum !== undefined) {
-          if (cur == null || cr.hunkNum != cur.hunkNum) {
-            cur = { diffIdx: cr.diffIdx, startNode: cr.node, hunkNum: cr.hunkNum };
+          if (cur == null || cr.hunkNum != cur.hunkNum || cuts.has(cr.diffIdx-1)) {
+            cur = { diffIdx: cr.diffIdx, startNode: cr.node, hunkNum: cr.hunkNum, type:'code' };
             l.push(cur);
           }
           cur.endNode = cr.node;
@@ -769,6 +770,10 @@ class App {
         }
         b.offsetTop = offsetTop;
         b.offsetBottom = offsetBottom;
+        if (b.type == 'comment') {
+          // hack to deal with bottom shadow
+          b.offsetBottom -= 2;
+        }
         return { offsetTop, offsetBottom };
     };
   
@@ -778,15 +783,17 @@ class App {
     } else if (options.type == 'hunk') {
       blocks = codeBlocks();
     } else {
-      blocks = commentBlocks().concat(codeBlocks());
+      var comments = commentBlocks();
+      var code = codeBlocks(comments.map(c => c.diffIdx));
+      blocks = comments.concat(code);
       blocks.sort((a, b) => {
         if (a.diffIdx < b.diffIdx) return -1;
         else if (a.diffIdx > b.diffIdx) return 1;
         else {
           // code row comes before comment row
-          if ("hunkNum" in a && !("hunkNum" in b)) {
+          if (a.type == 'code' && b.type != 'code') {
             return -1;
-          } else if (!("hunkNum" in a) && "hunkNum" in b) {
+          } else if (a.type != 'code' && b.type == 'code') {
             return 1;
           } else {
             return 0;
@@ -811,7 +818,7 @@ class App {
         var b = blocks[i];
         computeBlockBounds(b);
         
-        if (b.offsetBottom < lineTop) {
+        if (b.offsetBottom <= lineTop) {
           above.push(i);
         } else if (b.offsetTop < lineBottom) {
           onscreen.push(i);
