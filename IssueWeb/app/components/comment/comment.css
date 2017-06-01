@@ -202,6 +202,10 @@ div.comment .addCommentLabel {
   font-size: 9pt;
 }
 
+.CodeMirrorContainerTooBig .CodeMirror {
+  height: 300px;
+}
+
 .CodeMirror pre.CodeMirror-placeholder { color: #999; }
 
 /* Use system highlight color for selected text */

@@ -267,8 +267,29 @@ class AbstractComment extends React.Component {
   
   renderCodemirror() {
     var isNewIssue = this.isNewIssue();
+    
+    var code = this.state.code;
+    var tooManyLines = 100;
+    var tooBig = code.length > 16000;
+    if (!tooBig) {
+      var i = 0;
+      var lineCount = 0;
+      while (i < code.length) {
+        i = code.indexOf("\n", i);
+        if (i == -1) break;
+        i++;
+        lineCount++;
+        if (lineCount == tooManyLines) break;
+      }
+      tooBig = lineCount == tooManyLines;
+    }
+    
+    var containerClass = 'CodeMirrorContainer';
+    if (tooBig) {
+      containerClass += ' CodeMirrorContainerTooBig';
+    }
   
-    return h('div', {className: 'CodeMirrorContainer', onClick:this.focusCodemirror.bind(this)},
+    return h('div', {className: containerClass, onClick:this.focusCodemirror.bind(this)},
       h(Codemirror, {
         ref: 'codemirror',
         value: this.state.code,
@@ -279,7 +300,7 @@ class AbstractComment extends React.Component {
           placeholder: (isNewIssue ? "Describe the issue" : "Leave a comment"),
           cursorHeight: 0.85,
           lineWrapping: true,
-          viewportMargin: Infinity
+          viewportMargin: tooBig?10:Infinity
         }
       })
     )
