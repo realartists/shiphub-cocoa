@@ -83,7 +83,7 @@
             self.stringValue = NSLocalizedString(@"Connecting ...", nil);
         }
     } else if (spiderProgress < 0.0) {
-        self.stringValue = NSLocalizedString(@"Fetching Repo List", nil);
+        self.stringValue = NSLocalizedString(@"Fetching Repos", nil);
     } else if (spiderProgress < 1.0) {
         self.stringValue = [NSString stringWithFormat:NSLocalizedString(@"Loading %.0f%% ...", nil), (spiderProgress * 100.0)];
     } else if (logProgress < 0.0) {

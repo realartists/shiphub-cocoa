@@ -75,7 +75,7 @@
         _progress.indeterminate = YES;
         [_progress startAnimation:nil];
     } else if (spiderProgress < 0.0) {
-        _subtitle.stringValue = NSLocalizedString(@"Fetching repository list", nil);
+        _subtitle.stringValue = NSLocalizedString(@"Fetching repository metadata", nil);
         _progress.indeterminate = YES;
         [_progress startAnimation:nil];
     } else if (spiderProgress < 1.0) {
