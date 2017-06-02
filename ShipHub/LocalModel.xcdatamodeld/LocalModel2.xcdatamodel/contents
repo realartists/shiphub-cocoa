@@ -280,6 +280,7 @@
         <attribute name="issueTemplate" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="private" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="pullRequestTemplate" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="repoDescription" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="shipNeedsWebhookHelp" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="assignees" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="assignable" inverseEntity="LocalAccount" syncable="YES"/>
@@ -308,14 +309,14 @@
         <element name="LocalMilestone" positionX="0" positionY="0" width="128" height="225"/>
         <element name="LocalNotification" positionX="9" positionY="153" width="128" height="165"/>
         <element name="LocalPRComment" positionX="9" positionY="153" width="128" height="270"/>
+        <element name="LocalPRHistory" positionX="9" positionY="153" width="128" height="75"/>
         <element name="LocalPriority" positionX="0" positionY="0" width="128" height="90"/>
         <element name="LocalProject" positionX="9" positionY="153" width="128" height="180"/>
         <element name="LocalPRReview" positionX="18" positionY="162" width="128" height="180"/>
         <element name="LocalPullRequest" positionX="9" positionY="153" width="128" height="330"/>
         <element name="LocalQuery" positionX="9" positionY="153" width="128" height="105"/>
         <element name="LocalReaction" positionX="9" positionY="153" width="128" height="165"/>
-        <element name="LocalRepo" positionX="0" positionY="0" width="128" height="300"/>
+        <element name="LocalRepo" positionX="0" positionY="0" width="128" height="315"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
-        <element name="LocalPRHistory" positionX="9" positionY="153" width="128" height="75"/>
     </elements>
 </model>

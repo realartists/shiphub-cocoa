@@ -18,6 +18,7 @@
 @dynamic identifier;
 @dynamic name;
 @dynamic issueTemplate;
+@dynamic pullRequestTemplate;
 @dynamic private;
 @dynamic disabled;
 @dynamic repoDescription;

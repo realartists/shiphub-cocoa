@@ -24,6 +24,7 @@
         _hidden = lr.hidden != nil;
         _name = lr.name;
         _issueTemplate = lr.issueTemplate;
+        _pullRequestTemplate = lr.pullRequestTemplate;
         _private = [lr.private boolValue];
         _shipNeedsWebhookHelp = [lr.shipNeedsWebhookHelp boolValue];
         _owner = owner;

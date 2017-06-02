@@ -236,7 +236,11 @@
         _originator = [Account me];
         _labels = @[];
         _assignees = @[];
-        _body = [body copy];
+        if ([repo.pullRequestTemplate trim].length) {
+            _body = [repo.pullRequestTemplate copy];
+        } else {
+            _body = [body copy];
+        }
         _title = [title copy] ?: @"";
         _repository = repo;
         _pullRequest = YES;

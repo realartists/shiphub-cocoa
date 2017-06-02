@@ -141,8 +141,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  13: Break out PRs into their own entity
  14: Introduce LocalCommitComment
  15: Introduce LocalPRHistory
+ 16: realartists/shiphub-cocoa#560 [Client] Add support for PULL_REQUEST_TEMPLATE
  */
-static const NSInteger CurrentLocalModelVersion = 15;
+static const NSInteger CurrentLocalModelVersion = 16;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
