@@ -19,7 +19,7 @@ var CommentHeader = React.createClass({
     }
     
     var pending = this.props.comment.pending_id && !this.props.comment.pending_id.startsWith("single.");
-    var edited = !pending && this.props.comment.created_at != this.props.comment.updated_at;
+    var edited = !pending && (new Date(this.props.comment.updated_at) - new Date(this.props.comment.created_at) > 5000);
     return h('div', {className:'commentHeader'},
       h(AvatarIMG, {user:user, size:32}),
       h('span', {className:'commentAuthor'}, user.login),
