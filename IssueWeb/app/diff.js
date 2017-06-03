@@ -904,7 +904,7 @@ class App {
     }
     
     if ("str" in opts) {
-      if (opts.str.length == 0) opts.str = null;
+      if (opts.str.length < 2) opts.str = null;
       this.searchState = { str: opts.str, i: null };
     } else if (opts.action && this.searchState) {
       if (opts.action == "next") {
@@ -913,6 +913,8 @@ class App {
         this.searchState.i -= 1;
       }
     }
+    
+    var maxMatches = 500;
     
     if (this.searchState) {
       var totalMatches = 0;
@@ -945,7 +947,7 @@ class App {
         for (var j = 0; j < numMatches; j++) {
           matchIdxToCodeRow[totalMatches+j] = i;
         }
-        totalMatches += numMatches;
+        totalMatches += numMatches;        
       }
       
       if (this.searchState.i === null) {
