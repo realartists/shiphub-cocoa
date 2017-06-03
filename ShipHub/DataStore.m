@@ -142,8 +142,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  14: Introduce LocalCommitComment
  15: Introduce LocalPRHistory
  16: realartists/shiphub-cocoa#560 [Client] Add support for PULL_REQUEST_TEMPLATE
+ 17: Cascade delete of PRReview.comments
  */
-static const NSInteger CurrentLocalModelVersion = 16;
+static const NSInteger CurrentLocalModelVersion = 17;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;

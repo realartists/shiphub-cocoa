@@ -66,6 +66,7 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
 @property PRDiffViewController *diffController;
 @property PRReview *pendingReview;
 @property NSMutableArray *pendingComments;
+@property NSMutableSet<PendingCommentKey *> *pendingCommentGraveyard;
 @property NSTimer *pendingReviewTimer;
 @property GitDiffFile *selectedFile;
 
@@ -529,6 +530,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     _statusItem.stringValue = [NSString stringWithFormat:NSLocalizedString(@"Loading changes for %@ %@ …", nil), issue.fullIdentifier, issue.title];
     
     self.pendingComments = [NSMutableArray new];
+    self.pendingCommentGraveyard = nil;
     
     TrackingProgressSheet *sheet = [TrackingProgressSheet new];
     [sheet beginSheetInWindow:self.view.window];
@@ -588,6 +590,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 - (void)pendingReviewDidDelete:(NSNotification *)note {
     _pendingReview = nil;
     _pendingComments = [NSMutableArray new];
+    _pendingCommentGraveyard = nil;
     _inReview = NO;
     [self reloadComments];
 }
@@ -642,7 +645,12 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     
     NSMutableArray *allPending = [_pendingComments mutableCopy];
     for (PRComment *prc in _pendingReview.comments) {
-        [allPending addObject:[[PendingPRComment alloc] initWithPRComment:prc]];
+        PendingPRComment *pprc = [[PendingPRComment alloc] initWithPRComment:prc];
+        if (![self commentInGraveyard:pprc]) {
+            [allPending addObject:pprc];
+        } else {
+            DebugLog(@"Ignoring comment in graveyard: %@", pprc);
+        }
     }
     
     NSMutableArray *pendingComments = [NSMutableArray new];
@@ -717,6 +725,30 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 }
 
 #pragma mark - Comments and Reviews
+
+- (BOOL)commentInGraveyard:(PendingPRComment *)prc {
+    NSParameterAssert(prc);
+    
+    PendingCommentKey *key = [[PendingCommentKey alloc] initWithPendingPRComment:prc];
+    return [_pendingCommentGraveyard containsObject:key];
+}
+
+- (void)removeCommentFromGraveyard:(PendingPRComment *)prc {
+    NSParameterAssert(prc);
+    
+    PendingCommentKey *key = [[PendingCommentKey alloc] initWithPendingPRComment:prc];
+    [_pendingCommentGraveyard removeObject:key];
+}
+
+- (void)addCommentToGraveyard:(PendingPRComment *)prc {
+    NSParameterAssert(prc);
+    
+    PendingCommentKey *key = [[PendingCommentKey alloc] initWithPendingPRComment:prc];
+    if (!_pendingCommentGraveyard) {
+        _pendingCommentGraveyard = [NSMutableSet new];
+    }
+    [_pendingCommentGraveyard addObject:key];
+}
 
 - (NSArray *)allComments {
     return [_pr.prComments arrayByAddingObjectsFromArray:_pendingComments];
@@ -870,6 +902,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
         queueReviewComment:(PendingPRComment *)comment
 {
     _inReview = YES;
+    [self removeCommentFromGraveyard:comment];
     [_pendingComments addObject:comment];
     [self reloadComments];
     [self scrollToComment:comment];
@@ -879,6 +912,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 - (void)diffViewController:(PRDiffViewController *)vc
           addReviewComment:(PendingPRComment *)comment
 {
+    [self removeCommentFromGraveyard:comment];
     [_pendingComments addObject:comment];
     [self reloadComments];
     [self scrollToComment:comment];
@@ -909,6 +943,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
             return [[obj pendingId] isEqualToString:[(id)comment pendingId]];
         }];
         if (existingIdx != NSNotFound) {
+            [self addCommentToGraveyard:_pendingComments[existingIdx]];
+            [self removeCommentFromGraveyard:(PendingPRComment *)comment];
             [_pendingComments replaceObjectAtIndex:existingIdx withObject:comment];
             [self reloadComments];
             [self scheduleSavePendingReview];
@@ -946,6 +982,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
             return [[obj pendingId] isEqualToString:[(id)comment pendingId]];
         }];
         if (existingIdx != NSNotFound) {
+            [self addCommentToGraveyard:_pendingComments[existingIdx]];
             [_pendingComments removeObjectAtIndex:existingIdx];
             [self reloadComments];
             [self scheduleSavePendingReview];
