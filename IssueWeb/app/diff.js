@@ -584,7 +584,7 @@ class App {
       // that intersects the selection, including prefix " ", "+", "-"
       
       var selectedRows = this.codeRows.filter((r) => sel.containsNode(r.node, true /* allow partial containment */));
-      if (selectedRows <= 1) {
+      if (selectedRows.length <= 1) {
         var col = 'unified-codecol';
         text = filterSelection(this.table, (node) => {
           if (node.tagName == 'TR' || node.tagName == 'TABLE') {
