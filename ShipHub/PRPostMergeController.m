@@ -41,21 +41,9 @@
         _deleteButton.state = NSOffState;
         _deleteButton.hidden = NO;
         
-        NSMutableAttributedString *infoStr = [NSMutableAttributedString new];
+        NSString *infoStr = [NSString stringWithFormat:NSLocalizedString(@"The \"%@\" branch can safely be deleted.", nil), issue.head[@"ref"]];
         
-        NSDictionary *baseAttrs = @{ NSFontAttributeName: [NSFont systemFontOfSize:13.0] };
-        NSDictionary *refAttrs = @{ NSFontAttributeName: [NSFont fontWithName:@"menlo" size:12.0] };
-        
-        [infoStr appendAttributes:baseAttrs format:NSLocalizedString(@"The ", nil)];
-        [infoStr appendAttributes:refAttrs format:@"%@", issue.head[@"ref"]];
-        [infoStr appendAttributes:baseAttrs format:NSLocalizedString(@" branch can be safely deleted.", nil)];
-        
-        
-        NSMutableParagraphStyle *para = [NSMutableParagraphStyle new];
-        para.lineBreakMode = NSLineBreakByTruncatingTail;
-        [infoStr addAttribute:NSParagraphStyleAttributeName value:para range:NSMakeRange(0, infoStr.length)];
-        
-        _infoLabel.attributedStringValue = infoStr;   
+        _infoLabel.stringValue = infoStr;
     } else {
         _infoLabel.hidden = YES;
         _deleteButton.state = NSOffState;
