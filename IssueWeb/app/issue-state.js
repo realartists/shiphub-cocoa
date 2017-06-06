@@ -689,7 +689,7 @@ class IssueState {
     }
     
     // eagerly patch the issue
-    this.issue.requested_reviewers = (this.issue.reviewers||[]).filter(u => u.id != user.id);
+    this.issue.requested_reviewers = (this.issue.requested_reviewers||[]).filter(u => u.id != user.id);
     this._renderState();
     
     var url = `https://api.github.com/repos/${this.repoOwner}/${this.repoName}/pulls/${this.issue.number}/requested_reviewers`;
