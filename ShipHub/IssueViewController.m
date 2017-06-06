@@ -36,6 +36,7 @@
 #import "PRPostMergeController.h"
 #import "PRReviewChangesViewController.h"
 #import "PRReview.h"
+#import "RateDampener.h"
 
 #import <WebKit/WebKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
@@ -54,6 +55,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     NSString *_lastStateJSON;
 }
 
+@property RateDampener *checkForUpdatesDampener;
 @property NSTimer *markAsReadTimer;
 @property IBOutlet MarkdownFormattingController *markdownFormattingController;
 
@@ -200,10 +202,19 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 }
 
 - (void)checkForIssueUpdates {
-    if (_issue.fullIdentifier) {
-        [self noteCheckedForIssueUpdates];
-        [[DataStore activeStore] checkForIssueUpdates:_issue.fullIdentifier];
+    if (!_checkForUpdatesDampener) {
+        _checkForUpdatesDampener = [RateDampener new];
     }
+    
+    __weak __typeof(self) weakSelf = self;
+    
+    [_checkForUpdatesDampener addBlock:^{
+        IssueViewController *strongSelf = weakSelf;
+        if (strongSelf.issue.fullIdentifier) {
+            [strongSelf noteCheckedForIssueUpdates];
+            [[DataStore activeStore] checkForIssueUpdates:strongSelf.issue.fullIdentifier];
+        }
+    }];
 }
 
 - (void)keyWindowDidChange:(NSNotification *)note {
@@ -413,6 +424,9 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
             [self updateTitle];
             [self scheduleNeedsSaveTimer];
         }
+    }];
+    [proxy setRefreshTimelineHandler:^{
+        [self checkForIssueUpdates];
     }];
     [proxy resume];
 }

@@ -181,11 +181,22 @@
     resp = [JSON stringifyObject:resp withNameTransformer:[JSON underbarsAndIDNameTransformer]];
     
     DebugLog(@"resp:%@ err:%@", resp, err);
+    
+    NSDictionary *opts = _request[@"opts"];
+    NSString *method = opts[@"method"];
+    
+    BOOL isMutation = [method length] && !([method isEqualToString:@"GET"] || [method isEqualToString:@"HEAD"]);
+    
     RunOnMain(^{
         APIProxyCompletion c = self.completion;
         if (c) {
             c(resp, err);
         }
+        APIProxyRefreshTimeline t = self.refreshTimelineHandler;
+        if (isMutation && !err && t) {
+            t();
+        }
+        self.refreshTimelineHandler = nil;
         self.completion = nil;
     });
 }

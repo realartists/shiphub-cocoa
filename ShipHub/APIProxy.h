@@ -14,11 +14,14 @@ typedef void (^APIProxyCompletion)(NSString *jsonResult, NSError *err);
 
 typedef void (^APIProxyUpdatedIssue)(Issue *issue);
 
+typedef void (^APIProxyRefreshTimeline)();
+
 @interface APIProxy : NSObject
 
 + (instancetype)proxyWithRequest:(NSDictionary *)request completion:(APIProxyCompletion)completion;
 
 @property (copy) APIProxyUpdatedIssue updatedIssueHandler;
+@property (copy) APIProxyRefreshTimeline refreshTimelineHandler;
 
 - (void)resume;
 
