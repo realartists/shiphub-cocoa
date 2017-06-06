@@ -74,9 +74,11 @@ class CommitStatusTableRow extends React.Component {
         h(CommitStatuses, {statuses:[this.props.status]})
       ),
       h('div', {className:'CommitTableStatusInfo', title:`${this.props.status.context} — ${this.props.status.status_description}`},
-        h('span', {className:'CommitTableStatusContext'}, this.props.status.context),
-        h('span', {className:'CommitTableStatusContextSeparator'}, ' — '),
-        h('span', {className:'CommitTableStatusDescription'}, this.props.status.status_description)
+        h('a', {href:this.props.status.target_url},
+          h('span', {className:'CommitTableStatusContext'}, this.props.status.context),
+          h('span', {className:'CommitTableStatusContextSeparator'}, ' — '),
+          h('span', {className:'CommitTableStatusDescription'}, this.props.status.status_description)
+        )
       ),
       h('div', {className:'CommitTableLink'},
         h('a', {href:this.props.status.target_url, className:'fa fa-arrow-circle-right'})

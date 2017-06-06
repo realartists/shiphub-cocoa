@@ -148,12 +148,21 @@ div.CommitTableStatusInfo {
   padding-right: 8px;
 }
 
+div.CommitTableStatusInfo a {
+  text-decoration: none;
+}
+
+div.CommitTableStatusInfo a:hover {
+  text-decoration: none;
+}
+
 div.CommitTableLink {
   flex-shrink: 1;
 }
 
 span.CommitTableStatusContext {
   font-weight: bold;
+  color: #555;
 }
 
 span.CommitTableStatusDescription,
