@@ -11,6 +11,8 @@
 @class GitCommit;
 @class GitFileTree;
 @class GitRepo;
+@class GitFileSearch;
+@class GitFileSearchResult;
 
 typedef NS_ENUM(NSInteger, DiffFileOperation) {
     DiffFileOperationAdded = 1,
@@ -86,5 +88,11 @@ typedef void (^GitDiffFileBinaryCompletion)(NSData *oldFile, NSData *newFile, NS
 @property (readonly) NSString *headRev;
 
 - (GitDiff *)copyByFilteringFilesWithPredicate:(NSPredicate *)predicate;
+
+// Text search allFiles
+// handler is called in chunks with subsets of the overall results.
+// handler will be called with a nil result when finished.
+// search can be cancelled via the returned progress object.
+- (NSProgress *)performTextSearch:(GitFileSearch *)search handler:(void (^)(NSArray<GitFileSearchResult *> *result))handler;
 
 @end

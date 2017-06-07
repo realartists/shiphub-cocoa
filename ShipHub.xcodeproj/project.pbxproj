@@ -38,6 +38,7 @@
 		1A012ED41D46EC45006CE5DF /* LocalQuery+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A012EAD1D443EBD006CE5DF /* LocalQuery+CoreDataProperties.m */; };
 		1A012ED51D46EC55006CE5DF /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
 		1A012ED61D46EC91006CE5DF /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2217B91C7E7B92006460E2 /* SocketRocket.framework */; };
+		1A04174B1EE850A6008E7AC3 /* GitFileSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A04174A1EE850A6008E7AC3 /* GitFileSearch.m */; };
 		1A069E9D1DB7EC03009085AF /* IssueWeb2Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A069E9C1DB7EC03009085AF /* IssueWeb2Controller.m */; };
 		1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59CD1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
@@ -523,6 +524,8 @@
 		1A012ECA1D46DD4B006CE5DF /* ServerChooser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerChooser.h; sourceTree = "<group>"; };
 		1A012ECB1D46DD4B006CE5DF /* ServerChooser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerChooser.m; sourceTree = "<group>"; };
 		1A012ECC1D46DD4B006CE5DF /* ServerChooser.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ServerChooser.xib; sourceTree = "<group>"; };
+		1A0417491EE850A6008E7AC3 /* GitFileSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GitFileSearch.h; sourceTree = "<group>"; };
+		1A04174A1EE850A6008E7AC3 /* GitFileSearch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GitFileSearch.m; sourceTree = "<group>"; };
 		1A069E9B1DB7EC03009085AF /* IssueWeb2Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWeb2Controller.h; sourceTree = "<group>"; };
 		1A069E9C1DB7EC03009085AF /* IssueWeb2Controller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWeb2Controller.m; sourceTree = "<group>"; };
 		1A069E9F1DB7EC4D009085AF /* IssueWeb2ControllerInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IssueWeb2ControllerInternal.h; sourceTree = "<group>"; };
@@ -1534,6 +1537,8 @@
 				1A3D34591DB0147A00CDF167 /* NSString+Git.m */,
 				1AF975731E92D99100914460 /* NSData+Git.h */,
 				1AF975741E92D99100914460 /* NSData+Git.m */,
+				1A0417491EE850A6008E7AC3 /* GitFileSearch.h */,
+				1A04174A1EE850A6008E7AC3 /* GitFileSearch.m */,
 			);
 			name = Git;
 			sourceTree = "<group>";
@@ -2216,6 +2221,7 @@
 				1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */,
 				1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */,
 				1A694B3C1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */,
+				1A04174B1EE850A6008E7AC3 /* GitFileSearch.m in Sources */,
 				1A5604E11CD7FFC100ACF0DF /* AttachmentManager.m in Sources */,
 				1A012E971D3EAC8E006CE5DF /* CompletingTextField.m in Sources */,
 				1A48BB531D80DED6001E761E /* IssueNotification.m in Sources */,

@@ -13,7 +13,10 @@
 #import "NSError+Git.h"
 #import "NSString+Git.h"
 #import "GitRepoInternal.h"
+#import "GitFileSearch.h"
 #import <git2.h>
+
+static NSRegularExpression *hunkStartRE();
 
 @interface GitDiffFile ()
 
@@ -34,6 +37,8 @@
 
 @property GitRepo *repo;
 @property (getter=isBinary) BOOL binary;
+
+- (void)_loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion completionQueue:(dispatch_queue_t)completionQueue;
 
 @end
 
@@ -258,6 +263,159 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     return [[GitDiff alloc] initWithFiles:[self.allFiles filteredArrayUsingPredicate:predicate] baseRev:self.baseRev headRev:self.headRev];
 }
 
+static NSArray<GitFileSearchResult *> *_searchFile(NSRegularExpression *re, GitDiffFile *file, NSString *newContents) {
+    __block NSMutableArray *results;
+    __block NSInteger lineNumber = 0;
+    
+    [newContents enumerateLinesUsingBlock:^(NSString * _Nonnull line, BOOL * _Nonnull stop) {
+        NSArray *matches = [re matchesInString:line options:0 range:NSMakeRange(0, line.length)];
+        if (matches.count) {
+            GitFileSearchResult *result = [GitFileSearchResult new];
+            result.file = file;
+            result.matchedResults = matches;
+            result.matchedLineNumber = lineNumber;
+            result.matchedLineText = line;
+            if (!results) {
+                results = [NSMutableArray new];
+            }
+            [results addObject:result];
+        }
+        lineNumber++;
+    }];
+    
+    return results;
+}
+
+static NSArray<GitFileSearchResult *> *_searchDiff(NSRegularExpression *re, GitDiffFile *file, NSString *patch) {
+    NSRegularExpression *hunkStart = hunkStartRE();
+
+    __block NSMutableArray *results = nil;
+    __block NSInteger lineNumber = -1;
+
+    [patch enumerateLinesUsingBlock:^(NSString * _Nonnull line, BOOL * _Nonnull stop) {
+        NSTextCheckingResult *match = [hunkStart firstMatchInString:line options:0 range:NSMakeRange(0, line.length)];
+        
+        if (lineNumber == -1 && !match) {
+            // continue, need to get to the first hunk start before we can do anything
+        } else if (match) {
+            NSRange gr3 = [match rangeAtIndex:3];
+            
+            NSInteger rightStartLine = gr3.location != NSNotFound ? [[line substringWithRange:gr3] integerValue] : 1;
+            lineNumber = rightStartLine - 1; // 0 index our line number
+        } else if ([line hasPrefix:@"-"]) {
+            // continue, don't care about deleted lines here
+        } else if ([line hasPrefix:@" "]) {
+            // context line, don't search it, but need to increment lineNumber
+            lineNumber++;
+        } else {
+            // a searchable line
+            NSString *subline = [line substringFromIndex:1];
+            NSArray *matches = [re matchesInString:subline options:0 range:NSMakeRange(0, subline.length)];
+            if (matches.count) {
+                GitFileSearchResult *result = [GitFileSearchResult new];
+                result.file = file;
+                result.matchedResults = matches;
+                result.matchedLineNumber = lineNumber;
+                result.matchedLineText = subline;
+                if (!results) {
+                    results = [NSMutableArray new];
+                }
+                [results addObject:result];
+            }
+            lineNumber++;
+        }
+    }];
+    
+    return results;
+}
+
+- (NSProgress *)performTextSearch:(GitFileSearch *)search handler:(void (^)(NSArray<GitFileSearchResult *> *result))handler {
+    // Concurrent processing in 2 parallel pipelines:
+    //   Load: read contents of GitDiffFiles from git
+    //   Search: search contents of files
+    // Finished when there are no more active load or search jobs
+    
+    dispatch_queue_t callbackQ = dispatch_get_main_queue();
+    dispatch_queue_t workQ = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_queue_t progressQueue = dispatch_queue_create(NULL, NULL);
+    __block NSInteger completed = 0;
+    
+    NSProgress *progress = [NSProgress progressWithTotalUnitCount:_allFiles.count];
+    
+    BOOL searchDiffOnly = (search.flags & GitFileSearchFlagAddedLinesOnly) != 0;
+    
+    NSString *pattern;
+    if (search.flags & GitFileSearchFlagRegex) {
+        pattern = search.query;
+    } else {
+        pattern = [NSRegularExpression escapedPatternForString:search.query];
+    }
+    
+    NSRegularExpressionOptions reOpts = 0;
+    reOpts |= (search.flags & GitFileSearchFlagCaseInsensitive) ? NSRegularExpressionCaseInsensitive : 0;
+    
+    NSError *reError = nil;
+    NSRegularExpression *re = [[NSRegularExpression alloc] initWithPattern:pattern options:reOpts error:&reError];
+    
+    if (reError) {
+        DebugLog(@"Cannot make regular expression: %@", reError);
+        dispatch_async(callbackQ, ^{
+            handler(nil);
+        });
+    }
+    
+    void (^handlerProxy)(NSArray<GitFileSearchResult *> *) = ^(NSArray<GitFileSearchResult *> *result) {
+        if (!progress.cancelled) {
+            handler(result);
+        }
+    };
+    
+    dispatch_block_t incrementProgress = ^{
+        dispatch_sync(progressQueue, ^{
+            progress.completedUnitCount = ++completed;
+        });
+    };
+    
+    dispatch_async(workQ, ^{
+        dispatch_group_t group = dispatch_group_create(); // tracks completion
+        
+        for (GitDiffFile *file in _allFiles) {
+            if (progress.cancelled) break;
+            
+            dispatch_group_enter(group);
+            [file _loadContentsAsText:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
+                if (!progress.cancelled) {
+                    dispatch_group_async(group, workQ, ^{
+                        NSArray *fileResults;
+                        if (searchDiffOnly) {
+                            fileResults = _searchDiff(re, file, patch);
+                        } else {
+                            fileResults = _searchFile(re, file, newFile);
+                        }
+                        
+                        if ([fileResults count]) {
+                            dispatch_async(callbackQ, ^{
+                                handlerProxy(fileResults);
+                            });
+                        }
+                        incrementProgress();
+                    });
+                }
+                dispatch_group_leave(group); // pair the initial load
+            } asBinary:^(NSData *oldFile, NSData *newFile, NSError *error) {
+                incrementProgress();
+                dispatch_group_leave(group); // we don't search binary files
+            } completionQueue:workQ];
+        }
+        
+        dispatch_group_notify(group, callbackQ, ^{
+            handlerProxy(nil);
+        });
+    });
+    
+    return progress;
+}
+
 @end
 
 @implementation GitFileTree
@@ -309,10 +467,11 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     return f;
 }
 
-- (void)loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion
+- (void)_loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion completionQueue:(dispatch_queue_t)completionQueue
 {
     NSParameterAssert(textCompletion);
     NSParameterAssert(binaryCompletion);
+    NSParameterAssert(completionQueue);
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         __block git_submodule *submodule = NULL;
@@ -368,7 +527,7 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
             
             patchText = @"";
             
-            RunOnMain(^{
+            dispatch_async(completionQueue, ^{
                 textCompletion(oldText, newText, patchText, nil);
             });
         } else {
@@ -406,7 +565,7 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
                 patchText = [NSString stringWithGitBuf:&patchBuf];
             }
             
-            RunOnMain(^{
+            dispatch_async(completionQueue, ^{
                 if (binary) {
                     binaryCompletion(oldData, newData, nil);
                 } else {
@@ -421,12 +580,13 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     });
 }
 
+- (void)loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion
+{
+    [self _loadContentsAsText:textCompletion asBinary:binaryCompletion completionQueue:dispatch_get_main_queue()];
+}
+
 static BOOL matchingHunkStart(NSString *a, NSString *b) {
-    static dispatch_once_t onceToken;
-    static NSRegularExpression *re;
-    dispatch_once(&onceToken, ^{
-        re = [NSRegularExpression regularExpressionWithPattern:@"^@@ \\-(\\d+)(?:,(\\d+))? \\+(\\d+)(?:,(\\d+))? @@" options:0 error:NULL];
-    });
+    NSRegularExpression *re = hunkStartRE();
     
     NSTextCheckingResult *ma = [re firstMatchInString:a options:0 range:NSMakeRange(0, a.length)];
     if (!ma) return NO;
@@ -593,3 +753,12 @@ static NSArray *patchMapping(NSString *a, NSString *b) {
 }
 
 @end
+
+static NSRegularExpression *hunkStartRE() {
+    static dispatch_once_t onceToken;
+    static NSRegularExpression *re;
+    dispatch_once(&onceToken, ^{
+        re = [NSRegularExpression regularExpressionWithPattern:@"^@@ \\-(\\d+)(?:,(\\d+))? \\+(\\d+)(?:,(\\d+))? @@" options:0 error:NULL];
+    });
+    return re;
+}
