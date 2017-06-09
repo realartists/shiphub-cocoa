@@ -392,6 +392,9 @@ static NSArray<GitFileSearchResult *> *_searchDiff(NSRegularExpression *re, GitD
                         } else {
                             fileResults = _searchFile(re, file, newFile);
                         }
+                        for (GitFileSearchResult *result in fileResults) {
+                            result.search = search;
+                        }
                         
                         if ([fileResults count]) {
                             dispatch_async(callbackQ, ^{

@@ -26,6 +26,7 @@ typedef NS_OPTIONS(NSUInteger, GitFileSearchFlags) {
 @interface GitFileSearchResult : NSObject
 
 @property GitDiffFile *file;
+@property GitFileSearch *search;
 @property NSString *matchedLineText;
 @property NSArray<NSTextCheckingResult *> *matchedResults; // ranges within matchedLineText
 @property NSInteger matchedLineNumber; // in newFile

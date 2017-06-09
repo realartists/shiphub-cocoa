@@ -633,6 +633,12 @@ CA
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Pull Request" id="F7c-rh-MFi">
                         <items>
+                            <menuItem title="Find in Files" keyEquivalent="f" id="8Zh-64-Wlz">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                <connections>
+                                    <action selector="findInFiles:" target="-1" id="lsf-gu-0gw"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Filter in Navigator" keyEquivalent="j" id="HXJ-1d-VNb">
                                 <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                 <connections>

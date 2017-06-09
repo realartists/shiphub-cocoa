@@ -314,6 +314,10 @@ static BOOL differentiateWithoutColor() {
 
 #pragma mark - Text Finding
 
+- (void)hideFindController {
+    [_findController hide];
+}
+
 - (IBAction)performFindPanelAction:(id)sender {
     [_findController performFindAction:[sender tag]];
 }

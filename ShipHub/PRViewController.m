@@ -14,6 +14,7 @@
 #import "Extras.h"
 #import "PullRequest.h"
 #import "GitDiff.h"
+#import "GitFileSearch.h"
 #import "IssueDocumentController.h"
 #import "IssueIdentifier.h"
 #import "ProgressSheet.h"
@@ -401,8 +402,6 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 }
 
 - (void)scrollToLineInfo:(NSDictionary *)info {
-    
-    
     NSAssert([info[@"type"] isEqualToString:@"line"], nil);
     if (_loading) {
         _nextScrollInfo = info;
@@ -453,6 +452,10 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     [_sidebarController filterInNavigator:sender];
 }
 
+- (IBAction)findInFiles:(id)sender {
+    [_sidebarController enterFindMode];
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     if (menuItem.action == @selector(nextFile:)) {
         return [_sidebarController canGoNextFile];
@@ -492,11 +495,17 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 }
 
 - (IBAction)performFindPanelAction:(id)sender {
-    [_diffController performTextFinderAction:sender];
+    if (_sidebarController.inFindMode && [sender tag] == NSTextFinderActionNextMatch) {
+        [_sidebarController nextFindResult:sender];
+    } else if (_sidebarController.inFindMode && [sender tag] == NSTextFinderActionPreviousMatch) {
+        [_sidebarController previousFindResult:sender];
+    } else {
+        [_diffController performTextFinderAction:sender];
+    }
 }
 
 - (IBAction)performTextFinderAction:(nullable id)sender {
-    [_diffController performTextFinderAction:sender];
+    [self performFindPanelAction:sender];
 }
 
 #pragma mark -
@@ -823,13 +832,32 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 
 #pragma mark - PRSidebarViewControllerDelegate
 
-- (void)prSidebar:(PRSidebarViewController *)sidebar didSelectGitDiffFile:(GitDiffFile *)file {
+- (void)prSidebar:(PRSidebarViewController *)sidebar didSelectGitDiffFile:(GitDiffFile *)file highlightingSearchResult:(GitFileSearchResult *)result
+{
     GitDiff *diff = sidebar.activeDiff;
     _diffViewModeItem.enabled = !(file.operation == DiffFileOperationAdded || file.operation == DiffFileOperationDeleted);
     NSArray *comments = [self commentsForSelectedFile];
-    NSDictionary *scrollInfo = _nextScrollInfo ?: @{ @"first" : @YES };
+    NSDictionary *scrollInfo;
+    if (result) {
+        [_diffController hideFindController];
+        NSString *regexText = result.search.query;
+        if ((result.search.flags & GitFileSearchFlagRegex) == 0) {
+            regexText = [NSRegularExpression escapedPatternForString:regexText];
+        }
+        scrollInfo = @{ @"type": @"line",
+                        @"line" : @(result.matchedLineNumber),
+                        @"highlight": @{ @"regex" : regexText,
+                                         @"insensitive" : @(0 == (result.search.flags & GitFileSearchFlagCaseInsensitive)) }
+                        };
+    } else {
+        scrollInfo = _nextScrollInfo ?: @{ @"first" : @YES };
+    }
     _nextScrollInfo = nil;
-    [_diffController setPR:_pr diffFile:file diff:diff comments:comments inReview:_inReview scrollInfo:scrollInfo];
+    if (_diffController.diffFile != file) {
+        [_diffController setPR:_pr diffFile:file diff:diff comments:comments inReview:_inReview scrollInfo:scrollInfo];
+    } else {
+        [_diffController navigate:scrollInfo];
+    }
 }
 
 #pragma mark - PRReviewChangesViewControllerDelegate

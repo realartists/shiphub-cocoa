@@ -32,6 +32,8 @@
 
 - (void)focus;
 
+- (void)hideFindController;
+
 @property (nonatomic, readonly) PullRequest *pr;
 @property (nonatomic, readonly) GitDiffFile *diffFile;
 @property (nonatomic, readonly) GitDiff *diff;

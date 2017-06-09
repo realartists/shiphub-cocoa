@@ -14,6 +14,10 @@
 
 @end
 
+@interface TextFindingTextFieldCell : NSTextFieldCell
+
+@end
+
 @implementation TextFindingSearchField
 
 - (id)initWithCoder:(NSCoder *)aCoder {
@@ -44,11 +48,41 @@
 
 @end
 
-@interface TextFindingSearchFieldEditor : NSTextView
+@implementation TextFindingTextField
+
+- (id)initWithCoder:(NSCoder *)aCoder {
+    NSKeyedUnarchiver *coder = (id)aCoder;
+    
+    // gather info about the superclass's cell and save the archiver's old mapping
+    Class superCell = [[self superclass] cellClass];
+    NSString *oldClassName = NSStringFromClass( superCell );
+    Class oldClass = [coder classForClassName: oldClassName];
+    if( !oldClass )
+        oldClass = superCell;
+    
+    // override what comes out of the unarchiver
+    [coder setClass: [[self class] cellClass] forClassName: oldClassName];
+    
+    // unarchive
+    self = [super initWithCoder: coder];
+    
+    // set it back
+    [coder setClass: oldClass forClassName: oldClassName];
+    
+    return self;
+}
+
++ (Class)cellClass {
+    return [TextFindingTextFieldCell class];
+}
 
 @end
 
-@implementation TextFindingSearchFieldEditor
+@interface TextFindingFieldEditor : NSTextView
+
+@end
+
+@implementation TextFindingFieldEditor
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     if (menuItem.action == @selector(performFindPanelAction:)
@@ -75,14 +109,28 @@
 
 - (NSTextView *)fieldEditorForView:(NSView *)aControlView {
     NSWindow *window = [aControlView window];
-    TextFindingSearchFieldEditor *view = objc_getAssociatedObject(window, @"TextFindingSearchFieldEditor");
+    TextFindingFieldEditor *view = objc_getAssociatedObject(window, @"TextFindingFieldEditor");
     if (!view) {
-        view = [[TextFindingSearchFieldEditor alloc] init];
+        view = [[TextFindingFieldEditor alloc] init];
         view.fieldEditor = YES;
-        objc_setAssociatedObject(window, @"TextFindingSearchFieldEditor", view, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(window, @"TextFindingFieldEditor", view, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return view;
 }
 
+@end
+
+@implementation TextFindingTextFieldCell
+
+- (NSTextView *)fieldEditorForView:(NSView *)aControlView {
+    NSWindow *window = [aControlView window];
+    TextFindingFieldEditor *view = objc_getAssociatedObject(window, @"TextFindingFieldEditor");
+    if (!view) {
+        view = [[TextFindingFieldEditor alloc] init];
+        view.fieldEditor = YES;
+        objc_setAssociatedObject(window, @"TextFindingFieldEditor", view, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return view;
+}
 
 @end

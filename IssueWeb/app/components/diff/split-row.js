@@ -123,7 +123,7 @@ class SplitRow extends DiffRow {
     this.right.innerHTML = this.codeColContents(rightLineHighlighted);
     
     if (this.lastSearch) {
-      this.search(this.lastSearch);
+      this.search(this.lastSearch.regexp, this.lastSearch.findInFilesMode);
     }
   }
   
@@ -145,8 +145,8 @@ class SplitRow extends DiffRow {
     return AttributedString.fromHTML(this.right.innerHTML.substr(5, this.right.innerHTML.length-7));
   }
   
-  search(regexp) {
-    this.lastSearch = regexp;
+  search(regexp, findInFilesMode) {
+    this.lastSearch = {regexp, findInFilesMode};
     
     var leftText = this.left.textContent;
     var rightText = this.right.textContent;
@@ -162,6 +162,11 @@ class SplitRow extends DiffRow {
       if (regexp) {
         this.leftSearchMatchRanges = [];
         this.rightSearchMatchRanges = [];
+        
+        var addedAttrs = ["search-match"];
+        if (findInFilesMode) {
+          addedAttrs.push("search-match-highlight");
+        }
       
         var matchem = function(astr, ranges) {
           regexp.lastIndex = 0;
@@ -170,12 +175,14 @@ class SplitRow extends DiffRow {
             var offset = match.index;
             var length = match[0].length;
             var range = new AttributedString.Range(offset, length);
-            astr.addAttributes(range, ["search-match"]);
+            astr.addAttributes(range, addedAttrs);
             ranges.push(range);
             matchCount.c = matchCount.c + 1;
           }
         }
-        matchem(leftAstr, this.leftSearchMatchRanges);
+        if (!findInFilesMode) {
+          matchem(leftAstr, this.leftSearchMatchRanges);
+        }
         matchem(rightAstr, this.rightSearchMatchRanges);
       } else {
         delete this.leftSearchMatchRanges;

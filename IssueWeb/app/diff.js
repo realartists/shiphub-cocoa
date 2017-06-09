@@ -702,7 +702,9 @@ class App {
     }
   }
   
-  scrollToLine(line, left) {
+  scrollToLine(options) {
+    var line = options.line;
+    var left = options.left;
     var cr = this.codeRows.find(cr => {
       if (left) {
         return cr.leftLineNum === line;
@@ -710,8 +712,17 @@ class App {
         return cr.rightLineNum === line;
       }
     });
+    this.codeRows.forEach(r => {
+      if (r != cr) {
+        r.search(null); // clear existing search
+      }
+    });
     if (cr) {
       cr.node.scrollIntoViewIfNeeded();
+      if (options.highlight) {
+        var regex = new RegExp(options.highlight.regex, options.highlight.insensitive ? "ig" : "g");
+        cr.search(regex, true);
+      }
     }
   }
   
@@ -728,7 +739,7 @@ class App {
   */
   scrollTo(options) { 
     if (options.type === "line") {
-      this.scrollToLine(options.line, options.left);
+      this.scrollToLine(options);
       return;
     }
     

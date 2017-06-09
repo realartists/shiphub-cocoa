@@ -361,7 +361,8 @@ static int updateRefs(const char *ref_name, const char *remote_url, const git_oi
     
     __block git_reference *ref = NULL;
     
-    int result = git_reference_lookup(&ref, _repo, [refName UTF8String]);
+    NSString *fullName = [NSString stringWithFormat:@"refs/%@", refName];
+    int result = git_reference_lookup(&ref, _repo, [fullName UTF8String]);
     
     if (result != GIT_ENOTFOUND && result != 0) {
         if (outError) {

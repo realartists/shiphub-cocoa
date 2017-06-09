@@ -12,6 +12,7 @@
 @class GitCommit;
 @class GitDiff;
 @class GitDiffFile;
+@class GitFileSearchResult;
 @class PRComment;
 @protocol PRSidebarViewControllerDelegate;
 
@@ -35,15 +36,24 @@
 - (IBAction)nextCommentedFile:(id)sender;
 - (IBAction)previousCommentedFile:(id)sender;
 
+- (BOOL)canGoNextFindResult;
+- (BOOL)canGoPreviousFindResult;
+- (IBAction)nextFindResult:(id)sender;
+- (IBAction)previousFindResult:(id)sender;
+
 - (BOOL)selectFileAtPath:(NSString *)path;
 
 - (IBAction)filterInNavigator:(id)sender;
+
+@property (nonatomic, readonly, getter=isInFindMode) BOOL inFindMode;
+- (void)cancelFindMode;
+- (void)enterFindMode;
 
 @end
 
 @protocol PRSidebarViewControllerDelegate <NSObject>
 
-- (void)prSidebar:(PRSidebarViewController *)sidebar didSelectGitDiffFile:(GitDiffFile *)file;
+- (void)prSidebar:(PRSidebarViewController *)sidebar didSelectGitDiffFile:(GitDiffFile *)file highlightingSearchResult:(GitFileSearchResult *)result;
 
 @end
 

@@ -11,3 +11,7 @@
 @interface TextFindingSearchField : NSSearchField
 
 @end
+
+@interface TextFindingTextField : NSTextField
+
+@end

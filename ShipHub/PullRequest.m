@@ -20,6 +20,7 @@
 #import "ServerConnection.h"
 #import "PRComment.h"
 #import "PRReview.h"
+#import "JSON.h"
 
 #import "GitDiff.h"
 #import "GitCommit.h"
@@ -181,6 +182,11 @@
     
     NSString *remoteURLStr = _info[@"base"][@"repo"][@"clone_url"]; // want to use the base, as this is "origin"
     
+    if (!remoteURLStr) {
+        Auth *auth = [[DataStore activeStore] auth];
+        remoteURLStr = [NSString stringWithFormat:@"https://%@/%@.git", [auth.account.ghHost stringByReplacingOccurrencesOfString:@"api." withString:@""], _info[@"base"][@"repo"][@"full_name"]];
+    }
+    
     if (remoteURLStr) {
         _githubRemoteURL = [NSURL URLWithString:remoteURLStr];
     }
@@ -244,39 +250,11 @@
 
 // runs on a background queue
 - (NSError *)checkoutWithProgress:(NSProgress *)progress {
-    Auth *auth = [[DataStore activeStore] auth];
-    RequestPager *pager = [[RequestPager alloc] initWithAuth:auth];
-    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
-    
     __block NSDictionary *prInfo = nil;
-    __block NSError *prError = nil;
-    
-    NSInteger operations = 0;
     
     [[DataStore activeStore] checkForIssueUpdates:_issue.fullIdentifier];
     
-    NSString *pullEndpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@", _issue.repository.fullName, _issue.number];
-    [pager fetchSingleObject:[pager get:pullEndpoint] completion:^(NSDictionary *obj, NSError *err) {
-        prError = err;
-        prInfo = obj;
-        dispatch_semaphore_signal(sema);
-    }];
-    operations++;
-    
-    progress.totalUnitCount = operations;
-    progress.completedUnitCount = 0;
-    progress.localizedDescription = NSLocalizedString(@"Loading pull request metadata", nil);
-    
-    // wait for responses
-    while (operations != 0 && !progress.cancelled) {
-        dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
-        operations--;
-        progress.completedUnitCount += 1;
-    }
-    
-    if (progress.cancelled) return [NSError cancelError];
-    
-    if (prError) return prError;
+    prInfo = [JSON serializeObject:_issue withNameTransformer:[JSON underbarsAndIDNameTransformer]];
     
     _info = prInfo;
     [self lightweightMergeUpdatedIssue:_issue];

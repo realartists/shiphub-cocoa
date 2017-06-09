@@ -90,7 +90,7 @@ class UnifiedRow extends DiffRow {
     this.codeCell.innerHTML = this.codeColContents(highlighted);
     
     if (this.lastSearch) {
-      this.search(this.lastSearch);
+      this.search(this.lastSearch.regexp, this.lastSearch.findInFilesMode);
     }
   }
   
@@ -102,14 +102,19 @@ class UnifiedRow extends DiffRow {
     return AttributedString.fromHTML(this.codeCell.innerHTML.substr(5, this.codeCell.innerHTML.length-7));
   }
   
-  search(regexp) {
-    this.lastSearch = regexp;
+  search(regexp, findInFilesMode) {
+    this.lastSearch = {regexp, findInFilesMode};
     
     var text = this.codeCell.textContent;
     if (this.hadSearchMatch || (regexp && text.match(regexp))) {
       var astr = this.currentAstr();
       
       astr.off(["search-match", "search-match-highlight"]);
+      
+      var addedAttrs = ["search-match"];
+      if (findInFilesMode) {
+        addedAttrs.push("search-match-highlight");
+      }
       
       var ranges = this.searchMatchRanges =  [];
       if (regexp) {
@@ -119,7 +124,7 @@ class UnifiedRow extends DiffRow {
           var offset = match.index;
           var length = match[0].length;
           var range = new AttributedString.Range(offset, length);
-          astr.addAttributes(range, ["search-match"]);
+          astr.addAttributes(range, addedAttrs);
           ranges.push(range);
         }
       }
@@ -139,6 +144,10 @@ class UnifiedRow extends DiffRow {
     }
     
     this.node.scrollIntoViewIfNeeded();
+  }
+  
+  selectFindAllMatches(regexp) {
+    
   }
 }
 
