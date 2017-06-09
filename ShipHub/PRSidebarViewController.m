@@ -229,6 +229,8 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
         [_filterField setStringValue:@""];
         _commentFilterButton.state = NSOffState;
         
+        [self cancelFindMode];
+        
         [self updateCommitLabel];
         
         [self buildInorderFiles];
@@ -642,7 +644,7 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
     GitFileSearch *search = [GitFileSearch new];
     search.query = _findField.stringValue;
     search.flags =
-    ([_findMenu itemWithTag:FindMenuTagCaseSensitive].state == NSOnState ? GitFileSearchFlagCaseInsensitive : 0) |
+    ([_findMenu itemWithTag:FindMenuTagCaseSensitive].state == NSOffState ? GitFileSearchFlagCaseInsensitive : 0) |
     ([_findMenu itemWithTag:FindMenuTagRegEx].state == NSOnState ? GitFileSearchFlagRegex : 0) |
     ([_findMenu itemWithTag:FindMenuTagChangedLinesOnly].state == NSOnState ? GitFileSearchFlagAddedLinesOnly : 0);
     
