@@ -807,6 +807,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     }
     
     PRReview *review = [_pendingReview copy] ?: [PRReview new];
+    review.commitId = [_pr headSha];
     review.comments = [_pendingComments copy];
     review.state = PRReviewStatePending;
     

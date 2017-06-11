@@ -2186,6 +2186,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)addReview:(PRReview *)review inIssue:(NSString *)issueIdentifier completion:(void (^)(PRReview *review, NSError *error))completion
 {
     NSParameterAssert(review);
+    NSParameterAssert(review.commitId);
     NSParameterAssert(issueIdentifier);
     NSParameterAssert(completion);
     
@@ -2229,6 +2230,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     dispatch_block_t postReview = ^{
         NSMutableDictionary *msg = [NSMutableDictionary new];
+        msg[@"commit_id"] = review.commitId;
         if (review.body) msg[@"body"] = review.body;
         if (review.state != PRReviewStatePending) {
             msg[@"event"] = PRReviewStateToEventString(review.state);

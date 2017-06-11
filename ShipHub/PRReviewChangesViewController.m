@@ -76,6 +76,7 @@
 
 - (IBAction)submit:(id)sender {
     PRReview *review = [PRReview new];
+    review.commitId = [_pr headSha];
     if (_commentButton.state == NSOnState) {
         review.state = PRReviewStateComment;
     } else if (_approveButton.state == NSOnState) {
