@@ -15,6 +15,7 @@
 {
     id v = d[@"commitId"];
     if (!v) v = d[@"sha"];
+    if (!v) v = d[@"commit_id"];
     return v;
 }
 

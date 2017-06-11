@@ -160,6 +160,56 @@ class CommitStatuses extends React.Component {
     }, "");
   }
   
+  summaryDescription() {
+    var count = {
+      failed: 0,
+      success: 0,
+      pending: 0
+    };
+    
+    this.props.statuses.forEach(s => {
+      switch (s.state) {
+        case 'success':
+          count.success++;
+          break;
+        case 'pending':
+          count.pending++;
+          break;
+        case 'failed':
+        case 'error':
+          count.failed++;
+          break;
+      }
+    });
+      
+    var d = { msg: "" }
+    var msg = (text) => {
+      if (d.msg.length == 0) d.msg = text;
+      else d.msg += ", " + text;
+    } 
+    if (count.success == 1) {
+      msg("1 check passed");
+    } else if (count.success > 1) {
+      msg(`${count.success} checks passed`);
+    }
+    
+    if (count.pending == 1) {
+      msg("1 check pending");
+    } else if (count.pending > 1) {
+      msg(`${count.pending} checks pending`);
+    }
+    
+    if (count.failed == 1) {
+      msg("1 check failed");
+    } else if (count.failed > 1) {
+      msg(`${count.failed} checks failed`);
+    }
+    
+    if (d.msg.length > 0) d.msg = ` ${d.msg}.`;
+    
+    return d.msg;
+  }
+  
   onClick(evt) {
     this.props.onClick(evt);
     evt.preventDefault();
@@ -169,6 +219,8 @@ class CommitStatuses extends React.Component {
     var statuses = this.props.statuses;
     
     var onClick = this.props.onClick;
+    var desc = this.props.expanded ? this.summaryDescription() : null;
+    console.log("desc", desc);
     
     if (statuses.length == 1) {
       var status = statuses[0];
@@ -192,7 +244,8 @@ class CommitStatuses extends React.Component {
         opts.href = this.props.commitUrl;
       }
       return h('a', opts,
-        this.iconForState(this.overallStateForStatuses())
+        this.iconForState(this.overallStateForStatuses()),
+        desc
       );
     }
   }

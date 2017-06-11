@@ -40,7 +40,7 @@ import 'util/media-reloader.js'
 import AvatarIMG from 'components/AvatarIMG.js'
 import Comment from 'components/comment/Comment.js'
 import CommitComment from 'components/issue/commit-comment.js'
-import { CommitGroup, CommitStatuses, getSubjectAndBodyFromCommitMessage, findLatestCommitStatuses } from 'components/issue/commit-group.js'
+import { CommitGroup, CommitStatuses, CommitStatusTable, getSubjectAndBodyFromCommitMessage, findLatestCommitStatuses } from 'components/issue/commit-group.js'
 import Review from 'components/issue/review.js'
 import PRMergeability from 'components/issue/pr-mergeability.js'
 
@@ -624,11 +624,15 @@ var MergedEventBody = React.createClass({
   
   render: function() {
     var [committish, commitUrl] = expandCommit(this.props.event);
-    var statuses = this.props.issue.commit_statuses.filter(cs => cs.reference == committish);
+    var statuses = this.props.issue.commit_statuses.filter(cs => cs.reference == this.props.event.commit_id);
     statuses = findLatestCommitStatuses(statuses);
     
     if (statuses.length > 0) {
-      return h(CommitStatuses, {statuses, commitUrl});
+      if (this.props.expanded) {
+        return h(CommitStatusTable, {statuses});
+      } else {
+        return h(CommitStatuses, {statuses, commitUrl, expanded:true});
+      }
     } else {
       return h('span', {});
     }
@@ -646,10 +650,26 @@ var MergedEventActions = React.createClass({
     evt.preventDefault();
   },
   
+  toggleExpanded: function(evt) {
+    this.props.toggleExpanded();
+    evt.preventDefault();
+  },
+  
   render: function() {
+    var statuses = this.props.issue.commit_statuses.filter(cs => cs.reference == this.props.event.commit_id);
     var [committish, commitUrl] = expandCommit(this.props.event);
     
+    var toggleStatusButton = null;
+    if (statuses.length > 0) {
+      toggleStatusButton = h('button', {
+        type:"button",
+        className: "ActionButton EventActionButton MergedEventToggleStatusButton",
+        onClick:this.toggleExpanded
+      }, this.props.expanded?"Hide Details":"View Details");
+    }
+    
     return h('div', { className:"EventActions" },
+      toggleStatusButton,
       h('button', { 
         type:"button", 
         className: "ActionButton EventActionButton MergedEventRevertButton", 
@@ -687,6 +707,14 @@ var Event = React.createClass({
     issue: React.PropTypes.object.isRequired,
     last: React.PropTypes.bool,
     veryLast: React.PropTypes.bool
+  },
+  
+  getInitialState: function() {
+    return { expanded: false };
+  },
+  
+  toggleExpanded: function() {
+    this.setState({expanded: !this.state.expanded});
   },
   
   render: function() {
@@ -730,11 +758,13 @@ var Event = React.createClass({
             h(ClassForEventDescription(this.props.event), {event: this.props.event}),
             " ",
             h(TimeAgo, {className:"eventTime", live:true, date:this.props.event.created_at}),
-          ),
-          eventBodyClass ? h(eventBodyClass, {event: this.props.event, issue: this.props.issue}) : null
+          )
         ),
-        actionsClass ? h(actionsClass, {event: this.props.event, issue: this.props.issue}) : null
-      )
+        actionsClass ? h(actionsClass, {event: this.props.event, issue: this.props.issue, expanded: this.state.expanded, toggleExpanded: this.toggleExpanded}) : null
+      ),
+      eventBodyClass ? h('div', {className:'eventBodyContainer'},
+        h(eventBodyClass, {event: this.props.event, issue: this.props.issue, expanded: this.state.expanded})
+      ) : null
     );
   }
 });

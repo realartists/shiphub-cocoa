@@ -82,6 +82,20 @@ td.commitItemMessage {
   max-width: 100%;
 }
 
+a.commitStatuses {
+  color: #555;
+  text-decoration: none;
+}
+
+a.commitStatuses:hover {
+  text-decoration: none;
+}
+
+a.commitStatuses:visited {
+  color: #555;
+  text-decoration: none;
+}
+
 i.commitStatusIconPending,
 i.commitStatusIconUnknown {
   color: #767676;
@@ -127,8 +141,6 @@ div.CommitStatusTable {
 div.CommitStatusTableRow {
   padding-top: 8px;
   padding-bottom: 8px;
-  padding-left: 7px;
-  padding-right: 7px;
   display: flex;
   white-space: nowrap;
   overflow: hidden;

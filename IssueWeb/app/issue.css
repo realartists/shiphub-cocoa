@@ -256,6 +256,10 @@ div.eventContent {
   flex-grow: 2;
 }
 
+div.eventBodyContainer {
+  margin-left: 28px;
+}
+
 div.event img.avatar {
   border-radius: 4px;
   background-color: #F0F0F0;

@@ -1563,8 +1563,8 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (void)loadCommitStatusesAndCommentsForIssue:(Issue *)i localIssue:(LocalIssue *)li reader:(NSManagedObjectContext *)moc {
     NSMutableArray *refs = [NSMutableArray new];
     for (IssueEvent *event in i.events) {
-        if ([event.event isEqualToString:@"committed"]) {
-            NSString *sha = event.extra[@"sha"];
+        if ([event.event isEqualToString:@"committed"] || [event.event isEqualToString:@"merged"]) {
+            NSString *sha = event.commitId;
             if (sha) {
                 [refs addObject:sha];
             }
