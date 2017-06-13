@@ -138,7 +138,7 @@
         } else if (haveLastView && !changedSinceMyLastView) {
             span3.subtitleField.stringValue = NSLocalizedString(@"No new changes", nil);
         } else {
-            NSInteger filesChanged = _pr.spanDiffSinceMyLastReview.allFiles.count;
+            NSInteger filesChanged = _pr.spanDiffSinceMyLastView.allFiles.count;
             if (filesChanged == 1) {
                 span3.subtitleField.stringValue = NSLocalizedString(@"1 file changed", nil);
             } else {
