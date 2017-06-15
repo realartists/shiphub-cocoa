@@ -1137,6 +1137,12 @@ var RepoField = React.createClass({
     
     var repoInfo = IssueState.current.repos.find((x) => x.full_name == newRepo);
     
+    var prevRepoFullName = IssueState.current.repoFullName;
+    var prevRepoInfo = null;
+    if (prevRepoFullName) {
+      prevRepoInfo = IssueState.current.repos.find((x) => x.full_name == prevRepoFullName);
+    }
+    
     if (!repoInfo) {
       fail();
       return Promise.reject("Invalid repo");
@@ -1166,8 +1172,10 @@ var RepoField = React.createClass({
           assignees: [],
           labels: []
         };
-        var issueTemplate = repoInfo.issue_template;
-        if ((issueTemplate||"").trim().length > 0 && (keypath(state, "issue.body")||"").trim().length == 0) {
+        var issueTemplate = (repoInfo.issue_template||"").trim();
+        var prevIssueTemplate = prevRepoInfo ? (prevRepoInfo.issue_template||"").trim() : "";
+        var currentBody = (keypath(state, "issue.body")||"").trim();
+        if (currentBody.length == 0 || currentBody == prevIssueTemplate) {
           nextIssueState.body = issueTemplate;
           if (this.props.onIssueTemplate) {
             this.props.onIssueTemplate(issueTemplate);

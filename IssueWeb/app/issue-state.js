@@ -34,6 +34,14 @@ class IssueState {
   get repoName() { return this.state.issue._bare_repo; }
   set repoName(newName) { this.state.issue._bare_repo = newName; }
   
+  get repoFullName() {
+    if (this.state.issue._bare_owner && this.state.issue._bare_repo) {
+      return this.state.issue._bare_owner + "/" + this.state.issue._bare_repo;
+    } else {
+      return null;
+    }
+  }
+  
   get repos() { return this.state.repos; }
   get assignees() { return this.state.assignees; }
   get milestones() { return this.state.milestones; }
