@@ -465,7 +465,7 @@ class PRMergeabilityMergeStatus extends React.Component {
         subheading = "A required status check has not succeeded";
       } else if (requiredStatusChecks.size != succeededStatusChecks.length) {
         subheading = "Required status checks have not succeeded";
-      } else if (this.props.issue.base_branch_protections != null) {
+      } else if (this.props.issue.base_branch_protection != null) {
         // by process of elimination the problem must be with reviews
         subheading = "Pull request review approval is required";
       } else {
