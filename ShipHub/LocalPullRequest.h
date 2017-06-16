@@ -32,9 +32,13 @@
 @property (nullable, nonatomic, retain) id<NSCoding> base;
 @property (nullable, nonatomic, retain) id<NSCoding> head;
 
+@property (nullable, nonatomic, retain) NSString *baseBranch;
+
 @property (nullable, nonatomic, retain) NSDate *createdAt;
 @property (nullable, nonatomic, retain) NSDate *updatedAt;
 
 @property (nullable, nonatomic, retain) LocalIssue *issue;
+
+- (nullable id)computeBaseBranchForProperty:(nullable NSString *)propertyKey inDictionary:(nullable NSDictionary *)d;
 
 @end

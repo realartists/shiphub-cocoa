@@ -45,6 +45,7 @@
 #import "LocalPRReview.h"
 #import "LocalPullRequest.h"
 #import "LocalPRHistory.h"
+#import "LocalProtectedBranch.h"
 
 #import "Account.h"
 #import "IssueInternal.h"
@@ -143,8 +144,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  15: Introduce LocalPRHistory
  16: realartists/shiphub-cocoa#560 [Client] Add support for PULL_REQUEST_TEMPLATE
  17: Cascade delete of PRReview.comments
+ 18: Track branch protections: realartists/shiphub-cocoa#564 Indicate which failing status checks are required in PRMergeability
  */
-static const NSInteger CurrentLocalModelVersion = 17;
+static const NSInteger CurrentLocalModelVersion = 18;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
@@ -399,6 +401,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     BOOL needsEventCommitId = previousStoreVersion < 12;
     
+    BOOL needsPRBaseBranch = previousStoreVersion < 18;
+    
     NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @(!needsHeavyweightMigration) };
     
     NSPersistentStore *store = _persistentStore = [_persistentCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:@"Default" URL:storeURL options:options error:&err];
@@ -570,6 +574,21 @@ static NSString *const LastUpdated = @"LastUpdated";
                     NSDictionary *d = [NSJSONSerialization JSONObjectWithData:ev.rawJSON options:0 error:NULL];
                     ev.commitId = d[@"sha"];
                 }
+            }
+            
+            [_writeMoc save:NULL];
+        }];
+    }
+    
+    if (needsPRBaseBranch) {
+        [_writeMoc performBlockAndWait:^{
+            NSFetchRequest *prFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPullRequest"];
+            prFetch.predicate = [NSPredicate predicateWithFormat:@"base != nil"];
+            
+            NSArray *prs = [_writeMoc executeFetchRequest:prFetch error:NULL];
+            for (LocalPullRequest *pr in prs) {
+                NSDictionary *b = (id)pr.base;
+                pr.baseBranch = b[@"ref"];
             }
             
             [_writeMoc save:NULL];
@@ -1210,6 +1229,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 - (NSArray *)changedIssueIdentifiers:(NSNotification *)note {
     NSMutableSet *changed = [NSMutableSet new];
     __block NSMutableSet *changedCommitStatusShas = nil;
+    __block NSMutableDictionary *changedProtectedBranches = nil;
     
     void (^addSha)(NSString *) = ^(NSString *sha) {
         if (sha) {
@@ -1272,8 +1292,25 @@ static NSString *const LastUpdated = @"LastUpdated";
             addSha([obj reference]);
         } else if ([obj isKindOfClass:[LocalCommitComment class]]) {
             addSha([obj commitId]);
+        } else if ([obj isKindOfClass:[LocalProtectedBranch class]]) {
+            if (!changedProtectedBranches) {
+                changedProtectedBranches = [NSMutableDictionary new];
+            }
+            LocalProtectedBranch *br = obj;
+            NSMutableSet *branchNames = [changedProtectedBranches objectForKey:br.repository.objectID];
+            if (!branchNames) {
+                changedProtectedBranches[br.repository.objectID] = branchNames = [NSMutableSet new];
+            }
+            [branchNames addObject:br.name];
         }
     }];
+    
+    void (^addDictionaryResultSetToChanged)(NSArray *) = ^(NSArray *matched) {
+        for (NSDictionary *rd in matched) {
+            NSString *fullIdentifier = [NSString stringWithFormat:@"%@#%lld", rd[@"repository.fullName"], [rd[@"number"] longLongValue]];
+            [changed addObject:fullIdentifier];
+        }
+    };
     
     if (changedCommitStatusShas.count) {
         NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
@@ -1288,10 +1325,32 @@ static NSString *const LastUpdated = @"LastUpdated";
             ErrLog(@"%@", err);
         }
         
-        for (NSDictionary *rd in matched) {
-            NSString *fullIdentifier = [NSString stringWithFormat:@"%@#%lld", rd[@"repository.fullName"], [rd[@"number"] longLongValue]];
-            [changed addObject:fullIdentifier];
+        addDictionaryResultSetToChanged(matched);
+    }
+    
+    if (changedProtectedBranches.count) {
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+        fetch.resultType = NSDictionaryResultType;
+        fetch.propertiesToFetch = @[@"repository.fullName", @"number"];
+        fetch.returnsDistinctResults = YES;
+        
+        NSMutableArray *clauses = [NSMutableArray arrayWithCapacity:changedProtectedBranches.count];
+        
+        for (NSManagedObjectID *objID in changedProtectedBranches) {
+            NSSet *branchNames = changedProtectedBranches[objID];
+            NSPredicate *clause = [NSPredicate predicateWithFormat:@"repository = %@ AND pullRequest = YES AND closed = NO AND pr.mergeableState = 'blocked' AND pr.baseBranch IN %@", objID, branchNames];
+            [clauses addObject:clause];
         }
+        
+        fetch.predicate = [NSCompoundPredicate orPredicateWithSubpredicates:clauses];
+        
+        NSError *err = nil;
+        NSArray *matched = [_writeMoc executeFetchRequest:fetch error:&err];
+        if (err) {
+            ErrLog(@"%@", err);
+        }
+        
+        addDictionaryResultSetToChanged(matched);
     }
     
     return changed.count > 0 ? [changed allObjects] : nil;
@@ -1560,7 +1619,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     return fetchRequest;
 }
 
-- (void)loadCommitStatusesAndCommentsForIssue:(Issue *)i localIssue:(LocalIssue *)li reader:(NSManagedObjectContext *)moc {
+- (void)loadPRCrossReferencedDataForIssue:(Issue *)i localIssue:(LocalIssue *)li reader:(NSManagedObjectContext *)moc {
     NSMutableArray *refs = [NSMutableArray new];
     for (IssueEvent *event in i.events) {
         if ([event.event isEqualToString:@"committed"] || [event.event isEqualToString:@"merged"]) {
@@ -1600,6 +1659,27 @@ static NSString *const LastUpdated = @"LastUpdated";
             return [[CommitComment alloc] initWithLocalCommitComment:obj metadataStore:ms];
         }];
     }
+    
+    NSString *baseBranch = i.base[@"ref"];
+    NSString *mergeableState = i.mergeableState;
+    if ([baseBranch length] && [mergeableState isEqualToString:@"blocked"]) {
+        NSFetchRequest *protectedBranchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalProtectedBranch"];
+        protectedBranchRequest.predicate = [NSPredicate predicateWithFormat:@"repository = %@ AND name = %@", li.repository, baseBranch];
+        
+        NSError *err = nil;
+        LocalProtectedBranch *lpb = [[moc executeFetchRequest:protectedBranchRequest error:&err] firstObject];
+        if (err) {
+            ErrLog(@"%@", err);
+            return;
+        }
+        
+        if (lpb.rawJSON) {
+            i.baseBranchProtection = [NSJSONSerialization JSONObjectWithData:lpb.rawJSON options:0 error:&err];
+            if (err) {
+                ErrLog(@"%@", err);
+            }
+        }
+    }
 }
 
 - (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion {
@@ -1619,7 +1699,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         if (i) {
             Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore options:@{IssueOptionIncludeEventsAndComments:@YES, IssueOptionIncludeRequestedReviewers:@YES}];
             if (issue.pullRequest) {
-                [self loadCommitStatusesAndCommentsForIssue:issue localIssue:i reader:moc];
+                [self loadPRCrossReferencedDataForIssue:issue localIssue:i reader:moc];
             }
             dispatch_async(dispatch_get_main_queue(), ^{
                 completion(issue, nil);

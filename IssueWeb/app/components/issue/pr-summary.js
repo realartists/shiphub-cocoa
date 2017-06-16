@@ -72,7 +72,7 @@ class PRSummary extends React.Component {
              
     if (this.state.expandStatuses) {
       els.push(h('div', {key:'table', className:'PRSummaryCommitStatuses'},
-        h(CommitStatusTable, { statuses })
+        h(CommitStatusTable, { statuses, issue:this.props.issue })
       ));
     }
     

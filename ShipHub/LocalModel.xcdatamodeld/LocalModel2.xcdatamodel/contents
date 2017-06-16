@@ -225,6 +225,18 @@
         <relationship name="organization" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="projects" inverseEntity="LocalAccount" syncable="YES"/>
         <relationship name="repository" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="projects" inverseEntity="LocalRepo" syncable="YES"/>
     </entity>
+    <entity name="LocalProtectedBranch" representedClassName="LocalProtectedBranch" syncable="YES">
+        <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
+        <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="rawJSON" optional="YES" attributeType="Binary" syncable="YES"/>
+        <relationship name="repository" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalRepo" inverseName="protectedBranches" inverseEntity="LocalRepo" syncable="YES"/>
+        <compoundIndexes>
+            <compoundIndex>
+                <index value="repository"/>
+                <index value="name"/>
+            </compoundIndex>
+        </compoundIndexes>
+    </entity>
     <entity name="LocalPRReview" representedClassName="LocalPRReview" syncable="YES">
         <attribute name="body" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="commitId" optional="YES" attributeType="String" syncable="YES"/>
@@ -239,6 +251,11 @@
     <entity name="LocalPullRequest" representedClassName="LocalPullRequest" syncable="YES">
         <attribute name="additions" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="base" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="baseBranch" optional="YES" attributeType="String" syncable="YES">
+            <userInfo>
+                <entry key="computeJSON" value="computeBaseBranchForProperty:inDictionary:"/>
+            </userInfo>
+        </attribute>
         <attribute name="changedFiles" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="commits" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="createdAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
@@ -296,6 +313,7 @@
         <relationship name="milestones" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalMilestone" inverseName="repository" inverseEntity="LocalMilestone" syncable="YES"/>
         <relationship name="owner" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="repos" inverseEntity="LocalAccount" syncable="YES"/>
         <relationship name="projects" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalProject" inverseName="repository" inverseEntity="LocalProject" syncable="YES"/>
+        <relationship name="protectedBranches" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="LocalProtectedBranch" inverseName="repository" inverseEntity="LocalProtectedBranch" syncable="YES"/>
     </entity>
     <entity name="LocalSyncVersion" representedClassName="LocalSyncVersion" syncable="YES">
         <attribute name="data" optional="YES" attributeType="Binary" syncable="YES"/>
@@ -317,10 +335,11 @@
         <element name="LocalPriority" positionX="0" positionY="0" width="128" height="90"/>
         <element name="LocalProject" positionX="9" positionY="153" width="128" height="180"/>
         <element name="LocalPRReview" positionX="18" positionY="162" width="128" height="180"/>
-        <element name="LocalPullRequest" positionX="9" positionY="153" width="128" height="330"/>
+        <element name="LocalPullRequest" positionX="9" positionY="153" width="128" height="345"/>
         <element name="LocalQuery" positionX="9" positionY="153" width="128" height="105"/>
         <element name="LocalReaction" positionX="9" positionY="153" width="128" height="165"/>
-        <element name="LocalRepo" positionX="0" positionY="0" width="128" height="315"/>
+        <element name="LocalRepo" positionX="0" positionY="0" width="128" height="330"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="LocalProtectedBranch" positionX="9" positionY="153" width="128" height="105"/>
     </elements>
 </model>

@@ -190,3 +190,17 @@ div.CommitTableLink a {
 div.CommitTableLink a:hover {
   text-decoration: none;
 }
+
+div.CommitTableStatusRequired {
+  color: white;
+  background-color: #6A737D;
+  border-radius: 2px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  padding-left: 3px;
+  padding-right: 3px;
+  font-weight: bold;
+  margin-left: 6px;
+  margin-right: 6px;
+  cursor: default;
+}

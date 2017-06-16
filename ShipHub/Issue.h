@@ -65,6 +65,7 @@
 
 @property (readonly) NSDictionary *base;
 @property (readonly) NSDictionary *head;
+@property (readonly) NSDictionary *baseBranchProtection;
 
 // events and comments are conditionally populated.
 // if they're just nonexistent, then they will be empty arrays.

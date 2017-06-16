@@ -629,7 +629,7 @@ var MergedEventBody = React.createClass({
     
     if (statuses.length > 0) {
       if (this.props.expanded) {
-        return h(CommitStatusTable, {statuses});
+        return h(CommitStatusTable, {statuses, issue:this.props.issue});
       } else {
         return h(CommitStatuses, {statuses, commitUrl, expanded:true});
       }
