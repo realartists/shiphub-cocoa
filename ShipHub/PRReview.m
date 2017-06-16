@@ -71,6 +71,7 @@
 @end
 
 PRReviewState PRReviewStateFromEventString(NSString *str) {
+    str = [str uppercaseString]; // github is not consistent in its casing. :(
     if ([str isEqualToString:@"APPROVE"]) {
         return PRReviewStateApprove;
     } else if ([str isEqualToString:@"REQUEST_CHANGES"]) {
@@ -95,6 +96,7 @@ NSString *PRReviewStateToEventString(PRReviewState st) {
 }
 
 PRReviewState PRReviewStateFromString(NSString *str) {
+    str = [str uppercaseString]; // github is not consistent in its casing. :(
     if ([str isEqualToString:@"APPROVED"]) {
         return PRReviewStateApprove;
     } else if ([str isEqualToString:@"CHANGES_REQUESTED"]) {
