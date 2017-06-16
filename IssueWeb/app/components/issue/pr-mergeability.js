@@ -245,6 +245,7 @@ class PRMergeabilityReviewers extends React.Component {
     }
 
     var count = {
+      requested: 0,
       pending: 0,
       requestChanges: 0,
       commented: 0,
@@ -253,7 +254,7 @@ class PRMergeabilityReviewers extends React.Component {
     };
     
     items.forEach((ri, idx) => {
-      if (!ri.review) count.pending++;
+      if (!ri.review) count.requested++;
       else switch (ri.review.state) {
         case ReviewState.Pending: count.pending++; break;
         case ReviewState.Approve: count.approve++; break;
@@ -273,13 +274,21 @@ class PRMergeabilityReviewers extends React.Component {
       state = "error";
       heading = "Changes requested";
       subheading = `${count.requestChanges} reviews requesting changes`;
+    } else if (count.requested == 1) {
+      state = "warning";
+      heading = "Review requested";
+      subheading = "1 review requested";
+    } else if (count.requested > 1) {
+      state = "warning";
+      heading = "Reviews requested";
+      subheading = `${count.requested} reviews requested`;
     } else if (count.pending == 1) {
       state = "warning";
-      heading = "Review needed";
+      heading = "Review pending";
       subheading = "1 review pending";
     } else if (count.pending > 1) {
       state = "warning";
-      heading = "Reviews needed";
+      heading = "Reviews pending";
       subheading = `${count.pending} reviews pending`;
     } else if (count.approve == 1) {
       state = "ok";
@@ -292,7 +301,7 @@ class PRMergeabilityReviewers extends React.Component {
     }
     
     var parts = [ { color: redColor, count: count.requestChanges },
-                  { color: yellowColor, count: count.pending },
+                  { color: yellowColor, count: count.pending+count.requested },
                   { color: greenColor, count: count.approve } ];
     
     var caretType = this.state.expanded ? 'fa-caret-up' : 'fa-caret-down';
