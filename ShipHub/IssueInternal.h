@@ -12,5 +12,6 @@
 
 @property (readwrite) NSArray<CommitStatus *> *commitStatuses;
 @property (readwrite) NSArray<CommitComment *> *commitComments;
+@property (readwrite) NSDictionary *baseBranchProtection;
 
 @end

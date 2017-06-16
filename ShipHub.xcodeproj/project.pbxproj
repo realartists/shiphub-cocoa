@@ -39,6 +39,8 @@
 		1A012ED51D46EC55006CE5DF /* WSSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A4A20A01CEFBCBC000C1D5E /* WSSyncConnection.m */; };
 		1A012ED61D46EC91006CE5DF /* SocketRocket.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2217B91C7E7B92006460E2 /* SocketRocket.framework */; };
 		1A04174B1EE850A6008E7AC3 /* GitFileSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A04174A1EE850A6008E7AC3 /* GitFileSearch.m */; };
+		1A0417551EF352C5008E7AC3 /* LocalProtectedBranch.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0417541EF352C5008E7AC3 /* LocalProtectedBranch.m */; };
+		1A0417561EF352C5008E7AC3 /* LocalProtectedBranch.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0417541EF352C5008E7AC3 /* LocalProtectedBranch.m */; };
 		1A069E9D1DB7EC03009085AF /* IssueWeb2Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A069E9C1DB7EC03009085AF /* IssueWeb2Controller.m */; };
 		1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
 		1A0D59CD1CA46926004F2578 /* IssueIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */; };
@@ -526,6 +528,8 @@
 		1A012ECC1D46DD4B006CE5DF /* ServerChooser.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ServerChooser.xib; sourceTree = "<group>"; };
 		1A0417491EE850A6008E7AC3 /* GitFileSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GitFileSearch.h; sourceTree = "<group>"; };
 		1A04174A1EE850A6008E7AC3 /* GitFileSearch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GitFileSearch.m; sourceTree = "<group>"; };
+		1A0417531EF352C5008E7AC3 /* LocalProtectedBranch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalProtectedBranch.h; sourceTree = "<group>"; };
+		1A0417541EF352C5008E7AC3 /* LocalProtectedBranch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalProtectedBranch.m; sourceTree = "<group>"; };
 		1A069E9B1DB7EC03009085AF /* IssueWeb2Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueWeb2Controller.h; sourceTree = "<group>"; };
 		1A069E9C1DB7EC03009085AF /* IssueWeb2Controller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWeb2Controller.m; sourceTree = "<group>"; };
 		1A069E9F1DB7EC4D009085AF /* IssueWeb2ControllerInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IssueWeb2ControllerInternal.h; sourceTree = "<group>"; };
@@ -1441,6 +1445,8 @@
 				1AB478571ECF937D006002DB /* LocalCommitComment.m */,
 				1AB9680C1ED60A1600F411C3 /* LocalPRHistory.h */,
 				1AB9680D1ED60A1600F411C3 /* LocalPRHistory.m */,
+				1A0417531EF352C5008E7AC3 /* LocalProtectedBranch.h */,
+				1A0417541EF352C5008E7AC3 /* LocalProtectedBranch.m */,
 			);
 			name = CoreData;
 			sourceTree = "<group>";
@@ -2238,6 +2244,7 @@
 				1A20CFFA1D52A81F00F412DE /* Reaction.m in Sources */,
 				1A012EB81D448FF2006CE5DF /* RepoRowTemplate.m in Sources */,
 				1ADED9D01D95AA590093A098 /* RateDampener.m in Sources */,
+				1A0417551EF352C5008E7AC3 /* LocalProtectedBranch.m in Sources */,
 				1A38C9FC1D9339D400655891 /* WebSession.m in Sources */,
 				1AF349501CDA95F000A5BEB0 /* TimeSeries.m in Sources */,
 				1AE09BF41C97687E00C5AC35 /* LocalIssue.m in Sources */,
@@ -2286,6 +2293,7 @@
 				1A3AB3531D9095BA004BB768 /* LocalBilling+CoreDataProperties.m in Sources */,
 				1AB9680F1ED60A1600F411C3 /* LocalPRHistory.m in Sources */,
 				1AB478591ECF937D006002DB /* LocalCommitComment.m in Sources */,
+				1A0417561EF352C5008E7AC3 /* LocalProtectedBranch.m in Sources */,
 				1AF567491D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */,
 				1A4329781EA69F2800A93A2C /* LocalPRReview.m in Sources */,
 				1AE09BF11C97687E00C5AC35 /* LocalRepo.m in Sources */,

@@ -19,6 +19,7 @@
 @dynamic mergedAt;
 @dynamic mergedBy;
 @dynamic requestedReviewers;
+@dynamic baseBranch;
 @dynamic base;
 @dynamic head;
 @dynamic createdAt;
@@ -29,5 +30,11 @@
 @dynamic commits;
 @dynamic rebaseable;
 @dynamic changedFiles;
+
+- (nullable id)computeBaseBranchForProperty:(nullable NSString *)propertyKey inDictionary:(nullable NSDictionary *)d
+{
+    NSString *baseBranch = d[@"base"][@"ref"];
+    return baseBranch;
+}
 
 @end
