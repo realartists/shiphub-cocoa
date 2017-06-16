@@ -401,7 +401,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     BOOL needsEventCommitId = previousStoreVersion < 12;
     
-    BOOL needsPRBranchName = previousStoreVersion < 18;
+    BOOL needsPRBaseBranch = previousStoreVersion < 18;
     
     NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @(!needsHeavyweightMigration) };
     
@@ -580,7 +580,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         }];
     }
     
-    if (needsPRBranchName) {
+    if (needsPRBaseBranch) {
         [_writeMoc performBlockAndWait:^{
             NSFetchRequest *prFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPullRequest"];
             prFetch.predicate = [NSPredicate predicateWithFormat:@"base != nil"];
@@ -1338,7 +1338,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         
         for (NSManagedObjectID *objID in changedProtectedBranches) {
             NSSet *branchNames = changedProtectedBranches[objID];
-            NSPredicate *clause = [NSPredicate predicateWithFormat:@"repository = %@ AND pullRequest = YES AND closed = NO AND pr.mergeableState = 'blocked' AND pr.branchName IN %@", objID, branchNames];
+            NSPredicate *clause = [NSPredicate predicateWithFormat:@"repository = %@ AND pullRequest = YES AND closed = NO AND pr.mergeableState = 'blocked' AND pr.baseBranch IN %@", objID, branchNames];
             [clauses addObject:clause];
         }
         

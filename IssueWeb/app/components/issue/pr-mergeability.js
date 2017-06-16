@@ -389,7 +389,7 @@ class PRMergeabilityStatuses extends React.Component {
     var body;
     if (this.state.expanded) {
       body = h('div', {className:'PRMergeabilityStatusesTableContainer'},
-        h(CommitStatusTable, { statuses })
+        h(CommitStatusTable, { statuses, issue:this.props.issue })
       );
     }
     
@@ -452,10 +452,26 @@ class PRMergeabilityMergeStatus extends React.Component {
     } else if (mergeable_state == 'blocked') {
       state = "error";
       heading = "Merging is blocked";
-      subheading = h('a', {
-        href:`https://github.com/${baseRepo}/settings/branches/${encodeURI(baseBranch)}`
-      },
-      `View branch protections`);
+      
+      // there are two reasons (as of this writing) why merging is blocked.
+      // 1. one or more required status checks are either not present or are not succeeding
+      // 2. reviews are required (so we must have at least 1 approve review and no request changes or requested reviews)
+      
+      var branchProtections = this.props.issue.base_branch_protection||{};
+      var requiredStatusChecks = new Set(keypath(branchProtections, "required_status_checks.contexts")||[]);
+      var succeededStatusChecks = this.props.statuses.filter(s => s.state == 'success' && requiredStatusChecks.has(s.context));
+      
+      if (requiredStatusChecks.size - succeededStatusChecks.length == 1) {
+        subheading = "A required status check has not succeeded";
+      } else if (requiredStatusChecks.size != succeededStatusChecks.length) {
+        subheading = "Required status checks have not succeeded";
+      } else if (this.props.issue.base_branch_protections != null) {
+        // by process of elimination the problem must be with reviews
+        subheading = "Pull request review approval is required";
+      } else {
+        // we don't know what the branch protections are (yet)
+        subheading = "Branch merge protections have not been met";
+      }
     } else if (mergeable_state == 'behind') {
       state = "error";
       heading = "Branch out of date";
@@ -520,7 +536,7 @@ class PRMergeability extends React.Component {
       h('div', {className:'PRMergeabilityBody'},
         h(PRMergeabilityReviewers, {issue, reviewItems}),
         h(PRMergeabilityStatuses, {issue, statuses}),
-        h(PRMergeabilityMergeStatus, {issue}),
+        h(PRMergeabilityMergeStatus, {issue, statuses, reviewItems}),
         h(PRMergeabilityActions, {issue})
       )
     );

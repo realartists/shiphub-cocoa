@@ -8,6 +8,7 @@ import { TimeAgo, TimeAgoString } from 'components/time-ago.js'
 import ghost from 'util/ghost.js'
 import { githubLinkify } from 'util/github-linkify.js'
 import { PRReviewChangesButton } from './pr-actions-bar.js'
+import { keypath } from 'util/keypath.js'
 
 import './commit-group.css'
 import CommitBullet from '../../../image/CommitBullet.png'
@@ -80,7 +81,8 @@ class CommitStatusTableRow extends React.Component {
           h('span', {className:'CommitTableStatusDescription'}, this.props.status.status_description)
         )
       ),
-      h('div', {className:'CommitTableLink'},
+      this.props.required?h('div', {className:'CommitTableStatusRequired'}, 'Required'):null,
+      this.props.status.id<0?null:h('div', {className:'CommitTableLink'},
         h('a', {href:this.props.status.target_url, className:'fa fa-arrow-circle-right'})
       )
     );
@@ -89,8 +91,20 @@ class CommitStatusTableRow extends React.Component {
 
 class CommitStatusTable extends React.Component {
   render() {
+    var requiredContexts = new Set(keypath(this.props.issue, "base_branch_protection.required_status_checks.contexts")||[]);
+    
+    var statuses = Array.from(this.props.statuses);
+    
+    // mix in any required contexts that we don't have anything for
+    var presentStatusContexts = new Set(statuses.map(cs => cs.context));
+    var missingStatusContexts = Array.from(requiredContexts).filter(c => !presentStatusContexts.has(c));
+    
+    statuses = missingStatusContexts.
+      map((c, i) => { return { id:-i, context:c, status_description:"Waiting for status to be reported", status:"pending" } }).
+      concat(statuses);
+    
     return h('div', {className:'CommitStatusTable'},
-      this.props.statuses.map(cs => h(CommitStatusTableRow, {key:cs.id, status:cs}))
+      statuses.map(cs => h(CommitStatusTableRow, {key:cs.id, status:cs, required:requiredContexts.has(cs.context)}))
     );
   }
 }
