@@ -24,7 +24,7 @@ var AddCommentFooter = React.createClass({
         title: '⌘⇧⏎',
         className:'ActionButton addCommentButton addCommentCloseButton', 
         onClick:this.props.onClose}, 
-        'Close Issue'
+        this.props.closeButtonTitle||'Close Issue'
       ));
     } else if (this.props.editingExisting||this.props.canCancel) {
       contents.push(h('button', {

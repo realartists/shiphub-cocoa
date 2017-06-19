@@ -67,6 +67,8 @@ class AbstractComment extends React.Component {
   
   canClose() { throw "not implemented"; }
   
+  closeButtonTitle() { return "Close Issue"; }
+  
   repoOwner() { throw "not implemented"; }
   
   repoName() { throw "not implemented"; }
@@ -353,6 +355,7 @@ class AbstractComment extends React.Component {
         var footerProps = {
           ref:'footer', 
           canClose: this.canClose(),
+          closeButtonTitle: this.closeButtonTitle(),
           previewing: this.state.previewing,
           onClose: this.saveAndClose.bind(this), 
           onSave: this.save.bind(this),

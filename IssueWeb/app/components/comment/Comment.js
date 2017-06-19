@@ -21,6 +21,10 @@ class Comment extends AbstractComment {
     return canClose;
   }
   
+  closeButtonTitle() {
+    return IssueState.current.issue.pull_request ? "Close Pull Request" : "Close Issue";
+  }
+  
   repoOwner() { return IssueState.current.repoOwner; }
   
   repoName() { return IssueState.current.repoName; }
