@@ -68,6 +68,10 @@
     return copy;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<%@ %p> state:%@ body:%@ comments:%@", NSStringFromClass([self class]), self, PRReviewStateToString(_state), _body, _comments];
+}
+
 @end
 
 PRReviewState PRReviewStateFromEventString(NSString *str) {

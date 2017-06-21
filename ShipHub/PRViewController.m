@@ -793,7 +793,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     NSAssert([NSThread isMainThread], nil);
     
     // note that the timer will keep us alive so even if the window closes, we should be able to do the save anyway
-    NSTimer *newTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(savePendingReviewTimerFired:) userInfo:nil repeats:NO];
+    NSTimer *newTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(savePendingReviewTimerFired:) userInfo:nil repeats:NO];
     if (_pendingReviewTimer) {
         [_pendingReviewTimer invalidate];
     }

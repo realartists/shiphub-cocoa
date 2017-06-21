@@ -234,7 +234,6 @@ class CommitStatuses extends React.Component {
     
     var onClick = this.props.onClick;
     var desc = this.props.expanded ? this.summaryDescription() : null;
-    console.log("desc", desc);
     
     if (statuses.length == 1) {
       var status = statuses[0];

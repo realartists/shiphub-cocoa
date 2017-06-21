@@ -36,6 +36,7 @@
 #import "PRPostMergeController.h"
 #import "PRReviewChangesViewController.h"
 #import "PRReview.h"
+#import "PRComment.h"
 #import "RateDampener.h"
 
 #import <WebKit/WebKit.h>
@@ -752,13 +753,19 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     if (existingPendingReview) {
         review.identifier = existingPendingReview.identifier;
     }
+    review.commitId = [review.comments.firstObject commitId];
+    
     [[DataStore activeStore] addReview:review inIssue:self.issue.fullIdentifier completion:^(PRReview *roundtrip, NSError *error) {
         [progress endSheet];
         if (error) {
             [self presentError:error withRetry:^{
                 [self reviewChangesViewController:nil submitReview:review];
             } fail:nil];
-        } // else DataStore will update the model and things will proceed as usual
+        } else {
+            // let any diff viewer know that we deleted the pending review (the submitted review will now be in the model)
+            NSDictionary *info = @{ PRReviewDeletedInIssueIdentifierKey : self.issue.fullIdentifier };
+            [[NSNotificationCenter defaultCenter] postNotificationName:PRReviewDeletedExplicitlyNotification object:info];
+        }
     }];
 }
 

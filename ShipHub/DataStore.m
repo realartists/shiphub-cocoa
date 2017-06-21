@@ -2270,7 +2270,11 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(issueIdentifier);
     NSParameterAssert(completion);
     
+    DebugLog(@"addReview: %@", review);
+    
     void (^saveReview)(NSDictionary *, NSArray *) = ^(NSDictionary *reviewJson, NSArray *reviewCommentsJson) {
+        DebugLog(@"Saving review: %@", reviewJson);
+        
         [self performWrite:^(NSManagedObjectContext *moc) {
             NSFetchRequest *fetchIssue = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
             fetchIssue.predicate = [self predicateForIssueIdentifiers:@[issueIdentifier]];
@@ -2331,8 +2335,12 @@ static NSString *const LastUpdated = @"LastUpdated";
         
         NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/reviews", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
         
+        DebugLog(@"POST-ing review: %@", msg);
+        
         [self.serverConnection perform:@"POST" on:endpoint headers:headers body:msg completion:^(id jsonResponse, NSError *error) {
             if (!error && [jsonResponse isKindOfClass:[NSDictionary class]] && [jsonResponse objectForKey:@"id"] != nil) {
+                
+                DebugLog(@"Review roundtrip: %@", jsonResponse);
                 
                 if (review.comments.count) {
                     NSString *reviewCommentsEndpoint = [endpoint stringByAppendingFormat:@"/%@/comments", [jsonResponse objectForKey:@"id"]];
@@ -2342,6 +2350,7 @@ static NSString *const LastUpdated = @"LastUpdated";
                     [pager fetchPaged:[pager get:reviewCommentsEndpoint params:nil headers:headers] completion:^(NSArray *data, NSError *err2) {
                         
                         if (err2) {
+                            DebugLog(@"Error fetching comments: %@", err2);
                             RunOnMain(^{
                                 completion(nil, err2);
                             });

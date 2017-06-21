@@ -841,7 +841,7 @@ var ActivityList = React.createClass({
       activity = activity.concat(this.props.allReviews.map(r => Object.assign({}, r, {review:true})));
     }
         
-    activity = activity.sort(function(a, b) {
+    activity.sort(function(a, b) {
       if (a == firstComment && b == firstComment) {
         return 0;
       } else if (a == firstComment) {
@@ -851,7 +851,7 @@ var ActivityList = React.createClass({
       }
       
       // sort pending reviews to the end
-      if (a.review && a.review.state == ReviewState.Pending) {
+      if (a.review && a.state == ReviewState.Pending) {
         if (a == b) return 0;
         else if (b.review && b.review.state == ReviewState.Pending) {
           if (a.review.id < b.review.id) return -1;
@@ -860,7 +860,7 @@ var ActivityList = React.createClass({
         } else {
           return 1;
         }
-      } else if (b.review && b.review.state == ReviewState.Pending) {
+      } else if (b.review && b.state == ReviewState.Pending) {
         return -1;
       }
       
