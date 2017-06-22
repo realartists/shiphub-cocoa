@@ -756,11 +756,14 @@ class App {
       for (var i = 0; i < this.codeRows.length; i++) {
         var cr = this.codeRows[i];
         if (cr.hunkNum !== undefined) {
-          if (cur == null || cr.hunkNum != cur.hunkNum || cuts.has(cr.diffIdx-1)) {
+          if (cur == null || cr.hunkNum != cur.hunkNum) {
             cur = { diffIdx: cr.diffIdx, startNode: cr.node, hunkNum: cr.hunkNum, type:'code' };
             l.push(cur);
           }
           cur.endNode = cr.node;
+          if ((cr.rightDiffIdx !== undefined && cuts.has(cr.rightDiffIdx)) || cuts.has(cr.diffIdx)) {
+            cur = null;
+          }
         }
       }
       return l;
