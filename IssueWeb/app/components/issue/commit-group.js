@@ -113,7 +113,15 @@ class CommitGroupHeader extends React.Component {
   render() {
     var commits = this.props.commits;
     
-    var committers = commits.map((x) => x.committer || x.author || ghost);
+    var committers = commits.map((x) => {
+      if (x.committer && x.committer.email != "noreply@github.com") {
+        return x.committer;
+      } else if (x.author) {
+        return x.author;
+      } else {
+        return ghost;
+      }
+    });
     committers = committers.filter((x) => x.email != 'noreply@github.com');
     
     var user = committers.length > 0 ? committers[0] : ghost;
