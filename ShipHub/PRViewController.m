@@ -463,6 +463,13 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
         return [_sidebarController canGoPreviousFile];
     } else if (menuItem.action == @selector(merge:)) {
         return [_pr canMerge];
+    } else if (menuItem.action == @selector(toggleSidebar:)) {
+        if ([_splitController isSidebarCollapsed]) {
+            menuItem.title = NSLocalizedString(@"Show Sidebar", nil);
+        } else {
+            menuItem.title = NSLocalizedString(@"Hide Sidebar", nil);
+        }
+        return YES;
     }
     return YES;
 }
@@ -506,6 +513,11 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 
 - (IBAction)performTextFinderAction:(nullable id)sender {
     [self performFindPanelAction:sender];
+}
+
+- (IBAction)toggleSidebar:(id)sender {
+    NSSplitViewItem *item = [[_splitController splitViewItems] firstObject];
+    item.animator.collapsed = !item.collapsed;
 }
 
 #pragma mark -

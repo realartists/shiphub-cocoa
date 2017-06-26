@@ -188,6 +188,12 @@
 
 @end
 
+@interface NSSplitViewController (AppKitExtras)
+
+@property (readonly, getter=isSidebarCollapsed) BOOL sidebarCollapsed;
+
+@end
+
 @interface NSMenu (AppKitExtras)
 
 - (void)walkMenuItems:(void (^)(NSMenuItem *m, BOOL *stop))visitor;

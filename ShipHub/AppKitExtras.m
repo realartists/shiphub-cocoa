@@ -864,6 +864,14 @@ static CGFloat GetAttachmentWidth(void *ref) {
 
 @end
 
+@implementation NSSplitViewController (AppKitExtras)
+
+- (BOOL)isSidebarCollapsed {
+    return [self.splitView isSubviewCollapsed:[[self.splitView subviews] firstObject]];
+}
+
+@end
+
 @implementation NSMenu (AppKitExtras)
 
 - (BOOL)walkMenuItemsHelper:(void (^)(NSMenuItem *m, BOOL *stop))visitor {

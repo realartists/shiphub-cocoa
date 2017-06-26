@@ -1748,6 +1748,13 @@ static NSString *const TBSearchItemId = @"TBSearch";
         return [self canDeleteProject];
     } else if (menuItem.action == @selector(addNewProject:)) {
         return [self canAddNewProject];
+    } else if (menuItem.action == @selector(toggleSidebar:)) {
+        if ([self isSidebarCollapsed]) {
+            [menuItem setTitle:NSLocalizedString(@"Show Sidebar", nil)];
+        } else {
+            [menuItem setTitle:NSLocalizedString(@"Hide Sidebar", nil)];
+        }
+        return YES;
     }
     return YES;
 }
