@@ -67,10 +67,11 @@
     NSURLComponents *comps = [NSURLComponents new];
     comps.scheme = @"https";
     comps.host = self.shipHost;
-    comps.path = @"api/authentication/lambda_legacy";
+    comps.path = @"/api/authentication/lambda_legacy";
     NSURL *URL = comps.URL;
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:URL];
     request.HTTPMethod = @"POST";
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     
     NSDictionary *body = @{ @"code" : self.code };
     

@@ -40,6 +40,7 @@
         [_auth addAuthHeadersToRequest:req];
     }
     [req setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [req setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     
     for (NSString *key in [headers allKeys]) {
         [req setValue:headers[key] forHTTPHeaderField:key];
