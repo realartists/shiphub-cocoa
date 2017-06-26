@@ -186,7 +186,7 @@
                                        100.0);
         GitCommit *commit = _pr.commits[row-[self firstCommitRow]];
         _sizingCell.messageField.stringValue = [commit.message trim] ?: @"";
-        CGSize size = _sizingCell.messageField.fittingSize;
+        CGSize size = [_sizingCell.messageField sizeThatFits:CGSizeMake(_sizingCell.messageField.frame.size.width, 10000.0)];
         return size.height + 41.0;
     }
 }

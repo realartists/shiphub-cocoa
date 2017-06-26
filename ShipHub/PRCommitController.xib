@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12120"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
         <capability name="system font weights other than Regular or Bold" minToolsVersion="7.0"/>
     </dependencies>
@@ -84,7 +84,7 @@
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YSq-2H-TI0">
                                                         <rect key="frame" x="1" y="4" width="428" height="16"/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="25 Commits" id="w2E-PH-tPh">
-                                                            <font key="font" metaFont="system" size="12"/>
+                                                            <font key="font" metaFont="cellTitle"/>
                                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
@@ -126,15 +126,15 @@
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Nj-PK-VWl">
                                                         <rect key="frame" x="362" y="85" width="67" height="14"/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="2 hours ago" id="dQg-Ie-awv">
-                                                            <font key="font" metaFont="system" size="11"/>
+                                                            <font key="font" metaFont="smallSystem"/>
                                                             <color key="textColor" name="secondaryLabelColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
-                                                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="zl0-0w-TkT">
+                                                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="zl0-0w-TkT">
                                                         <rect key="frame" x="1" y="6" width="428" height="64"/>
                                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="Ffw-hb-sCr">
-                                                            <font key="font" metaFont="system" size="12"/>
+                                                            <font key="font" metaFont="cellTitle"/>
                                                             <string key="title">Fix realartists/shiphub-cocoa#280 Implement find bar in diff view
 Fix realartists/shiphub-cocoa#420 Hook up format menu for diff comments
 Fix realartists/shiphub-cocoa#421 Hook up touch bar for diff comments</string>
@@ -148,12 +148,14 @@ Fix realartists/shiphub-cocoa#421 Hook up touch bar for diff comments</string>
                                                     <constraint firstItem="xSm-wN-J04" firstAttribute="top" secondItem="Vsh-eF-798" secondAttribute="top" constant="19" id="49n-0T-gIg"/>
                                                     <constraint firstItem="xSm-wN-J04" firstAttribute="leading" secondItem="Vsh-eF-798" secondAttribute="leading" constant="3" id="523-ZV-nWV"/>
                                                     <constraint firstAttribute="trailing" secondItem="xSm-wN-J04" secondAttribute="trailing" constant="3" id="6aC-va-kyq"/>
+                                                    <constraint firstAttribute="trailing" secondItem="zl0-0w-TkT" secondAttribute="trailing" constant="3" id="ADC-wo-jJA"/>
                                                     <constraint firstAttribute="trailing" secondItem="6Nj-PK-VWl" secondAttribute="trailing" constant="3" id="MeN-fW-cCg"/>
                                                     <constraint firstItem="6Nj-PK-VWl" firstAttribute="top" secondItem="Vsh-eF-798" secondAttribute="top" constant="6" id="Mkt-Tt-dI6"/>
                                                     <constraint firstAttribute="trailing" secondItem="zl0-0w-TkT" secondAttribute="trailing" constant="3" id="OQL-Kj-Ex3"/>
                                                     <constraint firstItem="GTV-b8-mjq" firstAttribute="leading" secondItem="Vsh-eF-798" secondAttribute="leading" constant="3" id="OgZ-M5-DBz"/>
                                                     <constraint firstAttribute="height" secondItem="zl0-0w-TkT" secondAttribute="height" constant="41" id="gKD-cn-gVx"/>
                                                     <constraint firstItem="zl0-0w-TkT" firstAttribute="top" secondItem="Vsh-eF-798" secondAttribute="top" constant="35" id="j2g-F3-oap"/>
+                                                    <constraint firstItem="zl0-0w-TkT" firstAttribute="leading" secondItem="Vsh-eF-798" secondAttribute="leading" constant="3" id="q7M-dd-ePE"/>
                                                     <constraint firstItem="GTV-b8-mjq" firstAttribute="top" secondItem="Vsh-eF-798" secondAttribute="top" constant="3" id="tSV-sE-5de"/>
                                                 </constraints>
                                                 <connections>
@@ -174,11 +176,11 @@ Fix realartists/shiphub-cocoa#421 Hook up touch bar for diff comments</string>
                         </subviews>
                     </clipView>
                     <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="1uD-tO-do3">
-                        <rect key="frame" x="1" y="119" width="223" height="15"/>
+                        <rect key="frame" x="1" y="-14" width="0.0" height="15"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="iYg-3o-rdz">
-                        <rect key="frame" x="224" y="17" width="15" height="102"/>
+                        <rect key="frame" x="424" y="1" width="15" height="452"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                 </scrollView>
