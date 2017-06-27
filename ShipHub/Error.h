@@ -33,7 +33,8 @@ typedef NS_ENUM(NSInteger, ShipErrorCode) {
     ShipErrorCodeInternalInconsistencyError = 15,
     ShipErrorCodeGitCloneError = 16,
     ShipErrorCodeCannotMergePRError = 17,
-    ShipErrorCodeCannotUpdatePRBranchError = 18
+    ShipErrorCodeCannotUpdatePRBranchError = 18,
+    ShipErrorCodePartialPRError = 19
 };
 
 NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code);

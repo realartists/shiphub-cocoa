@@ -2564,79 +2564,34 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSParameterAssert(r);
     NSParameterAssert(completion);
     
-    // the create pull request endpoint only takes a title and body (and the base and head refs).
-    // beyond that, we have to patch the issue to do more with it.
+    // See format documented here: realartists/shiphub-server#455 Add dedicated new PR endpoint
+    NSString *endpoint = [NSString stringWithFormat:@"/api/shiphub/repos/%@/pulls", r.fullName];
     
-    BOOL needsPatch =  [prJSON[@"assignees"] count] > 0
-                    || prJSON[@"milestone"] != nil
-                    || [prJSON[@"labels"] count] > 0;
+    [self.serverConnection perform:@"POST" on:endpoint forGitHub:NO headers:nil body:prJSON extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
+        NSDictionary *creationInfo = error == nil ? jsonResponse : nil;
+        
+        if (httpResponse.statusCode == 202) {
+            error = [NSError shipErrorWithCode:ShipErrorCodePartialPRError];
+        }
     
-    NSMutableDictionary *createMsg = [NSMutableDictionary new];
-    createMsg[@"title"] = prJSON[@"title"];
-    if ([prJSON[@"body"] length]) {
-        createMsg[@"body"] = prJSON[@"body"];
-    }
-    createMsg[@"head"] = prJSON[@"head"];
-    createMsg[@"base"] = prJSON[@"base"];
-    
-    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls", r.fullName];
-    
-    if (needsPatch) {
-        void (^patchCompletion)(Issue *, NSError *) = ^(Issue *issue, NSError *error) {
-            
-            if (error) {
-                completion(nil, error);
-            } else {
-                NSMutableDictionary *patchDict = [prJSON mutableCopy];
-                [patchDict removeObjectForKey:@"title"];
-                [patchDict removeObjectForKey:@"body"];
-                [patchDict removeObjectForKey:@"head"];
-                [patchDict removeObjectForKey:@"base"];
-                
-                [self patchIssue:patchDict issueIdentifier:issue.fullIdentifier completion:^(Issue *patched, NSError *error2) {
-                    if (error2) {
-                        ErrLog(@"Unable to patch newly created issue: %@", error2);
-                        completion(issue, nil); // pretend we succeeded, since we did partially. better than forcing the user to submit a dupe PR.
-                    } else {
-                        completion(patched, nil);
-                    }
-                }];
-            }
-        };
-        completion = patchCompletion;
-    }
-    
-    [self.serverConnection perform:@"POST" on:endpoint body:createMsg completion:^(id jsonResponse, NSError *error) {
+        if (!error && (![creationInfo isKindOfClass:[NSDictionary class]] || !creationInfo[@"pullRequest"] || !creationInfo[@"issue"])) {
+            error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+        }
         
         if (!error) {
-            NSDictionary *createdPR = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
+            NSMutableDictionary *issueJSON = [creationInfo[@"issue"] mutableCopy];
+            issueJSON[@"pr"] = creationInfo[@"pullRequest"];
+            issueJSON[@"repository"] = r.identifier;
             
-            // need to discover the issue info, because github has only given us the pr info right now
-            NSString *issueEndpoint = [NSString stringWithFormat:@"/repos/%@/issues/%@", r.fullName, createdPR[@"number"]];
-            [self.serverConnection perform:@"GET" on:issueEndpoint body:nil completion:^(id issueBody, NSError *issueError) {
-                
-                if (!issueError) {
-                    NSMutableDictionary *issueJSON = [[JSON parseObject:issueBody withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
-                    
-                    issueJSON[@"pr"] = createdPR;
-                    issueJSON[@"repository"] = r.identifier;
-                    DebugLog(@"Storing json: %@", issueJSON);
-                    [self storeSingleSyncObject:issueJSON type:@"issue" completion:^{
-                        id issueIdentifier = [NSString stringWithFormat:@"%@#%@", r.fullName, issueJSON[@"number"]];
-                        [self loadFullIssue:issueIdentifier completion:completion];
-                    }];
-                } else {
-                    RunOnMain(^{
-                        completion(nil, error);
-                    });
-                }
+            [self storeSingleSyncObject:issueJSON type:@"issue" completion:^{
+                id issueIdentifier = [NSString stringWithFormat:@"%@#%@", r.fullName, issueJSON[@"number"]];
+                [self loadFullIssue:issueIdentifier completion:completion];
             }];
         } else {
             RunOnMain(^{
                 completion(nil, error);
             });
         }
-        
     }];
     
     [[Analytics sharedInstance] track:@"Create Pull Request"];

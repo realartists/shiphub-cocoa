@@ -62,6 +62,13 @@
 
 - (void)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
 {
+    [self perform:method on:endpoint forGitHub:forGitHub headers:headers body:jsonBody extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
+        completion(jsonResponse, error);
+    }];
+}
+
+- (void)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody extendedCompletion:(void (^)(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error))completion
+{
     if (forGitHub && ![_auth.account.shipHost isEqualToString:_auth.account.ghHost]) {
         endpoint = [@"/github" stringByAppendingString:endpoint];
     }
@@ -77,7 +84,7 @@
         request.HTTPBody = [NSJSONSerialization dataWithJSONObject:jsonBody options:0 error:&err];
         
         if (err) {
-            completion(nil, err);
+            completion(nil, nil, err);
             return;
         }
     }
@@ -140,13 +147,13 @@
                 }
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    completion(responseJSON, error);
+                    completion(http, responseJSON, error);
                 });
             } else {
                 DebugResponse(data, response, error);
                 
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                    completion(nil, error);
+                    completion(http, nil, error);
                 });
             }
             
@@ -156,7 +163,7 @@
             DebugResponse(data, response, error);
             
             dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-                completion(nil, error);
+                completion(http, nil, error);
             });
         }
         
