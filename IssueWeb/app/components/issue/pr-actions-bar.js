@@ -27,13 +27,11 @@ class PRChangeSummary extends React.Component {
     var addBoxes = Math.round(4.0 * addFrac);
     var delBoxes = 4 - addBoxes;
     
-    var numFormat = new Intl.NumberFormat();
-        
     var summary;
     if (changedFiles == 1) {
       summary = "1 changed file";
     } else {
-      summary = `${numFormat.format(changedFiles)} changed files`;
+      summary = `${changedFiles.toLocaleString()} changed files`;
     }
     
     var boxes = [];
@@ -45,8 +43,8 @@ class PRChangeSummary extends React.Component {
       boxes.push(h('span', {key:`box.${i}`, className:'PRChangeBox', style:{backgroundColor:color}}));
     }
         
-    var addLineSummary = h('span', {key:'+', className:'PRChangedLinesLabel', style:{color:'green'}}, `+${numFormat.format(additions)}`);
-    var delLineSummary = h('span', {key:'-', className:'PRChangedLinesLabel', style:{color:'red'}}, `-${numFormat.format(deletions)}`);
+    var addLineSummary = h('span', {key:'+', className:'PRChangedLinesLabel', style:{color:'green'}}, `+${additions.toLocaleString()}`);
+    var delLineSummary = h('span', {key:'-', className:'PRChangedLinesLabel', style:{color:'red'}}, `-${deletions.toLocaleString()}`);
     var lineSummary = null;
     if (additions > 0 && deletions > 0) {
       lineSummary = [addLineSummary, ' ', delLineSummary];
@@ -60,7 +58,7 @@ class PRChangeSummary extends React.Component {
     if (linesChanged == 1) {
       totalSummary = '1 line changed';
     } else {
-      totalSummary = `${numFormat.format(linesChanged)} lines changed`;
+      totalSummary = `${linesChanged.toLocaleString()} lines changed`;
     }
     
     return h('div', {className:'PRChangeSummary', title:totalSummary},

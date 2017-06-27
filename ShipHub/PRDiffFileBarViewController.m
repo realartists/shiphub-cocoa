@@ -58,8 +58,39 @@ static NSArray *controlItemsForPath(NSString *path, DiffFileMode mode) {
     
     return items;
 }
+    
+static NSArray *componentCellsForPath(NSString *path, DiffFileMode mode) {
+    NSArray *components = [path pathComponents];
+    NSMutableArray *items = [NSMutableArray arrayWithCapacity:components.count];
+    for (NSUInteger i = 0; i+1 < components.count; i++) {
+        NSPathComponentCell *cell = [NSPathComponentCell new];
+        cell.stringValue = components[i];
+        cell.image = [NSImage imageNamed:NSImageNameFolder];
+        [items addObject:cell];
+    }
+    
+    NSPathComponentCell *file = [NSPathComponentCell new];
+    NSString *lastComponent = [components lastObject];
+    NSString *title = lastComponent;
+    if (mode == DiffFileModeBlobExecutable) {
+        title = [title stringByAppendingString:@" (+x)"];
+    }
+    file.stringValue = title;
+    file.image = [[NSWorkspace sharedWorkspace] iconForFileType:[lastComponent pathExtension]];
+    
+    [items addObject:file];
+    
+    return items;
+}
 
 - (void)setFile:(GitDiffFile *)file {
+    static BOOL useDeprecatedSetPathComponentCells;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSOperatingSystemVersion vers = [[NSProcessInfo processInfo] operatingSystemVersion];
+        useDeprecatedSetPathComponentCells = vers.majorVersion == 10 && vers.minorVersion < 12;
+    });
+    
     if (_file != file) {
         _file = file;
         
@@ -68,14 +99,24 @@ static NSArray *controlItemsForPath(NSString *path, DiffFileMode mode) {
                 [self.view setContentView:_path2View];
             }
             _previousPathControl.toolTip = file.oldPath;
-            _previousPathControl.pathItems = controlItemsForPath(file.oldPath, file.oldMode);
-            _currentPathControl.pathItems = controlItemsForPath(file.path, file.mode);
+            if (!useDeprecatedSetPathComponentCells) {
+                _previousPathControl.pathItems = controlItemsForPath(file.oldPath, file.oldMode);
+                _currentPathControl.pathItems = controlItemsForPath(file.path, file.mode);
+            } else {
+                [_previousPathControl setPathComponentCells:componentCellsForPath(file.oldPath, file.oldMode)];
+                [_currentPathControl setPathComponentCells:componentCellsForPath(file.path, file.mode)];
+            }
             _currentPathControl.toolTip = file.path;
         } else {
             if (!_path1View.superview) {
                 [self.view setContentView:_path1View];
             }
-            _pathControl.pathItems = controlItemsForPath(file.path, file.mode);
+            
+            if (!useDeprecatedSetPathComponentCells) {
+                _pathControl.pathItems = controlItemsForPath(file.path, file.mode);
+            } else {
+                [_pathControl setPathComponentCells:componentCellsForPath(file.path, file.mode)];
+            }
             _pathControl.toolTip = file.path;
         }
     }
