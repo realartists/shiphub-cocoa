@@ -2568,7 +2568,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSString *endpoint = [NSString stringWithFormat:@"/api/shiphub/repos/%@/pulls", r.fullName];
     
     [self.serverConnection perform:@"POST" on:endpoint forGitHub:NO headers:nil body:prJSON extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
-        NSDictionary *creationInfo = error == nil ? [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]]: nil;
+        NSDictionary *creationInfo = error == nil ? jsonResponse : nil;
         
         if (httpResponse.statusCode == 202) {
             error = [NSError shipErrorWithCode:ShipErrorCodePartialPRError];
