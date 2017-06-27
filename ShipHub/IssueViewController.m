@@ -396,17 +396,29 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
                 alert.alertStyle = NSCriticalAlertStyle;
                 alert.messageText = NSLocalizedString(@"Unable to save issue", nil);
                 alert.informativeText = [err localizedDescription] ?: @"";
-                [alert addButtonWithTitle:NSLocalizedString(@"Retry", nil)];
-                [alert addButtonWithTitle:NSLocalizedString(@"Discard Changes", nil)];
+                
+                BOOL isPartialPRError = [err isShipError] && [err code] == ShipErrorCodePartialPRError;
+                
+                if (isPartialPRError) {
+                    [alert addButtonWithTitle:NSLocalizedString(@"Close", nil)];
+                } else {
+                    [alert addButtonWithTitle:NSLocalizedString(@"Retry", nil)];
+                    [alert addButtonWithTitle:NSLocalizedString(@"Discard Changes", nil)];
+                }
                 
                 [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
-                    if (returnCode == NSAlertFirstButtonReturn) {
-                        [self proxyAPI:msg];
+                    if (isPartialPRError) {
+                        NSDocument *doc = [[IssueDocumentController sharedDocumentController] documentForWindow:self.view.window];
+                        [doc close];
                     } else {
-                        NSString *callback;
-                        callback = [NSString stringWithFormat:@"apiCallback(%@, null, %@)", msg[@"handle"], [JSON stringifyObject:[err localizedDescription]]];
-                        [self evaluateJavaScript:callback];
-                        [self revert:nil];
+                        if (returnCode == NSAlertFirstButtonReturn) {
+                            [self proxyAPI:msg];
+                        } else {
+                            NSString *callback;
+                            callback = [NSString stringWithFormat:@"apiCallback(%@, null, %@)", msg[@"handle"], [JSON stringifyObject:[err localizedDescription]]];
+                            [self evaluateJavaScript:callback];
+                            [self revert:nil];
+                        }
                     }
                 }];
             } else {

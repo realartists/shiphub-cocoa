@@ -2567,8 +2567,12 @@ static NSString *const LastUpdated = @"LastUpdated";
     // See format documented here: realartists/shiphub-server#455 Add dedicated new PR endpoint
     NSString *endpoint = [NSString stringWithFormat:@"/api/shiphub/repos/%@/pulls", r.fullName];
     
-    [self.serverConnection perform:@"POST" on:endpoint forGitHub:NO headers:nil body:prJSON completion:^(id jsonResponse, NSError *error) {
+    [self.serverConnection perform:@"POST" on:endpoint forGitHub:NO headers:nil body:prJSON extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
         NSDictionary *creationInfo = error == nil ? [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]]: nil;
+        
+        if (httpResponse.statusCode == 202) {
+            error = [NSError shipErrorWithCode:ShipErrorCodePartialPRError];
+        }
     
         if (!error && (![creationInfo isKindOfClass:[NSDictionary class]] || !creationInfo[@"pullRequest"] || !creationInfo[@"issue"])) {
             error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];

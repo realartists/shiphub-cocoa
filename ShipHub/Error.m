@@ -35,6 +35,7 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
         case ShipErrorCodeGitCloneError: return NSLocalizedString(@"Unable to clone the repository", nil);
         case ShipErrorCodeCannotMergePRError: return NSLocalizedString(@"The Pull Request branch cannot be cleanly merged into the default repository branch", nil);
         case ShipErrorCodeCannotUpdatePRBranchError: return NSLocalizedString(@"Unable to update the pull request branch", nil);
+        case ShipErrorCodePartialPRError: return NSLocalizedString(@"The pull request was created, but it could not be loaded.", nil);
         default: return NSLocalizedString(@"Unexpected Error", nil);
     }
 }
