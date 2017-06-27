@@ -45,6 +45,11 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
     return [self shipErrorWithCode:code problemID:nil];
 }
 + (NSError *)shipErrorWithCode:(ShipErrorCode)code userInfo:(NSDictionary *)userInfo {
+    if (userInfo[NSLocalizedDescriptionKey] == nil) {
+        NSMutableDictionary *info = [userInfo mutableCopy];
+        info[NSLocalizedDescriptionKey] = ShipErrorLocalizedDescriptionForCode(code);
+        userInfo = info;
+    }
     return [NSError errorWithDomain:ShipErrorDomain code:code userInfo:userInfo];
 }
 + (NSError *)shipErrorWithCode:(ShipErrorCode)code problemID:(NSNumber *)problemID
