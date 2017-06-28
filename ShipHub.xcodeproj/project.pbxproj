@@ -182,6 +182,9 @@
 		1A5604E21CD7FFC100ACF0DF /* AttachmentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */; };
 		1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
 		1A563F7B1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
+		1A5A2AC51F0323270084737B /* WelcomeReadmeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5A2AC31F0323270084737B /* WelcomeReadmeController.m */; };
+		1A5A2AC61F0323270084737B /* WelcomeReadmeController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A5A2AC41F0323270084737B /* WelcomeReadmeController.xib */; };
+		1A5A2ACB1F0324290084737B /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1A5A2ACA1F0324290084737B /* README.rtf */; };
 		1A5B293B1D888C0A000C9F4B /* EmptyLabelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */; };
 		1A5B29421D89DCFA000C9F4B /* ProjectsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5B29411D89DCF9000C9F4B /* ProjectsViewController.m */; };
 		1A5F1A2D1E8C4F97003A16E4 /* PRDiffFileBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F1A2B1E8C4F97003A16E4 /* PRDiffFileBarViewController.m */; };
@@ -728,6 +731,10 @@
 		1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AttachmentManager.m; sourceTree = "<group>"; };
 		1A563F781CC823CF00755AAC /* APIProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIProxy.h; sourceTree = "<group>"; };
 		1A563F791CC823CF00755AAC /* APIProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIProxy.m; sourceTree = "<group>"; };
+		1A5A2AC21F0323270084737B /* WelcomeReadmeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WelcomeReadmeController.h; sourceTree = "<group>"; };
+		1A5A2AC31F0323270084737B /* WelcomeReadmeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeReadmeController.m; sourceTree = "<group>"; };
+		1A5A2AC41F0323270084737B /* WelcomeReadmeController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WelcomeReadmeController.xib; sourceTree = "<group>"; };
+		1A5A2ACA1F0324290084737B /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
 		1A5B29391D888C0A000C9F4B /* EmptyLabelView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmptyLabelView.h; sourceTree = "<group>"; };
 		1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmptyLabelView.m; sourceTree = "<group>"; };
 		1A5B29401D89DCF9000C9F4B /* ProjectsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectsViewController.h; sourceTree = "<group>"; };
@@ -1160,6 +1167,7 @@
 				1A2217951C7E7B14006460E2 /* main.m */,
 				1A2217D21C7E80F0006460E2 /* ShipHub-Prefix.pch */,
 				1A069EA41DB7FAFE009085AF /* entitlements-Debug.plist */,
+				1A5A2ACA1F0324290084737B /* README.rtf */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -1211,6 +1219,9 @@
 				1A012ECA1D46DD4B006CE5DF /* ServerChooser.h */,
 				1A012ECB1D46DD4B006CE5DF /* ServerChooser.m */,
 				1A012ECC1D46DD4B006CE5DF /* ServerChooser.xib */,
+				1A5A2AC21F0323270084737B /* WelcomeReadmeController.h */,
+				1A5A2AC31F0323270084737B /* WelcomeReadmeController.m */,
+				1A5A2AC41F0323270084737B /* WelcomeReadmeController.xib */,
 				1AF567311D62487200611DBB /* WebAuthController.h */,
 				1AF567321D62487200611DBB /* WebAuthController.m */,
 				1AF567371D625E2300611DBB /* WebAuthController.xib */,
@@ -2014,12 +2025,14 @@
 				1AF349791CDAC1E900A5BEB0 /* ChartConfigController.xib in Resources */,
 				1A3AB36B1D91BDA7004BB768 /* UnsubscribedRepoController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
+				1A5A2AC61F0323270084737B /* WelcomeReadmeController.xib in Resources */,
 				1A7FD7841D497C1700B585E2 /* AssigneeModifyController.xib in Resources */,
 				1A38C9EF1D9203AB00655891 /* HiddenRepoViewController.xib in Resources */,
 				1A3D345F1DB0380300CDF167 /* PRSidebarViewController.xib in Resources */,
 				1A7FD7751D492FE000B585E2 /* MilestoneModifyController.xib in Resources */,
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
+				1A5A2ACB1F0324290084737B /* README.rtf in Resources */,
 				1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */,
 				1A51A58C1DBE9C5400272822 /* TextViewController.xib in Resources */,
 				1A85A60E1E81EDDA004A4B23 /* PRFindBarController.xib in Resources */,
@@ -2185,6 +2198,7 @@
 				1A38CA071D934EF800655891 /* LocalProject.m in Sources */,
 				1A694AEA1CA09E6A00F73608 /* Repo.m in Sources */,
 				1ADED9E21DAC47310093A098 /* PRViewController.m in Sources */,
+				1A5A2AC51F0323270084737B /* WelcomeReadmeController.m in Sources */,
 				1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
 				282710121E3E814F001F031E /* Analytics.m in Sources */,
 				1AE09BF01C97687E00C5AC35 /* LocalRepo.m in Sources */,

@@ -15,6 +15,7 @@
 #import "NavigationController.h"
 #import "ServerChooser.h"
 #import "WebAuthController.h"
+#import "WelcomeReadmeController.h"
 
 @interface WelcomeController () <ServerChooserDelegate, NSPopoverDelegate>
 
@@ -58,15 +59,24 @@
 }
 
 - (IBAction)start:(id)sender {
-    if ([_ghHost isEqualToString:@"api.github.com"]) {
-        WebAuthController *web = [[WebAuthController alloc] initWithAuthController:[AuthController authControllerForViewController:self]];
-        web.shipHost = _shipHost;
-        [web show];
+    BOOL shownReadme = [[NSUserDefaults standardUserDefaults] boolForKey:@"ReadmeShown"];
+    
+    if (!shownReadme) {
+        WelcomeReadmeController *readme = [WelcomeReadmeController new];
+        readme.shipHost = _shipHost;
+        readme.ghHost = _ghHost;
+        [self.navigationController pushViewController:readme animated:YES];
     } else {
-        BasicAuthController *basic = [BasicAuthController new];
-        basic.shipHost = _shipHost;
-        basic.ghHost = _ghHost;
-        [self.navigationController pushViewController:basic animated:YES];
+        if ([_ghHost isEqualToString:@"api.github.com"]) {
+            WebAuthController *web = [[WebAuthController alloc] initWithAuthController:[AuthController authControllerForViewController:self]];
+            web.shipHost = _shipHost;
+            [web show];
+        } else {
+            BasicAuthController *basic = [BasicAuthController new];
+            basic.shipHost = _shipHost;
+            basic.ghHost = _ghHost;
+            [self.navigationController pushViewController:basic animated:YES];
+        }
     }
 }
 
