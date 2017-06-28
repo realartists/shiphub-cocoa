@@ -195,6 +195,7 @@ class CommentList extends React.Component {
       this.setState(Object.assign({}, this.state, {hasReply: true}));
     } else {
       this.refs.addComment.focusCodemirror();
+      this.refs.addComment.scrollIntoView();
     }
   }
   
