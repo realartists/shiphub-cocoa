@@ -185,6 +185,7 @@
 		1A5A2AC51F0323270084737B /* WelcomeReadmeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5A2AC31F0323270084737B /* WelcomeReadmeController.m */; };
 		1A5A2AC61F0323270084737B /* WelcomeReadmeController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A5A2AC41F0323270084737B /* WelcomeReadmeController.xib */; };
 		1A5A2ACB1F0324290084737B /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1A5A2ACA1F0324290084737B /* README.rtf */; };
+		1A5A2ACE1F0461EC0084737B /* Application.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5A2ACD1F0461EC0084737B /* Application.m */; };
 		1A5B293B1D888C0A000C9F4B /* EmptyLabelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */; };
 		1A5B29421D89DCFA000C9F4B /* ProjectsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5B29411D89DCF9000C9F4B /* ProjectsViewController.m */; };
 		1A5F1A2D1E8C4F97003A16E4 /* PRDiffFileBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F1A2B1E8C4F97003A16E4 /* PRDiffFileBarViewController.m */; };
@@ -735,6 +736,8 @@
 		1A5A2AC31F0323270084737B /* WelcomeReadmeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeReadmeController.m; sourceTree = "<group>"; };
 		1A5A2AC41F0323270084737B /* WelcomeReadmeController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WelcomeReadmeController.xib; sourceTree = "<group>"; };
 		1A5A2ACA1F0324290084737B /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
+		1A5A2ACC1F0461EC0084737B /* Application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Application.h; sourceTree = "<group>"; };
+		1A5A2ACD1F0461EC0084737B /* Application.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Application.m; sourceTree = "<group>"; };
 		1A5B29391D888C0A000C9F4B /* EmptyLabelView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmptyLabelView.h; sourceTree = "<group>"; };
 		1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmptyLabelView.m; sourceTree = "<group>"; };
 		1A5B29401D89DCF9000C9F4B /* ProjectsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectsViewController.h; sourceTree = "<group>"; };
@@ -1237,6 +1240,8 @@
 		1A2217CD1C7E7C52006460E2 /* App */ = {
 			isa = PBXGroup;
 			children = (
+				1A5A2ACC1F0461EC0084737B /* Application.h */,
+				1A5A2ACD1F0461EC0084737B /* Application.m */,
 				1A2217911C7E7B14006460E2 /* AppDelegate.h */,
 				1A2217921C7E7B14006460E2 /* AppDelegate.m */,
 				282710101E3E814F001F031E /* Analytics.h */,
@@ -2145,6 +2150,7 @@
 				1A3D34571DAEF88100CDF167 /* NSError+Git.m in Sources */,
 				1A38C9F61D9206C800655891 /* HiddenMilestoneViewController.m in Sources */,
 				1A694B351CA3431700F73608 /* IssueTableController.m in Sources */,
+				1A5A2ACE1F0461EC0084737B /* Application.m in Sources */,
 				1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */,
 				1A3D345A1DB0147A00CDF167 /* NSString+Git.m in Sources */,
 				1AD9ECC91D188E6800E9FAFC /* FilterButton.m in Sources */,
