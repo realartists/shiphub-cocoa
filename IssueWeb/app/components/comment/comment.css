@@ -348,12 +348,6 @@ span.CommentReactionCountMine {
   color: #0085E4;
 }
 
-.addReactionIcon::after {
-  content: "+";
-  font-weight: bold;
-  margin-right: -3px;
-}
-
 .addReactionOptions {
   cursor: default;
   -webkit-user-select: none;
