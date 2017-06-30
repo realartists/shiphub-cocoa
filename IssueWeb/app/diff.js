@@ -99,9 +99,7 @@ class App {
   
   recreateCodeRows() {
     var displayedDiffMode = this.diffMode;
-    if (this.diff.length == 0) {
-      displayedDiffMode = "split";
-    } else if (this.leftText.length == 0 || this.rightText.length == 0) {
+    if (this.leftText.length == 0 || this.rightText.length == 0) {
       displayedDiffMode = "unified";
     }
     

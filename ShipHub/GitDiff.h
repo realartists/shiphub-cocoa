@@ -46,6 +46,8 @@ typedef void (^GitDiffFileBinaryCompletion)(NSData *oldFile, NSData *newFile, NS
 @property (readonly) DiffFileMode mode;
 @property (readonly) DiffFileMode oldMode;
 
+@property (readonly, getter=isSubmodule) BOOL submodule;
+
 @property (readonly, weak) GitFileTree *parentTree;
 
 // Only valid if mode is Blob or BlobExecutable

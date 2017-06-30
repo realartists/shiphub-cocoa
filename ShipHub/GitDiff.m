@@ -470,6 +470,10 @@ static NSArray<GitFileSearchResult *> *_searchDiff(NSRegularExpression *re, GitD
     return f;
 }
 
+- (BOOL)isSubmodule {
+    return self.mode == DiffFileModeCommit;
+}
+
 - (void)_loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion completionQueue:(dispatch_queue_t)completionQueue
 {
     NSParameterAssert(textCompletion);
@@ -516,19 +520,73 @@ static NSArray<GitFileSearchResult *> *_searchDiff(NSRegularExpression *re, GitD
         BOOL isSubmodule = self.mode == DiffFileModeCommit;
         
         if (isSubmodule) {
+            NSMutableString *patch = [NSMutableString new];
+            
+            // add
+            /*
+             diff --git a/web b/web
+             new file mode 160000
+             index 0000000..6fef966
+             --- /dev/null
+             +++ b/web
+             @@ -0,0 +1 @@
+             +6fef96688f06f620235b0e7617d6bbbe8e451d60
+             */
+            
+            // update
+            /*
+             diff --git a/web b/web
+             index 6fef966..5eda0b7 160000
+             --- a/web
+             +++ b/web
+             @@ -1 +1 @@
+             -Subproject commit 6fef96688f06f620235b0e7617d6bbbe8e451d60
+             +Subproject commit 5eda0b7902a0e0ac6320e57444779d154b7915a7
+             */
+            
+            // delete
+            /*
+             diff --git a/web b/web
+             deleted file mode 160000
+             index 5eda0b7..0000000
+             --- a/web
+             +++ /dev/null
+             @@ -1 +0,0 @@
+             -Subproject commit 5eda0b7902a0e0ac6320e57444779d154b7915a7
+             */
+            
+            BOOL add = git_oid_iszero(&_oldOid);
+            BOOL delete = git_oid_iszero(&_newOid);
+            
+            [patch appendFormat:@"diff --git a/%@ b/%@\n", self.oldPath, self.path];
+            char bufOld[8];
+            char bufNew[8];
+            [patch appendFormat:@"index %s..%s\n", git_oid_tostr(bufOld, 8, &_oldOid), git_oid_tostr(bufNew, 8, &_newOid)];
+            [patch appendFormat:@"--- %@\n", add?@"/dev/null":[@"a/" stringByAppendingString:self.oldPath]];
+            [patch appendFormat:@"+++ %@\n", delete?@"/dev/null":[@"b/" stringByAppendingString:self.path]];
+            if (add) {
+                [patch appendString:@"@@ -0,0 +1 @@\n"];
+            } else if (delete) {
+                [patch appendString:@"@@ -1 +0,0 @@\n"];
+            } else /* update */ {
+                [patch appendString:@"@@ -1 +1 @@\n"];
+            }
+            
             if (!git_oid_iszero(&_oldOid)) {
                 oldText = [NSString stringWithGitOid:&_oldOid];
+                [patch appendFormat:@"-%@\n", oldText];
             } else {
                 oldText = @"";
             }
             
             if (!git_oid_iszero(&_newOid)) {
                 newText = [NSString stringWithGitOid:&_newOid];
+                [patch appendFormat:@"+%@\n", newText];
             } else {
                 newText = @"";
             }
             
-            patchText = @"";
+            patchText = [NSString stringWithString:patch];
             
             dispatch_async(completionQueue, ^{
                 textCompletion(oldText, newText, patchText, nil);
