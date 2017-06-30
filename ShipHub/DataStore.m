@@ -1293,15 +1293,17 @@ static NSString *const LastUpdated = @"LastUpdated";
         } else if ([obj isKindOfClass:[LocalCommitComment class]]) {
             addSha([obj commitId]);
         } else if ([obj isKindOfClass:[LocalProtectedBranch class]]) {
-            if (!changedProtectedBranches) {
-                changedProtectedBranches = [NSMutableDictionary new];
-            }
             LocalProtectedBranch *br = obj;
-            NSMutableSet *branchNames = [changedProtectedBranches objectForKey:br.repository.objectID];
-            if (!branchNames) {
-                changedProtectedBranches[br.repository.objectID] = branchNames = [NSMutableSet new];
+            if (br.repository.objectID) {
+                if (!changedProtectedBranches) {
+                    changedProtectedBranches = [NSMutableDictionary new];
+                }
+                NSMutableSet *branchNames = [changedProtectedBranches objectForKey:br.repository.objectID];
+                if (!branchNames) {
+                    changedProtectedBranches[br.repository.objectID] = branchNames = [NSMutableSet new];
+                }
+                [branchNames addObject:br.name];
             }
-            [branchNames addObject:br.name];
         }
     }];
     
