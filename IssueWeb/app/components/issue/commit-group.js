@@ -197,7 +197,7 @@ class CommitStatuses extends React.Component {
         case 'pending':
           count.pending++;
           break;
-        case 'failed':
+        case 'failure':
         case 'error':
           count.failed++;
           break;
@@ -208,11 +208,12 @@ class CommitStatuses extends React.Component {
     var msg = (text) => {
       if (d.msg.length == 0) d.msg = text;
       else d.msg += ", " + text;
-    } 
-    if (count.success == 1) {
-      msg("1 check passed");
-    } else if (count.success > 1) {
-      msg(`${count.success} checks passed`);
+    }
+    
+    if (count.failed == 1) {
+      msg("1 check failed");
+    } else if (count.failed > 1) {
+      msg(`${count.failed} checks failed`);
     }
     
     if (count.pending == 1) {
@@ -220,11 +221,11 @@ class CommitStatuses extends React.Component {
     } else if (count.pending > 1) {
       msg(`${count.pending} checks pending`);
     }
-    
-    if (count.failed == 1) {
-      msg("1 check failed");
-    } else if (count.failed > 1) {
-      msg(`${count.failed} checks failed`);
+     
+    if (count.success == 1) {
+      msg("1 check passed");
+    } else if (count.success > 1) {
+      msg(`${count.success} checks passed`);
     }
     
     if (d.msg.length > 0) d.msg = ` ${d.msg}.`;
