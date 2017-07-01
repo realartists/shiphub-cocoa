@@ -353,7 +353,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
         PRPullDestination *dest = destLookup[ev.repoFullName];
         NSAssert(dest != nil, nil);
         
-        BOOL hasADestination = dest.upstreamRepoFullNames.count || ![[dest defaultBranchName] isEqualToString:ev.branchName];
+        BOOL hasADestination = dest.upstreamRepoFullNames.count || (dest && ![[dest defaultBranchName] isEqualToString:ev.branchName]);
         return hasADestination;
     }]];
     
