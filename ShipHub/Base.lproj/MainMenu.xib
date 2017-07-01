@@ -727,6 +727,13 @@ CA
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="VMB-0c-sUi"/>
+                            <menuItem title="Twitter" id="A9r-ZH-Hrs">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showTwitter:" target="Voe-Tx-rLC" id="CDb-Uz-Dv2"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="TDq-aT-YXi"/>
                             <menuItem title="Acknowledgements" id="fhx-eQ-ELL">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

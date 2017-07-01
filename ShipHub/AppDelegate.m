@@ -633,4 +633,9 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     }
 }
 
+- (IBAction)showTwitter:(id)sender {
+    NSURL *URL = [NSURL URLWithString:@"https://twitter.com/ShipRealArtists"];
+    [[NSWorkspace sharedWorkspace] openURL:URL];
+}
+
 @end
