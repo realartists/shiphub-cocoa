@@ -1189,15 +1189,20 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (void)syncConnectionWillConnect:(SyncConnection *)sync {
+    Trace();
     dispatch_async(dispatch_get_main_queue(), ^{
-        _logSyncProgress = -1.0;
-        _spiderProgress = -1.0;
-        _syncConnectionActive = NO;
-        [self postNotification:DataStoreDidUpdateProgressNotification userInfo:nil];
+        // for some reason willConnect can sometimes come earlier than didConnect (thanks SocketRocket!)
+        if (!_syncConnectionActive) {
+            _logSyncProgress = -1.0;
+            _spiderProgress = -1.0;
+            [self postNotification:DataStoreDidUpdateProgressNotification userInfo:nil];
+        }
     });
 }
 
 - (void)syncConnectionDidConnect:(SyncConnection *)sync {
+    Trace();
+    
     NSDate *lastUpdated = [NSDate date];
     self.lastUpdated = lastUpdated;
     [self performWrite:^(NSManagedObjectContext *moc) {

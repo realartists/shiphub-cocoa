@@ -94,7 +94,7 @@
         self.stringValue = @"";
     }
     
-    DebugLog(@"lastUpdated: %@ logProgress: %.0f%% spiderProgress: %.0f%% stringValue:%@", lastUpdated, logProgress * 100.0, spiderProgress * 100.0, self.stringValue);
+    DebugLog(@"offline: %d connected: %d lastUpdated: %@ logProgress: %.0f%% spiderProgress: %.0f%% stringValue:%@", offline, connected, lastUpdated, logProgress * 100.0, spiderProgress * 100.0, self.stringValue);
 }
 
 - (void)mouseUp:(NSEvent *)event {

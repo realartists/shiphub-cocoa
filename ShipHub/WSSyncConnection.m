@@ -301,6 +301,8 @@ static uint64_t ServerHelloMinimumVersion = 2;
     NSString *type = msg[MessageFieldType];
     
     if ([type isEqualToString:MessageHello]) {
+        [self.delegate syncConnectionDidConnect:self];
+        
         uint64_t serverVersion = [msg[MessageFieldHelloVersion] unsignedLongLongValue];
         if (serverVersion < ServerHelloMinimumVersion) {
             ErrLog(@"Server version is too low");
@@ -327,10 +329,6 @@ static uint64_t ServerHelloMinimumVersion = 2;
             [self reset];
             return;
         }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.delegate syncConnectionDidConnect:self];
-        });
     } else if ([type isEqualToString:MessageSync]) {
         _syncVersions = msg[MessageFieldVersions];
         
