@@ -57,6 +57,9 @@
     } else if (menuItem.action == @selector(cloneIssue:)) {
         Issue *i = [self keyOrSelectedProblem];
         return i != nil && i.pullRequest == NO;
+    } else if (menuItem.action == @selector(newDocument:)
+               || menuItem.action == @selector(newPullRequest:)) {
+        return [[DataStore activeStore] isValid];
     }
     return [super validateMenuItem:menuItem];
 }
@@ -465,8 +468,10 @@
 }
 
 - (IBAction)newPullRequest:(id)sender {
-    PRCreateController *prc = [PRCreateController new];
-    [prc showWindow:sender]; // prc manages its own lifetime.
+    if ([[DataStore activeStore] isValid]) {
+        PRCreateController *prc = [PRCreateController new];
+        [prc showWindow:sender]; // prc manages its own lifetime.
+    }
 }
 
 @end
