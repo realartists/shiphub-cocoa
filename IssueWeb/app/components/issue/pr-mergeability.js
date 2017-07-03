@@ -525,7 +525,7 @@ class PRMergeabilityActions extends React.Component {
 
 class PRMergeability extends React.Component {
   render() {
-    if (this.props.issue.state == 'closed' || !this.props.issue.number || !this.props.issue.pull_request || keypath(this.props.issue, "pr.merged") == true) {
+    if (this.props.issue.state == 'closed' || !this.props.issue.number || !this.props.issue.pull_request || this.props.issue.merged) {
       return h('span', {}); // we're closed. go home.
     }
     
