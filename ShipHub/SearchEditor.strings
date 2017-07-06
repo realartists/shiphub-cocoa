@@ -62,4 +62,6 @@
 "%[pullRequest]@ %[is]@ %[1]@" = "%1$[Issue type]@ %2$[is]@ %3$[pull request]@";
 "%[pullRequest]@ %[is]@ %[0]@" = "%1$[Issue type]@ %2$[is]@ %3$[issue]@";
 
+"%[pr.requestedReviewers.login]@ %[is]@ %@" = "%1$[Requested reviewers]@ %2$[contains]@ %3$@";
+
 
