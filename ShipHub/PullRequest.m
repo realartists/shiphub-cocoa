@@ -379,8 +379,17 @@
     return _dir;
 }
 
+- (NSDictionary *)headRepo {
+    id repo = _info[@"head"][@"repo"];
+    if ([repo isKindOfClass:[NSDictionary class]]) {
+        return repo;
+    } else {
+        return nil;
+    }
+}
+
 - (NSString *)mergeTitle {
-    return [NSString stringWithFormat:@"Merge pull request #%@ from %@/%@", _issue.number, _info[@"head"][@"repo"][@"full_name"], _info[@"head"][@"ref"]];
+    return [NSString stringWithFormat:@"Merge pull request #%@ from %@/%@", _issue.number, [self headRepo][@"full_name"], _info[@"head"][@"ref"]];
 }
 
 - (NSString *)mergeMessage {
@@ -388,10 +397,10 @@
 }
 
 - (NSString *)headDescription {
-    if ([_info[@"head"][@"repo"][@"full_name"] isEqualToString:_info[@"base"][@"repo"][@"full_name"]]) {
+    if ([[self headRepo][@"full_name"] isEqualToString:_info[@"base"][@"repo"][@"full_name"]]) {
         return _info[@"head"][@"ref"];
     } else {
-        return [NSString stringWithFormat:@"%@:%@", _info[@"head"][@"repo"][@"full_name"], _info[@"head"][@"ref"]];
+        return [NSString stringWithFormat:@"%@:%@", [self headRepo][@"full_name"], _info[@"head"][@"ref"]];
     }
 }
 
@@ -483,8 +492,12 @@
     if (error) return error;
     
     NSString *headBranch = prInfo[@"head"][@"ref"];
-    if (![prInfo[@"head"][@"repo"][@"full_name"] isEqualToString:prInfo[@"base"][@"repo"][@"full_name"]]) {
-        headBranch = [NSString stringWithFormat:@"%@/%@", prInfo[@"head"][@"repo"][@"full_name"], headBranch];
+    NSDictionary *headRepo = prInfo[@"head"][@"repo"];
+    if (![headRepo isKindOfClass:[NSDictionary class]]) {
+        headRepo = nil;
+    }
+    if (headRepo && ![headRepo[@"full_name"] isEqualToString:prInfo[@"base"][@"repo"][@"full_name"]]) {
+        headBranch = [NSString stringWithFormat:@"%@/%@", headRepo[@"full_name"], headBranch];
     }
     
     NSString *newBranch = [NSString stringWithFormat:@"revert-%@-%@", _issue.number, headBranch];
@@ -555,9 +568,13 @@
     }
     
     NSString *remoteURLStr = prInfo[@"base"][@"repo"][@"clone_url"];
-    NSString *headURLStr = prInfo[@"head"][@"repo"][@"clone_url"];
+    NSDictionary *headRepo = prInfo[@"head"][@"repo"];
+    if (![headRepo isKindOfClass:[NSDictionary class]]) {
+        headRepo = nil;
+    }
+    NSString *headURLStr = headRepo[@"clone_url"];
     
-    if (![remoteURLStr isEqualToString:headURLStr]) {
+    if (!headURLStr || ![remoteURLStr isEqualToString:headURLStr]) {
         return [NSError shipErrorWithCode:ShipErrorCodeCannotUpdatePRBranchError];
     }
     
