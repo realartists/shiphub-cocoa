@@ -366,14 +366,21 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
     for (PRPushEvent *ev in events) {
         PRPullDestination *d1 = destLookup[ev.repoFullName];
         
+        NSArray *(^upstreamDestinations)() = ^{
+            NSMutableArray *usds = [NSMutableArray new];
+            for (NSString *destFullName in d1.upstreamRepoFullNames) {
+                PRPullDestination *dest = destLookup[destFullName];
+                if (dest) {
+                    [usds addObject:destFullName];
+                }
+            }
+            return usds;
+        };
+        
         if ([d1.defaultBranchName isEqualToString:ev.branchName]) {
-            ev.destinations = [d1.upstreamRepoFullNames arrayByMappingObjects:^id(PRPullDestination *obj) {
-                return destLookup[obj.repoFullName];
-            }];
+            ev.destinations = upstreamDestinations();
         } else if (d1.upstreamRepoFullNames.count > 0) {
-            ev.destinations = [[d1.upstreamRepoFullNames arrayByMappingObjects:^id(PRPullDestination *obj) {
-                return destLookup[obj.repoFullName];
-            }] arrayByAddingObject:d1];
+            ev.destinations = [upstreamDestinations() arrayByAddingObject:d1];
         } else {
             ev.destinations = @[d1];
         }
