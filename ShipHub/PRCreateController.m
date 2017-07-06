@@ -371,7 +371,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
             for (NSString *destFullName in d1.upstreamRepoFullNames) {
                 PRPullDestination *dest = destLookup[destFullName];
                 if (dest) {
-                    [usds addObject:destFullName];
+                    [usds addObject:dest];
                 }
             }
             return usds;
