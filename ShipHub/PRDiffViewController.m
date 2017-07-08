@@ -327,6 +327,10 @@ static BOOL differentiateWithoutColor() {
 }
 
 - (void)findBarController:(PRFindBarController *)controller searchFor:(NSString *)str {
+    if (!str) {
+        return;
+    }
+    
     NSString *js = [NSString stringWithFormat:@"window.search(%@)", [JSON stringifyObject:@{ @"str" : str }]];
     [self evaluateJavaScript:js];
 }
@@ -351,7 +355,9 @@ static BOOL differentiateWithoutColor() {
     NSString *js = [NSString stringWithFormat:@"window.search()"];
     if (self.didFinishLoading) {
         [self.web evaluateJavaScript:js completionHandler:^(id txt, NSError *error) {
-            handler(txt);
+            if ([txt isKindOfClass:[NSString class]] && [txt length] != 0) {
+                handler(txt);
+            }
         }];
     } else {
         handler(@"");
