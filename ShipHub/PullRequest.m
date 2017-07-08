@@ -182,7 +182,7 @@
     
     NSString *remoteURLStr = _info[@"base"][@"repo"][@"clone_url"]; // want to use the base, as this is "origin"
     
-    if (!remoteURLStr) {
+    if (![remoteURLStr hasPrefix:@"https://"]) {
         Auth *auth = [[DataStore activeStore] auth];
         remoteURLStr = [NSString stringWithFormat:@"https://%@/%@.git", [auth.account.ghHost stringByReplacingOccurrencesOfString:@"api." withString:@""], _info[@"base"][@"repo"][@"full_name"]];
     }
@@ -250,12 +250,47 @@
 
 // runs on a background queue
 - (NSError *)checkoutWithProgress:(NSProgress *)progress {
-    __block NSDictionary *prInfo = nil;
-    
     [[DataStore activeStore] checkForIssueUpdates:_issue.fullIdentifier];
     
-    prInfo = [JSON serializeObject:_issue withNameTransformer:[JSON underbarsAndIDNameTransformer]];
+    // it's possible that we don't yet have the actual pull request data yet.
+    // if we don't, we need to block and get it now.
     
+    __block NSDictionary *prInfo = nil;
+    if ([_issue.base[@"ref"] length] == 0 || [_issue.head[@"ref"] length] == 0) {
+        Auth *auth = [[DataStore activeStore] auth];
+        RequestPager *pager = [[RequestPager alloc] initWithAuth:auth];
+        dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+        
+        __block NSError *prError = nil;
+        
+        NSInteger operations = 0;
+        
+        NSString *pullEndpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@", _issue.repository.fullName, _issue.number];
+        [pager fetchSingleObject:[pager get:pullEndpoint] completion:^(NSDictionary *obj, NSError *err) {
+            prError = err;
+            prInfo = obj;
+            dispatch_semaphore_signal(sema);
+        }];
+        operations++;
+        
+        progress.totalUnitCount = operations;
+        progress.completedUnitCount = 0;
+        progress.localizedDescription = NSLocalizedString(@"Loading pull request metadata", nil);
+        
+        // wait for responses
+        while (operations != 0 && !progress.cancelled) {
+            dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER);
+            operations--;
+            progress.completedUnitCount += 1;
+        }
+        
+        if (progress.cancelled) return [NSError cancelError];
+        
+        if (prError) return prError;
+    } else {
+        // we know everything we need already
+        prInfo = [JSON serializeObject:_issue withNameTransformer:[JSON underbarsAndIDNameTransformer]];
+    }
     _info = prInfo;
     [self lightweightMergeUpdatedIssue:_issue];
     
