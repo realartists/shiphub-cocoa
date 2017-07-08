@@ -450,7 +450,7 @@ span.AssigneesPicker .tt-hint {
 div.IssueLabels {
   margin-top: -1px;
   line-height: 24px;
-  min-height: 26px;
+  min-height: 27px;
 }
 div.IssueLabels span {
   cursor: default;
