@@ -33,10 +33,21 @@
     
     _issue = issue;
     
-    if ([issue.base[@"repo"][@"fullName"] isEqualToString:issue.head[@"repo"][@"fullName"]]
-        && ![issue.head[@"repo"][@"defaultBranch"] isEqualToString:issue.head[@"ref"]])
+    NSDictionary *baseRepo, *headRepo;
+    baseRepo = headRepo = nil;
+    
+    if ([issue.base[@"repo"] isKindOfClass:[NSDictionary class]]) {
+        baseRepo = issue.base[@"repo"];
+    }
+    
+    if ([issue.head[@"repo"] isKindOfClass:[NSDictionary class]]) {
+        headRepo = issue.head[@"repo"];
+    }
+    
+    if (baseRepo[@"fullName"] != nil
+        && [NSObject object:baseRepo[@"fullName"] isEqual:headRepo[@"fullName"]]
+        && ![headRepo[@"defaultBranch"] isEqualToString:issue.head[@"ref"]])
     {
-        
         _infoLabel.hidden = NO;
         _deleteButton.state = NSOffState;
         _deleteButton.hidden = NO;
