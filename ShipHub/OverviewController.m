@@ -623,6 +623,25 @@ static NSString *const TBSearchItemId = @"TBSearch";
                 repoNode.viewController = _unsubscribedRepoController;
                 repoNode.icon = [NSImage overviewIconNamed:@"Locked"];
             } else {
+                NSArray *milestones = [metadata activeMilestonesForRepo:repo];
+                for (Milestone *mile in milestones) {
+                    if (!mile.hidden) {
+                        OverviewNode *node = [OverviewNode new];
+                        node.cellIdentifier = @"MilestoneCell";
+                        node.representedObject = @[mile];
+                        node.menu = hideMilestoneMenu;
+                        node.title = mile.title;
+                        if (mile.dueOn) {
+                            node.toolTip = [NSString stringWithFormat:@"Due %@", [[NSDateFormatter shortRelativeDateFormatter] stringFromDate:mile.dueOn]];
+                        }
+                        node.showProgress = YES;
+                        node.predicate = [NSPredicate predicateWithFormat:@"milestone.identifier = %@", mile.identifier];
+                        node.icon = milestoneIcon;
+                        node.identifier = [NSString stringWithFormat:@"RepoMilestone.%@", mile.identifier];
+                        [repoNode addChild:node];
+                    }
+                }
+                
                 NSArray *projects = [metadata projectsForRepo:repo];
                 for (Project *proj in projects) {
                     OverviewNode *projNode = [OverviewNode new];
