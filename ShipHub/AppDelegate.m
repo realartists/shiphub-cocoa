@@ -23,6 +23,7 @@
 #import "TextViewController.h"
 #import "WelcomeHelpController.h"
 #import "PRDocument.h"
+#import "RepoController.h"
 
 #import <HockeySDK/HockeySDK.h>
 #import <Sparkle/Sparkle.h>
@@ -54,6 +55,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 @property (strong) IBOutlet NSMutableArray *overviewControllers;
 
 @property (strong) WelcomeHelpController *welcomeController;
+@property (strong) RepoController *repoController;
 
 @end
 
@@ -275,7 +277,8 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
         || menuItem.action == @selector(showOverviewController:)
         || menuItem.action == @selector(newOverviewController:)
         || menuItem.action == @selector(searchAllProblems:)
-        || menuItem.action == @selector(showBilling:))
+        || menuItem.action == @selector(showBilling:)
+        || menuItem.action == @selector(showRepoController:))
     {
         return _auth != nil && _auth.authState == AuthStateValid;
     }
@@ -435,6 +438,8 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
         [_authController close];
         [_subscriptionController close];
         [_overviewControllers makeObjectsPerformSelector:@selector(close)];
+        [_repoController close];
+        _repoController = nil;
         
         IssueDocumentController *docController = [IssueDocumentController sharedDocumentController];
         [docController closeAllDocumentsWithDelegate:self
@@ -636,6 +641,21 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
 - (IBAction)showTwitter:(id)sender {
     NSURL *URL = [NSURL URLWithString:@"https://twitter.com/ShipRealArtists"];
     [[NSWorkspace sharedWorkspace] openURL:URL];
+}
+
+- (IBAction)showRepoController:(id)sender {
+    Auth *auth = _auth;
+    if (auth.authState == AuthStateValid) {
+        if (!_repoController) {
+            _repoController = [[RepoController alloc] initWithAuth:_auth];
+        }
+        if (!_repoController.window.isVisible) {
+            [_repoController showWindow:nil];
+            [_repoController loadData];
+        } else {
+            [_repoController showWindow:nil];
+        }
+    }
 }
 
 @end

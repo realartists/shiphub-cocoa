@@ -286,7 +286,7 @@
                                             <constraint firstAttribute="width" constant="12" id="29I-ao-FDz"/>
                                             <constraint firstAttribute="height" constant="12" id="eXs-hx-Hoe"/>
                                         </constraints>
-                                        <popUpButtonCell key="cell" type="square" title="Item" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" imageScaling="proportionallyDown" inset="2" pullsDown="YES" arrowPosition="noArrow" altersStateOfSelectedItem="NO" selectedItem="0AE-Dc-g65" id="AFs-6i-m0Q">
+                                        <popUpButtonCell key="cell" type="square" title="Item" bezelStyle="shadowlessSquare" alignment="left" lineBreakMode="truncatingTail" imageScaling="proportionallyDown" inset="2" pullsDown="YES" arrowPosition="noArrow" altersStateOfSelectedItem="NO" id="AFs-6i-m0Q">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
                                             <menu key="menu" id="f8l-Dg-vDW">
@@ -310,6 +310,13 @@
                                                         <modifierMask key="keyEquivalentModifierMask"/>
                                                         <connections>
                                                             <action selector="addNewProject:" target="-2" id="FcW-Z3-Fwa"/>
+                                                        </connections>
+                                                    </menuItem>
+                                                    <menuItem isSeparatorItem="YES" id="dq3-iB-B84"/>
+                                                    <menuItem title="Add Repositories…" id="4AV-XT-WFa">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                        <connections>
+                                                            <action selector="showRepoController:" target="-2" id="BMm-Er-KVP"/>
                                                         </connections>
                                                     </menuItem>
                                                 </items>

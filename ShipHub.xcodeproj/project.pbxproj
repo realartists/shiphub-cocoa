@@ -344,6 +344,9 @@
 		1AE6F11C1E53BDB7008FD8AC /* PRComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE6F11B1E53BDB7008FD8AC /* PRComment.m */; };
 		1AE8775E1E786774008AB0AD /* PRCreateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE8775C1E786774008AB0AD /* PRCreateController.m */; };
 		1AE8775F1E786774008AB0AD /* PRCreateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AE8775D1E786774008AB0AD /* PRCreateController.xib */; };
+		1AE902051F141F5500482432 /* RepoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE902031F141F5500482432 /* RepoController.m */; };
+		1AE902061F141F5500482432 /* RepoController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AE902041F141F5500482432 /* RepoController.xib */; };
+		1AE902091F1582B400482432 /* RepoPrefs.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE902081F1582B400482432 /* RepoPrefs.m */; };
 		1AF349501CDA95F000A5BEB0 /* TimeSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */; };
 		1AF349511CDA95F000A5BEB0 /* TimeSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */; };
 		1AF349751CDAC1E900A5BEB0 /* ChartController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF3496F1CDAC1E900A5BEB0 /* ChartController.m */; };
@@ -954,6 +957,11 @@
 		1AE8775B1E786774008AB0AD /* PRCreateController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRCreateController.h; sourceTree = "<group>"; };
 		1AE8775C1E786774008AB0AD /* PRCreateController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRCreateController.m; sourceTree = "<group>"; };
 		1AE8775D1E786774008AB0AD /* PRCreateController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRCreateController.xib; sourceTree = "<group>"; };
+		1AE902021F141F5500482432 /* RepoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RepoController.h; sourceTree = "<group>"; };
+		1AE902031F141F5500482432 /* RepoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RepoController.m; sourceTree = "<group>"; };
+		1AE902041F141F5500482432 /* RepoController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = RepoController.xib; sourceTree = "<group>"; };
+		1AE902071F1582B400482432 /* RepoPrefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RepoPrefs.h; sourceTree = "<group>"; };
+		1AE902081F1582B400482432 /* RepoPrefs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RepoPrefs.m; sourceTree = "<group>"; };
 		1AF3494E1CDA95F000A5BEB0 /* TimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeSeries.h; sourceTree = "<group>"; };
 		1AF3494F1CDA95F000A5BEB0 /* TimeSeries.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimeSeries.m; sourceTree = "<group>"; };
 		1AF3496E1CDAC1E900A5BEB0 /* ChartController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChartController.h; sourceTree = "<group>"; };
@@ -1153,6 +1161,7 @@
 				1A2A8B5D1D55101B00F24F32 /* New Label */,
 				1A2A8B591D55100D00F24F32 /* New Milestone */,
 				1A38CA0D1D9363C100655891 /* New Project */,
+				1AE902011F141F2400482432 /* Repo Chooser */,
 				1AF3494A1CDA95D100A5BEB0 /* Charting */,
 				1A5B293F1D89DCA8000C9F4B /* Projects */,
 				1A7FD76A1D492E5800B585E2 /* Bulk Modify */,
@@ -1383,6 +1392,8 @@
 				1A48BB521D80DED6001E761E /* IssueNotification.m */,
 				1ACA83781EB28C2800386B12 /* CommitStatus.h */,
 				1ACA83791EB28C2800386B12 /* CommitStatus.m */,
+				1AE902071F1582B400482432 /* RepoPrefs.h */,
+				1AE902081F1582B400482432 /* RepoPrefs.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -1804,6 +1815,16 @@
 			name = "Pull Request";
 			sourceTree = "<group>";
 		};
+		1AE902011F141F2400482432 /* Repo Chooser */ = {
+			isa = PBXGroup;
+			children = (
+				1AE902021F141F5500482432 /* RepoController.h */,
+				1AE902031F141F5500482432 /* RepoController.m */,
+				1AE902041F141F5500482432 /* RepoController.xib */,
+			);
+			name = "Repo Chooser";
+			sourceTree = "<group>";
+		};
 		1AF3494A1CDA95D100A5BEB0 /* Charting */ = {
 			isa = PBXGroup;
 			children = (
@@ -2061,6 +2082,7 @@
 				1A5F1A2E1E8C4F97003A16E4 /* PRDiffFileBarViewController.xib in Resources */,
 				1A2FCCF81E68EADA0000F91B /* PRReviewChangesViewController.xib in Resources */,
 				1A3C5B251DDCE241005F9A01 /* WelcomeHelpController.xib in Resources */,
+				1AE902061F141F5500482432 /* RepoController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2147,6 +2169,7 @@
 				1A694AF61CA09EAD00F73608 /* Label.m in Sources */,
 				1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */,
 				1A4353551E73762A00C5F5AB /* PRMergeViewController.m in Sources */,
+				1AE902051F141F5500482432 /* RepoController.m in Sources */,
 				1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
 				1AB4785F1ECF9526006002DB /* CommitComment.m in Sources */,
@@ -2154,6 +2177,7 @@
 				1A694B101CA3413700F73608 /* ResultsController.m in Sources */,
 				1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
+				1AE902091F1582B400482432 /* RepoPrefs.m in Sources */,
 				1A3D344F1DAEF5F900CDF167 /* GitCommit.m in Sources */,
 				1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
 				1A3D34571DAEF88100CDF167 /* NSError+Git.m in Sources */,

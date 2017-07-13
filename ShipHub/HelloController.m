@@ -14,8 +14,13 @@
 #import "Error.h"
 #import "Extras.h"
 #import "Defaults.h"
+#import "RepoController.h"
+#import "RepoPrefs.h"
+#import "NavigationController.h"
 
 @interface HelloController ()
+
+@property RepoController *repoController;
 
 @end
 
@@ -33,7 +38,34 @@
     return @"da1cde7cfd134d837ae6";
 }
 
-- (void)sayHello:(NSString *)oauthToken {
+- (void)showRepoSelectionIfNeededForToken:(NSString *)oauthToken {
+    NSMutableDictionary *accountDict = [NSMutableDictionary new];
+    accountDict[@"ghHost"] = [self ghHost];
+    accountDict[@"shipHost"] = [self shipHost];
+    AuthAccount *account = [[AuthAccount alloc] initWithDictionary:accountDict];
+    
+    self.repoController = [[RepoController alloc] initWithAuth:[Auth temporaryAuthWithAccount:account ghToken:oauthToken]];
+    [self.repoController loadAndShowIfNeeded:^(BOOL wasNeeded, NSError *error) {
+        if (error) {
+            [self presentError:error];
+        } else if (!wasNeeded) {
+            [self sayHello:oauthToken withRepoPrefs:nil];
+        } else {
+            DebugLog(@"Showing repo controller");
+            [self.view.window close]; // hide our window
+            // repo controller will now show itself
+        }
+    } chosenHandler:^(RepoPrefs *chosenPrefs) {
+        if (chosenPrefs) {
+            [self sayHello:oauthToken withRepoPrefs:chosenPrefs];
+        } else {
+            // user cancelled.
+            [self.navigationController popToRootViewControllerAnimated:YES];
+        }
+    }];
+}
+
+- (void)sayHello:(NSString *)oauthToken withRepoPrefs:(RepoPrefs *)repoPrefs {
     // callable from any queue, so we're not necessarily on the main queue here.
     
     if ([_shipHost isEqualToString:_ghHost]) {
@@ -45,9 +77,13 @@
                                        [self shipHost]]];
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
     
-    NSDictionary *body = @{ @"accessToken" : oauthToken,
-                            @"applicationId" : [self clientID],
-                            @"clientName" : [[NSBundle mainBundle] bundleIdentifier] };
+    NSMutableDictionary *body = [@{ @"accessToken" : oauthToken,
+                                    @"applicationId" : [self clientID],
+                                    @"clientName" : [[NSBundle mainBundle] bundleIdentifier] } mutableCopy];
+    
+    if (repoPrefs) {
+        body[@"repoPrefs"] = [repoPrefs dictionaryRepresentation];
+    }
     
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];

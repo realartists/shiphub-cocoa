@@ -12,6 +12,8 @@
 
 + (instancetype)activeManager; // don't cache this as it can change
 
+- (id)initWithHost:(NSString *)host;
+
 // Returns an image that progressively gains representations
 - (NSImage *)imageForAccountIdentifier:(NSNumber *)accountIdentifier avatarURL:(NSURL *)avatarURL;
 

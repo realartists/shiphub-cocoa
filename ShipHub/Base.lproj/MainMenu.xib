@@ -62,6 +62,12 @@
                                     <action selector="showBilling:" target="Voe-Tx-rLC" id="cZy-5e-EKL"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Choose Repositories…" id="V9y-Ti-Yf5">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="showRepoController:" target="Voe-Tx-rLC" id="DYn-AF-5uo"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="Smb-TV-uja"/>
                             <menuItem title="Services" id="NMo-om-nkz">
                                 <modifierMask key="keyEquivalentModifierMask"/>
@@ -744,6 +750,7 @@ CA
                     </menu>
                 </menuItem>
             </items>
+            <point key="canvasLocation" x="-131" y="165"/>
         </menu>
     </objects>
 </document>
