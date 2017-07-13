@@ -262,7 +262,7 @@
                     [self presentError:decodeErr];
                 });
             } else {
-                [self sayHello:oauthToken];
+                [self showRepoSelectionIfNeededForToken:oauthToken];
             }
         } else if (http.statusCode == 401 && [http allHeaderFields][@"X-GitHub-OTP"] != nil) {
             dispatch_async(dispatch_get_main_queue(), ^{

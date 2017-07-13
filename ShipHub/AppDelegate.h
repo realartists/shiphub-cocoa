@@ -22,6 +22,7 @@
 - (IBAction)newOverviewController:(id)sender;
 
 - (IBAction)showBilling:(id)sender;
+- (IBAction)showRepoController:(id)sender;
 
 - (void)openURL:(NSURL *)URL;
 

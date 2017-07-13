@@ -19,7 +19,7 @@
 
 - (NSString *)clientID;
 
-- (void)sayHello:(NSString *)oauthToken;
+- (void)showRepoSelectionIfNeededForToken:(NSString *)oauthToken; // will continue with sayHello barring error.
 - (void)finishWithShipToken:(NSString *)shipToken ghToken:(NSString *)ghToken user:(NSDictionary *)user billing:(NSDictionary *)billing;
 - (void)finishWithAuth:(Auth *)auth;
 

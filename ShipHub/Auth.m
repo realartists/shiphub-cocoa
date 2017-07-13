@@ -177,6 +177,21 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     return self;
 }
 
++ (Auth *)temporaryAuthWithAccount:(AuthAccount *)account ghToken:(NSString *)ghToken {
+    return [[self alloc] initTemporaryAuthWithAccount:account ghToken:ghToken];
+}
+
+- (instancetype)initTemporaryAuthWithAccount:(AuthAccount *)account ghToken:(NSString *)ghToken {
+    if (self = [super init]) {
+        self.account = account;
+        self.token = ghToken;
+        self.ghToken = ghToken;
+        _authState = AuthStateValid;
+        _temporary = YES;
+    }
+    return self;
+}
+
 - (void)changeAuthState:(AuthState)nextState {
     AuthState previous = self.authState;
     if (nextState != previous) {

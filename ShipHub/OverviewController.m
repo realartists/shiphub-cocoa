@@ -1963,6 +1963,11 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     [pc beginInWindow:self.window completion:nil];
 }
 
+- (IBAction)showRepoController:(id)sender {
+    AppDelegate *appDelegate = (id)[NSApp delegate];
+    [appDelegate showRepoController:self];
+}
+
 #pragma mark -
 
 - (IBAction)showWebhookWarning:(id)sender {

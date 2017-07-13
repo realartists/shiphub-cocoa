@@ -53,10 +53,14 @@ typedef NS_ENUM(NSInteger, AuthState) {
 + (Auth *)authWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken;
 + (Auth *)authWithAccount:(AuthAccount *)account shipToken:(NSString *)shipToken ghToken:(NSString *)ghToken sessionCookies:(NSArray<NSHTTPCookie *> *)sessionCookies;
 
++ (Auth *)temporaryAuthWithAccount:(AuthAccount *)account ghToken:(NSString *)ghToken;
+
 @property (readonly, strong) AuthAccount *account;
 @property (readonly, copy) NSString *token;
 @property (readonly, copy) NSString *ghToken;
 @property (readonly, strong) WebSession *webSession;
+
+@property (readonly, getter=isTemporary) BOOL temporary;
 
 @property (readonly) AuthState authState;
 

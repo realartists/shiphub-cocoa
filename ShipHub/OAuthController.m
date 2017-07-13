@@ -109,7 +109,7 @@
                     [self presentError:decodeErr];
                 });
             } else {
-                [self sayHello:oauthToken];
+                [self showRepoSelectionIfNeededForToken:oauthToken];
             }
         } else {
             if (!error) {
