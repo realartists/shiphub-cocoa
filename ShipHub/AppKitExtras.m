@@ -459,9 +459,11 @@
 }
 
 - (NSString *)hexString {
+    NSColor *color = [self colorUsingColorSpace:[NSColorSpace sRGBColorSpace]]; // using sRGB to match what colorWithRed:green:blue:alpha: does.
+    
     uint8_t r, g, b;
     CGFloat rf, gf, bf, af;
-    [self getRed:&rf green:&gf blue:&bf alpha:&af];
+    [color getRed:&rf green:&gf blue:&bf alpha:&af];
     r = (rf * 255.0) / 1.0;
     g = (gf * 255.0) / 1.0;
     b = (bf * 255.0) / 1.0;
@@ -469,8 +471,9 @@
 }
 
 - (BOOL)isDark {
+    NSColor *color = [self colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
     CGFloat r, g, b, a;
-    [self getRed:&r green:&g blue:&b alpha:&a];
+    [color getRed:&r green:&g blue:&b alpha:&a];
     
     CGFloat luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
     
@@ -478,8 +481,10 @@
 }
 
 - (NSColor *)colorByAdjustingBrightness:(CGFloat)amount {
+    NSColor *color = [self colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
+    
     CGFloat h, s, b, a;
-    [self getHue:&h saturation:&s brightness:&b alpha:&a];
+    [color getHue:&h saturation:&s brightness:&b alpha:&a];
     b *= amount;
     b = MIN(b, 1.0);
     b = MAX(b, 0.0);
