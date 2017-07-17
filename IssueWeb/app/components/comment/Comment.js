@@ -17,8 +17,17 @@ class Comment extends AbstractComment {
   
   canClose() {
     var editingExisting = !!(this.props.comment);
-    var canClose = !editingExisting && IssueState.current.issue.number > 0 && IssueState.current.issue.state === "open";
+    var canClose = !editingExisting && 
+                   IssueState.current.issue.number > 0 &&
+                   IssueState.current.issue.state === "open" &&
+                   (IssueState.current.repoCanPush || IssueState.current.issueFiledByCurrentUser);
     return canClose;
+  }
+  
+  canEdit() {
+    var user = this.props.comment.user||this.props.comment.author;
+    if (!user) user = ghost;
+    return !this.props.comment || IssueState.current.repoCanPush || this.me().id == user.id;
   }
   
   closeButtonTitle() {

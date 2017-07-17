@@ -826,7 +826,8 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
         || item.action == @selector(bulkModifyAssignee:)
         || item.action == @selector(bulkModifyMilestone:))
     {
-        return selectedCount > 0;
+        NSArray *editable = [selected filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"repository.canPush = YES"]];
+        return editable.count > 0;
     }
     if (item.action == @selector(viewCodeChanges:)) {
         return selectedCount == 1 && [[selected firstObject] pullRequest];

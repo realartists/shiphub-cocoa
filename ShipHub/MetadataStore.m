@@ -115,8 +115,10 @@ static id<NSCopying> UniqueIDForManagedObject(NSManagedObject *obj) {
 }
 
 // Read data out of ctx and store in immutable data objects accessible from any thread.
-- (instancetype)initWithMOC:(NSManagedObjectContext *)moc billingState:(BillingState)billingState {
+- (instancetype)initWithMOC:(NSManagedObjectContext *)moc billingState:(BillingState)billingState currentUserIdentifier:(NSNumber *)currentUserIdentifier
+{
     NSParameterAssert(moc);
+    NSParameterAssert(currentUserIdentifier);
     
     if (self = [super init]) {
         NSMutableDictionary *managedIDToObject = [NSMutableDictionary new];
@@ -151,6 +153,7 @@ static id<NSCopying> UniqueIDForManagedObject(NSManagedObject *obj) {
         NSMutableDictionary *reposByOwnerID = [NSMutableDictionary new];
         
         for (LocalRepo *r in localRepos) {
+            BOOL currentUserAssignable = NO;
             NSMutableArray *assignees;
             assigneesByRepoID[r.identifier] = assignees = [NSMutableArray new];
             for (LocalAccount *lu in r.assignees) {
@@ -158,6 +161,9 @@ static id<NSCopying> UniqueIDForManagedObject(NSManagedObject *obj) {
                     Account *u = accountsByID[lu.identifier];
                     [assignees addObject:u];
                     [allAssignees addObject:u];
+                }
+                if (!currentUserAssignable && [lu.identifier isEqual:currentUserIdentifier]) {
+                    currentUserAssignable = YES;
                 }
             }
             
@@ -187,7 +193,7 @@ static id<NSCopying> UniqueIDForManagedObject(NSManagedObject *obj) {
             
             Account *owner = accountsByID[localOwner.identifier];
             
-            Repo *repo = [[Repo alloc] initWithLocalItem:r owner:owner billingState:billingState];
+            Repo *repo = [[Repo alloc] initWithLocalItem:r owner:owner billingState:billingState canPush:currentUserAssignable];
             noteManagedObject(r, repo);
             [repos addObject:repo];
             

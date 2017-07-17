@@ -67,6 +67,8 @@ class AbstractComment extends React.Component {
   
   canClose() { throw "not implemented"; }
   
+  canEdit() { throw "not implemented"; }
+  
   closeButtonTitle() { return "Close Issue"; }
   
   repoOwner() { throw "not implemented"; }
@@ -331,6 +333,7 @@ class AbstractComment extends React.Component {
         previewing:this.state.previewing,
         togglePreview:this.togglePreview.bind(this),
         attachFiles:this.selectFiles.bind(this),
+        canEdit:this.canEdit(),
         beginEditing:this.beginEditing.bind(this),
         cancelEditing:this.cancelEditing.bind(this),
         deleteComment:this.deleteComment.bind(this),

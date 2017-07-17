@@ -40,6 +40,7 @@ class CommitComment extends AbstractComment {
       previewing:this.state.previewing,
       togglePreview:this.togglePreview.bind(this),
       attachFiles:this.selectFiles.bind(this),
+      canEdit:this.canEdit(),
       beginEditing:this.beginEditing.bind(this),
       cancelEditing:this.cancelEditing.bind(this),
       deleteComment:this.deleteComment.bind(this),

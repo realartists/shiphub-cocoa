@@ -59,8 +59,11 @@
         dispatch_group_t group = dispatch_group_create();
         for (Issue *issue in issues) {
             NSString *issueMilestoneTitle = issue.milestone.title;
-            if (!issueMilestoneTitle || ![issueMilestoneTitle isEqualToString:milestoneTitle])
-            {
+            if (!issue.repository.canPush) {
+                NSString *message = [NSString stringWithFormat:NSLocalizedString(@"You cannot modify issues in repo %@", nil), issue.repository.fullName];
+                NSError *cantPush = [NSError shipErrorWithCode:ShipErrorCodeProblemSaveOtherError localizedMessage:message];
+                [errors addObject:cantPush];
+            } else if (!issueMilestoneTitle || ![issueMilestoneTitle isEqualToString:milestoneTitle]) {
                 Milestone *next = [meta milestoneWithTitle:milestoneTitle inRepo:issue.repository];
                 if (next) {
                     dispatch_group_enter(group);
@@ -103,6 +106,22 @@
         } else {
             NSAssert(NO, @"Can't run two bulk modify operations at once in one parent window");
         }
+        return;
+    }
+    
+    NSArray *uneditable = [bulkController.issues filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"repository.canPush = NO"]];
+    
+    if (uneditable.count > 0) {
+        NSAlert *err = [NSAlert new];
+        if (uneditable.count == 1) {
+            err.messageText = NSLocalizedString(@"Cannot modify issue", nil);
+            err.informativeText = NSLocalizedString(@"You do not have permission to edit the selected issue.", nil);
+        } else {
+            err.messageText = NSLocalizedString(@"Cannot modify issues", nil);
+            err.informativeText = NSLocalizedString(@"You do not have permission to edit the selected issues.", nil);
+        }
+        [err addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+        [err beginSheetModalForWindow:window completionHandler:nil];
         return;
     }
     

@@ -14,7 +14,7 @@ div.IssueReviewers span.AssigneesPicker {
 
 div.IssueReviewers .ReviewersAtomContainer {
   position: relative;
-  top: -2px;
+  top: -1px;
   white-space: nowrap;
   margin-right: 4px;
 }

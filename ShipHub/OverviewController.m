@@ -1499,6 +1499,8 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     
     if ([[node representedObject] isKindOfClass:[Repo class]]) {
         Repo *r = node.representedObject;
+        if (!r.hasIssues) return nil;
+        
         NSURLComponents *comps = [NSURLComponents new];
         comps.scheme = @"ship+github";
         comps.host = @"newissue";
@@ -1509,6 +1511,9 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         if ([ms count] == 1) {
             Milestone *m = ms[0];
             NSString *r = [m repoFullName];
+            Repo *repo = [[[DataStore activeStore] metadataStore] repoWithFullName:r];
+            if (!repo.hasIssues) return nil;
+            
             NSURLComponents *comps = [NSURLComponents new];
             comps.scheme = @"ship+github";
             comps.host = @"newissue";

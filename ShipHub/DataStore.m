@@ -714,7 +714,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 
 - (void)loadMetadata {
     [_writeMoc performBlockAndWait:^{
-        self.metadataStore = [[MetadataStore alloc] initWithMOC:_writeMoc billingState:_billing.state];
+        self.metadataStore = [[MetadataStore alloc] initWithMOC:_writeMoc billingState:_billing.state currentUserIdentifier:_auth.account.ghIdentifier];
     }];
 }
 
@@ -1406,7 +1406,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     if ([MetadataStore changeNotificationContainsMetadata:note]) {
         DebugLog(@"Updating metadata store");
-        MetadataStore *store = [[MetadataStore alloc] initWithMOC:_writeMoc billingState:_billing.state];
+        MetadataStore *store = [[MetadataStore alloc] initWithMOC:_writeMoc billingState:_billing.state currentUserIdentifier:_auth.account.ghIdentifier];
         self.metadataStore = store;
         dispatch_async(dispatch_get_main_queue(), ^{
             NSDictionary *userInfo = @{ DataStoreMetadataKey : store };

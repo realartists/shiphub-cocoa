@@ -33,6 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSSet<LocalProject *> *projects;
 @property (nullable, nonatomic, retain) LocalAccount *owner;
 @property (nullable, nonatomic, retain) LocalHidden *hidden;
+@property (nullable, nonatomic, retain) NSNumber *hasIssues;
 
 @end
 

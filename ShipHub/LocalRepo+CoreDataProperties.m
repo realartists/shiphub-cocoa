@@ -29,5 +29,6 @@
 @dynamic milestones;
 @dynamic owner;
 @dynamic projects;
+@dynamic hasIssues;
 
 @end

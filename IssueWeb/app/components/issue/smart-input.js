@@ -6,6 +6,7 @@ var SmartInput = React.createClass({
   propTypes: {
     onChange: React.PropTypes.func,
     onKeyPress: React.PropTypes.func,
+    readOnly: React.PropTypes.bool,
     onEdit: React.PropTypes.func /* function onEdit(editedBool) */
   },
 

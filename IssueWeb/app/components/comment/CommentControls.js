@@ -142,11 +142,13 @@ var CommentControls = React.createClass({
         buttons.push(h(AddReactionOptions, {key:"reactionOptions", onEnd:this.toggleReactionOptions, onAdd:this.props.addReaction}));
       } else {
         if (this.props.canReact) {
-          buttons.push(h(AddReactionButton, {key:"addReaction", title: "Add Reaction", onClick:this.toggleReactionOptions})); 
-        }
-        buttons.push(h('i', {key:"edit", className:'fa fa-pencil', onClick:this.props.beginEditing}));
-        if (!this.props.first) {
-          buttons.push(h('i', {key:"trash", className:'fa fa-trash-o', onClick:this.confirmDelete}));
+          buttons.push(h(AddReactionButton, {key:"addReaction", title: "Add Reaction", onClick:this.toggleReactionOptions}));
+        } 
+        if (this.props.canEdit) {
+          buttons.push(h('i', {key:"edit", className:'fa fa-pencil', onClick:this.props.beginEditing}));
+          if (!this.props.first) {
+            buttons.push(h('i', {key:"trash", className:'fa fa-trash-o', onClick:this.confirmDelete}));
+          }
         }
       }
     }

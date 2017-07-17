@@ -85,6 +85,11 @@ class ReviewAbstractComment extends AbstractComment {
   issue() { return IssueState.current.issue; }
   isNewIssue() { return false; } 
   canClose() { return false; }
+  canEdit() {
+    var user = this.props.comment.user||this.props.comment.author;
+    if (!user) user = ghost;
+    return !this.props.comment || IssueState.current.repoCanPush || this.me().id == user.id;
+  }
   repoOwner() { return IssueState.current.repoOwner; }
   repoName() { return IssueState.current.repoName; }
   saveDraftState() { }
@@ -149,6 +154,7 @@ class ReviewCodeComment extends ReviewAbstractComment {
         previewing:true,
         togglePreview:this.togglePreview.bind(this),
         attachFiles:this.selectFiles.bind(this),
+        canEdit:this.canEdit(),
         beginEditing:this.beginEditing.bind(this),
         cancelEditing:this.cancelEditing.bind(this),
         deleteComment:this.deleteComment.bind(this),

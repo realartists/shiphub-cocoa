@@ -89,9 +89,11 @@ class ReviewAtom extends React.Component {
       icon = 'fa-question-circle';
       bg = '#999';
       title = "review requested";
-      del = h('span', {className:'ReviewerDelete Clickable', onClick:this.onDeleteClick.bind(this)}, 
-        h('i', {className:'fa fa-times'})
-      );
+      if (this.props.canDelete) {
+        del = h('span', {className:'ReviewerDelete Clickable', onClick:this.onDeleteClick.bind(this)}, 
+          h('i', {className:'fa fa-times'})
+        );
+      }
       Object.assign(style, {cursor:"default"});
     }
     style.backgroundColor = bg;
@@ -107,6 +109,10 @@ class ReviewAtom extends React.Component {
 }
 
 class Reviewers extends React.Component {
+  canEdit() {
+    return IssueState.current.repoCanPush;
+  }
+
   addReviewer(login) {
     var user = null;
     var matches = IssueState.current.assignees.filter((u) => u.login == login);
@@ -203,6 +209,7 @@ class Reviewers extends React.Component {
   }
   
   render() {
+    var canEdit = this.canEdit();
     var items = Reviewers.latestReviews(this.props.issue, this.props.allReviews);
   
     var existingReviewers = items.map(i => i.user);
@@ -210,10 +217,11 @@ class Reviewers extends React.Component {
   
     return h('div', {className:'IssueReviewers'},
       h(HeaderLabel, {title:"Reviewers"}),
-      h(AddReviewer, {ref:"add", existingReviewers, addReviewer:this.addReviewer.bind(this)}),
+      canEdit?h(AddReviewer, {ref:"add", existingReviewers, addReviewer:this.addReviewer.bind(this)}):null,
       items.map((i, j) => h(ReviewAtom, { 
         item: i, 
         key:`atom.${i.user.id}`, 
+        canDelete: canEdit,
         onDelete: this.deleteReviewer.bind(this)
       }))
     );

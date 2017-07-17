@@ -145,8 +145,10 @@ var LabelPicker = React.createClass({
         newItem: "New Label",
         onAddNew: this.onNewLabel,
         matcher: matcher,
-        suggestionFormatter: formatter
+        suggestionFormatter: formatter,
+        readOnly: this.props.readOnly
       }),
+      this.props.readOnly ? null :
       h('div', {style: { display: 'inline-block' } },
         h('i', {className: 'fa fa-plus-circle AddLabel Clickable',
           onClick: this.onPlusClick,
