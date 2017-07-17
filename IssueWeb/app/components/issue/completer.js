@@ -11,6 +11,7 @@ import 'typeahead.js'
 var Completer = React.createClass({
   propTypes: {
     value: React.PropTypes.string,
+    readOnly: React.PropTypes.bool,
     placeholder: React.PropTypes.string,
     newItem: React.PropTypes.string, /* e.g "New Milestone" */
     onChange: React.PropTypes.func,
@@ -152,6 +153,10 @@ var Completer = React.createClass({
     
     $(el).typeahead('destroy');
     $(el).off();
+    
+    if (this.props.readOnly) {
+      return;
+    }
 
     var typeaheadDataOpts = {
       // Never limit the drop down - we don't want to risk that the "New

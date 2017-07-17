@@ -114,6 +114,10 @@ class PRMergeabilityReview extends React.Component {
     evt.preventDefault();
   }
   
+  canDismiss() {
+    return IssueState.current.repoCanPush;
+  }
+  
   toggleDismiss(evt) {
     this.needsInputFocus = !this.state.dismiss;
     this.setState({dismiss:!this.state.dismiss});
@@ -184,7 +188,7 @@ class PRMergeabilityReview extends React.Component {
       if (this.props.item.review) {
         actions.push(h('a', {key:'see', href:'#', onClick:this.jump.bind(this)}, 'See Review'));
       } 
-      if (state == ReviewState.RequestChanges) {
+      if (state == ReviewState.RequestChanges && this.canDismiss()) {
         actions.push(h('a', {key:'dismiss', href:'#', onClick:this.toggleDismiss.bind(this)}, 'Dismiss Review'));
       }
       

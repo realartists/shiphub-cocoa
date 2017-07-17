@@ -1044,6 +1044,10 @@ var IssueTitle = React.createClass({
     }
   },
   
+  canEdit: function() {
+    return IssueState.current.issueFiledByCurrentUser || IssueState.current.repoCanPush;
+  },
+  
   onEdit: function(didEdit, editedVal) {
     this.setState({edited: this.props.issue.title != editedVal, editedValue: editedVal})
   },
@@ -1090,7 +1094,7 @@ var IssueTitle = React.createClass({
   
     var children = [
       h(HeaderLabel, {title:'Title'}),
-      h(SmartInput, {ref:"input", element:Textarea, initialValue:this.props.issue.title, value:val, className:'TitleArea', onChange:this.titleChanged, onEdit:this.onEdit, placeholder:"Required"}),
+      h(SmartInput, {ref:"input", element:Textarea, readOnly:!this.canEdit(), initialValue:this.props.issue.title, value:val, className:'TitleArea', onChange:this.titleChanged, onEdit:this.onEdit, placeholder:"Required"}),
       h(IssueNumber, {issue: this.props.issue})
     ];
     
@@ -1153,7 +1157,7 @@ var RepoField = React.createClass({
     state.issue = Object.assign({}, state.issue, { 
       _bare_repo: repo, 
       _bare_owner: owner,
-      repository: null,
+      repository: repoInfo,
       milestone: null,
       assignees: [],
       labels: []
@@ -1254,7 +1258,7 @@ var RepoField = React.createClass({
   },
   
   render: function() {  
-    var opts = IssueState.current.repos.map((r) => r.full_name);
+    var opts = IssueState.current.repos.filter(r => r.has_issues).map(r => r.full_name);
     var matcher = Completer.SubstrMatcher(opts);
     
     var canEdit = this.canEdit();
@@ -1402,7 +1406,8 @@ var MilestoneField = React.createClass({
       newItem: canAddNew ? 'New Milestone' : undefined,
       onAddNew: canAddNew ? this.onAddNew : undefined,
       value: keypath(this.props.issue, "milestone.title"),
-      matcher: matcher
+      matcher: matcher,
+      readOnly: !(IssueState.current.repoCanPush)
     }));
     
     if (dueDate) {
@@ -1430,6 +1435,10 @@ var StateField = React.createClass({
     return Promise.resolve();
   },
   
+  canEdit: function() {
+    return this.props.issue.merged != true && (IssueState.current.issueFiledByCurrentUser || IssueState.current.repoCanPush);
+  },
+  
   render: function() {
     var isNewIssue = !(this.props.issue.number);
     
@@ -1444,7 +1453,7 @@ var StateField = React.createClass({
         h('option', {value: 'merged'}, "Merged"),
       );
     } else {
-      return h('select', {className:'IssueState', value:this.props.issue.state, onChange:this.stateChanged},
+      return h('select', {className:'IssueState', value:this.props.issue.state, onChange:this.stateChanged, disabled:!this.canEdit()},
         h('option', {value: 'open'}, "Open"),
         h('option', {value: 'closed'}, "Closed")
       );
@@ -1581,7 +1590,8 @@ var AssigneeInput = React.createClass({
       onChange: this.assigneeChanged,
       onEnter: this.onEnter,
       value: keypath(this.props.issue, "assignees[0].login"),
-      matcher: matcher
+      matcher: matcher,
+      readOnly: this.props.readOnly
     });
   }
 });
@@ -1646,6 +1656,7 @@ var AddAssignee = React.createClass({
         ref: "picker",
         availableAssigneeLogins: availableAssignees.map((l) => (l.login)),
         onAdd: this.addAssignee,
+        readOnly: this.props.readOnly
       });
     }
   }
@@ -1655,6 +1666,7 @@ var AssigneeAtom = React.createClass({
   propTypes: { 
     user: React.PropTypes.object.isRequired,
     onDelete: React.PropTypes.func,
+    readOnly: React.PropTypes.bool
   },
   
   onDeleteClick: function() {
@@ -1668,7 +1680,7 @@ var AssigneeAtom = React.createClass({
       h("span", {className:"AssigneeAtomName"},
         this.props.user.login
       ),
-      h('span', {className:'AssigneeAtomDelete Clickable', onClick:this.onDeleteClick}, 
+      this.props.readOnly ? null : h('span', {className:'AssigneeAtomDelete Clickable', onClick:this.onDeleteClick}, 
         h('i', {className:'fa fa-times'})
       )
     );
@@ -1722,9 +1734,9 @@ var MultipleAssignees = React.createClass({
     });
     
     return h('span', {className:'MultipleAssignees'},
-      h(AddAssignee, {issue: this.props.issue, ref:"add"}),
+      h(AddAssignee, {issue: this.props.issue, ref:"add", readOnly:this.props.readOnly}),
       sortedAssignees.map((l, i) => { 
-        return [" ", h(AssigneeAtom, {key:i, user:l, onDelete: this.deleteAssignee})];
+        return [" ", h(AssigneeAtom, {key:i, user:l, onDelete: this.deleteAssignee, readOnly:this.props.readOnly})];
       }).reduce(function(c, v) { return c.concat(v); }, [])
     );
   }
@@ -1738,6 +1750,10 @@ var AssigneeField = React.createClass({
   getInitialState: function() {
     var assignees = keypath(this.props.issue, "assignees") || [];
     return { multi: assignees.length > 1 };
+  },
+  
+  canEdit: function(value) {
+    return IssueState.current.repoCanPush;
   },
   
   componentWillReceiveProps: function(nextProps) {
@@ -1786,11 +1802,12 @@ var AssigneeField = React.createClass({
   },
 
   render: function() {
+    var readOnly = !this.canEdit();
     var inputField;
     if (this.state.multi) {
-      inputField = h(MultipleAssignees, {key:'assignees', ref:'assignee', issue:this.props.issue, focusNext:this.props.focusNext});
+      inputField = h(MultipleAssignees, {key:'assignees', ref:'assignee', issue:this.props.issue, focusNext:this.props.focusNext, readOnly});
     } else {
-      inputField = h(AssigneeInput, {key:'assignee', ref:"assignee", issue: this.props.issue, focusNext:this.props.focusNext});
+      inputField = h(AssigneeInput, {key:'assignee', ref:"assignee", issue: this.props.issue, focusNext:this.props.focusNext, readOnly});
     }
   
     return h('div', {className: 'IssueInput AssigneeField'},
@@ -1798,7 +1815,7 @@ var AssigneeField = React.createClass({
       inputField,
       h('i', {
         className:"fa fa-user-plus toggleMultiAssignee",
-        style: {display: this.state.multi?"none":"inline"},
+        style: {display: (this.state.multi||readOnly)?"none":"inline"},
         title: "Multiple Assignees",
         onClick: this.toggleMultiAssignee
       })
@@ -1896,6 +1913,7 @@ var AddLabel = React.createClass({
         availableLabels: availableLabels,
         onAddExistingLabel: this.addExistingLabel,
         onNewLabel: this.newLabel,
+        readOnly: this.props.readOnly
       });
     }
   }
@@ -1903,6 +1921,10 @@ var AddLabel = React.createClass({
 
 var IssueLabels = React.createClass({
   propTypes: { issue: React.PropTypes.object },
+  
+  canEdit: function() {
+    return IssueState.current.repoCanPush;
+  },
   
   deleteLabel: function(label) {
     var labels = this.props.issue.labels.filter((l) => (l.name != label.name));
@@ -1940,6 +1962,8 @@ var IssueLabels = React.createClass({
   },
   
   render: function() {
+    var readOnly = !this.canEdit();
+  
     var labels = Array.from(this.props.issue.labels);
     labels.sort((a, b) => {
       var an = a.name.toLowerCase();
@@ -1951,9 +1975,9 @@ var IssueLabels = React.createClass({
   
     return h('div', {className:'IssueLabels'},
       h(HeaderLabel, {title:"Labels"}),
-      h(AddLabel, {issue: this.props.issue, ref:"add"}),
+      h(AddLabel, {issue: this.props.issue, ref:"add", readOnly}),
       labels.map((l, i) => { 
-        return [" ", h(Label, {key:i, label:l, canDelete:true, onDelete: this.deleteLabel})];
+        return [" ", h(Label, {key:i, label:l, canDelete:!readOnly, onDelete:this.deleteLabel})];
       }).reduce(function(c, v) { return c.concat(v); }, [])
     );
   }
@@ -2167,7 +2191,10 @@ var App = React.createClass({
     var header = h(Header, {ref:"header", issue:issue, allReviews:allReviews, onIssueTemplate:this.onIssueTemplate});
     var activity = h(ActivityList, {key:issue["id"], ref:"activity", issue, allReviews, commitCommentsBySha});
     var mergeChecklist = issue.pull_request ? h(PRMergeability, {key:'mergeability', issue, allReviews}) : null;
-    var addComment = h(Comment, {ref:"addComment", key:"addComment"});
+    
+    var hasAddComment = IssueState.current.repoCanPush || !issue.locked;
+    
+    var addComment = hasAddComment ? h(Comment, {ref:"addComment", key:"addComment"}) : null;
     
     var issueElement = h('div', {},
       header,

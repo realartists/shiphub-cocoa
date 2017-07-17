@@ -241,8 +241,9 @@ static BOOL differentiateWithoutColor() {
                @"baseSha": pr.spanDiff.baseRev,
                @"headSha": pr.spanDiff.headRev,
                @"colorblind" : @(differentiateWithoutColor()),
-               @"me" : [JSON serializeObject:[Account me] withNameTransformer:[JSON underbarsAndIDNameTransformer]]
-               };
+               @"me" : [JSON serializeObject:[Account me] withNameTransformer:[JSON underbarsAndIDNameTransformer]],
+               @"repo": pr.issue.repository
+            };
             
             NSString *js = [NSString stringWithFormat:@"window.updateDiff(%@);", [JSON stringifyObject:state]];
             [self evaluateJavaScript:js];

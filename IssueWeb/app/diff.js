@@ -42,6 +42,7 @@ class App {
     this.headSha = ""; // commit id of head of PR branch
     this.baseSha = ""; // commit id of base of PR branch
     this.me = ghost; // user object (used for adding new comments)
+    this.repo = null; // repo owning the viewed pull request
     this.colorblind = false; // whether or not we need to use more than just color to differentiate changes lines
     
     // View state
@@ -478,7 +479,7 @@ class App {
       var diffIdx = cg[0].diffIdx;
       var commentRow = diffIdxToCommentRow[diffIdx];
       if (!commentRow) {
-        commentRow = new CommentRow(this.issueIdentifier, this.me, this);
+        commentRow = new CommentRow(this.issueIdentifier, this.me, this.repo, this);
         diffIdxToCommentRow[diffIdx] = commentRow;
       }
       commentRow.comments = cg;
@@ -674,7 +675,7 @@ class App {
     if (cr) {
       cr.showReply();
     } else {
-      cr = new CommentRow(this.issueIdentifier, this.me, this);
+      cr = new CommentRow(this.issueIdentifier, this.me, this.repo, this);
       cr.setHasNewComment(true, diffIdx);
       this.commentRows.push(cr);
       this.positionComments();
@@ -996,6 +997,7 @@ diffState - {
   headSha: string, commit id of head of PR branch
   baseSha: string, commit id of base of PR branch
   me: object, user
+  repo: object
 }
 */
 window.updateDiff = function(diffState) {

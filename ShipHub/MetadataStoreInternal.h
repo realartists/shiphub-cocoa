@@ -18,7 +18,7 @@
 
 // Read data out of ctx and store in immutable data objects accessible from any thread.
 // Must be called on ctx's private queue.
-- (instancetype)initWithMOC:(NSManagedObjectContext *)ctx billingState:(BillingState)state;
+- (instancetype)initWithMOC:(NSManagedObjectContext *)ctx billingState:(BillingState)state currentUserIdentifier:(NSNumber *)currentUserIdentifier;
 
 - (Account *)accountWithLocalAccount:(LocalAccount *)la;
 

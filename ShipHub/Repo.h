@@ -16,7 +16,7 @@
 @interface Repo : MetadataItem
 
 - (id)initWithLocalItem:(id)localItem NS_UNAVAILABLE;
-- (id)initWithLocalItem:(id)localItem owner:(Account *)owner billingState:(BillingState)billingState;
+- (id)initWithLocalItem:(id)localItem owner:(Account *)owner billingState:(BillingState)billingState canPush:(BOOL)canPush;
 
 @property (readonly) NSString *fullName;
 @property (readonly) NSString *name;
@@ -32,5 +32,7 @@
 @property (readonly) NSString *repoDescription;
 
 @property (readonly) Account *owner;
+
+@property (readonly) BOOL canPush; // if the current user can push to the repo
 
 @end

@@ -460,8 +460,9 @@
     
     BOOL isMergeable = [mergeable respondsToSelector:@selector(boolValue)] && [mergeable boolValue];
     BOOL isMerged = [merged respondsToSelector:@selector(boolValue)] && [merged boolValue];
+    BOOL canPush = _issue.repository.canPush;
     
-    return !isMerged && isMergeable;
+    return !isMerged && isMergeable && canPush;
 }
 
 - (BOOL)isMerged {

@@ -42,6 +42,22 @@ class IssueState {
     }
   }
   
+  get repo() {
+    return this.state.issue.repository;
+  }
+  
+  get repoCanPush() {
+    return (this.state.issue.repository||{can_push:true}).can_push;
+  }
+  
+  get issueFiledByCurrentUser() {
+    return (this.state.issue.user||this.state.issue.originator).id == this.state.me.id;
+  }
+  
+  get repo() {
+    return this.state.issue.repository;
+  }
+  
   get repos() { return this.state.repos; }
   get assignees() { return this.state.assignees; }
   get milestones() { return this.state.milestones; }

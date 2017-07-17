@@ -35,6 +35,12 @@ class Comment extends AbstractComment {
   
   canClose() { return false; }
   
+  canEdit() {
+    var user = this.props.comment.user||this.props.comment.author;
+    if (!user) user = ghost;
+    return !this.props.comment || this.props.repo.canPush || this.me().id == user.id;
+  }
+  
   repoOwner() {
     return this.issueIdentifierParts().repoOwner;
   }
@@ -181,6 +187,9 @@ class ReviewFooter extends React.Component {
 }
 
 class AddReviewComment extends Comment {
+
+  canEdit() { return true; }
+
   save() {
     // default behavior is to begin a review
     this.props.commentDelegate.inReview = true;
@@ -241,6 +250,7 @@ class CommentList extends React.Component {
         commentIdx:i,
         issueIdentifier:this.props.issueIdentifier,
         me:this.props.me,
+        repo:this.props.repo,
         buttons:i==buttonIdx?[{"title": "Reply", "action": this.addReply.bind(this)}]:[],
         didRender:this.props.didRender,
         commentDelegate:this.props.commentDelegate,
@@ -254,6 +264,7 @@ class CommentList extends React.Component {
         ref:'addComment',
         issueIdentifier:this.props.issueIdentifier,
         me:this.props.me,
+        repo:this.props.repo,
         onCancel:this.cancelReply.bind(this),
         didRender:this.props.didRender,
         /* send in_reply_to to the first comment in the chain, otherwise a bug
@@ -304,11 +315,12 @@ class CommentList extends React.Component {
 }
 
 class CommentRow extends DiffRow {
-  constructor(issueIdentifier, me, delegate) {
+  constructor(issueIdentifier, me, repo, delegate) {
     super();
     
     this.issueIdentifier = issueIdentifier;
     this.me = me;
+    this.repo = repo;
     this.delegate = delegate;
 
     this.hasNewComment = false;    
@@ -405,6 +417,7 @@ class CommentRow extends DiffRow {
         comments:this.prComments,
         issueIdentifier:this.issueIdentifier,
         me:this.me,
+        repo:this.repo,
         didRender:()=>this.delegate.updateMiniMap(),
         didCancel:this.didCancelReply.bind(this),
         commentDelegate:this.delegate,
