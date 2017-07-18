@@ -1891,10 +1891,45 @@ var AddLabel = React.createClass({
       return Promise.resolve();
     }
   },
+  
+  shouldComponentUpdate: function(nextProps, nextState) {
+    // should try to update only if the set of selected or possible labels change
+    if (!this._last) return true;
     
-  render: function() {
+    var prevChosenLabels = this._last.chosenLabels;
+    var prevAvailableLabels = this._last.availableLabels;
+    
+    var next = this.partitionLabels(nextProps);
+    var nextChosenLabels = next.chosenLabels;
+    var nextAvailableLabels = next.availableLabels;
+    
+    if (prevChosenLabels.length != nextChosenLabels.length ||
+        prevAvailableLabels.length != nextAvailableLabels.length) {
+      return true;        
+    }
+    
+    function lbleq(a, b) {
+      return a.id == b.id && a.name == b.name && a.color == b.color;
+    }
+    
+    for (var i = 0; i < prevChosenLabels.length; i++) {
+      var a = prevChosenLabels[i];
+      var b = nextChosenLabels[i];
+      if (!lbleq(a, b)) return true;
+    }
+    
+    for (var i = 0; i < prevAvailableLabels.length; i++) {
+      var a = prevAvailableLabels[i];
+      var b = nextAvailableLabels[i];
+      if (!lbleq(a, b)) return true;
+    }
+    
+    return false;
+  },
+  
+  partitionLabels: function(props) {
     var allLabels = IssueState.current.labels;
-    var chosenLabels = keypath(this.props.issue, "labels") || [];
+    var chosenLabels = keypath(props.issue, "labels") || [];
     
     chosenLabels = [...chosenLabels].sort((a, b) => {
       return a.name.localeCompare(b.name);
@@ -1902,7 +1937,14 @@ var AddLabel = React.createClass({
     
     var chosenLabelsLookup = chosenLabels.reduce((o, l) => { o[l.name] = l; return o; }, {});  
     var availableLabels = allLabels.filter((l) => !(l.name in chosenLabelsLookup));
-
+    
+    return { chosenLabels, availableLabels };
+  },
+  
+  render: function() {
+    var partition = this.partitionLabels(this.props);
+    var { chosenLabels, availableLabels } = this._last = partition;
+      
     if (this.props.issue._bare_owner == null ||
         this.props.issue._bare_repo == null) {
       return h("div", {className: "AddLabelEmpty"});
