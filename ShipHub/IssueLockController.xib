@@ -229,7 +229,7 @@ You can always lock this issue again in the future.</string>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <textView importsGraphics="NO" baseWritingDirection="leftToRight" usesFontPanel="YES" findStyle="panel" continuousSpellChecking="YES" allowsUndo="YES" usesRuler="YES" allowsNonContiguousLayout="YES" quoteSubstitution="YES" dashSubstitution="YES" smartInsertDelete="YES" id="i8J-Za-Ucq">
-                        <rect key="frame" x="0.0" y="-0.5" width="223" height="196"/>
+                        <rect key="frame" x="0.0" y="-0.5" width="223" height="200"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="textColor" red="0.14118" green="0.16078000000000001" blue="0.18038999999999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -458,7 +458,7 @@ You can always unlock this issue again in the future.</string>
                 <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                 <autoresizingMask key="autoresizingMask"/>
             </scroller>
-            <scroller key="verticalScroller" verticalHuggingPriority="750" doubleValue="0.0079365079365079361" horizontal="NO" id="up5-Tf-TWd">
+            <scroller key="verticalScroller" verticalHuggingPriority="750" horizontal="NO" id="up5-Tf-TWd">
                 <rect key="frame" x="224" y="1" width="15" height="133"/>
                 <autoresizingMask key="autoresizingMask"/>
             </scroller>
