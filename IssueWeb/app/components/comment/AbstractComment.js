@@ -67,6 +67,8 @@ class AbstractComment extends React.Component {
   
   canClose() { throw "not implemented"; }
   
+  canLock() { return false; }
+  
   canEdit() { throw "not implemented"; }
   
   closeButtonTitle() { return "Close Issue"; }
@@ -361,6 +363,7 @@ class AbstractComment extends React.Component {
         var footerProps = {
           ref:'footer', 
           canClose: this.canClose(),
+          canLock: this.canLock(),
           closeButtonTitle: this.closeButtonTitle(),
           previewing: this.state.previewing,
           onClose: this.saveAndClose.bind(this), 
@@ -370,6 +373,7 @@ class AbstractComment extends React.Component {
           editingExisting: !!(this.props.comment),
           canSave: this.needsSave(),
           isNewIssue: this.isNewIssue(),
+          issue: this.issue(),
           canCancel: !!(this.props.onCancel)
         };
         if (this.props.footer) {

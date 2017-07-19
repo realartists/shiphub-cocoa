@@ -27,6 +27,7 @@ import AssigneesPicker from 'components/issue/assignees-picker.js'
 import { ReviewState } from 'components/issue/review-state.js'
 import PRSummary from 'components/issue/pr-summary.js'
 import Reviewers from 'components/issue/reviewers.js'
+import IssueLock from 'components/issue/lock.js'
 import { PRActionsBar } from 'components/issue/pr-actions-bar.js'
 import { TimeAgo, TimeAgoString } from 'components/time-ago.js'
 import { api } from 'util/api-proxy.js'
@@ -467,6 +468,15 @@ var ReviewRequestRemovedEventDescription = React.createClass({
   }
 });
 
+var LockedEventDescription = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+  render: function() {
+    return h('span', {},
+      this.props.event.event == 'locked' ? "locked and limited conversation to collaborators" : "unlocked this conversation"
+    );
+  }
+});
+
 var UnknownEventDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
@@ -492,6 +502,9 @@ var ClassForEventDescription = function(event) {
     case "head_ref_deleted": return HeadRefDeletedDescription;
     case "review_requested": return ReviewRequestedEventDescription;
     case "review_request_removed": return ReviewRequestRemovedEventDescription;
+    case "locked":
+    case "unlocked":
+      return LockedEventDescription;
     default: return UnknownEventDescription
   }
 }
@@ -1016,6 +1029,8 @@ var InputSaveButton = React.createClass({
 var IssueTitle = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
+  displayName: "IssueTitle",
+  
   titleChanged: function(newTitle, goNext) {
     var promise = null;
     if (this.state.edited) {
@@ -1092,17 +1107,20 @@ var IssueTitle = React.createClass({
       val = this.state.editedValue;
     }
   
-    var children = [
-      h(HeaderLabel, {title:'Title'}),
-      h(SmartInput, {ref:"input", element:Textarea, readOnly:!this.canEdit(), initialValue:this.props.issue.title, value:val, className:'TitleArea', onChange:this.titleChanged, onEdit:this.onEdit, placeholder:"Required"}),
-      h(IssueNumber, {issue: this.props.issue})
-    ];
-    
+    var children = [];
+    children.push(h(HeaderLabel, {key:"label", title:'Title'}));
+    children.push(h(SmartInput, {key:"input", ref:"input", element:Textarea, readOnly:!this.canEdit(), initialValue:this.props.issue.title, value:val, className:'TitleArea', onChange:this.titleChanged, onEdit:this.onEdit, placeholder:"Required"}));
     if (this.state.edited && this.props.issue.number != null) {
-      children.splice(2, 0, h(InputSaveButton, {key: "titleSave", onClick: this.titleSaveClicked, style: { marginRight: "8px" } }));
+      children.push(h(InputSaveButton, {key:"titleSave", onClick: this.titleSaveClicked, style: { marginRight: "8px" } }));
     }
-  
-    return h('div', {className:'IssueTitle'}, ...children);
+    if (this.props.issue.locked) {
+      children.push(h('span', {key:"lock-span", style:{paddingRight:'4px'}},
+        h(IssueLock, {key:"lock", issue:this.props.issue})
+      ));
+    }
+    children.push(h(IssueNumber, {key:"number", issue: this.props.issue}));
+    
+    return h('div', {className:'IssueTitle'}, children);
   }
 });
 

@@ -122,6 +122,8 @@
 
 - (void)deleteReaction:(NSNumber *)reactionIdentifier completion:(void (^)(NSError *error))completion;
 
+- (void)setLocked:(BOOL)locked issueIdentifier:(id)issueIdentifier completion:(void (^)(NSError *error))completion;
+
 @end
 
 @interface DataStore (PullRequestMutations)

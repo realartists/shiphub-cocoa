@@ -1,4 +1,5 @@
 import React, { createElement as h } from 'react'
+import IssueLock from 'components/issue/lock.js'
 
 var AddCommentFooter = React.createClass({
   render: function() {
@@ -15,6 +16,12 @@ var AddCommentFooter = React.createClass({
         href:"https://guides.github.com/features/mastering-markdown/", 
         title:"Open Markdown Formatting Guide"
       }));
+    }
+    
+    if (this.props.canLock) {
+      contents.push(h('span', { key: 'lock-span', className:'addCommentLock' },
+        h(IssueLock, { issue: this.props.issue })
+      ));
     }
     
     if (this.props.canClose) {

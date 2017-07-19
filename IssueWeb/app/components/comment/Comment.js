@@ -24,6 +24,10 @@ class Comment extends AbstractComment {
     return canClose;
   }
   
+  canLock() { 
+    return IssueState.current.repoCanPush && IssueState.current.issue.number > 0;
+  }
+  
   canEdit() {
     var user = this.props.comment.user||this.props.comment.author;
     if (!user) user = ghost;
