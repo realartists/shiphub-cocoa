@@ -228,6 +228,7 @@
 		1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B471CA34BCD00F73608 /* ImagePopUpButton.m */; };
 		1A694B4B1CA367E300F73608 /* Issue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B4A1CA367E300F73608 /* Issue.m */; };
 		1A694B4C1CA367E300F73608 /* Issue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B4A1CA367E300F73608 /* Issue.m */; };
+		1A74A5671F2012D400D8EC78 /* RepoSearchField.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A74A5661F2012D400D8EC78 /* RepoSearchField.m */; };
 		1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414A1C8E528A0043DAF0 /* NavigationController.m */; };
 		1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */; };
 		1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */; };
@@ -807,6 +808,8 @@
 		1A694B471CA34BCD00F73608 /* ImagePopUpButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImagePopUpButton.m; sourceTree = "<group>"; };
 		1A694B491CA367E300F73608 /* Issue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Issue.h; sourceTree = "<group>"; };
 		1A694B4A1CA367E300F73608 /* Issue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Issue.m; sourceTree = "<group>"; };
+		1A74A5651F2012D400D8EC78 /* RepoSearchField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RepoSearchField.h; sourceTree = "<group>"; };
+		1A74A5661F2012D400D8EC78 /* RepoSearchField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RepoSearchField.m; sourceTree = "<group>"; };
 		1A7A41491C8E528A0043DAF0 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
 		1A7A414A1C8E528A0043DAF0 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
 		1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NavigationController.xib; sourceTree = "<group>"; };
@@ -1829,6 +1832,8 @@
 				1AE902021F141F5500482432 /* RepoController.h */,
 				1AE902031F141F5500482432 /* RepoController.m */,
 				1AE902041F141F5500482432 /* RepoController.xib */,
+				1A74A5651F2012D400D8EC78 /* RepoSearchField.h */,
+				1A74A5661F2012D400D8EC78 /* RepoSearchField.m */,
 			);
 			name = "Repo Chooser";
 			sourceTree = "<group>";
@@ -2150,6 +2155,7 @@
 				1AE6F11C1E53BDB7008FD8AC /* PRComment.m in Sources */,
 				1A3618F51C90C7F6008C11CB /* LocalModel.xcdatamodeld in Sources */,
 				1AE8775E1E786774008AB0AD /* PRCreateController.m in Sources */,
+				1A74A5671F2012D400D8EC78 /* RepoSearchField.m in Sources */,
 				1A7FD7741D492FE000B585E2 /* MilestoneModifyController.m in Sources */,
 				1A694B2A1CA341D500F73608 /* NetworkStateWindow.m in Sources */,
 				1A5108661D319E2B00905D4D /* NotificationsManager.m in Sources */,

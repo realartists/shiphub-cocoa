@@ -187,7 +187,7 @@
                             <constraint firstAttribute="height" constant="1" id="Yji-8r-1qi"/>
                         </constraints>
                     </box>
-                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="piW-d4-kbm">
+                    <textField verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="piW-d4-kbm" customClass="RepoSearchField">
                         <rect key="frame" x="20" y="74" width="410" height="22"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="Add Additional Repository" drawsBackground="YES" id="LC0-aG-5uY">
                             <font key="font" metaFont="system"/>
