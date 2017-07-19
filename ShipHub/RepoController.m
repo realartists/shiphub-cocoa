@@ -14,6 +14,7 @@
 #import "RequestPager.h"
 #import "SemiMixedButton.h"
 #import "Error.h"
+#import "RepoSearchField.h"
 #import "AvatarManager.h"
 #import "ServerConnection.h"
 
@@ -43,7 +44,7 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
 @property IBOutlet NSProgressIndicator *progressIndicator;
 @property IBOutlet NSTextField *emptyField;
 @property IBOutlet NSButton *autotrackCheckbox;
-@property IBOutlet NSTextField *addRepoField;
+@property IBOutlet RepoSearchField *addRepoField;
 @property IBOutlet NSButton *addRepoButton;
 @property IBOutlet NSView *addRepoError;
 @property IBOutlet NSProgressIndicator *addRepoProgressIndicator;
@@ -56,7 +57,7 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
 
 @property Auth *auth;
 
-@property AvatarManager *avatarManager;
+@property (nonatomic) AvatarManager *avatarManager;
 
 @property NSArray<NSDictionary *> *userRepos;
 @property NSMutableArray<NSDictionary *> *extraRepos;
@@ -81,8 +82,18 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
     return self;
 }
 
+- (AvatarManager *)avatarManager {
+    if (!_avatarManager) {
+        _avatarManager = [[AvatarManager alloc] initWithHost:_auth.account.ghHost];
+    }
+    return _avatarManager;
+}
+
 - (void)windowDidLoad {
     [super windowDidLoad];
+    
+    _addRepoField.auth = _auth;
+    _addRepoField.avatarManager = [self avatarManager];
     
     [self loadData];
 }
@@ -481,6 +492,9 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
             _addRepoError.animator.alphaValue = 0.0;
         } completionHandler:^{
             _addRepoError.hidden = YES;
+            if (_addRepoField.enabled) {
+                [self.window makeFirstResponder:_addRepoField];
+            }
         }];
     }];
 }
@@ -640,11 +654,7 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
         cell.checkbox.extras_representedObject = item;
         cell.textField.stringValue = item[@"login"] ?: @"";
         
-        if (!_avatarManager) {
-            _avatarManager = [[AvatarManager alloc] initWithHost:_auth.account.ghHost];
-        }
-        
-        cell.imageView.image = [_avatarManager imageForAccountIdentifier:item[@"id"] avatarURL:item[@"avatar_url"]];
+        cell.imageView.image = [[self avatarManager] imageForAccountIdentifier:item[@"id"] avatarURL:item[@"avatar_url"]];
         
         NSSet *repoIdentifierSet = [self repoIdentifiersForOwner:item];
         if ([repoIdentifierSet isSubsetOfSet:_chosenRepoIdentifiers]) {
