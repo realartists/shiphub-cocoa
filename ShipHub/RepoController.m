@@ -17,6 +17,7 @@
 #import "AvatarManager.h"
 #import "ServerConnection.h"
 
+static const NSInteger RepoWhitelistMaxCount = 100;
 static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
 
 @interface RepoCell : NSTableCellView
@@ -62,6 +63,7 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
 
 @property NSMutableArray<NSDictionary *> *owners;
 @property NSMutableDictionary<NSNumber *, NSMutableArray *> *reposByOwner;
+@property NSSet *userRepoIdentifiers;
 @property NSMutableSet *chosenRepoIdentifiers;
 
 @end
@@ -95,12 +97,12 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
     [_progressIndicator setHidden:!loading];
 
     [_emptyField setHidden:loading||_owners.count!=0];
-    [_addRepoField setEnabled:!loading];
-    [_addRepoButton setEnabled:!loading];
     
     [_autotrackCheckbox setEnabled:!loading];
     [_reloadButton setEnabled:!loading];
     [_saveButton setEnabled:!loading];
+    
+    [self updateAddRepoEnabled];
 }
 
 - (void)setAddingRepo:(BOOL)adding {
@@ -113,9 +115,9 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
     
     [_addRepoProgressIndicator setHidden:adding];
     [_reloadButton setEnabled:!adding];
-    [_addRepoField setEnabled:!adding];
-    [_addRepoButton setHidden:adding];
     [_saveButton setEnabled:!adding];
+    
+    [self updateAddRepoEnabled];
 }
 
 - (NSSet<NSNumber *> *)repoIdentifiersForOwner:(NSDictionary *)owner {
@@ -281,6 +283,10 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
     _userRepos = repos ?: @[];
     _extraRepos = [NSMutableArray arrayWithArray:extraRepos ?: @[]];
     
+    _userRepoIdentifiers = [NSSet setWithArray:[_userRepos arrayByMappingObjects:^id(id obj) {
+        return obj[@"id"];
+    }]];
+    
     NSMutableDictionary *ownersById = [NSMutableDictionary new];
     _reposByOwner = [NSMutableDictionary new];
     for (NSDictionary *repo in [_userRepos arrayByAddingObjectsFromArray:_extraRepos]) {
@@ -328,6 +334,19 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
     [self setLoading:NO];
 }
 
+- (void)updateAddRepoEnabled {
+    if (_loading || _addingRepo) {
+        _addRepoField.enabled = NO;
+        _addRepoButton.enabled = NO;
+        return;
+    }
+    
+    NSMutableSet *whitelist = [_chosenRepoIdentifiers mutableCopy];
+    [whitelist minusSet:_userRepoIdentifiers];
+    
+    _addRepoField.enabled = _addRepoButton.enabled = whitelist.count < RepoWhitelistMaxCount;
+}
+
 - (IBAction)refresh:(id)sender {
     [self loadData];
 }
@@ -363,6 +382,7 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
     }
     
     [_repoOutline reloadData];
+    [self updateAddRepoEnabled];
 }
 
 - (IBAction)showRepoWarning:(id)sender {
@@ -570,6 +590,12 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
     [_chosenRepoIdentifiers addObject:foundRepo[@"id"]];
     [_repoOutline reloadData];
     [self scrollToRepo:foundRepo];
+    [self updateAddRepoEnabled];
+    
+    _addRepoField.stringValue = @"";
+    if (_addRepoField.enabled) {
+        [self.window makeFirstResponder:_addRepoField];
+    }
 }
 
 #pragma mark Outline View
