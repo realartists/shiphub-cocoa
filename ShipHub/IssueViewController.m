@@ -38,6 +38,7 @@
 #import "PRReview.h"
 #import "PRComment.h"
 #import "RateDampener.h"
+#import "IssueLockController.h"
 
 #import <WebKit/WebKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
@@ -65,6 +66,9 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 
 @property PRReviewChangesViewController *reviewChangesController;
 @property NSPopover *reviewChangesPopover;
+
+@property IssueLockController *lockController;
+@property NSPopover *lockPopover;
 
 @end
 
@@ -341,6 +345,10 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
         [weakSelf handleDeletePendingReview:msg];
     } name:@"deletePendingReview"];
+    
+    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+        [weakSelf handleLockPopover:msg];
+    } name:@"toggleLock"];
     
     [_markdownFormattingController registerJavaScriptAPI:windowObject];
 
@@ -698,6 +706,47 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
             }
         }];
     }
+}
+
+- (void)handleLockPopover:(NSDictionary *)msg {
+    NSDictionary *bbox = msg[@"bbox"];
+    
+    if (_lockPopover.shown) {
+        [_lockPopover close];
+        return;
+    }
+    
+    if (!_lockController) {
+        _lockController = [IssueLockController new];
+    }
+    
+    NSPopover *popover = _lockPopover = [[NSPopover alloc] init];
+    _lockPopover.contentViewController = _lockController;
+    _lockPopover.behavior = NSPopoverBehaviorSemitransient;
+    
+    Issue *issue = _issue;
+    _lockController.currentlyLocked = issue.locked;
+    
+    NSWindow *window = self.view.window;
+    
+    __weak __typeof(self) weakSelf = self;
+    
+    _lockController.actionBlock = ^(BOOL lock) {
+        [popover close];
+        
+        ProgressSheet *progress = [ProgressSheet new];
+        progress.message = lock ? NSLocalizedString(@"Locking Issue", nil) : NSLocalizedString(@"Unlocking Issue", nil);
+        [progress beginSheetInWindow:window];
+        
+        [[DataStore activeStore] setLocked:lock issueIdentifier:issue.fullIdentifier completion:^(NSError *error) {
+            [progress endSheet];
+            if (error) {
+                [weakSelf presentError:error];
+            }
+        }];
+    };
+    
+    [self showPopover:_lockPopover relativeToDOMBBox:bbox];
 }
 
 - (void)handleMergePopover:(NSDictionary *)msg {

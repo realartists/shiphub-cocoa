@@ -1779,6 +1779,50 @@ static NSString *const LastUpdated = @"LastUpdated";
     [[Analytics sharedInstance] track:@"Issue Edited"];
 }
 
+- (void)setLocked:(BOOL)locked issueIdentifier:(id)issueIdentifier completion:(void (^)(NSError *error))completion {
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    DebugLog(@"%s %@", (locked?"Locking":"Unlocking"), issueIdentifier);
+    
+    // PUT/DELETE /repos/:owner/:repo/issues/:number/lock
+    NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/%@/lock", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
+    
+    [self.serverConnection perform:locked?@"PUT":@"DELETE" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
+        if (!error) {
+            // update issue
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+                fetch.predicate = [self predicateForIssueIdentifiers:@[issueIdentifier]];
+                fetch.fetchLimit = 1;
+                
+                NSError *cdErr = nil;
+                LocalIssue *issue = [[moc executeFetchRequest:fetch error:&cdErr] firstObject];
+                
+                if (!cdErr) {
+                    [issue setLocked:@(locked)];
+                    
+                    [moc save:&cdErr];
+                    
+                    if (cdErr) {
+                        ErrLog(@"%@", cdErr);
+                    }
+                } else {
+                    ErrLog(@"%@", cdErr);
+                }
+                
+                RunOnMain(^{
+                    completion(cdErr);
+                });
+            }];
+        } else {
+            RunOnMain(^{
+                completion(error);
+            });
+        }
+    }];
+}
+
 - (void)saveNewIssue:(NSDictionary *)issueJSON inRepo:(Repo *)r completion:(void (^)(Issue *issue, NSError *error))completion
 {
     NSParameterAssert(issueJSON);

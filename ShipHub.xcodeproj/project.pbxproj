@@ -341,6 +341,8 @@
 		1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
 		1AE09C231C9779E400C5AC35 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EE1C8FC3DB008C11CB /* Reachability.m */; };
 		1AE09C241C977A3400C5AC35 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
+		1AE3F3521F1EA17B00DDEECF /* IssueLockController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3F3501F1EA17B00DDEECF /* IssueLockController.m */; };
+		1AE3F3531F1EA17B00DDEECF /* IssueLockController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AE3F3511F1EA17B00DDEECF /* IssueLockController.xib */; };
 		1AE6F11C1E53BDB7008FD8AC /* PRComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE6F11B1E53BDB7008FD8AC /* PRComment.m */; };
 		1AE8775E1E786774008AB0AD /* PRCreateController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE8775C1E786774008AB0AD /* PRCreateController.m */; };
 		1AE8775F1E786774008AB0AD /* PRCreateController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AE8775D1E786774008AB0AD /* PRCreateController.xib */; };
@@ -951,6 +953,9 @@
 		1AE09BE71C97687E00C5AC35 /* LocalComment+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalComment+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BE81C97687E00C5AC35 /* LocalComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalComment.h; sourceTree = "<group>"; };
 		1AE09BE91C97687E00C5AC35 /* LocalComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalComment.m; sourceTree = "<group>"; };
+		1AE3F34F1F1EA17B00DDEECF /* IssueLockController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueLockController.h; sourceTree = "<group>"; };
+		1AE3F3501F1EA17B00DDEECF /* IssueLockController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueLockController.m; sourceTree = "<group>"; };
+		1AE3F3511F1EA17B00DDEECF /* IssueLockController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = IssueLockController.xib; sourceTree = "<group>"; };
 		1AE6F1161E527B23008FD8AC /* DiffViewMode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DiffViewMode.h; sourceTree = "<group>"; };
 		1AE6F11A1E53BDB7008FD8AC /* PRComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRComment.h; sourceTree = "<group>"; };
 		1AE6F11B1E53BDB7008FD8AC /* PRComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRComment.m; sourceTree = "<group>"; };
@@ -1121,6 +1126,9 @@
 				1AD956B01D0B5654002B1259 /* DownloadBarViewController.h */,
 				1AD956B11D0B5654002B1259 /* DownloadBarViewController.m */,
 				1AD956B21D0B5654002B1259 /* DownloadBarViewController.xib */,
+				1AE3F34F1F1EA17B00DDEECF /* IssueLockController.h */,
+				1AE3F3501F1EA17B00DDEECF /* IssueLockController.m */,
+				1AE3F3511F1EA17B00DDEECF /* IssueLockController.xib */,
 			);
 			name = "Issue UI";
 			sourceTree = "<group>";
@@ -2065,6 +2073,7 @@
 				1A3D345F1DB0380300CDF167 /* PRSidebarViewController.xib in Resources */,
 				1A7FD7751D492FE000B585E2 /* MilestoneModifyController.xib in Resources */,
 				1A0D59EC1CA4AA3A004F2578 /* IssueDocument.xib in Resources */,
+				1AE3F3531F1EA17B00DDEECF /* IssueLockController.xib in Resources */,
 				1A694B0F1CA3413700F73608 /* DateKnob.xib in Resources */,
 				1A5A2ACB1F0324290084737B /* README.rtf in Resources */,
 				1A7FD7891D49856600B585E2 /* StateModifyController.xib in Resources */,
@@ -2150,6 +2159,7 @@
 				1A694B441CA34B9000F73608 /* DeemphasizedRowView.m in Sources */,
 				1A2217931C7E7B14006460E2 /* AppDelegate.m in Sources */,
 				1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */,
+				1AE3F3521F1EA17B00DDEECF /* IssueLockController.m in Sources */,
 				1A3D34681DB05F5E00CDF167 /* IssueWebController.m in Sources */,
 				1A51085D1D317AB300905D4D /* LocalNotification+CoreDataProperties.m in Sources */,
 				1A2FCCF01E660B240000F91B /* PRReview.m in Sources */,

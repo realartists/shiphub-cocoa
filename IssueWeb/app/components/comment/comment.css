@@ -281,6 +281,16 @@ div.comment .formattingHelpButton:visited {
   color: #BBB;
 }
 
+div.comment .addCommentLock {
+  float: left;
+  padding-left: 12px;
+  padding-top: 6px;
+}
+
+div.comment .addCommentLock > i.IssueLock {
+  color: #BBB;
+}
+
 .confirmCommentDelete {
   color: #555;
   cursor: default;
