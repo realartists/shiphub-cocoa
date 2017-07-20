@@ -49,7 +49,14 @@ NSString *const ReachabilityKey = @"ReachabilityKey";
 }
 
 - (BOOL)isReachable {
-    return !_forceOffline && _impl.reachable;
+    BOOL forceOnline = [[NSUserDefaults standardUserDefaults] boolForKey:@"ForceOnline"];
+    if (forceOnline) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            NSLog(@"Forcing reachability online");
+        });
+    }
+    return forceOnline || (!_forceOffline && _impl.reachable);
 }
 
 - (BOOL)isForcingOffline {
