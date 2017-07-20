@@ -360,6 +360,8 @@ static NSString *const TBSearchItemId = @"TBSearch";
     NSMenu *hideMenu = [NSMenu new];
     NSMenuItem *hideItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Hide all repos", nil) action:@selector(hideItem:) keyEquivalent:@""];
     hideItem.target = self;
+    NSMenuItem *manageItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Choose Repositories…", nil) action:@selector(showRepoController:) keyEquivalent:@""];
+    manageItem.target = self;
     return hideMenu;
 }
 
@@ -367,6 +369,8 @@ static NSString *const TBSearchItemId = @"TBSearch";
     NSMenu *hideMenu = [NSMenu new];
     NSMenuItem *hideItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Hide repo", nil) action:@selector(hideItem:) keyEquivalent:@""];
     hideItem.target = self;
+    NSMenuItem *manageItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Choose Repositories…", nil) action:@selector(showRepoController:) keyEquivalent:@""];
+    manageItem.target = self;
     return hideMenu;
 }
 
