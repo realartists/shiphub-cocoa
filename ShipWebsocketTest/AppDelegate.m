@@ -116,7 +116,7 @@
     err = sqlite3_step(stmt);
     if (err != SQLITE_ROW) {
         [self log:@"Cannot fetch version info: %s", sqlite3_errmsg(db)];
-        return nil;
+        return @{};
     }
     
     int len = sqlite3_column_bytes(stmt, 0);
@@ -130,7 +130,7 @@
     
     sqlite3_close_v2(db);
     
-    return dict;
+    return dict ?: @{};
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
