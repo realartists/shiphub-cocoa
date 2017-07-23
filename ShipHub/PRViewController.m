@@ -9,6 +9,7 @@
 #import "PRViewController.h"
 
 #import "Account.h"
+#import "Auth.h"
 #import "ButtonToolbarItem.h"
 #import "CustomToolbarItem.h"
 #import "Extras.h"
@@ -29,6 +30,7 @@
 #import "PRNavigationToolbarItem.h"
 #import "PRMergeViewController.h"
 #import "PRPostMergeController.h"
+#import "SendErrorEmail.h"
 
 static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
 static NSString *const DiffViewModeID = @"DiffViewMode";
@@ -310,9 +312,12 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     
     char buf[MAXPATHLEN];
     snprintf(buf, sizeof(buf), "%sclonepr.XXXXXX.sh", [NSTemporaryDirectory() UTF8String]);
-    if (-1 != mkstemps(buf, 3)) {
+    int fd = 0;
+    if (-1 != (fd = mkstemps(buf, 3))) {
         NSString *shPath = [NSString stringWithUTF8String:buf];
-        [shTemplate writeToFile:shPath atomically:NO encoding:NSUTF8StringEncoding error:NULL];
+        NSFileHandle *fh = [[NSFileHandle alloc] initWithFileDescriptor:fd];
+        [fh writeData:[shTemplate dataUsingEncoding:NSUTF8StringEncoding]];
+        [fh closeFile];
         
         NSURL *scriptURL = [[NSBundle bundleForClass:[self class]] URLForResource:@"clonepr" withExtension:@"scpt"];
         
@@ -584,7 +589,13 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
                 NSAlert *alert = [NSAlert new];
                 alert.messageText = NSLocalizedString(@"Unable to load pull request", nil);
                 alert.informativeText = [error localizedDescription];
+                [alert addButtonWithTitle:NSLocalizedString(@"Close", nil)];
+                [alert addButtonWithTitle:NSLocalizedString(@"Send Error Report", nil)];
+                
                 [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+                    if (returnCode == NSAlertSecondButtonReturn) {
+                        [self sendErrorReport:error];
+                    }
                     [[self.view window] close];
                 }];
             }
@@ -716,14 +727,51 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 
 #pragma mark - Error Handling
 
+- (void)sendErrorReport:(NSError *)error {
+    NSMutableString *errorReport = [NSMutableString new];
+    
+    [errorReport appendString:@"Ship Pull Request Error Report\n"];
+    [errorReport appendString:@"------------------------------\n\n"];
+    [errorReport appendFormat:@"Date: %@\n", [NSDate date]];
+    [errorReport appendFormat:@"GitHub User: %@\n", [[[[DataStore activeStore] auth] account] login]];
+    NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
+    [errorReport appendFormat:@"Ship Version: %@ (%@)\n", info[@"CFBundleShortVersionString"], info[@"CFBundleVersion"]];
+    [errorReport appendFormat:@"System Version: %@\n\n", [[NSProcessInfo processInfo] operatingSystemVersionString]];
+    
+    [errorReport appendString:@"Error Details\n"];
+    [errorReport appendString:@"-------------\n\n"];
+    [errorReport appendFormat:@"%@\n\n", error];
+    
+    [errorReport appendString:@"Pull Request Data\n"];
+    [errorReport appendString:@"-----------------\n\n"];
+    [errorReport appendFormat:@"%@\n", [_pr debugDescription]];
+    
+    char buf[MAXPATHLEN];
+    snprintf(buf, sizeof(buf), "%sship_pr_error.XXXXXX.txt", [NSTemporaryDirectory() UTF8String]);
+    int fd = 0;
+    if (-1 != (fd = mkstemps(buf, 4))) {
+        NSString *errPath = [NSString stringWithUTF8String:buf];
+        NSFileHandle *fh = [[NSFileHandle alloc] initWithFileDescriptor:fd];
+        [fh writeData:[errorReport dataUsingEncoding:NSUTF8StringEncoding]];
+        [fh closeFile];
+        
+        SendErrorEmail(@"Ship Pull Request Error Report", @"<Please include any additional information>\n\n", errPath);
+    }
+}
+
 - (BOOL)presentError:(NSError *)error {
     NSAlert *alert = [NSAlert new];
     alert.alertStyle = NSCriticalAlertStyle;
     alert.messageText = NSLocalizedString(@"Error", nil);
     alert.informativeText = [error localizedDescription] ?: @"";
     [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+    [alert addButtonWithTitle:NSLocalizedString(@"Send Error Report", nil)];
     
-    [alert beginSheetModalForWindow:self.view.window completionHandler:nil];
+    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
+        if (returnCode == NSAlertSecondButtonReturn) {
+            [self sendErrorReport:error];
+        }
+    }];
     
     return YES;
 }

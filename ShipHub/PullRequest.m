@@ -44,6 +44,17 @@
     return self;
 }
 
+- (NSString *)debugDescription {
+    NSMutableString *d = [NSMutableString new];
+    
+    [d appendFormat:@"Info:\n%@\n\n", _info];
+    [d appendFormat:@"Issue:\n%@\n\n", [JSON stringifyObject:_issue]];
+    [d appendFormat:@"Local Repo Path:%@\n", _dir];
+    [d appendFormat:@"Repo address: %p\n", _repo];
+    
+    return d;
+}
+
 - (NSString *)_baseRev {
     return _info[@"base"][@"sha"];
 }
