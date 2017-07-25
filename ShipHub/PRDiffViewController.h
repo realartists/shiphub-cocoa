@@ -59,6 +59,14 @@
        deleteReviewComment:(PRComment *)comment;
 
 - (void)diffViewController:(PRDiffViewController *)vc
+               addReaction:(NSString *)reaction
+   toCommentWithIdentifier:(NSNumber *)commentIdentifier;
+
+- (void)diffViewController:(PRDiffViewController *)vc
+    deleteReactionWithIdentifier:(NSNumber *)reactionIdentifier
+       fromCommentWithIdentifier:(NSNumber *)commentIdentifier;
+
+- (void)diffViewController:(PRDiffViewController *)vc
         continueNavigation:(NSDictionary *)options;
 
 @end

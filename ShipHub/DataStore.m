@@ -2391,29 +2391,19 @@ static NSString *const LastUpdated = @"LastUpdated";
         }];
     };
     
-    if (review.state == PRReviewStatePending) {
-        [self deleteAllPendingReviewsInIssue:issueIdentifier completion:^(NSError *error) {
-            // wait a second, otherwise GitHub will bug out and complain that we have an active pending review
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                postReview(); // try to post regardless of whether or not the delete failed
-            });
-        }];
-    } else if (review.identifier) {
-        // first we have to delete the existing review, because GitHub is lame like that
-        [self deletePendingReview:review inIssue:issueIdentifier completion:^(NSError *error) {
-            // wait a second, otherwise GitHub will bug out and complain that we have an active pending review
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                postReview(); // try to post regardless of whether or not the delete failed
-            });
-        }];
-    } else {
-        postReview();
-    }
+    [self deleteAllPendingReviewsInIssue:issueIdentifier completion:^(NSError *error) {
+        // wait a second, otherwise GitHub will bug out and complain that we have an active pending review
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            postReview(); // try to post regardless of whether or not the delete failed
+        });
+    }];
     
     [[Analytics sharedInstance] track:@"Post PR Review"];
 }
 
 - (void)deleteAllPendingReviewsInIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion {
+    Trace();
+    
     RequestPager *pager = [[RequestPager alloc] initWithAuth:self.auth];
     
     NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
@@ -2428,25 +2418,54 @@ static NSString *const LastUpdated = @"LastUpdated";
             // find the pending review and kill it
             NSArray *pending = [data filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"user.id = %@ AND state = 'PENDING'", [[Account me] identifier]]];
             
-            if (pending.count) {
-                dispatch_group_t group = dispatch_group_create();
-                __block NSError *groupError = nil;
-                for (NSDictionary *reviewDict in pending) {
-                    dispatch_group_enter(group);
-                    PRReview *review = [[PRReview alloc] initWithDictionary:reviewDict comments:nil metadataStore:self.metadataStore];
-                    [self deletePendingReview:review inIssue:issueIdentifier completion:^(NSError *error) {
-                        if (error && !groupError) groupError = error;
-                        dispatch_group_leave(group);
-                    }];
+            // see also if we can find anything in our local database that maybe github has forgotten about
+            [self performRead:^(NSManagedObjectContext *moc) {
+                
+                NSFetchRequest *pendingFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRReview"];
+                pendingFetch.predicate = [NSPredicate predicateWithFormat:@"user.identifier = %@ AND state = 'PENDING' AND issue.number = %@ AND issue.repository.fullName = %@", [[Account me] identifier], [issueIdentifier issueNumber], [issueIdentifier issueRepoFullName]];
+                
+                NSError *pendingFetchError = nil;
+                NSArray *pendingInDB = [moc executeFetchRequest:pendingFetch error:&pendingFetchError];
+                
+                if (pendingFetchError) {
+                    ErrLog(@"%@", pendingFetchError);
                 }
-                dispatch_group_notify(group, dispatch_get_main_queue(), ^{
-                    completion(groupError);
-                });
-            } else {
-                RunOnMain(^{
-                    completion(nil);
-                });
-            }
+                
+                
+                NSMutableSet *allPendingReviewIdentifiers = [NSMutableSet new];
+                if (pending.count) {
+                    [allPendingReviewIdentifiers addObjectsFromArray:[pending arrayByMappingObjects:^id(id obj) {
+                        return [obj objectForKey:@"id"];
+                    }]];
+                }
+                if (pendingInDB.count) {
+                    [allPendingReviewIdentifiers addObjectsFromArray:[pendingInDB arrayByMappingObjects:^id(LocalPRReview *obj) {
+                        return obj.identifier;
+                    }]];
+                }
+                
+                if (allPendingReviewIdentifiers.count) {
+                    dispatch_group_t group = dispatch_group_create();
+                    __block NSError *groupError = nil;
+                    for (NSNumber *reviewId in allPendingReviewIdentifiers) {
+                        PRReview *review = [PRReview new];
+                        review.identifier = reviewId;
+                        review.state = PRReviewStatePending;
+                        dispatch_group_enter(group);
+                        [self deletePendingReview:review inIssue:issueIdentifier completion:^(NSError *error) {
+                            if (error && !groupError) groupError = error;
+                            dispatch_group_leave(group);
+                        }];
+                    }
+                    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+                        completion(groupError);
+                    });
+                } else {
+                    RunOnMain(^{
+                        completion(nil);
+                    });
+                }
+            }];
         }
     }];
 }
@@ -2455,6 +2474,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     NSString *deleteEndpoint = [NSString stringWithFormat:@"/repos/%@/pulls/%@/reviews/%@", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber], review.identifier];
     
     NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
+    
+    DebugLog(@"Deleting pending review %@", review.identifier);
     
     [self.serverConnection perform:@"DELETE" on:deleteEndpoint headers:headers body:nil completion:^(id jsonResponse, NSError *error) {
         if (!error) {

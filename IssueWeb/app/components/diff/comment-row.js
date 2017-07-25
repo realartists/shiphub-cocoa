@@ -96,6 +96,31 @@ class Comment extends AbstractComment {
     }
   }
   
+  addReaction(reaction) {
+    var existing = this.findReaction(reaction);
+    var comment = this.props.comment;
+    if (!existing && comment) {
+      window.addReaction.postMessage({comment, reaction});
+    }
+  }
+  
+  toggleReaction(reaction) {
+    var existing = this.findReaction(reaction);
+    var comment = this.props.comment;
+    if (comment) {
+      if (existing) {
+        var reaction_id = existing.id;
+        window.deleteReaction.postMessage({comment, reaction_id});
+      } else {
+        window.addReaction.postMessage({comment, reaction});
+      }
+    }
+  }
+  
+  canReact() {
+    return this.props.comment && !("pending_id" in this.props.comment);
+  }
+  
   componentDidMount() {
     super.componentDidMount();
     if (!this.props.comment) {

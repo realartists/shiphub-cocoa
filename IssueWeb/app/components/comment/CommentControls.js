@@ -53,7 +53,8 @@ var CommentControls = React.createClass({
     beginEditing: React.PropTypes.func,
     cancelEditing: React.PropTypes.func,
     deleteComment: React.PropTypes.func,
-    addReaction: React.PropTypes.func
+    addReaction: React.PropTypes.func,
+    canReact: React.PropTypes.bool
   },
   
   getInitialState: function() {
@@ -139,8 +140,10 @@ var CommentControls = React.createClass({
         ));
       } else if (this.state.addingReaction) {
         buttons.push(h(AddReactionOptions, {key:"reactionOptions", onEnd:this.toggleReactionOptions, onAdd:this.props.addReaction}));
-      } else {     
-        buttons.push(h(AddReactionButton, {key:"addReaction", title: "Add Reaction", onClick:this.toggleReactionOptions})); 
+      } else {
+        if (this.props.canReact) {
+          buttons.push(h(AddReactionButton, {key:"addReaction", title: "Add Reaction", onClick:this.toggleReactionOptions})); 
+        }
         buttons.push(h('i', {key:"edit", className:'fa fa-pencil', onClick:this.props.beginEditing}));
         if (!this.props.first) {
           buttons.push(h('i', {key:"trash", className:'fa fa-trash-o', onClick:this.confirmDelete}));

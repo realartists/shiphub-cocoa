@@ -86,6 +86,8 @@ class AbstractComment extends React.Component {
   addReaction(reaction) { throw "not implemented"; }
   
   toggleReaction(reaction) { throw "not implemented"; }
+  
+  canReact() { return true; }
 
   _save() { throw "not implemented"; }
   
@@ -333,6 +335,7 @@ class AbstractComment extends React.Component {
         cancelEditing:this.cancelEditing.bind(this),
         deleteComment:this.deleteComment.bind(this),
         addReaction:this.addReaction.bind(this),
+        canReact:this.canReact(),
         needsSave:this.needsSave.bind(this)
       });
     } else {

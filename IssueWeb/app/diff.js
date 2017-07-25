@@ -691,7 +691,7 @@ class App {
       this.updateMiniMapRegions();
     }
   }
-  
+    
   scrollToCommentId(commentId) {
     var comment = this.comments.find((c) => c.id == commentId || c.pending_id == commentId);
     if (comment) {

@@ -30,6 +30,8 @@
 #import "PRNavigationToolbarItem.h"
 #import "PRMergeViewController.h"
 #import "PRPostMergeController.h"
+#import "Reaction.h"
+#import "Repo.h"
 #import "SendErrorEmail.h"
 
 static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
@@ -70,7 +72,10 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
 @property PRReview *pendingReview;
 @property NSMutableArray *pendingComments;
 @property NSMutableSet<PendingCommentKey *> *pendingCommentGraveyard;
+
 @property NSTimer *pendingReviewTimer;
+@property BOOL savingPendingReview;
+
 @property GitDiffFile *selectedFile;
 
 @property DiffViewModeItem *diffViewModeItem;
@@ -669,34 +674,44 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
         _statusItem.attributedStringValue = str;
     }
     
-    _pendingReview = self.pr.myLastPendingReview;
-    
-    // merge in any new comments from pendingReview.
-    // the tricky part is that their identifiers can't be used, since they rev
-    // every time we save a review, so we have to merge them in by comparing the content of the comments
-    
-    NSMutableArray *allPending = [_pendingComments mutableCopy];
-    for (PRComment *prc in _pendingReview.comments) {
-        PendingPRComment *pprc = [[PendingPRComment alloc] initWithPRComment:prc];
-        if (![self commentInGraveyard:pprc]) {
-            [allPending addObject:pprc];
-        } else {
-            DebugLog(@"Ignoring comment in graveyard: %@", pprc);
+    if (!_savingPendingReview) {
+        uint64_t pendingReviewId = [_pendingReview.identifier unsignedLongLongValue];
+        uint64_t nextPendingReviewId = [self.pr.myLastPendingReview.identifier unsignedLongLongValue];
+        
+        if (nextPendingReviewId > pendingReviewId) {
+            DebugLog(@"Merging in updated pending review");
+            _pendingReview = self.pr.myLastPendingReview;
+            
+            // merge in any new comments from pendingReview.
+            // the tricky part is that their identifiers can't be used, since they rev
+            // every time we save a review, so we have to merge them in by comparing the content of the comments
+            
+            NSMutableArray *allPending = [_pendingComments mutableCopy];
+            for (PRComment *prc in _pendingReview.comments) {
+                PendingPRComment *pprc = [[PendingPRComment alloc] initWithPRComment:prc];
+                if (![self commentInGraveyard:pprc]) {
+                    [allPending addObject:pprc];
+                } else {
+                    DebugLog(@"Ignoring comment in graveyard: %@", pprc);
+                }
+            }
+            
+            NSMutableArray *pendingComments = [NSMutableArray new];
+            NSMutableSet *pendingCommentKeys = [NSMutableSet new];
+            for (PendingPRComment *prc in allPending) {
+                PendingCommentKey *key = [[PendingCommentKey alloc] initWithPendingPRComment:prc];
+                if (![pendingCommentKeys containsObject:key]) {
+                    [pendingCommentKeys addObject:key];
+                    [pendingComments addObject:prc];
+                }
+            }
+            
+            _inReview = _pendingReview != nil || pendingComments.count > 0;
+            _pendingComments = pendingComments;
         }
+    } else {
+        DebugLog(@"Not merging in updated pending review, since we're saving it ourselves");
     }
-    
-    NSMutableArray *pendingComments = [NSMutableArray new];
-    NSMutableSet *pendingCommentKeys = [NSMutableSet new];
-    for (PendingPRComment *prc in allPending) {
-        PendingCommentKey *key = [[PendingCommentKey alloc] initWithPendingPRComment:prc];
-        if (![pendingCommentKeys containsObject:key]) {
-            [pendingCommentKeys addObject:key];
-            [pendingComments addObject:prc];
-        }
-    }
-    
-    _inReview = _pendingReview != nil || pendingComments.count > 0;
-    _pendingComments = pendingComments;
     
     _mergeItem.enabled = self.pr.canMerge;
     
@@ -861,6 +876,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 }
 
 - (void)savePendingReviewWithCompletion:(dispatch_block_t)completion {
+    _savingPendingReview = YES;
+    
     if (_pendingReviewTimer) {
         [_pendingReviewTimer invalidate];
         _pendingReviewTimer = nil;
@@ -879,6 +896,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
             ErrLog(@"Error saving pending review: %@", error);
         }
         
+        _savingPendingReview = NO;
+        
         if (completion) {
             completion();
         }
@@ -888,7 +907,12 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 - (void)savePendingReviewTimerFired:(NSTimer *)timer {
     Trace();
     
-    [self savePendingReviewWithCompletion:nil];
+    if (_savingPendingReview) {
+        DebugLog(@"Queueing another pendingReviewTimer, because a save is already in progress");
+        [self scheduleSavePendingReview];
+    } else {
+        [self savePendingReviewWithCompletion:nil];
+    }
 }
 
 #pragma mark - PRSidebarViewControllerDelegate
@@ -1091,6 +1115,73 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
         }];
     }
 }
+
+- (void)diffViewController:(PRDiffViewController *)vc
+               addReaction:(NSString *)reaction
+   toCommentWithIdentifier:(NSNumber *)commentIdentifier
+{
+    static int64_t reactionTemporaryId = 0;
+    
+    // eagerly add the reaction
+    Reaction *r = [Reaction new];
+    r.identifier = @(--reactionTemporaryId);
+    r.content = reaction;
+    r.createdAt = [NSDate date];
+    r.user = [Account me];
+    
+    PRComment *comment = [[self allComments] firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier]];
+    
+    if (!comment) {
+        ErrLog(@"Cannot find comment with identifier %@", commentIdentifier);
+        return;
+    }
+    
+    comment.reactions = [comment.reactions arrayByAddingObject:r] ?: @[r];
+    
+    [self reloadComments];
+    
+    [[DataStore activeStore] postPRCommentReaction:reaction inRepoFullName:self.pr.issue.repository.fullName inPRComment:commentIdentifier completion:^(Reaction *roundtrip, NSError *error) {
+        
+        comment.reactions = [comment.reactions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF != %@", r]];
+        if (roundtrip) {
+            comment.reactions = [comment.reactions arrayByAddingObject:roundtrip];
+        }
+        
+        [self reloadComments];
+        
+        if (error) {
+            [self presentError:error withRetry:^{
+                [self diffViewController:vc addReaction:reaction toCommentWithIdentifier:commentIdentifier];
+            } fail:nil];
+        }
+    }];
+}
+
+- (void)diffViewController:(PRDiffViewController *)vc
+deleteReactionWithIdentifier:(NSNumber *)reactionIdentifier
+ fromCommentWithIdentifier:(NSNumber *)commentIdentifier
+{
+    PRComment *comment = [[self allComments] firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier]];
+    Reaction *r = [comment.reactions firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"identifier = %@", reactionIdentifier]];
+    
+    if (!r) return;
+    
+    // eagerly delete the reaction
+    comment.reactions = [comment.reactions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF != %@", r]];
+    
+    [self reloadComments];
+    
+    [[DataStore activeStore] deleteReaction:reactionIdentifier completion:^(NSError *error) {
+        if (error) {
+            comment.reactions = [comment.reactions arrayByAddingObject:r];
+            [self reloadComments];
+            [self presentError:error withRetry:^{
+                [self diffViewController:vc deleteReactionWithIdentifier:reactionIdentifier fromCommentWithIdentifier:commentIdentifier];
+            } fail:nil];
+        }
+    }];
+}
+
 
 @end
 

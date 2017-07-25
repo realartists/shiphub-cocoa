@@ -123,10 +123,32 @@
     } name:@"deleteComment"];
     
     [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf addReaction:msg.body];
+    } name:@"addReaction"];
+    
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf deleteReaction:msg.body];
+    } name:@"deleteReaction"];
+    
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
         [weakSelf scrollContinuation:msg.body];
     } name:@"scrollContinuation"];
     
     [_markdownFormattingController registerJavaScriptAPI:cc];
+}
+
+- (void)addReaction:(NSDictionary *)msg {
+    NSNumber *commentId = msg[@"comment"][@"id"];
+    NSString *reaction = msg[@"reaction"];
+    
+    [self.delegate diffViewController:self addReaction:reaction toCommentWithIdentifier:commentId];
+}
+
+- (void)deleteReaction:(NSDictionary *)msg {
+    NSNumber *commentId = msg[@"comment"][@"id"];
+    NSNumber *reactionId = msg[@"reaction_id"];
+    
+    [self.delegate diffViewController:self deleteReactionWithIdentifier:reactionId fromCommentWithIdentifier:commentId];
 }
 
 - (void)scrollContinuation:(NSDictionary *)msg {
