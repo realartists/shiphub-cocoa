@@ -19,7 +19,7 @@
 #import "ServerConnection.h"
 
 static const NSInteger RepoWhitelistMaxCount = 100;
-static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
+static NSString *const RepoPrefsEndpoint = @"/api/sync/settings";
 
 @interface RepoCell : NSTableCellView
 
@@ -71,6 +71,10 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
 
 @implementation RepoController
 
+- (void)dealloc {
+    dispatch_assert_current_queue(dispatch_get_main_queue());
+}
+
 - (NSString *)windowNibName {
     return @"RepoController";
 }
@@ -98,6 +102,18 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
     [self loadData];
 }
 
+- (void)setCanClose:(BOOL)canClose {
+    _canClose = canClose;
+    NSWindowStyleMask mask = self.window.styleMask;
+    if (canClose && (mask & NSWindowStyleMaskClosable) == 0) {
+        mask |= NSWindowStyleMaskClosable;
+        self.window.styleMask = mask;
+    } else if (!canClose && (mask & NSWindowStyleMaskClosable) != 0) {
+        mask ^= NSWindowStyleMaskClosable;
+        self.window.styleMask = mask;
+    }
+}
+
 - (void)setLoading:(BOOL)loading {
     _loading = loading;
     if (loading) {
@@ -112,6 +128,7 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
     [_autotrackCheckbox setEnabled:!loading];
     [_reloadButton setEnabled:!loading];
     [_saveButton setEnabled:!loading];
+    [_repoOutline.enclosingScrollView setHidden:loading];
     
     [self updateAddRepoEnabled];
 }
@@ -141,6 +158,8 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
 
 - (void)handleLoadError:(NSError *)error {
     [self setLoading:NO];
+    
+    ErrLog(@"%@", error);
     
     if (_loadedHandler) {
         RepoPrefsLoadedHandler handler = self.loadedHandler;
@@ -192,11 +211,14 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
     // fetch all of the user's repos
     RequestPager *pager = [[RequestPager alloc] initWithAuth:self.auth];
     [pager fetchPaged:[pager get:@"user/repos"] completion:^(NSArray *data, NSError *err) {
-        if (err) {
-            [self handleLoadError:err];
-        } else {
-            [self continueWithRepos:data];
-        }
+        RunOnMain(^{
+            if (err) {
+                [self handleLoadError:err];
+            } else {
+                [self continueWithRepos:data];
+            }
+        });
+        
     }];
 }
 
@@ -213,6 +235,9 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
     prefsComps.path = RepoPrefsEndpoint;
     
     NSMutableURLRequest *prefReq = [[NSMutableURLRequest alloc] initWithURL:prefsComps.URL];
+    
+    [prefReq setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [_auth addAuthHeadersToRequest:prefReq];
     
     [[[NSURLSession sharedSession] dataTaskWithRequest:prefReq completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
@@ -233,6 +258,8 @@ static NSString *const RepoPrefsEndpoint = nil; // @"/api/authentication/repos";
                 [self handleLoadError:error ?: [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse userInfo:@{ShipErrorUserInfoHTTPResponseCodeKey:@(http.statusCode)}]];
                 return;
             }
+            
+            [self showWindow:nil];
             
             NSError *jsonErr = nil;
             NSDictionary *prefsDict = [data length] > 0 ? [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonErr] : nil;
@@ -464,7 +491,7 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
         handler(prefs);
     } else {
         ServerConnection *conn = [[ServerConnection alloc] initWithAuth:self.auth];
-        [conn perform:@"POST" on:@"/api/authentication/repos" forGitHub:NO headers:nil body:[prefs dictionaryRepresentation] completion:^(id jsonResponse, NSError *error) {
+        [conn perform:@"PUT" on:RepoPrefsEndpoint forGitHub:NO headers:nil body:[prefs dictionaryRepresentation] completion:^(id jsonResponse, NSError *error) {
             RunOnMain(^{
                 if (error) {
                     NSAlert *alert = [NSAlert new];
@@ -492,9 +519,6 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
             _addRepoError.animator.alphaValue = 0.0;
         } completionHandler:^{
             _addRepoError.hidden = YES;
-            if (_addRepoField.enabled) {
-                [self.window makeFirstResponder:_addRepoField];
-            }
         }];
     }];
 }

@@ -14,7 +14,9 @@
 #import "AuthController.h"
 #import "NavigationController.h"
 
-@interface OAuthController ()
+@interface OAuthController () {
+    BOOL _processed;
+}
 
 @property IBOutlet NSProgressIndicator *progress;
 
@@ -81,6 +83,12 @@
 }
 
 - (void)processOAuth {
+    if (_processed) {
+        return;
+    }
+    
+    _processed = YES;
+    
     NSURLRequest *request = [self redeemRequest];
     DebugLog(@"%@", request);
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
@@ -109,7 +117,9 @@
                     [self presentError:decodeErr];
                 });
             } else {
-                [self showRepoSelectionIfNeededForToken:oauthToken];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self showRepoSelectionIfNeededForToken:oauthToken];
+                });
             }
         } else {
             if (!error) {
