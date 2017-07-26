@@ -18,6 +18,8 @@ typedef void (^RepoPrefsChosenHandler)(RepoPrefs *chosenPrefs);
 
 - (instancetype)initWithAuth:(Auth *)auth;
 
+@property (nonatomic) BOOL canClose;
+
 - (void)loadAndShowIfNeeded:(RepoPrefsLoadedHandler)loadedHandler chosenHandler:(RepoPrefsChosenHandler)chosenHandler;
 - (void)loadData;
 

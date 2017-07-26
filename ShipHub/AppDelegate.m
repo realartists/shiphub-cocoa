@@ -648,6 +648,7 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     if (auth.authState == AuthStateValid) {
         if (!_repoController) {
             _repoController = [[RepoController alloc] initWithAuth:_auth];
+            _repoController.canClose = YES;
         }
         if (!_repoController.window.isVisible) {
             [_repoController showWindow:nil];
