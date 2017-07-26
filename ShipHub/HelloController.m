@@ -56,6 +56,7 @@
             // repo controller will now show itself
         }
     } chosenHandler:^(RepoPrefs *chosenPrefs) {
+        [self.view.window makeKeyAndOrderFront:nil]; // show our window again
         if (chosenPrefs) {
             [self sayHello:oauthToken withRepoPrefs:chosenPrefs];
         } else {
