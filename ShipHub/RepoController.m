@@ -18,6 +18,18 @@
 #import "AvatarManager.h"
 #import "ServerConnection.h"
 
+/*
+def syncRepos(userRepos, prefs):
+  if prefs is None:
+    return [r for r in userRepos if r.has_issues and r.permissions.push]
+  elif prefs.autoTrack:
+    autoTrackedRepos = [r for r in userRepos if r.has_issues and r.permissions.push]
+    includedRepos = [r for r in prefs.include if r.permissions.pull]
+    return (autoTrackedRepos + includedRepos) - prefs.exclude
+  else: # autoTrack = false
+    return [r for r in prefs.include if r.permissions.pull]
+*/
+
 static const NSInteger RepoWhitelistMaxCount = 100;
 static NSString *const RepoPrefsEndpoint = @"/api/sync/settings";
 
@@ -275,8 +287,12 @@ static NSString *const RepoPrefsEndpoint = @"/api/sync/settings";
 }
 
 - (void)continueWithRepos:(NSArray *)repos prefs:(RepoPrefs *)prefs {
-    // go out and get repo info for every whitelisted repo
-    NSArray *repoReqs = [prefs.whitelist arrayByMappingObjects:^id(id obj) {
+    // go out and get repo info for every whitelisted repo that isn't in repos
+    NSSet *existingIds = [NSSet setWithArray:[repos arrayByMappingObjects:^id(id obj) {
+        return obj[@"id"];
+    }]];
+    
+    NSArray *repoReqs = [[prefs.whitelist filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT SELF IN %@", existingIds]] arrayByMappingObjects:^id(id obj) {
         NSURLComponents *comps = [NSURLComponents new];
         comps.scheme = @"https";
         comps.host = _auth.account.ghHost;
@@ -317,6 +333,10 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
     return @[[NSSortDescriptor sortDescriptorWithKey:key ascending:YES selector:@selector(localizedStandardCompare:)]];
 }
 
+static NSPredicate *userReposDefaultPredicate() {
+    return [NSPredicate predicateWithFormat:@"has_issues = YES AND permissions.push = YES"];
+}
+
 - (void)updateWithUserRepos:(NSArray *)repos extraRepos:(NSArray *)extraRepos prefs:(RepoPrefs *)prefs {
     _userRepos = repos ?: @[];
     _extraRepos = [NSMutableArray arrayWithArray:extraRepos ?: @[]];
@@ -346,16 +366,20 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
     
     _chosenRepoIdentifiers = [NSMutableSet new];
     
-    if (prefs) {
-        [_chosenRepoIdentifiers addObjectsFromArray:[_userRepos arrayByMappingObjects:^id(id obj) {
-            return obj[@"id"];
-        }]];
+    NSArray *defaultRepos = [_userRepos filteredArrayUsingPredicate:userReposDefaultPredicate()];
+    
+    NSSet *defaultIds = [NSSet setWithArray:[defaultRepos arrayByMappingObjects:^id(id obj) {
+        return obj[@"id"];
+    }]];
+    
+    if (!prefs) {
+        [_chosenRepoIdentifiers unionSet:defaultIds];
+    } else if (prefs.autotrack) {
+        [_chosenRepoIdentifiers unionSet:defaultIds];
+        [_chosenRepoIdentifiers unionSet:[NSSet setWithArray:prefs.whitelist]];
         [_chosenRepoIdentifiers minusSet:[NSSet setWithArray:prefs.blacklist]];
-        [_chosenRepoIdentifiers addObjectsFromArray:prefs.whitelist];
-    } else {
-        [_chosenRepoIdentifiers addObjectsFromArray:[[_userRepos filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"has_issues = YES AND permissions.push = YES"]] arrayByMappingObjects:^id(id obj) {
-            return obj[@"id"];
-        }]];
+    } else /* prefs.autotrack == NO */ {
+        [_chosenRepoIdentifiers unionSet:[NSSet setWithArray:prefs.whitelist]];
     }
     
     _autotrackCheckbox.state = prefs ? (prefs.autotrack ? NSOnState : NSOffState) : YES;
@@ -455,24 +479,25 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
 }
 
 - (IBAction)save:(id)sender {
-    NSSet *existingIds = [NSSet setWithArray:[_userRepos arrayByMappingObjects:^id(id obj) {
+    NSSet *defaultIds = [NSSet setWithArray:[[_userRepos filteredArrayUsingPredicate:userReposDefaultPredicate()] arrayByMappingObjects:^id(id obj) {
         return obj[@"id"];
     }]];
     
-    NSMutableArray *whitelist = [NSMutableArray new];
-    NSMutableArray *blacklist = [NSMutableArray new];
+    NSMutableSet *whitelist = [NSMutableSet new];
+    NSMutableSet *blacklist = [NSMutableSet new];
+    BOOL autotrack = _autotrackCheckbox.state == NSOnState;
     
     for (NSNumber *ownerId in _reposByOwner) {
         for (NSDictionary *repo in _reposByOwner[ownerId]) {
             NSNumber *repoId = repo[@"id"];
             if ([_chosenRepoIdentifiers containsObject:repoId]) {
                 // repo is ON
-                if (![existingIds containsObject:repoId]) {
+                if (![defaultIds containsObject:repoId] || !autotrack) {
                     [whitelist addObject:repoId];
                 }
             } else {
                 // repo is OFF
-                if ([existingIds containsObject:repoId]) {
+                if ([defaultIds containsObject:repoId] && autotrack) {
                     [blacklist addObject:repoId];
                 }
             }
@@ -480,9 +505,9 @@ static NSArray *sortDescriptorsWithKey(NSString *key) {
     }
     
     RepoPrefs *prefs = [RepoPrefs new];
-    prefs.whitelist = whitelist;
-    prefs.blacklist = blacklist;
-    prefs.autotrack = _autotrackCheckbox.state == NSOnState;
+    prefs.whitelist = [whitelist allObjects];
+    prefs.blacklist = [blacklist allObjects];
+    prefs.autotrack = autotrack;
     
     if (self.chosenHandler) {
         RepoPrefsChosenHandler handler = self.chosenHandler;
