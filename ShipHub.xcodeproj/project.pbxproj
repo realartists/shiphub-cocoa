@@ -888,6 +888,7 @@
 		1AC023D61F237D0900B9B59B /* SendErrorEmail.applescript */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.applescript; path = SendErrorEmail.applescript; sourceTree = "<group>"; };
 		1AC023DB1F24FE5400B9B59B /* SendErrorEmail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SendErrorEmail.h; sourceTree = "<group>"; };
 		1AC023DC1F24FE5400B9B59B /* SendErrorEmail.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SendErrorEmail.m; sourceTree = "<group>"; };
+		1AC023E11F2953EC00B9B59B /* PRNavigationActionResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNavigationActionResponder.h; sourceTree = "<group>"; };
 		1AC6196D1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalPriority+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalPriority+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AC6196F1D232E9A00FE1E76 /* LocalPriority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPriority.h; sourceTree = "<group>"; };
@@ -1788,6 +1789,7 @@
 				1AE6F1161E527B23008FD8AC /* DiffViewMode.h */,
 				1ADEA3881E4E86C30033F51A /* DiffViewModeItem.h */,
 				1ADEA3891E4E86C30033F51A /* DiffViewModeItem.m */,
+				1AC023E11F2953EC00B9B59B /* PRNavigationActionResponder.h */,
 				1A2FCD1A1E70C6C30000F91B /* PRNavigationToolbarItem.h */,
 				1A2FCD1B1E70C6C30000F91B /* PRNavigationToolbarItem.m */,
 				1AE6F11A1E53BDB7008FD8AC /* PRComment.h */,
