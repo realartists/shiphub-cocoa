@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12120"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="PRDiffProgressViewController">
+            <connections>
+                <outlet property="cancelButton" destination="ey5-YH-CaI" id="Jnf-nU-kh1"/>
+                <outlet property="indicator" destination="sX3-Qf-9l3" id="mW1-xx-pyE"/>
+                <outlet property="label" destination="MSv-jJ-vSz" id="ZPv-dD-ojj"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Hz6-mo-xeY">
+            <rect key="frame" x="0.0" y="0.0" width="569" height="368"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <customView translatesAutoresizingMaskIntoConstraints="NO" id="geb-fV-trx">
+                    <rect key="frame" x="159" y="141" width="251" height="86"/>
+                    <subviews>
+                        <progressIndicator wantsLayer="YES" maxValue="100" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="sX3-Qf-9l3">
+                            <rect key="frame" x="20" y="19" width="183" height="20"/>
+                        </progressIndicator>
+                        <button translatesAutoresizingMaskIntoConstraints="NO" id="ey5-YH-CaI">
+                            <rect key="frame" x="214" y="23" width="16" height="16"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="16" id="Cyl-aC-RO0"/>
+                                <constraint firstAttribute="width" constant="16" id="zoF-PX-t5h"/>
+                            </constraints>
+                            <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSStopProgressFreestandingTemplate" imagePosition="only" alignment="center" imageScaling="proportionallyUpOrDown" inset="2" id="M3x-BU-dyr">
+                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                <font key="font" metaFont="system"/>
+                            </buttonCell>
+                            <connections>
+                                <action selector="cancel:" target="-2" id="Ukc-IL-t5I"/>
+                            </connections>
+                        </button>
+                        <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MSv-jJ-vSz">
+                            <rect key="frame" x="18" y="43" width="215" height="23"/>
+                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Loading File Contents …" id="Kxl-gV-76C">
+                                <font key="font" size="18" name="HelveticaNeue-Bold"/>
+                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                            </textFieldCell>
+                        </textField>
+                    </subviews>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="ey5-YH-CaI" secondAttribute="trailing" constant="21" id="26v-Ua-E3A"/>
+                        <constraint firstItem="sX3-Qf-9l3" firstAttribute="top" secondItem="MSv-jJ-vSz" secondAttribute="bottom" constant="5" id="OiR-4p-Jmr"/>
+                        <constraint firstItem="sX3-Qf-9l3" firstAttribute="leading" secondItem="geb-fV-trx" secondAttribute="leading" constant="20" id="PBV-JH-lzF"/>
+                        <constraint firstAttribute="height" constant="86" id="U07-QK-xj8"/>
+                        <constraint firstAttribute="trailing" secondItem="MSv-jJ-vSz" secondAttribute="trailing" constant="20" id="bRJ-jP-vwn"/>
+                        <constraint firstAttribute="width" constant="251" id="hcS-PL-gad"/>
+                        <constraint firstItem="ey5-YH-CaI" firstAttribute="leading" secondItem="sX3-Qf-9l3" secondAttribute="trailing" constant="11" id="hh8-IS-Ofh"/>
+                        <constraint firstItem="ey5-YH-CaI" firstAttribute="top" secondItem="MSv-jJ-vSz" secondAttribute="bottom" constant="4" id="kfX-Ee-B6t"/>
+                        <constraint firstItem="MSv-jJ-vSz" firstAttribute="leading" secondItem="geb-fV-trx" secondAttribute="leading" constant="20" id="wxL-2p-Wum"/>
+                        <constraint firstItem="MSv-jJ-vSz" firstAttribute="top" secondItem="geb-fV-trx" secondAttribute="top" constant="20" id="xu8-lG-X3g"/>
+                    </constraints>
+                </customView>
+            </subviews>
+            <constraints>
+                <constraint firstItem="geb-fV-trx" firstAttribute="centerX" secondItem="Hz6-mo-xeY" secondAttribute="centerX" id="Sfu-8Y-RnP"/>
+                <constraint firstItem="geb-fV-trx" firstAttribute="centerY" secondItem="Hz6-mo-xeY" secondAttribute="centerY" id="WeJ-ck-IFK"/>
+            </constraints>
+            <point key="canvasLocation" x="123.5" y="121"/>
+        </customView>
+    </objects>
+    <resources>
+        <image name="NSStopProgressFreestandingTemplate" width="14" height="14"/>
+    </resources>
+</document>

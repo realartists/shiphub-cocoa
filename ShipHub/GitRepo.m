@@ -9,6 +9,7 @@
 #import "GitRepoInternal.h"
 
 #import "Extras.h"
+#import "GitLFS.h"
 #import "NSError+Git.h"
 
 #import <pthread.h>
@@ -18,6 +19,7 @@
 }
 
 @property git_repository *repo;
+@property (readwrite, strong) GitLFS *lfs;
 @property NSArray *fetchingRefs;
 
 @end
@@ -44,7 +46,9 @@ static void initGit2() {
     }
     
     GitRepo *result = [GitRepo new];
+    GitLFS *lfs = [[GitLFS alloc] initWithRepo:result];
     result.repo = repo;
+    result.lfs = lfs;
     return result;
 }
 

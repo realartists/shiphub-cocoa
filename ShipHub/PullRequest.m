@@ -25,6 +25,7 @@
 #import "GitDiff.h"
 #import "GitCommit.h"
 #import "GitRepo.h"
+#import "GitLFS.h"
 
 @interface PullRequest ()
 
@@ -202,6 +203,13 @@
         _githubRemoteURL = [NSURL URLWithString:remoteURLStr];
     }
     
+    NSString *remoteUsername = [[[DataStore activeStore] auth] ghToken];
+    NSString *remotePassword = @"x-oauth-basic";
+    
+    _repo.lfs.remoteBaseURL = _githubRemoteURL;
+    _repo.lfs.remoteUsername = remoteUsername;
+    _repo.lfs.remotePassword = remotePassword;
+    
     // See https://help.github.com/articles/checking-out-pull-requests-locally/
     NSString *refSpec = [NSString stringWithFormat:@"pull/%@/head", _issue.number];
     NSString *baseRefSpec = _info[@"base"][@"ref"];
@@ -220,7 +228,7 @@
         DebugLog(@"Have to fetch refSpec %@ from %@", refSpec, remoteURLStr);
         
         // See https://github.com/blog/1270-easier-builds-and-deployments-using-git-over-https-and-oauth
-        error = [_repo fetchRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" refs:@[refSpec, baseRefSpec] progress:progress];
+        error = [_repo fetchRemote:_githubRemoteURL username:remoteUsername password:remotePassword refs:@[refSpec, baseRefSpec] progress:progress];
         if (error) return error;
         
         error = [_repo updateRef:refSpec toSha:[self headSha]];

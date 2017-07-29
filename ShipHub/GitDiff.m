@@ -9,14 +9,18 @@
 #import "GitDiffInternal.h"
 
 #import "Extras.h"
+#import "Error.h"
 #import "NSData+Git.h"
 #import "NSError+Git.h"
 #import "NSString+Git.h"
 #import "GitRepoInternal.h"
+#import "GitLFS.h"
 #import "GitFileSearch.h"
 #import <git2.h>
 
 static NSRegularExpression *hunkStartRE();
+
+static uint64_t MaxLFSDownload = 50 * 1024 * 1024; /* 50MB */
 
 @interface GitDiffFile ()
 
@@ -38,7 +42,7 @@ static NSRegularExpression *hunkStartRE();
 @property GitRepo *repo;
 @property (getter=isBinary) BOOL binary;
 
-- (void)_loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion completionQueue:(dispatch_queue_t)completionQueue;
+- (void)_loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion progress:(NSProgress *)progress allowLFS:(BOOL)allowLFS completionQueue:(dispatch_queue_t)completionQueue;
 
 @end
 
@@ -59,6 +63,7 @@ static NSRegularExpression *hunkStartRE();
 @property NSMutableArray *mutableChildren;
 
 @property (readwrite, weak) GitFileTree *parentTree;
+@property (readwrite, weak) GitDiff *parentDiff;
 
 @end
 
@@ -232,6 +237,7 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
     }];
     
     GitFileTree *root = [GitFileTree new];
+    root.parentDiff = self;
     NSMutableDictionary *parents = [NSMutableDictionary new];
     parents[@""] = root;
     
@@ -245,6 +251,7 @@ static int fileVisitor(const git_diff_delta *delta, float progress, void *ctx)
             id nextAncestor = nil;
             if (!ancestor) {
                 ancestor = [GitFileTree new];
+                ancestor.parentDiff = self;
                 ancestor.path = pp;
                 ancestor.dirname = [pp lastPathComponent];
                 parents[pp] = ancestor;
@@ -408,7 +415,7 @@ static NSArray<GitFileSearchResult *> *_searchDiff(NSRegularExpression *re, GitD
             } asBinary:^(NSData *oldFile, NSData *newFile, NSError *error) {
                 incrementProgress();
                 dispatch_group_leave(group); // we don't search binary files
-            } completionQueue:workQ];
+            } progress:nil allowLFS:NO completionQueue:workQ];
         }
         
         dispatch_group_notify(group, callbackQ, ^{
@@ -474,7 +481,13 @@ static NSArray<GitFileSearchResult *> *_searchDiff(NSRegularExpression *re, GitD
     return self.mode == DiffFileModeCommit;
 }
 
-- (void)_loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion completionQueue:(dispatch_queue_t)completionQueue
+// helper method for _loadContents...
+// must be called under read-lock
+- (BOOL)_gitAttributesHasLFSForPath:(NSString *)path {
+    return YES;
+}
+
+- (void)_loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion progress:(NSProgress *)progress allowLFS:(BOOL)allowLFS completionQueue:(dispatch_queue_t)completionQueue
 {
     NSParameterAssert(textCompletion);
     NSParameterAssert(binaryCompletion);
@@ -620,19 +633,62 @@ static NSArray<GitFileSearchResult *> *_searchDiff(NSRegularExpression *re, GitD
                 }
             }
             
+            BOOL usingLFS = NO;
+            
             if (!binary) {
                 CHK(git_patch_from_blobs(&gitPatch, oldBlob, NULL /*oldfilename*/, newBlob, NULL /*newfilename*/, NULL /* default diff options */));
                 CHK(git_patch_to_buf(&patchBuf, gitPatch));
                 patchText = [NSString stringWithGitBuf:&patchBuf];
+                
+                // check for git-lfs
+                if (allowLFS)
+                {
+                    GitLFSObject *oldLFS = nil;
+                    GitLFSObject *newLFS = nil;
+                    
+                    [_repo.lfs isLFSAtPath:_oldPath?:_path text:oldText treeSha:_parentTree.parentDiff.baseRev outObject:&oldLFS];
+                    [_repo.lfs isLFSAtPath:_path?:_oldPath text:newText treeSha:_parentTree.parentDiff.headRev outObject:&newLFS];
+                    
+                    if ((oldLFS != nil || newLFS != nil) && oldLFS.size.longLongValue < MaxLFSDownload && newLFS.size.longLongValue < MaxLFSDownload)
+                    {
+                        usingLFS = YES;
+                        
+                        NSArray *lfsObjs = nil;
+                        if (oldLFS && newLFS) {
+                            lfsObjs = @[oldLFS, newLFS];
+                        } else if (oldLFS) {
+                            lfsObjs = @[oldLFS];
+                        } else {
+                            lfsObjs = @[newLFS];
+                        }
+                        
+                        [_repo.lfs fetchObjects:lfsObjs withProgress:progress completion:^(NSArray<NSData *> *objs, NSError *error) {
+                            if (error) {
+                                if (![error isCancelError]) {
+                                    ErrLog(@"LFS Download Error: %@", error);
+                                }
+                                // we always just fall back to showing the text interpretation of the lfs if we can't succeed
+                                textCompletion(oldText, newText, patchText, nil);
+                            } else {
+                                binaryCompletion(oldLFS ? [objs firstObject] : nil,
+                                                 newLFS ? [objs lastObject] : nil,
+                                                 nil);
+                            }
+                            
+                        } completionQueue:completionQueue];
+                    }
+                }
             }
             
-            dispatch_async(completionQueue, ^{
-                if (binary) {
-                    binaryCompletion(oldData, newData, nil);
-                } else {
-                    textCompletion(oldText, newText, patchText, nil);
-                }
-            });
+            if (!usingLFS) {
+                dispatch_async(completionQueue, ^{
+                    if (binary) {
+                        binaryCompletion(oldData, newData, nil);
+                    } else {
+                        textCompletion(oldText, newText, patchText, nil);
+                    }
+                });
+            }
         }
         
         cleanup();
@@ -641,9 +697,11 @@ static NSArray<GitFileSearchResult *> *_searchDiff(NSRegularExpression *re, GitD
     });
 }
 
-- (void)loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion
+- (NSProgress *)loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion
 {
-    [self _loadContentsAsText:textCompletion asBinary:binaryCompletion completionQueue:dispatch_get_main_queue()];
+    NSProgress *progress = [NSProgress indeterminateProgress];
+    [self _loadContentsAsText:textCompletion asBinary:binaryCompletion progress:progress allowLFS:YES completionQueue:dispatch_get_main_queue()];
+    return progress;
 }
 
 static BOOL matchingHunkStart(NSString *a, NSString *b) {

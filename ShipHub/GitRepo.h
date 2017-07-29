@@ -8,9 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
+@class GitLFS;
+
 @interface GitRepo : NSObject
 
 + (GitRepo *)repoAtPath:(NSString *)path error:(NSError *__autoreleasing *)error;
+
+@property (readonly) GitLFS *lfs;
 
 - (void)readLock;
 - (void)writeLock;

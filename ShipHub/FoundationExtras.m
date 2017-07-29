@@ -1790,6 +1790,18 @@ CGRect IntegralRect(CGRect r) {
 
 @end
 
+@implementation NSMutableURLRequest (BasicAuthExtras)
+
+- (void)addBasicAuthorizationHeaderForUsername:(NSString *)username password:(NSString *)password {
+    NSString *alpha = [NSString stringWithFormat:@"%@:%@", username, password];
+    NSString *b64 = [[alpha dataUsingEncoding:NSUTF8StringEncoding] base64EncodedStringWithOptions:0];
+    
+    [self setValue:[NSString stringWithFormat:@"Basic %@", b64] forHTTPHeaderField:@"Authorization"];
+}
+
+@end
+
+
 @implementation NSError (Extras)
 
 - (BOOL)isCancelError {

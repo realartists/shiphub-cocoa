@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class GitCommit;
+@class GitDiff;
 @class GitFileTree;
 @class GitRepo;
 @class GitFileSearch;
@@ -52,7 +53,7 @@ typedef void (^GitDiffFileBinaryCompletion)(NSData *oldFile, NSData *newFile, NS
 
 // Only valid if mode is Blob or BlobExecutable
 // Exactly one of textCompletion or binaryCompletion will be called, depending on the contents of the file(s).
-- (void)loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion;
+- (NSProgress *)loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion;
 
 // Figure out where (if anywhere) that lines in patch live in the patch for spanDiffFile.
 // Completion provides an NSArray with length = lines in patch. Each entry in the mapping array maps from line number in patch to the line number in the patch for the provided spanDiffFile or -1 if there is no mapping.
@@ -68,6 +69,7 @@ typedef void (^GitDiffFileBinaryCompletion)(NSData *oldFile, NSData *newFile, NS
 @property (readonly) NSArray /*either GitFileTree or GitFile*/ *children;
 
 @property (readonly, weak) GitFileTree *parentTree; // may be nil
+@property (readonly, weak) GitDiff *parentDiff;
 
 @end
 

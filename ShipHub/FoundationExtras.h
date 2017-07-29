@@ -348,6 +348,12 @@ void RunOnMain(dispatch_block_t);
 
 @end
 
+@interface NSMutableURLRequest (BasicAuthExtras)
+
+- (void)addBasicAuthorizationHeaderForUsername:(NSString *)username password:(NSString *)password;
+
+@end
+
 @interface NSError (Extras)
 
 - (BOOL)isCancelError; // returns YES if this is a foundation level cancel error { NSURLErrorDomain, NSURLErrorCancelled }

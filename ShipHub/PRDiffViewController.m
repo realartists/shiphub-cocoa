@@ -19,6 +19,7 @@
 #import "MarkdownFormattingController.h"
 #import "PRDiffFileBarViewController.h"
 #import "PRBinaryDiffViewController.h"
+#import "PRDiffProgressViewController.h"
 #import "PRFindBarController.h"
 #import "WebKitExtras.h"
 
@@ -30,6 +31,9 @@
 @property PRFindBarController *findController;
 @property PRDiffFileBarViewController *fileBarController;
 @property PRBinaryDiffViewController *binaryController;
+@property PRDiffProgressViewController *progressController;
+@property NSTimer *progressTimer;
+@property NSProgress *progress;
 
 @end
 
@@ -67,6 +71,7 @@
                                                CGRectGetWidth(b),
                                                fbView.frame.size.height);
     _binaryController.view.frame = [self webContentRect];
+    _progressController.view.frame = [self webContentRect];
     [super layoutSubviews];
 }
 
@@ -222,7 +227,12 @@ static BOOL differentiateWithoutColor() {
     }
     
     NSInteger count = ++_loadCount;
-    [diffFile loadContentsAsText:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
+    [_progress cancel];
+    [_progressTimer invalidate];
+    
+    _progressTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(progressTimerFired:) userInfo:nil repeats:NO];
+    
+    _progress = [diffFile loadContentsAsText:^(NSString *oldFile, NSString *newFile, NSString *patch, NSError *error) {
         if (_loadCount != count) return;
         
         void (^complete)(id) = ^(id patchMapping) {
@@ -267,26 +277,60 @@ static BOOL differentiateWithoutColor() {
         
         [_binaryController setFile:diffFile oldData:oldFile newData:newFile];
     }];
+    
+    _progressController.progress = _progress;
+}
+
+- (void)progressTimerFired:(NSTimer *)timer {
+    _progressTimer = nil;
+    [self showProgressController];
+}
+
+- (void)invalidateProgressTimer {
+    [_progressTimer invalidate];
+    _progressTimer = nil;
 }
 
 - (BOOL)isShowingBinaryDiff {
-    return self.web.hidden;
+    return self.web.hidden && [_binaryController.view superview] != nil;
+}
+
+- (BOOL)isShowingProgressController {
+    return self.web.hidden && [_progressController.view superview] != nil;
 }
 
 - (void)showTextDiff {
+    [self invalidateProgressTimer];
+    
     if (self.web.hidden) {
         self.web.hidden = NO;
         [_binaryController.view removeFromSuperview];
+        [_progressController.view removeFromSuperview];
     }
 }
 
 - (void)showBinaryDiff {
+    [self invalidateProgressTimer];
+    
     if (!_binaryController) {
         _binaryController = [PRBinaryDiffViewController new];
     }
     if (![_binaryController.view superview]) {
         self.web.hidden = YES;
+        [_progressController.view removeFromSuperview];
         [self.view addSubview:_binaryController.view];
+        [self layoutSubviews];
+    }
+}
+
+- (void)showProgressController {
+    if (![self isShowingProgressController]) {
+        if (!_progressController) {
+            _progressController = [PRDiffProgressViewController new];
+        }
+        _progressController.progress = _progress;
+        self.web.hidden = YES;
+        [self.view addSubview:_progressController.view];
         [self layoutSubviews];
     }
 }

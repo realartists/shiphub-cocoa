@@ -275,6 +275,9 @@
 		1AB9D4E51C9B2E2E00C9010E /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
 		1AC023D71F237D0900B9B59B /* SendErrorEmail.applescript in Sources */ = {isa = PBXBuildFile; fileRef = 1AC023D61F237D0900B9B59B /* SendErrorEmail.applescript */; };
 		1AC023DD1F24FE5400B9B59B /* SendErrorEmail.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC023DC1F24FE5400B9B59B /* SendErrorEmail.m */; };
+		1AC023E81F2C1AB200B9B59B /* GitLFS.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC023E71F2C1AB200B9B59B /* GitLFS.m */; };
+		1AC023EF1F2CF2DA00B9B59B /* PRDiffProgressViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC023ED1F2CF2DA00B9B59B /* PRDiffProgressViewController.m */; };
+		1AC023F01F2CF2DA00B9B59B /* PRDiffProgressViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AC023EE1F2CF2DA00B9B59B /* PRDiffProgressViewController.xib */; };
 		1AC619711D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */; };
 		1AC619721D232E9A00FE1E76 /* LocalPriority.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AC619701D232E9A00FE1E76 /* LocalPriority.m */; };
 		1ACA836B1EB26B6600386B12 /* LocalCommitStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ACA836A1EB26B6600386B12 /* LocalCommitStatus.m */; };
@@ -880,6 +883,11 @@
 		1AC023D61F237D0900B9B59B /* SendErrorEmail.applescript */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.applescript; path = SendErrorEmail.applescript; sourceTree = "<group>"; };
 		1AC023DB1F24FE5400B9B59B /* SendErrorEmail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SendErrorEmail.h; sourceTree = "<group>"; };
 		1AC023DC1F24FE5400B9B59B /* SendErrorEmail.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SendErrorEmail.m; sourceTree = "<group>"; };
+		1AC023E61F2C1AB200B9B59B /* GitLFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GitLFS.h; sourceTree = "<group>"; };
+		1AC023E71F2C1AB200B9B59B /* GitLFS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GitLFS.m; sourceTree = "<group>"; };
+		1AC023EC1F2CF2DA00B9B59B /* PRDiffProgressViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDiffProgressViewController.h; sourceTree = "<group>"; };
+		1AC023ED1F2CF2DA00B9B59B /* PRDiffProgressViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDiffProgressViewController.m; sourceTree = "<group>"; };
+		1AC023EE1F2CF2DA00B9B59B /* PRDiffProgressViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRDiffProgressViewController.xib; sourceTree = "<group>"; };
 		1AC6196D1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalPriority+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalPriority+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AC6196F1D232E9A00FE1E76 /* LocalPriority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPriority.h; sourceTree = "<group>"; };
@@ -1561,6 +1569,8 @@
 				1A3D34501DAEF74300CDF167 /* GitRepo.h */,
 				1A3D34541DAEF7F500CDF167 /* GitRepoInternal.h */,
 				1A3D34511DAEF74300CDF167 /* GitRepo.m */,
+				1AC023E61F2C1AB200B9B59B /* GitLFS.h */,
+				1AC023E71F2C1AB200B9B59B /* GitLFS.m */,
 				1A3D34551DAEF88100CDF167 /* NSError+Git.h */,
 				1A3D34561DAEF88100CDF167 /* NSError+Git.m */,
 				1A3D34581DB0147A00CDF167 /* NSString+Git.h */,
@@ -1799,6 +1809,9 @@
 				1AF975791E92DACF00914460 /* PRBinaryDiffViewController.h */,
 				1AF9757A1E92DACF00914460 /* PRBinaryDiffViewController.m */,
 				1AF9757B1E92DACF00914460 /* PRBinaryDiffViewController.xib */,
+				1AC023EC1F2CF2DA00B9B59B /* PRDiffProgressViewController.h */,
+				1AC023ED1F2CF2DA00B9B59B /* PRDiffProgressViewController.m */,
+				1AC023EE1F2CF2DA00B9B59B /* PRDiffProgressViewController.xib */,
 				1A3D34531DAEF74E00CDF167 /* Git */,
 			);
 			name = "Pull Request";
@@ -2024,6 +2037,7 @@
 				1A38C9F71D9206C800655891 /* HiddenMilestoneViewController.xib in Resources */,
 				1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */,
 				1ADCCB181E84967300916FF7 /* PRCommitController.xib in Resources */,
+				1AC023F01F2CF2DA00B9B59B /* PRDiffProgressViewController.xib in Resources */,
 				1A3AB35E1D90AE17004BB768 /* SubscriptionController.xib in Resources */,
 				1A4353561E73762A00C5F5AB /* PRMergeViewController.xib in Resources */,
 				1AF567381D625E2300611DBB /* WebAuthController.xib in Resources */,
@@ -2213,6 +2227,7 @@
 				1A694B311CA342D500F73608 /* SearchResultsController.m in Sources */,
 				1A38CA071D934EF800655891 /* LocalProject.m in Sources */,
 				1A694AEA1CA09E6A00F73608 /* Repo.m in Sources */,
+				1AC023E81F2C1AB200B9B59B /* GitLFS.m in Sources */,
 				1ADED9E21DAC47310093A098 /* PRViewController.m in Sources */,
 				1A5A2AC51F0323270084737B /* WelcomeReadmeController.m in Sources */,
 				1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
@@ -2253,6 +2268,7 @@
 				1A85A6061E81BA12004A4B23 /* MarkdownFormattingController.m in Sources */,
 				1A012ECD1D46DD4B006CE5DF /* ServerChooser.m in Sources */,
 				1A38CA111D9363DE00655891 /* NewProjectController.m in Sources */,
+				1AC023EF1F2CF2DA00B9B59B /* PRDiffProgressViewController.m in Sources */,
 				1A694AF21CA09E9800F73608 /* Milestone.m in Sources */,
 				1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */,
 				1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */,
