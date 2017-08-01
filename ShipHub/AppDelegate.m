@@ -113,6 +113,22 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     return [Auth lastUsedLogin].login;
 }
 
+- (void)checkForDoppelgangers {
+    NSArray<NSRunningApplication *> *running = [[NSWorkspace sharedWorkspace] runningApplications];
+    NSString *myBundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
+    pid_t myPid = getpid();
+    for (NSRunningApplication *r in running) {
+        if (r.processIdentifier != myPid && [r.bundleIdentifier isEqualToString:myBundleIdentifier]) {
+            NSAlert *alert = [NSAlert new];
+            alert.messageText = NSLocalizedString(@"Multiple instances detected.", nil);
+            alert.informativeText = NSLocalizedString(@"Only one copy of Ship can run at once.", nil);
+            [alert addButtonWithTitle:NSLocalizedString(@"Quit", nil)];
+            [alert runModal];
+            exit(0);
+        }
+    }
+}
+
 - (IBAction)showSendFeedback:(id)sender {
     [[[BITHockeyManager sharedHockeyManager] feedbackManager] showFeedbackWindow];
 }
@@ -126,6 +142,8 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    [self checkForDoppelgangers];
+    
     NSString *alternateFeedURLString = [[NSUserDefaults standardUserDefaults] stringForKey:@"SUFeedURL"];
     if (alternateFeedURLString) {
         NSURL *alternateFeedURL = [NSURL URLWithString:alternateFeedURLString];
