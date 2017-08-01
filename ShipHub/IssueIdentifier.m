@@ -210,7 +210,7 @@
         [attr appendAttributedString:d[@"rtf"]];
         i++;
         if (i != count) {
-            [attr appendAttributedString:[[NSAttributedString alloc] initWithString:@" "]];
+            [attr appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n"]];
         }
     }
     
