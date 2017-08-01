@@ -105,7 +105,7 @@ static uint64_t ServerHelloMinimumVersion = 2;
         dispatch_source_set_timer(_heartbeat, DISPATCH_TIME_NOW, 60.0 * NSEC_PER_SEC, 10.0 * NSEC_PER_SEC);
         dispatch_source_set_event_handler(_heartbeat, ^{
             id strongSelf = weakSelf;
-            [strongSelf heartbeat];
+            [strongSelf heartbeat:NO];
         });
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(60 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             dispatch_resume(heartbeat);
@@ -148,7 +148,7 @@ static uint64_t ServerHelloMinimumVersion = 2;
 - (void)syncWithVersions:(NSDictionary *)versions {
     dispatch_async(_q, ^{
         _syncVersions = [versions copy];
-        [self heartbeat];
+        [self heartbeat:YES];
     });
 }
 
@@ -401,8 +401,9 @@ static uint64_t ServerHelloMinimumVersion = 2;
     Trace();
 }
 
-- (void)heartbeat {
-    if (!_asleep && !_socket && [[Reachability sharedInstance] isReachable]) {
+- (void)heartbeat:(BOOL)force {
+    Reachability *r = [Reachability sharedInstance];
+    if (!_asleep && !_socket && (force || !r.receivedFirstUpdate || r.reachable)) {
         [self connect];
     }
 }
