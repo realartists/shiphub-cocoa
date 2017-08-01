@@ -13,6 +13,7 @@
 #import "NSError+Git.h"
 
 #import <pthread.h>
+#import <git2.h>
 
 @interface GitRepo () {
     pthread_rwlock_t _rwlock;
@@ -29,7 +30,23 @@
 static void initGit2() {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
+        int giterr = 0;
+        
         git_libgit2_init();
+        
+        NSString *reposDir = [@"~/Library/RealArtists/Ship2/git" stringByExpandingTildeInPath];
+        const char *searchPath = [reposDir fileSystemRepresentation];
+        
+        NSDictionary *userInfo = [[NSBundle mainBundle] infoDictionary];
+        NSString *ua = [NSString stringWithFormat:@"%@/%@ (%@)", userInfo[@"CFBundleName"], userInfo[@"CFBundleShortVersionString"], userInfo[@"CFBundleVersion"]];
+        git_libgit2_opts(GIT_OPT_SET_USER_AGENT, [ua UTF8String]);
+        
+        for (git_config_level_t level = GIT_CONFIG_LEVEL_SYSTEM; level <= GIT_CONFIG_LEVEL_GLOBAL; level++) {
+            giterr = git_libgit2_opts(GIT_OPT_SET_SEARCH_PATH, level, searchPath);
+            if (giterr != 0) {
+                ErrLog(@"Unable to set git config search path: %@", [NSError gitError]);
+            }
+        }
     });
 }
 
