@@ -15,6 +15,7 @@
 @end
 
 extern NSString *const DefaultsAnalyticsIDKey;
+extern NSString *const DefaultsAnalyticsCohortKey;
 
 extern NSString *const DefaultsLastUsedAccountKey;
 

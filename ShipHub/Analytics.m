@@ -55,6 +55,7 @@ static NSString *AnalyticsHost() {
     NSMutableArray *_queueItems;
     CFTimeInterval _skipSendUntilAfterTime;
     NSString *_distinctID;
+    NSString *_cohortID;
     BOOL _appWillTerminate;
     BOOL _waitingOnFlushToFinish;
     BOOL _flushScheduled;
@@ -73,9 +74,14 @@ static NSString *AnalyticsHost() {
     if (self = [super init]) {
         _queueItems = [NSMutableArray array];
         _distinctID = [[NSUserDefaults standardUserDefaults] stringForKey:DefaultsAnalyticsIDKey];
+        _cohortID = [[NSUserDefaults standardUserDefaults] stringForKey:DefaultsAnalyticsCohortKey];
         if (_distinctID == nil) {
             _distinctID = [[NSUUID UUID] UUIDString];
+            _cohortID = [[NSBundle mainBundle] infoDictionary][DefaultsAnalyticsCohortKey];
             [[NSUserDefaults standardUserDefaults] setObject:_distinctID forKey:DefaultsAnalyticsIDKey];
+            if (_cohortID) {
+                [[NSUserDefaults standardUserDefaults] setObject:_cohortID forKey:DefaultsAnalyticsCohortKey];
+            }
         }
 
         NSString *path = AnalyticsEventsPath();
@@ -198,6 +204,9 @@ static NSString *AnalyticsHost() {
     mutableProperties[@"_machine"] = MachineModel();
     mutableProperties[@"_os"] = OperatingSystemMajorMinor();
     mutableProperties[@"_locale"] = [[NSLocale currentLocale] localeIdentifier];
+    if (_cohortID) {
+        mutableProperties[@"_cohort"] = _cohortID;
+    }
 
     AppDelegate *delegate = [AppDelegate sharedDelegate];
     if (delegate.auth && delegate.auth.account) {
