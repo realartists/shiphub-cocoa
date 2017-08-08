@@ -681,13 +681,18 @@ var MergedEventActions = React.createClass({
       }, this.props.expanded?"Hide Details":"View Details");
     }
     
-    return h('div', { className:"EventActions" },
-      toggleStatusButton,
-      h('button', { 
+    var revert = null;
+    if (IssueState.current.repoCanPush) {
+      revert = h('button', { 
         type:"button", 
         className: "ActionButton EventActionButton MergedEventRevertButton", 
         onClick:evt => this.revert(evt, committish)
       }, "Revert" )
+    }
+    
+    return h('div', { className:"EventActions" },
+      toggleStatusButton,
+      revert
     );
   }
 });
