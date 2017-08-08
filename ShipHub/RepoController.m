@@ -638,7 +638,7 @@ static NSPredicate *userReposDefaultPredicate() {
 
 - (void)finishAddingRepo:(NSDictionary *)foundRepo {
     NSDictionary *owner = foundRepo[@"owner"];
-    NSDictionary *existingOwner = [_owners firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"id = %@", owner]];
+    NSDictionary *existingOwner = [_owners firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"id = %@", owner[@"id"]]];
     if (!existingOwner) {
         [_owners addObject:owner];
         [_owners sortUsingDescriptors:sortDescriptorsWithKey(@"login")];
