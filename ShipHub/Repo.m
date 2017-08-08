@@ -26,7 +26,7 @@
         _issueTemplate = lr.issueTemplate;
         _pullRequestTemplate = lr.pullRequestTemplate;
         _private = [lr.private boolValue];
-        _shipNeedsWebhookHelp = [lr.shipNeedsWebhookHelp boolValue];
+        _shipNeedsWebhookHelp = canPush && [lr.shipNeedsWebhookHelp boolValue];
         _owner = owner;
         _restricted = _private && billingState == BillingStateFree;
         _hasIssues = [lr.hasIssues boolValue];
