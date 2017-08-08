@@ -85,13 +85,11 @@ class PRMergeChangesButton extends React.Component {
     var issue = IssueState.current.issue;
     
     var closed = issue.state == 'closed';
-    var mergeable = issue.mergeable;
-    
     var canMerge = issue.mergeable && issue.state == 'open' && IssueState.current.repoCanPush;
     
     if (closed) {
       return h('span', {});
-    } else if (!mergeable) {
+    } else if (!canMerge) {
       return h('button', {type:'button', ref:'button', className:'ActionButton PRActionsBarButton PRMergeChangesButton PRMergeChangesButtonDisabled'},
         h('span', {dangerouslySetInnerHTML:{__html:PRMergeIcon}}),
         "Merge ..."
