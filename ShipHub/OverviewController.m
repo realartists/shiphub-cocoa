@@ -64,6 +64,11 @@ static NSString *const TBComposeItemId = @"TBCompose";
 static NSString *const TBViewModeItemId = @"TBViewMode";
 static NSString *const TBSearchItemId = @"TBSearch";
 
+static const NSInteger SearchMenuTagTitleOnly = 1;
+static const NSInteger SearchMenuTagTitleAndDescription = 2;
+
+static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
+
 @interface OverviewWindow : NetworkStateWindow
 
 @end
@@ -205,7 +210,23 @@ static NSString *const TBSearchItemId = @"TBSearch";
     _predicateItem.buttonImage = [NSImage advancedSearchIcon];
     _predicateItem.toolTip = NSLocalizedString(@"New Smart Query ⌥⌘F", nil);
     
+    NSInteger selectedSearchTag = [[NSUserDefaults standardUserDefaults] integerForKey:SearchMenuDefaultsKey fallback:SearchMenuTagTitleOnly];
+    
+    NSMenu *searchMenu = [NSMenu new];
+    NSMenuItem *searchMenuItem = [searchMenu addItemWithTitle:NSLocalizedString(@"Search Titles Only", nil) action:@selector(updateSearchFieldCategory:) keyEquivalent:@""];
+    [searchMenuItem setTarget:self];
+    [searchMenuItem setTag:SearchMenuTagTitleOnly];
+    
+    searchMenuItem = [searchMenu addItemWithTitle:NSLocalizedString(@"Search Titles and Descriptions", nil) action:@selector(updateSearchFieldCategory:) keyEquivalent:@""];
+    [searchMenuItem setTarget:self];
+    [searchMenuItem setTag:SearchMenuTagTitleAndDescription];
+    
+    for (NSMenuItem *item in searchMenu.itemArray) {
+        item.state = item.tag == selectedSearchTag ? NSOnState : NSOffState;
+    }
+    
     _searchItem.searchField.placeholderString = NSLocalizedString(@"Filter", nil);
+    _searchItem.searchField.searchMenuTemplate = searchMenu;
     [[self window] addObserver:self forKeyPath:@"firstResponder" options:0 context:NULL];
     
     _searchResults = [[SearchResultsController alloc] init];
@@ -1019,7 +1040,19 @@ static NSString *const TBSearchItemId = @"TBSearch";
     
     NSString *title = [[_searchItem.searchField stringValue] trim];
     NSInteger number = [title isDigits] ? [title integerValue] : 0;
-    NSPredicate *searchPredicate = [title length] > 0 ? [NSPredicate predicateWithFormat:@"title CONTAINS[cd] %@", title] : nil;
+    NSPredicate *searchPredicate = nil;
+    if ([title length]) {
+        NSInteger searchCategory = [[NSUserDefaults standardUserDefaults] integerForKey:SearchMenuDefaultsKey fallback:SearchMenuTagTitleOnly];
+        switch (searchCategory) {
+            case SearchMenuTagTitleAndDescription:
+                searchPredicate = [NSPredicate predicateWithFormat:@"title CONTAINS[cd] %@ OR body CONTAINS[cd] %@", title, title];
+                break;
+            case SearchMenuTagTitleOnly:
+            default:
+                searchPredicate = [NSPredicate predicateWithFormat:@"title CONTAINS[cd] %@", title];
+                break;
+        }
+    }
     if (number != 0) {
         searchPredicate = [searchPredicate or:[NSPredicate predicateWithFormat:@"number = %ld", (long)number]];
     }
@@ -1505,6 +1538,16 @@ static NSString *const TBSearchItemId = @"TBSearch";
 }
 
 - (IBAction)searchItemChanged:(id)sender {
+    [self updatePredicate];
+}
+
+- (IBAction)updateSearchFieldCategory:(id)sender {
+    [[NSUserDefaults standardUserDefaults] setInteger:[sender tag] forKey:SearchMenuDefaultsKey];
+    NSMenu *menu = [_searchItem.searchField.searchMenuTemplate copy];
+    for (NSMenuItem *item in menu.itemArray) {
+        item.state = item.tag == [sender tag] ? NSOnState : NSOffState;
+    }
+    _searchItem.searchField.searchMenuTemplate = menu;
     [self updatePredicate];
 }
 
