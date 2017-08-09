@@ -459,7 +459,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
 }
 
 - (IBAction)showPushHelp:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.realartists.com/docs/2.0/pullrequests.html"]];
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.realartists.com/docs/2.0/pull-requests.html"]];
 }
 
 - (IBAction)showPushInfo:(id)sender {
