@@ -665,6 +665,9 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
                         node.predicate = [NSPredicate predicateWithFormat:@"milestone.identifier = %@", mile.identifier];
                         node.icon = milestoneIcon;
                         node.identifier = [NSString stringWithFormat:@"RepoMilestone.%@", mile.identifier];
+                        node.dropHandler = ^(NSArray *identifiers) {
+                            [[BulkModifyHelper sharedHelper] moveIssues:identifiers toMilestone:mile.title window:weakSelf.window completion:nil];
+                        };
                         [repoNode addChild:node];
                     }
                 }

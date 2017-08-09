@@ -58,7 +58,7 @@
     return [NSString stringWithFormat:@"%@/%@#%lld", ownerLogin, repoName, number.longLongValue];
 }
 
-#define OWNER_OR_NAME_VALID_CHARS @"[^/ ]+"
+#define OWNER_OR_NAME_VALID_CHARS @"[^/\\s]+"
 
 + (NSRegularExpression *)issueIdentifierRE {
     static NSRegularExpression *re = nil;
