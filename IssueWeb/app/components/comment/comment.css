@@ -212,6 +212,14 @@ div.comment .addCommentLabel {
 .CodeMirror-focused .CodeMirror-selected { background: Highlight; }
 .CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: Highlight; }
 
+span.cmUserCompletionLogin {
+  font-weight: bold;
+}
+
+span.cmUserCompletionName {
+  margin-left: 4px;
+}
+
 div.commentFooter {
   text-align: right;
   height: 40px;

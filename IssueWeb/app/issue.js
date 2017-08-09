@@ -2567,16 +2567,21 @@ function applyIssueState(state, scrollToCommentIdentifier) {
     issue.user = issue.originator;
   }
   
-  var allPossibleAssignees = state.assignees.map((a) => a.login);
-  var allPossibleCommenters = (issue.comments || []).filter((c) => !!keypath(c, "user.login")).map((c) => c.user.login)
+  var allPossibleAssignees = state.assignees;
+  var allPossibleCommenters = (issue.comments || []).filter((c) => !!keypath(c, "user.login")).map(c => c.user);
   if (keypath(issue, "user.login")) {
-    allPossibleCommenters.push(issue.user.login);
+    allPossibleCommenters.push(issue.user);
   }
-  var allLogins = Array.from(new Set(allPossibleAssignees.concat(allPossibleCommenters)));
-  allLogins = allLogins.map((s) => ({ v:s, l:s }));
-  allLogins.sort((a, b) => a.l.localeCompare(b.l));
-  allLogins = allLogins.map((o) => o.v);
-  state.allLoginCompletions = allLogins;
+  var everyone = allPossibleAssignees.concat(allPossibleCommenters);
+  everyone = everyone.map(u => ({u, l:u.login.toLowerCase()}));
+  everyone.sort((a, b) => a.l.localeCompare(b.l));
+  everyone = everyone.map(x => x.u).reduce((accum, u) => {
+    if (u.id == state.me.id) return accum;
+    if (accum.length == 0) return [u];
+    else if (accum[accum.length-1].login != u.login) return accum.concat([u]);
+    else return accum
+  }, []);
+  state.allLoginCompletions = everyone;
   
   IssueState.current.state = state;
   

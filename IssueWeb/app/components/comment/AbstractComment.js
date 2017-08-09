@@ -97,6 +97,7 @@ class AbstractComment extends React.Component {
   
   saveAndClose() { throw "not implemented"; }
   
+  /* return a uniqued array of user objects { login:"...", name:"..." } for autocompletion */
   loginCompletions() { throw "not implemented"; }
   
   onTaskListEdit() { throw "not implemented"; }
@@ -481,6 +482,69 @@ class AbstractComment extends React.Component {
     if (cm && cm.issueWebConfigured === undefined) {
       cm.issueWebConfigured = true;
       
+      var renderUser = function(element, self, data) {
+        var base = document.createElement('span');
+        element.appendChild(base);
+        
+        var login = document.createElement('span');
+        login.className = 'cmUserCompletionLogin';
+        login.innerText = data.user.login;
+
+        var name = null;        
+        if (data.user.name) {
+          var name = document.createElement('span');
+          name.className = 'cmUserCompletionName';
+          name.innerText = data.user.name;
+        }
+        
+        base.appendChild(login);
+        if (name) {
+          base.appendChild(name);
+        }
+      };
+      
+      var userHint = function(cm, options) {
+        var sentinel = options.sentinel || " ";
+        var cur = cm.getCursor();
+        
+        // walk back until we can find the sentinel
+        var lt = cm.getLine(cur.line);
+        var ls = lt.slice(0, cur.ch);
+        var p = ls.lastIndexOf(sentinel);
+        if (p == -1) {
+          // couldn't find the sentinel. bail out.
+          return;
+        }
+        var sentinelRange = {anchor:{line:cur.line, ch:p}, head:{line:cur.line, ch:p+sentinel.length}};
+        
+        if (sentinelRange.anchor.ch != 0) {
+          var prev = {line:sentinelRange.anchor.line, ch:sentinelRange.anchor.ch-1};
+          var thingBefore = cm.getRange(prev, sentinelRange.anchor);
+          if (!(/\s/.test(thingBefore))) {
+            // return if the thing before sentinel isn't either the beginning of the line or a space
+            return;
+          }
+        }
+        
+        var term = cm.getRange(sentinelRange.head, cur);
+        
+        // use the hint function to append a space after the completion
+        var hint = function(cm, data, completion) {
+          var src = Object.assign({}, completion.from || data.from);
+          return cm.replaceRange(sentinel + completion.text + " ", src, completion.to || data.to, "complete");
+        };
+        
+        var lowerTerm = term.toLowerCase();
+        var found = options.users.
+          filter(u => u.login.slice(0, term.length).toLowerCase() == lowerTerm || (u.name && u.name.slice(0, term.length).toLowerCase() == lowerTerm)).
+          map(u => { return { text: u.login, user:u, hint: hint, render: renderUser } });
+          
+        if (found.length) {
+          var ret = {list: found, from: sentinelRange.anchor, to: cur};
+          return ret;
+        }
+      };
+      
       var sentinelHint = function(cm, options) {
         var cur = cm.getCursor();
         var wordRange = cm.findWordAt(cur);
@@ -535,8 +599,8 @@ class AbstractComment extends React.Component {
         if (mode.name != 'markdown') return; // don't do completions outside of markdown mode
         
         if (change.text.length == 1 && change.text[0] === '@') {
-          CodeMirror.showHint(cm, sentinelHint, {
-            words: this.loginCompletions().map((a) => '@' + a),
+          CodeMirror.showHint(cm, userHint, {
+            users: this.loginCompletions(),
             sentinel: '@',
             completeSingle: false
           });
