@@ -8,6 +8,7 @@
 
 #import "RepoController.h"
 
+#import "DataStore.h"
 #import "Extras.h"
 #import "IssueIdentifier.h"
 #import "RepoPrefs.h"
@@ -17,6 +18,7 @@
 #import "RepoSearchField.h"
 #import "AvatarManager.h"
 #import "ServerConnection.h"
+#import "MetadataStore.h"
 
 /*
 def syncRepos(userRepos, prefs):
@@ -78,6 +80,7 @@ static NSString *const RepoPrefsEndpoint = @"/api/sync/settings";
 @property NSMutableDictionary<NSNumber *, NSMutableArray *> *reposByOwner;
 @property NSSet *userRepoIdentifiers;
 @property NSMutableSet *chosenRepoIdentifiers;
+@property NSSet *hiddenLocallyRepoIdentifiers;
 
 @end
 
@@ -230,7 +233,6 @@ static NSString *const RepoPrefsEndpoint = @"/api/sync/settings";
                 [self continueWithRepos:data];
             }
         });
-        
     }];
 }
 
@@ -341,6 +343,12 @@ static NSPredicate *userReposDefaultPredicate() {
     _userRepos = repos ?: @[];
     _extraRepos = [NSMutableArray arrayWithArray:extraRepos ?: @[]];
     
+    if (!_auth.temporary) {
+        _hiddenLocallyRepoIdentifiers = [NSSet setWithArray:[[[[DataStore activeStore] metadataStore] hiddenRepos] arrayByMappingObjects:^id(Repo *obj) {
+            return obj.identifier;
+        }]];
+    }
+    
     _userRepoIdentifiers = [NSSet setWithArray:[_userRepos arrayByMappingObjects:^id(id obj) {
         return obj[@"id"];
     }]];
@@ -424,7 +432,7 @@ static NSPredicate *userReposDefaultPredicate() {
 
 - (IBAction)checkboxDidChange:(id)sender {
     id item = [sender extras_representedObject];
-    NSInteger state = [sender state];
+    NSInteger state = [(NSButton *)sender state];
     
     if (item[@"login"]) {
         // owner
@@ -453,10 +461,15 @@ static NSPredicate *userReposDefaultPredicate() {
     
     BOOL missingIssues = [repo[@"has_issues"] boolValue] == NO;
     BOOL missingPush = [repo[@"permissions"][@"push"] boolValue] == NO;
+    BOOL hiddenLocally =  [_hiddenLocallyRepoIdentifiers containsObject:repo[@"id"]];
     
     NSString *message = nil;
+    NSString *title = [NSString stringWithFormat:NSLocalizedString(@"%@ is limited.", nil), repo[@"full_name"]];
     
-    if (missingIssues && missingPush) {
+    if (hiddenLocally) {
+        title = [NSString stringWithFormat:NSLocalizedString(@"%@ is hidden locally.", nil), repo[@"full_name"]];
+        message = NSLocalizedString(@"This repository will sync, but it is marked as hidden. To view issues in this repository, select it in the sidebar of the Overview window, and click the button to unhide it.", nil);
+    } else if (missingIssues && missingPush) {
         message = NSLocalizedString(@"This repository does not have issues enabled.\n\nAdditionally, you do not have push access to this repository, and therefore you will not be able to modify existing pull requests.", nil);
     } else if (missingIssues) {
         message = NSLocalizedString(@"This repository does not have issues enabled. You will not be able to create new issues for this repository.", nil);
@@ -466,7 +479,7 @@ static NSPredicate *userReposDefaultPredicate() {
     
     NSAlert *alert = [NSAlert new];
     alert.icon = [NSImage imageNamed:NSImageNameCaution];
-    alert.messageText = [NSString stringWithFormat:NSLocalizedString(@"%@ is limited.", nil), repo[@"full_name"]];
+    alert.messageText = title;
     alert.informativeText = message;
     
     [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
@@ -721,7 +734,8 @@ static NSPredicate *userReposDefaultPredicate() {
         RepoCell *cell = [outlineView makeViewWithIdentifier:@"RepoCell" owner:self];
         cell.checkbox.title = item[@"name"] ?: @"wat";
         cell.checkbox.extras_representedObject = item;
-        cell.warningButton.hidden = [item[@"has_issues"] boolValue] && [item[@"permissions"][@"push"] boolValue];
+        BOOL hiddenLocally = [_chosenRepoIdentifiers containsObject:item[@"id"]] && [_hiddenLocallyRepoIdentifiers containsObject:item[@"id"]];
+        cell.warningButton.hidden = [item[@"has_issues"] boolValue] && [item[@"permissions"][@"push"] boolValue] && !hiddenLocally;
         cell.warningButton.extras_representedObject = item;
         cell.checkbox.state = [_chosenRepoIdentifiers containsObject:item[@"id"]] ? NSOnState : NSOffState;
         return cell;
