@@ -65,6 +65,7 @@
     [[[_web mainFrame] frameView] setAllowsScrolling:NO];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataSourceUpdated:) name:DataStoreDidUpdateProblemsNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataSourceUpdated:) name:DataStoreDidUpdateMetadataNotification object:nil];
 }
 
 - (void)chartConfigControllerDismiss:(ChartConfigController *)controller {
