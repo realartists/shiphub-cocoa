@@ -891,12 +891,12 @@
 		1AC023D61F237D0900B9B59B /* SendErrorEmail.applescript */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.applescript; path = SendErrorEmail.applescript; sourceTree = "<group>"; };
 		1AC023DB1F24FE5400B9B59B /* SendErrorEmail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SendErrorEmail.h; sourceTree = "<group>"; };
 		1AC023DC1F24FE5400B9B59B /* SendErrorEmail.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SendErrorEmail.m; sourceTree = "<group>"; };
+		1AC023E11F2953EC00B9B59B /* PRNavigationActionResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNavigationActionResponder.h; sourceTree = "<group>"; };
 		1AC023E61F2C1AB200B9B59B /* GitLFS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GitLFS.h; sourceTree = "<group>"; };
 		1AC023E71F2C1AB200B9B59B /* GitLFS.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GitLFS.m; sourceTree = "<group>"; };
 		1AC023EC1F2CF2DA00B9B59B /* PRDiffProgressViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDiffProgressViewController.h; sourceTree = "<group>"; };
 		1AC023ED1F2CF2DA00B9B59B /* PRDiffProgressViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDiffProgressViewController.m; sourceTree = "<group>"; };
 		1AC023EE1F2CF2DA00B9B59B /* PRDiffProgressViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRDiffProgressViewController.xib; sourceTree = "<group>"; };
-		1AC023E11F2953EC00B9B59B /* PRNavigationActionResponder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRNavigationActionResponder.h; sourceTree = "<group>"; };
 		1AC6196D1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalPriority+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1AC6196E1D232E9A00FE1E76 /* LocalPriority+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalPriority+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AC6196F1D232E9A00FE1E76 /* LocalPriority.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPriority.h; sourceTree = "<group>"; };
