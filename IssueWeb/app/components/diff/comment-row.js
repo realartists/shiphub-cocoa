@@ -36,9 +36,10 @@ class Comment extends AbstractComment {
   canClose() { return false; }
   
   canEdit() {
+    if (!this.props.comment) return true;
     var user = this.props.comment.user||this.props.comment.author;
     if (!user) user = ghost;
-    return !this.props.comment || this.props.repo.canPush || this.me().id == user.id;
+    return this.props.repo.canPush || this.me().id == user.id;
   }
   
   repoOwner() {

@@ -15,9 +15,10 @@ class CommitComment extends AbstractComment {
   isNewIssue() { return false; } 
   canClose() { return false; }
   canEdit() { 
+    if (!this.props.comment) return true;
     var user = this.props.comment.user||this.props.comment.author;
     if (!user) user = ghost;
-    return !this.props.comment || IssueState.current.repoCanPush || this.me().id == user.id;
+    return IssueState.current.repoCanPush || this.me().id == user.id;
   }
   repoOwner() { return IssueState.current.repoOwner; }
   repoName() { return IssueState.current.repoName; }
