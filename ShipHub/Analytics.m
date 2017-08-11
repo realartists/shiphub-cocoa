@@ -2,54 +2,10 @@
 
 #include <sys/sysctl.h>
 
-#import "AppDelegate.h"
+#import "AppAdapter.h"
 #import "Auth.h"
 #import "DataStore.h"
 #import "Logging.h"
-
-static const double kMininumFlushDelay = 60.0;
-
-static NSString *AnalyticsEventsPath() {
-    return [@"~/Library/RealArtists/Ship2/AnalyticsEvents.plist" stringByExpandingTildeInPath];
-}
-
-// Borrowed in part from: http://stackoverflow.com/a/13360637
-static NSString *MachineModel() {
-    static NSString *str = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        size_t length = 0;
-        sysctlbyname("hw.model", NULL, &length, NULL, 0);
-
-        char *model = malloc(length * sizeof(char));
-        sysctlbyname("hw.model", model, &length, NULL, 0);
-        str = [NSString stringWithUTF8String:model];
-        free(model);
-    });
-    return str;
-}
-
-static NSString *OperatingSystemMajorMinor() {
-    NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
-    return [NSString stringWithFormat:@"%ld.%ld.%ld", version.majorVersion, version.minorVersion, version.patchVersion];
-}
-
-static NSString *AnalyticsHost() {
-    NSString *shipHost = [DataStore activeStore].auth.account.shipHost;
-
-    if ([shipHost isEqualToString:@"api.github.com"]) {
-        // This happens when using GHSyncConnection.
-        return nil;
-    } else if (shipHost) {
-        // User is authenticated.
-        return shipHost;
-    } else {
-        // Not yet authenticated.  Note that if you want to send pre-authenticated events to a server
-        // other than live, you should start Ship with the argument `-ShipHost yourhost` or run
-        // `defaults write -app Ship ShipHost yourhost`.
-        return DefaultShipHost();
-    }
-}
 
 @implementation Analytics {
     NSMutableArray *_queueItems;
@@ -68,6 +24,57 @@ static NSString *AnalyticsHost() {
         sharedInstance = [[Analytics alloc] init];
     });
     return sharedInstance;
+}
+
+static const double kMininumFlushDelay = 60.0;
+
+static NSString *AnalyticsEventsPath() {
+    return [DefaultsLibraryPath() stringByAppendingPathComponent:@"AnalyticsEvents.plist"];
+}
+
+// Borrowed in part from: http://stackoverflow.com/a/13360637
+static NSString *MachineModel() {
+    static NSString *str = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        size_t length = 0;
+        sysctlbyname("hw.model", NULL, &length, NULL, 0);
+        
+        char *model = malloc(length * sizeof(char));
+        sysctlbyname("hw.model", model, &length, NULL, 0);
+        str = [NSString stringWithUTF8String:model];
+        free(model);
+    });
+    return str;
+}
+
+static NSString *OperatingSystemMajorMinor() {
+    NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+    return [NSString stringWithFormat:@"%ld.%ld.%ld", version.majorVersion, version.minorVersion, version.patchVersion];
+}
+
+static NSURL *AnalyticsURL() {
+#if TARGET_REVIEWED_BY_ME
+    return [NSURL URLWithString:@"https://api.mixpanel.com/track/"];
+#else
+    NSString *shipHost = [DataStore activeStore].auth.account.shipHost;
+    
+    if ([shipHost isEqualToString:@"api.github.com"]) {
+        // This happens when using GHSyncConnection.
+        return nil;
+    } else if (!shipHost) {
+        // Not yet authenticated.  Note that if you want to send pre-authenticated events to a server
+        // other than live, you should start Ship with the argument `-ShipHost yourhost` or run
+        // `defaults write -app Ship ShipHost yourhost`.
+        shipHost = DefaultShipHost();
+    } // else user is authenticated.
+    
+    NSURLComponents *comps = [NSURLComponents new];
+    comps.host = shipHost;
+    comps.scheme = @"https";
+    comps.path = @"/analytics/track";
+    return comps.URL;
+#endif
 }
 
 - (instancetype)init {
@@ -123,8 +130,8 @@ static NSString *AnalyticsHost() {
     NSAssert(_queueItems.count > 0, @"Should not be asked to flush empty queue.");
     _flushScheduled = NO;
 
-    NSString *host = AnalyticsHost();
-    if (host == nil) {
+    NSURL *url = AnalyticsURL();
+    if (url == nil) {
         // GHSyncConnection must have been enabled, but apparently the queue is non-empty
         // because we're here.  We don't do Analytics in GHSyncConnection mode, so bail.
         return;
@@ -132,7 +139,6 @@ static NSString *AnalyticsHost() {
 
     NSArray *batch = [_queueItems subarrayWithRange:NSMakeRange(0, MIN(50, _queueItems.count))];
 
-    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/analytics/track", host]];
     NSMutableURLRequest *req = [NSMutableURLRequest requestWithURL:url
                                                        cachePolicy:NSURLRequestReloadIgnoringLocalAndRemoteCacheData
                                                    timeoutInterval:30.0];
@@ -146,7 +152,7 @@ static NSString *AnalyticsHost() {
     [req setHTTPBody:jsonData];
     [req setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
 
-    DebugLog(@"Flushing %ld events to '%@' ...", _queueItems.count, host);
+    DebugLog(@"Flushing %ld events to '%@' ...", _queueItems.count, url);
     [[[NSURLSession sharedSession] dataTaskWithRequest:req
                                      completionHandler:
       ^(NSData *data, NSURLResponse *response, NSError *error) {
@@ -156,12 +162,12 @@ static NSString *AnalyticsHost() {
               BOOL succeeded = [dataString isEqualToString:@"1"];
 
               if (succeeded) {
-                  DebugLog(@"Flushed %ld events to '%@'.", _queueItems.count, host);
+                  DebugLog(@"Flushed %ld events to '%@'.", _queueItems.count, url);
                   [_queueItems removeObjectsInArray:batch];
               } else if (error) {
-                  ErrLog(@"Flush failed to '%@' with error: %@", host, error);
+                  ErrLog(@"Flush failed to '%@' with error: %@", url, error);
               } else {
-                  ErrLog(@"Flush failed to '%@' with status (%ld): %@", host, httpResponse.statusCode, dataString);
+                  ErrLog(@"Flush failed to '%@' with status (%ld): %@", url, httpResponse.statusCode, dataString);
               }
 
               NSInteger retryAfterSeconds = [httpResponse.allHeaderFields[@"Retry-After"] integerValue];
@@ -193,14 +199,17 @@ static NSString *AnalyticsHost() {
 - (void)track:(NSString *)event properties:(NSDictionary *)properties {
     NSAssert([NSThread isMainThread], @"Must run on main thread.");
 
-    if (AnalyticsHost() == nil) {
+    if (AnalyticsURL() == nil) {
         return;
     }
+    
+    NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
 
     NSMutableDictionary *mutableProperties = [properties mutableCopy];
     mutableProperties[@"time"] = @((NSInteger)([[NSDate date] timeIntervalSince1970]));
     mutableProperties[@"distinct_id"] = _distinctID;
-    mutableProperties[@"_version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleVersion"];
+    mutableProperties[@"_app"] = infoDict[@"CFBundleIdentifier"];
+    mutableProperties[@"_version"] = infoDict[@"CFBundleVersion"];
     mutableProperties[@"_machine"] = MachineModel();
     mutableProperties[@"_os"] = OperatingSystemMajorMinor();
     mutableProperties[@"_locale"] = [[NSLocale currentLocale] localeIdentifier];
@@ -208,10 +217,10 @@ static NSString *AnalyticsHost() {
         mutableProperties[@"_cohort"] = _cohortID;
     }
 
-    AppDelegate *delegate = [AppDelegate sharedDelegate];
-    if (delegate.auth && delegate.auth.account) {
-        mutableProperties[@"_github_login"] = delegate.auth.account.login;
-        mutableProperties[@"_github_id"] = delegate.auth.account.ghIdentifier;
+    Auth *auth = [SharedAppAdapter() auth];
+    if (auth && auth.account) {
+        mutableProperties[@"_github_login"] = auth.account.login;
+        mutableProperties[@"_github_id"] = auth.account.ghIdentifier;
     }
 
     [_queueItems addObject:@{@"event" : event,

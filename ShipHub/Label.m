@@ -13,6 +13,7 @@
 
 @implementation Label
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalItem:(id)localItem {
     LocalLabel *ll = localItem;
     if (self = [super init]) {
@@ -21,6 +22,19 @@
         _color = [UIColor colorWithHexString:ll.color];
 #else
         _color = [NSColor colorWithHexString:ll.color];
+#endif
+    }
+    return self;
+}
+#endif
+
+- (instancetype)initWithDictionary:(NSDictionary *)d {
+    if (self = [super initWithDictionary:d]) {
+        _name = d[@"name"];
+#if TARGET_OS_IOS
+        _color = [UIColor colorWithHexString:d[@"color"]];
+#else
+        _color = [NSColor colorWithHexString:d[@"color"]];
 #endif
     }
     return self;

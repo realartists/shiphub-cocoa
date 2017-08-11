@@ -9,7 +9,6 @@
 #import <Cocoa/Cocoa.h>
 
 #import "PullRequest.h"
-#import "Issue.h"
 #import "PRNavigationActionResponder.h"
 
 @interface PRViewController : NSViewController <PRNavigationActionResponder>

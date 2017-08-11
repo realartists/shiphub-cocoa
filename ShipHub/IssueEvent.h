@@ -8,9 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
+@class Account;
+
+#if TARGET_SHIP
 @class LocalEvent;
 @class MetadataStore;
-@class Account;
+#endif
 
 @interface IssueEvent : NSObject
 
@@ -24,6 +27,8 @@
 
 @property NSDictionary *extra;
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalEvent:(LocalEvent *)le metadataStore:(MetadataStore *)ms;
+#endif
 
 @end

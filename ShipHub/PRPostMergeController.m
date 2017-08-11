@@ -9,7 +9,7 @@
 #import "PRPostMergeController.h"
 
 #import "Issue.h"
-#import "DataStore.h"
+#import "PRAdapter.h"
 #import "Extras.h"
 
 @interface PRPostMergeController ()
@@ -64,7 +64,8 @@
 
 - (IBAction)ok:(id)sender {
     if (_deleteButton.state == NSOnState) {
-        [[DataStore activeStore] deletePullRequestBranch:_issue completion:nil];
+        id<PRAdapter> adapter = CreatePRAdapter(_issue);
+        [adapter deletePullRequestBranchWithCompletion:nil];
     }
     [self.window.sheetParent endSheet:self.window returnCode:NSModalResponseOK];
 }

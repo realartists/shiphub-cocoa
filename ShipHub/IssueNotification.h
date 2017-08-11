@@ -8,11 +8,15 @@
 
 #import <Foundation/Foundation.h>
 
+#if TARGET_SHIP
 @class LocalNotification;
+#endif
 
 @interface IssueNotification : NSObject
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalNotification:(LocalNotification *)ln;
+#endif
 
 @property (nonatomic, retain) NSNumber *commentIdentifier;
 @property (nonatomic, retain) NSString *reason;

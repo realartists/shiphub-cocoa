@@ -10,8 +10,12 @@
 
 @class Account;
 @class PRComment;
-@class LocalPRReview;
+
+#if TARGET_SHIP
 @class MetadataStore;
+@class LocalPRReview;
+#endif
+
 
 typedef NS_ENUM(NSInteger, PRReviewState) {
     PRReviewStatePending = 0,
@@ -30,8 +34,11 @@ extern NSString *PRReviewStateToString(PRReviewState st);
 @interface PRReview : NSObject <NSCopying>
 
 - (id)init;
+
+#if TARGET_SHIP
 - (id)initWithDictionary:(NSDictionary *)d comments:(NSArray<PRComment *> *)comments metadataStore:(MetadataStore *)store;
 - (id)initWithLocalReview:(LocalPRReview *)lprr metadataStore:(MetadataStore *)store;
+#endif
 
 @property NSNumber *identifier;
 @property Account *user;

@@ -18,6 +18,7 @@
 
 @implementation CommitComment
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalCommitComment:(LocalCommitComment *)lc metadataStore:(MetadataStore *)ms
 {
     if (self = [super init]) {
@@ -35,5 +36,6 @@
     }
     return self;
 }
+#endif
 
 @end

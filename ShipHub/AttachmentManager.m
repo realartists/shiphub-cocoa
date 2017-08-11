@@ -10,9 +10,8 @@
 
 #import "Error.h"
 #import "Extras.h"
-
-#import "DataStore.h"
 #import "Auth.h"
+#import "AppAdapter.h"
 
 // small attachments we can base64 encode and upload all in one go.
 // larger ones, we will ask for a signed S3 URL and upload to that.
@@ -159,7 +158,7 @@ static NSString *const UploadEndpoint = @"https://86qvuywske.execute-api.us-east
         return;
     }
     
-    NSString *token = [[[DataStore activeStore] auth] ghToken];
+    NSString *token = [[SharedAppAdapter() auth] ghToken];
     
     NSMutableDictionary *body = [NSMutableDictionary new];
     body[@"token"] = token;

@@ -15,6 +15,8 @@
 #import "Defaults.h"
 #endif
 
+#define TARGET_SHIP 1
+#define TARGET_REVIEWED_BY_ME 0
 #define INCOMPLETE 1
 
 #endif /* ShipHub_Prefix_h */

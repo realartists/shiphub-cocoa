@@ -18,6 +18,7 @@
 
 @implementation IssueComment
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalComment:(LocalComment *)lc metadataStore:(MetadataStore *)ms
 {
     if (self = [super init]) {
@@ -32,6 +33,7 @@
     }
     return self;
 }
+#endif
 
 - (NSString *)description {
     NSString *body = _body;

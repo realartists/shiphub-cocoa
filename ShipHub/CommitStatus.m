@@ -8,16 +8,20 @@
 
 #import "CommitStatus.h"
 
+#if TARGET_SHIP
 #import "LocalCommitStatus.h"
 #import "LocalAccount.h"
 #import "LocalRepo.h"
+#import "MetadataStore.h"
+#endif
 
 #import "Account.h"
 #import "Repo.h"
-#import "MetadataStore.h"
+
 
 @implementation CommitStatus
 
+#if TARGET_SHIP
 - (id)initWithLocalCommitStatus:(LocalCommitStatus *)lcs metadataStore:(MetadataStore *)ms
 {
     if (self = [super init]) {
@@ -35,5 +39,6 @@
     }
     return self;
 }
+#endif
 
 @end

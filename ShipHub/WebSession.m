@@ -32,7 +32,7 @@ static NSString *const UserSessionCookie = @"user_session";
     if (self = [super init]) {
         _account = account;
         
-        NSString *basePath = [@"~/Library/RealArtists/Ship2/CookieStore" stringByExpandingTildeInPath];
+        NSString *basePath = [DefaultsLibraryPath() stringByAppendingPathComponent:@"CookieStore"];
         _host = [account.ghHost stringByReplacingOccurrencesOfString:@"api." withString:@""];
         _path = [basePath stringByAppendingPathComponent:_host];
         _path = [_path stringByAppendingPathComponent:[account.ghIdentifier description]];

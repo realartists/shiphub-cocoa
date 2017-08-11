@@ -9,7 +9,7 @@
 #import "PRDiffViewController.h"
 #import "IssueWeb2ControllerInternal.h"
 
-#import "DataStore.h"
+#import "PRAdapter.h"
 #import "PullRequest.h"
 #import "Issue.h"
 #import "PRComment.h"
@@ -173,13 +173,13 @@
 }
 
 - (void)queueReviewComment:(NSDictionary *)msg {
-    PendingPRComment *pending = [[PendingPRComment alloc] initWithDictionary:msg metadataStore:[[DataStore activeStore] metadataStore]];
+    PendingPRComment *pending =  [_adapter createPRCommentWithClass:[PendingPRComment class] dictionary:msg];
     _inReview = YES;
     [self.delegate diffViewController:self queueReviewComment:pending];
 }
 
 - (void)addSingleComment:(NSDictionary *)msg {
-    PendingPRComment *pending = [[PendingPRComment alloc] initWithDictionary:msg metadataStore:[[DataStore activeStore] metadataStore]];
+    PendingPRComment *pending =  [_adapter createPRCommentWithClass:[PendingPRComment class] dictionary:msg];
     [self.delegate diffViewController:self addReviewComment:pending];
 }
 
@@ -189,7 +189,7 @@
     if (msg[@"pending_id"]) {
         commentClass = [PendingPRComment class];
     }
-    comment = [[commentClass alloc] initWithDictionary:msg metadataStore:[[DataStore activeStore] metadataStore]];
+    comment = [_adapter createPRCommentWithClass:commentClass dictionary:msg];
     [self.delegate diffViewController:self editReviewComment:comment];
 }
 
@@ -199,7 +199,7 @@
     if (msg[@"pending_id"]) {
         commentClass = [PendingPRComment class];
     }
-    comment = [[commentClass alloc] initWithDictionary:msg metadataStore:[[DataStore activeStore] metadataStore]];
+    comment = [_adapter createPRCommentWithClass:commentClass dictionary:msg];
     [self.delegate diffViewController:self deleteReviewComment:comment];
 }
 

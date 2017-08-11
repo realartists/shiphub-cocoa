@@ -8,4 +8,4 @@
 
 #import <Foundation/Foundation.h>
 
-void SendErrorEmail(NSString *subject, NSString *body, NSString *attachmentPath);
+void SendErrorEmail(NSString *subject, NSString *body);

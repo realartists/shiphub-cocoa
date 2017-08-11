@@ -15,8 +15,10 @@
 
 @interface Repo : MetadataItem
 
+#if TARGET_SHIP
 - (id)initWithLocalItem:(id)localItem NS_UNAVAILABLE;
 - (id)initWithLocalItem:(id)localItem owner:(Account *)owner billingState:(BillingState)billingState canPush:(BOOL)canPush;
+#endif
 
 @property (readonly) NSString *fullName;
 @property (readonly) NSString *name;

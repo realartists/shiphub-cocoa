@@ -6,15 +6,31 @@
 //  Copyright © 2016 Real Artists, Inc. All rights reserved.
 //
 
-#import "Account.h"
+#import "AccountInternal.h"
 
 #import "LocalAccount.h"
-#import "DataStore.h"
 #import "Auth.h"
+
+#if TARGET_REVIEWED_BY_ME
+#import "RMEDataStore.h"
+#else
+#import "DataStore.h"
 #import "MetadataStore.h"
+#endif
+
+@interface Account ()
+
+@property (readwrite) NSString *avatarURL;
+@property (readwrite) NSString *login;
+@property (readwrite) NSString *name;
+
+@property (readwrite) AccountType accountType;
+
+@end
 
 @implementation Account
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalItem:(id)localItem {
     LocalAccount *la = localItem;
     
@@ -34,12 +50,22 @@
     
     return self;
 }
+#endif
 
 - (instancetype)initWithAuthAccount:(AuthAccount *)ac {
     if (self = [super init]) {
         self.identifier = ac.ghIdentifier;
         _login = ac.login;
         _accountType = AccountTypeUser;
+    }
+    return self;
+}
+
+- (instancetype)initWithDictionary:(NSDictionary *)d {
+    if (self = [super initWithDictionary:d]) {
+        _login = d[@"login"];
+        _name = d[@"name"];
+        _accountType = AccountTypeUnknown;
     }
     return self;
 }
@@ -53,12 +79,25 @@
 }
 
 - (NSURL *)URL {
+#if TARGET_REVIEWED_BY_ME
+    RMEDataStore *store = [RMEDataStore activeStore];
+    Auth *auth = [store auth];
+    AuthAccount *account = [auth account];
+#else
     DataStore *store = [DataStore activeStore];
     Auth *auth = [store auth];
-    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", auth.account.webGHHost, self.login]];
+    AuthAccount *account = [auth account];
+#endif
+    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", account.webGHHost, self.login]];
 }
 
 + (Account *)me {
+#if TARGET_REVIEWED_BY_ME
+    RMEDataStore *store = [RMEDataStore activeStore];
+    Auth *auth = [store auth];
+    AuthAccount *account = [auth account];
+    return [[Account alloc] initWithAuthAccount:account];
+#else
     DataStore *store = [DataStore activeStore];
     Auth *auth = [store auth];
     NSNumber *identifier = [[auth account] ghIdentifier];
@@ -67,6 +106,7 @@
         u = [[self alloc] initWithAuthAccount:auth.account];
     }
     return u;
+#endif
 }
 
 

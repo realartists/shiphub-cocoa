@@ -12,6 +12,7 @@
 
 @implementation IssueNotification
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalNotification:(LocalNotification *)ln {
     if (!ln) return nil;
     
@@ -25,5 +26,6 @@
     }
     return self;
 }
+#endif
 
 @end

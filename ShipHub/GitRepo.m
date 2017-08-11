@@ -34,7 +34,7 @@ static void initGit2() {
         
         git_libgit2_init();
         
-        NSString *reposDir = [@"~/Library/RealArtists/Ship2/git" stringByExpandingTildeInPath];
+        NSString *reposDir = [DefaultsLibraryPath() stringByAppendingPathComponent:@"git"];
         const char *searchPath = [reposDir fileSystemRepresentation];
         
         git_libgit2_opts(GIT_OPT_SET_USER_AGENT, [[[NSBundle mainBundle] extras_userAgentString] UTF8String]);

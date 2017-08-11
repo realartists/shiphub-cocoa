@@ -41,3 +41,8 @@ extern NSString *DefaultGHHost(void);
 extern BOOL DefaultsPullRequestsEnabled(void);
 
 extern BOOL DefaultsHasCustomShipHost(void);
+
+extern NSString *DefaultsLibraryPath(void);
+
+extern BOOL IsShipApp(void);
+extern BOOL IsReviewedByMeApp(void);
