@@ -57,7 +57,7 @@
 "%[notification.unread]@ %[is]@ %[1]@" = "%1$[Notification]@ %2$[is]@ %3$[unread]@";
 "%[notification.unread]@ %[is]@ %[0]@" = "%1$[Notification]@ %2$[is]@ %3$[read]@";
 
-"%[notification.reason]@ %[is]@ %[mention]@" = "%1$[I'm mentioned]@ %2$[is]@ %3$[true]@";
+"%[mentions.login]@ %[is]@ %@" = "%1$[Mentions]@ %2$[contains]@ %3$@";
 
 "%[pullRequest]@ %[is]@ %[1]@" = "%1$[Issue type]@ %2$[is]@ %3$[pull request]@";
 "%[pullRequest]@ %[is]@ %[0]@" = "%1$[Issue type]@ %2$[is]@ %3$[issue]@";

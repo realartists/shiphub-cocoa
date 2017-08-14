@@ -404,6 +404,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     BOOL needsPRBaseBranch = previousStoreVersion < 18;
     
+    BOOL needsMentionedQueryRewrite = previousStoreVersion < 19;
+    
     NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @(!needsHeavyweightMigration) };
     
     NSPersistentStore *store = _persistentStore = [_persistentCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:@"Default" URL:storeURL options:options error:&err];
@@ -590,6 +592,25 @@ static NSString *const LastUpdated = @"LastUpdated";
             for (LocalPullRequest *pr in prs) {
                 NSDictionary *b = (id)pr.base;
                 pr.baseBranch = b[@"ref"];
+            }
+            
+            [_writeMoc save:NULL];
+        }];
+    }
+    
+    if (needsMentionedQueryRewrite) {
+        NSString *oldMentionedPredicate = @"notification.reason == \"mention\"";
+        NSString *meLogin = [[_auth account] login];
+        [_writeMoc performBlockAndWait:^{
+            NSFetchRequest *queryFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQuery"];
+            NSArray *queries = [_writeMoc executeFetchRequest:queryFetch error:NULL];
+            
+            for (LocalQuery *q in queries) {
+                NSString *oldPredicate = q.predicate;
+                if ([oldPredicate rangeOfString:oldMentionedPredicate].location != NSNotFound) {
+                    NSString *newPredicate = [oldPredicate stringByReplacingOccurrencesOfString:oldMentionedPredicate withString:[NSString stringWithFormat:@"ANY mentions.login == \"%@\"", meLogin]];
+                    q.predicate = newPredicate;
+                }
             }
             
             [_writeMoc save:NULL];
