@@ -742,6 +742,8 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
             [progress endSheet];
             if (error) {
                 [weakSelf presentError:error];
+            } else {
+                [weakSelf checkForIssueUpdates];
             }
         }];
     };

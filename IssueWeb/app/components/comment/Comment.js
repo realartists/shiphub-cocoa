@@ -25,7 +25,7 @@ class Comment extends AbstractComment {
   }
   
   canLock() { 
-    return IssueState.current.repoCanPush && IssueState.current.issue.number > 0;
+    return !this.props.comment && IssueState.current.repoCanPush && IssueState.current.issue.number > 0;
   }
   
   canEdit() {
