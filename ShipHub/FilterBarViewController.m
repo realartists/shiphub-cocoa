@@ -36,6 +36,12 @@
 @end
 
 #define LINE_HEIGHT 22.0
+static const NSInteger LabelMenuItemTagSeparator = 1999;
+static const NSInteger LabelMenuItemNoFilter = 2000;
+static const NSInteger LabelMenuItemUnlabeled = 2001;
+static const NSInteger LabelMenuItemAll = 2002;
+static const NSInteger LabelMenuItemAny = 2003;
+static const NSInteger LabelMenuItemNone = 2004;
 
 @implementation FilterBarViewController
 
@@ -470,6 +476,8 @@
         repo = [self repoInPredicate:_predicate];
     }
     
+    BOOL hasLabelsInBase = [self hasLabelsInPredicate:_basePredicate];
+    
     NSMutableDictionary *labelColors = [NSMutableDictionary new];
     
     NSMutableSet *allLabels = [NSMutableSet new];
@@ -490,25 +498,38 @@
     NSMenuItem *m;
     NSMenu *menu = [NSMenu new];
     
+    if (hasLabelsInBase) {
+        m = [menu addItemWithTitle:NSLocalizedString(@"Label filters chosen here are in addition to the selected smart query.", nil) action:nil keyEquivalent:@""];
+        m.enabled = NO;
+        [menu addItem:[NSMenuItem separatorItem]];
+    }
+    
     m = [menu addItemWithTitle:NSLocalizedString(@"Don't Filter", nil) action:@selector(pickLabel:) keyEquivalent:@""];
+    m.tag = LabelMenuItemNoFilter;
     m.target = self;
     m.representedObject = nil;
     
     m = [menu addItemWithTitle:NSLocalizedString(@"Unlabeled", nil) action:@selector(pickLabel:) keyEquivalent:@""];
+    m.tag = LabelMenuItemUnlabeled;
     m.target = self;
     m.representedObject = [NSNull null];
     
-    [menu addItem:[NSMenuItem separatorItem]];
+    NSMenuItem *labelSeparator = [NSMenuItem separatorItem];
+    labelSeparator.tag = LabelMenuItemTagSeparator;
+    [menu addItem:labelSeparator];
     
     m = [menu addItemWithTitle:NSLocalizedString(@"Issues with All Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
+    m.tag = LabelMenuItemAll;
     m.representedObject = @"ALL";
     m.target = self;
     
     m = [menu addItemWithTitle:NSLocalizedString(@"Issues with Any Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
+    m.tag = LabelMenuItemAny;
     m.representedObject = @"ANY";
     m.target = self;
     
     m = [menu addItemWithTitle:NSLocalizedString(@"Issues with None of the Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
+    m.tag = LabelMenuItemNone;
     m.representedObject = @"NONE";
     m.target = self;
 
@@ -723,8 +744,8 @@ static BOOL representedObjectEquals(id repr, id val) {
         }
     }];
     
-    NSMenuItem *lastSeparator = _label.menu.itemArray[2];
-    lastSeparator.hidden = labels.count == 0;
+    NSMenuItem *labelSeparator = [_label.menu itemWithTag:LabelMenuItemTagSeparator];
+    labelSeparator.hidden = labels.count == 0;
     
     if (!labels) {
         _label.title = NSLocalizedString(@"Labels", nil);
@@ -851,15 +872,13 @@ static BOOL representedObjectEquals(id repr, id val) {
         }];
         s.state = NSOnState;
     } else {
-        NSArray *itemArray = _label.menu.itemArray;
-        
         s.state = s.state == NSOnState ? NSOffState : NSOnState;
         
-        NSMenuItem *noFilter = itemArray[0];
-        NSMenuItem *unlabeled = itemArray[1];
-        NSMenuItem *all = itemArray[3];
-        NSMenuItem *any = itemArray[4];
-        NSMenuItem *none = itemArray[5];
+        NSMenuItem *noFilter = [_label.menu itemWithTag:LabelMenuItemNoFilter];
+        NSMenuItem *unlabeled = [_label.menu itemWithTag:LabelMenuItemUnlabeled];
+        NSMenuItem *all = [_label.menu itemWithTag:LabelMenuItemAll];
+        NSMenuItem *any = [_label.menu itemWithTag:LabelMenuItemAny];
+        NSMenuItem *none = [_label.menu itemWithTag:LabelMenuItemNone];
         
         NSMutableArray *selectedLabels = [NSMutableArray new];
         
@@ -1119,7 +1138,6 @@ static BOOL representedObjectEquals(id repr, id val) {
     _author.hidden = [self authorLoginInPredicate:basePredicate] != nil;
     _repo.hidden = [self repoInPredicate:basePredicate] != nil;
     _state.hidden = [self closedInPredicate:basePredicate] != nil;
-    _label.hidden = [self hasLabelsInPredicate:basePredicate];
     _milestone.hidden = [self milestoneTitleInPredicate:basePredicate] != nil;
     _pullRequest.hidden = !DefaultsPullRequestsEnabled() || [self pullRequestInPredicate:basePredicate] != nil;
     
