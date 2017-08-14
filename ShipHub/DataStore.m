@@ -145,8 +145,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  16: realartists/shiphub-cocoa#560 [Client] Add support for PULL_REQUEST_TEMPLATE
  17: Cascade delete of PRReview.comments
  18: Track branch protections: realartists/shiphub-cocoa#564 Indicate which failing status checks are required in PRMergeability
+ 19: realartists/shiphub-cocoa#407 [Client] Track @mentioned state for issues
  */
-static const NSInteger CurrentLocalModelVersion = 18;
+static const NSInteger CurrentLocalModelVersion = 19;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSLock *_metadataLock;
