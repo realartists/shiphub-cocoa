@@ -100,7 +100,7 @@
 }
 
 - (BOOL)isDelete {
-    unichar key = [[self charactersIgnoringModifiers] characterAtIndex:0];
+    unichar key = [self functionKey];
     return key == NSDeleteCharacter;
 }
 
@@ -112,7 +112,7 @@
 }
 
 - (BOOL)isReturn {
-    unichar key = [[self charactersIgnoringModifiers] characterAtIndex:0];
+    unichar key = [self functionKey];
     return key == NSCarriageReturnCharacter || key == NSFormFeedCharacter || key == NSEnterCharacter || key == NSNewlineCharacter || key == NSLineSeparatorCharacter;
 }
 
