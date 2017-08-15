@@ -41,7 +41,7 @@ class PRSummary extends React.Component {
     
     var headRef;
     if (headRepo != baseRepo) {
-      headRef = `${headRepo}:headBranch`;
+      headRef = `${headRepo}:${headBranch}`;
     } else {
       headRef = headBranch;
     }
