@@ -10,6 +10,7 @@
 
 #import "Analytics.h"
 #import "AppDelegate.h"
+#import "AvatarManager.h"
 #import "DataStore.h"
 #import "MetadataStore.h"
 #import "Extras.h"
@@ -86,6 +87,10 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 @end
 
 @interface OverviewCellImageView : NSImageView
+
+@end
+
+@interface OverviewCellOwnerImageView : AvatarImageView
 
 @end
 
@@ -604,7 +609,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
             ownerNode.title = repoOwner.login;
             ownerNode.representedObject = repoOwner;
             ownerNode.predicate = [NSPredicate predicateWithFormat:@"repository.owner.login = %@", repoOwner.login];
-            ownerNode.icon = repoOwner.accountType == AccountTypeOrg ? [NSImage overviewIconNamed:@"Org"] : [NSImage overviewIconNamed:@"User"];
+            ownerNode.icon = [[AvatarManager activeManager] imageForAccountIdentifier:repoOwner.identifier avatarURL:repoOwner.avatarURL?[NSURL URLWithString:repoOwner.avatarURL]:nil] ?: (repoOwner.accountType == AccountTypeOrg ? [NSImage overviewIconNamed:@"Org"] : [NSImage overviewIconNamed:@"User"]);
             [reposNode addChild:ownerNode];
             
             parent = ownerNode;
@@ -2420,6 +2425,18 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         return CGSizeZero;
     } else {
         return CGSizeMake(24.0, 24.0);
+    }
+}
+
+@end
+
+@implementation OverviewCellOwnerImageView
+
+- (NSSize)intrinsicContentSize {
+    if (self.hidden || self.image == nil) {
+        return CGSizeZero;
+    } else {
+        return CGSizeMake(18.0, 18.0);
     }
 }
 

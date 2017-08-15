@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12120"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -170,9 +170,6 @@
                                                                 <tableCellView identifier="MilestoneCell" id="JCw-zG-NQo" userLabel="Milestone Cell View" customClass="OverviewMilestoneCellView">
                                                                     <rect key="frame" x="1" y="75" width="248" height="24"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                                                    <userGuides>
-                                                                        <userLayoutGuide location="5" affinity="minY"/>
-                                                                    </userGuides>
                                                                     <subviews>
                                                                         <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="24" placeholderIntrinsicHeight="24" translatesAutoresizingMaskIntoConstraints="NO" id="yAM-PJ-pT3" customClass="OverviewCellImageView">
                                                                             <rect key="frame" x="0.0" y="0.0" width="24" height="24"/>
@@ -212,9 +209,12 @@
                                                                 <tableCellView identifier="OwnerCell" id="4dh-gy-RqB" userLabel="Owner Cell" customClass="OverviewOwnerCellView">
                                                                     <rect key="frame" x="1" y="101" width="248" height="24"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                    <userGuides>
+                                                                        <userLayoutGuide location="7" affinity="minY"/>
+                                                                    </userGuides>
                                                                     <subviews>
-                                                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="24" placeholderIntrinsicHeight="24" translatesAutoresizingMaskIntoConstraints="NO" id="aeH-kD-zB3" customClass="OverviewCellImageView">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="24" height="24"/>
+                                                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="18" placeholderIntrinsicHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="aeH-kD-zB3" customClass="OverviewCellOwnerImageView">
+                                                                            <rect key="frame" x="5" y="3" width="18" height="18"/>
                                                                             <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="zTq-ql-Iaq"/>
                                                                         </imageView>
                                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="t3H-ik-FAM">
@@ -241,10 +241,10 @@
                                                                         <constraint firstItem="9hF-Cq-6Sy" firstAttribute="top" secondItem="4dh-gy-RqB" secondAttribute="top" constant="2" id="SRc-7U-QWt"/>
                                                                         <constraint firstItem="9hF-Cq-6Sy" firstAttribute="leading" secondItem="t3H-ik-FAM" secondAttribute="trailing" constant="3" id="bVc-gY-Cbz"/>
                                                                         <constraint firstItem="t3H-ik-FAM" firstAttribute="top" secondItem="4dh-gy-RqB" secondAttribute="top" constant="3" id="gih-df-QhO"/>
-                                                                        <constraint firstItem="aeH-kD-zB3" firstAttribute="top" secondItem="4dh-gy-RqB" secondAttribute="top" id="gyx-9k-skn"/>
+                                                                        <constraint firstItem="aeH-kD-zB3" firstAttribute="top" secondItem="4dh-gy-RqB" secondAttribute="top" constant="3" id="gyx-9k-skn"/>
                                                                         <constraint firstAttribute="trailing" secondItem="9hF-Cq-6Sy" secondAttribute="trailing" constant="2" id="l4e-mW-6rX"/>
-                                                                        <constraint firstItem="aeH-kD-zB3" firstAttribute="leading" secondItem="4dh-gy-RqB" secondAttribute="leading" id="pah-Uy-I2D"/>
-                                                                        <constraint firstItem="t3H-ik-FAM" firstAttribute="leading" secondItem="aeH-kD-zB3" secondAttribute="trailing" constant="3" id="w7I-CI-Bok"/>
+                                                                        <constraint firstItem="aeH-kD-zB3" firstAttribute="leading" secondItem="4dh-gy-RqB" secondAttribute="leading" constant="5" id="pah-Uy-I2D"/>
+                                                                        <constraint firstItem="t3H-ik-FAM" firstAttribute="leading" secondItem="aeH-kD-zB3" secondAttribute="trailing" constant="4" id="w7I-CI-Bok"/>
                                                                     </constraints>
                                                                     <connections>
                                                                         <outlet property="imageView" destination="aeH-kD-zB3" id="5TK-0D-W4T"/>
