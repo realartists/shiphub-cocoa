@@ -45,6 +45,17 @@ markedRenderer.link = function(href, title, text) {
   }
 };
 
+markedRenderer.defaultImage = markedRenderer.image;
+markedRenderer.image = function(href, title, text) {
+  var lowerHref = href.toLowerCase();
+  if (lowerHref.indexOf("http://") == 0) {
+    // turn it into a link
+    return markedRenderer.defaultLink(href, title || href || "image", text || href || "image");
+  } else {
+    return markedRenderer.defaultImage(href, title, text);
+  }
+};
+
 var _repoOwner = "";
 var _repoName = "";
 
