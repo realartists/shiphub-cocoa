@@ -102,7 +102,23 @@ static BOOL IsImportantUserChange(LocalAccount *lu) {
 }
 
 static id<NSCopying> UniqueIDForManagedObject(NSManagedObject *obj) {
-    return [EntityCacheKey keyWithManagedObject:obj];
+    static BOOL hasPersistentStoreConnectionPool;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        hasPersistentStoreConnectionPool = &NSPersistentStoreConnectionPoolMaxSizeKey != NULL;
+    });
+    
+    NSManagedObjectID *objID = obj.objectID;
+    
+    if ([objID isTemporaryID]) {
+        return [EntityCacheKey keyWithManagedObject:obj];
+    } else {
+        if (hasPersistentStoreConnectionPool) {
+            return obj.objectID;
+        } else {
+            return obj.objectID.URIRepresentation;
+        }
+    }
 }
 
 // Read data out of ctx and store in immutable data objects accessible from any thread.
@@ -378,6 +394,10 @@ static id<NSCopying> UniqueIDForManagedObject(NSManagedObject *obj) {
 - (id)objectWithManagedObject:(NSManagedObject *)obj {
     id<NSCopying> uid = UniqueIDForManagedObject(obj);
     id result = _managedIDToObject[uid];
+    if (obj && !result) {
+        // try again with the fallback key
+        result = _managedIDToObject[[EntityCacheKey keyWithManagedObject:obj]];
+    }
     NSAssert(obj == nil || result != nil, nil);
     return result;
 }

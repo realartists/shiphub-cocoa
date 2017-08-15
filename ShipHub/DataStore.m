@@ -3935,6 +3935,8 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (BOOL)isEqual:(id)object {
+    if (object == self) return YES;
+    if (![object isKindOfClass:[EntityCacheKey class]]) return NO;
     EntityCacheKey *other = object;
     if (_hash != other->_hash) return NO;
     return _identifier.longLongValue == other->_identifier.longLongValue
