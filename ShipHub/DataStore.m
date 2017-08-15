@@ -3268,6 +3268,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
             fetchRequest.predicate = [TimeSeries timeSeriesPredicateWithPredicate:[self issuesPredicate:predicate] startDate:startDate endDate:endDate];
             fetchRequest.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]];
+            fetchRequest.relationshipKeyPathsForPrefetching = @[@"assignees", @"labels", @"notification.unread", @"pr"];
             
             NSError *err = nil;
             NSArray *entities = [moc executeFetchRequest:fetchRequest error:&err];

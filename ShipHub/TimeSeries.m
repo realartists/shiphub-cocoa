@@ -72,6 +72,34 @@
     return [[NSPredicate predicateWithFormat:base] predicateWithSubstitutionVariables:@{ @"startDate": startDate, @"endDate": endDate}];
 }
 
++ (NSPredicate *)_fastPredicateFromStartDate:(NSDate *)startDate untilEndDate:(NSDate *)endDate open:(NSNumber *)open {
+    NSParameterAssert(startDate);
+    NSParameterAssert(endDate);
+    
+    BOOL (^pblock)(Issue *i, NSDictionary *x);
+    
+    if (open == nil) {
+        // Issues that existed at some point in the interval
+        pblock = ^BOOL(Issue *i, NSDictionary *x) {
+            return i.createdAt.timeIntervalSinceReferenceDate <= endDate.timeIntervalSinceReferenceDate;
+        };
+    } else if ([open boolValue] == YES) {
+        // Issues that were open at some point in the interval
+        pblock = ^BOOL(Issue *i, NSDictionary *x) {
+            return (i.createdAt.timeIntervalSinceReferenceDate <= endDate.timeIntervalSinceReferenceDate)
+                && (i.closedAt == nil || i.closedAt.timeIntervalSinceReferenceDate >= startDate.timeIntervalSinceReferenceDate);
+        };
+    } else /* [open boolValue] == NO */ {
+        // Issues that were closed at some point in the interval
+        pblock = ^BOOL(Issue *i, NSDictionary *x) {
+            return (i.createdAt.timeIntervalSinceReferenceDate <= endDate.timeIntervalSinceReferenceDate)
+            && (i.closedAt == nil || i.closedAt.timeIntervalSinceReferenceDate <= endDate.timeIntervalSinceReferenceDate);
+        };
+    }
+    
+    return [NSPredicate predicateWithBlock:pblock];
+}
+
 static BOOL isStatePredicate(NSPredicate *predicate, BOOL *isOpenValue) {
     if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
         NSComparisonPredicate *c0 = (id)predicate;
@@ -172,6 +200,12 @@ static BOOL isStatePredicate(NSPredicate *predicate, BOOL *isOpenValue) {
     return [self timeSeriesPredicateWithPredicate:queryPredicate startDate:startDate endDate:endDate open:NULL];
 }
 
+- (void)_fastSelectRecordsFrom:(NSArray<Issue *> *)records {
+    NSPredicate *p = [TimeSeries _fastPredicateFromStartDate:self.startDate untilEndDate:self.endDate open:_open];
+    
+    self.records = [records filteredArrayUsingPredicate:p];
+}
+
 - (void)selectRecordsFrom:(NSArray<Issue *> *)records {
     NSPredicate *p = [TimeSeries timeSeriesPredicateWithPredicate:self.predicate startDate:self.startDate endDate:self.endDate];
     
@@ -188,7 +222,6 @@ static BOOL isStatePredicate(NSPredicate *predicate, BOOL *isOpenValue) {
     current.endDate = [calendar dateByAddingUnit:unit value:1 toDate:self.startDate options:0];
     
     do {
-        [current selectRecordsFrom:self.records];
         [intervals addObject:current];
         
         TimeSeries *next = [TimeSeries new];
@@ -198,6 +231,11 @@ static BOOL isStatePredicate(NSPredicate *predicate, BOOL *isOpenValue) {
         next.endDate = [calendar dateByAddingUnit:unit value:1 toDate:current.endDate options:0];
         current = next;
     } while ([current.startDate compare:self.endDate] != NSOrderedDescending);
+    
+    // in parallel, make each interval select its records
+    dispatch_apply(intervals.count, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(size_t i) {
+        [intervals[i] _fastSelectRecordsFrom:self.records];
+    });
     
     self.intervals = intervals;
 }
