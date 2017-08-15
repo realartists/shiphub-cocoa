@@ -181,3 +181,26 @@ NSString *const AvatarImageDidUpdateNotification = @"AvatarImageDidUpdateNotific
 }
 
 @end
+
+@implementation AvatarKnockoutImageView {
+    NSImage *_originalImage;
+}
+
+- (void)setImage:(NSImage *)image {
+    if (image != _originalImage) {
+        if (_originalImage) {
+            [[NSNotificationCenter defaultCenter] removeObserver:self name:AvatarImageDidUpdateNotification object:_originalImage];
+        }
+        _originalImage = image;
+        [super setImage:[image knockoutColor:[NSColor whiteColor]]];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateImage:) name:AvatarImageDidUpdateNotification object:image];
+    }
+}
+
+- (void)didUpdateImage:(NSNotification *)note {
+    NSImage *image = _originalImage;
+    [super setImage:nil];
+    [super setImage:[image knockoutColor:[NSColor whiteColor]]];
+}
+
+@end

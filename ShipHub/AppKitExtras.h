@@ -114,6 +114,8 @@
 - (void)constrainToMaxEdge:(CGFloat)maxEdge;
 - (NSImage *)imageConstrainedToMaxEdge:(CGFloat)maxEdge;
 - (NSImage *)renderWithColor:(NSColor *)color;
+- (NSImage *)knockoutColor:(NSColor *)color;
+- (NSImage *)knockoutColor:(NSColor *)color threshold:(CGFloat)threshold;
 
 - (BOOL)isHiDPI;
 

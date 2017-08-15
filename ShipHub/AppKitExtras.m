@@ -344,6 +344,73 @@
     return image;
 }
 
+- (NSImage *)knockoutColor:(NSColor *)color {
+    return [self knockoutColor:color threshold:16.0/255.0];
+}
+
+static CGFloat clamp(CGFloat v, CGFloat min, CGFloat max) {
+    if (v < min) return min;
+    else if (v > max) return max;
+    return v;
+}
+
+- (NSImage *)knockoutColor:(NSColor *)color threshold:(CGFloat)threshold {
+    CGSize size = self.size;
+    NSRect r = { .origin = NSZeroPoint, .size = size };
+    
+    CGImageRef cgImage = [self CGImageForProposedRect:&r context:nil hints:nil];
+    
+    CGColorSpaceRef spaceRef = CGImageGetColorSpace(cgImage);
+    NSColorSpace *space = [[NSColorSpace alloc] initWithCGColorSpace:spaceRef];
+    color = [color colorUsingColorSpace:space];
+    
+    uint32_t bitmapInfo = CGImageGetBitmapInfo(cgImage);
+    bitmapInfo = (bitmapInfo & kCGBitmapFloatInfoMask)
+               | (bitmapInfo & kCGBitmapByteOrderMask)
+               | (kCGImageAlphaNoneSkipLast & kCGBitmapAlphaInfoMask);
+    
+    CGContextRef ctx = CGBitmapContextCreate(NULL, CGImageGetWidth(cgImage), CGImageGetHeight(cgImage), CGImageGetBitsPerComponent(cgImage), CGImageGetBytesPerRow(cgImage), spaceRef, bitmapInfo);
+    
+    if (!ctx) {
+        DebugLog(@"Unable to create bitmap context");
+        return self;
+    }
+    
+    CGContextSetFillColorWithColor(ctx, [color CGColor]);
+    CGRect b = CGRectMake(0, 0, CGImageGetWidth(cgImage), CGImageGetHeight(cgImage));
+    CGContextFillRect(ctx, b);
+    CGContextDrawImage(ctx, b, cgImage);
+    
+    CGImageRef maskSource = CGBitmapContextCreateImage(ctx);
+    
+    CGFloat comps[color.numberOfComponents]; // need space for alpha
+    [[color colorUsingColorSpace:space] getComponents:comps];
+    
+    CGFloat ranges[space.numberOfColorComponents*2];
+    
+    CGFloat min = 0;
+    CGFloat max = pow(2.0, CGImageGetBitsPerComponent(maskSource)) - 1.0;
+    
+    for (NSInteger i = 0; i < space.numberOfColorComponents; i++) {
+        CGFloat v = comps[i] * max; // comps is in range 0..1, but ranges needs to be in range 0..2**bitsPerPixel - 1
+        ranges[i*2] = clamp(v - (max * threshold), min, max);
+        ranges[i*2+1] = clamp(v + (max * threshold), min, max);
+    }
+    
+    CGImageRef masked = CGImageCreateWithMaskingColors(maskSource, ranges);
+    NSImage *result = nil;
+    
+    if (masked) {
+        result = [[NSImage alloc] initWithCGImage:masked size:size];
+        CFRelease(masked);
+    }
+    
+    CFRelease(maskSource);
+    CFRelease(ctx);
+    
+    return result;
+}
+
 - (BOOL)isHiDPI {
     CGSize size = [self size];
     NSInteger w = size.width;

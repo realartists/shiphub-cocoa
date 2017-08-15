@@ -90,7 +90,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 
 @end
 
-@interface OverviewCellOwnerImageView : AvatarImageView
+@interface OverviewCellOwnerImageView : AvatarKnockoutImageView
 
 @end
 

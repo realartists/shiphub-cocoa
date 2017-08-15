@@ -24,3 +24,7 @@ extern NSString *const AvatarImageDidUpdateNotification; // sent by an avatar NS
 @interface AvatarImageView : NSImageView
 
 @end
+
+@interface AvatarKnockoutImageView : AvatarImageView
+
+@end
