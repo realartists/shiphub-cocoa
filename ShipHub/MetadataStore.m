@@ -8,6 +8,7 @@
 
 #import "MetadataStore.h"
 
+#import "DataStoreInternal.h"
 #import "Extras.h"
 
 #import "LocalAccount.h"
@@ -101,17 +102,7 @@ static BOOL IsImportantUserChange(LocalAccount *lu) {
 }
 
 static id<NSCopying> UniqueIDForManagedObject(NSManagedObject *obj) {
-    static BOOL hasPersistentStoreConnectionPool;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        hasPersistentStoreConnectionPool = &NSPersistentStoreConnectionPoolMaxSizeKey != NULL;
-    });
-    
-    if (hasPersistentStoreConnectionPool) {
-        return obj.objectID;
-    } else {
-        return obj.objectID.URIRepresentation;
-    }
+    return [EntityCacheKey keyWithManagedObject:obj];
 }
 
 // Read data out of ctx and store in immutable data objects accessible from any thread.
@@ -132,13 +123,13 @@ static id<NSCopying> UniqueIDForManagedObject(NSManagedObject *obj) {
         NSArray *localRepos = [moc executeFetchRequest:reposFetch error:NULL];
         
         NSFetchRequest *accountsFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalAccount"];
-        accountsFetch.predicate = [NSPredicate predicateWithFormat:@"login != nil"];
         NSArray *localAccounts = [moc executeFetchRequest:accountsFetch error:NULL];
         
         NSMutableArray *repos = [NSMutableArray arrayWithCapacity:localRepos.count];
         
         NSDictionary *accountsByID = [NSDictionary lookupWithObjects:[localAccounts arrayByMappingObjects:^id(id obj) {
             Account *u = [[Account alloc] initWithLocalItem:obj];
+            //DebugLog(@"Discover account with pk %@, uid %@, for identifier %@ for login %@", [obj objectID], UniqueIDForManagedObject(obj), [obj identifier], [obj login]);
             noteManagedObject(obj, u);
             return u;
         }] keyPath:@"identifier"];
@@ -386,8 +377,9 @@ static id<NSCopying> UniqueIDForManagedObject(NSManagedObject *obj) {
 
 - (id)objectWithManagedObject:(NSManagedObject *)obj {
     id<NSCopying> uid = UniqueIDForManagedObject(obj);
-    
-    return _managedIDToObject[uid];
+    id result = _managedIDToObject[uid];
+    NSAssert(obj == nil || result != nil, nil);
+    return result;
 }
 
 @end

@@ -109,16 +109,6 @@ NSString *const DataStoreRateLimitedDidChangeNotification = @"DataStoreRateLimit
 NSString *const DataStoreRateLimitPreviousEndDateKey = @"DataStoreRateLimitPreviousEndDateKey";
 NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdatedEndDateKey";
 
-@interface SyncCacheKey : NSObject <NSCopying>
-
-+ (SyncCacheKey *)keyWithEntity:(NSString *)entity identifier:(NSNumber *)identifier;
-+ (SyncCacheKey *)keyWithManagedObject:(NSManagedObject *)obj;
-
-@property (nonatomic, readonly) NSString *entity;
-@property (nonatomic, readonly) NSNumber *identifier;
-
-@end
-
 @interface ReadOnlyManagedObjectContext : NSManagedObjectContext
 
 @property NSUInteger writeGeneration;
@@ -795,14 +785,14 @@ static NSString *const LastUpdated = @"LastUpdated";
             if (obj) break;
         }
     } else {
-        id key = [SyncCacheKey keyWithEntity:entityName identifier:identifier];
+        id key = [EntityCacheKey keyWithEntity:entityName identifier:identifier];
         obj = _syncCache[key];
     }
     return obj;
 }
 
 - (id)cacheKeyWithObject:(NSManagedObject *)obj {
-    return [SyncCacheKey keyWithManagedObject:obj];
+    return [EntityCacheKey keyWithManagedObject:obj];
 }
 
 // Must be called on _writeMoc
@@ -3920,20 +3910,20 @@ static NSString *const LastUpdated = @"LastUpdated";
 
 @end
 
-@implementation SyncCacheKey {
+@implementation EntityCacheKey {
     NSUInteger _hash;
 }
 
-+ (SyncCacheKey *)keyWithEntity:(NSString *)entity identifier:(NSNumber *)identifier {
-    SyncCacheKey *key = [SyncCacheKey new];
++ (EntityCacheKey *)keyWithEntity:(NSString *)entity identifier:(NSNumber *)identifier {
+    EntityCacheKey *key = [EntityCacheKey new];
     key->_entity = entity;
     key->_identifier = identifier;
     key->_hash = [identifier hash] + [entity hash];
     return key;
 }
 
-+ (SyncCacheKey *)keyWithManagedObject:(NSManagedObject *)obj {
-    return [SyncCacheKey keyWithEntity:obj.entity.name identifier:[(id)obj identifier]];
++ (EntityCacheKey *)keyWithManagedObject:(NSManagedObject *)obj {
+    return [EntityCacheKey keyWithEntity:obj.entity.name identifier:[(id)obj identifier]];
 }
 
 - (id)copyWithZone:(nullable NSZone *)zone {
@@ -3945,10 +3935,14 @@ static NSString *const LastUpdated = @"LastUpdated";
 }
 
 - (BOOL)isEqual:(id)object {
-    SyncCacheKey *other = object;
+    EntityCacheKey *other = object;
     if (_hash != other->_hash) return NO;
     return _identifier.longLongValue == other->_identifier.longLongValue
         && [_entity isEqualToString:other->_entity];
+}
+
+- (NSString *)description {
+    return [NSString stringWithFormat:@"%@.%@", _entity, _identifier];
 }
 
 @end

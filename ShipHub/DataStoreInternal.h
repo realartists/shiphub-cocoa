@@ -22,3 +22,13 @@
 - (void)postNotification:(NSString *)notificationName userInfo:(NSDictionary *)userInfo;
 
 @end
+
+@interface EntityCacheKey : NSObject <NSCopying>
+
++ (EntityCacheKey *)keyWithEntity:(NSString *)entity identifier:(NSNumber *)identifier;
++ (EntityCacheKey *)keyWithManagedObject:(NSManagedObject *)obj;
+
+@property (nonatomic, readonly) NSString *entity;
+@property (nonatomic, readonly) NSNumber *identifier;
+
+@end
