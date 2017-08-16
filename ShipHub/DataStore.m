@@ -3958,9 +3958,4 @@ static NSString *const LastUpdated = @"LastUpdated";
     return NO;
 }
 
-- (void)deleteObject:(NSManagedObject *)object {
-    ErrLog(@"Illegal Attempt to write to ReadOnlyManagedObjectContext");
-    abort();
-}
-
 @end
