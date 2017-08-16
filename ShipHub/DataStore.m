@@ -3282,7 +3282,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             }];
             
             TimeSeries *ts = [[TimeSeries alloc] initWithPredicate:predicate startDate:startDate endDate:endDate];
-            [ts selectRecordsFrom:issues];
+            ts.records = issues;
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 completion(error==nil?ts:nil, error);

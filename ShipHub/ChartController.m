@@ -174,7 +174,6 @@ static NSSet *uniqueKeyPathsInRecords(NSArray *records, NSString *keyPath) {
         }] ?: @[];
         
         if (partitionPath) {
-            NSPredicate *basePredicate = timeSeries.predicate;
             NSSet *partitionValues;
             
             // realartists/shiphub-cocoa#243 State partition chart can be wrong if all matching issues are currently closed
@@ -190,7 +189,7 @@ static NSSet *uniqueKeyPathsInRecords(NSArray *records, NSString *keyPath) {
             NSMutableArray *partitionedJSON = d[@"partitions"] = [NSMutableArray arrayWithCapacity:partitionValues.count];
             for (id partitionValue in partitionValues) {
                 id val = partitionValue == [NSNull null] ? nil : partitionValue;
-                NSPredicate *partitionPredicate = [basePredicate and:[NSPredicate predicateWithFormat:@"%K = %@", partitionPath, val]];
+                NSPredicate *partitionPredicate = [NSPredicate predicateWithFormat:@"%K = %@", partitionPath, val];
                 TimeSeries *ts = [[TimeSeries alloc] initWithPredicate:partitionPredicate startDate:timeSeries.startDate endDate:timeSeries.endDate];
                 [ts selectRecordsFrom:timeSeries.records];
                 [ts generateIntervalsWithCalendarUnit:NSCalendarUnitDay];

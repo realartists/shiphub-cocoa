@@ -21,7 +21,6 @@
 @property (readwrite, strong) NSDate *startDate;
 @property (readwrite, strong) NSDate *endDate;
 
-@property (readwrite, strong) NSArray<Issue *> *records;
 @property (readwrite, strong) NSArray<TimeSeries *> *intervals;
 
 @end

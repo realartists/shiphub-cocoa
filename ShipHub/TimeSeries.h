@@ -19,7 +19,7 @@
 @property (readonly) NSDate *startDate;
 @property (readonly) NSDate *endDate;
 
-@property (readonly) NSArray<Issue *> *records;
+@property NSArray<Issue *> *records;
 
 @property (readonly) NSArray<TimeSeries *> *intervals;
 
