@@ -10,6 +10,7 @@
 
 #import "AppDelegate.h"
 #import "AttachmentManager.h"
+#import "CodeSnippetManager.h"
 #import "EmptyLabelView.h"
 #import "Error.h"
 #import "Extras.h"
@@ -453,6 +454,10 @@
     } name:@"contextContext"];
     
     [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf loadCodeSnippet:msg.body];
+    } name:@"loadCodeSnippet"];
+    
+    [cc addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
         [weakSelf javascriptLoadComplete];
     } name:@"loadComplete"];
 }
@@ -877,6 +882,32 @@
             [self evaluateJavaScript:callback];
         });
         
+    }];
+}
+
+- (void)loadCodeSnippet:(NSDictionary *)msg {
+    NSString *repo = msg[@"repoFullName"];
+    NSString *sha = msg[@"sha"];
+    NSString *path = msg[@"path"];
+    NSInteger startLine = [msg[@"startLine"] integerValue];
+    NSInteger endLine = [msg[@"endLine"] integerValue];
+    NSNumber *handle = msg[@"handle"];
+    
+    CodeSnippetKey *key = [CodeSnippetKey keyWithRepoFullName:repo sha:sha path:path startLine:startLine endLine:endLine];
+    
+    [[CodeSnippetManager sharedManager] loadSnippet:key completion:^(NSString *snippet, NSError *error) {
+        RunOnMain(^{
+            NSMutableDictionary *result = [NSMutableDictionary new];
+            result[@"handle"] = handle;
+            if (snippet) {
+                result[@"snippet"] = snippet;
+            }
+            if (error) {
+                result[@"error"] = [error localizedDescription];
+            }
+            
+            [self evaluateJavaScript:[NSString stringWithFormat:@"window.loadCodeSnippetResult(%@)", [JSON stringifyObject:result]]];
+        });
     }];
 }
 

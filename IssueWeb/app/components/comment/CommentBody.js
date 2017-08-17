@@ -62,9 +62,19 @@ var CommentBody = React.createClass({
     }
   },
   
+  teardownCodeSnippets: function() {
+    if (this.previousCodeSnippetContainers) {
+      this.previousCodeSnippetContainers.forEach(n => {
+        ReactDOM.unmountComponentAtNode(n);
+      });
+      delete this.previousCodeSnippetContainers;
+    }
+  },
+  
   expandCodeSnippets: function(nodes) {
-    var expandMe = nodes.filter(n => n.nodeName == 'DIV' && n.className == 'codeSnippet' && n.childNodes.length == 0);
-    console.log("snippets to expand", expandMe);
+    this.teardownCodeSnippets();
+    
+    var expandMe = this.previousCodeSnippetContainers = nodes.filter(n => n.nodeName == 'DIV' && n.className == 'codeSnippet' && n.childNodes.length == 0);
     
     expandMe.forEach(n => {
       ReactDOM.render(h(CodeSnippet, {
@@ -218,6 +228,10 @@ var CommentBody = React.createClass({
   
   componentDidUpdate: function() {
     this.postProcessRenderedMarkdown();
+  },
+  
+  componentWillUnmount: function() {
+    this.teardownCodeSnippets();
   }
 });
 
