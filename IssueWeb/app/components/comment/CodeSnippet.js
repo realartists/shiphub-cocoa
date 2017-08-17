@@ -1,6 +1,8 @@
 import React, { createElement as h } from 'react'
 import codeHighlighter from 'util/code-highlighter.js'
 
+import { reloadFailedMediaEvent } from 'util/media-reloader.js'
+
 import "./CodeSnippet.css"
 
 var snippetHandle = 0;
@@ -95,7 +97,7 @@ class CodeSnippet extends React.Component {
     );
   }
   
-  componentDidMount() {
+  performLoad() {
     loadSnippet(this.props.repo, 
                 this.props.sha, 
                 this.props.path, 
@@ -112,6 +114,26 @@ class CodeSnippet extends React.Component {
       console.log("snippet error", e);
       this.setState({loading: false, error: true});
     });
+  }
+  
+  componentDidMount() {
+    this.performLoad();
+    if (!this.mediaReloadListener) {
+      this.mediaReloadListener = () => {
+        if (this.state.error) {
+          console.log("Reloading failed snippet");
+          this.setState({loading: true, error: false});
+          this.performLoad();
+        }
+      }
+      document.addEventListener(reloadFailedMediaEvent, this.mediaReloadListener);
+    }
+  }
+  
+  componentWillUnmount() {
+    if (this.mediaReloadListener) {
+      document.removeEventListener(reloadFailedMediaEvent, this.mediaReloadListener);
+    }
   }
 }
 

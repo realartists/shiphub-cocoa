@@ -24,6 +24,8 @@ function reloadVideo(vid) {
   }, 0);
 }
 
+var reloadFailedMediaEvent = 'reloadFailedMedia';
+
 function reloadFailedMedia() {
   var imgs = document.getElementsByTagName('img');
   var vids = document.getElementsByTagName('video');
@@ -41,7 +43,12 @@ function reloadFailedMedia() {
       reloadVideo(vid);
     }
   }
+  
+  var event = new Event(reloadFailedMediaEvent);
+  document.dispatchEvent(event);
 }
 
 // called by app
 window.reloadFailedMedia = reloadFailedMedia;
+
+export { reloadFailedMediaEvent };
