@@ -29,8 +29,25 @@ markedRenderer.list = function(body, ordered) {
   }
 }
 
+var snippetRE = /https:\/\/github.com\/([^\/\s]+\/[^\/\s]+)\/blob\/([A-Fa-f0-9]{40})\/(.*?)#L(\d+)(?:\-L(\d+))?/;
+
+function renderCodeSnippet(match) {
+  var el = document.createElement('div');
+  el.className = 'codeSnippet';
+  el.setAttribute('data-repo', match[1]);
+  el.setAttribute('data-sha', match[2]);
+  el.setAttribute('data-path', match[3]);
+  el.setAttribute('data-start-line', match[4]);
+  el.setAttribute('data-end-line', match[5]||match[4]);
+  return el.outerHTML;
+}
+
 markedRenderer.defaultLink = markedRenderer.link;
 markedRenderer.link = function(href, title, text) {
+  var codeSnippetMatch = href.match(snippetRE);
+  if (codeSnippetMatch) {
+    return renderCodeSnippet(codeSnippetMatch);
+  }
   var lowerHref = href.toLowerCase();
   if (lowerHref.indexOf("?") != -1) {
     lowerHref = lowerHref.substring(0, lowerHref.indexOf("?"));

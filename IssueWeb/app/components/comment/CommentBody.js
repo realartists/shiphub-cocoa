@@ -1,6 +1,7 @@
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
 import Sortable from 'sortablejs'
+import CodeSnippet from './CodeSnippet.js'
 import { markdownRender } from 'util/markdown-render.js'
 import { rewriteTaskList } from 'util/rewrite-task-list.js'
 import matchAll from 'util/match-all.js'
@@ -61,6 +62,21 @@ var CommentBody = React.createClass({
     }
   },
   
+  expandCodeSnippets: function(nodes) {
+    var expandMe = nodes.filter(n => n.nodeName == 'DIV' && n.className == 'codeSnippet' && n.childNodes.length == 0);
+    console.log("snippets to expand", expandMe);
+    
+    expandMe.forEach(n => {
+      ReactDOM.render(h(CodeSnippet, {
+        repo: n.getAttributeNode("data-repo").value,
+        sha: n.getAttributeNode("data-sha").value,
+        path: n.getAttributeNode("data-path").value,
+        startLine: n.getAttributeNode("data-start-line").value,
+        endLine: n.getAttributeNode("data-end-line").value
+      }), n);
+    });
+  },
+  
   updateCheckbox: function(i, checked) {
     // find the i-th checkbox in the markdown
     var body = this.props.body;
@@ -118,17 +134,17 @@ var CommentBody = React.createClass({
     });
   },
   
-  findTaskItems: function() {
+  postProcessRenderedMarkdown: function() {
     var el = ReactDOM.findDOMNode(this.refs.commentBody);
     
-    // traverse dom, pre-order, rooted at el, looking for checkboxes
-    // we're going to bind to those guys as we find them
+    // traverse dom, pre-order, rooted at el
     
     var nodes = [];
     preOrderTraverseDOM(el, (x) => nodes.push(x));
     
-    this.rebindChecks(nodes);
+    this.expandCodeSnippets(nodes);
 
+    this.rebindChecks(nodes);
 
     // Find and bind sortables to task lists
     var rootTaskList = (x) => {
@@ -197,11 +213,11 @@ var CommentBody = React.createClass({
   },
   
   componentDidMount: function() {
-    this.findTaskItems();
+    this.postProcessRenderedMarkdown();
   },
   
   componentDidUpdate: function() {
-    this.findTaskItems();
+    this.postProcessRenderedMarkdown();
   }
 });
 

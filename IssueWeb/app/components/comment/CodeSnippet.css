@@ -1,0 +1,130 @@
+table.CodeSnippetTable {
+  padding: 0px;
+  border: 0px;
+/* 
+  margin-left: -21px;
+  margin-right: -21px;
+  border-collapse: collapse;
+  width: calc(100% + 42px);
+  max-width: calc(100% + 42px);
+ */
+ 
+  margin-left: 0px;
+  margin-right: 0px;
+  border-collapse: collapse;
+  width: calc(100%);
+  max-width: calc(100%);
+}
+
+table.CodeSnippetTable th {
+  margin: 0px;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-bottom: 3px;
+  padding-top: 5px;
+  text-align: left;
+  font-family: menlo;
+  font-size: 12px;
+  padding-left: 20px;
+  font-weight: 100;
+  border: 1px solid #E7E7E7;
+  background-color: #F7F7F7;
+}
+
+table.CodeSnippetTable tr:first-child > td {
+  padding-top: 2px;
+}
+
+table.CodeSnippetTable tr:last-child > td {
+  padding-bottom: 2px;
+  border-bottom: 1px solid #E7E7E7;
+}
+
+table.CodeSnippetTable td {
+  padding: 0;
+  margin: 0;
+  vertical-align: top;
+  background-color: white;
+  border: 0px;
+}
+
+table.CodeSnippetTable td > pre {
+  border-radius: 0px;
+  padding: 0;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+  font-family: menlo;
+  font-size: 11px;
+  line-height: 13px;
+  min-height: 13px; /* for empty lines */
+  width: 100%;
+  background-color: white;
+}
+
+table.CodeSnippetTable .gutter {
+  background-color: #F7F7F7;
+  font-family: menlo;
+  color: #BBB;
+  font-size: 10px;
+  text-align: right;
+  padding-right: 4px;
+  padding-left: 8px;
+  vertical-align: top;
+  width: 30px;
+  border-left: 1px solid #B3B3B3;
+  border-right: 1px solid #E7E7E7;
+  line-height: 13px;
+  user-select: none;
+  cursor: default;
+}
+
+table.CodeSnippetTable tr > td:first-child {
+  border-left: 1px solid #E7E7E7;
+}
+
+table.CodeSnippetTable tr > td:last-child {
+  border-right: 1px solid #E7E7E7;
+}
+
+table.CodeSnippetTable .gutter::selection {
+  background: transparent;
+}
+
+table.CodeSnippetTable .gutter-navigable {
+  cursor: pointer;
+}
+
+table.CodeSnippetTable .gutter-navigable:hover {
+  color: #737373;
+}
+
+table.CodeSnippetTable .unified-codecol {
+  padding-left: 8px;
+  padding-right: 8px;
+  width: 100%;
+  cursor: text;
+}
+
+table.diffHunk .spacer {
+  background-color: #EEE;
+}
+
+span.CodeSnippetRef {
+  margin-left:4px;
+  color: #AAA;
+  font-size: 11px;
+}
+
+span.CodeSnippetPath {
+  font-weight: bold;
+  font-family: -apple-system;
+}
+
+table.CodeSnippetTable a:hover {
+  text-decoration: none;
+}
+
+

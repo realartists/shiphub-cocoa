@@ -84,6 +84,7 @@
 		1A2FCD1C1E70C6C30000F91B /* PRNavigationToolbarItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCD1B1E70C6C30000F91B /* PRNavigationToolbarItem.m */; };
 		1A2FCD231E7314320000F91B /* clonepr.applescript in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCD221E7314320000F91B /* clonepr.applescript */; };
 		1A30654A1E83147300D2B181 /* TextFindingSearchField.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3065491E83147300D2B181 /* TextFindingSearchField.m */; };
+		1A31898E1F45011400F14254 /* CodeSnippetManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A31898D1F45011300F14254 /* CodeSnippetManager.m */; };
 		1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E21C8FBF96008C11CB /* DataStore.m */; };
 		1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618E81C8FC25B008C11CB /* SyncConnection.m */; };
 		1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
@@ -614,6 +615,8 @@
 		1A2FCD221E7314320000F91B /* clonepr.applescript */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.applescript; path = clonepr.applescript; sourceTree = "<group>"; };
 		1A3065481E83147300D2B181 /* TextFindingSearchField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TextFindingSearchField.h; sourceTree = "<group>"; };
 		1A3065491E83147300D2B181 /* TextFindingSearchField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TextFindingSearchField.m; sourceTree = "<group>"; };
+		1A31898C1F45011300F14254 /* CodeSnippetManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeSnippetManager.h; sourceTree = "<group>"; };
+		1A31898D1F45011300F14254 /* CodeSnippetManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CodeSnippetManager.m; sourceTree = "<group>"; };
 		1A3618E11C8FBF96008C11CB /* DataStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataStore.h; sourceTree = "<group>"; };
 		1A3618E21C8FBF96008C11CB /* DataStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataStore.m; sourceTree = "<group>"; };
 		1A3618E71C8FC25B008C11CB /* SyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SyncConnection.h; sourceTree = "<group>"; };
@@ -1345,6 +1348,8 @@
 				1AC023DB1F24FE5400B9B59B /* SendErrorEmail.h */,
 				1AC023DC1F24FE5400B9B59B /* SendErrorEmail.m */,
 				1AC023D61F237D0900B9B59B /* SendErrorEmail.applescript */,
+				1A31898C1F45011300F14254 /* CodeSnippetManager.h */,
+				1A31898D1F45011300F14254 /* CodeSnippetManager.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -2209,6 +2214,7 @@
 				1A694B101CA3413700F73608 /* ResultsController.m in Sources */,
 				1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
+				1A31898E1F45011400F14254 /* CodeSnippetManager.m in Sources */,
 				1AE902091F1582B400482432 /* RepoPrefs.m in Sources */,
 				1A3D344F1DAEF5F900CDF167 /* GitCommit.m in Sources */,
 				1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
