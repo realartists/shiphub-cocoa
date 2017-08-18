@@ -1830,7 +1830,18 @@ var AssigneeField = React.createClass({
     if (this.state.multi) {
       inputField = h(MultipleAssignees, {key:'assignees', ref:'assignee', issue:this.props.issue, focusNext:this.props.focusNext, readOnly});
     } else {
-      inputField = h(AssigneeInput, {key:'assignee', ref:"assignee", issue: this.props.issue, focusNext:this.props.focusNext, readOnly});
+      if (readOnly) {
+        var assignees = keypath(this.props, "issue.assignees")||[];
+        var value = "";
+        var placeholder = "Unassigned";
+        if (assignees.length > 0) {
+          value = assignees[0].login;
+          placeholder = null;
+        }
+        inputField = h('input', {type:'text', key:'assignee-ro', ref:'assignee', value, placeholder, readOnly});
+      } else {
+        inputField = h(AssigneeInput, {key:'assignee', ref:"assignee", issue: this.props.issue, focusNext:this.props.focusNext, readOnly});
+      }
     }
   
     return h('div', {className: 'IssueInput AssigneeField'},
