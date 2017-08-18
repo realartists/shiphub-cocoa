@@ -51,6 +51,7 @@
 		1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */; };
 		1A0D87741CA9E25F0069782D /* JSON.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.mm */; };
 		1A0D87751CA9E25F0069782D /* JSON.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1A0D87731CA9E25F0069782D /* JSON.mm */; };
+		1A159CC61F476F78005BC986 /* ReviewStateTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A159CC51F476F78005BC986 /* ReviewStateTemplate.m */; };
 		1A20CFF31D52A3E800F412DE /* LocalReaction+CoreDataProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF01D52A3E800F412DE /* LocalReaction+CoreDataProperties.m */; };
 		1A20CFF41D52A3E800F412DE /* LocalReaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF21D52A3E800F412DE /* LocalReaction.m */; };
 		1A20CFFA1D52A81F00F412DE /* Reaction.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A20CFF91D52A81F00F412DE /* Reaction.m */; };
@@ -561,6 +562,8 @@
 		1A0D59EE1CA4ABF5004F2578 /* IssueDocumentController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueDocumentController.m; sourceTree = "<group>"; };
 		1A0D87721CA9E25F0069782D /* JSON.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSON.h; sourceTree = "<group>"; };
 		1A0D87731CA9E25F0069782D /* JSON.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = JSON.mm; sourceTree = "<group>"; };
+		1A159CC41F476F78005BC986 /* ReviewStateTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReviewStateTemplate.h; sourceTree = "<group>"; };
+		1A159CC51F476F78005BC986 /* ReviewStateTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReviewStateTemplate.m; sourceTree = "<group>"; };
 		1A20CFEF1D52A3E800F412DE /* LocalReaction+CoreDataProperties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "LocalReaction+CoreDataProperties.h"; sourceTree = "<group>"; };
 		1A20CFF01D52A3E800F412DE /* LocalReaction+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalReaction+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1A20CFF11D52A3E800F412DE /* LocalReaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalReaction.h; sourceTree = "<group>"; };
@@ -1110,6 +1113,8 @@
 				1A012EC01D452F17006CE5DF /* LabelRowTemplate.m */,
 				1A012EC21D454097006CE5DF /* NoneLabelTemplate.h */,
 				1A012EC31D454097006CE5DF /* NoneLabelTemplate.m */,
+				1A159CC41F476F78005BC986 /* ReviewStateTemplate.h */,
+				1A159CC51F476F78005BC986 /* ReviewStateTemplate.m */,
 			);
 			name = "Predicate Editor Row Templates";
 			sourceTree = "<group>";
@@ -2321,6 +2326,7 @@
 				1A3618EC1C8FC3CC008C11CB /* KSReachability.m in Sources */,
 				1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */,
 				1A694B3C1CA3451D00F73608 /* NSPredicate+Extras.m in Sources */,
+				1A159CC61F476F78005BC986 /* ReviewStateTemplate.m in Sources */,
 				1A04174B1EE850A6008E7AC3 /* GitFileSearch.m in Sources */,
 				1A5604E11CD7FFC100ACF0DF /* AttachmentManager.m in Sources */,
 				1A012E971D3EAC8E006CE5DF /* CompletingTextField.m in Sources */,

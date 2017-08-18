@@ -64,4 +64,6 @@
 
 "%[pr.requestedReviewers.login]@ %[is]@ %@" = "%1$[Requested reviewers]@ %2$[contains]@ %3$@";
 
+"%[reviews.user.login]@ %[is]@ %@" = "%1$[Reviewers]@ %2$[contains]@ %3$@";
 
+"%[reviews]@ %@ %@ %@" = "%1$[Review state]@ %2$@ %3$@ %4$@";

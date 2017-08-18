@@ -16,6 +16,7 @@
 #import "StateRowTemplate.h"
 #import "LabelRowTemplate.h"
 #import "NoneLabelTemplate.h"
+#import "ReviewStateTemplate.h"
 
 @implementation SearchEditor
 
@@ -62,6 +63,11 @@
     NSExpression *requestedReviewersExpr = [NSExpression expressionForKeyPath:@"pr.requestedReviewers.login"];
     NSPredicateEditorRowTemplate *requestedReviewersTemplate = [[UserRowTemplate alloc] initWithLeftExpressions:@[requestedReviewersExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSAnyPredicateModifier operators:@[@(NSEqualToPredicateOperatorType)] options:0];
     
+    NSExpression *reviewersExpr = [NSExpression expressionForKeyPath:@"reviews.user.login"];
+    NSPredicateEditorRowTemplate *reviewersTemplate = [[UserRowTemplate alloc] initWithLeftExpressions:@[reviewersExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSAnyPredicateModifier operators:@[@(NSEqualToPredicateOperatorType)] options:0];
+    
+    ReviewStateTemplate *reviewState = [ReviewStateTemplate new];
+    
     NSExpression *originatorExpr = [NSExpression expressionForKeyPath:@"originator.login"];
     NSExpression *resolverExpr = [NSExpression expressionForKeyPath:@"closedBy.login"];
     NSPredicateEditorRowTemplate *userTemplate = [[UserRowTemplate alloc] initWithLeftExpressions:@[originatorExpr, resolverExpr]];
@@ -87,7 +93,7 @@
     
     NSPredicateEditorRowTemplate *issueOrPRTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[[NSExpression expressionForKeyPath:@"pullRequest"]] rightExpressions:@[[NSExpression expressionForConstantValue:@YES], [NSExpression expressionForConstantValue:@NO]] modifier:NSDirectPredicateModifier operators:@[@(NSEqualToPredicateOperatorType)] options:0];
     
-    [self setRowTemplates:@[compounds, assigneeTemplate, assigneeNotTemplate, userTemplate, dateTemplate, repoTemplate, hasLabelTemplate, hasNotLabelTemplate, labeledTemplate, milestoneTemplate, stateTemplate, titleTemplate, bodyTemplate, commentsTemplate, readTemplate, mentionTemplate, issueOrPRTemplate, requestedReviewersTemplate]];
+    [self setRowTemplates:@[compounds, assigneeTemplate, assigneeNotTemplate, userTemplate, dateTemplate, repoTemplate, hasLabelTemplate, hasNotLabelTemplate, labeledTemplate, milestoneTemplate, stateTemplate, titleTemplate, bodyTemplate, commentsTemplate, readTemplate, mentionTemplate, issueOrPRTemplate, requestedReviewersTemplate, reviewersTemplate, reviewState]];
 
     @try {
         [self setFormattingStringsFilename:@"SearchEditor"];

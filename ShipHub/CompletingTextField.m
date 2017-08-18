@@ -158,6 +158,14 @@ static NSString *valueForOption(id option) {
     }
 }
 
+- (void)setHidden:(BOOL)hidden {
+    [super setHidden:hidden];
+    if (hidden) {
+        CompletingTextController *controller = [CompletingTextController controllerForWindow:self.window];
+        [controller cancelForTextField:self];
+    }
+}
+
 - (BOOL)becomeFirstResponder {
     BOOL become = [super becomeFirstResponder];
     my_editing = become;
@@ -494,7 +502,7 @@ static const char *AssocKey = "SmartController";
 }
 
 - (void)updateForTextField:(CompletingTextField *)parentTextField animateWindow:(BOOL)animateWindow {
-    if (parentTextField.hideCompletions)
+    if (parentTextField.hideCompletions || parentTextField.hidden)
         return;
     
     if (_field != parentTextField) {
