@@ -1757,7 +1757,10 @@ var MultipleAssignees = React.createClass({
     });
     
     return h('span', {className:'MultipleAssignees'},
-      h(AddAssignee, {issue: this.props.issue, ref:"add", readOnly:this.props.readOnly}),
+      (this.props.readOnly ? 
+        h('div', {style:{display:'inline-block', height:'16px', width:'0px' }}) : 
+        h(AddAssignee, {issue: this.props.issue, ref:"add", readOnly:this.props.readOnly})
+      ),
       sortedAssignees.map((l, i) => { 
         return [" ", h(AssigneeAtom, {key:i, user:l, onDelete: this.deleteAssignee, readOnly:this.props.readOnly})];
       }).reduce(function(c, v) { return c.concat(v); }, [])
@@ -2051,7 +2054,7 @@ var IssueLabels = React.createClass({
   
     return h('div', {className:'IssueLabels'},
       h(HeaderLabel, {title:"Labels"}),
-      h(AddLabel, {issue: this.props.issue, ref:"add", readOnly}),
+      (readOnly ? h('div', {style:{display:'inline-block', height:'18px', width:'0px' }}) : h(AddLabel, {issue: this.props.issue, ref:"add"})),
       labels.map((l, i) => { 
         return [" ", h(Label, {key:i, label:l, canDelete:!readOnly, onDelete:this.deleteLabel})];
       }).reduce(function(c, v) { return c.concat(v); }, [])
