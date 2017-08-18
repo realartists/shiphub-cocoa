@@ -1,6 +1,10 @@
 import hljs from 'highlight.js'
 import htmlEscape from 'html-escape';
 
+import graphql from 'ext/highlight-langs/graphql.js'
+
+hljs.registerLanguage('graphql', graphql);
+
 var langMapping = {
   m: 'objc'
 };
