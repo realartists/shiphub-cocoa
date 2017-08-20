@@ -26,3 +26,6 @@ div.comment {
   border-right: 1px solid #D6D5D5;
 }
 
+td.comment-cell {
+  max-width: 0;
+}
