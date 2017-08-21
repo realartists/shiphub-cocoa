@@ -130,6 +130,7 @@ static NSString *extractSnippet(NSString *wholeFile, NSInteger startLine, NSInte
         }
         
         if (error) {
+            ErrLog(@"%@", error);
             completion(nil, error);
         } else {
             [cache() setObject:snip forKey:key];

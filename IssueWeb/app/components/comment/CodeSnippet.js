@@ -105,10 +105,10 @@ class CodeSnippet extends React.Component {
                 this.props.endLine
     ).then(result => {
       console.log(result);
-      if (result.snippet) {
-        this.setState({loading: false, snippet: result.snippet});
-      } else {
+      if (result.error) {
         this.setState({loading: false, error: true});
+      } else {
+        this.setState({loading: false, snippet: result.snippet});
       }
     }).catch(e => {
       console.log("snippet error", e);
