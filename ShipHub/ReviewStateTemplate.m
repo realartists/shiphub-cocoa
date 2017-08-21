@@ -125,7 +125,7 @@
         return [NSPredicate predicateWithFormat:@"SUBQUERY(reviews, $r, $r.state =[c] %@ AND $r.user.login = %@).@count > 0", PRReviewStateToString(state), userLogin];
     } else {
         NSAssert(NO, @"Unhandled op %td", op);
-        return nil;
+        return [NSPredicate predicateWithValue:NO];
     }
 }
 

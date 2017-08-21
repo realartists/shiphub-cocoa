@@ -86,7 +86,9 @@ static NSString *extractSnippet(NSString *wholeFile, NSInteger startLine, NSInte
     }];
     
     if (!finished) {
-        *outErr = [NSError errorWithDomain:CodeSnippetManagerErrorDomain code:CodeSnippetManagerErrorCodeLineNotFound userInfo:nil];
+        if (outErr) {
+            *outErr = [NSError errorWithDomain:CodeSnippetManagerErrorDomain code:CodeSnippetManagerErrorCodeLineNotFound userInfo:nil];
+        }
     }
     
     return [lines componentsJoinedByString:@"\n"];
