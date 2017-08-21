@@ -28,11 +28,12 @@ window.loadCodeSnippetResult = function(data) {
 
 class CodeSnippetHeader extends React.Component {
   render() {
+    var repoName = this.props.repo.split("/")[1];
     var href = `https://github.com/${this.props.repo}/blob/${this.props.sha}/${this.props.path}#L${this.props.startLine}-L${this.props.endLine}`;
     return h('tr', {},
       h('th', {colSpan:2},
         h('a', {className:'CodeSnippetLink', href:href},
-          h('span', {className:'CodeSnippetPath'}, this.props.path),
+          h('span', {className:'CodeSnippetPath'}, `${repoName}/${this.props.path}`),
           h('span', {className:'CodeSnippetRef'}, `@${this.props.sha.substr(0, 7)}`)
         )
       )
