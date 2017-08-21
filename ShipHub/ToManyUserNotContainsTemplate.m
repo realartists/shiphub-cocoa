@@ -6,27 +6,43 @@
 //  Copyright © 2017 Real Artists, Inc. All rights reserved.
 //
 
-#import "AssigneeNotContainsTemplate.h"
+#import "ToManyUserNotContainsTemplate.h"
 
 #import "CompletingTextField.h"
 
-@implementation AssigneeNotContainsTemplate
+@implementation ToManyUserNotContainsTemplate
 
-- (id)init {
-    if (self = [super initWithLeftExpressions:@[[NSExpression expressionForKeyPath:@"assignees.login"]] rightExpressionAttributeType:NSStringAttributeType modifier:NSDirectPredicateModifier operators:@[@(NSNotEqualToPredicateOperatorType)] options:0])
+- (id)initWithLoginKeyPath:(NSString *)loginKeyPath {
+    if (self = [super initWithLeftExpressions:@[[NSExpression expressionForKeyPath:loginKeyPath]] rightExpressionAttributeType:NSStringAttributeType modifier:NSDirectPredicateModifier operators:@[@(NSNotEqualToPredicateOperatorType)] options:0])
     {
         
     }
     return self;
 }
 
+- (NSString *)loginKeyPath {
+    return [[[self leftExpressions] firstObject] keyPath];
+}
+
+- (NSString *)collection {
+    NSRange firstDot = [self.loginKeyPath rangeOfString:@"."];
+    return [self.loginKeyPath substringToIndex:firstDot.location];
+}
+
+- (NSString *)trailingKeyPath {
+    NSRange firstDot = [self.loginKeyPath rangeOfString:@"."];
+    return [self.loginKeyPath substringFromIndex:NSMaxRange(firstDot)];
+}
+
 - (NSPredicate *)predicateWithSubpredicates:(NSArray<NSPredicate *> *)subpredicates
 {
     NSString *val = [[self textField] stringValue];
     if ([val length]) {
-        return [NSPredicate predicateWithFormat:@"count:(SUBQUERY(assignees, $a, $a.login = %@)) == 0", val];
+        NSString *format = [NSString stringWithFormat:@"count:(SUBQUERY(%@, $a, $a.%@ = %%@)) == 0", [self collection], [self trailingKeyPath]];
+        return [NSPredicate predicateWithFormat:format, val];
     } else {
-        return [NSPredicate predicateWithFormat:@"count:(assignees) != 0"];
+        NSString *format = [NSString stringWithFormat:@"count:(%@) != 0", [self collection]];
+        return [NSPredicate predicateWithFormat:format];
     }
 }
 
@@ -45,17 +61,17 @@
             NSComparisonPredicate *subp = (id)arg.predicate;
             NSString *v = [subp.rightExpression constantValue];
             [[self textField] setStringValue:v];
-            p = [NSPredicate predicateWithFormat:@"assignees.login != %@", v];
+            p = [NSPredicate predicateWithFormat:@"%K != %@", self.loginKeyPath, v];
         } else {
             NSAssert(arg.expressionType == NSKeyPathExpressionType, nil);
             [[self textField] setStringValue:@""];
-            p = [NSPredicate predicateWithFormat:@"assignees.login != nil"];
+            p = [NSPredicate predicateWithFormat:@"%K != nil", self.loginKeyPath];
         }
         
         [super setPredicate:p];
     } else if ([self isOldStyleNotContainsPredicate:predicate login:&login]) {
         [[self textField] setStringValue:login];
-        [super setPredicate:[NSPredicate predicateWithFormat:@"assignees.login != %@", login]];
+        [super setPredicate:[NSPredicate predicateWithFormat:@"%K != %@", self.loginKeyPath, login]];
     }
 }
 
@@ -87,10 +103,10 @@
                     NSExpression *rhs2 = [c2 rightExpression];
                     
                     if (lhs1.expressionType == NSKeyPathExpressionType
-                        && [lhs1.keyPath isEqualToString:@"assignees.login"]
+                        && [lhs1.keyPath isEqualToString:self.loginKeyPath]
                         && rhs1.expressionType == NSConstantValueExpressionType
                         && lhs2.expressionType == NSKeyPathExpressionType
-                        && [lhs2.keyPath isEqualToString:@"assignees.login"]
+                        && [lhs2.keyPath isEqualToString:self.loginKeyPath]
                         && rhs2.expressionType == NSConstantValueExpressionType
                         && rhs2.constantValue == nil)
                     {
@@ -127,7 +143,7 @@
             
             if (lhs.expressionType == NSSubqueryExpressionType
                 && [lhs.collection expressionType] == NSKeyPathExpressionType
-                && [[lhs.collection keyPath] isEqualToString:@"assignees"])
+                && [[lhs.collection keyPath] isEqualToString:[self collection]])
             {
                 NSComparisonPredicate *nePred = (id)lhs.predicate;
                 if (nePred.predicateOperatorType == NSEqualToPredicateOperatorType) {
@@ -142,7 +158,7 @@
             lhs = [lhs.arguments firstObject];
             
             if (lhs.expressionType == NSKeyPathExpressionType
-                && ([lhs.keyPath isEqualToString:@"assignees"] || [lhs.keyPath isEqualToString:@"assignees.login"])) {
+                && ([lhs.keyPath isEqualToString:[self collection]] || [lhs.keyPath isEqualToString:self.loginKeyPath])) {
                 return 1.0;
             }
         }

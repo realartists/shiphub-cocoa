@@ -8,6 +8,10 @@
 
 #import "UserRowTemplate.h"
 
-@interface AssigneeNotContainsTemplate : UserRowTemplate
+@interface ToManyUserNotContainsTemplate : UserRowTemplate
+
+- (id)initWithLoginKeyPath:(NSString *)loginKeyPath;
+
+@property (readonly) NSString *loginKeyPath;
 
 @end

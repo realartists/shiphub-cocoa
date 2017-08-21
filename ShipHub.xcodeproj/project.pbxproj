@@ -77,7 +77,7 @@
 		1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
 		1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */; };
 		1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */; };
-		1A2C05C91E3BFAD100F993AF /* AssigneeNotContainsTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2C05C81E3BFAD100F993AF /* AssigneeNotContainsTemplate.m */; };
+		1A2C05C91E3BFAD100F993AF /* ToManyUserNotContainsTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2C05C81E3BFAD100F993AF /* ToManyUserNotContainsTemplate.m */; };
 		1A2FCCF01E660B240000F91B /* PRReview.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCEF1E660B240000F91B /* PRReview.m */; };
 		1A2FCCF71E68EADA0000F91B /* PRReviewChangesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCF51E68EADA0000F91B /* PRReviewChangesViewController.m */; };
 		1A2FCCF81E68EADA0000F91B /* PRReviewChangesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2FCCF61E68EADA0000F91B /* PRReviewChangesViewController.xib */; };
@@ -604,8 +604,8 @@
 		1A2A8B5E1D55109200F24F32 /* NewMilestoneController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewMilestoneController.h; sourceTree = "<group>"; };
 		1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewMilestoneController.m; sourceTree = "<group>"; };
 		1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewMilestoneController.xib; sourceTree = "<group>"; };
-		1A2C05C71E3BFAD100F993AF /* AssigneeNotContainsTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AssigneeNotContainsTemplate.h; sourceTree = "<group>"; };
-		1A2C05C81E3BFAD100F993AF /* AssigneeNotContainsTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AssigneeNotContainsTemplate.m; sourceTree = "<group>"; };
+		1A2C05C71E3BFAD100F993AF /* ToManyUserNotContainsTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToManyUserNotContainsTemplate.h; sourceTree = "<group>"; };
+		1A2C05C81E3BFAD100F993AF /* ToManyUserNotContainsTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToManyUserNotContainsTemplate.m; sourceTree = "<group>"; };
 		1A2FCCEE1E660B240000F91B /* PRReview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRReview.h; sourceTree = "<group>"; };
 		1A2FCCEF1E660B240000F91B /* PRReview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRReview.m; sourceTree = "<group>"; };
 		1A2FCCF41E68EADA0000F91B /* PRReviewChangesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRReviewChangesViewController.h; sourceTree = "<group>"; };
@@ -1099,8 +1099,8 @@
 				1A012E861D3EAC47006CE5DF /* FreeformMetadataRowTemplate.m */,
 				1A012E871D3EAC47006CE5DF /* UserRowTemplate.h */,
 				1A012E881D3EAC47006CE5DF /* UserRowTemplate.m */,
-				1A2C05C71E3BFAD100F993AF /* AssigneeNotContainsTemplate.h */,
-				1A2C05C81E3BFAD100F993AF /* AssigneeNotContainsTemplate.m */,
+				1A2C05C71E3BFAD100F993AF /* ToManyUserNotContainsTemplate.h */,
+				1A2C05C81E3BFAD100F993AF /* ToManyUserNotContainsTemplate.m */,
 				1A012E891D3EAC47006CE5DF /* MilestoneRowTemplate.h */,
 				1A012E8A1D3EAC47006CE5DF /* MilestoneRowTemplate.m */,
 				1A012E8B1D3EAC47006CE5DF /* PopUpMetadataRowTemplate.h */,
@@ -2375,7 +2375,7 @@
 				1A2217D11C7E80CE006460E2 /* Logging.m in Sources */,
 				1A4A20A91CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m in Sources */,
 				1A012E921D3EAC47006CE5DF /* MilestoneRowTemplate.m in Sources */,
-				1A2C05C91E3BFAD100F993AF /* AssigneeNotContainsTemplate.m in Sources */,
+				1A2C05C91E3BFAD100F993AF /* ToManyUserNotContainsTemplate.m in Sources */,
 				1A0D59EB1CA4AA3A004F2578 /* IssueDocument.m in Sources */,
 				1A4329771EA69F2800A93A2C /* LocalPRReview.m in Sources */,
 				1AE09BF81C97687E00C5AC35 /* LocalRelationship.m in Sources */,
