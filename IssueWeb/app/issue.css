@@ -273,7 +273,6 @@ div.event img.avatar {
 span.eventUser {
   color: #555555;
   font-weight: bold;
-  cursor: default;
 }
 span.eventUser:hover {
   text-decoration: underline;

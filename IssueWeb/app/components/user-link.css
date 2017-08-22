@@ -1,0 +1,13 @@
+a.UserLink {
+  color: #555555 !important;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.UserLink:hover {
+  text-decoration: underline;
+}
+
+.UserLink:visited {
+  color: #555555 !important;
+}

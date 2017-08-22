@@ -44,6 +44,7 @@ import CommitComment from 'components/issue/commit-comment.js'
 import { CommitGroup, CommitStatuses, CommitStatusTable, getSubjectAndBodyFromCommitMessage, findLatestCommitStatuses } from 'components/issue/commit-group.js'
 import Review from 'components/issue/review.js'
 import PRMergeability from 'components/issue/pr-mergeability.js'
+import UserLink from 'components/user-link.js'
 
 var EventIcon = React.createClass({
   propTypes: {
@@ -142,7 +143,7 @@ var EventUser = React.createClass({
     var user = this.props.user || ghost;
     return h("span", {className:"eventUser"},
       h(AvatarIMG, {user:user, size:16}),
-      user.login
+      h(UserLink, {user})
     );
   }
 });

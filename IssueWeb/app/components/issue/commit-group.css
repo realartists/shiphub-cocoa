@@ -42,7 +42,6 @@ span.commitGroupIcon {
 span.commitGroupAuthor {
   color: #555555;
   font-weight: bold;
-  cursor: default;
 }
 span.commitGroupAuthor:hover {
   text-decoration: underline;

@@ -68,7 +68,6 @@ div.reviewHeader img.avatar {
 span.reviewAuthor {
   color: #555555;
   font-weight: bold;
-  cursor: default;
 }
 span.reviewAuthor:hover {
   text-decoration: underline;

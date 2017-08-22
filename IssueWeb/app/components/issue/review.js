@@ -13,6 +13,7 @@ import IssueState from 'issue-state.js'
 import { api } from 'util/api-proxy.js'
 import { storeCommentDraft, clearCommentDraft, getCommentDraft } from 'util/draft-storage.js'
 import { ReviewState, reviewStateToUI } from './review-state.js'
+import UserLink from 'components/user-link.js'
 
 import './review.css'
 
@@ -70,7 +71,7 @@ class ReviewHeader extends React.Component {
           h('i', { className: `fa ${icon} fa-inverse`, style:iconStyle})
         ),
         h(AvatarIMG, { className: 'reviewAuthorIcon', user:user, size:16 }),
-        h('span', { className: 'reviewAuthor' }, user.login),
+        h(UserLink, { className: 'reviewAuthor', user }),
         info
       ),
       h('div', { className:'reviewHeaderActions' },

@@ -9,6 +9,7 @@ import ghost from 'util/ghost.js'
 import { githubLinkify } from 'util/github-linkify.js'
 import { PRReviewChangesButton } from './pr-actions-bar.js'
 import { keypath } from 'util/keypath.js'
+import UserLink from 'components/user-link.js'
 
 import './commit-group.css'
 import CommitBullet from '../../../image/CommitBullet.png'
@@ -138,7 +139,7 @@ class CommitGroupHeader extends React.Component {
     return h('div', { className:'commitGroupHeader' },
       h('div', { className:'commitGroupHeaderDetails' },
         h('span', { className: 'commitGroupIcon fa fa-git-square' }),
-        h('span', {className:'commitGroupAuthor', title:user.email}, user.name),
+        h(UserLink, {className:'commitGroupAuthor', user}),
         hasOthers ? h('span', {className:'commitGroupOthers'}, ' and others') : "",
         h('span', {className:'commitGroupTimeAgo'}, desc),
         h(TimeAgo, {className:'commentTimeAgo', live:true, date:timestamp}),
