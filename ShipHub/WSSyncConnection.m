@@ -155,7 +155,7 @@ static uint64_t ServerHelloMinimumVersion = 2;
 - (void)connect {
     dispatch_assert_current_queue(_q);
     
-    if (!_socket && _syncVersions != nil && [[Reachability sharedInstance] isReachable] && self.auth.token) {
+    if (!_socket && _syncVersions != nil && self.auth.token) {
         DebugLog(@"Opening socket");
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate syncConnectionWillConnect:self];
