@@ -8,9 +8,11 @@ var HtmlWebpackPluginConfig = new HtmlWebpackPlugin({
 });
 
 var debugMode = JSON.stringify(JSON.parse(process.env.DEBUG || 'false'));
+var buildId = JSON.stringify(process.env.BUILD_ID || 'DEBUG_BUILD');
 
 var definePlugin = new webpack.DefinePlugin({
-  __DEBUG__: debugMode
+  __DEBUG__: debugMode,
+  __BUILD_ID__: buildId
 });
 
 module.exports = {
@@ -28,6 +30,7 @@ module.exports = {
     path: __dirname + "/dist",
     filename: "[name].js"
   },
+  devtool: 'source-map',
   module: {
     preLoaders: [
         { test: /\.json$/, loader: 'json'},

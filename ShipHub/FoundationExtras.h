@@ -381,3 +381,9 @@ void RunOnMain(dispatch_block_t);
 
 @end
 #endif
+
+@interface NSBundle (Extras)
+
+- (NSString *)extras_userAgentString;
+
+@end

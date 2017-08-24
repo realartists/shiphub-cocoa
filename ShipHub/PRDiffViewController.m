@@ -16,6 +16,7 @@
 #import "GitDiff.h"
 #import "JSON.h"
 #import "Account.h"
+#import "Repo.h"
 #import "MarkdownFormattingController.h"
 #import "PRDiffFileBarViewController.h"
 #import "PRBinaryDiffViewController.h"
@@ -101,6 +102,15 @@
 
 - (NSString *)webHtmlFilename {
     return @"diff.html";
+}
+
+- (NSDictionary *)raygunExtraInfo {
+    BOOL public = !self.pr.issue.repository.private;
+    if (public) {
+        return @{ @"issue" : self.pr.issue.fullIdentifier?:[NSNull null] };
+    } else {
+        return nil;
+    }
 }
 
 - (void)registerJavaScriptAPI:(WKUserContentController *)cc {
@@ -237,6 +247,8 @@ static BOOL differentiateWithoutColor() {
         
         void (^complete)(id) = ^(id patchMapping) {
             [self showTextDiff];
+            
+            [self configureRaygun];
             
             NSDictionary *state =
             @{ @"filename": diffFile.name,

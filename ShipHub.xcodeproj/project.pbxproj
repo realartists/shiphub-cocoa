@@ -2157,7 +2157,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "ISSUE_WEB_DST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/IssueWeb\"\nISSUE_WEB_SRC=\"${PROJECT_DIR}/IssueWeb/dist\"\n\necho ISSUE_WEB_SRC=$ISSUE_WEB_SRC\necho ISSUE_WEB_DST=$ISSUE_WEB_DST\n\nmkdir -p \"$ISSUE_WEB_DST\"\n\nrsync -avz -u --delete \"$ISSUE_WEB_SRC/\" \"$ISSUE_WEB_DST/\"\n";
+			shellScript = "ISSUE_WEB_DST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/IssueWeb\"\nISSUE_WEB_SRC=\"${PROJECT_DIR}/IssueWeb/dist\"\n\necho ISSUE_WEB_SRC=$ISSUE_WEB_SRC\necho ISSUE_WEB_DST=$ISSUE_WEB_DST\n\nmkdir -p \"$ISSUE_WEB_DST\"\n\nrsync -avz -u --exclude '*.map' --delete \"$ISSUE_WEB_SRC/\" \"$ISSUE_WEB_DST/\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

@@ -1859,3 +1859,17 @@ CGRect IntegralRect(CGRect r) {
 
 @end
 #endif
+
+@implementation NSBundle (Extras)
+
+- (NSString *)extras_userAgentString {
+    static dispatch_once_t onceToken;
+    static NSString *ua;
+    dispatch_once(&onceToken, ^{
+        NSDictionary *userInfo = [[NSBundle mainBundle] infoDictionary];
+        ua = [NSString stringWithFormat:@"%@/%@ (%@)", userInfo[@"CFBundleName"], userInfo[@"CFBundleShortVersionString"], userInfo[@"CFBundleVersion"]];
+    });
+    return ua;
+}
+
+@end

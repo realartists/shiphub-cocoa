@@ -2796,6 +2796,11 @@
       "from": "raw-loader@>=0.5.1 <0.6.0",
       "resolved": "https://registry.npmjs.org/raw-loader/-/raw-loader-0.5.1.tgz"
     },
+    "raygun4js": {
+      "version": "2.7.1",
+      "from": "raygun4js@>=2.7.1 <2.8.0",
+      "resolved": "https://registry.npmjs.org/raw-loader/-/raygun4js-2.7.1.tgz"
+    },
     "react": {
       "version": "0.14.8",
       "from": "react@>=0.14.7 <0.15.0",

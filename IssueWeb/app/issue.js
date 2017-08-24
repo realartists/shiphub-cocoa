@@ -4,6 +4,8 @@ import 'codemirror/lib/codemirror.css'
 import 'highlight.js/styles/xcode.css'
 import './issue.css'
 
+import 'util/crash-reporter.js'
+
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
 import escape from 'html-escape'
@@ -2555,6 +2557,8 @@ function applyIssueState(state, scrollToCommentIdentifier) {
   oldOwner = IssueState.current.repoOwner;
   oldRepo = IssueState.current.repoName;
   oldNum = IssueState.current.issueNumber;
+  
+  state.intentionalTestError();
   
   if (oldOwner && oldRepo && oldNum && window.topLevelComponent && !window.lastErr) {
     window.topLevelComponent.saveCommentDrafts();

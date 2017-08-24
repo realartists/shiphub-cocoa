@@ -103,3 +103,22 @@ popd
 
 # Clean up temporary stuff
 rm -r $DMGTMP
+
+# Upload JavaScript Source Maps to Raygun
+
+cd "$XCS_SOURCE_DIR/ShipHub/IssueWeb/dist"
+
+JS_BUILD_ID=`cat BUILD_ID`
+SOURCE_MAP_URL_BASE="file://$JS_BUILD_ID/"
+
+for JSFILE in *.js;
+do
+    MAPFILE="$JSFILE.map"
+    echo "Uploading JS source map $MAPFILE"
+    URL="$SOURCE_MAP_URL_BASE/$JSFILE"
+    curl \
+        -X POST \
+        -F "url=$URL" \
+        -F "file=@$MAPFILE" \
+        'https://app.raygun.com/upload/jssymbols/yf03ib?authToken=wuIacE9aQxuE8eTJjSDojM8mECOvX7RO'
+done

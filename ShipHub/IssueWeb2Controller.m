@@ -10,7 +10,9 @@
 
 #import "AppDelegate.h"
 #import "AttachmentManager.h"
+#import "Auth.h"
 #import "CodeSnippetManager.h"
+#import "DataStore.h"
 #import "EmptyLabelView.h"
 #import "Error.h"
 #import "Extras.h"
@@ -469,6 +471,22 @@
     for (NSString *script in toRun) {
         [self evaluateJavaScript:script];
     }
+}
+
+- (NSDictionary *)raygunExtraInfo {
+    return nil;
+}
+
+- (void)configureRaygun {
+    Auth *auth = [[DataStore activeStore] auth];
+    NSDictionary *user = @{@"identifier":[auth.account.ghIdentifier description], @"login":auth.account.login};
+    
+    NSString *version = [[NSBundle mainBundle] extras_userAgentString];
+    
+    NSDictionary *extra = [self raygunExtraInfo];
+    
+    NSString *js = [NSString stringWithFormat:@"window.configureRaygun(%@, %@, %@);", [JSON stringifyObject:user], [JSON stringifyObject:version], [JSON stringifyObject:extra]];
+    [self evaluateJavaScript:js];
 }
 
 #pragma mark - WKNavigationDelegate

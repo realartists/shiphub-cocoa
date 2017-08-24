@@ -19,6 +19,8 @@
 - (void)evaluateJavaScript:(NSString *)js;
 @property (readonly) BOOL didFinishLoading;
 
+- (void)configureRaygun;
+
 #pragma mark - Subclassers Must Override
 - (void)reconfigureForReload;
 - (NSString *)webHtmlFilename;
@@ -33,5 +35,7 @@
 
 - (CGRect)webContentRect;
 - (void)layoutSubviews;
+
+- (NSDictionary *)raygunExtraInfo;
 
 @end

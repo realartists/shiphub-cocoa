@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "production": "DEBUG=0 webpack -p",
+    "production": "uuidgen > dist/BUILD_ID && BUILD_ID=`cat dist/BUILD_ID` DEBUG=0 webpack -p",
     "debug": "DEBUG=1 webpack -d",
     "start": "DEBUG=1 webpack-dev-server --open",
     "dev-server-inline": "DEBUG=1 webpack-dev-server --inline"
@@ -27,7 +27,8 @@
     "sortablejs": "1.4.2",
     "typeahead.js": "^0.11.1",
     "uuid": "^3.0.1",
-    "whatwg-fetch": "^0.11.0"
+    "whatwg-fetch": "^0.11.0",
+    "raygun4js": "2.7.1"
   },
   "devDependencies": {
     "babel-core": "^6.14.0",

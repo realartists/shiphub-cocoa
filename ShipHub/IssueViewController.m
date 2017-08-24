@@ -131,6 +131,15 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     }
 }
 
+- (NSDictionary *)raygunExtraInfo {
+    BOOL public = !self.issue.repository.private;
+    if (public) {
+        return @{ @"issue" : self.issue.fullIdentifier?:[NSNull null] };
+    } else {
+        return nil;
+    }
+}
+
 - (void)configureNewIssue {
     [self evaluateJavaScript:@"configureNewIssue();"];
     self.web.hidden = NO;
@@ -175,6 +184,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     BOOL identifierChanged = ![NSObject object:_issue.fullIdentifier isEqual:issue.fullIdentifier];
     BOOL shouldScrollToTop = issue != nil && _issue != nil && identifierChanged;
     _issue = issue;
+    [self configureRaygun];
     if (issue) {
         NSString *issueJSON = [self issueStateJSON:issue];
         _lastStateJSON = issueJSON;

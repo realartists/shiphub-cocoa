@@ -18,6 +18,8 @@
 
 - (void)evaluateJavaScript:(NSString *)js;
 
+- (void)configureRaygun;
+
 #pragma mark - Subclassers Must Override
 - (NSString *)webHtmlFilename; // html filename (e.g. issue.html)
 
@@ -31,6 +33,6 @@
 - (IBAction)reload:(id)sender;
 - (IBAction)fixSpelling:(id)sender;
 
-#pragma mark -
+- (NSDictionary *)raygunExtraInfo;
 
 @end
