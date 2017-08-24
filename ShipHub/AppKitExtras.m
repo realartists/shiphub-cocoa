@@ -360,9 +360,27 @@ static CGFloat clamp(CGFloat v, CGFloat min, CGFloat max) {
     
     CGImageRef cgImage = [self CGImageForProposedRect:&r context:nil hints:nil];
     
+    if (!cgImage) {
+        return self;
+    }
+    
     CGColorSpaceRef spaceRef = CGImageGetColorSpace(cgImage);
+    
+    if (!spaceRef) {
+        return self;
+    }
+    
     NSColorSpace *space = [[NSColorSpace alloc] initWithCGColorSpace:spaceRef];
+    
+    if (!space) {
+        return self;
+    }
+    
     color = [color colorUsingColorSpace:space];
+    
+    if (!color) {
+        return self;
+    }
     
     uint32_t bitmapInfo = CGImageGetBitmapInfo(cgImage);
     bitmapInfo = (bitmapInfo & kCGBitmapFloatInfoMask)
