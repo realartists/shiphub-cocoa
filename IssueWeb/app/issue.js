@@ -2558,8 +2558,6 @@ function applyIssueState(state, scrollToCommentIdentifier) {
   oldRepo = IssueState.current.repoName;
   oldNum = IssueState.current.issueNumber;
   
-  state.intentionalTestError();
-  
   if (oldOwner && oldRepo && oldNum && window.topLevelComponent && !window.lastErr) {
     window.topLevelComponent.saveCommentDrafts();
   }
