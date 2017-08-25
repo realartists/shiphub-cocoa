@@ -109,7 +109,7 @@ rm -r $DMGTMP
 cd "$XCS_SOURCE_DIR/ShipHub/IssueWeb/dist"
 
 JS_BUILD_ID=`cat BUILD_ID`
-SOURCE_MAP_URL_BASE="file://$JS_BUILD_ID/"
+SOURCE_MAP_URL_BASE="file://$JS_BUILD_ID/IssueWeb"
 
 for JSFILE in *.js;
 do
