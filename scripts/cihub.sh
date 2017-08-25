@@ -12,7 +12,7 @@ cd "$XCS_OUTPUT_DIR"
 pwd
 
 echo "Exporting .app"
-xcodebuild -exportArchive -exportFormat APP -archivePath "$XCS_ARCHIVE" -exportPath "$AppArchiveDir/$AppName"
+cp -R "$XCS_ARCHIVE/Products/Applications/$AppName.app" "$AppArchiveDir/$AppName.app"
 
 echo "Setting CFBundleVersion"
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion \"$XCS_INTEGRATION_NUMBER\"" "$AppArchiveDir/$AppName.app/Contents/Info.plist"

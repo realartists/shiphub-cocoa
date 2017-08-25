@@ -11,7 +11,7 @@ var beforeSend = function(payload) {
 
   var normalizeFilename = function(filename) {
     var indexOfRoot = filename.indexOf("IssueWeb");
-    `file://${__BUILD_ID__}${filename.substring(indexOfRoot)}`;
+    return `file://${__BUILD_ID__}${filename.substring(indexOfRoot)}`;
   }
 
   for(var i = 0 ; i < stacktrace.length; i++) {
