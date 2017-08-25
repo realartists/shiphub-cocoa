@@ -109,16 +109,26 @@ rm -r $DMGTMP
 cd "$XCS_SOURCE_DIR/ShipHub/IssueWeb/dist"
 
 JS_BUILD_ID=`cat BUILD_ID`
-SOURCE_MAP_URL_BASE="file://$JS_BUILD_ID/IssueWeb"
+SOURCE_MAP_URL_BASE="file:///$JS_BUILD_ID/IssueWeb"
 
 for JSFILE in *.js;
 do
     MAPFILE="$JSFILE.map"
-    echo "Uploading JS source map $MAPFILE"
-    URL="$SOURCE_MAP_URL_BASE/$JSFILE"
+
+    JSURL="$SOURCE_MAP_URL_BASE/$JSFILE"
+    MAPURL="$SOURCE_MAP_URL_BASE/$MAPFILE"
+
+    echo "Uploading JS source $JSFILE for URL $JSURL"
     curl \
         -X POST \
-        -F "url=$URL" \
+        -F "url=$JSURL" \
+        -F "file=@$JSFILE" \
+        'https://app.raygun.com/upload/jssymbols/yf03ib?authToken=wuIacE9aQxuE8eTJjSDojM8mECOvX7RO'
+
+    echo "Uploading JS source map $MAPFILE for URL $MAPURL"
+    curl \
+        -X POST \
+        -F "url=$MAPURL" \
         -F "file=@$MAPFILE" \
         'https://app.raygun.com/upload/jssymbols/yf03ib?authToken=wuIacE9aQxuE8eTJjSDojM8mECOvX7RO'
 done
