@@ -19,6 +19,15 @@ div.reviewHeader {
   overflow: hidden;
 }
 
+div.review hr {
+  border: 0px;
+  border-bottom: 1px solid #EFEFEF;
+  margin-left: 12px;
+  margin-right: 12px;
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
 div.reviewHeaderDetails {
   flex-shrink: 1;
   width: 100%;

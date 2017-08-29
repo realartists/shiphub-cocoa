@@ -2308,12 +2308,19 @@ var App = React.createClass({
     if (!issue.pull_request) {
       return [];
     }
+    
+    // save out review_dismissed events for later processing
+    var reviewDismissedEvents = (issue.events||[]).filter(e => e.event == "review_dismissed").reduce((accum, event) => {
+      var reviewId = keypath(event, "dismissed_review.review_id");
+      if (reviewId) accum[reviewId] = event;
+      return accum;
+    }, {});
   
     // create dummy reviews for all of the comments that are not already in a review
     var moreReviews = (issue.pr_comments||[]).map((c) => {
       return {
         user: c.user,
-        state: 3, /* comment */
+        state: ReviewState.Comment,
         submitted_at: c.created_at,
         comments: [c]
       };
@@ -2332,9 +2339,16 @@ var App = React.createClass({
       delete c.replies;
     });
     
-    // mark all pending comments as such
     allReviews.forEach(r => {
-      if (r.state == ReviewState.Pending) {
+      // line up dismissal reasons
+      if (r.state == ReviewState.Dismiss) {
+        var dismissal_event = reviewDismissedEvents[r.id];
+        if (dismissal_event) {
+          r.dismissal_event = reviewDismissedEvents[r.id];
+        }
+      }
+      // mark all pending comments as such
+      else if (r.state == ReviewState.Pending) {
         r.comments.forEach(c => {
           c.pending_id = `${c.id}`;
         });

@@ -744,8 +744,18 @@ class IssueState {
     // eagerly dismiss the review
     this.issue.reviews = Array.from(this.issue.reviews).map(r => {
       if (r.id == id) {
-        r.state = 4; /* dismissed */
+        return Object.assign({}, r, { 
+          state: 4, 
+          dismissal_event: { 
+            actor: this.state.me, 
+            dismissed_review: { 
+              id: id, 
+              dismissal_message: reason 
+            } 
+          } 
+        });
       }
+      return r;
     });
     this._renderState();
     

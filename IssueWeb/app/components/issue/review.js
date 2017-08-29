@@ -32,12 +32,15 @@ class ReviewHeader extends React.Component {
     var actions = null;
     var iconStyle = {};
     if (this.props.review.state == ReviewState.Dismiss) {
+      var dismisser = keypath(this.props.review, "dismissal_event.actor");
       iconStyle.position = 'relative';
       iconStyle.top = '0px';
       info = [
         h('span', { key:'dismiss_action', className: 'reviewAction' }, ' added a review '),
         h(TimeAgo, { key:'dismiss_time', className:'commentTimeAgo', live:true, date:this.props.review.submitted_at||this.props.review.created_at}),
-        h('span', { key:'dismiss_action2', className: 'reviewAction' }, ' that was dismissed. '),
+        h('span', { key:'dismiss_action2', className: 'reviewAction' }, 
+          (dismisser ? [' that was dismissed by ', h(UserLink, {key:'actor', user:dismisser}), '. '] : ' that was dismissed. ')
+        ),
         h('a', { 
           key:'toggle', 
           className:'reviewToggle',
@@ -118,6 +121,16 @@ class ReviewSummary extends React.Component {
   
   comment() {
     return this.refs.comment;
+  }
+}
+
+class ReviewDismissal extends React.Component {
+  render() {
+    return h(ReviewSummaryComment, {
+      comment: Object.assign({}, this.props.review, {body:this.props.review.dismissal_event.dismissed_review.dismissal_message, user:this.props.review.dismissal_event.actor}),
+      ref: "dismissal",
+      className: 'comment reviewComment'
+    });
   }
 }
 
@@ -463,6 +476,12 @@ class Review extends React.Component {
     this.state = { collapsed: this.props.review.state == ReviewState.Dismiss };
   }
 
+  componentWillReceiveProps(nextProps) {
+    var newlyDismissed = nextProps.review.state == ReviewState.Dismiss && this.props.review.state != ReviewState.Dismiss;
+    if (newlyDismissed) {
+      this.setState({collapsed:true});
+    }
+  }
 
   allComments() {
     var comments = [];
@@ -528,6 +547,8 @@ class Review extends React.Component {
     
     var noBodyAndNoComments = !hasSummary && sortedComments.length == 0;
     
+    var dismissalEvent = this.props.review.state == ReviewState.Dismiss ? this.props.review.dismissal_event : null;
+    
     if (pending && noBodyAndNoComments) {
       return h('span', {}); // hide pending reviews with no comments and no body
     }
@@ -535,14 +556,21 @@ class Review extends React.Component {
     comps.push(h(ReviewHeader, { 
       key:"header", 
       review: this.props.review, 
-      empty: this.state.collapsed||noBodyAndNoComments,
+      empty: !dismissalEvent&&(this.state.collapsed||noBodyAndNoComments),
       collapsed: this.state.collapsed,
       toggleCollapsed: this.toggleCollapsed.bind(this),
       submitPendingReview: this.submitPendingReview.bind(this),
       deletePendingReview: this.deletePendingReview.bind(this)
     }));
     
+    if (dismissalEvent) {
+      comps.push(h(ReviewDismissal, { key:"dismissal", ref:"dismissal", review:this.props.review }));
+    }
+    
     if (!this.state.collapsed) {
+      if (dismissalEvent) {
+        comps.push(h('hr', {key:'dismissalReasonDivider'}));
+      }
       if (hasSummary) {
         comps.push(h(ReviewSummary, { key:"summary", ref:"summary", review: this.props.review }));
       } else if (sortedComments.length) {
