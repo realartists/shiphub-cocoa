@@ -369,6 +369,7 @@ class CommitGroup extends React.Component {
     
     // see if we can order our commits using the parent pointer(s)
     commits.forEach(c => {
+      if (!c.parents || c.parents.length == 0) return;
       c._prev = commitsBySha[c.parents[0].sha];
       if (c._prev) c._prev._next = c;
     });
