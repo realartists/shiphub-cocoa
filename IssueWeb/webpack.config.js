@@ -30,7 +30,7 @@ module.exports = {
     path: __dirname + "/dist",
     filename: "[name].js"
   },
-  devtool: 'source-map',
+  devtool: process.env.BUILD_ID ? 'source-map' : false,
   module: {
     preLoaders: [
         { test: /\.json$/, loader: 'json'},
