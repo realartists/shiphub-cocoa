@@ -48,6 +48,8 @@ typedef void (^OverviewNodeDropHandler)(NSArray<NSString *> *issueIdentifiers);
 @property BOOL allowChart;
 @property BOOL filterBarDefaultsToOpenState;
 
+@property BOOL includeInOmniSearch;
+
 @property BOOL showProgress;
 @property double progress;
 @property NSInteger openCount;
@@ -62,6 +64,7 @@ typedef void (^OverviewNodeDropHandler)(NSArray<NSString *> *issueIdentifiers);
 @property (nonatomic, strong) NSString *toolTip;
 
 @property (strong) NSImage *icon;
+@property (strong) NSImage *omniSearchIcon;
 
 @property (copy) OverviewNodeDropHandler dropHandler;
 

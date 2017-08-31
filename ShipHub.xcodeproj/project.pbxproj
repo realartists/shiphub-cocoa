@@ -67,6 +67,8 @@
 		1A2217D11C7E80CE006460E2 /* Logging.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217D01C7E80CE006460E2 /* Logging.m */; };
 		1A2217D81C7E981D006460E2 /* Keychain.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217D71C7E981D006460E2 /* Keychain.m */; };
 		1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2217DA1C7E99A1006460E2 /* Auth.m */; };
+		1A2261F81F58938200FA95C9 /* OmniSearchCellViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2261F61F58938200FA95C9 /* OmniSearchCellViewController.m */; };
+		1A2261F91F58938200FA95C9 /* OmniSearchCellViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2261F71F58938200FA95C9 /* OmniSearchCellViewController.xib */; };
 		1A2305D91C7F80EA0034C871 /* Defaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305D81C7F80EA0034C871 /* Defaults.m */; };
 		1A2305DD1C7F84D80034C871 /* Error.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305DC1C7F84D80034C871 /* Error.m */; };
 		1A2305E91C7FC2940034C871 /* AuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305DF1C7FC2940034C871 /* AuthController.m */; };
@@ -231,6 +233,7 @@
 		1A694B4B1CA367E300F73608 /* Issue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B4A1CA367E300F73608 /* Issue.m */; };
 		1A694B4C1CA367E300F73608 /* Issue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B4A1CA367E300F73608 /* Issue.m */; };
 		1A74A5671F2012D400D8EC78 /* RepoSearchField.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A74A5661F2012D400D8EC78 /* RepoSearchField.m */; };
+		1A7651521F562EEF006413A6 /* OmniSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7651511F562EEF006413A6 /* OmniSearch.m */; };
 		1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414A1C8E528A0043DAF0 /* NavigationController.m */; };
 		1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */; };
 		1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */; };
@@ -585,6 +588,9 @@
 		1A2217D71C7E981D006460E2 /* Keychain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Keychain.m; sourceTree = "<group>"; };
 		1A2217D91C7E99A1006460E2 /* Auth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Auth.h; sourceTree = "<group>"; };
 		1A2217DA1C7E99A1006460E2 /* Auth.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Auth.m; sourceTree = "<group>"; };
+		1A2261F51F58938200FA95C9 /* OmniSearchCellViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OmniSearchCellViewController.h; sourceTree = "<group>"; };
+		1A2261F61F58938200FA95C9 /* OmniSearchCellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OmniSearchCellViewController.m; sourceTree = "<group>"; };
+		1A2261F71F58938200FA95C9 /* OmniSearchCellViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OmniSearchCellViewController.xib; sourceTree = "<group>"; };
 		1A2305D71C7F80EA0034C871 /* Defaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defaults.h; sourceTree = "<group>"; };
 		1A2305D81C7F80EA0034C871 /* Defaults.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Defaults.m; sourceTree = "<group>"; };
 		1A2305DA1C7F81FA0034C871 /* JSONItem.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSONItem.h; sourceTree = "<group>"; };
@@ -819,6 +825,8 @@
 		1A694B4A1CA367E300F73608 /* Issue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Issue.m; sourceTree = "<group>"; };
 		1A74A5651F2012D400D8EC78 /* RepoSearchField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RepoSearchField.h; sourceTree = "<group>"; };
 		1A74A5661F2012D400D8EC78 /* RepoSearchField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RepoSearchField.m; sourceTree = "<group>"; };
+		1A7651501F562EEF006413A6 /* OmniSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OmniSearch.h; sourceTree = "<group>"; };
+		1A7651511F562EEF006413A6 /* OmniSearch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OmniSearch.m; sourceTree = "<group>"; };
 		1A7A41491C8E528A0043DAF0 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
 		1A7A414A1C8E528A0043DAF0 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
 		1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NavigationController.xib; sourceTree = "<group>"; };
@@ -1359,6 +1367,18 @@
 			name = Extras;
 			sourceTree = "<group>";
 		};
+		1A2261EF1F58892A00FA95C9 /* OmniSearch */ = {
+			isa = PBXGroup;
+			children = (
+				1A7651501F562EEF006413A6 /* OmniSearch.h */,
+				1A7651511F562EEF006413A6 /* OmniSearch.m */,
+				1A2261F51F58938200FA95C9 /* OmniSearchCellViewController.h */,
+				1A2261F61F58938200FA95C9 /* OmniSearchCellViewController.m */,
+				1A2261F71F58938200FA95C9 /* OmniSearchCellViewController.xib */,
+			);
+			name = OmniSearch;
+			sourceTree = "<group>";
+		};
 		1A2440CE1C850CD900E070DA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1709,6 +1729,7 @@
 				1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */,
 				1A85A6041E81BA12004A4B23 /* MarkdownFormattingController.h */,
 				1A85A6051E81BA12004A4B23 /* MarkdownFormattingController.m */,
+				1A2261EF1F58892A00FA95C9 /* OmniSearch */,
 			);
 			name = "Shared UI";
 			sourceTree = "<group>";
@@ -2085,6 +2106,7 @@
 				1ADCCB181E84967300916FF7 /* PRCommitController.xib in Resources */,
 				1AC023F01F2CF2DA00B9B59B /* PRDiffProgressViewController.xib in Resources */,
 				1A3AB35E1D90AE17004BB768 /* SubscriptionController.xib in Resources */,
+				1A2261F91F58938200FA95C9 /* OmniSearchCellViewController.xib in Resources */,
 				1A4353561E73762A00C5F5AB /* PRMergeViewController.xib in Resources */,
 				1AF567381D625E2300611DBB /* WebAuthController.xib in Resources */,
 				1AB2438E1E97075C0062628C /* clonepr.sh in Resources */,
@@ -2217,6 +2239,7 @@
 				1AB4785F1ECF9526006002DB /* CommitComment.m in Sources */,
 				1A012EA81D443CFC006CE5DF /* CustomQuery.m in Sources */,
 				1A694B101CA3413700F73608 /* ResultsController.m in Sources */,
+				1A2261F81F58938200FA95C9 /* OmniSearchCellViewController.m in Sources */,
 				1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
 				1A31898E1F45011400F14254 /* CodeSnippetManager.m in Sources */,
@@ -2295,6 +2318,7 @@
 				1A694B281CA341D500F73608 /* SearchField.m in Sources */,
 				1A694B291CA341D500F73608 /* NSImage+Icons.m in Sources */,
 				1A7FD7881D49856600B585E2 /* StateModifyController.m in Sources */,
+				1A7651521F562EEF006413A6 /* OmniSearch.m in Sources */,
 				1A694B111CA3413700F73608 /* ResultsViewModeItem.m in Sources */,
 				1A2217D81C7E981D006460E2 /* Keychain.m in Sources */,
 				1AF5673C1D627C2E00611DBB /* OAuthController.m in Sources */,

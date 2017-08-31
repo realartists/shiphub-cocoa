@@ -34,8 +34,8 @@
 - (BOOL)isShiftTab;
 - (BOOL)isSpace;
 - (BOOL)isDelete;
-
 - (BOOL)isReturn;
+- (BOOL)isEscape;
 
 - (BOOL)modifierFlagsAreExclusively:(NSEventModifierFlags)flags;
 

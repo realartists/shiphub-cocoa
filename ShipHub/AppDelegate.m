@@ -677,4 +677,8 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     }
 }
 
+- (IBAction)showOmniSearch:(id)sender {
+    [[self defaultOverviewController] showOmniSearch:sender];
+}
+
 @end

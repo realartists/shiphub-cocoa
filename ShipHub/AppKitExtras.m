@@ -116,6 +116,10 @@
     return key == NSCarriageReturnCharacter || key == NSFormFeedCharacter || key == NSEnterCharacter || key == NSNewlineCharacter || key == NSLineSeparatorCharacter;
 }
 
+- (BOOL)isEscape {
+    return self.keyCode == 53;
+}
+
 @end
 
 @implementation NSScrollView (Extras)

@@ -27,6 +27,8 @@
 
 - (IBAction)showNetworkStatusSheetIfNeeded:(id)sender;
 
+- (IBAction)showOmniSearch:(id)sender;
+
 #if !INCOMPLETE
 - (IBAction)showDownloads:(id)sender;
 - (void)openQuery:(CustomQuery *)query;

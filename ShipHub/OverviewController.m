@@ -47,6 +47,7 @@
 #import "ProjectsViewController.h"
 #import "ProgressSheet.h"
 #import "NetworkStatusWindowController.h"
+#import "OmniSearch.h"
 
 //#import "OutboxViewController.h"
 //#import "AttachmentProgressViewController.h"
@@ -117,7 +118,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 
 @end
 
-@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate, NSTextFieldDelegate, NSTouchBarDelegate, ResultsControllerDelegate>
+@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate, NSTextFieldDelegate, NSTouchBarDelegate, ResultsControllerDelegate, OmniSearchDelegate>
 
 @property SearchResultsController *searchResults;
 @property ThreePaneController *threePaneController;
@@ -154,6 +155,8 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 @property HiddenRepoViewController *hiddenRepoController;
 @property HiddenMilestoneViewController *hiddenMilestoneController;
 @property ProjectsViewController *projectsController;
+
+@property OmniSearch *omniSearch;
 
 @end
 
@@ -585,6 +588,8 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
             queryNode.cellIdentifier = @"CountCell";
             queryNode.icon = queryIcon;
             queryNode.filterBarDefaultsToOpenState = NO;
+            queryNode.includeInOmniSearch = YES;
+            queryNode.omniSearchIcon = [NSImage imageNamed:@"OmniSearchQuery"];
             [myQueriesRoot addChild:queryNode];
         }
     }
@@ -610,6 +615,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
             ownerNode.representedObject = repoOwner;
             ownerNode.predicate = [NSPredicate predicateWithFormat:@"repository.owner.login = %@", repoOwner.login];
             ownerNode.icon = [[AvatarManager activeManager] imageForAccountIdentifier:repoOwner.identifier avatarURL:repoOwner.avatarURL?[NSURL URLWithString:repoOwner.avatarURL]:nil] ?: (repoOwner.accountType == AccountTypeOrg ? [NSImage overviewIconNamed:@"Org"] : [NSImage overviewIconNamed:@"User"]);
+            ownerNode.includeInOmniSearch = YES;
             [reposNode addChild:ownerNode];
             
             parent = ownerNode;
@@ -655,6 +661,9 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
                 repoNode.viewController = _unsubscribedRepoController;
                 repoNode.icon = [NSImage overviewIconNamed:@"Locked"];
             } else {
+                repoNode.includeInOmniSearch = YES;
+                repoNode.omniSearchIcon = [NSImage imageNamed:@"OmniSearchRepo"];
+                
                 NSArray *milestones = [metadata activeMilestonesForRepo:repo];
                 for (Milestone *mile in milestones) {
                     if (!mile.hidden) {
@@ -851,6 +860,8 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     }
     
     [self updateCounts:nil];
+    
+    [_omniSearch reloadData];
 }
 
 - (void)updateCount:(OverviewNode *)node {
@@ -1985,6 +1996,39 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 - (IBAction)showRepoController:(id)sender {
     AppDelegate *appDelegate = (id)[NSApp delegate];
     [appDelegate showRepoController:self];
+}
+
+#pragma mark -
+
+- (IBAction)showOmniSearch:(id)sender {
+    if (!_omniSearch) {
+        _omniSearch = [OmniSearch new];
+        _omniSearch.placeholderString = NSLocalizedString(@"Jump to Repository", nil);
+        _omniSearch.delegate = self;
+    }
+    [_omniSearch showWindow:sender];
+}
+
+- (void)omniSearch:(OmniSearch *)searchController itemsForQuery:(NSString *)query completion:(void (^)(NSArray<OmniSearchItem *> *))completion
+{
+    NSMutableArray *items = [NSMutableArray new];
+    [self walkNodes:^(OverviewNode *node) {
+        if (node.includeInOmniSearch && [node.title localizedCaseInsensitiveContainsString:query]) {
+            
+            OmniSearchItem *item = [OmniSearchItem new];
+            item.image = node.omniSearchIcon ?: node.icon;
+            item.title = node.title;
+            item.representedObject = node;
+            [items addObject:item];
+        }
+    }];
+    
+    completion(items);
+}
+
+- (void)omniSearch:(OmniSearch *)searchController didSelectItem:(OmniSearchItem *)item {
+    [self.window makeKeyAndOrderFront:nil];
+    [self expandAndSelectItem:item.representedObject];
 }
 
 #pragma mark -

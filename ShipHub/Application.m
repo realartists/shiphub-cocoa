@@ -19,4 +19,10 @@
     return [super sendAction:action to:target from:sender];
 }
 
+- (void)_crashOnException:(NSException *)e {
+    ErrLog(@"%@", e);
+    [self reportException:e];
+    abort();
+}
+
 @end
