@@ -26,4 +26,6 @@
 
 - (IBAction)merge:(id)sender;
 
+- (IBAction)showOmniSearch:(id)sender;
+
 @end

@@ -530,6 +530,10 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     item.animator.collapsed = !item.collapsed;
 }
 
+- (IBAction)showOmniSearch:(id)sender {
+    [_sidebarController showOmniSearch:sender];
+}
+
 #pragma mark -
 
 - (IBAction)copyIssueNumber:(id)sender {

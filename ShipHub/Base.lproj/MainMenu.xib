@@ -165,9 +165,9 @@
                                     <action selector="searchAllProblems:" target="Voe-Tx-rLC" id="e1Y-Lu-txP"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Jump to Repository…" keyEquivalent="d" id="ZQU-J5-8al">
+                            <menuItem title="Jump to Item…" keyEquivalent="d" id="ZQU-J5-8al">
                                 <connections>
-                                    <action selector="showOmniSearch:" target="Voe-Tx-rLC" id="6X8-qf-JSF"/>
+                                    <action selector="showOmniSearch:" target="-1" id="r8i-LG-9fw"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="aJh-i4-bef"/>
@@ -686,6 +686,11 @@ CA
                             <menuItem title="Previous File" keyEquivalent="[" id="jtm-ca-b7v">
                                 <connections>
                                     <action selector="previousFile:" target="-1" id="pmE-NX-8y8"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Jump to File" keyEquivalent="J" id="CoF-7s-A4I">
+                                <connections>
+                                    <action selector="showOmniSearch:" target="-1" id="BlI-eC-3eO"/>
                                 </connections>
                             </menuItem>
                         </items>

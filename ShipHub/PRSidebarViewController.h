@@ -49,6 +49,8 @@
 - (void)cancelFindMode;
 - (void)enterFindMode;
 
+- (IBAction)showOmniSearch:(id)sender;
+
 @end
 
 @protocol PRSidebarViewControllerDelegate <NSObject>

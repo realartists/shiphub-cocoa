@@ -385,6 +385,13 @@
     [_freeRows addObject:rowView];
 }
 
+- (void)tableViewSelectionDidChange:(NSNotification *)notification {
+    NSInteger row = [_table selectedRow];
+    if (row != -1) {
+        [_table scrollRowToVisible:row];
+    }
+}
+
 @end
 
 @implementation OmniSearchWindow

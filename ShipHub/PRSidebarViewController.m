@@ -18,6 +18,7 @@
 #import "GitFileSearch.h"
 #import "PRCommitController.h"
 #import "NSImage+Icons.h"
+#import "OmniSearch.h"
 
 @interface PRSidebarCellView : NSTableCellView
 
@@ -52,7 +53,7 @@ typedef NS_ENUM(NSInteger, FindMenuTags) {
     FindMenuTagChangedLinesOnly = 3
 };
 
-@interface PRSidebarViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSTextFieldDelegate, PRCommitControllerDelegate>
+@interface PRSidebarViewController () <NSOutlineViewDelegate, NSOutlineViewDataSource, NSTextFieldDelegate, PRCommitControllerDelegate, OmniSearchDelegate>
 
 @property IBOutlet PRSidebarOutlineView *outline;
 
@@ -78,6 +79,8 @@ typedef NS_ENUM(NSInteger, FindMenuTags) {
 @property GitDiff *filteredDiff;
 @property NSArray *inorderFiles;
 @property NSSet *commentedPaths;
+
+@property OmniSearch *omniSearch;
 
 @end
 
@@ -200,14 +203,16 @@ typedef NS_ENUM(NSInteger, FindMenuTags) {
     [_commitPopover close];
 }
 
-static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
+static void traverseFiles(GitFileTree *tree, NSMutableArray *files, NSPredicate *filter) {
     if (!tree) return;
     
     for (id item in tree.children) {
         if ([item isKindOfClass:[GitDiffFile class]]) {
-            [files addObject:item];
+            if (!filter || [filter evaluateWithObject:item]) {
+                [files addObject:item];
+            }
         } else {
-            traverseFiles(item, files);
+            traverseFiles(item, files, filter);
         }
     }
 }
@@ -217,7 +222,7 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
     // the tree that's the same order as the fully
     // expanded outline view
     NSMutableArray *files = [NSMutableArray new];
-    traverseFiles(_filteredDiff.fileTree, files);
+    traverseFiles(_filteredDiff.fileTree, files, nil);
     _inorderFiles = files;
 }
 
@@ -609,6 +614,38 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
     return YES;
 }
 
+#pragma mark - OmniSearch
+
+- (IBAction)showOmniSearch:(id)sender {
+    if (!_omniSearch) {
+        _omniSearch = [OmniSearch new];
+        _omniSearch.placeholderString = NSLocalizedString(@"Open Quickly", nil);
+        _omniSearch.delegate = self;
+    }
+    [_omniSearch showWindow:sender];
+}
+
+- (void)omniSearch:(OmniSearch *)searchController itemsForQuery:(NSString *)query completion:(void (^)(NSArray<OmniSearchItem *> *))completion
+{
+    NSMutableArray *files = [NSMutableArray new];
+    traverseFiles(_activeDiff.fileTree, files, [NSPredicate predicateWithFormat:@"name CONTAINS[cd] %@", query]);
+    completion([files arrayByMappingObjects:^id(GitDiffFile *obj) {
+        OmniSearchItem *item = [OmniSearchItem new];
+        item.image = [self iconForDiffFile:obj];
+        item.title = obj.path ?: obj.oldPath;
+        item.representedObject = obj;
+        return item;
+    }]);
+}
+
+- (void)omniSearch:(OmniSearch *)searchController didSelectItem:(OmniSearchItem *)item {
+    [self.view.window makeKeyAndOrderFront:nil];
+    if (_inFindMode) {
+        [self cancelFindMode];
+    }
+    [self selectFile:item.representedObject];
+}
+
 #pragma mark - Find in Files
 
 - (void)cancelFindMode {
@@ -803,6 +840,15 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
         [_delegate prSidebar:self didSelectGitDiffFile:_selectedFile highlightingSearchResult:nil];
     }
 }
+               
+- (NSImage *)iconForDiffFile:(GitDiffFile *)file {
+    NSString *filename = [file name];
+    if (file.mode == DiffFileModeCommit) {
+        return [NSImage imageNamed:@"Submodule"];
+    } else {
+        return [[NSWorkspace sharedWorkspace] iconForFileType:[filename pathExtension]];
+    }
+}
 
 - (NSView *)fileModeViewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
     PRSidebarCellView *cell = [_outline makeViewWithIdentifier:@"DataCell" owner:self];
@@ -821,11 +867,7 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files) {
     } else {
         GitDiffFile *file = item;
         NSString *filename = [item name];
-        if (file.mode == DiffFileModeCommit) {
-            cell.imageView.image = [NSImage imageNamed:@"Submodule"];
-        } else {
-            cell.imageView.image = [[NSWorkspace sharedWorkspace] iconForFileType:[filename pathExtension]];
-        }
+        cell.imageView.image = [self iconForDiffFile:file];
         cell.filename = filename;
         
         NSString *opTooltip = nil;
