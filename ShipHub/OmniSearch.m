@@ -264,6 +264,11 @@
 }
 
 - (void)controlTextDidSubmit:(NSNotification *)note {
+    if (_queryTimer) {
+        [_queryTimer invalidate];
+        _queryTimer = nil;
+        [self queryTimerFired:nil];
+    }
     NSInteger selectedRow = [_table selectedRow];
     if (selectedRow != -1) {
         [self.delegate omniSearch:self didSelectItem:_items[selectedRow]];
