@@ -556,11 +556,11 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     }
     
     OverviewNode *backlog = [OverviewNode new];
-    backlog.title = NSLocalizedString(@"Backlog", nil);
+    backlog.title = NSLocalizedString(@"No Milestone", nil);
     backlog.predicate = [NSPredicate predicateWithFormat:@"milestone = nil AND closed = NO"];
     backlog.showCount = YES;
     backlog.cellIdentifier = @"CountCell";
-    backlog.toolTip = NSLocalizedString(@"The backlog contains all issues not assigned to a milestone", nil);
+    backlog.toolTip = NSLocalizedString(@"All issues not assigned to a milestone", nil);
     backlog.icon = [NSImage overviewIconNamed:@"Backlog"];
     backlog.defaultOrderKey = NSIntegerMax;
     [milestonesRoot addChild:backlog];

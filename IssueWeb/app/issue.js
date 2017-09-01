@@ -1426,7 +1426,7 @@ var MilestoneField = React.createClass({
     comps.push(h(Completer, {
       ref: 'completer',
       key: 'milestoneCompleter',
-      placeholder: 'Backlog',
+      placeholder: 'No Milestone',
       onChange: this.milestoneChanged,
       onEnter: this.onEnter,
       newItem: canAddNew ? 'New Milestone' : undefined,

@@ -587,7 +587,7 @@ static const NSInteger LabelMenuItemNone = 2004;
     m.target = self;
     m.representedObject = nil;
     
-    m = [menu addItemWithTitle:NSLocalizedString(@"Backlog", nil) action:@selector(pickMilestone:) keyEquivalent:@""];
+    m = [menu addItemWithTitle:NSLocalizedString(@"No Milestone", nil) action:@selector(pickMilestone:) keyEquivalent:@""];
     m.target = self;
     m.representedObject = [NSNull null];
     
@@ -780,7 +780,7 @@ static BOOL representedObjectEquals(id repr, id val) {
         _milestone.title = NSLocalizedString(@"Milestone", nil);
     } else if (milestone == [NSNull null]) {
         _milestone.filterEnabled = YES;
-        _milestone.title = NSLocalizedString(@"Milestone - Backlog", nil);
+        _milestone.title = NSLocalizedString(@"No Milestone", nil);
     } else {
         _milestone.filterEnabled = YES;
         _milestone.title = [NSString stringWithFormat:NSLocalizedString(@"Milestone - %@", nil), milestone];

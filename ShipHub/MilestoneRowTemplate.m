@@ -37,7 +37,7 @@
 
 - (CompletingTextField *)textField {
     CompletingTextField *textField = [super textField];
-    textField.placeholderString = NSLocalizedString(@"Backlog", nil);
+    textField.placeholderString = NSLocalizedString(@"No Milestone", nil);
     return textField;
 }
 

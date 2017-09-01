@@ -139,11 +139,7 @@ static NSInteger dateToJSONTS(NSDate *d) {
 
 - (NSString *)partitionLabelForKeyPath:(NSString *)keyPath value:(id)val {
     if (!val) {
-        if ([keyPath isEqualToString:@"milestone.name"]) {
-            val = NSLocalizedString(@"Backlog", nil);
-        } else {
-            val = NSLocalizedString(@"Not Set", nil);
-        }
+        val = NSLocalizedString(@"Not Set", nil);
     }
     return val;
 }
