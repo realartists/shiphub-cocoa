@@ -386,7 +386,7 @@ static BOOL differentiateWithoutColor() {
     if ([self isShowingBinaryDiff]) {
         [self.delegate diffViewController:self continueNavigation:options];
     } else {
-        NSString *js = [NSString stringWithFormat:@"window.scrollTo(%@);", [JSON stringifyObject:options]];
+        NSString *js = [NSString stringWithFormat:@"window.diff_scrollTo(%@);", [JSON stringifyObject:options]];
         [self evaluateJavaScript:js];
     }
 }

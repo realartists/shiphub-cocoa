@@ -1022,7 +1022,7 @@ window.scrollToCommentId = function(commentId) {
   app.scrollToCommentId(commentId);
 };
 
-window.scrollTo = function(options) {
+window.diff_scrollTo = function(options) {
   app.scrollTo(options);
 }
 
