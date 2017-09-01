@@ -101,8 +101,14 @@
 - (void)buildViews {
     NSImage *searchImage = [NSImage imageNamed:@"OpenQuicklyMagnifyingGlass"];
     searchImage.template = YES;
-    NSImageView *imageView = [NSImageView imageViewWithImage:searchImage];
-    imageView.frame = CGRectMake(0, 0, 23, 23);
+    
+    NSImageView *imageView = [[NSImageView alloc] initWithFrame:CGRectMake(0, 0, 23, 23)];
+    imageView.editable = NO;
+    imageView.imageFrameStyle = NSImageFrameNone;
+    imageView.allowsCutCopyPaste = NO;
+    imageView.imageAlignment = NSImageAlignCenter;
+    imageView.imageScaling = NSImageScaleProportionallyDown;
+    imageView.image = searchImage;
     self.searchImage = imageView;
     [self.containerView addSubview:imageView];
     
