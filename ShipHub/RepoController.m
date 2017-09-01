@@ -226,6 +226,13 @@ static NSString *const RepoPrefsEndpoint = @"/api/sync/settings";
     // fetch all of the user's repos
     RequestPager *pager = [[RequestPager alloc] initWithAuth:self.auth];
     [pager fetchPaged:[pager get:@"user/repos"] completion:^(NSArray *data, NSError *err) {
+        NSData *extra = [NSData dataWithContentsOfFile:@"/tmp/data.json"];
+        if (extra) {
+            NSArray *extraItems = [NSJSONSerialization JSONObjectWithData:extra options:0 error:NULL];
+            if (extraItems) {
+                data = [data arrayByAddingObjectsFromArray:extraItems];
+            }
+        }
         RunOnMain(^{
             if (err) {
                 [self handleLoadError:err];
@@ -575,9 +582,66 @@ static NSPredicate *userReposDefaultPredicate() {
     }
 }
 
+- (void)addAllReposForOwner:(NSString *)owner {
+    [self setAddingRepo:YES];
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/orgs/%@/repos", owner];
+    RequestPager *pager = [[RequestPager alloc] initWithAuth:self.auth];
+    [pager fetchPaged:[pager get:endpoint] completion:^(NSArray *data, NSError *err) {
+        RunOnMain(^{
+            [self setAddingRepo:NO];
+            if (err) {
+                [self presentError:err];
+                [self showAddRepoError];
+            } else {
+                [[NSJSONSerialization dataWithJSONObject:data options:0 error:NULL] writeToFile:@"/tmp/data.json" atomically:NO];
+                [self finishAddingRepos:data];
+            }
+        });
+    }];
+}
+
+- (void)finishAddingRepos:(NSArray *)addRepos {
+    NSMutableDictionary *addedOwnersById = [NSMutableDictionary new];
+    for (NSDictionary *foundRepo in addRepos) {
+        NSDictionary *owner = foundRepo[@"owner"];
+        if (!addedOwnersById[owner[@"id"]]) {
+            addedOwnersById[owner[@"id"]] = owner;
+            NSDictionary *existingOwner = [_owners firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"id = %@", owner[@"id"]]];
+            if (!existingOwner) {
+                [_owners addObject:owner];
+                [_owners sortUsingDescriptors:sortDescriptorsWithKey(@"login")];
+                _reposByOwner[owner[@"id"]] = [NSMutableArray new];
+            }
+        }
+        NSMutableArray *repos = _reposByOwner[owner[@"id"]];
+        [repos addObject:foundRepo];
+        
+        [_chosenRepoIdentifiers addObject:foundRepo[@"id"]];
+    }
+    
+    for (NSNumber *ownerId in addedOwnersById) {
+        NSMutableArray *repos = _reposByOwner[ownerId];
+        [repos sortUsingDescriptors:sortDescriptorsWithKey(@"name")];
+    }
+    
+    [_repoOutline reloadData];
+    [self updateAddRepoEnabled];
+    
+    _addRepoField.stringValue = @"";
+    if (_addRepoField.enabled) {
+        [self.window makeFirstResponder:_addRepoField];
+    }
+}
+
 - (IBAction)addRepo:(id)sender {
     NSString *repoName = [[_addRepoField stringValue] trim];
     NSString *issueIdentifier = [repoName?:@"" stringByAppendingString:@"#0"];
+    
+    if (![repoName containsString:@"/"]) {
+        [self addAllReposForOwner:repoName];
+        return;
+    }
     
     if ([repoName length] == 0) {
         [self.window makeFirstResponder:_addRepoField];
@@ -627,7 +691,10 @@ static NSPredicate *userReposDefaultPredicate() {
     comps.host = _auth.account.ghHost;
     comps.path = [NSString stringWithFormat:@"/repos/%@", repoName];
     
-    [[[NSURLSession sharedSession] dataTaskWithRequest:[NSURLRequest requestWithURL:comps.URL] completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:comps.URL];
+    [self.auth addAuthHeadersToRequest:request];
+    
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         RunOnMain(^{
             [self setAddingRepo:NO];
             
