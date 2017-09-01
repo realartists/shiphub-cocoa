@@ -165,7 +165,8 @@
 
 - (void)sizeWindowAndLayout {
     NSScreen *screen = self.window.screen;
-    CGRect screenRect = screen.visibleFrame;
+    CGRect screenRect = screen.frame;
+    screenRect.size.height -= [[NSApp mainMenu] menuBarHeight];
     
     const CGFloat width = 600.0;
     const CGFloat headerHeight = 48.0;
