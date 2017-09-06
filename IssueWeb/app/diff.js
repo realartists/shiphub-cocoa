@@ -46,6 +46,7 @@ class App {
     this.me = ghost; // user object (used for adding new comments)
     this.repo = null; // repo owning the viewed pull request
     this.colorblind = false; // whether or not we need to use more than just color to differentiate changes lines
+    this.receivedFirstUpdate = false; // whether updateDiff has been called yet
     
     // View state
     this.codeRows = []; // Array of SplitRow|UnifiedRow
@@ -361,6 +362,8 @@ class App {
   }
   
   updateDiff(diffState) {
+    this.receivedFirstUpdate = true;
+  
     Object.assign(this, diffState);
     
     this.leftLines = splitLines(this.leftText);
@@ -438,6 +441,11 @@ class App {
   }
   
   updateComments(comments, inReview) {
+    if (!this.receivedFirstUpdate) {
+      console.log("updateComments called early");
+      return;
+    }
+  
     this.inReview = inReview;
     this.comments = comments;
     var existingRows = this.commentRows;
