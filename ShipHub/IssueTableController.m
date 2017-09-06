@@ -193,19 +193,19 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
                      @"formatter" : [MultipleAssigneesFormatter new],
                      @"sortDescriptor" : [NSSortDescriptor sortDescriptorWithKey:@"assignees.login" ascending:YES selector:@selector(localizedStandardCompareContents:)],
                      @"width" : @160,
-                     @"minWidth" : @130,
+                     @"minWidth" : @100,
                      @"maxWidth" : @200 },
                   
                   @{ @"identifier" : @"originator.login",
                      @"title" : NSLocalizedString(@"Author", nil),
                      @"width" : @160,
-                     @"minWidth" : @130,
+                     @"minWidth" : @100,
                      @"maxWidth" : @200 },
                   
                   @{ @"identifier" : @"closedBy.login",
                      @"title" : NSLocalizedString(@"Closed By", nil),
                      @"width" : @160,
-                     @"minWidth" : @130,
+                     @"minWidth" : @100,
                      @"maxWidth" : @200 },
                   
                   @{ @"identifier" : @"repository.fullName",
@@ -228,18 +228,24 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
                   
                   @{ @"identifier" : @"updatedAt",
                      @"title" : NSLocalizedString(@"Modified", nil),
-                     @"formatter" : [NSDateFormatter shortDateAndTimeFormatter],
-                     @"width" : @130 },
+                     @"cellClass" : @"DateCell",
+                     @"width" : @130,
+                     @"minWidth" : @60,
+                     @"maxWidth" : @200 },
                   
                   @{ @"identifier" : @"createdAt",
-                     @"formatter" : [NSDateFormatter shortDateAndTimeFormatter],
                      @"title" : NSLocalizedString(@"Created", nil),
-                     @"width" : @130 },
+                     @"cellClass" : @"DateCell",
+                     @"width" : @130,
+                     @"minWidth": @60,
+                     @"maxWidth" : @200 },
                   
                   @{ @"identifier" : @"closedAt",
-                     @"formatter" : [NSDateFormatter shortDateAndTimeFormatter],
                      @"title" : NSLocalizedString(@"Date Closed", nil),
-                     @"width" : @130 },
+                     @"cellClass" : @"DateCell",
+                     @"width" : @130,
+                     @"minWidth" : @60,
+                     @"maxWidth" : @200 },
                   
                   @{ @"identifier" : @"labels",
                      @"title" : NSLocalizedString(@"Labels", nil),
@@ -1291,6 +1297,115 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
     CGSize size = [LabelsView sizeLabels:[self objectValue]];
     cellFrame.size = size;
     return cellFrame;
+}
+
+@end
+
+@interface DateCell : NSTextFieldCell {
+    NSRect _currentFrame;
+}
+
+@end
+
+@implementation DateCell
+
+static BOOL isToday(NSDate *d) {
+    NSDate *now = [NSDate date];
+    
+    if (fabs(now.timeIntervalSinceReferenceDate - d.timeIntervalSinceReferenceDate) <= (24.0 * 60.0 * 60.0)) {
+        NSCalendar *cal = [NSCalendar currentCalendar];
+        NSInteger nowDay = [cal component:NSCalendarUnitDay fromDate:now];
+        NSInteger dDay = [cal component:NSCalendarUnitDay fromDate:d];
+        return nowDay == dDay;
+    }
+    
+    return NO;
+}
+
+- (NSFormatter *)formatter {
+    NSDate *date = [self objectValue];
+    
+    if (![date isKindOfClass:[NSDate class]]) {
+        return nil;
+    }
+    
+    // 60-80px: 12:18 PM/Yesterday/9/1/17
+    // 80-120px: 12:18 PM/Yesterday/Sep 4, 2017
+    // 120-150px: Today 12:18 PM/Yesterday 12:18 PM/9/4/17 3:12 PM
+    // 150-199px:Today 12:18 PM/Yesterday 12:18 PM/Sep 1, 2017 3:12 PM
+    // 199px-max: Today 12:18 PM/Yesterday 12:18 PM/September 4, 2017 3:12 PM
+    
+    static NSDateFormatter *shortTimeFormatter;
+    static NSDateFormatter *shortDateFormatter;
+    static NSDateFormatter *medDateFormatter;
+    static NSDateFormatter *shortDateAndTimeFormatter;
+    static NSDateFormatter *medDateAndShortTimeFormatter;
+    static NSDateFormatter *longDateAndShortTimeFormatter;
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        shortTimeFormatter = [NSDateFormatter new];
+        shortTimeFormatter.doesRelativeDateFormatting = YES;
+        shortTimeFormatter.timeStyle = NSDateFormatterShortStyle;
+        shortTimeFormatter.dateStyle = NSDateFormatterNoStyle;
+        
+        shortDateFormatter = [NSDateFormatter new];
+        shortDateFormatter.doesRelativeDateFormatting = YES;
+        shortDateFormatter.timeStyle = NSDateFormatterNoStyle;
+        shortDateFormatter.dateStyle = NSDateFormatterShortStyle;
+        
+        medDateFormatter = [NSDateFormatter new];
+        medDateFormatter.doesRelativeDateFormatting = YES;
+        medDateFormatter.timeStyle = NSDateFormatterNoStyle;
+        medDateFormatter.dateStyle = NSDateFormatterMediumStyle;
+        
+        shortDateAndTimeFormatter = [NSDateFormatter new];
+        shortDateAndTimeFormatter.doesRelativeDateFormatting = YES;
+        shortDateAndTimeFormatter.timeStyle = NSDateFormatterShortStyle;
+        shortDateAndTimeFormatter.dateStyle = NSDateFormatterShortStyle;
+        
+        medDateAndShortTimeFormatter = [NSDateFormatter new];
+        medDateAndShortTimeFormatter.doesRelativeDateFormatting = YES;
+        medDateAndShortTimeFormatter.timeStyle = NSDateFormatterShortStyle;
+        medDateAndShortTimeFormatter.dateStyle = NSDateFormatterMediumStyle;
+        
+        longDateAndShortTimeFormatter = [NSDateFormatter new];
+        longDateAndShortTimeFormatter.doesRelativeDateFormatting = YES;
+        longDateAndShortTimeFormatter.timeStyle = NSDateFormatterShortStyle;
+        longDateAndShortTimeFormatter.dateStyle = NSDateFormatterLongStyle;
+    });
+    
+    NSDateFormatter *formatter;
+    
+    NSRect cellFrame = _currentFrame;
+    
+    if (cellFrame.size.width <= 80.0) {
+        // use the shortest formatting we can.
+        if (isToday(date)) {
+            formatter = shortTimeFormatter;
+        } else {
+            formatter = shortDateFormatter;
+        }
+    } else if (cellFrame.size.width <= 120.0) {
+        if (isToday(date)) {
+            formatter = shortTimeFormatter;
+        } else {
+            formatter = medDateFormatter;
+        }
+    } else if (cellFrame.size.width <= 150.0) {
+        formatter = shortDateAndTimeFormatter;
+    } else if (cellFrame.size.width <= 199.0) {
+        formatter = medDateAndShortTimeFormatter;
+    } else {
+        formatter = longDateAndShortTimeFormatter;
+    }
+    
+    return formatter;
+}
+
+- (void)drawWithFrame:(NSRect)cellFrame inView:(NSView *)controlView {
+    _currentFrame = cellFrame;
+    [super drawWithFrame:cellFrame inView:controlView];
 }
 
 @end
