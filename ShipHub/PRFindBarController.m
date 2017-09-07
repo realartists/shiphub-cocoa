@@ -31,7 +31,7 @@
         case NSTextFinderActionShowFindInterface:
             self.viewContainer.findBarView = self.view;
             self.viewContainer.findBarVisible = YES;
-            _searchField.stringValue = @"";
+            _searchField.stringValue = [self readFindPasteboard];
             [_searchField.window makeFirstResponder:_searchField];
             [self searchFieldAction:nil];
             break;
@@ -43,8 +43,11 @@
             break;
         case NSTextFinderActionSetSearchString: {
             [self.delegate findBarController:self selectedTextForFind:^(NSString *text) {
+                [self updateFindPasteboard:text];
                 [_searchField setStringValue:text];
-                [self searchFieldAction:nil];
+                if (self.viewContainer.findBarVisible) {
+                    [self searchFieldAction:nil];
+                }
             }];
             break;
         }
@@ -77,6 +80,17 @@
 
 - (IBAction)done:(id)sender {
     [self hide];
+}
+
+- (void)updateFindPasteboard:(NSString *)text {
+    NSPasteboard *pboard = [NSPasteboard pasteboardWithName:NSFindPboard];
+    [pboard clearContents];
+    [pboard writeObjects:@[text?:@""]];
+}
+
+- (NSString *)readFindPasteboard {
+    NSPasteboard *pboard = [NSPasteboard pasteboardWithName:NSFindPboard];
+    return [pboard stringForType:NSPasteboardTypeString] ?: @"";
 }
 
 @end
