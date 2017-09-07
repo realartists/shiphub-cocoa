@@ -21,15 +21,15 @@
 #import "PRDiffFileBarViewController.h"
 #import "PRBinaryDiffViewController.h"
 #import "PRDiffProgressViewController.h"
-#import "PRFindBarController.h"
+#import "WebFindBarController.h"
 #import "WebKitExtras.h"
 
-@interface PRDiffViewController () <MarkdownFormattingControllerDelegate, PRFindBarControllerDelegate> {
+@interface PRDiffViewController () <MarkdownFormattingControllerDelegate, WebFindBarControllerDelegate> {
     NSInteger _loadCount;
 }
 
 @property MarkdownFormattingController *markdownFormattingController;
-@property PRFindBarController *findController;
+@property WebFindBarController *findController;
 @property PRDiffFileBarViewController *fileBarController;
 @property PRBinaryDiffViewController *binaryController;
 @property PRDiffProgressViewController *progressController;
@@ -48,7 +48,7 @@
     _markdownFormattingController.nextResponder = self.nextResponder;
     [super setNextResponder:_markdownFormattingController];
     
-    _findController = [PRFindBarController new];
+    _findController = [WebFindBarController new];
     _findController.viewContainer = self;
     _findController.delegate = self;
     
@@ -405,7 +405,7 @@ static BOOL differentiateWithoutColor() {
     [_findController performFindAction:[sender tag]];
 }
 
-- (void)findBarController:(PRFindBarController *)controller searchFor:(NSString *)str {
+- (void)findBarController:(WebFindBarController *)controller searchFor:(NSString *)str {
     if (!str) {
         return;
     }
@@ -414,22 +414,22 @@ static BOOL differentiateWithoutColor() {
     [self evaluateJavaScript:js];
 }
 
-- (void)findBarControllerScrollToSelection:(PRFindBarController *)controller {
+- (void)findBarControllerScrollToSelection:(WebFindBarController *)controller {
     NSString *js = [NSString stringWithFormat:@"window.search(%@)", [JSON stringifyObject:@{ @"action" : @"scroll" }]];
     [self evaluateJavaScript:js];
 }
 
-- (void)findBarControllerGoNext:(PRFindBarController *)controller {
+- (void)findBarControllerGoNext:(WebFindBarController *)controller {
     NSString *js = [NSString stringWithFormat:@"window.search(%@)", [JSON stringifyObject:@{ @"action" : @"next" }]];
     [self evaluateJavaScript:js];
 }
 
-- (void)findBarControllerGoPrevious:(PRFindBarController *)controller {
+- (void)findBarControllerGoPrevious:(WebFindBarController *)controller {
     NSString *js = [NSString stringWithFormat:@"window.search(%@)", [JSON stringifyObject:@{ @"action" : @"previous" }]];
     [self evaluateJavaScript:js];
 }
 
-- (void)findBarController:(PRFindBarController *)controller selectedTextForFind:(void (^)(NSString *))handler
+- (void)findBarController:(WebFindBarController *)controller selectedTextForFind:(void (^)(NSString *))handler
 {
     NSString *js = [NSString stringWithFormat:@"window.search()"];
     if (self.didFinishLoading) {

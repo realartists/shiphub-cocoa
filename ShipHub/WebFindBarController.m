@@ -1,22 +1,22 @@
 //
-//  PRFindBarController.m
+//  WebFindBarController.m
 //  ShipHub
 //
 //  Created by James Howard on 3/21/17.
 //  Copyright © 2017 Real Artists, Inc. All rights reserved.
 //
 
-#import "PRFindBarController.h"
+#import "WebFindBarController.h"
 
 #import "Extras.h"
 
-@interface PRFindBarController ()
+@interface WebFindBarController ()
 
 @property IBOutlet NSSearchField *searchField;
 
 @end
 
-@implementation PRFindBarController
+@implementation WebFindBarController
 
 - (IBAction)performFindPanelAction:(id)sender {
     [self performFindAction:[sender tag]];
