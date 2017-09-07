@@ -33,7 +33,7 @@
             self.viewContainer.findBarVisible = YES;
             _searchField.stringValue = [self readFindPasteboard];
             [_searchField.window makeFirstResponder:_searchField];
-            [self searchFieldAction:nil];
+            [self.delegate findBarController:self searchFor:_searchField.stringValue];
             break;
         case NSTextFinderActionNextMatch:
             [self.delegate findBarControllerGoNext:self];
@@ -46,7 +46,7 @@
                 [self updateFindPasteboard:text];
                 [_searchField setStringValue:text];
                 if (self.viewContainer.findBarVisible) {
-                    [self searchFieldAction:nil];
+                    [self.delegate findBarController:self searchFor:text];
                 }
             }];
             break;
@@ -55,9 +55,15 @@
             if (self.viewContainer.findBarVisible) {
                 self.viewContainer.findBarVisible = NO;
                 _searchField.stringValue = @"";
-                [self searchFieldAction:nil];
+                [self.delegate findBarController:self searchFor:@""];
             }
             break;
+    }
+}
+
+- (void)focusSearchField {
+    if (self.viewContainer.findBarVisible) {
+        [_searchField.window makeFirstResponder:_searchField];
     }
 }
 
@@ -66,7 +72,9 @@
 }
 
 - (IBAction)searchFieldAction:(id)sender {
-    [self.delegate findBarController:self searchFor:[_searchField.stringValue trim]];
+    NSString *searchText = [_searchField.stringValue trim];
+    [self updateFindPasteboard:searchText];
+    [self.delegate findBarController:self searchFor:searchText];
 }
 
 - (IBAction)navigate:(id)sender {
@@ -91,6 +99,10 @@
 - (NSString *)readFindPasteboard {
     NSPasteboard *pboard = [NSPasteboard pasteboardWithName:NSFindPboard];
     return [pboard stringForType:NSPasteboardTypeString] ?: @"";
+}
+
+- (NSString *)searchText {
+    return _searchField.stringValue;
 }
 
 @end

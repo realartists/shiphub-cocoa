@@ -11,7 +11,7 @@
 
 #import <WebKit/WebKit.h>
 
-@interface IssueWebController (Internal) <WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate>
+@interface IssueWebController (Internal) <WebFrameLoadDelegate, WebUIDelegate, WebPolicyDelegate, NSTextFinderBarContainer>
 
 @property (readonly) WebView *web;
 @property (readonly) EmptyLabelView *nothingLabel;

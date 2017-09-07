@@ -239,6 +239,8 @@
 		1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */; };
 		1A7A41521C8E52D70043DAF0 /* BasicAuthController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */; };
 		1A7A415B1C8F603E0043DAF0 /* CAExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A415A1C8F603E0043DAF0 /* CAExtras.m */; };
+		1A7E9B721F61DA8E00098FC0 /* DHHighlightedWebView.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1A7E9B6F1F61DA6300098FC0 /* DHHighlightedWebView.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		1A7E9B731F61DAB800098FC0 /* DHHighlightedWebView.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A7E9B6F1F61DA6300098FC0 /* DHHighlightedWebView.framework */; };
 		1A7FD7611D48296000B585E2 /* BulkModifyHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD7601D48296000B585E2 /* BulkModifyHelper.m */; };
 		1A7FD7701D492E9E00B585E2 /* BulkModifyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD76F1D492E9E00B585E2 /* BulkModifyController.m */; };
 		1A7FD7741D492FE000B585E2 /* MilestoneModifyController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7FD7721D492FE000B585E2 /* MilestoneModifyController.m */; };
@@ -448,6 +450,27 @@
 			remoteGlobalIDString = F668C87F153E91210044DBAC;
 			remoteInfo = SocketRocketOSX;
 		};
+		1A7E9B6C1F61DA6300098FC0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A7E9B671F61DA6200098FC0 /* HighlightedWebView.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 43F7F37D1554F75D00879D86;
+			remoteInfo = HighlightedWebView;
+		};
+		1A7E9B6E1F61DA6300098FC0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A7E9B671F61DA6200098FC0 /* HighlightedWebView.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 1A7E9B531F61BF0500098FC0;
+			remoteInfo = DHHighlightedWebView;
+		};
+		1A7E9B701F61DA7700098FC0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A7E9B671F61DA6200098FC0 /* HighlightedWebView.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 1A7E9B521F61BF0500098FC0;
+			remoteInfo = DHHighlightedWebView;
+		};
 		1AD956C51D0BCFF6002B1259 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1A2217861C7E7B14006460E2 /* Project object */;
@@ -464,6 +487,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				1A7E9B721F61DA8E00098FC0 /* DHHighlightedWebView.framework in Copy Frameworks */,
 				1A3D34491DAEE75500CDF167 /* libgit2.dylib in Copy Frameworks */,
 				1AB038591D5D391B005093B9 /* Sparkle.framework in Copy Frameworks */,
 				1AB038501D5C013A005093B9 /* HockeySDK.framework in Copy Frameworks */,
@@ -835,6 +859,7 @@
 		1A7A41501C8E52D70043DAF0 /* BasicAuthController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = BasicAuthController.xib; sourceTree = "<group>"; };
 		1A7A415A1C8F603E0043DAF0 /* CAExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CAExtras.m; sourceTree = "<group>"; };
 		1A7A415F1C8F604E0043DAF0 /* CAExtras.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CAExtras.h; sourceTree = "<group>"; };
+		1A7E9B671F61DA6200098FC0 /* HighlightedWebView.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = HighlightedWebView.xcodeproj; path = ext/HighlightedWebView/HighlightedWebView.xcodeproj; sourceTree = "<group>"; };
 		1A7FD75F1D48296000B585E2 /* BulkModifyHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BulkModifyHelper.h; sourceTree = "<group>"; };
 		1A7FD7601D48296000B585E2 /* BulkModifyHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BulkModifyHelper.m; sourceTree = "<group>"; };
 		1A7FD76E1D492E9E00B585E2 /* BulkModifyController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BulkModifyController.h; sourceTree = "<group>"; };
@@ -1055,6 +1080,7 @@
 				1A2217C31C7E7BB9006460E2 /* SocketRocket.framework in Frameworks */,
 				1AB0384F1D5C011D005093B9 /* HockeySDK.framework in Frameworks */,
 				1AB038551D5D390E005093B9 /* Sparkle.framework in Frameworks */,
+				1A7E9B731F61DAB800098FC0 /* DHHighlightedWebView.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1236,6 +1262,7 @@
 				28BF03C21D1C582E00F22638 /* FontAwesome.otf */,
 				1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */,
 				1AB038481D5C0117005093B9 /* HockeySDK-Mac */,
+				1A7E9B671F61DA6200098FC0 /* HighlightedWebView.xcodeproj */,
 			);
 			name = ext;
 			sourceTree = "<group>";
@@ -1737,6 +1764,15 @@
 			name = "Shared UI";
 			sourceTree = "<group>";
 		};
+		1A7E9B681F61DA6200098FC0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1A7E9B6D1F61DA6300098FC0 /* HighlightedWebView.app */,
+				1A7E9B6F1F61DA6300098FC0 /* DHHighlightedWebView.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		1A7FD76A1D492E5800B585E2 /* Bulk Modify */ = {
 			isa = PBXGroup;
 			children = (
@@ -1964,6 +2000,7 @@
 			dependencies = (
 				1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */,
 				1A2217BF1C7E7BAF006460E2 /* PBXTargetDependency */,
+				1A7E9B711F61DA7700098FC0 /* PBXTargetDependency */,
 			);
 			name = Ship;
 			productName = ShipHub;
@@ -2042,6 +2079,10 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
+					ProductGroup = 1A7E9B681F61DA6200098FC0 /* Products */;
+					ProjectRef = 1A7E9B671F61DA6200098FC0 /* HighlightedWebView.xcodeproj */;
+				},
+				{
 					ProductGroup = 1A2217B01C7E7B92006460E2 /* Products */;
 					ProjectRef = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
 				},
@@ -2083,6 +2124,20 @@
 			fileType = wrapper.application;
 			path = TestChat.app;
 			remoteRef = 1A2217BC1C7E7B92006460E2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1A7E9B6D1F61DA6300098FC0 /* HighlightedWebView.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = HighlightedWebView.app;
+			remoteRef = 1A7E9B6C1F61DA6300098FC0 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1A7E9B6F1F61DA6300098FC0 /* DHHighlightedWebView.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = DHHighlightedWebView.framework;
+			remoteRef = 1A7E9B6E1F61DA6300098FC0 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -2530,6 +2585,11 @@
 			isa = PBXTargetDependency;
 			name = SocketRocketOSX;
 			targetProxy = 1A2217BE1C7E7BAF006460E2 /* PBXContainerItemProxy */;
+		};
+		1A7E9B711F61DA7700098FC0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = DHHighlightedWebView;
+			targetProxy = 1A7E9B701F61DA7700098FC0 /* PBXContainerItemProxy */;
 		};
 		1AD956C61D0BCFF6002B1259 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

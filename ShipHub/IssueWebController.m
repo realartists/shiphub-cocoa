@@ -25,12 +25,13 @@
 
 #import <WebKit/WebKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
+#import <DHHighlightedWebView/DHHighlightedWebView.h>
 #import <objc/runtime.h>
 #import <dlfcn.h>
 
 static void fixWebViewInputText();
 
-@interface IssueWebView : WebView
+@interface IssueWebView : DHWebView
 
 @property (copy) NSString *dragPasteboardName;
 
@@ -45,6 +46,8 @@ static void fixWebViewInputText();
     
     NSInteger _spellcheckDocumentTag;
     NSDictionary *_spellcheckContextTarget;
+    
+    BOOL _findBarVisible;
 }
 
 // Why legacy WebView?
@@ -57,6 +60,10 @@ static void fixWebViewInputText();
 @property NSTimer *downloadDebounceTimer;
 
 @property EmptyLabelView *nothingLabel;
+
+@property (strong) NSView *findBarView;
+@property (getter=isFindBarVisible) BOOL findBarVisible;
+- (void)findBarViewDidChangeHeight;
 
 @end
 
@@ -116,12 +123,44 @@ static void fixWebViewInputText();
     self.view = container;
 }
 
+- (void)findBarViewDidChangeHeight {
+    [self layoutSubviews];
+}
+
+- (void)setFindBarVisible:(BOOL)findBarVisible {
+    _findBarVisible = findBarVisible;
+    if (findBarVisible) {
+        if ([self.findBarView superview] != self.view) {
+            [self.view addSubview:self.findBarView];
+        }
+    } else {
+        [self.findBarView removeFromSuperview];
+    }
+    [self layoutSubviews];
+}
+
+- (BOOL)isFindBarVisible {
+    return _findBarVisible;
+}
+
 - (void)viewDidChangeFrame:(NSNotification *)note {
     [self layoutSubviews];
 }
 
+- (CGRect)webContentRect {
+    return self.view.bounds;
+}
+
 - (void)layoutSubviews {
-    CGRect b = self.view.bounds;
+    CGRect b = [self webContentRect];
+    if (self.findBarVisible) {
+        CGRect f = self.findBarView.frame;
+        f.origin.x = 0;
+        f.size.width = b.size.width;
+        f.origin.y = CGRectGetHeight(b) - f.size.height;
+        self.findBarView.frame = f;
+        b.size.height -= f.size.height;
+    }
     if (_downloadProgress && !_downloadDebounceTimer) {
         CGRect downloadFrame = CGRectMake(0, 0, CGRectGetWidth(b), _downloadBar.view.frame.size.height);
         _downloadBar.view.frame = downloadFrame;
@@ -129,7 +168,7 @@ static void fixWebViewInputText();
         CGRect webFrame = CGRectMake(0, CGRectGetMaxY(downloadFrame), CGRectGetWidth(b), CGRectGetHeight(b) - CGRectGetHeight(downloadFrame));
         _web.frame = webFrame;
     } else {
-        _web.frame = self.view.bounds;
+        _web.frame = b;
         if (_downloadBar.viewLoaded) {
             _downloadBar.view.frame = CGRectMake(0, -_downloadBar.view.frame.size.height, CGRectGetWidth(b), _downloadBar.view.frame.size.height);
         }

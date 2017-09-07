@@ -39,6 +39,7 @@
 #import "PRComment.h"
 #import "RateDampener.h"
 #import "IssueLockController.h"
+#import "WebFindBarController.h"
 
 #import <WebKit/WebKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
@@ -49,7 +50,7 @@ NSString *const IssueViewControllerNeedsSaveDidChangeNotification = @"IssueViewC
 NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave";
 
 
-@interface IssueViewController () <MarkdownFormattingControllerDelegate, PRMergeViewControllerDelegate, PRReviewChangesViewControllerDelegate> {
+@interface IssueViewController () <MarkdownFormattingControllerDelegate, PRMergeViewControllerDelegate, PRReviewChangesViewControllerDelegate, WebFindBarControllerDelegate> {
     NSMutableDictionary *_saveCompletions;
     NSTimer *_needsSaveTimer;
     
@@ -69,6 +70,8 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 
 @property IssueLockController *lockController;
 @property NSPopover *lockPopover;
+
+@property WebFindBarController *findController;
 
 @end
 
@@ -109,6 +112,10 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     
     _markdownFormattingController.nextResponder = self.nextResponder;
     [super setNextResponder:_markdownFormattingController];
+    
+    _findController = [WebFindBarController new];
+    _findController.viewContainer = self;
+    _findController.delegate = self;
     
     [super loadView];
 }
@@ -204,6 +211,10 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     
     if (issue && identifierChanged) {
         [[Analytics sharedInstance] track:@"View Issue"];
+    }
+    
+    if (identifierChanged) {
+        [_findController hide];
     }
 }
 
@@ -946,6 +957,46 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
             if (fail) fail();
         }
     }];
+}
+
+#pragma mark - Text Finding
+
+- (void)hideFindController {
+    [_findController hide];
+}
+
+- (IBAction)performFindPanelAction:(id)sender {
+    [_findController performFindAction:[sender tag]];
+}
+
+- (IBAction)performTextFinderAction:(nullable id)sender {
+    [_findController performFindAction:[sender tag]];
+}
+
+- (void)findBarController:(WebFindBarController *)controller searchFor:(NSString *)str {
+    [self.web searchFor:str direction:YES caseSensitive:NO wrap:YES];
+}
+
+- (void)findBarControllerScrollToSelection:(WebFindBarController *)controller
+{
+    // nop
+}
+
+- (void)findBarControllerGoNext:(WebFindBarController *)controller
+{
+    [self.web searchFor:_findController.searchText direction:YES caseSensitive:NO wrap:YES];
+    [_findController focusSearchField];
+}
+
+- (void)findBarControllerGoPrevious:(WebFindBarController *)controller
+{
+    [self.web searchFor:_findController.searchText direction:NO caseSensitive:NO wrap:YES];
+    [_findController focusSearchField];
+}
+
+- (void)findBarController:(WebFindBarController *)controller selectedTextForFind:(void (^)(NSString *))handler
+{
+    handler([[self.web selectedDOMRange] text]);
 }
 
 @end

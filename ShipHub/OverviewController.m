@@ -1606,7 +1606,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     [[self window] makeFirstResponder:_searchItem.searchField];
 }
 
-- (IBAction)performFindPanelAction:(id)sender {
+- (IBAction)performTextFinderAction:(id)sender {
     if (_outlineView.selectedRow < 0) {
         [self selectAllProblemsNode];
     }
@@ -1617,7 +1617,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 - (IBAction)tbSearch:(id)sender {
     NSInteger seg = [sender selectedSegment];
     switch (seg) {
-        case 0: [self performFindPanelAction:nil]; break;
+        case 0: [self performTextFinderAction:nil]; break;
         case 1: [self searchAllProblems:nil]; break;
     }
 }

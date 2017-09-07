@@ -19,6 +19,10 @@
 @property (weak) id<WebFindBarControllerDelegate> delegate;
 @property (weak) id<NSTextFinderBarContainer> viewContainer;
 
+@property (nonatomic, copy, readonly) NSString *searchText;
+
+- (void)focusSearchField;
+
 @end
 
 @protocol WebFindBarControllerDelegate <NSObject>
