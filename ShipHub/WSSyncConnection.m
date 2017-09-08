@@ -171,6 +171,7 @@ const double MaxReceiveWaitTime = 3 * 60; // don't wait longer than this to rece
         _connectTime = [NSDate extras_monotonicTime];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:_syncURL];
         [self.auth addAuthHeadersToRequest:request];
+        request.timeoutInterval = MaxConnectWaitTime;
         _socket = [[SRWebSocket alloc] initWithURLRequest:request protocols:@[@"V1"]];
         _socket.delegate = self;
         [_socket setDelegateDispatchQueue:_q];
