@@ -75,6 +75,9 @@ typedef NS_ENUM(uint8_t, MessageHeader) {
 
 static uint64_t ServerHelloMinimumVersion = 2;
 
+const double MaxConnectWaitTime = 3 * 60; // don't wait longer than this to establish a connection. retry if we can't get it in this time.
+const double MaxReceiveWaitTime = 3 * 60; // don't wait longer than this to receive any data. retry if we don't get anything in this time.
+
 @interface WSSyncConnection () <SRWebSocketDelegate> {
     dispatch_queue_t _q;
     dispatch_source_t _heartbeat;
@@ -84,6 +87,9 @@ static uint64_t ServerHelloMinimumVersion = 2;
     
     BOOL _socketOpen;
     BOOL _asleep;
+    
+    double _connectTime; // the moment we tried to open the connection
+    double _lastReceiveTime; // the last time we've received any data
 }
 
 @property SRWebSocket *socket;
@@ -162,6 +168,7 @@ static uint64_t ServerHelloMinimumVersion = 2;
         });
         
         self.logEntryTotalRemaining = -1;
+        _connectTime = [NSDate extras_monotonicTime];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:_syncURL];
         [self.auth addAuthHeadersToRequest:request];
         _socket = [[SRWebSocket alloc] initWithURLRequest:request protocols:@[@"V1"]];
@@ -181,6 +188,8 @@ static uint64_t ServerHelloMinimumVersion = 2;
         [_socket close];
         _socket = nil;
         _socketOpen = NO;
+        _connectTime = 0;
+        _lastReceiveTime = 0;
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.delegate syncConnectionDidDisconnect:self];
@@ -203,6 +212,8 @@ static uint64_t ServerHelloMinimumVersion = 2;
             [_socket close];
             _socket = nil;
             _socketOpen = NO;
+            _connectTime = 0;
+            _lastReceiveTime = 0;
             // don't tell delegate that we closed
         }
         
@@ -261,6 +272,8 @@ static uint64_t ServerHelloMinimumVersion = 2;
 }
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceiveMessage:(id)rawMessage {
+    _lastReceiveTime = [NSDate extras_monotonicTime];
+    
     NSData *data = nil;
     if ([rawMessage isKindOfClass:[NSData class]]) {
         data = rawMessage;
@@ -399,12 +412,29 @@ static uint64_t ServerHelloMinimumVersion = 2;
 
 - (void)webSocket:(SRWebSocket *)webSocket didReceivePong:(NSData *)pongPayload {
     Trace();
+    _lastReceiveTime = [NSDate extras_monotonicTime];
 }
 
 - (void)heartbeat:(BOOL)force {
     Reachability *r = [Reachability sharedInstance];
     if (!_asleep && !_socket && (force || !r.receivedFirstUpdate || r.reachable)) {
         [self connect];
+    } else if (_socket) {
+        // ok, we've got a socket. now to find out if it's still alive
+        double now = [NSDate extras_monotonicTime];
+        if (!_socketOpen) {
+            if (now - _connectTime > MaxConnectWaitTime) {
+                ErrLog(@"Waited %.0fs for socket to open and it hasn't. Retrying ...", (now - _connectTime));
+                [self disconnect];
+                [self connect];
+            }
+        } else if (now - _lastReceiveTime > MaxReceiveWaitTime) {
+            ErrLog(@"Waited %.0fs for socket to send data or respond to a ping and it hasn't. Retrying ...", (now - _lastReceiveTime));
+            [self disconnect];
+            [self connect];
+        } else /* socket is open and we've gotten data somewhat recently */ {
+            [_socket sendPing:nil];
+        }
     }
 }
 

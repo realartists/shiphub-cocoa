@@ -297,6 +297,10 @@ static inline uint8_t h2b(uint8_t v) {
 
 @implementation NSDate (Extras)
 
++ (double)extras_monotonicTime {
+    return CACurrentMediaTime();
+}
+
 + (NSDate *)extras_8601Fast:(NSString *)str {
     if (!str) return nil;
     

@@ -68,6 +68,8 @@
 
 @interface NSDate (Extras)
 
++ (double)extras_monotonicTime;
+
 + (NSDate *)dateWithJSONString:(NSString *)date;
 - (NSString *)JSONString;
 
