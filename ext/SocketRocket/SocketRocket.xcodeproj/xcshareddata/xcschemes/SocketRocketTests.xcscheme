@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0830"
+   LastUpgradeVersion = "0730"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F6BDA801145900D200FE3253"
-               BuildableName = "SRWebSocketTests.xctest"
-               BlueprintName = "SRWebSocketTests"
+               BuildableName = "SocketRocketTests-iOS.xctest"
+               BlueprintName = "SocketRocketTests-iOS"
                ReferencedContainer = "container:SocketRocket.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -33,8 +33,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "F6BDA801145900D200FE3253"
-               BuildableName = "SRWebSocketTests.xctest"
-               BlueprintName = "SRWebSocketTests"
+               BuildableName = "SocketRocketTests-iOS.xctest"
+               BlueprintName = "SocketRocketTests-iOS"
                ReferencedContainer = "container:SocketRocket.xcodeproj">
             </BuildableReference>
          </TestableReference>
@@ -56,8 +56,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F6BDA801145900D200FE3253"
-            BuildableName = "SRWebSocketTests.xctest"
-            BlueprintName = "SRWebSocketTests"
+            BuildableName = "SocketRocketTests-iOS.xctest"
+            BlueprintName = "SocketRocketTests-iOS"
             ReferencedContainer = "container:SocketRocket.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

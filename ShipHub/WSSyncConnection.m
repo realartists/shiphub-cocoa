@@ -235,7 +235,7 @@ const double MaxReceiveWaitTime = 3 * 60; // don't wait longer than this to rece
             ErrLog(@"%@", err);
         }
         DebugLog(@"Sending %@", message);
-        [_socket send:msgData];
+        [_socket sendData:msgData error:NULL];
     }
 }
 
@@ -433,7 +433,7 @@ const double MaxReceiveWaitTime = 3 * 60; // don't wait longer than this to rece
             [self disconnect];
             [self connect];
         } else /* socket is open and we've gotten data somewhat recently */ {
-            [_socket sendPing:nil];
+            [_socket sendPing:nil error:NULL];
         }
     }
 }
