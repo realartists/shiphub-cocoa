@@ -1408,13 +1408,14 @@ var MilestoneField = React.createClass({
     var nextNum = keypath(nextProps, "issue.number");
     var oldNum = keypath(this.props, "issue.number");
     
-    if (nextNum && nextNum == oldNum && this.refs.completer.isEdited()) {
+    if (nextNum && nextNum == oldNum && this.refs.completer && this.refs.completer.isEdited()) {
       return false;
     }
     return true;
   },
   
   render: function() {
+    var readOnly = !(IssueState.current.repoCanPush)
     var canAddNew = !!this.props.issue._bare_repo;
     var opts = IssueState.current.milestones.map((m) => m.title);
     var matcher = Completer.SubstrMatcher(opts);
@@ -1426,18 +1427,35 @@ var MilestoneField = React.createClass({
     
     var comps = [];
     comps.push(h(HeaderLabel, {key:'milestoneLabel', title:"Milestone"}));
-    comps.push(h(Completer, {
-      ref: 'completer',
-      key: 'milestoneCompleter',
-      placeholder: 'No Milestone',
-      onChange: this.milestoneChanged,
-      onEnter: this.onEnter,
-      newItem: canAddNew ? 'New Milestone' : undefined,
-      onAddNew: canAddNew ? this.onAddNew : undefined,
-      value: keypath(this.props.issue, "milestone.title"),
-      matcher: matcher,
-      readOnly: !(IssueState.current.repoCanPush)
-    }));
+    
+    if (readOnly) {
+      var value = keypath(this.props.issue, "milestone.title");
+      var placeholder = "No Milestone";
+      if (value) {
+        placeholder = null;
+      }
+      comps.push(h('input', {
+        type:'text', 
+        key:'milestone-ro', 
+        ref:'milestone-ro', 
+        value,
+        placeholder,
+        readOnly
+      }));
+    } else {
+      comps.push(h(Completer, {
+        ref: 'completer',
+        key: 'milestoneCompleter',
+        placeholder: 'No Milestone',
+        onChange: this.milestoneChanged,
+        onEnter: this.onEnter,
+        newItem: canAddNew ? 'New Milestone' : undefined,
+        onAddNew: canAddNew ? this.onAddNew : undefined,
+        value: keypath(this.props.issue, "milestone.title"),
+        matcher: matcher,
+        readOnly: !(IssueState.current.repoCanPush)
+      }));
+    }
     
     if (dueDate) {
       comps.push(h('span', {key:'milestoneDueDate', className: 'MilestoneDueDate'}, dueDate));
@@ -1572,7 +1590,7 @@ var AssigneeInput = React.createClass({
     var nextNum = keypath(nextProps, "issue.number");
     var oldNum = keypath(this.props, "issue.number");
     
-    if (nextNum && nextNum == oldNum && this.refs.completer.isEdited()) {
+    if (nextNum && nextNum == oldNum && this.refs.completer && this.refs.completer.isEdited()) {
       return false;
     }
     return true;
@@ -1850,7 +1868,7 @@ var AssigneeField = React.createClass({
           value = assignees[0].login;
           placeholder = null;
         }
-        inputField = h('input', {type:'text', key:'assignee-ro', ref:'assignee', value, placeholder, readOnly});
+        inputField = h('input', {type:'text', key:'assignee-ro', ref:'assignee-ro', value, placeholder, readOnly});
       } else {
         inputField = h(AssigneeInput, {key:'assignee', ref:"assignee", issue: this.props.issue, focusNext:this.props.focusNext, readOnly});
       }
