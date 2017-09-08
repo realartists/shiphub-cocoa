@@ -119,9 +119,9 @@
 - (void)setPredicate:(NSPredicate *)predicate {
     NSComparisonPredicate *c0 = (id)predicate;
     NSExpression *rhs = c0.rightExpression;
-    NSString *labelName = [rhs expressionValueWithObject:nil context:NULL];
+    NSString *labelName = [rhs expressionValueWithObject:nil context:NULL]?:@"";
     
-    NSInteger idx = [[self popUp] indexOfItemWithTitle:labelName?:@""];
+    NSInteger idx = [[self popUp] indexOfItemWithTitle:labelName];
     if (idx == -1) {
         [[self popUp] addItemWithTitle:labelName];
         [[self popUp] selectItemWithTitle:labelName];
