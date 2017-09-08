@@ -40,11 +40,11 @@
 "%[milestone.title]@ %[begins with]@ %@" = "%1$[Milestone]@ %2$[begins with]@ %3$@";
 "%[milestone.title]@ %[matches]@ %@" = "%1$[Milestone]@ %2$[matches]@ %3$@";
 
-"%[repository.fullName]@ %[is]@ %@" = "%1$[Repo]@ %2$[is]@ %3$@";
-"%[repository.fullName]@ %[is not]@ %@" = "%1$[Repo]@ %2$[is not]@ %3$@";
-"%[repository.fullName]@ %[contains]@ %@" = "%1$[Repo]@ %2$[contains]@ %3$@";
-"%[repository.fullName]@ %[begins with]@ %@" = "%1$[Repo]@ %2$[begins with]@ %3$@";
-"%[repository.fullName]@ %[matches]@ %@" = "%1$[Repo]@ %2$[matches]@ %3$@";
+"%[repository.fullName]@ %[is]@ %@" = "%1$[Repository]@ %2$[is]@ %3$@";
+"%[repository.fullName]@ %[is not]@ %@" = "%1$[Repository]@ %2$[is not]@ %3$@";
+"%[repository.fullName]@ %[contains]@ %@" = "%1$[Repository]@ %2$[contains]@ %3$@";
+"%[repository.fullName]@ %[begins with]@ %@" = "%1$[Repository]@ %2$[begins with]@ %3$@";
+"%[repository.fullName]@ %[matches]@ %@" = "%1$[Repository]@ %2$[matches]@ %3$@";
 
 "%[state]@ %[is]@ %@" = "%1$[State]@ %2$[is]@ %3$@";
 
