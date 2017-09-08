@@ -110,4 +110,8 @@ static BOOL s_inObserve = NO;
     }
 }
 
+- (void)addCompoundPredicate:(id)sender {
+    [_editor addCompoundPredicate];
+}
+
 @end

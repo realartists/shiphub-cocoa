@@ -124,4 +124,10 @@
     [self setObjectValue:predicate];
 }
 
+- (void)addCompoundPredicate {
+    NSInteger rowCount = self.numberOfRows;
+    [self insertRowAtIndex:rowCount withType:NSRuleEditorRowTypeCompound asSubrowOfRow:0 animate:YES];
+    [self insertRowAtIndex:rowCount+1 withType:NSRuleEditorRowTypeSimple asSubrowOfRow:rowCount animate:YES];
+}
+
 @end

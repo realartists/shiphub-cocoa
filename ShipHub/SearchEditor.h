@@ -14,4 +14,6 @@
 
 - (void)assignPredicate:(NSPredicate *)predicate;
 
+- (void)addCompoundPredicate;
+
 @end

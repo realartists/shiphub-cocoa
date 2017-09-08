@@ -142,7 +142,7 @@
     yOff = CGRectGetMaxY(helpRect) + ySmGap;
     
     // Predicate Editor
-    CGFloat searchHeight = [_searchEditorController fullHeight];
+    CGFloat searchHeight = ceil([_searchEditorController fullHeight]);
     searchHeight = MIN(searchHeight, searchMaxHeight);
     
     CGRect searchRect = CGRectMake(xMarg, yOff, w, searchHeight);

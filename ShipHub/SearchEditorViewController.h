@@ -23,6 +23,8 @@
 
 - (IBAction)helpButtonClicked:(id)sender;
 
+- (IBAction)addCompoundPredicate:(id)sender;
+
 @property (nonatomic) NSPredicate *predicate;
 
 @end
