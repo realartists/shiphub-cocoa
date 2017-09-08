@@ -30,7 +30,7 @@ import ghost from 'util/ghost.js';
 import { keypath } from 'util/keypath.js'
 import { promiseQueue } from 'util/promise-queue.js'
 import { pasteHelper } from 'util/paste-helper.js'
-import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate } from 'util/cm-util.js'
+import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate, makeUnorderedList, makeOrderedList, makeTaskList, makeHyperlink, makeCodeFence } from 'util/cm-util.js'
 import { emojify, emojifyReaction } from 'util/emojify.js'
 
 import AddCommentHeader from './AddCommentHeader.js'
@@ -683,21 +683,15 @@ class AbstractComment extends React.Component {
         strike: toggleFormat('~~', 'strikethrough'),
         headingMore: increasePrefix('#'),
         headingLess: decreasePrefix('#'),
-        insertUL: insertTemplate('* Item'),
-        insertOL: insertTemplate('1. First'),
-        insertTaskList: insertTemplate('- [x] Complete\n- [ ] Incomplete'),
-        hyperlink: insertTemplate('[title](url)'),
+        insertUL: makeUnorderedList,
+        insertOL: makeOrderedList,
+        insertTaskList: makeTaskList,
+        hyperlink: makeHyperlink,
         attach: (cm) => { this.selectFiles(); },
         quoteMore: increasePrefix('>'),
         quoteLess: decreasePrefix('>'),
         code: toggleFormat('`', 'comment'),
-        codefence: insertTemplate(
-          '```swift\n' +
-          'func sayHello(name: String) {\n' +
-          '  print("Hello, \\(name)!")\n' +
-          '}\n' +
-          '```'
-        ),
+        codefence: makeCodeFence,
         insertTable: insertTemplate(
           'Heading 1 | Heading 2\n' +
           '----------|----------\n' +

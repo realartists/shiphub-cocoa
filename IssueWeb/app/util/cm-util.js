@@ -168,3 +168,104 @@ export function insertTemplate(template) {
     cm.replaceRange(template, from, to, "+input");
   };
 }
+
+export function makeUnorderedList(cm) {
+  var from = cm.getCursor("from");
+  var to = cm.getCursor("to");
+  
+  var foundAny = false;
+  for (var line = from.line; line <= to.line; line++) {
+    var text = cm.getLine(line);
+    if (text.match(/^\s*\*/)) {
+      foundAny = true;
+      continue;
+    } else if (text.trim().length) {
+      var newText = "* " + text;
+      cm.replaceRange(newText, {line:line, ch:0}, {line:line, ch:text.length}, "+input");
+      foundAny = true;
+    }
+  }
+  
+  if (!foundAny) {
+    cm.replaceRange("* Item", from, to, "+input");
+  }
+}
+
+export function makeOrderedList(cm) {
+  var from = cm.getCursor("from");
+  var to = cm.getCursor("to");
+  
+  var foundAny = false;
+  var idx = 1;
+  for (var line = from.line; line <= to.line; line++) {
+    var text = cm.getLine(line);
+    if (text.match(/^\s[a-zA-Z0-9]+\. /)) {
+      foundAny = true;
+      continue;
+    } else if (text.trim().length) {
+      var newText = idx + ". " + text;
+      idx++;
+      cm.replaceRange(newText, {line:line, ch:0}, {line:line, ch:text.length}, "+input");
+      foundAny = true;
+    }
+  }
+  
+  if (!foundAny) {
+    cm.replaceRange("1. Item", from, to, "+input");
+  }
+}
+
+export function makeTaskList(cm) {
+  var from = cm.getCursor("from");
+  var to = cm.getCursor("to");
+  
+  var foundAny = false;
+  for (var line = from.line; line <= to.line; line++) {
+    var text = cm.getLine(line);
+    if (text.match(/^\s*\-\s*\[[ xX]\] /)) {
+      foundAny = true;
+      continue;
+    } else if (text.trim().length) {
+      var newText = "- [ ] " + text;
+      cm.replaceRange(newText, {line:line, ch:0}, {line:line, ch:text.length}, "+input");
+      foundAny = true;
+    }
+  }
+  
+  if (!foundAny) {
+    cm.replaceRange("- [x] Complete\n- [ ] Incomplete", from, to, "+input");
+  }
+}
+
+export function makeHyperlink(cm) {
+  var from = cm.getCursor("from");
+  var to = cm.getCursor("to");
+  var text = cm.getRange(from, to);
+  
+  if (text.trim().length) {
+    if (text.match(/^http(?:s)?:\/\//)) {
+      cm.replaceRange(`[title](${text})`, from, to);
+    } else {
+      cm.replaceRange(`[${text}](url)`, from, to);
+    }
+  } else {
+    cm.replaceRange("[title](url)", from, to);
+  }
+}
+
+export function makeCodeFence(cm) {
+  var from = cm.getCursor("from");
+  var to = cm.getCursor("to");
+  var text = cm.getRange(from, to);
+
+  if (text.trim().length) {
+    cm.replaceRange("```\n" + text + "\n```", from, to);
+  } else {
+    cm.replaceRange('```swift\n' +
+                    'func sayHello(name: String) {\n' +
+                    '  print("Hello, \\(name)!")\n' +
+                    '}\n' +
+                    '```', from, to);
+  }
+}
+
