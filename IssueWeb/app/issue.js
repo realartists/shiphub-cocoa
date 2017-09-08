@@ -1386,7 +1386,10 @@ var MilestoneField = React.createClass({
   },
   
   needsSave: function() {
-    if (this.refs.completer) {
+    var readOnly = !(IssueState.current.repoCanPush);
+    if (readOnly) {
+      return false;
+    } else if (this.refs.completer) {
       return (this.refs.completer.value() || "") != (keypath(this.props.issue, "milestone.title") || "");
     } else {
       return false;
@@ -1810,7 +1813,10 @@ var AssigneeField = React.createClass({
   },
   
   needsSave: function() {
-    if (this.refs.assignee) {
+    var readOnly = !this.canEdit();
+    if (readOnly) {
+      return false;
+    } if (this.refs.assignee) {
       return this.refs.assignee.needsSave();
     } else {
       return false;
