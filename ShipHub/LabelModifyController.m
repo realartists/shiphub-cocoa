@@ -228,5 +228,10 @@
 @end
 
 @implementation LabelModifyButton
+
+- (NSInteger)nextStateAfterMixed {
+    return NSOnState;
+}
+
 @end
 
