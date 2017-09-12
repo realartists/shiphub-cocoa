@@ -54,6 +54,31 @@
     return [NSString stringWithFormat:@"OverviewNode.%@.ChildOrder", self.identifier];
 }
 
+static NSArray *mergeArrays(NSArray *a, NSArray *b, NSComparator cmp) {
+    NSMutableArray *ret = [NSMutableArray new];
+    NSUInteger ai = 0, bi = 0;
+    NSUInteger ac = a.count, bc = b.count;
+    while (ai < ac && bi < bc) {
+        id ao = a[ai];
+        id bo = b[bi];
+        NSComparisonResult r = cmp(ao, bo);
+        if (r == NSOrderedAscending) {
+            [ret addObject:ao];
+            ai++;
+        } else {
+            [ret addObject:bo];
+            bi++;
+        }
+    }
+    if (ai < ac) {
+        [ret addObjectsFromArray:[a subarrayWithRange:NSMakeRange(ai, ac-ai)]];
+    }
+    if (bi < bc) {
+        [ret addObjectsFromArray:[b subarrayWithRange:NSMakeRange(bi, bc-bi)]];
+    }
+    return ret;
+}
+
 + (void)sortNodes:(NSMutableArray *)nodes withOrderKey:(NSString *)orderKey
 {
     NSArray *savedOrder = [[NSUserDefaults standardUserDefaults] arrayForKey:orderKey];
@@ -62,21 +87,45 @@
         idToPos[savedOrder[i]] = @(i);
     }
     
-    [nodes sortUsingComparator:^NSComparisonResult(OverviewNode *n1, OverviewNode *n2) {
+    // partition nodes into has savedOrder and not has savedOrder.
+    // then sort the savedOrder ones by idToPos, and the not has savedOrder ones by defaultOrderKey, title
+    // finally, merge them by defaultOrderKey, title
+    
+    NSMutableArray *withSavedOrder = [NSMutableArray arrayWithCapacity:savedOrder.count];
+    NSMutableArray *withoutSavedOrder = [NSMutableArray new];
+    
+    for (OverviewNode *n in nodes) {
+        if (idToPos[n.identifier]) {
+            [withSavedOrder addObject:n];
+        } else {
+            [withoutSavedOrder addObject:n];
+        }
+    }
+    
+    [withSavedOrder sortUsingComparator:^NSComparisonResult(OverviewNode *n1, OverviewNode *n2) {
         NSNumber *p1 = idToPos[n1.identifier];
         NSNumber *p2 = idToPos[n2.identifier];
-        if (p1 && p2) {
-            return [p1 compare:p2];
-        } else {
-            if (n1.defaultOrderKey < n2.defaultOrderKey) {
-                return NSOrderedAscending;
-            } else if (n1.defaultOrderKey > n2.defaultOrderKey) {
-                return NSOrderedDescending;
-            } else {
-                return [n1.title localizedStandardCompare:n2.title];
-            }
-        }
+        NSAssert(p1 && p2, nil);
+        return [p1 compare:p2];
     }];
+    
+    NSComparator nodeComparator = ^NSComparisonResult(OverviewNode *n1, OverviewNode *n2) {
+        if (n1.defaultOrderKey < n2.defaultOrderKey) {
+            return NSOrderedAscending;
+        } else if (n1.defaultOrderKey > n2.defaultOrderKey) {
+            return NSOrderedDescending;
+        } else {
+            return [n1.title localizedStandardCompare:n2.title];
+        }
+    };
+    
+    [withoutSavedOrder sortUsingComparator:nodeComparator];
+    
+    NSArray *merged = mergeArrays(withSavedOrder, withoutSavedOrder, nodeComparator);
+    
+    NSAssert(merged.count == nodes.count, nil);
+    
+    [nodes replaceObjectsInRange:NSMakeRange(0, merged.count) withObjectsFromArray:merged];
     
     [nodes makeObjectsPerformSelector:@selector(sortChildrenWithDefaults)];
 }
