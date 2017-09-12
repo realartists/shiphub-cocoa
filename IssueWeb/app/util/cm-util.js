@@ -243,7 +243,7 @@ export function makeHyperlink(cm) {
   var text = cm.getRange(from, to);
   
   if (text.trim().length) {
-    if (text.match(/^http(?:s)?:\/\//)) {
+    if (text.match(/^\w+:\/\//)) {
       cm.replaceRange(`[title](${text})`, from, to);
     } else {
       cm.replaceRange(`[${text}](url)`, from, to);
