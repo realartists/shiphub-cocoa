@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12120"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
         <capability name="box content view" minToolsVersion="7.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
         <capability name="system font weights other than Regular or Bold" minToolsVersion="7.0"/>
@@ -17,6 +17,7 @@
                 <outlet property="autotrackCheckbox" destination="T6Z-so-A0z" id="LXa-M8-pEm"/>
                 <outlet property="cancelButton" destination="xVi-FO-yOr" id="AYC-7T-YCS"/>
                 <outlet property="emptyField" destination="dKC-yv-o9p" id="J7r-gL-Yrb"/>
+                <outlet property="filterToolbarItem" destination="JBt-aM-2UP" id="hVv-5D-9Gc"/>
                 <outlet property="helpButton" destination="alO-n7-5gj" id="1gI-x6-wu7"/>
                 <outlet property="progressIndicator" destination="k5R-6Q-9Pt" id="ZYm-DA-6rm"/>
                 <outlet property="reloadButton" destination="cwg-lP-u4a" id="pbe-u0-nu9"/>
@@ -334,6 +335,21 @@ Gw
                     <constraint firstAttribute="trailing" secondItem="Sgl-7M-uzE" secondAttribute="trailing" constant="20" id="y09-vK-ClL"/>
                 </constraints>
             </view>
+            <toolbar key="toolbar" implicitIdentifier="B12C8126-DDAE-4F80-A2CF-8FFE04BE798C" autosavesConfiguration="NO" allowsUserCustomization="NO" prefersToBeShown="NO" displayMode="iconOnly" sizeMode="regular" id="U2A-gE-1ih">
+                <allowedToolbarItems>
+                    <toolbarItem implicitItemIdentifier="757BF982-A548-43E3-8D88-50FC83E52793" explicitItemIdentifier="Filter" label="Filter Item" paletteLabel="Filter Item" tag="-1" id="JBt-aM-2UP" customClass="SearchFieldToolbarItem">
+                        <connections>
+                            <action selector="filterSearchFieldDidChange:" target="-2" id="6xz-vK-qUf"/>
+                        </connections>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="DYL-cz-1GG"/>
+                </allowedToolbarItems>
+                <defaultToolbarItems>
+                    <toolbarItem reference="DYL-cz-1GG"/>
+                    <toolbarItem reference="JBt-aM-2UP"/>
+                    <toolbarItem reference="DYL-cz-1GG"/>
+                </defaultToolbarItems>
+            </toolbar>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
             </connections>

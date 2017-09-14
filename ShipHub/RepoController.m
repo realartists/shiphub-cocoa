@@ -19,6 +19,7 @@
 #import "AvatarManager.h"
 #import "ServerConnection.h"
 #import "MetadataStore.h"
+#import "SearchFieldToolbarItem.h"
 
 /*
 def syncRepos(userRepos, prefs):
@@ -63,6 +64,9 @@ static NSString *const RepoPrefsEndpoint = @"/api/sync/settings";
 @property IBOutlet NSView *addRepoError;
 @property IBOutlet NSProgressIndicator *addRepoProgressIndicator;
 
+@property IBOutlet NSButton *filterButton;
+@property IBOutlet SearchFieldToolbarItem *filterToolbarItem;
+
 @property (nonatomic) BOOL loading;
 @property (nonatomic) BOOL addingRepo;
 
@@ -78,6 +82,8 @@ static NSString *const RepoPrefsEndpoint = @"/api/sync/settings";
 
 @property NSMutableArray<NSDictionary *> *owners;
 @property NSMutableDictionary<NSNumber *, NSMutableArray *> *reposByOwner;
+@property NSArray<NSDictionary *> *filteredOwners;
+@property NSDictionary<NSNumber *, NSArray *> *filteredReposByOwner;
 @property NSSet *userRepoIdentifiers;
 @property NSMutableSet *chosenRepoIdentifiers;
 @property NSSet *hiddenLocallyRepoIdentifiers;
@@ -88,6 +94,8 @@ static NSString *const RepoPrefsEndpoint = @"/api/sync/settings";
 
 - (void)dealloc {
     dispatch_assert_current_queue(dispatch_get_main_queue());
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (NSString *)windowNibName {
@@ -111,10 +119,96 @@ static NSString *const RepoPrefsEndpoint = @"/api/sync/settings";
 - (void)windowDidLoad {
     [super windowDidLoad];
     
+    _filterToolbarItem.searchField.placeholderString = NSLocalizedString(@"Filter Repositories", nil);
+    
+    NSView *titleBarView = [[self.window standardWindowButton:NSWindowCloseButton] superview];
+    
+    NSImage *image = [NSImage imageNamed:@"RepoControllerFilterButton"];
+    image.template = YES;
+    NSButton *button = [[NSButton alloc] initWithFrame:CGRectMake(0, 0, 16, 16)];
+    [button setButtonType:NSButtonTypeToggle];
+    button.bezelStyle = NSRecessedBezelStyle;
+    button.bordered = NO;
+    button.image = image;
+    button.toolTip = NSLocalizedString(@"Filter Repositories", nil);
+    button.action = @selector(toggleFilterVisible:);
+    button.target = self;
+    button.state = NSOffState;
+    
+    _filterButton = button;
+    
+    [titleBarView addSubview:button];
+    
+    [self layoutTitleBar];
+    
     _addRepoField.auth = _auth;
     _addRepoField.avatarManager = [self avatarManager];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidResize:) name:NSWindowDidResizeNotification object:self.window];
+    
     [self loadData];
+}
+
+- (void)windowDidResize:(NSNotification *)note {
+    [self layoutTitleBar];
+}
+
+- (void)layoutTitleBar {
+    NSView *titleBarView = [[self.window standardWindowButton:NSWindowCloseButton] superview];
+    CGFloat width = titleBarView.frame.size.width;
+    CGFloat height = titleBarView.frame.size.height;
+    
+    CGRect frame = CGRectMake(width - 5.0 - _filterButton.frame.size.width,
+                              height - _filterButton.frame.size.height - 3.0,
+                              _filterButton.frame.size.width, _filterButton.frame.size.height);
+    _filterButton.frame = frame;
+}
+
+- (void)toggleFilterVisible:(id)sender {
+    if (self.window.toolbar.isVisible) {
+        [self clearFilter];
+    }
+    [self.window.toolbar setVisible:!self.window.toolbar.visible];
+    if (self.window.toolbar.isVisible) {
+        [self.window makeFirstResponder:_filterToolbarItem.searchField];
+    }
+}
+
+- (void)clearFilter {
+    NSString *val = [_filterToolbarItem.searchField.stringValue trim];
+    if ([val length]) {
+        [_filterToolbarItem.searchField setStringValue:@""];
+        [self updateFilteredData];
+    }
+}
+
+- (void)updateFilteredData {
+    NSString *filter = [_filterToolbarItem.searchField.stringValue trim];
+    if ([filter length] == 0) {
+        _filteredOwners = _owners;
+        _filteredReposByOwner = _reposByOwner;
+    } else {
+        NSMutableDictionary *filteredReposByOwner = [NSMutableDictionary new];
+        NSMutableArray *filteredOwners = [NSMutableArray new];
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"full_name CONTAINS[cd] %@", filter];
+        for (NSDictionary *owner in _owners) {
+            NSNumber *ownerId = owner[@"id"];
+            NSArray *repos = [_reposByOwner[ownerId] filteredArrayUsingPredicate:predicate];
+            if ([repos count]) {
+                [filteredOwners addObject:owner];
+                filteredReposByOwner[ownerId] = repos;
+            }
+        }
+        _filteredOwners = filteredOwners;
+        _filteredReposByOwner = filteredReposByOwner;
+    }
+    
+    [_repoOutline reloadData];
+    [_repoOutline expandItem:nil expandChildren:YES];
+}
+
+- (IBAction)filterSearchFieldDidChange:(id)sender {
+    [self updateFilteredData];
 }
 
 - (void)setCanClose:(BOOL)canClose {
@@ -391,8 +485,8 @@ static NSPredicate *userReposDefaultPredicate() {
     }
     
     _autotrackCheckbox.state = prefs ? (prefs.autotrack ? NSOnState : NSOffState) : YES;
-    [_repoOutline reloadData];
-    [_repoOutline expandItem:nil expandChildren:YES];
+    
+    [self updateFilteredData]; // will also reload outline and expand all.
     
     RepoPrefsLoadedHandler loadedHandler = self.loadedHandler;
     
@@ -576,6 +670,8 @@ static NSPredicate *userReposDefaultPredicate() {
 }
 
 - (IBAction)addRepo:(id)sender {
+    [self clearFilter];
+    
     NSString *repoName = [[_addRepoField stringValue] trim];
     NSString *issueIdentifier = [repoName?:@"" stringByAppendingString:@"#0"];
     
@@ -679,10 +775,10 @@ static NSPredicate *userReposDefaultPredicate() {
 - (NSInteger)outlineView:(NSOutlineView *)outlineView numberOfChildrenOfItem:(nullable id)item {
     if (!item) {
         // item is the root
-        return [_owners count];
+        return [_filteredOwners count];
     } else if (item[@"login"]) {
         // item is an owner
-        return [_reposByOwner[item[@"id"]] count];
+        return [_filteredReposByOwner[item[@"id"]] count];
     } else {
         // item is a repo
         return 0;
@@ -696,10 +792,10 @@ static NSPredicate *userReposDefaultPredicate() {
 - (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(nullable id)item {
     if (item) {
         // item is an owner
-        return _reposByOwner[item[@"id"]][index];
+        return _filteredReposByOwner[item[@"id"]][index];
     } else {
         // item is the root
-        return _owners[index];
+        return _filteredOwners[index];
     }
 }
 
