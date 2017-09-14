@@ -8,7 +8,9 @@ import { storeCommentDraft, clearCommentDraft, getCommentDraft } from 'util/draf
 class Comment extends AbstractComment {
   me() { return IssueState.current.me; }
   editComment() {
-    IssueState.current.editComment(this.props.commentIdx||0, this.state.code);
+    if (!IssueState.current.issue.savePending) {
+      IssueState.current.editComment(this.props.commentIdx||0, this.state.code);
+    }
   }
   
   issue() { return IssueState.current.issue; }
@@ -134,22 +136,27 @@ class Comment extends AbstractComment {
       }
     };
     
+    var rollback = (err) => {
+      this.setState(Object.assign({}, this.state, {code: body, previewing: false, editing: true}));
+      throw err;
+    };
+    
     if (isNewIssue) {
       var canSave = (issue.title || "").trim().length > 0 && !!(IssueState.current.repoOwner) && !!(IssueState.current.repoName);
       if (canSave) {
         resetState();
         IssueState.current.editComment(0, body);
-        return IssueState.current.saveNewIssue();
+        return IssueState.current.saveNewIssue().catch(rollback);
       }
     } else {
       resetState();
       if (body.trim().length > 0) {
         if (this.props.comment) {
           if (this.props.comment.body != body) {
-            return IssueState.current.editComment(this.props.commentIdx, body);
+            return IssueState.current.editComment(this.props.commentIdx, body).catch(rollback);
           }
         } else {
-          return IssueState.current.addComment(body);
+          return IssueState.current.addComment(body).catch(rollback);
         }
       }
     }
@@ -199,6 +206,10 @@ class Comment extends AbstractComment {
     if (!this.props.comment || this.state.editing) {
       this.updateCode(newBody);
     } else {
+      var undo = () => {
+        this.setState(Object.assign({}, this.state, {pendingEditBody: null, code: newBody, editing: true, previewing: false}));
+      };
+    
       this.setState(Object.assign({}, this.state, {pendingEditBody: newBody}));
       
       var owner = IssueState.current.repoOwner;
@@ -238,7 +249,7 @@ class Comment extends AbstractComment {
             }, 1500);
           }).catch((err) => {
             setTimeout(() => {
-              end();
+              undo();
               reject(err);
             }, 1500);
           });

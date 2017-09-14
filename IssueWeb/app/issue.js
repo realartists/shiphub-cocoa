@@ -1043,7 +1043,11 @@ var IssueTitle = React.createClass({
     var promise = null;
     if (this.state.edited) {
       this.setState({edited: false});
-      promise = IssueState.current.patchIssue({title: newTitle});
+      if (IssueState.current.issue.title != newTitle) {
+        promise = IssueState.current.patchIssue({title: newTitle});
+      } else {
+        promise = Promise.resolve();
+      }
     }
     if (goNext) {
       this.props.focusNext("title");
@@ -1322,7 +1326,9 @@ var MilestoneField = React.createClass({
         value = null;
       }
       
-      return IssueState.current.patchIssue({milestone: this.lookupMilestone(value)});
+      var ret = IssueState.current.patchIssue({milestone: this.lookupMilestone(value)});
+      this.forceUpdate();
+      return ret;
     } else {
       return Promise.resolve();
     }
@@ -1529,11 +1535,14 @@ var AssigneeInput = React.createClass({
         value = null;
       }
       var assignee = this.lookupAssignee(value);
+      var ret;
       if (assignee) {
-        return IssueState.current.patchIssue({assignees: [assignee]});
+        ret = IssueState.current.patchIssue({assignees: [assignee]});
       } else {
-        return IssueState.current.patchIssue({assignees: []});
+        ret = IssueState.current.patchIssue({assignees: []});
       }
+      this.forceUpdate();
+      return ret;
     } else {
       return Promise.resolve();
     }

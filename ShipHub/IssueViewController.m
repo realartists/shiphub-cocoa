@@ -56,6 +56,9 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     
     CFAbsoluteTime _lastCheckedForUpdates;
     NSString *_lastStateJSON;
+    
+    NSInteger _pendingAPIProxies;
+    BOOL _shouldLoadIssueAfterAPIProxy;
 }
 
 @property RateDampener *checkForUpdatesDampener;
@@ -287,17 +290,25 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     }
 }
 
+- (void)_reloadIssueAfterDataStoreUpdate {
+    [[DataStore activeStore] loadFullIssue:_issue.fullIdentifier completion:^(Issue *issue, NSError *error) {
+        if (issue) {
+            self.issue = issue;
+            [self scheduleMarkAsReadTimerIfNeeded];
+        }
+    }];
+}
+
 - (void)issueDidUpdate:(NSNotification *)note {
     if (!_issue) return;
     if ([note object] == [DataStore activeStore]) {
         NSArray *updated = note.userInfo[DataStoreUpdatedProblemsKey];
         if ([updated containsObject:_issue.fullIdentifier]) {
-            [[DataStore activeStore] loadFullIssue:_issue.fullIdentifier completion:^(Issue *issue, NSError *error) {
-                if (issue) {
-                    self.issue = issue;
-                    [self scheduleMarkAsReadTimerIfNeeded];
-                }
-            }];
+            if (_pendingAPIProxies) {
+                _shouldLoadIssueAfterAPIProxy = YES;
+            } else {
+                [self _reloadIssueAfterDataStoreUpdate];
+            }
         }
     }
 }
@@ -307,11 +318,11 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         NSString *json = [self issueStateJSON:_issue];
         if (![json isEqualToString:_lastStateJSON]) {
             DebugLog(@"issueStateJSON changed, reloading");
-            [[DataStore activeStore] loadFullIssue:_issue.fullIdentifier completion:^(Issue *issue, NSError *error) {
-                if ([issue.fullIdentifier isEqualToString:_issue.fullIdentifier]) {
-                    self.issue = issue;
-                }
-            }];
+            if (_pendingAPIProxies) {
+                _shouldLoadIssueAfterAPIProxy = YES;
+            } else {
+                [self _reloadIssueAfterDataStoreUpdate];
+            }
         }
     }
 }
@@ -414,6 +425,8 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 - (void)proxyAPI:(NSDictionary *)msg {
     //DebugLog(@"%@", msg);
     
+    _pendingAPIProxies++;
+    
     APIProxy *proxy = [APIProxy proxyWithRequest:msg completion:^(NSString *jsonResult, NSError *err) {
         dispatch_assert_current_queue(dispatch_get_main_queue());
         
@@ -432,7 +445,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
                     [alert addButtonWithTitle:NSLocalizedString(@"Close", nil)];
                 } else {
                     [alert addButtonWithTitle:NSLocalizedString(@"Retry", nil)];
-                    [alert addButtonWithTitle:NSLocalizedString(@"Discard Changes", nil)];
+                    [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
                 }
                 
                 [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
@@ -446,7 +459,6 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
                             NSString *callback;
                             callback = [NSString stringWithFormat:@"apiCallback(%@, null, %@)", msg[@"handle"], [JSON stringifyObject:[err localizedDescription]]];
                             [self evaluateJavaScript:callback];
-                            [self revert:nil];
                         }
                     }
                 }];
@@ -458,6 +470,14 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         } else {
             NSString *callback = [NSString stringWithFormat:@"apiCallback(%@, %@, null)", msg[@"handle"], jsonResult];
             [self evaluateJavaScript:callback];
+        }
+        
+        _pendingAPIProxies--;
+        NSAssert(_pendingAPIProxies >= 0, @"_pendingAPIProxies underflow");
+        
+        if (_pendingAPIProxies == 0 && _shouldLoadIssueAfterAPIProxy) {
+            _shouldLoadIssueAfterAPIProxy = NO;
+            [self _reloadIssueAfterDataStoreUpdate];
         }
     }];
     [proxy setUpdatedIssueHandler:^(Issue *updatedIssue) {

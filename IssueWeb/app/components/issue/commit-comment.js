@@ -1,6 +1,6 @@
 import React, { createElement as h } from 'react'
 
-import AbstractComment from 'components/comment/AbstractComment.js'
+import AbstractEditableComment from 'components/comment/AbstractEditableComment.js'
 import CommentHeader from 'components/comment/CommentHeader.js'
 
 import { keypath } from 'util/keypath.js'
@@ -9,7 +9,7 @@ import IssueState from 'issue-state.js'
 import { api } from 'util/api-proxy.js'
 import { storeCommentDraft, clearCommentDraft, getCommentDraft } from 'util/draft-storage.js'
 
-class CommitComment extends AbstractComment {
+class CommitComment extends AbstractEditableComment {
   me() { return IssueState.current.me; }
   issue() { return IssueState.current.issue; }
   isNewIssue() { return false; } 
@@ -20,6 +20,7 @@ class CommitComment extends AbstractComment {
     if (!user) user = ghost;
     return IssueState.current.repoCanPush || this.me().id == user.id;
   }
+  editCommentQueue() { return "editCommitComment"; }
   repoOwner() { return IssueState.current.repoOwner; }
   repoName() { return IssueState.current.repoName; }
   saveDraftState() { }
@@ -51,6 +52,7 @@ class CommitComment extends AbstractComment {
       cancelEditing:this.cancelEditing.bind(this),
       deleteComment:this.deleteComment.bind(this),
       addReaction:this.addReaction.bind(this),
+      canReact:this.canReact(),
       needsSave:this.needsSave.bind(this)
     });
   }
@@ -78,56 +80,6 @@ class CommitComment extends AbstractComment {
     } else {
       return this.onEdit(newBody);
     }
-  }
-  
-  onEdit(newBody) {
-    this.setState(Object.assign({}, this.state, {pendingEditBody: newBody}));
-    
-    var owner = IssueState.current.repoOwner;
-    var repo = IssueState.current.repoName;
-    var num = IssueState.current.issue.number;
-    var patch = { body: newBody };
-    var q = "editCommitComment";
-    var initialId = this.props.comment.id;
-    // PATCH /repos/:owner/:repo/comments/:id
-    var url = `https://api.github.com/repos/${owner}/${repo}/comments/${initialId}`
-          
-    return promiseQueue(q, () => {
-      var currentId = keypath(this.props, "comment.id") || "";
-      if (currentId == initialId && newBody != this.state.pendingEditBody) {
-        // let's just jump ahead to the next thing, we're already stale.
-        return Promise.resolve();
-      }
-      var request = api(url, { 
-        headers: { 
-          Authorization: "token " + IssueState.current.token,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }, 
-        method: "PATCH",
-        body: JSON.stringify(patch)
-      });
-      var end = () => {
-        if (this.state.pendingEditBody == newBody) {
-          this.setState(Object.assign({}, this.state, {pendingEditBody: null}));
-          window.documentEditedHelper.postMessage({});
-        }
-      };
-      return new Promise((resolve, reject) => {
-        // NB: The 1500ms delay is because GitHub only has 1s precision on updated_at
-        request.then(() => {
-          setTimeout(() => {
-            end();
-            resolve();            
-          }, 1500);
-        }).catch((err) => {
-          setTimeout(() => {
-            end();
-            reject(err);
-          }, 1500);
-        });
-      });
-    });
   }
   
   addReaction(reaction) {

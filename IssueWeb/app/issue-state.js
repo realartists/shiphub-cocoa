@@ -3,6 +3,7 @@
 import { promiseQueue } from 'util/promise-queue.js'
 import { api } from 'util/api-proxy.js'
 import { keypath, setKeypath } from 'util/keypath.js'
+import clone from 'clone';
 
 class IssueState {
   constructor(state) {
@@ -54,10 +55,6 @@ class IssueState {
     return (this.state.issue.user||this.state.issue.originator).id == this.state.me.id;
   }
   
-  get repo() {
-    return this.state.issue.repository;
-  }
-  
   get repos() { return this.state.repos; }
   get assignees() { return this.state.assignees; }
   get milestones() { return this.state.milestones; }
@@ -77,6 +74,18 @@ class IssueState {
   _renderState() {
     var apply = this.applyIssueState;
     if (apply) apply(this.state);
+  }
+  
+  snapshotState() {
+    return clone(this.state);
+  }
+  
+  restoreStateSnapshot(snapshot) {
+    var curState = this.state;
+    if (snapshot.issue.id == curState.issue.id) {
+      this.state = snapshot;
+      this._renderState();
+    }
   }
   
   mergeIssueChanges(owner, repo, num, mergeFun, failFun) {
@@ -356,14 +365,30 @@ class IssueState {
             p.reject(err);
           });
         }
+        this._renderState();
       });
     });
   }
   
   patchIssue(patch) {
+    var rollback = {};
+    for (var k in patch) {
+      if (this.state.issue.number || k != "body") {
+        rollback[k] = this.state.issue[k];
+      }
+    }
+    
+    var undo = (err) => {
+      for (k in rollback) {
+        this.state.issue[k] = rollback[k];
+      }
+      this._renderState();
+      throw err;
+    }
+  
     this.state.issue = Object.assign({}, this.state.issue, patch);
     this._renderState();
-    return this.applyPatch(patch);
+    return this.applyPatch(patch).catch(undo);
   }
   
   editComment(commentIdx, newBody) {
@@ -371,9 +396,20 @@ class IssueState {
       return this.patchIssue({body: newBody});
     } else {
       commentIdx--;
+      var commentId = this.state.issue.comments[commentIdx].id;
+      var oldBody = this.state.issue.comments[commentIdx].body;
+      var undo = (err) => {
+        this.state.issue.comments.forEach(c => {
+          if (c.id == commentId) {
+            c.body = oldBody;
+          }
+        });
+        this._renderState();
+        throw err;
+      }
       this.state.issue.comments[commentIdx].body = newBody;
       this._renderState();
-      return this.applyCommentEdit(this.state.issue.comments[commentIdx].id, newBody);
+      return this.applyCommentEdit(commentId, newBody).catch(undo);
     }
   }
   
@@ -381,15 +417,25 @@ class IssueState {
     if (commentIdx == 0) return; // cannot delete first comment
     commentIdx--;
     var c = this.state.issue.comments[commentIdx];
+    var issueFullIdentifier = this.issueFullIdentifier;
+    var undo = (err) => {
+      if (issueFullIdentifier == this.issueFullIdentifier) {
+        this.state.issue.comments.splice(commentIdx, 0, c);
+        this._renderState();
+      }
+      throw err;
+    };
     this.state.issue.comments.splice(commentIdx, 1);
     this._renderState();
-    return this.applyCommentDelete(c.id);
+    return this.applyCommentDelete(c.id).catch(undo);
   }
   
   deletePRComment(comment) {
     if (!comment.id) return;
     
-    // delete the comment from our state
+    var oldState = this.snapshotState();
+        
+    // delete the comment from our state    
     this.state.issue.pr_comments = this.state.issue.pr_comments.filter(c => c.id != comment.id);
     this.state.issue.reviews.forEach(r => {
       r.comments = r.comments.filter(c => c.id != comment.id);
@@ -405,7 +451,10 @@ class IssueState {
       var request = api(url, { 
         method: "DELETE"
       });
-      return request;
+      return request.catch((err) => {
+        this.restoreStateSnapshot(oldState);
+        throw err;
+      });
     } else {
       return Promise.reject("Issue does not exist.");
     }
@@ -413,6 +462,8 @@ class IssueState {
   
   deleteCommitComment(comment) {
     if (!comment.id) return;
+    
+    var oldState = this.snapshotState();
     
     // delete the comment from our state
     this.state.issue.commit_comments = this.state.issue.commit_comments.filter(c => c.id != comment.id);
@@ -428,7 +479,10 @@ class IssueState {
       var request = api(url, { 
         method: "DELETE"
       });
-      return request;
+      return request.catch((err) => {
+        this.restoreStateSnapshot(oldState);
+        throw err;
+      });
     } else {
       return Promise.reject("Issue does not exist.");
     }
@@ -443,11 +497,24 @@ class IssueState {
       updated_at: now,
       created_at: now
     });
+    var rollback = () => {
+      this.state.issue.comments = this.state.issue.comments.filter(c => c.id != "new");
+      this._renderState();
+    };
     this._renderState();
-    return this.applyComment(body);
+    return new Promise((resolve, reject) => {
+      this.applyComment(body)
+      .then(resolve)
+      .catch(() => {
+        rollback();
+        reject(arguments);
+      });
+    });
   }
   
   addReaction(commentIdx, reactionContent) {
+    var oldState = this.snapshotState();
+  
     var reaction = {
       id: "new",
       user: this.state.me,
@@ -489,6 +556,7 @@ class IssueState {
         resolve();
       }).catch((err) => {
         console.error("Add reaction failed", err);
+        this.restoreStateSnapshot(oldState);
         reject(err);
       });
     });
@@ -496,9 +564,10 @@ class IssueState {
   
   deleteReaction(commentIdx, reactionID) {
     if (reactionID === "new") {
-      console.log("Cannot delete pending reaction");
-      return;
+      return Promise.reject("Cannot delete pending reaction");
     }
+    
+    var oldState = this.snapshotState();
 
     if (commentIdx == 0) {
       this.state.issue.reactions = this.state.issue.reactions.filter((r) => r.id !== reactionID);
@@ -524,6 +593,7 @@ class IssueState {
         resolve();
       }).catch((err) => {
         console.error("Delete reaction failed", err);
+        this.restoreStateSnapshot(oldState);
         reject(err);
       });
     });
@@ -541,6 +611,8 @@ class IssueState {
   }
   
   addPRCommentReaction(prCommentId, reactionContent) {
+    var oldState = this.snapshotState();
+  
     var reaction = {
       id: "new",
       user: this.state.me,
@@ -574,12 +646,15 @@ class IssueState {
         resolve();
       }).catch((err) => {
         console.error("Add reaction failed", err);
+        this.restoreStateSnapshot(oldState);
         reject(err);
       });
     });
   }
   
   deletePRCommentReaction(prCommentId, reactionID) {
+    var oldState = this.snapshotState();
+  
     if (reactionID === "new") {
       console.log("Cannot delete pending reaction");
       return;
@@ -598,6 +673,7 @@ class IssueState {
         resolve();
       }).catch((err) => {
         console.error("Delete reaction failed", err);
+        this.restoreStateSnapshot(oldState);
         reject(err);
       });
     });
@@ -608,6 +684,8 @@ class IssueState {
   }
   
   addCommitCommentReaction(id, reactionContent) {
+    var oldState = this.snapshotState();
+  
     var reaction = {
       id: "new",
       user: this.state.me,
@@ -642,6 +720,7 @@ class IssueState {
         resolve();
       }).catch((err) => {
         console.error("Add reaction failed", err);
+        this.restoreStateSnapshot(oldState);
         reject(err);
       });
     });
@@ -649,9 +728,10 @@ class IssueState {
   
   deleteCommitCommentReaction(id, reactionID) {
     if (reactionID === "new") {
-      console.log("Cannot delete pending reaction");
-      return;
+      return Promise.reject("Cannot delete pending reaction");
     }
+    
+    var oldState = this.snapshotState();
     
     var c = this._commitCommentWithId(id);
     c.reactions = c.reactions.filter(r => r.id !== reactionID);
@@ -666,6 +746,7 @@ class IssueState {
         resolve();
       }).catch((err) => {
         console.error("Delete reaction failed", err);
+        this.restoreStateSnapshot(oldState);
         reject(err);
       });
     });
@@ -683,6 +764,8 @@ class IssueState {
       return Promise.resolve();
     }
     
+    var oldState = this.snapshotState();
+    
     // eagerly patch the issue
     this.issue.requested_reviewers.push(user);
     this._renderState();
@@ -698,6 +781,7 @@ class IssueState {
           resolve();
         }).catch((err) => {
           console.error("Add reviewer failed", err);
+          this.restoreStateSnapshot(oldState);
           reject(err);
         });
       });
@@ -711,6 +795,8 @@ class IssueState {
     if (!this.issue.pull_request) {
       return Promise.reject("Cannot delete reviewer on non-PR");
     }
+    
+    var oldState = this.snapshotState();
     
     // eagerly patch the issue
     this.issue.requested_reviewers = (this.issue.requested_reviewers||[]).filter(u => u.id != user.id);
@@ -727,6 +813,7 @@ class IssueState {
           resolve();
         }).catch((err) => {
           console.error("Delete reviewer failed", err);
+          this.restoreStateSnapshot(oldState);
           reject(err);
         });
       });
@@ -740,6 +827,8 @@ class IssueState {
     if (!reason) {
       return Promise.reject("reason not specified");
     }
+    
+    var oldState = this.snapshotState();
     
     // eagerly dismiss the review
     this.issue.reviews = Array.from(this.issue.reviews).map(r => {
@@ -770,6 +859,7 @@ class IssueState {
           resolve();
         }).catch((err) => {
           console.error("Dismiss review failed", err);
+          this.restoreStateSnapshot();
           reject(err);
         });
       });
