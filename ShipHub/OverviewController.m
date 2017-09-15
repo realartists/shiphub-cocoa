@@ -1249,6 +1249,14 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 {
     if ([item isKindOfClass:[OverviewNode class]]) {
         OverviewNode *node = item;
+        
+        if (node.parent == nil) {
+            // it's a group cell
+            NSTextField *groupField = [outlineView makeViewWithIdentifier:@"GroupCell" owner:self];
+            groupField.stringValue = node.title;
+            return groupField;
+        }
+        
         OverviewCellView *cell = [outlineView makeViewWithIdentifier:node.cellIdentifier owner:self];
         
         if ([cell isKindOfClass:[OverviewCountCellView class]]) {
@@ -1301,7 +1309,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 }
 
 - (CGFloat)outlineView:(NSOutlineView *)outlineView heightOfRowByItem:(id)item {
-    if ([self outlineView:outlineView isGroupItem:item]) return 20.0;
+    if ([self outlineView:outlineView isGroupItem:item]) return 24.0;
     if ([item isKindOfClass:[OverviewNode class]]) return 24.0;
     else {
         NSAssert([item isKindOfClass:[OverviewKnob class]], @"Must be a knob if not a node");
