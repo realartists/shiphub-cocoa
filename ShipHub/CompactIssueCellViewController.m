@@ -10,7 +10,7 @@
 
 #import "Extras.h"
 #import "Issue.h"
-#import "LabelsView.h"
+#import "LabelsControl.h"
 #import "Label.h"
 #import "Milestone.h"
 #import "Repo.h"
@@ -27,21 +27,17 @@
 
 @interface CompactIssueCellViewController ()
 
-@property IBOutlet NSTextField *titleField;
-@property IBOutlet NSTextField *infoField;
-@property IBOutlet NSTextField *commentsField;
-@property IBOutlet LabelsView *labelsView;
-
 @end
 
 @implementation CompactIssueCellViewController
 
-+ (CGFloat)cellHeight {
-    return 92.0;
++ (CGFloat)cellHeightForIssue:(Issue *)issue {
+    if (issue.labels.count == 0) return 92.0;
+    return 92.0 + 16.0 + 2.0;
 }
 
 - (void)loadView {
-    CompactIssueRowView *row = [[CompactIssueRowView alloc] initWithFrame:CGRectMake(0, 0, 300, [[self class] cellHeight])];
+    CompactIssueRowView *row = [[CompactIssueRowView alloc] initWithFrame:CGRectMake(0, 0, 300, 92.0)];
     self.view = row;
 }
 
@@ -80,23 +76,54 @@
     NSString *_labelsTT;
     NSToolTipTag _dateTTT;
     NSString *_dateTT;
+    LabelsControl *_labelsControl;
 }
 
 @end
 
 @implementation CompactIssueRowView
 
+- (id)initWithFrame:(NSRect)frameRect {
+    if (self = [super initWithFrame:frameRect]) {
+        _labelsControl = [LabelsControl new];
+        [self addSubview:_labelsControl];
+    }
+    return self;
+}
+
+- (BOOL)autoresizesSubviews {
+    return NO;
+}
+
+- (void)layout {
+    [super layout];
+    CGRect b = self.bounds;
+    _labelsControl.frame = CGRectMake(marginLeft, marginBottom, CGRectGetWidth(b) - marginLeft - marginRight, 16.0);
+    _labelsControl.hidden = _issue.labels.count == 0;
+}
+
+-  (void)setFrame:(NSRect)frame {
+    [super setFrame:frame];
+    [self setNeedsLayout:YES];
+}
+
 - (BOOL)isFlipped {
     return NO;
 }
 
+- (void)updateLabelsHighlight {
+    _labelsControl.highlighted = self.emphasized && self.selected;
+}
+
 - (void)setEmphasized:(BOOL)emphasized {
     [super setEmphasized:emphasized];
+    [self updateLabelsHighlight];
     [self setNeedsDisplay:YES];
 }
 
 - (void)setSelected:(BOOL)selected {
     [super setSelected:selected];
+    [self updateLabelsHighlight];
     [self setNeedsDisplay:YES];
 }
 
@@ -107,11 +134,12 @@
 
 - (void)setIssue:(Issue *)issue {
     _issue = issue;
+    _labelsControl.labels = issue.labels;
     [self setNeedsDisplay:YES];
 }
 
 static const CGFloat marginRight = 8.0;
-static const CGFloat marginLeft = 22.0;
+static const CGFloat marginLeft = 20.0;
 static const CGFloat marginTop = 8.0;
 static const CGFloat marginBottom = 7.0;
 
@@ -159,6 +187,8 @@ static const CGFloat marginBottom = 7.0;
     CGContextRestoreGState(ctx);
     
     CGRect b = self.bounds;
+    
+    CGFloat bodyBottom = _issue.labels.count > 0 ? marginBottom + 18.0 : marginBottom;
     
     CGContextSaveGState(ctx);
     
@@ -382,71 +412,25 @@ static const CGFloat marginBottom = 7.0;
     }
     
     CGRect bodyRect = CGRectMake(marginLeft,
-                                 marginBottom,
+                                 bodyBottom,
                                  CGRectGetWidth(b) - marginLeft - marginRight,
-                                 CGRectGetMinY(infoRect) - 1.0 - marginBottom);
+                                 CGRectGetMinY(infoRect) - 1.0 - bodyBottom);
     [body drawWithTruncationInRect:bodyRect attributes:bodyAttrs];
-    
-    // Draw any labels
-    NSArray *labels = _issue.labels;
-    const CGFloat radius = 6.0;
-    const CGFloat border = 1.0;
-    
-    CGContextSetLineWidth(ctx, border);
-    
-    CGFloat xOff = 5.0;
-    CGFloat yOff = CGRectGetHeight(b) - marginTop - (2*radius) - 2.0;
-    
-    NSColor *background = [NSColor whiteColor];
-    if (self.selected) {
-        if (self.emphasized) {
-            background = [NSColor alternateSelectedControlColor];
-        } else {
-            background = [NSColor secondarySelectedControlColor];
-        }
-    }
-    for (Label *l in labels) {
-        // draw background knockout
-        [background setFill];
-        CGContextSetBlendMode(ctx, kCGBlendModeCopy);
-        CGContextAddEllipseInRect(ctx, CGRectMake(xOff, yOff, radius * 2.0, radius * 2.0));
-        CGContextDrawPath(ctx, kCGPathFill);
-        
-        CGContextSetBlendMode(ctx, kCGBlendModeNormal);
-        if (!emph) {
-            [[[l color] colorByAdjustingBrightness:0.85] setStroke];
-        } else {
-            [[NSColor whiteColor] setStroke];
-        }
-        
-        CGContextAddEllipseInRect(ctx, CGRectMake(xOff + 1.5, yOff + 1.5, radius * 2.0 - 3.0, radius * 2.0 - 3.0));
-        [[l color] setFill];
-        CGContextDrawPath(ctx, kCGPathFillStroke);
-        
-        yOff -= radius;
-    }
-    
-    CGRect labelsRect = CGRectMake(xOff, yOff + radius, radius * 2.0, labels.count * radius + (labels.count > 0 ? radius : 0));
-    labelsRect = CGRectInset(labelsRect, -5.0, -5.0);
-    
-    if (!CGRectEqualToRect(_labelsRect, labelsRect)) {
-        if (_labelsRect.size.height > 0) {
-            [self removeToolTip:_labelsTTT];
-        }
-        _labelsRect = labelsRect;
-        if (_labelsRect.size.height > 0) {
-            _labelsTT = [[labels arrayByMappingObjects:^id(Label *obj) {
-                return [obj name];
-            }] componentsJoinedByString:@", "];
-            _labelsTTT = [self addToolTipRect:_labelsRect owner:_labelsTT userData:NULL];
-        }
-    }
     
     // Draw the unread indicator, if necessary
     if (_issue.unread) {
-        CGRect issueRect = CGRectMake(0, 0, 3.0, CGRectGetHeight(b));
-        [[NSColor extras_controlBlue] setFill];
-        NSRectFill(issueRect);
+        const CGFloat radius = 5.0;
+        CGRect unreadRect = CGRectMake(4.0, CGRectGetHeight(b) - marginTop - (2*radius) - 3.0, radius*2, radius*2);
+        
+        if (emph) {
+            CGContextSetFillColorWithColor(ctx, [[NSColor whiteColor] CGColor]);
+            [[NSColor whiteColor] setFill];
+        } else {
+            CGContextSetFillColorWithColor(ctx, [[NSColor extras_controlBlue] CGColor]);
+        }
+        
+        CGContextAddEllipseInRect(ctx, unreadRect);
+        CGContextDrawPath(ctx, kCGPathFill);
     }
     
     CGContextRestoreGState(ctx);

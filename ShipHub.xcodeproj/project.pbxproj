@@ -261,7 +261,7 @@
 		1A86763F1E94165E00ACE932 /* TrackingProgressSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A86763D1E94165E00ACE932 /* TrackingProgressSheet.xib */; };
 		1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */; };
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
-		1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsView.m */; };
+		1A9905181CE11A0700EAA474 /* LabelsControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsControl.m */; };
 		1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */; };
 		1AAA72601EBAFF9B00E77A65 /* LocalPullRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AAA725F1EBAFF9B00E77A65 /* LocalPullRequest.m */; };
 		1AAA72611EBAFF9B00E77A65 /* LocalPullRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AAA725F1EBAFF9B00E77A65 /* LocalPullRequest.m */; };
@@ -415,12 +415,26 @@
 			remoteGlobalIDString = F668C87F153E91210044DBAC;
 			remoteInfo = SocketRocketOSX;
 		};
-		1A2217B61C7E7B92006460E2 /* PBXContainerItemProxy */ = {
+		1A158CF21F7058D400F6FABF /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
 			proxyType = 2;
-			remoteGlobalIDString = F6B2082D1450F597009315AF;
-			remoteInfo = SocketRocket;
+			remoteGlobalIDString = 81D6478D1D2CA78800690609;
+			remoteInfo = "SocketRocket-iOS";
+		};
+		1A158CF41F7058D400F6FABF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 2D4227621BB4358C000C1A6C;
+			remoteInfo = "SocketRocket-iOS-Dynamic";
+		};
+		1A158CF61F7058D400F6FABF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 1A2217AF1C7E7B92006460E2 /* SocketRocket.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3345DC901C52ACD70083CCB8;
+			remoteInfo = "SocketRocket-tvOS";
 		};
 		1A2217B81C7E7B92006460E2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -895,8 +909,8 @@
 		1A99050D1CDBCD1100EAA474 /* ThreePaneController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreePaneController.h; sourceTree = "<group>"; };
 		1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ThreePaneController.m; sourceTree = "<group>"; };
 		1A9905101CDBD28A00EAA474 /* SearchResultsControllerPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SearchResultsControllerPrivate.h; sourceTree = "<group>"; };
-		1A9905161CE11A0700EAA474 /* LabelsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelsView.h; sourceTree = "<group>"; };
-		1A9905171CE11A0700EAA474 /* LabelsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelsView.m; sourceTree = "<group>"; };
+		1A9905161CE11A0700EAA474 /* LabelsControl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LabelsControl.h; sourceTree = "<group>"; };
+		1A9905171CE11A0700EAA474 /* LabelsControl.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LabelsControl.m; sourceTree = "<group>"; };
 		1A9905191CE141AF00EAA474 /* CompactIssueCellViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CompactIssueCellViewController.h; sourceTree = "<group>"; };
 		1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompactIssueCellViewController.m; sourceTree = "<group>"; };
 		1AAA725E1EBAFF9B00E77A65 /* LocalPullRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalPullRequest.h; sourceTree = "<group>"; };
@@ -1270,9 +1284,11 @@
 		1A2217B01C7E7B92006460E2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				1A2217B71C7E7B92006460E2 /* libSocketRocket.a */,
+				1A158CF31F7058D400F6FABF /* SocketRocket.framework */,
+				1A158CF51F7058D400F6FABF /* SocketRocket.framework */,
 				1A2217B91C7E7B92006460E2 /* SocketRocket.framework */,
-				1A2217BB1C7E7B92006460E2 /* SRWebSocketTests.xctest */,
+				1A158CF71F7058D400F6FABF /* SocketRocket.framework */,
+				1A2217BB1C7E7B92006460E2 /* SocketRocketTests-iOS.xctest */,
 				1A2217BD1C7E7B92006460E2 /* TestChat.app */,
 			);
 			name = Products;
@@ -1747,8 +1763,8 @@
 				1A694B411CA34B9000F73608 /* DeemphasizedRowView.m */,
 				1A694B461CA34BCD00F73608 /* ImagePopUpButton.h */,
 				1A694B471CA34BCD00F73608 /* ImagePopUpButton.m */,
-				1A9905161CE11A0700EAA474 /* LabelsView.h */,
-				1A9905171CE11A0700EAA474 /* LabelsView.m */,
+				1A9905161CE11A0700EAA474 /* LabelsControl.h */,
+				1A9905171CE11A0700EAA474 /* LabelsControl.m */,
 				1A7FD7761D493B0400B585E2 /* ProgressSheet.h */,
 				1A7FD7771D493B0400B585E2 /* ProgressSheet.m */,
 				1A7FD7781D493B0400B585E2 /* ProgressSheet.xib */,
@@ -2098,11 +2114,25 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		1A2217B71C7E7B92006460E2 /* libSocketRocket.a */ = {
+		1A158CF31F7058D400F6FABF /* SocketRocket.framework */ = {
 			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libSocketRocket.a;
-			remoteRef = 1A2217B61C7E7B92006460E2 /* PBXContainerItemProxy */;
+			fileType = wrapper.framework;
+			path = SocketRocket.framework;
+			remoteRef = 1A158CF21F7058D400F6FABF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1A158CF51F7058D400F6FABF /* SocketRocket.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SocketRocket.framework;
+			remoteRef = 1A158CF41F7058D400F6FABF /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		1A158CF71F7058D400F6FABF /* SocketRocket.framework */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.framework;
+			path = SocketRocket.framework;
+			remoteRef = 1A158CF61F7058D400F6FABF /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		1A2217B91C7E7B92006460E2 /* SocketRocket.framework */ = {
@@ -2112,10 +2142,10 @@
 			remoteRef = 1A2217B81C7E7B92006460E2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		1A2217BB1C7E7B92006460E2 /* SRWebSocketTests.xctest */ = {
+		1A2217BB1C7E7B92006460E2 /* SocketRocketTests-iOS.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
-			path = SRWebSocketTests.xctest;
+			path = "SocketRocketTests-iOS.xctest";
 			remoteRef = 1A2217BA1C7E7B92006460E2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
@@ -2289,7 +2319,7 @@
 				1A694B481CA34BCD00F73608 /* ImagePopUpButton.m in Sources */,
 				1A4353551E73762A00C5F5AB /* PRMergeViewController.m in Sources */,
 				1AE902051F141F5500482432 /* RepoController.m in Sources */,
-				1A9905181CE11A0700EAA474 /* LabelsView.m in Sources */,
+				1A9905181CE11A0700EAA474 /* LabelsControl.m in Sources */,
 				1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */,
 				1AB4785F1ECF9526006002DB /* CommitComment.m in Sources */,
 				1A012EA81D443CFC006CE5DF /* CustomQuery.m in Sources */,

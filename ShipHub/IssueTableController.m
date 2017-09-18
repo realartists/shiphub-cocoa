@@ -16,7 +16,7 @@
 #import "IssueIdentifier.h"
 #import "UpNextHelper.h"
 #import "BulkModifyHelper.h"
-#import "LabelsView.h"
+#import "LabelsControl.h"
 
 @interface MultipleAssigneesFormatter : NSFormatter
 @end
@@ -1290,11 +1290,11 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
         background = [self highlightColorWithFrame:cellFrame inView:controlView];
     }
     
-    [LabelsView drawLabels:labels inRect:cellFrame highlighted:[self isHighlighted] backgroundColor:background];
+    [LabelsControl drawLabels:labels inRect:cellFrame highlighted:[self isHighlighted] backgroundColor:background];
 }
 
 - (NSRect)expansionFrameWithFrame:(NSRect)cellFrame inView:(NSView *)view {
-    CGSize size = [LabelsView sizeLabels:[self objectValue]];
+    CGSize size = [LabelsControl sizeLabels:[self objectValue]];
     cellFrame.size = size;
     return cellFrame;
 }

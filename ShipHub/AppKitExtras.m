@@ -814,7 +814,6 @@ static CGFloat GetAttachmentWidth(void *ref) {
     // now draw the final line optionally with truncation
     {
         CTLineRef line = CFArrayGetValueAtIndex(lines, lineCount-1);
-        noteAttLocations(line);
         
         CGPoint origin = CGPointZero;
         CTFrameGetLineOrigins(frame, CFRangeMake(lineCount-1, 1), &origin);
@@ -833,10 +832,12 @@ static CGFloat GetAttachmentWidth(void *ref) {
             CTLineRef trunc = CTLineCreateTruncatedLine(fullLine, rect.size.width, kCTLineTruncationEnd, truncChar);
             CFRelease(truncChar);
             CTLineDraw(trunc, ctx);
+            noteAttLocations(trunc);
             CFRelease(trunc);
             CFRelease(fullLine);
         } else {
             CTLineDraw(line, ctx);
+            noteAttLocations(line);
         }
     }
     

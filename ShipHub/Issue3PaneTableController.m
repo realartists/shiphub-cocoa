@@ -317,7 +317,7 @@
 }
 
 - (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)row {
-    return [CompactIssueCellViewController cellHeight];
+    return [CompactIssueCellViewController cellHeightForIssue:self.items[row]];
 }
 
 - (NSString *)tableView:(NSTableView *)tableView typeSelectStringForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {

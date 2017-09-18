@@ -20,7 +20,7 @@ typedef NS_ENUM(NSInteger, CompactIssueDateType) {
 
 @property (nonatomic) Issue *issue;
 
-+ (CGFloat)cellHeight;
++ (CGFloat)cellHeightForIssue:(Issue *)issue;
 
 - (void)prepareForReuse;
 
