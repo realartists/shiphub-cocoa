@@ -92,7 +92,7 @@ static const CGFloat border = 1.0;
         i++;
     }
 
-    return CGSizeMake(width, height);
+    return CGSizeMake(ceil(width), height);
 }
 
 + (void)drawLabels:(NSArray<Label *> *)labels
