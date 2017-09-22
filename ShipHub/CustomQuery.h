@@ -10,6 +10,7 @@
 #import "JSONItem.h"
 
 @class LocalQuery;
+@class Account;
 
 @interface CustomQuery : NSObject <JSONItem>
 
@@ -18,13 +19,18 @@
 @property NSString *identifier;
 @property NSString *title;
 @property NSNumber *authorIdentifier;
+@property Account *author;
 @property NSPredicate *predicate;
 @property NSString *predicateString;
 @property (readonly) BOOL isMine;
 
 - (NSURL *)URL;
-- (NSString *)URLAndTitle;
+
++ (BOOL)isQueryURL:(NSURL *)URL;
++ (NSString *)identifierFromQueryURL:(NSURL *)URL;
 
 @property (readonly) NSString *titleWithAuthor;
+
+- (CustomQuery *)copyIfNeededForEditing;
 
 @end

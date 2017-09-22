@@ -11,6 +11,7 @@
 #import "Analytics.h"
 #import "Auth.h"
 #import "AuthController.h"
+#import "CustomQuery.h"
 #import "DataStore.h"
 #import "Extras.h"
 #import "PullRequest.h"
@@ -223,6 +224,10 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     
     if (!URL) return YES;
     
+    if ([CustomQuery isQueryURL:URL]) {
+        [[self defaultOverviewController] watchQuery:URL];
+    }
+    
     if ([[URL scheme] isEqualToString:@"ship+github"]) {
         if ([[URL host] isEqualToString:@"issue"]) {
             NSString *path = [URL path];
@@ -267,15 +272,37 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 }
 
 - (BOOL)openById:(NSPasteboard *)pboard userData:(NSString *)userData error:(NSError **)error {
-    if (![NSString canReadIssueIdentifiersFromPasteboard:pboard]) {
-        return NO;
+    if ([NSString canReadIssueIdentifiersFromPasteboard:pboard]) {
+        NSArray<NSString *> *identifiers = [NSString readIssueIdentifiersFromPasteboard:pboard];
+        
+        [[IssueDocumentController sharedDocumentController] openIssuesWithIdentifiers:identifiers];
+        return YES;
+    } else if ([pboard canReadObjectForClasses:@[[NSURL class], [NSString class]] options:nil]) {
+        NSArray *URLs = [pboard readObjectsForClasses:@[[NSURL class], [NSString class]] options:nil];
+        BOOL readAny = NO;
+        NSMutableSet *seenURLs = [NSMutableSet new];
+        for (id URLOrString in URLs) {
+            NSURL *URL = nil;
+            if ([URLOrString isKindOfClass:[NSString class]]) {
+                // see if we can make a URL out of it
+                @try {
+                    URL = [NSURL URLWithString:URLOrString];
+                } @catch (id exc) {
+                    continue;
+                }
+                
+            } else {
+                URL = URLOrString;
+            }
+            if (![seenURLs containsObject:URL]) {
+                [seenURLs addObject:URL];
+                readAny = [self handleURL:URL atAppLaunch:NO] || readAny;
+            }
+        }
+        return readAny;
     }
     
-    NSArray<NSString *> *identifiers = [NSString readIssueIdentifiersFromPasteboard:pboard];
-    
-    [[IssueDocumentController sharedDocumentController] openIssuesWithIdentifiers:identifiers];
-    
-    return YES;
+    return NO;
 }
 
 - (void)updatePullRequestMenuVisibility {
@@ -506,6 +533,10 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
 }
 
 - (OverviewController *)defaultOverviewController {
+    if (_auth.authState != AuthStateValid) {
+        return nil;
+    }
+    
     OverviewController *active = [self activeOverviewController];
     if (active) {
         return active;

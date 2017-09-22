@@ -294,7 +294,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(metadataChanged:) name:DataStoreDidUpdateMetadataNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataStoreChanged:) name:DataStoreActiveDidChangeNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(queriesChanged:) name:DataStoreDidUpdateMyQueriesNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(queriesChanged:) name:DataStoreDidUpdateQueriesNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(problemsChanged:) name:DataStoreDidUpdateProblemsNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(initialSyncStarted:) name:DataStoreWillBeginInitialMetadataSync object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(initialSyncEnded:) name:DataStoreDidEndInitialMetadataSync object:nil];
@@ -376,9 +376,11 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 - (NSMenu *)menuForCustomQuery:(CustomQuery *)query {
     NSMenu *menu = [NSMenu new];
     menu.extras_representedObject = query;
-    if ([query.authorIdentifier isEqual:[[Account me] identifier]]) {
+    if ([query isMine]) {
         [menu addItemWithTitle:NSLocalizedString(@"Edit Query", nil) action:@selector(editQuery:) keyEquivalent:@""];
         [menu addItemWithTitle:NSLocalizedString(@"Rename Query", nil) action:@selector(renameQuery:) keyEquivalent:@""];
+    } else {
+        [menu addItemWithTitle:NSLocalizedString(@"Duplicate and Edit Query", nil) action:@selector(editQuery:) keyEquivalent:@""];
     }
     [menu addItemWithTitle:NSLocalizedString(@"Remove Query", nil) action:@selector(removeQuery:) keyEquivalent:@""];
     [menu addItemWithTitle:NSLocalizedString(@"Copy Link", nil) action:@selector(copyQueryLink:) keyEquivalent:@""];
@@ -565,32 +567,34 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     backlog.defaultOrderKey = NSIntegerMax;
     [milestonesRoot addChild:backlog];
     
-    NSArray *queries = [[DataStore activeStore] myQueries];
+    NSArray *queries = [[DataStore activeStore] queries];
     if ([queries count] > 0) {
         NSImage *queryIcon = [NSImage overviewIconNamed:@"Smart Query"];
-        NSArray *myQueries = [queries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(localizedStandardCompare:)]]];
-        OverviewNode *myQueriesRoot = [OverviewNode new];
-        myQueriesRoot.cellIdentifier = @"GroupCell";
-        myQueriesRoot.title = NSLocalizedString(@"Smart Queries", nil);
-        myQueriesRoot.identifier = @"Smart Queries";
-        myQueriesRoot.defaultOrderKey = 1;
-        [roots addObject:myQueriesRoot];
+        queries = [queries sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"title" ascending:YES selector:@selector(localizedStandardCompare:)]]];
+        OverviewNode *queriesRoot = [OverviewNode new];
+        queriesRoot.cellIdentifier = @"GroupCell";
+        queriesRoot.title = NSLocalizedString(@"Smart Queries", nil);
+        queriesRoot.identifier = @"Smart Queries";
+        queriesRoot.defaultOrderKey = 1;
+        [roots addObject:queriesRoot];
         
-        for (CustomQuery *query in myQueries) {
+        for (CustomQuery *query in queries) {
+            BOOL myQuery = [query isMine] ? 1 : 2;
             OverviewNode *queryNode = [OverviewNode new];
             queryNode.title = query.titleWithAuthor;
             queryNode.representedObject = query;
             queryNode.predicate = query.predicate;
             queryNode.identifier = query.identifier;
             queryNode.menu = [self menuForCustomQuery:query];
-            queryNode.titleEditable = YES;
+            queryNode.titleEditable = myQuery;
             queryNode.showCount = YES;
             queryNode.cellIdentifier = @"CountCell";
             queryNode.icon = queryIcon;
             queryNode.filterBarDefaultsToOpenState = NO;
             queryNode.includeInOmniSearch = YES;
             queryNode.omniSearchIcon = [NSImage imageNamed:@"OmniSearchQuery"];
-            [myQueriesRoot addChild:queryNode];
+            queryNode.defaultOrderKey = myQuery ? 1 : 2;
+            [queriesRoot addChild:queryNode];
         }
     }
     
@@ -1728,7 +1732,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     }
     
     SearchSheet *sheet = [SearchSheet new];
-    sheet.query = query;
+    sheet.query = [query copyIfNeededForEditing];
     
     [sheet beginSheetModalForWindow:self.window completionHandler:nil];
 }
@@ -1736,6 +1740,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 - (IBAction)renameQuery:(id)sender {
     CustomQuery *query = [[sender menu] extras_representedObject];
     if (!query) return;
+    if (![query isMine]) return;
     
     [self selectItemsMatchingPredicate:[NSPredicate predicateWithFormat:@"representedObject = %@", query]];
     NSTableCellView *view = [_outlineView viewAtColumn:[_outlineView selectedColumn] row:[_outlineView selectedRow] makeIfNecessary:NO];
@@ -1754,9 +1759,53 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     
     [alert beginSheetModalForWindow:self.window completionHandler:^(NSModalResponse returnCode) {
         if (returnCode == NSAlertFirstButtonReturn) {
-            [[DataStore activeStore] deleteQuery:query completion:^(NSArray *myQueries) { }];
+            [[DataStore activeStore] deleteQuery:query completion:nil];
         }
     }];
+}
+
+- (void)watchQuery:(NSURL *)queryURL {
+    NSString *identifier = [CustomQuery identifierFromQueryURL:queryURL];
+    
+    NSAssert(identifier != nil, @"queryURL must be a CustomQuery URL");
+    if (!identifier) {
+        return;
+    }
+    
+    BOOL (^openQuery)() = ^{
+        __block BOOL found = NO;
+        [self walkNodes:^(OverviewNode *node) {
+            if (!found && [node.representedObject isKindOfClass:[CustomQuery class]]) {
+                CustomQuery *q = node.representedObject;
+                if ([q.identifier isEqualToString:identifier]) {
+                    [self expandAndSelectItem:node];
+                    found = YES;
+                }
+            }
+        }];
+        return found;
+    };
+    
+    if (!openQuery()) {
+        ProgressSheet *progress = [ProgressSheet new];
+        progress.message = NSLocalizedString(@"Opening query …", nil);
+        [progress beginSheetInWindow:self.window];
+        [[DataStore activeStore] watchQuery:identifier completion:^(CustomQuery *q, NSError *err) {
+            [progress endSheet];
+            if (err || !q) {
+                NSAlert *alert = [[NSAlert alloc] init];
+                alert.alertStyle = NSAlertStyleCritical;
+                alert.messageText = [NSString stringWithFormat:NSLocalizedString(@"Unable to load query.", nil)];
+                alert.informativeText = [err localizedDescription] ?: @"";
+                [alert addButtonWithTitle:NSLocalizedString(@"OK", nil)];
+                [alert beginSheetModalForWindow:self.window completionHandler:nil];
+            } else {
+                if (!openQuery()) {
+                    self.nextNodeToSelect = identifier;
+                }
+            }
+        }];
+    }
 }
 
 - (IBAction)copyQueryLink:(id)sender {
@@ -1764,11 +1813,10 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     if (!query) return;
 
     NSURL *URL = [query URL];
-    NSString *title = [query URLAndTitle];
     
     NSPasteboard *pb = [NSPasteboard generalPasteboard];
     [pb clearContents];
-    [pb writeURL:URL string:title];
+    [pb writeURL:URL];
 }
 
 - (IBAction)commitRename:(id)sender {
@@ -1780,7 +1828,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         [sender setStringValue:query.title];
     } else {
         query.title = title;
-        [[DataStore activeStore] saveQuery:query completion:^(NSArray *myQueries) { }];
+        [[DataStore activeStore] saveQuery:query completion:nil];
     }
 }
 
@@ -1795,37 +1843,15 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     [sender setStringValue:query.title];
 }
 
-- (void)openQuery:(CustomQuery *)query {
-    // First, see if we already have a node for this.
-    __block BOOL found = NO;
-    [self walkNodes:^(OverviewNode *node) {
-        if (!found && [node.representedObject isKindOfClass:[CustomQuery class]]) {
-            CustomQuery *q = node.representedObject;
-            if ([q.identifier isEqualToString:query.identifier]) {
-                [self expandAndSelectItem:node];
-                found = YES;
-            }
-        }
-    }];
-    
-#if !INCOMPLETE
-    if (!found) {
-        self.nextNodeToSelect = query.identifier;
-        [[DataStore activeStore] watchQuery:query completion:^(NSArray *myQueries) { }];
-    }
-#endif
-}
-
 - (IBAction)copyURL:(id)sender {
     id selectedItem = [_outlineView selectedItem];
     if ([[selectedItem representedObject] isKindOfClass:[CustomQuery class]]) {
         CustomQuery *query = [selectedItem representedObject];
         NSURL *URL = [query URL];
-        NSString *title = [query URLAndTitle];
         
         NSPasteboard *pb = [NSPasteboard generalPasteboard];
         [pb clearContents];
-        [pb writeURL:URL string:title];
+        [pb writeURL:URL];
     }
 }
 

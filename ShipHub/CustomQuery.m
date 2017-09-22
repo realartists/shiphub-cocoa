@@ -9,6 +9,7 @@
 #import "CustomQuery.h"
 #import "Extras.h"
 #import "Account.h"
+#import "Auth.h"
 #import "LocalAccount.h"
 #import "LocalQuery.h"
 
@@ -22,6 +23,7 @@
 
 - (id)init {
     if (self = [super init]) {
+        _author = [Account me];
         _authorIdentifier = [[Account me] identifier];
         _identifier = [[[NSUUID UUID] UUIDString] lowercaseString];
     }
@@ -32,6 +34,7 @@
     if (self = [super init]) {
         _identifier = query.identifier;
         _authorIdentifier = query.author.identifier;
+        _author = [[[DataStore activeStore] metadataStore] accountWithIdentifier:_authorIdentifier];
         _title = query.title;
         _predicateStr = query.predicate;
     }
@@ -41,8 +44,9 @@
 - (id)initWithDictionary:(NSDictionary *)d {
     if (self = [super init]) {
         _title = d[@"title"];
-        _authorIdentifier = d[@"authorIdentifier"];
+        _authorIdentifier = d[@"author"];
         _predicateStr = d[@"predicate"];
+        _author = [[[DataStore activeStore] metadataStore] accountWithIdentifier:_authorIdentifier];
     }
     return self;
 }
@@ -81,19 +85,37 @@
 - (NSMutableDictionary *)dictionaryRepresentation {
     NSMutableDictionary *d = [NSMutableDictionary dictionary];
     [d setOptional:_title forKey:@"title"];
-    d[@"authorIdentifier"] = _authorIdentifier;
+    d[@"author"] = _authorIdentifier;
     d[@"identifier"] = _identifier;
     [d setOptional:_predicateStr forKey:@"predicate"];
     return d;
 }
 
 - (NSURL *)URL {
-    NSUUID *UUID = [[NSUUID alloc] initWithUUIDString:[self.identifier uppercaseString]];
-    return [NSURL URLWithString:[NSString stringWithFormat:@"ship+github://Query/%@", [UUID shortString]]];
+    NSString *host = [[[[DataStore activeStore] auth] account] shipHost];
+    NSURLComponents *comps = [NSURLComponents new];
+    comps.scheme = @"https";
+    comps.host = @"ship.realartists.com";
+    comps.path = [NSString stringWithFormat:@"/query/%@", self.identifier];
+    if (![host isEqualToString:@"ship.realartists.com"]) {
+        comps.queryItemsDictionary = @{ @"env" : host };
+    }
+    return comps.URL;
 }
 
-- (NSString *)URLAndTitle {
-    return [NSString stringWithFormat:@"%@ <%@>", [self URL], _title];
++ (BOOL)isQueryURL:(NSURL *)URL {
+    return ([[URL scheme] isEqualToString:@"ship+github"] && [[URL host] isEqualToString:@"query"])
+    || ([[URL scheme] isEqualToString:@"https"] && [[URL host] isEqualToString:@"ship.realartists.com"] && [[URL path] hasPrefix:@"/query/"]);
+}
+
++ (NSString *)identifierFromQueryURL:(NSURL *)URL {
+    if ([self isQueryURL:URL]) {
+        NSString *identifier = [URL lastPathComponent];
+        if ([identifier isUUID]) {
+            return [identifier lowercaseString];
+        }
+    }
+    return nil;
 }
 
 - (NSString *)titleWithAuthor {
@@ -107,6 +129,17 @@
 
 - (BOOL)isMine {
     return [self.authorIdentifier isEqual:[[Account me] identifier]];
+}
+
+- (CustomQuery *)copyIfNeededForEditing {
+    if ([self isMine]) {
+        return self;
+    } else {
+        CustomQuery *q = [CustomQuery new];
+        q.title = self.title;
+        q.predicate = self.predicate;
+        return q;
+    }
 }
 
 @end

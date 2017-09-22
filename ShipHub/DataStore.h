@@ -164,10 +164,12 @@
 
 @interface DataStore (CustomQuery)
 
-@property (readonly) NSArray<CustomQuery *> *myQueries;
+@property (readonly) NSArray<CustomQuery *> *queries;
 
-- (void)saveQuery:(CustomQuery *)query completion:(void (^)(NSArray *myQueries))completion;
-- (void)deleteQuery:(CustomQuery *)query completion:(void (^)(NSArray *myQueries))completion;
+- (void)saveQuery:(CustomQuery *)query completion:(void (^)(NSError *err))completion;
+- (void)deleteQuery:(CustomQuery *)query completion:(void (^)(NSError *err))completion;
+
+- (void)watchQuery:(NSString *)queryIdentifier completion:(void (^)(CustomQuery *q, NSError *err))completion;
 
 @end
 
@@ -191,7 +193,7 @@ extern NSString *const DataStoreDidUpdateOutboxNotification;
 extern NSString *const DataStoreOutboxResolvedProblemIdentifiersKey; // => NSDictionary mapping old identifier (<0) to new identifier (>0)
 extern NSString *const DataStoreMigrationProgressKey; // => NSProgress
 
-extern NSString *const DataStoreDidUpdateMyQueriesNotification; // Sent when myQueries changes
+extern NSString *const DataStoreDidUpdateQueriesNotification; // Sent when queries changes
 
 extern NSString *const DataStoreDidUpdateMyUpNextNotification;
 

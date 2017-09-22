@@ -8,10 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-#if !INCOMPLETE
-@class CustomQuery;
-#endif
-
 @class Issue;
 
 @interface OverviewController : NSWindowController
@@ -29,11 +25,6 @@
 
 - (IBAction)showOmniSearch:(id)sender;
 
-#if !INCOMPLETE
-- (IBAction)showDownloads:(id)sender;
-- (void)openQuery:(CustomQuery *)query;
-
-- (NSArray <id<ProblemSnapshot>> *)selectedProblemSnapshots;
-#endif
+- (void)watchQuery:(NSURL *)queryURL;
 
 @end

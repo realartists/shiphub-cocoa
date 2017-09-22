@@ -281,6 +281,12 @@
         <attribute name="predicate" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="author" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="queries" inverseEntity="LocalAccount" syncable="YES"/>
+        <relationship name="outbox" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalQueryOutbox" inverseName="query" inverseEntity="LocalQueryOutbox" syncable="YES"/>
+    </entity>
+    <entity name="LocalQueryOutbox" syncable="YES">
+        <attribute name="identifier" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="pending" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <relationship name="query" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalQuery" inverseName="outbox" inverseEntity="LocalQuery" syncable="YES"/>
     </entity>
     <entity name="LocalReaction" representedClassName="LocalReaction" syncable="YES">
         <attribute name="content" optional="YES" attributeType="String" syncable="YES"/>
@@ -340,9 +346,10 @@
         <element name="LocalProtectedBranch" positionX="9" positionY="153" width="128" height="105"/>
         <element name="LocalPRReview" positionX="18" positionY="162" width="128" height="180"/>
         <element name="LocalPullRequest" positionX="9" positionY="153" width="128" height="345"/>
-        <element name="LocalQuery" positionX="9" positionY="153" width="128" height="105"/>
+        <element name="LocalQuery" positionX="9" positionY="153" width="128" height="120"/>
         <element name="LocalReaction" positionX="9" positionY="153" width="128" height="165"/>
         <element name="LocalRepo" positionX="0" positionY="0" width="128" height="345"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
+        <element name="LocalQueryOutbox" positionX="18" positionY="162" width="128" height="90"/>
     </elements>
 </model>

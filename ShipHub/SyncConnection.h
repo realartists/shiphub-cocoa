@@ -35,7 +35,7 @@
 - (void)syncConnectionDidConnect:(SyncConnection *)sync;
 - (void)syncConnectionDidDisconnect:(SyncConnection *)sync;
 
-- (void)syncConnection:(SyncConnection *)sync receivedEntries:(NSArray<SyncEntry *> *)entries versions:(NSDictionary *)versions logProgress:(double)progress spiderProgress:(double)spiderProgres;
+- (void)syncConnection:(SyncConnection *)sync receivedEntries:(NSArray<SyncEntry *> *)entries versions:(NSDictionary *)versions logProgress:(double)progress spiderProgress:(double)spiderProgress;
 
 - (BOOL)syncConnection:(SyncConnection *)connection didReceivePurgeIdentifier:(NSString *)purgeIdentifier;
 

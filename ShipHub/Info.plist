@@ -87,6 +87,7 @@ All rights reserved.</string>
 			<key>NSSendTypes</key>
 			<array>
 				<string>NSStringPboardType</string>
+				<string>NSURLPboardType</string>
 			</array>
 		</dict>
 	</array>

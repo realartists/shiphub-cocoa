@@ -87,7 +87,7 @@ NSString *const DataStoreOutboxResolvedProblemIdentifiersKey = @"DataStoreOutbox
 NSString *const DataStoreDidPurgeNotification = @"DataStoreDidPurgeNotification";
 NSString *const DataStoreWillPurgeNotification = @"DataStoreWillPurgeNotification";
 
-NSString *const DataStoreDidUpdateMyQueriesNotification = @"DataStoreDidUpdateQueriesNotification";
+NSString *const DataStoreDidUpdateQueriesNotification = @"DataStoreDidUpdateQueriesNotification";
 
 NSString *const DataStoreDidUpdateMyUpNextNotification = @"DataStoreDidUpdateMyUpNextNotification";
 
@@ -136,20 +136,11 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  17: Cascade delete of PRReview.comments
  18: Track branch protections: realartists/shiphub-cocoa#564 Indicate which failing status checks are required in PRMergeability
  19: realartists/shiphub-cocoa#407 [Client] Track @mentioned state for issues
+ 20: realartists/shiphub-cocoa#182 Sync / Share Queries [Client]
  */
-static const NSInteger CurrentLocalModelVersion = 19;
+static const NSInteger CurrentLocalModelVersion = 20;
 
 @interface DataStore () <SyncConnectionDelegate> {
-    NSLock *_metadataLock;
-    
-    dispatch_queue_t _needsMetadataQueue;
-    NSMutableArray *_needsMetadataItems;
-    
-    dispatch_queue_t _queryUploadQueue;
-    NSMutableSet *_queryUploadProcessing; // only manipulated within _moc.
-    NSMutableArray *_needsQuerySyncItems;
-    dispatch_queue_t _needsQuerySyncQueue;
-
     NSString *_purgeVersion;
     
     NSMutableDictionary *_syncCache; // only manipulated within _moc.
@@ -165,6 +156,10 @@ static const NSInteger CurrentLocalModelVersion = 19;
     NSUInteger _writeGeneration;
     
     NSTimer *_rateLimitTimer;
+    
+    dispatch_queue_t _flushOutboxQueue;
+    BOOL _flushingOutbox;
+    NSInteger _outboxFlushCount;
 }
 
 @property (strong) Auth *auth;
@@ -184,7 +179,7 @@ static const NSInteger CurrentLocalModelVersion = 19;
 
 @property (readwrite, strong) MetadataStore *metadataStore;
 
-@property (readwrite, strong) NSArray *myQueries;
+@property (readwrite, strong) NSArray *queries;
 
 @end
 
@@ -271,13 +266,7 @@ static DataStore *sActiveStore = nil;
     if (self = [super init]) {
         _auth = auth;
         
-        _needsMetadataItems = [NSMutableArray array];
-        _needsMetadataQueue = dispatch_queue_create("DataStore.ResolveMetadata", NULL);
-        _metadataLock = [[NSLock alloc] init];
-        _queryUploadQueue = dispatch_queue_create("DataStore.UploadQuery", NULL);
-        _queryUploadProcessing = [NSMutableSet set];
-        _needsQuerySyncItems = [NSMutableArray array];
-        _needsQuerySyncQueue = dispatch_queue_create("DataStore.ResolveQueries", NULL);
+        _flushOutboxQueue = dispatch_queue_create("DataStore.QueryOutboxQ", NULL);
         
         if (![self openDB]) {
             return nil;
@@ -395,6 +384,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     BOOL needsPRBaseBranch = previousStoreVersion < 18;
     
     BOOL needsMentionedQueryRewrite = previousStoreVersion < 19;
+    
+    BOOL needsQueriesCopiedToOutbox = previousStoreVersion < 20;
     
     NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @(!needsHeavyweightMigration) };
     
@@ -601,6 +592,22 @@ static NSString *const LastUpdated = @"LastUpdated";
                     NSString *newPredicate = [oldPredicate stringByReplacingOccurrencesOfString:oldMentionedPredicate withString:[NSString stringWithFormat:@"ANY mentions.login == \"%@\"", meLogin]];
                     q.predicate = newPredicate;
                 }
+            }
+            
+            [_writeMoc save:NULL];
+        }];
+    }
+    
+    if (needsQueriesCopiedToOutbox) {
+        [_writeMoc performBlockAndWait:^{
+            NSFetchRequest *queryFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQuery"];
+            NSArray *queries = [_writeMoc executeFetchRequest:queryFetch error:NULL];
+            
+            for (LocalQuery *q in queries) {
+                NSManagedObject *entry = [NSEntityDescription insertNewObjectForEntityForName:@"LocalQueryOutbox" inManagedObjectContext:_writeMoc];
+                [entry setValue:q forKey:@"query"];
+                [entry setValue:@NO forKey:@"pending"];
+                [entry setValue:q.identifier forKey:@"identifier"];
             }
             
             [_writeMoc save:NULL];
@@ -1167,8 +1174,27 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
 }
 
-- (void)syncConnection:(SyncConnection *)sync receivedEntries:(NSArray<SyncEntry *> *)entries versions:(NSDictionary *)versions logProgress:(double)progress spiderProgress:(double)spiderProgress
+static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArray<SyncEntry *> *__autoreleasing* ghEntries, NSArray<SyncEntry *> *__autoreleasing* queryEntries) {
+    NSMutableArray *gh = [NSMutableArray arrayWithCapacity:mixedEntries.count];
+    NSMutableArray *q = [NSMutableArray arrayWithCapacity:0];
+    
+    for (SyncEntry *se in mixedEntries) {
+        if ([se.entityName isEqualToString:@"query"]) {
+            [q addObject:se];
+        } else {
+            [gh addObject:se];
+        }
+    }
+    
+    if (ghEntries) *ghEntries = gh;
+    if (queryEntries) *queryEntries = q;
+}
+
+- (void)syncConnection:(SyncConnection *)sync receivedEntries:(NSArray<SyncEntry *> *)mixedEntries versions:(NSDictionary *)versions logProgress:(double)progress spiderProgress:(double)spiderProgress
 {
+    NSArray<SyncEntry *> *entries = nil, *queryEntries = nil;
+    partitionMixedSyncEntries(mixedEntries, &entries, &queryEntries);
+    
     NSDictionary *identifiers = [self identifiersInSyncEntries:entries];
     
     [self performWrite:^(NSManagedObjectContext *moc) {
@@ -1177,6 +1203,7 @@ static NSString *const LastUpdated = @"LastUpdated";
         [self ensureEntitiesForIdentifiers:identifiers];
         
         [self writeSyncObjects:entries];
+        [self writeSyncQueries:queryEntries];
         [self updateSyncVersions:versions];
         
         _syncCache = nil;
@@ -1227,6 +1254,7 @@ static NSString *const LastUpdated = @"LastUpdated";
             ErrLog(@"Error updating metadata: %@", err);
         }
     }];
+    [self flushOutboxIfNeeded];
     dispatch_async(dispatch_get_main_queue(), ^{
         _logSyncProgress = 1.0;
         _syncConnectionActive = YES;
@@ -1385,12 +1413,10 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
     
     if (changed) {
-        [self performRead:^(NSManagedObjectContext *moc) {
-            self.myQueries = [self _fetchQueries:moc];
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateMyQueriesNotification object:nil];
-            });
-        }];
+        self.queries = [self _fetchQueries:_writeMoc];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreDidUpdateQueriesNotification object:nil];
+        });
     }
 }
 
@@ -1743,7 +1769,11 @@ static NSString *const LastUpdated = @"LastUpdated";
         e.entityName = type;
         e.data = obj;
         
-        [self writeSyncObjects:@[e]];
+        if ([type isEqualToString:@"query"]) {
+            [self writeSyncQueries:@[e]];
+        } else {
+            [self writeSyncObjects:@[e]];
+        }
         
         NSError *err = nil;
         [moc save:&err];
@@ -3658,7 +3688,7 @@ static NSString *const LastUpdated = @"LastUpdated";
 // used only by init. blocks.
 - (void)loadQueries {
     [_writeMoc performBlockAndWait:^{
-        self.myQueries = [self _fetchQueries:_writeMoc];
+        self.queries = [self _fetchQueries:_writeMoc];
     }];
 }
 
@@ -3672,9 +3702,10 @@ static NSString *const LastUpdated = @"LastUpdated";
     }];
 }
 
-- (void)saveQuery:(CustomQuery *)query completion:(void (^)(NSArray *myQueries))completion {
+- (void)saveQuery:(CustomQuery *)query completion:(void (^)(NSError *err))completion {
     NSParameterAssert(query);
     NSParameterAssert(query.identifier);
+    NSParameterAssert([query isMine]);
     
     [self performWrite:^(NSManagedObjectContext *moc) {
         NSFetchRequest *meFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalAccount"];
@@ -3690,43 +3721,60 @@ static NSString *const LastUpdated = @"LastUpdated";
         fetch.predicate = [NSPredicate predicateWithFormat:@"author = %@ AND (identifier = %@ OR title =[cd] %@)", me, query.identifier, query.title];
         
         NSArray *queries = [moc executeFetchRequest:fetch error:NULL];
+        LocalQuery *localQ = nil;
         
         if ([queries count]) {
             for (LocalQuery *q in queries) {
                 if ([[q title] compare:query.title options:NSCaseInsensitiveSearch|NSDiacriticInsensitiveSearch] == NSOrderedSame
                     || [[q identifier] isEqualToString:[query identifier]])
                 {
+                    localQ = q;
                     [q mergeAttributesFromDictionary:[query dictionaryRepresentation]];
                     q.author = me;
                 }
             }
         } else {
             LocalQuery *q = [NSEntityDescription insertNewObjectForEntityForName:@"LocalQuery" inManagedObjectContext:moc];
+            localQ = q;
             [q mergeAttributesFromDictionary:[query dictionaryRepresentation]];
             q.author = me;
         }
         
-        NSArray *myQueries = [self _fetchQueries:moc];
+        NSFetchRequest *outbox = [NSFetchRequest fetchRequestWithEntityName:@"LocalQueryOutbox"];
+        outbox.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", query.identifier];
+        NSArray *outboxEntries = [moc executeFetchRequest:outbox error:NULL];
+        NSAssert([outboxEntries count] <= 1, @"Outbox entries should be unique");
+        for (NSManagedObject *obEntry in outboxEntries) {
+            [obEntry setValue:@NO forKey:@"pending"];
+            [obEntry setValue:localQ forKey:@"query"];
+        }
+        if ([outboxEntries count] == 0) {
+            NSManagedObject *obEntry = [NSEntityDescription insertNewObjectForEntityForName:@"LocalQueryOutbox" inManagedObjectContext:moc];
+            [obEntry setValue:@NO forKey:@"pending"];
+            [obEntry setValue:query.identifier forKey:@"identifier"];
+            [obEntry setValue:localQ forKey:@"query"];
+        }
         
         NSError *error = nil;
         [moc save:&error];
         
+        [self flushOutboxIfNeeded];
+        
         if (error) {
             ErrLog(@"%@", error);
+            RunOnMain(^{
+                if (completion) {
+                    completion(error);
+                }
+            });
+            return;
         }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.myQueries = myQueries;
-            if (completion) {
-                completion(myQueries);
-            }
-        });
     }];
 
     [[Analytics sharedInstance] track:@"Query Added"];
 }
 
-- (void)deleteQuery:(CustomQuery *)query completion:(void (^)(NSArray *myQueries))completion {
+- (void)deleteQuery:(CustomQuery *)query completion:(void (^)(NSError *error))completion {
     NSParameterAssert(query);
     NSParameterAssert(query.identifier);
     
@@ -3738,22 +3786,279 @@ static NSString *const LastUpdated = @"LastUpdated";
             [moc deleteObject:q];
         }
         
-        NSArray *myQueries = [self _fetchQueries:moc];
+        NSFetchRequest *outbox = [NSFetchRequest fetchRequestWithEntityName:@"LocalQueryOutbox"];
+        outbox.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", query.identifier];
+        NSArray *outboxEntries = [moc executeFetchRequest:outbox error:NULL];
+        NSAssert([outboxEntries count] <= 1, @"Outbox entries should be unique");
+        for (NSManagedObject *obEntry in outboxEntries) {
+            [obEntry setValue:@NO forKey:@"pending"];
+            [obEntry setValue:nil forKey:@"query"];
+        }
+        if ([outboxEntries count] == 0) {
+            NSManagedObject *obEntry = [NSEntityDescription insertNewObjectForEntityForName:@"LocalQueryOutbox" inManagedObjectContext:moc];
+            [obEntry setValue:@NO forKey:@"pending"];
+            [obEntry setValue:query.identifier forKey:@"identifier"];
+            [obEntry setValue:nil forKey:@"query"];
+        }
         
         NSError *error = nil;
         [moc save:&error];
+        
+        [self flushOutboxIfNeeded];
         
         if (error) {
             ErrLog(@"%@", error);
         }
         
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.myQueries = myQueries;
             if (completion) {
-                completion(myQueries);
+                completion(error);
             }
         });
     }];
+}
+
+- (void)watchQuery:(NSString *)queryIdentifier completion:(void (^)(CustomQuery *q, NSError *err))completion {
+    NSParameterAssert(queryIdentifier);
+    
+    NSString *endpoint = [NSString stringWithFormat:@"/api/query/%@/watch", queryIdentifier];
+    NSURLComponents *comps = [NSURLComponents new];
+    comps.scheme = @"https";
+    comps.host = _auth.account.shipHost;
+    comps.path = endpoint;
+    
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:comps.URL];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+    [_auth addAuthHeadersToRequest:request];
+    request.HTTPMethod = @"PUT";
+    
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        
+        [_auth checkResponse:response];
+        
+        NSHTTPURLResponse *http = (id)response;
+        
+        if (http.statusCode == 404) {
+            error = [NSError shipErrorWithCode:ShipErrorCodeUnknownQuery];
+        }
+        
+        if (!error && ![http isSuccessStatusCode]) {
+            error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
+        }
+        
+        NSDictionary *queryInfo = nil;
+        if (!error) {
+            NSError *jsonErr = nil;
+            queryInfo = [NSJSONSerialization JSONObjectWithData:data?:[NSData data] options:0 error:&jsonErr];
+            if (jsonErr) {
+                error = jsonErr;
+            }
+        }
+        
+        if (!error) {
+            [self storeSingleSyncObject:queryInfo type:@"query" completion:^{
+                RunOnMain(^{
+                    if (completion) {
+                        completion([[self.queries filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"identifier = %@", queryIdentifier]] firstObject], nil);
+                    }
+                });
+            }];
+        } else {
+            RunOnMain(^{
+                if (completion) {
+                    completion(nil, error);
+                }
+            });
+        }
+    }] resume];
+}
+
+#pragma mark - Query Outbox
+
+- (void)flushOutboxIfNeeded {
+    dispatch_async(_flushOutboxQueue, ^{
+        NSInteger flushCount = _outboxFlushCount;
+        _outboxFlushCount++;
+        
+        [self performWrite:^(NSManagedObjectContext *moc) {
+            
+            NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQueryOutbox"];
+            if (flushCount != 0) {
+                fetch.predicate = [NSPredicate predicateWithFormat:@"pending = NO"];
+            }
+            
+            NSArray *toFlush = [moc executeFetchRequest:fetch error:NULL];
+            for (NSManagedObject *obj in toFlush) {
+                [obj setValue:@YES forKey:@"pending"];
+            }
+            
+            NSArray *toWrite = [toFlush arrayByMappingObjects:^id(NSManagedObject *obj) {
+                LocalQuery *q = [obj valueForKey:@"query"];
+                if (!q) {
+                    return
+                    @{ @"identifier" : [obj valueForKey:@"identifier"],
+                       @"delete" : @YES };
+                } else {
+                    CustomQuery *cq = [[CustomQuery alloc] initWithLocalItem:q];
+                    return [cq dictionaryRepresentation];
+                }
+            }];
+            
+            DebugLog(@"Discovered %td pending queries", toWrite.count);
+            
+            if ([toFlush count]) {
+                // mark what's pending
+                [moc save:NULL];
+                
+                // actually go and perform the writes that we need to do
+                dispatch_async(_flushOutboxQueue, ^{
+                    NSMutableArray *writtenIdentifiers = [NSMutableArray new];
+                    NSMutableArray *failedIdentifiers = [NSMutableArray new];
+                    NSMutableArray *requests = [NSMutableArray new];
+                    for (NSDictionary *info in toWrite) {
+                        NSURLComponents *comps = [NSURLComponents new];
+                        comps.scheme = @"https";
+                        comps.host = _auth.account.shipHost;
+                        comps.path = [NSString stringWithFormat:@"/api/query/%@", info[@"identifier"]];
+                        
+                        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:comps.URL];
+                        if (info[@"delete"]) {
+                            DebugLog(@"Deleting query %@", info[@"identifier"]);
+                            request.HTTPMethod = @"DELETE";
+                        } else {
+                            DebugLog(@"Writing query %@", info[@"identifier"]);
+                            request.HTTPMethod = @"PUT";
+                            request.HTTPBody = [NSJSONSerialization dataWithJSONObject:info options:0 error:NULL];
+                        }
+                        
+                        [_auth addAuthHeadersToRequest:request];
+                        
+                        [request setValue:@"application/json" forHTTPHeaderField:@"Accept"];
+                        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+                        
+                        [requests addObject:request];
+                    }
+                    
+                    [[NSURLSession sharedSession] dataTasksWithRequests:requests completion:^(NSArray<URLSessionResult *> *results) {
+                        // HTTP 401 == bad auth token
+                        // HTTP 403 == you can't edit this query because it's not yours
+                        // HTTP 200 || HTTP 201 == success
+                        // Anything else = transient error
+                        
+                        for (NSUInteger i = 0; i < toWrite.count; i++) {
+                            NSDictionary *info = toWrite[i];
+                            URLSessionResult *result = results[i];
+                            
+                            NSHTTPURLResponse *http = (id)result.response;
+                            switch (http.statusCode) {
+                                case 403:
+                                    ErrLog(@"Received error 403 trying to update query that isn't mine: %@", info[@"identifier"]);
+                                    // intentional fallthrough: pretend we've succeeded because we're never gonna.
+                                case 200:
+                                case 201:
+                                    [writtenIdentifiers addObject:info[@"identifier"]];
+                                    break;
+                                case 401: [_auth checkResponse:http]; // intentional fallthrough: we want to retry these operations once we re-auth.
+                                default:
+                                    [failedIdentifiers addObject:info[@"identifier"]];
+                                    ErrLog(@"Unable to save query: %@", result.error);
+                                    break;
+                            }
+                        }
+                        
+                        DebugLog(@"Wrote %tu queries out of %td", writtenIdentifiers.count, toWrite.count);
+                        
+                        if ([writtenIdentifiers count] || [failedIdentifiers count]) {
+                            [self performWrite:^(NSManagedObjectContext *cleanupMoc) {
+                                NSFetchRequest *deleteThese = [NSFetchRequest fetchRequestWithEntityName:@"LocalQueryOutbox"];
+                                deleteThese.predicate = [NSPredicate predicateWithFormat:@"pending = YES AND identifier IN %@", writtenIdentifiers];
+                                [cleanupMoc batchDeleteEntitiesWithRequest:deleteThese error:NULL];
+                                
+                                NSFetchRequest *resetThese = [NSFetchRequest fetchRequestWithEntityName:@"LocalQueryOutbox"];
+                                resetThese.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", failedIdentifiers];
+                                NSArray *resetObjs = [moc executeFetchRequest:resetThese error:NULL];
+                                for (NSManagedObject *obj in resetObjs) {
+                                    [obj setValue:@NO forKey:@"pending"];
+                                }
+                                
+                                [cleanupMoc save:NULL];
+                            }];
+                        }
+                    }];
+                });
+            }
+        }];
+        
+    });
+}
+
+#pragma mark - Query Sync
+
+// must be called on _moc. Does not call save. Does not update sync version.
+- (void)writeSyncQueries:(NSArray<SyncEntry *> *)objs {
+    NSMutableSet *deleteThese = [NSMutableSet new];
+    NSMutableDictionary *updateThese = [NSMutableDictionary new];
+    
+    for (SyncEntry *e in objs) {
+        NSAssert([e.entityName isEqualToString:@"query"], nil);
+        
+        id data = e.data;
+        NSString *identifier = nil;
+        if ([data isKindOfClass:[NSString class]]) {
+            identifier = data;
+        } else {
+            identifier = data[@"identifier"];
+        }
+        
+        NSAssert(identifier != nil, @"identifier cannot be nil.");
+        
+        if (e.action == SyncEntryActionSet) {
+            updateThese[identifier] = data;
+        } else {
+            [deleteThese addObject:identifier];
+        }
+    }
+    
+    if ([deleteThese count]) {
+        NSFetchRequest *deleteFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQuery"];
+        deleteFetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", deleteThese];
+        
+        // deletion is forever. if it's in the outbox, it goes poof
+        NSFetchRequest *deletePendingFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalQueryOutbox"];
+        deletePendingFetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", deleteThese];
+        
+        [_writeMoc batchDeleteEntitiesWithRequest:deleteFetch error:NULL];
+        [_writeMoc batchDeleteEntitiesWithRequest:deletePendingFetch error:NULL];
+    }
+    
+    if ([updateThese count]) {
+        // pare down the updates to identifiers that aren't in the outbox
+        NSFetchRequest *inOutbox = [NSFetchRequest fetchRequestWithEntityName:@"LocalQueryOutbox"];
+        inOutbox.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", [updateThese allKeys]];
+        inOutbox.resultType = NSDictionaryResultType;
+        inOutbox.propertiesToFetch = @[@"identifier"];
+        
+        NSSet *skipTheseIdentifiers = [NSSet setWithArray:[[_writeMoc executeFetchRequest:inOutbox error:NULL] arrayByMappingObjects:^id(id obj) {
+            return [obj objectForKey:@"identifier"];
+        }]];
+        
+        NSFetchRequest *updateQueries = [NSFetchRequest fetchRequestWithEntityName:@"LocalQuery"];
+        updateQueries.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@ AND outbox == nil", [updateThese allKeys]];
+        
+        NSDictionary *existingQueries = [NSDictionary lookupWithObjects:[_writeMoc executeFetchRequest:updateQueries error:NULL] keyPath:@"identifier"];
+        
+        for (NSString *identifier in updateThese) {
+            if (![skipTheseIdentifiers containsObject:identifier]) {
+                LocalQuery *query = existingQueries[identifier];
+                if (!query) {
+                    query = [NSEntityDescription insertNewObjectForEntityForName:@"LocalQuery" inManagedObjectContext:_writeMoc];
+                }
+                NSDictionary *info = updateThese[identifier];
+                [query mergeAttributesFromDictionary:info];
+                [self updateRelationshipsOn:query fromSyncDict:info];
+            }
+        }
+    }
 }
 
 #pragma mark - Pull Request Extras
@@ -3828,9 +4133,6 @@ static NSString *const LastUpdated = @"LastUpdated";
         
         dispatch_async(dispatch_get_main_queue(), ^{
             [[NSNotificationCenter defaultCenter] postNotificationName:DataStoreWillPurgeNotification object:self];
-        });
-        dispatch_async(_needsMetadataQueue, ^{
-            [_needsMetadataItems removeAllObjects];
         });
         [self performWrite:^(NSManagedObjectContext *moc) {
             NSMutableDictionary *newMetadata = [currentMetadata mutableCopy];

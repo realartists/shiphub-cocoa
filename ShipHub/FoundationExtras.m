@@ -181,9 +181,6 @@ static inline uint8_t h2b(uint8_t v) {
 }
 
 - (BOOL)isUUID {
-    if (!([self length] == 35 || [self length] == 32))
-        return NO;
-    
     NSString *chars = [self stringByReplacingOccurrencesOfString:@"-" withString:@""];
     if ([chars length] != 32)
         return NO;
@@ -194,7 +191,7 @@ static inline uint8_t h2b(uint8_t v) {
         expr = [NSRegularExpression regularExpressionWithPattern:@"^[0-9a-fA-F]+$" options:0 error:NULL];
     });
     
-    return [expr numberOfMatchesInString:chars options:0 range:NSMakeRange(0, self.length)] == 1;
+    return [expr numberOfMatchesInString:chars options:0 range:NSMakeRange(0, 32)] == 1;
 }
 
 - (NSString *)stringByCollapsingNewlines {
@@ -730,8 +727,12 @@ static inline uint8_t h2b(uint8_t v) {
 
 - (BOOL)batchDeleteEntitiesWithRequest:(NSFetchRequest *)request error:(NSError * __autoreleasing *)error
 {
+    // disable NSBatchDeleteRequest path because it does not immediately clean up relationships.
+    #define USE_NSBATCHDELETEREQUEST 0
+    
     NSError *err = nil;
-    if ([NSBatchDeleteRequest class]) {
+    
+    if (USE_NSBATCHDELETEREQUEST && [NSBatchDeleteRequest class]) {
         // 10.11/iOS 9 path
         NSBatchDeleteRequest *batch = [[NSBatchDeleteRequest alloc] initWithFetchRequest:request];
         [self executeRequest:batch error:&err];
