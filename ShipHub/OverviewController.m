@@ -105,6 +105,12 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 
 @end
 
+@interface OverviewSharedQueryCellView : OverviewCountCellView
+
+@property IBOutlet NSTextField *subtitleField;
+
+@end
+
 @interface OverviewOwnerCellView : OverviewCellView
 
 @property IBOutlet NSButton *warningButton;
@@ -583,13 +589,16 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
             BOOL myQuery = [query isMine];
             OverviewNode *queryNode = [OverviewNode new];
             queryNode.title = query.titleWithAuthor;
+            if (!myQuery) {
+                queryNode.subtitle = [NSString stringWithFormat:NSLocalizedString(@"Shared by %@", nil), query.author.login];
+            }
             queryNode.representedObject = query;
             queryNode.predicate = query.predicate;
             queryNode.identifier = query.identifier;
             queryNode.menu = [self menuForCustomQuery:query];
             queryNode.titleEditable = NO; // myQuery; // editing query titles inline is disabled due to bugs.
             queryNode.showCount = YES;
-            queryNode.cellIdentifier = @"CountCell";
+            queryNode.cellIdentifier = myQuery ? @"CountCell" : @"SharedQueryCell";
             queryNode.icon = queryIcon;
             queryNode.filterBarDefaultsToOpenState = NO;
             queryNode.includeInOmniSearch = YES;
@@ -1296,6 +1305,11 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
             ownerCell.warningButton.action = @selector(showWebhookWarning:);
         }
         
+        if ([cell isKindOfClass:[OverviewSharedQueryCellView class]]) {
+            OverviewSharedQueryCellView *queryCell = (id)cell;
+            queryCell.subtitleField.stringValue = node.subtitle ?: @"";
+        }
+        
         cell.imageView.image = node.icon;
         cell.textField.stringValue = node.title;
         cell.menu = node.menu;
@@ -1315,7 +1329,14 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 
 - (CGFloat)outlineView:(NSOutlineView *)outlineView heightOfRowByItem:(id)item {
     if ([self outlineView:outlineView isGroupItem:item]) return 24.0;
-    if ([item isKindOfClass:[OverviewNode class]]) return 24.0;
+    if ([item isKindOfClass:[OverviewNode class]]) {
+        OverviewNode *node = item;
+        if ([node.cellIdentifier isEqualToString:@"SharedQueryCell"]) {
+            return 26.0;
+        } else {
+            return 24.0;
+        }
+    }
     else {
         NSAssert([item isKindOfClass:[OverviewKnob class]], @"Must be a knob if not a node");
         OverviewKnob *knob = item;
@@ -2534,6 +2555,10 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 @end
 
 @implementation OverviewMilestoneCellView
+
+@end
+
+@implementation OverviewSharedQueryCellView
 
 @end
 

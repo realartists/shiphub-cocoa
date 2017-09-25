@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13196" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13196"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -68,7 +68,7 @@
                                                             </textFieldCell>
                                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             <prototypeCellViews>
-                                                                <textField identifier="GroupCell" autoresizesSubviews="NO" verticalHuggingPriority="750" id="egy-fV-aly">
+                                                                <textField identifier="GroupCell" autoresizesSubviews="NO" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="egy-fV-aly">
                                                                     <rect key="frame" x="1" y="1" width="248" height="20"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Group Cell" id="YTf-Cm-SHv">
@@ -151,8 +151,62 @@
                                                                         <outlet property="textField" destination="Ilo-vp-Qzg" id="2Sa-GK-80D"/>
                                                                     </connections>
                                                                 </tableCellView>
+                                                                <tableCellView identifier="SharedQueryCell" id="TmW-8M-MEZ" userLabel="Shared Query Cell View" customClass="OverviewSharedQueryCellView">
+                                                                    <rect key="frame" x="1" y="75" width="248" height="26"/>
+                                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                    <subviews>
+                                                                        <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="24" placeholderIntrinsicHeight="24" translatesAutoresizingMaskIntoConstraints="NO" id="UtI-87-IZl" customClass="OverviewCellImageView">
+                                                                            <rect key="frame" x="0.0" y="1" width="24" height="24"/>
+                                                                            <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="1bS-0S-UpF"/>
+                                                                        </imageView>
+                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="17" allowsCharacterPickerTouchBarItem="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wnq-mT-FLU">
+                                                                            <rect key="frame" x="25" y="9" width="194" height="17"/>
+                                                                            <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Shared Query Cell" id="khI-iu-9rV">
+                                                                                <font key="font" metaFont="system"/>
+                                                                                <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                            </textFieldCell>
+                                                                        </textField>
+                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="11" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6bz-zl-eKp" userLabel="Shared By Label">
+                                                                            <rect key="frame" x="25" y="0.0" width="194" height="11"/>
+                                                                            <textFieldCell key="cell" controlSize="mini" lineBreakMode="truncatingHead" sendsActionOnEndEditing="YES" title="Shared by james-howard" id="5j1-BA-B2I">
+                                                                                <font key="font" metaFont="miniSystem"/>
+                                                                                <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                                                                <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                            </textFieldCell>
+                                                                        </textField>
+                                                                        <button horizontalHuggingPriority="251" verticalHuggingPriority="750" placeholderIntrinsicWidth="25" placeholderIntrinsicHeight="16" tag="42" translatesAutoresizingMaskIntoConstraints="NO" id="S12-aj-4Ww" customClass="LabelButton">
+                                                                            <rect key="frame" x="221" y="4" width="25" height="17"/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="height" constant="16" id="DhH-1M-DcC"/>
+                                                                            </constraints>
+                                                                            <buttonCell key="cell" type="inline" title="1942" bezelStyle="inline" alignment="center" borderStyle="border" inset="2" id="UvE-4s-aCU">
+                                                                                <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                                                <font key="font" metaFont="smallSystemBold"/>
+                                                                            </buttonCell>
+                                                                        </button>
+                                                                    </subviews>
+                                                                    <constraints>
+                                                                        <constraint firstItem="S12-aj-4Ww" firstAttribute="leading" secondItem="wnq-mT-FLU" secondAttribute="trailing" constant="4" id="15D-DB-dFm"/>
+                                                                        <constraint firstItem="UtI-87-IZl" firstAttribute="leading" secondItem="TmW-8M-MEZ" secondAttribute="leading" id="78t-hM-o4q"/>
+                                                                        <constraint firstItem="UtI-87-IZl" firstAttribute="top" secondItem="TmW-8M-MEZ" secondAttribute="top" constant="1" id="9L3-pY-spd"/>
+                                                                        <constraint firstAttribute="bottom" secondItem="6bz-zl-eKp" secondAttribute="bottom" id="Hkx-Kh-So3"/>
+                                                                        <constraint firstItem="S12-aj-4Ww" firstAttribute="leading" secondItem="6bz-zl-eKp" secondAttribute="trailing" constant="4" id="Jb9-UM-uYv"/>
+                                                                        <constraint firstItem="S12-aj-4Ww" firstAttribute="top" secondItem="TmW-8M-MEZ" secondAttribute="top" constant="5" id="Lb4-7a-7XM"/>
+                                                                        <constraint firstAttribute="trailing" secondItem="S12-aj-4Ww" secondAttribute="trailing" constant="2" id="Lte-vE-FHe"/>
+                                                                        <constraint firstItem="6bz-zl-eKp" firstAttribute="leading" secondItem="UtI-87-IZl" secondAttribute="trailing" constant="3" id="bYX-qJ-zsM"/>
+                                                                        <constraint firstItem="wnq-mT-FLU" firstAttribute="top" secondItem="TmW-8M-MEZ" secondAttribute="top" id="c8U-PM-1cD"/>
+                                                                        <constraint firstItem="wnq-mT-FLU" firstAttribute="leading" secondItem="UtI-87-IZl" secondAttribute="trailing" constant="3" id="hVs-vx-zOG"/>
+                                                                    </constraints>
+                                                                    <connections>
+                                                                        <outlet property="countButton" destination="S12-aj-4Ww" id="mRB-Pq-PRj"/>
+                                                                        <outlet property="imageView" destination="UtI-87-IZl" id="6n9-zM-k1i"/>
+                                                                        <outlet property="subtitleField" destination="6bz-zl-eKp" id="zOZ-n9-qZe"/>
+                                                                        <outlet property="textField" destination="wnq-mT-FLU" id="pJw-Au-TwU"/>
+                                                                    </connections>
+                                                                </tableCellView>
                                                                 <tableCellView identifier="MilestoneCell" id="JCw-zG-NQo" userLabel="Milestone Cell View" customClass="OverviewMilestoneCellView">
-                                                                    <rect key="frame" x="1" y="75" width="248" height="24"/>
+                                                                    <rect key="frame" x="1" y="103" width="248" height="24"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="24" placeholderIntrinsicHeight="24" translatesAutoresizingMaskIntoConstraints="NO" id="yAM-PJ-pT3" customClass="OverviewCellImageView">
@@ -191,7 +245,7 @@
                                                                     </connections>
                                                                 </tableCellView>
                                                                 <tableCellView identifier="OwnerCell" id="4dh-gy-RqB" userLabel="Owner Cell" customClass="OverviewOwnerCellView">
-                                                                    <rect key="frame" x="1" y="101" width="248" height="24"/>
+                                                                    <rect key="frame" x="1" y="129" width="248" height="24"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <userGuides>
                                                                         <userLayoutGuide location="7" affinity="minY"/>
@@ -238,7 +292,7 @@
                                                                     </connections>
                                                                 </tableCellView>
                                                                 <customView identifier="NSTableViewRowViewKey" id="aUh-Fd-8ol" customClass="DeemphasizedRowView">
-                                                                    <rect key="frame" x="1" y="127" width="248" height="96"/>
+                                                                    <rect key="frame" x="1" y="155" width="248" height="96"/>
                                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                                 </customView>
                                                             </prototypeCellViews>

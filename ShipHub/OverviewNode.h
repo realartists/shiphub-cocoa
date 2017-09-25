@@ -15,6 +15,7 @@ typedef void (^OverviewNodeDropHandler)(NSArray<NSString *> *issueIdentifiers);
 @interface OverviewNode : NSObject
 
 @property NSString *title;
+@property NSString *subtitle;
 @property (nonatomic, strong) NSViewController *viewController;
 @property (nonatomic, strong) NSPredicate *predicate;
 @property (copy) OverviewPredicateBuilder predicateBuilder;

@@ -30,11 +30,11 @@
     return self;
 }
 
-- (id)initWithLocalItem:(LocalQuery *)query {
+- (id)initWithLocalItem:(LocalQuery *)query metadata:(MetadataStore *)ms {
     if (self = [super init]) {
         _identifier = query.identifier;
         _authorIdentifier = query.author.identifier;
-        _author = [[[DataStore activeStore] metadataStore] accountWithIdentifier:_authorIdentifier];
+        _author = [ms accountWithIdentifier:_authorIdentifier];
         _title = query.title;
         _predicateStr = query.predicate;
     }

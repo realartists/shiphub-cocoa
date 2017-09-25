@@ -11,10 +11,11 @@
 
 @class LocalQuery;
 @class Account;
+@class MetadataStore;
 
 @interface CustomQuery : NSObject <JSONItem>
 
-- (id)initWithLocalItem:(LocalQuery *)query;
+- (id)initWithLocalItem:(LocalQuery *)query metadata:(MetadataStore *)ms;
 
 @property NSString *identifier;
 @property NSString *title;

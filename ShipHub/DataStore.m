@@ -3698,7 +3698,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     NSArray *queries = [moc executeFetchRequest:fetch error:NULL];
     
     return [queries arrayByMappingObjects:^id(id obj) {
-        return [[CustomQuery alloc] initWithLocalItem:obj];
+        return [[CustomQuery alloc] initWithLocalItem:obj metadata:self.metadataStore];
     }];
 }
 
@@ -3899,7 +3899,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
                     @{ @"identifier" : [obj valueForKey:@"identifier"],
                        @"delete" : @YES };
                 } else {
-                    CustomQuery *cq = [[CustomQuery alloc] initWithLocalItem:q];
+                    CustomQuery *cq = [[CustomQuery alloc] initWithLocalItem:q metadata:self.metadataStore];
                     return [cq dictionaryRepresentation];
                 }
             }];
