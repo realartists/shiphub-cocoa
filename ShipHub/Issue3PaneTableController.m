@@ -321,7 +321,9 @@
 }
 
 - (NSString *)tableView:(NSTableView *)tableView typeSelectStringForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    return nil;
+    if (row < 0 || row >= self.items.count) return nil;
+    Issue *issue = self.items[row];
+    return issue.title;
 }
 
 - (BOOL)tableView:(NSTableView *)tableView handleKeyPressEvent:(NSEvent *)event {
