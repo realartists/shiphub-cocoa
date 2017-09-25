@@ -378,7 +378,8 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     menu.extras_representedObject = query;
     if ([query isMine]) {
         [menu addItemWithTitle:NSLocalizedString(@"Edit Query", nil) action:@selector(editQuery:) keyEquivalent:@""];
-        [menu addItemWithTitle:NSLocalizedString(@"Rename Query", nil) action:@selector(renameQuery:) keyEquivalent:@""];
+        // Renaming queries inline is disabled due to bugs.
+        // [menu addItemWithTitle:NSLocalizedString(@"Rename Query", nil) action:@selector(renameQuery:) keyEquivalent:@""];
     } else {
         [menu addItemWithTitle:NSLocalizedString(@"Duplicate and Edit Query", nil) action:@selector(editQuery:) keyEquivalent:@""];
     }
@@ -579,14 +580,14 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         [roots addObject:queriesRoot];
         
         for (CustomQuery *query in queries) {
-            BOOL myQuery = [query isMine] ? 1 : 2;
+            BOOL myQuery = [query isMine];
             OverviewNode *queryNode = [OverviewNode new];
             queryNode.title = query.titleWithAuthor;
             queryNode.representedObject = query;
             queryNode.predicate = query.predicate;
             queryNode.identifier = query.identifier;
             queryNode.menu = [self menuForCustomQuery:query];
-            queryNode.titleEditable = myQuery;
+            queryNode.titleEditable = NO; // myQuery; // editing query titles inline is disabled due to bugs.
             queryNode.showCount = YES;
             queryNode.cellIdentifier = @"CountCell";
             queryNode.icon = queryIcon;
