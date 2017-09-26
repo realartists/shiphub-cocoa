@@ -97,7 +97,7 @@
     comps.scheme = @"https";
     comps.host = @"ship.realartists.com";
     comps.path = [NSString stringWithFormat:@"/query/%@", self.identifier];
-    if (![host isEqualToString:@"ship.realartists.com"]) {
+    if (![host isEqualToString:@"hub.realartists.com"]) {
         comps.queryItemsDictionary = @{ @"env" : host };
     }
     return comps.URL;

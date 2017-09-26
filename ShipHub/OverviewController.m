@@ -588,7 +588,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         for (CustomQuery *query in queries) {
             BOOL myQuery = [query isMine];
             OverviewNode *queryNode = [OverviewNode new];
-            queryNode.title = query.titleWithAuthor;
+            queryNode.title = query.title;
             if (!myQuery) {
                 queryNode.subtitle = [NSString stringWithFormat:NSLocalizedString(@"Shared by %@", nil), query.author.login];
             }
@@ -1891,7 +1891,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     } else if (menuItem.action == @selector(editQuery:)) {
         id selectedItem = [_outlineView selectedItem];
         id repr = [selectedItem representedObject];
-        return [repr isKindOfClass:[CustomQuery class]] && [repr isMine];
+        return [repr isKindOfClass:[CustomQuery class]];
     } else if (menuItem.action == @selector(deleteProject:)) {
         return [self canDeleteProject];
     } else if (menuItem.action == @selector(addNewProject:)) {
