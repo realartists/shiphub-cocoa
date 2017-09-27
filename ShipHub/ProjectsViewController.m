@@ -107,6 +107,8 @@
 {
     if (_loggingIn) {
         decisionHandler(WKNavigationActionPolicyAllow);
+    } else if (![navigationAction.request.HTTPMethod isEqualToString:@"GET"]) {
+        decisionHandler(WKNavigationActionPolicyAllow);
     } else {
         NSURL *URL = navigationAction.request.URL;
         if ([URL isEqual:[self projectURL]]) {
