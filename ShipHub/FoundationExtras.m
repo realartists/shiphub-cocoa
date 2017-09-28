@@ -51,7 +51,7 @@
 @end
 
 
-@implementation NSString (Suffix)
+@implementation NSString (Extras)
 
 - (NSString *)stringByRemovingSuffix:(NSString *)suffix {
     if ([suffix length] > 0 && [self hasSuffix:suffix]) {
@@ -202,6 +202,40 @@ static inline uint8_t h2b(uint8_t v) {
     });
     
     return [re stringByReplacingMatchesInString:self options:0 range:NSMakeRange(0, self.length) withTemplate:@" "];
+}
+
+- (NSString *)stringByReplacingCharactersInSet:(NSCharacterSet *)set withReplacementString:(NSString *)repl {
+    NSMutableString *ret = nil;
+    NSRange charRange;
+    NSUInteger length = [self length];
+    NSRange searchRange = NSMakeRange(0, length);
+    while ((charRange = [self rangeOfCharacterFromSet:set options:0 range:searchRange]).location != NSNotFound) {
+        if (!ret) ret = [NSMutableString new];
+        [ret appendString:[self substringWithRange:NSMakeRange(searchRange.location, charRange.location - searchRange.location)]];
+        [ret appendString:repl];
+        searchRange.location = charRange.location + charRange.length;
+        searchRange.length = length - searchRange.location;
+    }
+    
+    if (ret && searchRange.length > 0) {
+        [ret appendString:[self substringWithRange:searchRange]];
+        return ret;
+    }
+    
+    return self;
+}
+
+@end
+
+@implementation NSCharacterSet (Extras)
+
++ (NSCharacterSet *)unicodeParagraphSeparatorSet {
+    static dispatch_once_t onceToken;
+    static NSCharacterSet *set;
+    dispatch_once(&onceToken, ^{
+        set = [NSCharacterSet characterSetWithCharactersInString:@"\u2028\u2029"];
+    });
+    return set;
 }
 
 @end

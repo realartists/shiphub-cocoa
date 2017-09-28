@@ -46,6 +46,14 @@
 
 - (NSString *)stringByCollapsingNewlines; // replace one or more newlines with a single space.
 
+- (NSString *)stringByReplacingCharactersInSet:(NSCharacterSet *)set withReplacementString:(NSString *)repl;
+
+@end
+
+@interface NSCharacterSet (Extras)
+
++ (NSCharacterSet *)unicodeParagraphSeparatorSet;
+
 @end
 
 @interface NSDateFormatter (Extras)

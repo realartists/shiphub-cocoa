@@ -110,7 +110,7 @@ static id serializeObject(id obj, JSONNameTransformer nt, ObjSet &cycleDetector)
     } else if ([obj isKindOfClass:[NSValue class]]) {
         return [obj description];
     } else if ([obj isKindOfClass:[NSString class]]) {
-        return obj;
+        return [obj stringByReplacingCharactersInSet:[NSCharacterSet unicodeParagraphSeparatorSet] withReplacementString:@"\n"];
     } else if ([obj isKindOfClass:[NSDate class]]) {
         return [obj JSONString];
     } else if ([obj isKindOfClass:[NSData class]]) {
