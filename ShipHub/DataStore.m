@@ -23,6 +23,7 @@
 #import "GHNotificationManager.h"
 #import "Billing.h"
 #import "RequestPager.h"
+#import "QueryOptimizer.h"
 
 #import "LocalAccount.h"
 #import "LocalRepo.h"
@@ -1482,11 +1483,13 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
         }
     }
     
-    return [[basePredicate coreDataPredicate] and:extra];
+    NSPredicate *rewrite = [QueryOptimizer optimizeIssuesPredicate:basePredicate];
+    
+    return [[rewrite coreDataPredicate] and:extra];
 }
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
-    return [self issuesMatchingPredicate:predicate sortDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"number" ascending:YES]] options:nil completion:completion];
+    return [self issuesMatchingPredicate:predicate sortDescriptors:@[] options:nil completion:completion];
 }
 
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate sortDescriptors:(NSArray<NSSortDescriptor*> *)sortDescriptors completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {

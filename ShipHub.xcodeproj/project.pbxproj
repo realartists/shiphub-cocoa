@@ -352,6 +352,8 @@
 		1AE09C221C9779E200C5AC35 /* KSReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EB1C8FC3CC008C11CB /* KSReachability.m */; };
 		1AE09C231C9779E400C5AC35 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A3618EE1C8FC3DB008C11CB /* Reachability.m */; };
 		1AE09C241C977A3400C5AC35 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
+		1AE288131F7D769700FD8558 /* QueryOptimizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE288121F7D769700FD8558 /* QueryOptimizer.m */; };
+		1AE288141F7D769700FD8558 /* QueryOptimizer.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE288121F7D769700FD8558 /* QueryOptimizer.m */; };
 		1AE3F3521F1EA17B00DDEECF /* IssueLockController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE3F3501F1EA17B00DDEECF /* IssueLockController.m */; };
 		1AE3F3531F1EA17B00DDEECF /* IssueLockController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AE3F3511F1EA17B00DDEECF /* IssueLockController.xib */; };
 		1AE6F11C1E53BDB7008FD8AC /* PRComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AE6F11B1E53BDB7008FD8AC /* PRComment.m */; };
@@ -1018,6 +1020,8 @@
 		1AE09BE71C97687E00C5AC35 /* LocalComment+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalComment+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1AE09BE81C97687E00C5AC35 /* LocalComment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalComment.h; sourceTree = "<group>"; };
 		1AE09BE91C97687E00C5AC35 /* LocalComment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalComment.m; sourceTree = "<group>"; };
+		1AE288111F7D769700FD8558 /* QueryOptimizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueryOptimizer.h; sourceTree = "<group>"; };
+		1AE288121F7D769700FD8558 /* QueryOptimizer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QueryOptimizer.m; sourceTree = "<group>"; };
 		1AE3F34F1F1EA17B00DDEECF /* IssueLockController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueLockController.h; sourceTree = "<group>"; };
 		1AE3F3501F1EA17B00DDEECF /* IssueLockController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueLockController.m; sourceTree = "<group>"; };
 		1AE3F3511F1EA17B00DDEECF /* IssueLockController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = IssueLockController.xib; sourceTree = "<group>"; };
@@ -1844,6 +1848,8 @@
 				1A3618E11C8FBF96008C11CB /* DataStore.h */,
 				1A3AB34D1D9085C6004BB768 /* DataStoreInternal.h */,
 				1A3618E21C8FBF96008C11CB /* DataStore.m */,
+				1AE288111F7D769700FD8558 /* QueryOptimizer.h */,
+				1AE288121F7D769700FD8558 /* QueryOptimizer.m */,
 				1A3618E71C8FC25B008C11CB /* SyncConnection.h */,
 				1A3618E81C8FC25B008C11CB /* SyncConnection.m */,
 				1AD470DA1C99FC2C0050AE4B /* GHSyncConnection.h */,
@@ -2418,6 +2424,7 @@
 				1A4A20A11CEFBCBC000C1D5E /* WSSyncConnection.m in Sources */,
 				1A7FD7791D493B0400B585E2 /* ProgressSheet.m in Sources */,
 				1A2305F51C7FC2E10034C871 /* FoundationExtras.m in Sources */,
+				1AE288131F7D769700FD8558 /* QueryOptimizer.m in Sources */,
 				1A3D34521DAEF74300CDF167 /* GitRepo.m in Sources */,
 				1A3618E31C8FBF96008C11CB /* DataStore.m in Sources */,
 				1AE09C021C97687E00C5AC35 /* LocalAccount+CoreDataProperties.m in Sources */,
@@ -2570,6 +2577,7 @@
 				1AE09C1E1C9779D300C5AC35 /* FoundationExtras.m in Sources */,
 				1AE09C0D1C97687E00C5AC35 /* LocalLabel.m in Sources */,
 				1AE09BF31C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
+				1AE288141F7D769700FD8558 /* QueryOptimizer.m in Sources */,
 				1A694B451CA34B9000F73608 /* DeemphasizedRowView.m in Sources */,
 				1A5108671D319E2B00905D4D /* NotificationsManager.m in Sources */,
 				1AE09BF51C97687E00C5AC35 /* LocalIssue.m in Sources */,
