@@ -1,4 +1,4 @@
-import hljs from 'highlight.js'
+import hljs from 'ext/highlight.js/index.js'
 import htmlEscape from 'html-escape';
 
 import graphql from 'ext/highlight-langs/graphql.js'

@@ -14,7 +14,6 @@
     "codemirror": "^5.15.2",
     "diff-match-patch": "^1.0.0",
     "font-awesome": "^4.5.0",
-    "highlight.js": "^9.7.0",
     "html-escape": "^2.0.0",
     "html-linkify": "^1.2.2",
     "jquery": "^2.2.2",

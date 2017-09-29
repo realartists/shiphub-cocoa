@@ -1805,11 +1805,6 @@
       "from": "he@>=1.1.0 <1.2.0",
       "resolved": "https://registry.npmjs.org/he/-/he-1.1.1.tgz"
     },
-    "highlight.js": {
-      "version": "9.9.0",
-      "from": "highlight.js@>=9.7.0 <10.0.0",
-      "resolved": "https://registry.npmjs.org/highlight.js/-/highlight.js-9.9.0.tgz"
-    },
     "hoek": {
       "version": "2.16.3",
       "from": "hoek@>=2.0.0 <3.0.0",

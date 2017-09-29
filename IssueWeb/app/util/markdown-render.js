@@ -1,5 +1,5 @@
 import marked from './marked.min.js'
-import hljs from 'highlight.js'
+import hljs from 'ext/highlight.js/index.js'
 import { emojify, emojifyReaction } from './emojify.js'
 import { githubLinkify } from './github-linkify.js'
 
