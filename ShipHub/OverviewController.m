@@ -1794,7 +1794,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         return;
     }
     
-    BOOL (^openQuery)() = ^{
+    BOOL (^openQuery)(void) = ^{
         __block BOOL found = NO;
         [self walkNodes:^(OverviewNode *node) {
             if (!found && [node.representedObject isKindOfClass:[CustomQuery class]]) {

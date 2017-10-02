@@ -59,18 +59,18 @@ NSString *const DefaultsSimulateConflictsKey = @"SimulateConflicts";
 
 @end
 
-NSString *DefaultShipHost() {
+NSString *DefaultShipHost(void) {
     return [[Defaults defaults] stringForKey:DefaultsShipHostKey fallback:@"hub.realartists.com"];
 }
 
-NSString *DefaultGHHost() {
+NSString *DefaultGHHost(void) {
     return [[Defaults defaults] stringForKey:DefaultsGHHostKey fallback:@"api.github.com"];
 }
 
-BOOL DefaultsHasCustomShipHost() {
+BOOL DefaultsHasCustomShipHost(void) {
     return [[Defaults defaults] stringForKey:DefaultsShipHostKey] != nil;
 }
 
-extern BOOL DefaultsPullRequestsEnabled() {
+extern BOOL DefaultsPullRequestsEnabled(void) {
     return YES;
 }

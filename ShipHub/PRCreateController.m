@@ -366,7 +366,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
     for (PRPushEvent *ev in events) {
         PRPullDestination *d1 = destLookup[ev.repoFullName];
         
-        NSArray *(^upstreamDestinations)() = ^{
+        NSArray *(^upstreamDestinations)(void) = ^{
             NSMutableArray *usds = [NSMutableArray new];
             for (NSString *destFullName in d1.upstreamRepoFullNames) {
                 PRPullDestination *dest = destLookup[destFullName];

@@ -14,7 +14,7 @@ typedef void (^APIProxyCompletion)(NSString *jsonResult, NSError *err);
 
 typedef void (^APIProxyUpdatedIssue)(Issue *issue);
 
-typedef void (^APIProxyRefreshTimeline)();
+typedef void (^APIProxyRefreshTimeline)(void);
 
 @interface APIProxy : NSObject
 

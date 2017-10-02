@@ -35,9 +35,9 @@ extern NSString *const DefaultsGHHostKey;
 
 @end
 
-extern NSString *DefaultShipHost();
-extern NSString *DefaultGHHost();
+extern NSString *DefaultShipHost(void);
+extern NSString *DefaultGHHost(void);
 
-extern BOOL DefaultsPullRequestsEnabled();
+extern BOOL DefaultsPullRequestsEnabled(void);
 
-extern BOOL DefaultsHasCustomShipHost();
+extern BOOL DefaultsHasCustomShipHost(void);

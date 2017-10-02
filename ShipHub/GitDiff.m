@@ -18,7 +18,7 @@
 #import "GitFileSearch.h"
 #import <git2.h>
 
-static NSRegularExpression *hunkStartRE();
+static NSRegularExpression *hunkStartRE(void);
 
 static uint64_t MaxLFSDownload = 50 * 1024 * 1024; /* 50MB */
 
@@ -873,7 +873,7 @@ static NSArray *patchMapping(NSString *a, NSString *b) {
 
 @end
 
-static NSRegularExpression *hunkStartRE() {
+static NSRegularExpression *hunkStartRE(void) {
     static dispatch_once_t onceToken;
     static NSRegularExpression *re;
     dispatch_once(&onceToken, ^{

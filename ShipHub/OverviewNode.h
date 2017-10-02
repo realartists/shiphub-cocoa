@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef NSPredicate *(^OverviewPredicateBuilder)();
+typedef NSPredicate *(^OverviewPredicateBuilder)(void);
 typedef void (^OverviewNodeDropHandler)(NSArray<NSString *> *issueIdentifiers);
 @class OverviewKnob;
 

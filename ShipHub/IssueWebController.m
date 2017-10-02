@@ -29,7 +29,7 @@
 #import <objc/runtime.h>
 #import <dlfcn.h>
 
-static void fixWebViewInputText();
+static void fixWebViewInputText(void);
 
 @interface IssueWebView : DHWebView
 
@@ -948,7 +948,7 @@ static void fixWebViewInputText();
 
 @end
 
-static void fixWebViewInputText()
+static void fixWebViewInputText(void)
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{

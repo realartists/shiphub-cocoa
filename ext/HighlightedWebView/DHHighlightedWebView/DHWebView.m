@@ -42,7 +42,7 @@ const CFTimeInterval MaxWorkBudgetTime = 0.015;
 // Perform work within WorkBudget.
 // workUnit returns NO if there's more work to be done, YES if finished.
 // If it takes longer than MaxWorkBudgetTime to finish, continuation will be called to configure a timer to finish the work later.
-static void BudgetWork(BOOL (^workUnit)(), void (^continuation)()) {
+static void BudgetWork(BOOL (^workUnit)(void), void (^continuation)(void)) {
     double start = CACurrentMediaTime(), stop;
     BOOL finished;
     do {

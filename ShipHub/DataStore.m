@@ -3635,7 +3635,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
                     [self performWrite:^(NSManagedObjectContext *write) {
                         LocalNotification *writeNote = [write existingObjectWithID:noteID error:NULL];
                         if (writeNote) {
-                            writeNote.unread = NO;
+                            writeNote.unread = @NO;
                             [write save:NULL];
                         }
                     }];
@@ -3672,7 +3672,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
                         wrFetch.predicate = [NSPredicate predicateWithFormat:@"SELF IN %@", noteIDs];
                         NSArray *wrNotes = [write executeFetchRequest:wrFetch error:NULL];
                         for (LocalNotification *note in wrNotes) {
-                            note.unread = NO;
+                            note.unread = @NO;
                         }
                         [write save:NULL];
                     }];
