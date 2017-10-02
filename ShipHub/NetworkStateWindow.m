@@ -57,6 +57,7 @@
 }
 
 - (void)dealloc {
+    NSAssert([NSThread isMainThread], nil);
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 

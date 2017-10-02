@@ -169,6 +169,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 @implementation OverviewController
 
 - (void)dealloc {
+    NSAssert([NSThread isMainThread], nil);
     if ([self isWindowLoaded]) {
         [[self window] removeObserver:self forKeyPath:@"firstResponder"];
         [_searchResults removeObserver:self forKeyPath:@"title"];
