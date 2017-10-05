@@ -77,6 +77,8 @@
 		1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2305F31C7FC2E10034C871 /* AppKitExtras.m */; };
 		1A2440CA1C84DEF800E070DA /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 1A2440C91C84DEF800E070DA /* libz.tbd */; };
 		1A2440D11C85127C00E070DA /* WebKitExtras.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2440D01C85127C00E070DA /* WebKitExtras.m */; };
+		1A2578751F8595CB000822D0 /* CThemeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2578741F8595CB000822D0 /* CThemeManager.m */; };
+		1A2578801F85A6F4000822D0 /* Default.xccolortheme in Resources */ = {isa = PBXBuildFile; fileRef = 1A25787F1F85A6F1000822D0 /* Default.xccolortheme */; };
 		1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */; };
 		1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */; };
 		1A2C05C91E3BFAD100F993AF /* ToManyUserNotContainsTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2C05C81E3BFAD100F993AF /* ToManyUserNotContainsTemplate.m */; };
@@ -647,6 +649,9 @@
 		1A2440C91C84DEF800E070DA /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		1A2440CF1C85127C00E070DA /* WebKitExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebKitExtras.h; sourceTree = "<group>"; };
 		1A2440D01C85127C00E070DA /* WebKitExtras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebKitExtras.m; sourceTree = "<group>"; };
+		1A2578731F8595CB000822D0 /* CThemeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CThemeManager.h; sourceTree = "<group>"; };
+		1A2578741F8595CB000822D0 /* CThemeManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CThemeManager.m; sourceTree = "<group>"; };
+		1A25787F1F85A6F1000822D0 /* Default.xccolortheme */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Default.xccolortheme; sourceTree = "<group>"; };
 		1A2A8B5E1D55109200F24F32 /* NewMilestoneController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewMilestoneController.h; sourceTree = "<group>"; };
 		1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NewMilestoneController.m; sourceTree = "<group>"; };
 		1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewMilestoneController.xib; sourceTree = "<group>"; };
@@ -1261,6 +1266,7 @@
 		1A2217941C7E7B14006460E2 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				1A25787F1F85A6F1000822D0 /* Default.xccolortheme */,
 				1A51A5831DBE95A300272822 /* Acknowledgements.rtf */,
 				1A22179C1C7E7B14006460E2 /* Info.plist */,
 				1A2217971C7E7B14006460E2 /* Assets.xcassets */,
@@ -1359,6 +1365,8 @@
 				1A3C5B211DDCE241005F9A01 /* WelcomeHelpController.h */,
 				1A3C5B221DDCE241005F9A01 /* WelcomeHelpController.m */,
 				1A3C5B231DDCE241005F9A01 /* WelcomeHelpController.xib */,
+				1A2578731F8595CB000822D0 /* CThemeManager.h */,
+				1A2578741F8595CB000822D0 /* CThemeManager.m */,
 			);
 			name = App;
 			sourceTree = "<group>";
@@ -2193,6 +2201,7 @@
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
 				1A38C9F71D9206C800655891 /* HiddenMilestoneViewController.xib in Resources */,
+				1A2578801F85A6F4000822D0 /* Default.xccolortheme in Resources */,
 				1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */,
 				1ADCCB181E84967300916FF7 /* PRCommitController.xib in Resources */,
 				1AC023F01F2CF2DA00B9B59B /* PRDiffProgressViewController.xib in Resources */,
@@ -2408,6 +2417,7 @@
 				1A694B241CA341D500F73608 /* CustomToolbarItem.m in Sources */,
 				1A694B281CA341D500F73608 /* SearchField.m in Sources */,
 				1A694B291CA341D500F73608 /* NSImage+Icons.m in Sources */,
+				1A2578751F8595CB000822D0 /* CThemeManager.m in Sources */,
 				1A7FD7881D49856600B585E2 /* StateModifyController.m in Sources */,
 				1A7651521F562EEF006413A6 /* OmniSearch.m in Sources */,
 				1A694B111CA3413700F73608 /* ResultsViewModeItem.m in Sources */,

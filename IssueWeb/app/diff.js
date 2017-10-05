@@ -4,7 +4,7 @@ import '../markdown-mark/style.css'
 import 'codemirror/lib/codemirror.css'
 import 'components/comment/comment.css'
 import 'components/diff/comment.css'
-import 'xcode7.css'
+import 'ctheme.js'
 
 import 'util/crash-reporter.js'
 
