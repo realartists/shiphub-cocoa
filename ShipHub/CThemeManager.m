@@ -343,9 +343,9 @@ static BOOL parseFont(NSString *fontStr, NSString *__autoreleasing* fontFamily, 
         vars[@"--ctheme-background-color-char-changed"] = @"#503B7C";
         
         vars[@"--ctheme-gutter-background-color"] = @"#080808";
-        vars[@"--ctheme-gutter-color"] = @"#444";
-        vars[@"--ctheme-gutter-commentable-color"] = @"#8C8C8C";
-        vars[@"--ctheme-gutter-navigable-color"] = @"#8C8C8C";
+        vars[@"--ctheme-gutter-color"] = @"#777";
+        vars[@"--ctheme-gutter-commentable-color"] = @"#BBB";
+        vars[@"--ctheme-gutter-navigable-color"] = @"#BBB";
         vars[@"--ctheme-gutter-border-left"] = @"1px solid #4C4C4C";
         vars[@"--ctheme-gutter-border-right"] = @"1px solid #181818";
         
