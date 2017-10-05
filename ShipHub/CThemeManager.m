@@ -337,10 +337,10 @@ static BOOL parseFont(NSString *fontStr, NSString *__autoreleasing* fontFamily, 
     vars[@"--ctheme-background-color-spacer"] = cssColor(spacerColor);
     
     if (bgLuma < 0.5) {
-        vars[@"--ctheme-background-color-inserted"] = @"#1B5018";
-        vars[@"--ctheme-background-color-deleted"] = @"#520F0F";
-        vars[@"--ctheme-background-color-changed"] = @"#33254F";
-        vars[@"--ctheme-background-color-char-changed"] = @"#503B7C";
+        vars[@"--ctheme-background-color-inserted"] = @"#063C03";
+        vars[@"--ctheme-background-color-deleted"] = @"#4F0A0A";
+        vars[@"--ctheme-background-color-changed"] = @"#243563";
+        vars[@"--ctheme-background-color-char-changed"] = @"#314E95";
         
         vars[@"--ctheme-gutter-background-color"] = @"#080808";
         vars[@"--ctheme-gutter-color"] = @"#777";
