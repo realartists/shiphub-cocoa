@@ -924,7 +924,7 @@ var ActivityList = React.createClass({
       if (e.event == "labeled" || e.event == "unlabeled") {
         if (labelRollup != null) {
           if (labelRollup.event == e.event 
-              && labelRollup.actor.id == e.actor.id 
+              && keypath(labelRollup, "actor.id") == keypath(e, "actor.id")
               && new Date(e.created_at) - new Date(labelRollup.created_at) < (2*60*1000 /*2mins*/)) {
             labelRollup.labels.push(e.label);
             e._rolledUp = true;
