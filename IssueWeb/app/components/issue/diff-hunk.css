@@ -30,40 +30,47 @@ table.diffHunk td {
   padding: 0;
   margin: 0;
   vertical-align: top;
-  background-color: white;
+  background-color: var(--ctheme-background-color, white);
 }
 
 table.diffHunk td > pre {
+  color: var(--ctheme-color-xcode-syntax-plain, black);
   padding: 0;
   margin: 0;
   white-space: pre-wrap;
   word-wrap: break-word;
   /* Instead use this non-standard one: */
   word-break: break-word;
-  font-family: menlo;
-  font-size: 11px;
-  line-height: 13px;
-  min-height: 13px; /* for empty lines */
+  font-family: var(--ctheme-font-family, menlo);
+  font-size: var(--ctheme-font-size, 11px);
+  line-height: var(--ctheme-line-height, 13px);
+  min-height: var(--ctheme-line-height, 13px); /* for empty lines */
   width: 100%;
 }
+
+/* 
+table.diffHunk td > pre::selection {
+  background-color: var(--ctheme-selection-color, Highlight);
+}
+ */
 
 tr.DiffHunkContextLine td {
   background-color: #E7EEFA;
 }
 
 table.diffHunk .gutter {
-  background-color: #F7F7F7;
+  background-color: var(--ctheme-gutter-background-color, #F7F7F7);
   font-family: menlo;
-  color: #BBB;
-  font-size: 10px;
+  color: var(--ctheme-gutter-color, #BBB);
+  font-size: var(--ctheme-gutter-font-size, 10px);
   text-align: right;
   padding-right: 4px;
   padding-left: 8px;
   vertical-align: top;
   width: 30px;
-  border-left: 1px solid #B3B3B3;
-  border-right: 1px solid #E7E7E7;
-  line-height: 13px;
+  border-left: var(--ctheme-gutter-border-left, 1px solid #B3B3B3);
+  border-right: var(--ctheme-gutter-border-right, 1px solid #E7E7E7);
+  line-height: var(--ctheme-line-height, 13px);
   user-select: none;
   cursor: default;
 }
@@ -81,7 +88,7 @@ table.diffHunk .gutter-navigable {
 }
 
 table.diffHunk .gutter-navigable:hover {
-  color: #737373;
+  color: var(--ctheme-gutter-navigable-color, #737373);
 }
 
 table.diffHunk .unified-codecol {
@@ -93,30 +100,30 @@ table.diffHunk .unified-codecol {
 
 table.diffHunk .inserted-new,
 table.diffHunk .cb-plus {
-  background-color: #E0FFDF;
+  background-color: var(--ctheme-background-color-inserted, #E0FFDF);
 }
 
 table.diffHunk .deleted-original,
 table.diffHunk .cb-minus {
-  background-color: #FFEDED;
+  background-color: var(--ctheme-background-color-deleted, #FFEDED);
 }
 
 table.diffHunk .changed-original,
 table.diffHunk .cb-changed {
-  background-color: #E7EEFA;
+  background-color: var(--ctheme-background-color-changed, #E7EEFA);
 }
 
 table.diffHunk .changed-new,
 table.diffHunk .cb-changed {
-  background-color: #E7EEFA;
+  background-color: var(--ctheme-background-color-changed, #E7EEFA);
 }
 
 table.diffHunk .char-changed {
-  background-color: #FBE4C8;
+  background-color: var(--ctheme-background-color-char-changed, #FBE4C8);
 }
 
 table.diffHunk .spacer {
-  background-color: #EEE;
+  background-color: var(--ctheme-background-color-spacer, #EEE);
 }
 
 a.DiffHunkCollapse {

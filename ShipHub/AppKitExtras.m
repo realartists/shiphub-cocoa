@@ -559,14 +559,18 @@ static CGFloat clamp(CGFloat v, CGFloat min, CGFloat max) {
     return [NSString stringWithFormat:@"%02x%02x%02x", r, g, b];
 }
 
-- (BOOL)isDark {
+- (CGFloat)luma {
     NSColor *color = [self colorUsingColorSpace:[NSColorSpace sRGBColorSpace]];
     CGFloat r, g, b, a;
     [color getRed:&r green:&g blue:&b alpha:&a];
     
     CGFloat luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
     
-    return luma < 0.5;
+    return luma;
+}
+
+- (BOOL)isDark {
+    return [self luma] < 0.5;
 }
 
 - (NSColor *)colorByAdjustingBrightness:(CGFloat)amount {

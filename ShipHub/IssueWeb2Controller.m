@@ -22,6 +22,7 @@
 #import "DownloadBarViewController.h"
 #import "NSFileWrapper+ImageExtras.h"
 #import "Reachability.h"
+#import "CThemeManager.h"
 
 #import <WebKit/WebKit.h>
 
@@ -93,6 +94,7 @@
     NSView *container = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewDidChangeFrame:) name:NSViewFrameDidChangeNotification object:container];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:ReachabilityDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateCodeTheme) name:CThemeDidChangeNotification object:nil];
     
     _config = [WKWebViewConfiguration new];
     WKPreferences *prefs = [WKPreferences new];
@@ -224,6 +226,11 @@
     } else {
         [_web evaluateJavaScript:js completionHandler:nil];
     }
+}
+
+- (void)updateCodeTheme {
+    NSDictionary *themeVars = [[CThemeManager sharedManager] activeThemeVariables];
+    [self evaluateJavaScript:[NSString stringWithFormat:@"window.setCTheme(%@)", [JSON stringifyObject:themeVars]]];
 }
 
 - (NSArray *)webView:(IssueWeb2View *)sender contextMenuItemsForElement:(NSDictionary *)element defaultMenuItems:(NSArray *)defaultMenuItems
@@ -466,6 +473,8 @@
 
 - (void)javascriptLoadComplete {
     _didFinishLoading = YES;
+    [self configureRaygun];
+    [self updateCodeTheme];
     NSArray *toRun = _javaScriptToRun;
     _javaScriptToRun = nil;
     for (NSString *script in toRun) {

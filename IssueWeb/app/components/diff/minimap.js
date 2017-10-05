@@ -29,6 +29,11 @@ class MiniMap {
     window.addEventListener('scroll', needsDisplay);
     window.addEventListener('resize', needsDisplay);
     
+    document.addEventListener('CThemeDidUpdate', (e) => {
+      this.canvas.style.setProperty('background-color', this.backgroundColor);
+      this.setNeedsDisplay();
+    });
+    
     this.canvas.addEventListener('mousedown', (e) => this.mouseDown(e));
     this.canvas.addEventListener('wheel', (e) => this.mouseWheel(e));
     document.addEventListener('mousemove', (e) => this.mouseMove(e));
@@ -105,11 +110,11 @@ class MiniMap {
   }
   
   backgroundColor() {
-    return "#DEDEDE";
+    return document.documentElement.style.getPropertyValue("--ctheme-minimap-background-color") || "#DEDEDE";
   }
   
   visibleRegionColor() {
-    return "rgba(0, 0, 0, 0.2)";
+    return document.documentElement.style.getPropertyValue("--ctheme-minimap-visible-region-color") || "rgba(0, 0, 0, 0.2)";
   }
   
   draw() {

@@ -4,7 +4,7 @@ import 'font-awesome/css/font-awesome.css'
 import 'codemirror/lib/codemirror.css'
 import '../../../markdown-mark/style.css'
 import './comment.css'
-import 'xcode7.css'
+import 'ctheme.js'
 
 import Sortable from 'sortablejs'
 import CodeMirror from 'codemirror'

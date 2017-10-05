@@ -22,6 +22,7 @@
 #import "DownloadBarViewController.h"
 #import "NSFileWrapper+ImageExtras.h"
 #import "Reachability.h"
+#import "CThemeManager.h"
 
 #import <WebKit/WebKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
@@ -103,6 +104,7 @@ static void fixWebViewInputText(void);
     NSView *container = [[NSView alloc] initWithFrame:CGRectMake(0, 0, 600, 600)];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(viewDidChangeFrame:) name:NSViewFrameDidChangeNotification object:container];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reachabilityChanged:) name:ReachabilityDidChangeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateCodeTheme) name:CThemeDidChangeNotification object:nil];
     
     _web = [[IssueWebView alloc] initWithFrame:container.bounds frameName:nil groupName:nil];
     _web.continuousSpellCheckingEnabled = YES;
@@ -225,6 +227,11 @@ static void fixWebViewInputText(void);
     } else {
         [_web stringByEvaluatingJavaScriptFromString:js];
     }
+}
+
+- (void)updateCodeTheme {
+    NSDictionary *themeVars = [[CThemeManager sharedManager] activeThemeVariables];
+    [self evaluateJavaScript:[NSString stringWithFormat:@"window.setCTheme(%@)", [JSON stringifyObject:themeVars]]];
 }
 
 #pragma mark - WebUIDelegate
@@ -500,6 +507,7 @@ static void fixWebViewInputText(void);
 - (void)javascriptLoadComplete {
     _didFinishLoading = YES;
     [self configureRaygun];
+    [self updateCodeTheme];
     NSArray *toRun = _javaScriptToRun;
     _javaScriptToRun = nil;
     for (NSString *script in toRun) {

@@ -51,18 +51,27 @@ div.commentBody code {
 }
 div.commentBody pre { 
   padding: 13px;
-  background-color: #F7F7F7;
+  background-color: var(--ctheme-background-color, inherit);
   border-radius: 6px; 
-  font-size: 9pt;
-  font-family: menlo, consolas, monaco, sans-serif;
-  line-height: 130%;
-  overflow-x: auto;
+  color: var(--ctheme-color-xcode-syntax-plain, black);
+  font-size: var(--ctheme-font-size, 11px);
+  line-height: var(--ctheme-line-height, 13px);
+  font-family: var(--ctheme-font-family, menlo, monaco, monospace);  overflow-x: auto;
 }
 div.commentBody pre > code {
   padding: 0;
-  background-color: inherit;
+  background-color: var(--ctheme-background-color, inherit);
+  color: var(--ctheme-color-xcode-syntax-plain, black);
+  font-size: var(--ctheme-font-size, 11px);
+  line-height: var(--ctheme-line-height, 13px);
+  font-family: var(--ctheme-font-family, menlo, monaco, monospace);
   border-radius: 0;
 }
+/* 
+div.commentBody pre > code::selection {
+  background-color: var(--ctheme-selection-color, Highlight);
+}
+ */
 div.commentEmptyFooter {
   height: 2px;
   background-color: white;

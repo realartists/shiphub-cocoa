@@ -2,6 +2,7 @@ import 'font-awesome/css/font-awesome.css'
 import '../markdown-mark/style.css'
 import 'codemirror/lib/codemirror.css'
 import './issue.css'
+import 'ctheme.js'
 
 import 'util/crash-reporter.js'
 

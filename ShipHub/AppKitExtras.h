@@ -137,6 +137,7 @@
 - (NSString *)hexString;
 
 - (BOOL)isDark; // returns YES if color is closer to black than to white
+- (CGFloat)luma;
 
 - (NSColor *)colorByAdjustingBrightness:(CGFloat)amount; // amount < 1.0, color gets darker, amount > 1.0, color gets brighter
 
