@@ -96,6 +96,16 @@
                     continue;
                 }
                 
+                NSString *issueNumber = [subject[@"url"] lastPathComponent];
+                NSString *repoName = note[@"repository"][@"full_name"];
+                
+                NSString *issueFullIdentifier = [NSString stringWithFormat:@"%@#%@", repoName, issueNumber];
+                
+                if (![issueFullIdentifier isIssueIdentifier]) {
+                    DebugLog(@"Unable to discover issue identifier: %@", note);
+                    continue;
+                }
+                
                 NSMutableDictionary *record = [NSMutableDictionary new];
                 
                 NSString *latestCommentURL = subject[@"latest_comment_url"];
@@ -106,10 +116,7 @@
                     }
                 }
                 
-                NSString *issueNumber = [subject[@"url"] lastPathComponent];
-                NSString *repoName = note[@"repository"][@"full_name"];
-                
-                record[@"issueFullIdentifier"] = [NSString stringWithFormat:@"%@#%@", repoName, issueNumber];
+                record[@"issueFullIdentifier"] = issueFullIdentifier;
                 
                 record[@"reason"] = note[@"reason"];
                 record[@"unread"] = note[@"unread"];
