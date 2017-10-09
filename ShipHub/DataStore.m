@@ -3095,6 +3095,125 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     [[Analytics sharedInstance] track:@"Milestone Added"];
 }
 
+- (void)editMilestones:(NSArray<Milestone *> *)miles info:(NSDictionary *)mileInfo completion:(void (^)(NSArray<Milestone *> *milestones, NSError *error))completion
+{
+    NSParameterAssert(miles.count > 0);
+    NSParameterAssert(mileInfo);
+    NSParameterAssert(completion);
+    
+    NSMutableArray *errors = [NSMutableArray new];
+    NSMutableArray *responses = [NSMutableArray new];
+    
+    dispatch_group_t group = dispatch_group_create();
+    for (NSUInteger i = 0; i < miles.count; i++) {
+        dispatch_group_enter(group);
+        [responses addObject:[NSNull null]];
+    }
+    
+    NSMutableDictionary *contents = [mileInfo mutableCopy];
+    if (contents[@"milestoneDescription"]) {
+        contents[@"description"] = contents[@"milestoneDescription"];
+        [contents removeObjectForKey:@"milestoneDescription"];
+    }
+    if (contents[@"dueOn"]) {
+        if ([contents[@"dueOn"] isKindOfClass:[NSDate class]]) {
+            contents[@"due_on"] = [(NSDate *)contents[@"dueOn"] JSONString];
+        } else {
+            contents[@"due_on"] = contents[@"dueOn"];
+        }
+        [contents removeObjectForKey:@"dueOn"];
+    }
+    
+    NSUInteger i = 0;
+    for (Milestone *mile in miles) {
+        NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/milestones/%@", mile.repoFullName, mile.number];
+        NSUInteger j = i;
+        i++;
+        [self.serverConnection perform:@"PATCH" on:endpoint body:contents completion:^(id jsonResponse, NSError *error) {
+            if (error) {
+                ErrLog(@"%@", error);
+                [errors addObject:error];
+            }
+            if (jsonResponse) {
+                responses[j] = jsonResponse;
+            }
+            dispatch_group_leave(group);
+        }];
+    }
+    
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        
+        NSMutableArray *successful = [NSMutableArray new];
+        NSUInteger k = 0;
+        for (id resp in responses) {
+            Milestone *mile = miles[k];
+            if ([resp isKindOfClass:[NSDictionary class]]) {
+                NSMutableDictionary *obj = [[JSON parseObject:resp withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
+                // require GitHub to return at least id, number, and title to continue
+                if (!obj[@"identifier"] || !obj[@"number"] || !obj[@"title"]) {
+                    ErrLog(@"GitHub returned bogus milestone dictionary: %@", obj);
+                    [errors addObject:[NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse]];
+                } else {
+                    obj[@"repository"] = [[self.metadataStore repoWithFullName:mile.repoFullName] identifier];
+                    [successful addObject:obj];
+                }
+            }
+            k++;
+        }
+        
+        if ([errors count]) {
+            completion(nil, [errors firstObject]);
+        }
+        
+        
+        if ([successful count]) {
+            NSArray *identifiers = [successful arrayByMappingObjects:^id(id obj) {
+                return [obj objectForKey:@"identifier"];
+            }];
+            void (^fail)(NSError *) = ^(NSError *err) {
+                ErrLog(@"%@", err);
+                RunOnMain(^{
+                    completion(nil, err);
+                });
+            };
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                NSFetchRequest *existingFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalMilestone"];
+                existingFetch.predicate = [NSPredicate predicateWithFormat:@"identifier IN %@", identifiers];
+                
+                NSError *cdErr = nil;
+                NSDictionary *existing = [NSDictionary lookupWithObjects:[moc executeFetchRequest:existingFetch error:&cdErr] keyPath:@"identifier"];
+                if (cdErr) {
+                    fail(cdErr);
+                    return;
+                }
+                
+                NSMutableArray<Milestone *> *resultMilestones = [NSMutableArray new];
+                for (NSDictionary *mileDict in successful) {
+                    LocalMilestone *lm = existing[mileDict[@"identifier"]];
+                    
+                    [lm mergeAttributesFromDictionary:mileDict];
+                    [self updateRelationshipsOn:lm fromSyncDict:mileDict];
+                    
+                    Milestone *result = [[Milestone alloc] initWithLocalItem:lm];
+                    [resultMilestones addObject:result];
+                }
+                
+                [moc save:&cdErr];
+                if (cdErr) {
+                    fail(cdErr);
+                    return;
+                }
+                
+                RunOnMain(^{
+                    completion(resultMilestones, nil);
+                });
+            }];
+        }
+    });
+    
+    [[Analytics sharedInstance] track:@"Milestone Edited"];
+}
+
 - (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inRepo:(Repo *)repo completion:(void (^)(Project *proj, NSError *error))completion
 {
     NSParameterAssert(projName);

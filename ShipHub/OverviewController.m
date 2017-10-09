@@ -39,6 +39,7 @@
 #import "CustomQuery.h"
 #import "BulkModifyHelper.h"
 #import "NewMilestoneController.h"
+#import "EditMilestoneController.h"
 #import "NewProjectController.h"
 #import "BillingToolbarItem.h"
 #import "UnsubscribedRepoController.h"
@@ -415,18 +416,24 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     return hideMenu;
 }
 
-- (NSMenu *)hideMilestoneMenu {
-    NSMenu *hideMenu = [NSMenu new];
-    NSMenuItem *hideItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Hide milestone", nil) action:@selector(hideItem:) keyEquivalent:@""];
+- (NSMenu *)milestoneMenu {
+    NSMenu *menu = [NSMenu new];
+    NSMenuItem *editItem = [menu addItemWithTitle:NSLocalizedString(@"Edit Milestone", nil) action:@selector(editMilestone:) keyEquivalent:@""];
+    editItem.target = self;
+    [menu addItem:[NSMenuItem separatorItem]];
+    NSMenuItem *hideItem = [menu addItemWithTitle:NSLocalizedString(@"Hide milestone", nil) action:@selector(hideItem:) keyEquivalent:@""];
     hideItem.target = self;
-    return hideMenu;
+    return menu;
 }
 
-- (NSMenu *)hideMilestonesMenu {
-    NSMenu *hideMenu = [NSMenu new];
-    NSMenuItem *hideItem = [hideMenu addItemWithTitle:NSLocalizedString(@"Hide milestones", nil) action:@selector(hideItem:) keyEquivalent:@""];
+- (NSMenu *)milestonesMenu {
+    NSMenu *menu = [NSMenu new];
+    NSMenuItem *editItem = [menu addItemWithTitle:NSLocalizedString(@"Edit Milestones", nil) action:@selector(editMilestone:) keyEquivalent:@""];
+    editItem.target = self;
+    [menu addItem:[NSMenuItem separatorItem]];
+    NSMenuItem *hideItem = [menu addItemWithTitle:NSLocalizedString(@"Hide milestones", nil) action:@selector(hideItem:) keyEquivalent:@""];
     hideItem.target = self;
-    return hideMenu;
+    return menu;
 }
 
 - (NSMenu *)unhideMenu {
@@ -479,8 +486,8 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         }];
     }
     
-    NSMenu *hideMilestoneMenu = [self hideMilestoneMenu];
-    NSMenu *hideMilestonesMenu = [self hideMilestonesMenu];
+    NSMenu *hideMilestoneMenu = [self milestoneMenu];
+    NSMenu *hideMilestonesMenu = [self milestonesMenu];
     NSMenu *hideOwnerMenu = [self hideOwnerMenu];
     NSMenu *hideRepoMenu = [self hideRepoMenu];
     
@@ -1979,6 +1986,24 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     }
     
     NewMilestoneController *mc = [[NewMilestoneController alloc] initWithInitialRepos:initialRepos initialReposAreRequired:NO initialName:nil];
+    [mc beginInWindow:self.window completion:nil];
+}
+
+- (IBAction)editMilestone:(id)sender {
+    OverviewNode *node = [self itemForContextMenu];
+    if (!node) {
+        return;
+    }
+    
+    NSArray *milestones = nil;
+    if ([node.representedObject isKindOfClass:[Milestone class]]) {
+        milestones = @[node.representedObject];
+    } else {
+        NSAssert([node.representedObject isKindOfClass:[NSArray class]], nil);
+        milestones = node.representedObject;
+    }
+    
+    EditMilestoneController *mc = [[EditMilestoneController alloc] initWithMilestones:milestones];
     [mc beginInWindow:self.window completion:nil];
 }
 

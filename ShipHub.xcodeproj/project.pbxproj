@@ -296,6 +296,8 @@
 		1ACA837B1EB28C2800386B12 /* CommitStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 1ACA83791EB28C2800386B12 /* CommitStatus.m */; };
 		1AD0DBC11C80EE9800CEE314 /* ServerConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */; };
 		1AD470DC1C99FC2C0050AE4B /* GHSyncConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */; };
+		1AD874891F8C1F0A00687807 /* EditMilestoneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD874871F8C1F0A00687807 /* EditMilestoneController.m */; };
+		1AD8748A1F8C1F0A00687807 /* EditMilestoneController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AD874881F8C1F0A00687807 /* EditMilestoneController.xib */; };
 		1AD956B31D0B5654002B1259 /* DownloadBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD956B11D0B5654002B1259 /* DownloadBarViewController.m */; };
 		1AD956B41D0B5654002B1259 /* DownloadBarViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AD956B21D0B5654002B1259 /* DownloadBarViewController.xib */; };
 		1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AD956B61D0B75AD002B1259 /* MultiDownloadProgress.m */; };
@@ -969,6 +971,9 @@
 		1AD0DBC01C80EE9800CEE314 /* ServerConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerConnection.m; sourceTree = "<group>"; };
 		1AD470DA1C99FC2C0050AE4B /* GHSyncConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GHSyncConnection.h; sourceTree = "<group>"; };
 		1AD470DB1C99FC2C0050AE4B /* GHSyncConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GHSyncConnection.m; sourceTree = "<group>"; };
+		1AD874861F8C1F0A00687807 /* EditMilestoneController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EditMilestoneController.h; sourceTree = "<group>"; };
+		1AD874871F8C1F0A00687807 /* EditMilestoneController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EditMilestoneController.m; sourceTree = "<group>"; };
+		1AD874881F8C1F0A00687807 /* EditMilestoneController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = EditMilestoneController.xib; sourceTree = "<group>"; };
 		1AD956B01D0B5654002B1259 /* DownloadBarViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DownloadBarViewController.h; sourceTree = "<group>"; };
 		1AD956B11D0B5654002B1259 /* DownloadBarViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DownloadBarViewController.m; sourceTree = "<group>"; };
 		1AD956B21D0B5654002B1259 /* DownloadBarViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DownloadBarViewController.xib; sourceTree = "<group>"; };
@@ -1247,7 +1252,7 @@
 				1A0D59D21CA4A8B4004F2578 /* Issue UI */,
 				1ADED9D91DAC46EB0093A098 /* Pull Request */,
 				1A2A8B5D1D55101B00F24F32 /* New Label */,
-				1A2A8B591D55100D00F24F32 /* New Milestone */,
+				1A2A8B591D55100D00F24F32 /* Milestone */,
 				1A38CA0D1D9363C100655891 /* New Project */,
 				1AE902011F141F2400482432 /* Repo Chooser */,
 				1AF3494A1CDA95D100A5BEB0 /* Charting */,
@@ -1445,14 +1450,17 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		1A2A8B591D55100D00F24F32 /* New Milestone */ = {
+		1A2A8B591D55100D00F24F32 /* Milestone */ = {
 			isa = PBXGroup;
 			children = (
 				1A2A8B5E1D55109200F24F32 /* NewMilestoneController.h */,
 				1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */,
 				1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */,
+				1AD874861F8C1F0A00687807 /* EditMilestoneController.h */,
+				1AD874871F8C1F0A00687807 /* EditMilestoneController.m */,
+				1AD874881F8C1F0A00687807 /* EditMilestoneController.xib */,
 			);
-			name = "New Milestone";
+			name = Milestone;
 			sourceTree = "<group>";
 		};
 		1A2A8B5D1D55101B00F24F32 /* New Label */ = {
@@ -2211,6 +2219,7 @@
 				1AF567381D625E2300611DBB /* WebAuthController.xib in Resources */,
 				1AB2438E1E97075C0062628C /* clonepr.sh in Resources */,
 				1A012E7E1D3EAC0E006CE5DF /* SearchEditorViewController.xib in Resources */,
+				1AD8748A1F8C1F0A00687807 /* EditMilestoneController.xib in Resources */,
 				1A86763F1E94165E00ACE932 /* TrackingProgressSheet.xib in Resources */,
 				1A0075C61ED85DC300EB7A1B /* NetworkStatusWindowController.xib in Resources */,
 				1AD956B41D0B5654002B1259 /* DownloadBarViewController.xib in Resources */,
@@ -2359,6 +2368,7 @@
 				1ADCCB171E84967300916FF7 /* PRCommitController.m in Sources */,
 				1A20CFF41D52A3E800F412DE /* LocalReaction.m in Sources */,
 				1A2305F61C7FC2E10034C871 /* AppKitExtras.m in Sources */,
+				1AD874891F8C1F0A00687807 /* EditMilestoneController.m in Sources */,
 				1AF567481D665C5100611DBB /* LocalHidden+CoreDataProperties.m in Sources */,
 				1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */,
 				1A51086A1D319ED000905D4D /* RequestPager.m in Sources */,

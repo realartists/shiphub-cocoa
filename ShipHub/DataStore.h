@@ -90,6 +90,8 @@
 
 - (void)addMilestone:(NSDictionary *)milestone inRepos:(NSArray<Repo *> *)repos completion:(void (^)(NSArray<Milestone *> *milestones, NSError *error))completion;
 
+- (void)editMilestones:(NSArray<Milestone *> *)miles info:(NSDictionary *)mileInfo completion:(void (^)(NSArray<Milestone *> *milestones, NSError *error))completion;
+
 - (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inRepo:(Repo *)repo completion:(void (^)(Project *proj, NSError *error))completion;
 - (void)addProjectNamed:(NSString *)projName body:(NSString *)projBody inOrg:(Account *)org completion:(void (^)(Project *proj, NSError *error))completion;
 
