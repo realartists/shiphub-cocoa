@@ -553,6 +553,9 @@ class App {
   
   getSelectedText() {
     var sel = window.getSelection();
+    if (sel.rangeCount == 0) {
+      return "";
+    }
     // find out if the selection is fully within a comment
     // if so, return just it
     var startRange = sel.getRangeAt(0);
@@ -633,8 +636,14 @@ class App {
   }
   
   dragCode(e) {
-    var text = this.getSelectedText();
-    e.dataTransfer.setData('text', text);
+    // contains comment
+    var containsComment = this.commentRows.find((r) => {
+      return e.srcElement && r.node.contains(e.srcElement);
+    });
+    if (!containsComment) {
+      var text = this.getSelectedText();
+      e.dataTransfer.setData('text', text);
+    }
   }
   
   // --- Comment handling ---
