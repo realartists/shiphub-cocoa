@@ -55,7 +55,7 @@ table.diffHunk td > pre::selection {
  */
 
 tr.DiffHunkContextLine td {
-  background-color: #E7EEFA;
+  background-color: var(--ctheme-background-color, #E7EEFA);
 }
 
 table.diffHunk .gutter {
