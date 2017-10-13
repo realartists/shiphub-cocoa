@@ -170,7 +170,9 @@ NSString *const AvatarImageDidUpdateNotification = @"AvatarImageDidUpdateNotific
             [[NSNotificationCenter defaultCenter] removeObserver:self name:AvatarImageDidUpdateNotification object:self.image];
         }
         [super setImage:image];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateImage:) name:AvatarImageDidUpdateNotification object:image];
+        if (image) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateImage:) name:AvatarImageDidUpdateNotification object:image];
+        }
     }
 }
 
@@ -193,7 +195,9 @@ NSString *const AvatarImageDidUpdateNotification = @"AvatarImageDidUpdateNotific
         }
         _originalImage = image;
         [super setImage:[image knockoutColor:[NSColor whiteColor]]];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateImage:) name:AvatarImageDidUpdateNotification object:image];
+        if (image) {
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didUpdateImage:) name:AvatarImageDidUpdateNotification object:image];
+        }
     }
 }
 
