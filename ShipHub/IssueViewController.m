@@ -40,6 +40,7 @@
 #import "RateDampener.h"
 #import "IssueLockController.h"
 #import "WebFindBarController.h"
+#import "NSViewController+PresentSaveError.h"
 
 #import <WebKit/WebKit.h>
 #import <JavaScriptCore/JavaScriptCore.h>
@@ -963,20 +964,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 }
 
 - (void)presentError:(NSError *)error withRetry:(dispatch_block_t)retry fail:(dispatch_block_t)fail {
-    NSAlert *alert = [NSAlert new];
-    alert.alertStyle = NSCriticalAlertStyle;
-    alert.messageText = NSLocalizedString(@"Unable to save changes", nil);
-    alert.informativeText = [error localizedDescription] ?: @"";
-    [alert addButtonWithTitle:NSLocalizedString(@"Retry", nil)];
-    [alert addButtonWithTitle:NSLocalizedString(@"Discard Changes", nil)];
-    
-    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
-        if (returnCode == NSAlertFirstButtonReturn) {
-            if (retry) retry();
-        } else {
-            if (fail) fail();
-        }
-    }];
+    [self presentSaveError:error withRetry:retry fail:fail];
 }
 
 #pragma mark - Text Finding

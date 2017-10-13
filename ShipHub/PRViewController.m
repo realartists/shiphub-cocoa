@@ -33,6 +33,7 @@
 #import "Reaction.h"
 #import "Repo.h"
 #import "SendErrorEmail.h"
+#import "NSViewController+PresentSaveError.h"
 
 static NSString *const PRDiffViewModeKey = @"PRDiffViewMode";
 static NSString *const DiffViewModeID = @"DiffViewMode";
@@ -796,20 +797,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 }
 
 - (void)presentError:(NSError *)error withRetry:(dispatch_block_t)retry fail:(dispatch_block_t)fail {
-    NSAlert *alert = [NSAlert new];
-    alert.alertStyle = NSCriticalAlertStyle;
-    alert.messageText = NSLocalizedString(@"Unable to save changes", nil);
-    alert.informativeText = [error localizedDescription] ?: @"";
-    [alert addButtonWithTitle:NSLocalizedString(@"Retry", nil)];
-    [alert addButtonWithTitle:NSLocalizedString(@"Discard Changes", nil)];
-    
-    [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
-        if (returnCode == NSAlertFirstButtonReturn) {
-            if (retry) retry();
-        } else {
-            if (fail) fail();
-        }
-    }];
+    [self presentSaveError:error withRetry:retry fail:fail];
 }
 
 #pragma mark - Comments and Reviews

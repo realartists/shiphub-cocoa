@@ -261,6 +261,7 @@
 		1A85A60E1E81EDDA004A4B23 /* WebFindBarController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A85A60C1E81EDDA004A4B23 /* WebFindBarController.xib */; };
 		1A86763E1E94165E00ACE932 /* TrackingProgressSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A86763C1E94165E00ACE932 /* TrackingProgressSheet.m */; };
 		1A86763F1E94165E00ACE932 /* TrackingProgressSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A86763D1E94165E00ACE932 /* TrackingProgressSheet.xib */; };
+		1A9030EF1F9114C800760D12 /* NSViewController+PresentSaveError.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9030EE1F9114C800760D12 /* NSViewController+PresentSaveError.m */; };
 		1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */; };
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1A9905181CE11A0700EAA474 /* LabelsControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsControl.m */; };
@@ -912,6 +913,8 @@
 		1A86763B1E94165E00ACE932 /* TrackingProgressSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TrackingProgressSheet.h; sourceTree = "<group>"; };
 		1A86763C1E94165E00ACE932 /* TrackingProgressSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TrackingProgressSheet.m; sourceTree = "<group>"; };
 		1A86763D1E94165E00ACE932 /* TrackingProgressSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TrackingProgressSheet.xib; sourceTree = "<group>"; };
+		1A9030ED1F9114C800760D12 /* NSViewController+PresentSaveError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSViewController+PresentSaveError.h"; sourceTree = "<group>"; };
+		1A9030EE1F9114C800760D12 /* NSViewController+PresentSaveError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSViewController+PresentSaveError.m"; sourceTree = "<group>"; };
 		1A9905061CDBC93A00EAA474 /* Issue3PaneTableController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Issue3PaneTableController.h; sourceTree = "<group>"; };
 		1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Issue3PaneTableController.m; sourceTree = "<group>"; };
 		1A99050C1CDBC98900EAA474 /* IssueTableControllerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueTableControllerPrivate.h; sourceTree = "<group>"; };
@@ -1795,6 +1798,8 @@
 				1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */,
 				1A85A6041E81BA12004A4B23 /* MarkdownFormattingController.h */,
 				1A85A6051E81BA12004A4B23 /* MarkdownFormattingController.m */,
+				1A9030ED1F9114C800760D12 /* NSViewController+PresentSaveError.h */,
+				1A9030EE1F9114C800760D12 /* NSViewController+PresentSaveError.m */,
 				1A2261EF1F58892A00FA95C9 /* OmniSearch */,
 			);
 			name = "Shared UI";
@@ -2357,6 +2362,7 @@
 				1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
 				1A3D34571DAEF88100CDF167 /* NSError+Git.m in Sources */,
 				1A38C9F61D9206C800655891 /* HiddenMilestoneViewController.m in Sources */,
+				1A9030EF1F9114C800760D12 /* NSViewController+PresentSaveError.m in Sources */,
 				1A694B351CA3431700F73608 /* IssueTableController.m in Sources */,
 				1A5A2ACE1F0461EC0084737B /* Application.m in Sources */,
 				1AD956B71D0B75AD002B1259 /* MultiDownloadProgress.m in Sources */,
