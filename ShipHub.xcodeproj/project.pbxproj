@@ -194,6 +194,8 @@
 		1A5A2ACE1F0461EC0084737B /* Application.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5A2ACD1F0461EC0084737B /* Application.m */; };
 		1A5B293B1D888C0A000C9F4B /* EmptyLabelView.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */; };
 		1A5B29421D89DCFA000C9F4B /* ProjectsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5B29411D89DCF9000C9F4B /* ProjectsViewController.m */; };
+		1A5EF1C41F8C495300F0199E /* LabelsFilterViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5EF1C21F8C495300F0199E /* LabelsFilterViewController.m */; };
+		1A5EF1C51F8C495300F0199E /* LabelsFilterViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A5EF1C31F8C495300F0199E /* LabelsFilterViewController.xib */; };
 		1A5F1A2D1E8C4F97003A16E4 /* PRDiffFileBarViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5F1A2B1E8C4F97003A16E4 /* PRDiffFileBarViewController.m */; };
 		1A5F1A2E1E8C4F97003A16E4 /* PRDiffFileBarViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A5F1A2C1E8C4F97003A16E4 /* PRDiffFileBarViewController.xib */; };
 		1A694ADF1CA09E0800F73608 /* MetadataStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694ADE1CA09E0800F73608 /* MetadataStore.m */; };
@@ -813,6 +815,9 @@
 		1A5B293A1D888C0A000C9F4B /* EmptyLabelView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmptyLabelView.m; sourceTree = "<group>"; };
 		1A5B29401D89DCF9000C9F4B /* ProjectsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectsViewController.h; sourceTree = "<group>"; };
 		1A5B29411D89DCF9000C9F4B /* ProjectsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProjectsViewController.m; sourceTree = "<group>"; };
+		1A5EF1C11F8C495300F0199E /* LabelsFilterViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LabelsFilterViewController.h; sourceTree = "<group>"; };
+		1A5EF1C21F8C495300F0199E /* LabelsFilterViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LabelsFilterViewController.m; sourceTree = "<group>"; };
+		1A5EF1C31F8C495300F0199E /* LabelsFilterViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LabelsFilterViewController.xib; sourceTree = "<group>"; };
 		1A5F1A2A1E8C4F97003A16E4 /* PRDiffFileBarViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRDiffFileBarViewController.h; sourceTree = "<group>"; };
 		1A5F1A2B1E8C4F97003A16E4 /* PRDiffFileBarViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRDiffFileBarViewController.m; sourceTree = "<group>"; };
 		1A5F1A2C1E8C4F97003A16E4 /* PRDiffFileBarViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRDiffFileBarViewController.xib; sourceTree = "<group>"; };
@@ -1752,6 +1757,9 @@
 				1A38C9F31D9206C800655891 /* HiddenMilestoneViewController.h */,
 				1A38C9F41D9206C800655891 /* HiddenMilestoneViewController.m */,
 				1A38C9F51D9206C800655891 /* HiddenMilestoneViewController.xib */,
+				1A5EF1C11F8C495300F0199E /* LabelsFilterViewController.h */,
+				1A5EF1C21F8C495300F0199E /* LabelsFilterViewController.m */,
+				1A5EF1C31F8C495300F0199E /* LabelsFilterViewController.xib */,
 			);
 			name = "Overview UI";
 			sourceTree = "<group>";
@@ -2211,6 +2219,7 @@
 				1AAA72671EBC337B00E77A65 /* PRPostMergeController.xib in Resources */,
 				1AF5672D1D62427100611DBB /* WelcomeController.xib in Resources */,
 				1AF9757D1E92DAD000914460 /* PRBinaryDiffViewController.xib in Resources */,
+				1A5EF1C51F8C495300F0199E /* LabelsFilterViewController.xib in Resources */,
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
 				1A38C9F71D9206C800655891 /* HiddenMilestoneViewController.xib in Resources */,
@@ -2509,6 +2518,7 @@
 				1AAA72661EBC337B00E77A65 /* PRPostMergeController.m in Sources */,
 				1A86763E1E94165E00ACE932 /* TrackingProgressSheet.m in Sources */,
 				1AF349771CDAC1E900A5BEB0 /* ChartConfigController.m in Sources */,
+				1A5EF1C41F8C495300F0199E /* LabelsFilterViewController.m in Sources */,
 				1A0D59D51CA4A8D1004F2578 /* IssueViewController.m in Sources */,
 				1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */,
 				1A012E911D3EAC47006CE5DF /* UserRowTemplate.m in Sources */,
