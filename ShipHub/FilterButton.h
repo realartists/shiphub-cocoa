@@ -12,4 +12,8 @@
 
 @property (nonatomic, getter=isFilterEnabled) BOOL filterEnabled;
 
+@property (nonatomic, strong) NSViewController *popoverViewController; // used in lieu of a menu if set
+
+- (void)closePopover;
+
 @end

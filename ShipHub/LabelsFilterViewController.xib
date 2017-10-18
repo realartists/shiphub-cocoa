@@ -8,58 +8,89 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="LabelsFilterViewController">
             <connections>
+                <outlet property="showPredicateCombinedWarningLabel" destination="lYH-1m-3Lw" id="QTz-qK-3ah"/>
+                <outlet property="tabToTopConstraint" destination="mWx-0m-n5L" id="eCk-at-D41"/>
+                <outlet property="tabToWarningConstraint" destination="1u4-ux-bJL" id="7CX-Nr-6bw"/>
+                <outlet property="tabView" destination="Yd1-hj-pNl" id="wAa-QJ-cFk"/>
+                <outlet property="unlabeledButton" destination="1dm-XJ-suE" id="7Rh-mX-URC"/>
+                <outlet property="unlabledButton" destination="1dm-XJ-suE" id="qpP-ap-Fbx"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <customView id="Hz6-mo-xeY">
+        <customView wantsLayer="YES" id="Hz6-mo-xeY">
             <rect key="frame" x="0.0" y="0.0" width="303" height="428"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <tabView fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yd1-hj-pNl">
-                    <rect key="frame" x="13" y="42" width="277" height="372"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                <tabView wantsLayer="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Yd1-hj-pNl">
+                    <rect key="frame" x="13" y="42" width="277" height="338"/>
                     <font key="font" metaFont="system"/>
                     <tabViewItems>
-                        <tabViewItem label="Any" identifier="Any" id="ESk-UN-cYd">
+                        <tabViewItem label="All" identifier="Any" id="ESk-UN-cYd">
                             <view key="view" id="x0N-I5-NhD">
-                                <rect key="frame" x="10" y="33" width="257" height="326"/>
+                                <rect key="frame" x="10" y="33" width="257" height="292"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             </view>
                         </tabViewItem>
-                        <tabViewItem label="All" identifier="All" id="RdI-08-tCY">
+                        <tabViewItem label="Any" identifier="All" id="RdI-08-tCY">
                             <view key="view" id="d8U-Xp-BzE">
-                                <rect key="frame" x="10" y="33" width="257" height="326"/>
+                                <rect key="frame" x="10" y="33" width="257" height="292"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             </view>
                         </tabViewItem>
                         <tabViewItem label="None" identifier="None" id="uMd-qw-VZc">
-                            <view key="view" ambiguous="YES" id="C5s-6S-CzR">
-                                <rect key="frame" x="10" y="33" width="257" height="326"/>
+                            <view key="view" id="C5s-6S-CzR">
+                                <rect key="frame" x="10" y="33" width="257" height="286"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             </view>
                         </tabViewItem>
                     </tabViewItems>
                 </tabView>
-                <button verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4lD-Jx-rzN">
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4lD-Jx-rzN">
                     <rect key="frame" x="183" y="13" width="106" height="32"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <buttonCell key="cell" type="push" title="Clear Filter" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="A7p-F1-fNB">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
+                    <connections>
+                        <action selector="clearFilter:" target="-2" id="8h7-u0-ixm"/>
+                    </connections>
                 </button>
-                <button fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="1dm-XJ-suE">
-                    <rect key="frame" x="18" y="22" width="155" height="18"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-                    <buttonCell key="cell" type="check" title="Show Unlabled Issues" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3gh-PE-DDP">
+                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="lYH-1m-3Lw">
+                    <rect key="frame" x="18" y="382" width="267" height="34"/>
+                    <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Label filters chosen here are in addition to the selected smart query." id="SU1-su-sQs">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" red="1" green="0.018539993599999999" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <button translatesAutoresizingMaskIntoConstraints="NO" id="1dm-XJ-suE">
+                    <rect key="frame" x="18" y="22" width="115" height="18"/>
+                    <buttonCell key="cell" type="check" title="Unlabeled Only" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="3gh-PE-DDP">
                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
+                    <connections>
+                        <action selector="toggleUnlabeledOnly:" target="-2" id="ukT-yd-g6m"/>
+                    </connections>
                 </button>
             </subviews>
-            <point key="canvasLocation" x="-2.5" y="162"/>
+            <constraints>
+                <constraint firstItem="Yd1-hj-pNl" firstAttribute="top" secondItem="lYH-1m-3Lw" secondAttribute="bottom" constant="8" id="1u4-ux-bJL"/>
+                <constraint firstAttribute="bottom" secondItem="1dm-XJ-suE" secondAttribute="bottom" constant="24" id="2Z9-53-vQe"/>
+                <constraint firstAttribute="trailing" secondItem="lYH-1m-3Lw" secondAttribute="trailing" constant="20" id="3q8-6N-nnP"/>
+                <constraint firstItem="4lD-Jx-rzN" firstAttribute="top" secondItem="Yd1-hj-pNl" secondAttribute="bottom" constant="11" id="4Sp-1s-ARk"/>
+                <constraint firstItem="Yd1-hj-pNl" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="20" id="5nX-Ln-DEx"/>
+                <constraint firstItem="1dm-XJ-suE" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="20" id="BvN-VD-JEh"/>
+                <constraint firstAttribute="trailing" secondItem="Yd1-hj-pNl" secondAttribute="trailing" constant="20" id="I3c-ID-zQx"/>
+                <constraint firstAttribute="trailing" secondItem="4lD-Jx-rzN" secondAttribute="trailing" constant="20" id="T3f-3d-YuO"/>
+                <constraint firstItem="lYH-1m-3Lw" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="12" id="X9J-z3-ZhF"/>
+                <constraint firstAttribute="bottom" secondItem="4lD-Jx-rzN" secondAttribute="bottom" constant="20" id="jQs-gb-jgm"/>
+                <constraint firstItem="lYH-1m-3Lw" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="20" id="ko6-R8-cF4"/>
+                <constraint firstItem="Yd1-hj-pNl" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="54" id="mWx-0m-n5L"/>
+            </constraints>
+            <point key="canvasLocation" x="-229.5" y="143"/>
         </customView>
     </objects>
 </document>

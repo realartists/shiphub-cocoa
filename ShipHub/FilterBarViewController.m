@@ -10,12 +10,13 @@
 
 #import "Extras.h"
 #import "FilterButton.h"
+#import "LabelsFilterViewController.h"
 #import "Account.h"
 #import "MetadataStore.h"
 #import "DataStore.h"
 #import "NSPredicate+Extras.h"
 
-@interface FilterBarViewController ()
+@interface FilterBarViewController () <LabelsFilterViewControllerDelegate>
 
 @property (readwrite) NSPredicate *predicate;
 
@@ -27,6 +28,8 @@
 @property FilterButton *milestone;
 @property FilterButton *pullRequest;
 
+@property LabelsFilterViewController *labelsFilter;
+
 @property NSMutableArray *filters;
 
 @property CGFloat lastViewWidth;
@@ -36,12 +39,6 @@
 @end
 
 #define LINE_HEIGHT 22.0
-static const NSInteger LabelMenuItemTagSeparator = 1999;
-static const NSInteger LabelMenuItemNoFilter = 2000;
-static const NSInteger LabelMenuItemUnlabeled = 2001;
-static const NSInteger LabelMenuItemAll = 2002;
-static const NSInteger LabelMenuItemAny = 2003;
-static const NSInteger LabelMenuItemNone = 2004;
 
 @implementation FilterBarViewController
 
@@ -74,7 +71,7 @@ static const NSInteger LabelMenuItemNone = 2004;
     
     _label = [self popUpButton];
     [self addFilter:_label];
-    [self buildLabelMenu];
+    [self updateLabels];
     
     _milestone = [self popUpButton];
     [self addFilter:_milestone];
@@ -109,7 +106,7 @@ static const NSInteger LabelMenuItemNone = 2004;
     [self buildAssigneeMenu];
     [self buildAuthorMenu];
     [self buildRepoMenu];
-    [self buildLabelMenu];
+    [self updateLabels];
     [self buildMilestoneMenu];
     [self buildPullRequestMenu];
 }
@@ -252,92 +249,6 @@ static const NSInteger LabelMenuItemNone = 2004;
     return [self valueInPredicate:predicate forKeyPath:@"labels.name"] != nil;
 }
 
-// return an array of label names in predicate.
-// returns empty array if predicate is for issues with no labels
-// type is one of NONE, ALL, ANY (case-sensitive)
-// for the following predicate types:
-// NONE: COUNT(SUBQUERY(labels.name, $name, $name IN { ... })) == 0
-// ANY: COUNT(SUBQUERY(labels.name, $name, $name IN { ... })) > 0
-// ALL: COUNT(SUBQUERY(labels.name, $name, $name IN { ... })) == COUNT({ ... })
-//
-// Note: I would prefer to have written these queries like this, but alas Core Data doesn't support these:
-// NONE labels.name IN { ... } (sugar for NOT (ANY labels.name IN { ... }))
-// ANY labels.name IN { ... }
-// ALL labels.name IN { ... }
-//
-- (NSArray *)labelsInPredicate:(NSPredicate *)predicate type:(NSString **)outType {
-  
-    // Search for a comparison predicate with the lhs being a count of SUBQUERY on labels.name
-    
-    __block NSArray *labels = nil;
-    __block BOOL unlabeled = NO;
-    NSString *type = nil;
-    
-    NSArray *predicates = [predicate predicatesMatchingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nonnull evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
-        
-        if ([evaluatedObject isKindOfClass:[NSComparisonPredicate class]])
-        {
-            NSComparisonPredicate *c0 = evaluatedObject;
-            NSExpression *lhs = c0.leftExpression;
-            
-            if (lhs.expressionType == NSFunctionExpressionType && [lhs.function isEqualToString:@"count:"])
-            {
-                NSExpression *subq = [lhs.arguments firstObject];
-                if (subq.expressionType == NSSubqueryExpressionType
-                    && [subq.collection expressionType] == NSKeyPathExpressionType
-                    && [[subq.collection keyPath] isEqualToString:@"labels.name"])
-                {
-                    NSComparisonPredicate *inPredicate = (NSComparisonPredicate *)subq.predicate;
-                    NSExpression *rhs = inPredicate.rightExpression;
-                    labels = [rhs expressionValueWithObject:nil context:NULL];
-                    
-                    return YES;
-                } else if (subq.expressionType == NSKeyPathExpressionType
-                           && [subq.keyPath isEqualToString:@"labels"])
-                {
-                    unlabeled = YES;
-                    labels = @[];
-                    return YES;
-                }
-            }
-        }
-        
-        return NO;
-    }]];
-    
-    NSComparisonPredicate *pred = [predicates firstObject];
-    
-    if (!pred) {
-        if (outType) *outType = nil;
-        return nil;
-    }
-    
-    if (unlabeled) {
-        type = @"NONE";
-    } else {
-    
-        // figure out NONE, ANY, ALL based on the operator and rhs of pred
-        
-        if (pred.predicateOperatorType == NSEqualToPredicateOperatorType) {
-            // either NONE or ALL
-            NSExpression *rhs = pred.rightExpression;
-            if (rhs.expressionType == NSConstantValueExpressionType) {
-                NSAssert([[rhs expressionValueWithObject:nil context:nil] isEqual:@0], nil);
-                type = @"NONE";
-            } else {
-                NSAssert(rhs.expressionType == NSFunctionExpressionType, nil);
-                type = @"ALL";
-            }
-        } else {
-            type = @"ANY";
-        }
-    }
-    
-    if (outType) *outType = type;
-    
-    return labels;
-}
-
 - (id)milestoneTitleInPredicate:(NSPredicate *)predicate {
     id identifier = [self valueInPredicate:predicate forKeyPath:@"milestone.identifier"];
     if (identifier) {
@@ -469,7 +380,7 @@ static const NSInteger LabelMenuItemNone = 2004;
     [self updateStateMenuStateFromPredicate];
 }
 
-- (void)buildLabelMenu {
+- (void)updateLabels {
     MetadataStore *meta = [self metadata];
     Repo *repo = [self repoInPredicate:_basePredicate];
     if (!repo) {
@@ -478,92 +389,52 @@ static const NSInteger LabelMenuItemNone = 2004;
     
     BOOL hasLabelsInBase = [self hasLabelsInPredicate:_basePredicate];
     
-    NSMutableDictionary *labelColors = [NSMutableDictionary new];
+    NSMutableSet *seenLabelNames = [NSMutableSet new];
+    NSMutableArray *uniqueLabels = [NSMutableArray new];
     
-    NSMutableSet *allLabels = [NSMutableSet new];
+    void (^visitLabel)(Label *) = ^(Label *label) {
+        if (![seenLabelNames containsObject:label.name]) {
+            [seenLabelNames addObject:label.name];
+            [uniqueLabels addObject:label];
+        }
+    };
+    
     if (repo) {
         for (Label *label in [meta labelsForRepo:repo]) {
-            [allLabels addObject:label.name];
-            labelColors[label.name] = label.color;
+            visitLabel(label);
         }
     } else {
         for (Repo *r in [meta activeRepos]) {
             for (Label *label in [meta labelsForRepo:r]) {
-                [allLabels addObject:label.name];
-                labelColors[label.name] = label.color;
+                visitLabel(label);
             }
         }
     }
     
-    NSMenuItem *m;
-    NSMenu *menu = [NSMenu new];
-    
-    if (hasLabelsInBase) {
-        m = [menu addItemWithTitle:NSLocalizedString(@"Label filters chosen here are in addition to the selected smart query.", nil) action:nil keyEquivalent:@""];
-        m.enabled = NO;
-        [menu addItem:[NSMenuItem separatorItem]];
+    if (!_labelsFilter) {
+        _labelsFilter = [LabelsFilterViewController new];
+        _labelsFilter.delegate = self;
+        _label.popoverViewController = _labelsFilter;
     }
     
-    m = [menu addItemWithTitle:NSLocalizedString(@"Don't Filter", nil) action:@selector(pickLabel:) keyEquivalent:@""];
-    m.tag = LabelMenuItemNoFilter;
-    m.target = self;
-    m.representedObject = nil;
+    [_labelsFilter setLabels:uniqueLabels predicate:_predicate];
     
-    m = [menu addItemWithTitle:NSLocalizedString(@"Unlabeled", nil) action:@selector(pickLabel:) keyEquivalent:@""];
-    m.tag = LabelMenuItemUnlabeled;
-    m.target = self;
-    m.representedObject = [NSNull null];
+    _labelsFilter.showPredicateCombinedWarning = hasLabelsInBase;
     
-    NSMenuItem *labelSeparator = [NSMenuItem separatorItem];
-    labelSeparator.tag = LabelMenuItemTagSeparator;
-    [menu addItem:labelSeparator];
-    
-    m = [menu addItemWithTitle:NSLocalizedString(@"Issues with All Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
-    m.tag = LabelMenuItemAll;
-    m.representedObject = @"ALL";
-    m.target = self;
-    
-    m = [menu addItemWithTitle:NSLocalizedString(@"Issues with Any Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
-    m.tag = LabelMenuItemAny;
-    m.representedObject = @"ANY";
-    m.target = self;
-    
-    m = [menu addItemWithTitle:NSLocalizedString(@"Issues with None of the Selected Labels", nil) action:@selector(pickLabelOperator:) keyEquivalent:@""];
-    m.tag = LabelMenuItemNone;
-    m.representedObject = @"NONE";
-    m.target = self;
-
-    [menu addItem:[NSMenuItem separatorItem]];
-    
-    NSArray *labels = [[allLabels allObjects] sortedArrayUsingSelector:@selector(localizedStandardCompare:)];
-    
-    for (NSString *label in labels) {
-        m = [menu addItemWithTitle:label action:@selector(pickLabel:) keyEquivalent:@""];
-        m.target = self;
-        m.representedObject = label;
-        
-        NSImage *swatch = [[NSImage alloc] initWithSize:CGSizeMake(12.0, 12.0)];
-        [swatch lockFocus];
-        
-        NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:CGRectMake(1.0, 1.0, 10.0, 10.0) xRadius:2.0 yRadius:2.0];
-        
-        path.lineWidth = _label.window.screen.backingScaleFactor > 1.0 ? 0.5 : 1.0;
-        
-        [[NSColor darkGrayColor] setStroke];
-        [labelColors[label] setFill];
-        
-        [path fill];
-        [path stroke];
-        
-        [swatch unlockFocus];
-        
-        m.image = swatch;
+    NSString *filterTitle = _labelsFilter.title;
+    BOOL labelsEnabled = filterTitle.length > 0;
+    NSString *labelTitle;
+    if (filterTitle.length > 0) {
+        labelTitle = [NSString stringWithFormat:NSLocalizedString(@"Labels - %@", nil), filterTitle];
+    } else {
+        labelTitle = NSLocalizedString(@"Labels", nil);
     }
     
-    
-    _label.menu = menu;
-    
-    [self updateLabelMenuStateFromPredicate];
+    if (labelsEnabled != _label.enabled || ![_label.title isEqualToString:labelTitle]) {
+        _label.filterEnabled = labelsEnabled;
+        _label.title = labelTitle;
+        [self needsButtonLayout];
+    }
 }
 
 - (void)buildMilestoneMenu {
@@ -717,57 +588,6 @@ static BOOL representedObjectEquals(id repr, id val) {
     [self needsButtonLayout];
 }
 
-- (void)updateLabelMenuStateFromPredicate {
-    NSString *type = nil;
-    NSArray *labels = [self labelsInPredicate:_predicate type:&type];
-    
-    [_label.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
-        if (m.action == @selector(pickLabel:)) {
-            if (m.representedObject == [NSNull null]) {
-                // Unlabeled
-                m.state = labels != nil && [labels count] == 0 ? NSOnState : NSOffState;
-            } else if (m.representedObject) {
-                // A specific label
-                m.state = [labels containsObject:m.representedObject] ? NSOnState : NSOffState;
-            } else {
-                // Don't filter
-                m.state = labels == nil ? NSOnState : NSOffState;
-            }
-        } else if (m.action == @selector(pickLabelOperator:)) {
-            if (labels.count > 0) {
-                m.state = [type isEqualToString:m.representedObject] ? NSOnState : NSOffState;
-                m.hidden = NO;
-            } else {
-                m.state = NSOffState;
-                m.hidden = YES;
-            }
-        }
-    }];
-    
-    NSMenuItem *labelSeparator = [_label.menu itemWithTag:LabelMenuItemTagSeparator];
-    labelSeparator.hidden = labels.count == 0;
-    
-    if (!labels) {
-        _label.title = NSLocalizedString(@"Labels", nil);
-        _label.filterEnabled = NO;
-    } else if ([labels count] == 0) {
-        _label.title = NSLocalizedString(@"Labels - Unlabeled", nil);
-        _label.filterEnabled = YES;
-    } else if ([labels count] == 1) {
-        if ([type isEqualToString:@"NONE"]) {
-            _label.title = [NSString stringWithFormat:NSLocalizedString(@"Labels - Not %@", nil), labels[0]];
-        } else {
-            _label.title = [NSString stringWithFormat:NSLocalizedString(@"Labels - %@", nil), labels[0]];
-        }
-        _label.filterEnabled = YES;
-    } else {
-        _label.title = NSLocalizedString(@"Labels - Multiple", nil);
-        _label.filterEnabled = YES;
-    }
-    
-    [self needsButtonLayout];
-}
-
 - (void)updateMilestoneMenuStateFromPredicate {
     id milestone = [self milestoneTitleInPredicate:_predicate];
     
@@ -844,7 +664,7 @@ static BOOL representedObjectEquals(id repr, id val) {
     [self updatePredicateFromFilterButtons];
     [self updateRepoMenuStateFromPredicate];
     
-    [self buildLabelMenu];
+    [self updateLabels];
     [self buildMilestoneMenu];
     [self buildAssigneeMenu];
     [self buildAuthorMenu];
@@ -859,62 +679,12 @@ static BOOL representedObjectEquals(id repr, id val) {
     [self updateStateMenuStateFromPredicate];
 }
 
-- (void)pickLabel:(id)sender {
-    NSMenuItem *s = sender;
-    SEL cmd = _cmd;
-    if (s.representedObject == nil || s.representedObject == [NSNull null]) {
-        [_label.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
-            if (m.action == cmd && m.representedObject != s.representedObject) {
-                m.state = NSOffState;
-            } else if (m.action == @selector(pickLabelOperator:)) {
-                m.state = NSOffState;
-            }
-        }];
-        s.state = NSOnState;
-    } else {
-        s.state = s.state == NSOnState ? NSOffState : NSOnState;
-        
-        NSMenuItem *noFilter = [_label.menu itemWithTag:LabelMenuItemNoFilter];
-        NSMenuItem *unlabeled = [_label.menu itemWithTag:LabelMenuItemUnlabeled];
-        NSMenuItem *all = [_label.menu itemWithTag:LabelMenuItemAll];
-        NSMenuItem *any = [_label.menu itemWithTag:LabelMenuItemAny];
-        NSMenuItem *none = [_label.menu itemWithTag:LabelMenuItemNone];
-        
-        NSMutableArray *selectedLabels = [NSMutableArray new];
-        
-        [_label.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
-            if (m.action == cmd && m.representedObject && m.representedObject != [NSNull null] && m.state == NSOnState) {
-                [selectedLabels addObject:m.representedObject];
-            }
-        }];
-        
-        if ([selectedLabels count] == 0) {
-            [self pickLabel:noFilter];
-            return;
-        } else {
-            noFilter.state = NSOffState;
-            unlabeled.state = NSOffState;
-            
-            if (all.state == NSOffState && any.state == NSOffState && none.state == NSOffState) {
-                all.state = NSOnState;
-            }
-        }
+- (void)labelsFilterViewController:(LabelsFilterViewController *)controller didUpdateLabelsPredicate:(NSPredicate *)labelsPredicate shouldClosePopover:(BOOL)closePopover {
+    [self updatePredicateFromFilterButtons];
+    [self updateLabels];
+    if (closePopover) {
+        [_label closePopover];
     }
-    
-    [self updatePredicateFromFilterButtons];
-    [self updateLabelMenuStateFromPredicate];
-}
-
-- (void)pickLabelOperator:(id)sender {
-    SEL cmd = _cmd;
-    [_label.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
-        if (m.action == cmd) {
-            m.state = m == sender ? NSOnState : NSOffState;
-        }
-    }];
-    
-    [self updatePredicateFromFilterButtons];
-    [self updateLabelMenuStateFromPredicate];
 }
 
 - (void)pickMilestone:(id)sender {
@@ -1006,42 +776,8 @@ static BOOL representedObjectEquals(id repr, id val) {
     
     // Label
     if (!_label.hidden) {
-        __block BOOL noFilter = NO;
-        __block NSString *type = nil;
-        __block BOOL unlabeled = NO;
-        NSMutableArray *labels = [NSMutableArray new];
-        
-        [_label.menu walkMenuItems:^(NSMenuItem *m, BOOL *stop) {
-            if (m.action == @selector(pickLabel:) && m.state == NSOnState) {
-                if (m.representedObject == nil) {
-                    noFilter = YES;
-                } else if (m.representedObject != [NSNull null]) {
-                    [labels addObject:m.representedObject];
-                } else {
-                    unlabeled = YES;
-                }
-            } else if (m.action == @selector(pickLabelOperator:) && m.state == NSOnState) {
-                type = m.representedObject;
-            }
-        }];
-        
-        if (!noFilter) {
-            NSPredicate *lp = nil;
-            
-            if (unlabeled) {
-                lp = [NSPredicate predicateWithFormat:@"count(labels) == 0"];
-            } else if ([type isEqualToString:@"NONE"] || [labels count] == 0) {
-                // AKA (which CoreData cannot execute): NONE labels.name IN %@
-                lp = [NSPredicate predicateWithFormat:@"count(SUBQUERY(labels.name, $name, $name IN %@)) == 0", labels];
-                
-            } else if ([type isEqualToString:@"ANY"]) {
-                // AKA: ANY labels.name IN %@
-                lp = [NSPredicate predicateWithFormat:@"count(SUBQUERY(labels.name, $name, $name IN %@)) > 0", labels];
-            } else {
-                // AKA: ALL labels.name IN %@
-                lp = [NSPredicate predicateWithFormat:@"count(SUBQUERY(labels.name, $name, $name IN %@)) == count(%@)", labels, labels];
-            }
-            
+        NSPredicate *lp = _labelsFilter.labelsPredicate;
+        if (lp) {
             pred = [pred and:lp];
         }
     }
@@ -1077,7 +813,7 @@ static BOOL representedObjectEquals(id repr, id val) {
     [self updateAuthorMenuStateFromPredicate];
     [self updateRepoMenuStateFromPredicate];
     [self updateStateMenuStateFromPredicate];
-    [self updateLabelMenuStateFromPredicate];
+    [self updateLabels];
     [self updateMilestoneMenuStateFromPredicate];
     [self updatePullRequestMenuStateFromPredicate];
 }

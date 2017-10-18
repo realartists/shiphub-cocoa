@@ -8,9 +8,12 @@
 
 #import "FilterButton.h"
 
-@interface FilterButton () <NSMenuDelegate> {
+@interface FilterButton () <NSMenuDelegate, NSPopoverDelegate> {
     NSMenu *_myMenu;
     BOOL _menuShowing;
+    NSPopover *_popover;
+    BOOL _popoverShown;
+    NSTrackingRectTag _trackingTag;
 }
 
 @end
@@ -53,6 +56,9 @@
 
 - (void)updateTrackingAreas {
     [super updateTrackingAreas];
+    if (_trackingTag) {
+        [self removeTrackingRect:_trackingTag];
+    }
     [self addTrackingRect:self.bounds owner:self userData:NULL assumeInside:NO];
 }
 
@@ -63,9 +69,18 @@
     self.frame = f;
 }
 
+- (void)updateBorder {
+    if (_popoverShown) {
+        self.showsBorderOnlyWhileMouseInside = NO;
+    } else {
+        self.showsBorderOnlyWhileMouseInside = !_filterEnabled;
+    }
+    [self setNeedsDisplay];
+}
+
 - (void)setFilterEnabled:(BOOL)filterEnabled {
     _filterEnabled = filterEnabled;
-    self.showsBorderOnlyWhileMouseInside = !filterEnabled;
+    [self updateBorder];
 }
 
 - (void)mouseEntered:(NSEvent *)theEvent {
@@ -88,6 +103,10 @@
 
 - (void)showMenu {
     if (self.enabled) {
+        if (_popoverViewController) {
+            [self showPopover];
+            return;
+        }
         self.menu.minimumWidth = self.bounds.size.width;
         self.menu.font = self.font;
         [self.menu popUpMenuPositioningItem:nil atLocation:CGPointMake(0, self.bounds.size.height + 3.0) inView:self];
@@ -131,6 +150,53 @@
 
 - (NSString *)description {
     return [NSString stringWithFormat:@"<%@: %p \"%@\">", NSStringFromClass([self class]), self, self.title];
+}
+
+- (void)showPopover {
+    if (_popover.shown) {
+        return;
+    }
+    
+    _popover = [[NSPopover alloc] init];
+    _popover.animates = NO;
+    _popover.behavior = NSPopoverBehaviorTransient;
+    _popover.appearance = [NSAppearance appearanceNamed:NSAppearanceNameAqua];
+    _popover.delegate = self;
+    
+    CGSize desiredSize = [_popoverViewController preferredMaximumSize];
+    CGRect screenRect = self.window.screen.visibleFrame;
+    CGRect myWindowRect = [self convertRect:self.bounds toView:nil];
+    CGRect myScreenRect = [self.window convertRectToScreen:myWindowRect];
+    
+    CGFloat popoverMargin = 30.0;
+    CGFloat distanceFromTopToTopOfScreen = (CGRectGetMaxY(screenRect) - CGRectGetMaxY(myScreenRect)) - popoverMargin;
+    CGFloat distanceFromBottomToBottomOfScreen = (CGRectGetMinY(myScreenRect) - CGRectGetMinY(screenRect)) - popoverMargin;
+    
+    CGSize actualSize = desiredSize;
+    if (actualSize.height > distanceFromBottomToBottomOfScreen) {
+        actualSize.height = MIN(desiredSize.height, MAX(distanceFromBottomToBottomOfScreen, distanceFromTopToTopOfScreen));
+    }
+    
+    [_popoverViewController.view setFrameSize:actualSize];
+    
+    _popover.contentViewController = _popoverViewController;
+    _popover.contentSize = actualSize;
+    
+    [_popover showRelativeToRect:self.frame ofView:self.superview preferredEdge:NSMaxYEdge];
+}
+
+- (void)closePopover {
+    [_popover close];
+}
+
+- (void)popoverWillShow:(NSNotification *)notification {
+    _popoverShown = YES;
+    [self updateBorder];
+}
+
+- (void)popoverWillClose:(NSNotification *)notification {
+    _popoverShown = NO;
+    [self updateBorder];
 }
 
 @end

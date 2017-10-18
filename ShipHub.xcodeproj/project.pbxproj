@@ -264,6 +264,8 @@
 		1A86763E1E94165E00ACE932 /* TrackingProgressSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A86763C1E94165E00ACE932 /* TrackingProgressSheet.m */; };
 		1A86763F1E94165E00ACE932 /* TrackingProgressSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A86763D1E94165E00ACE932 /* TrackingProgressSheet.xib */; };
 		1A9030EF1F9114C800760D12 /* NSViewController+PresentSaveError.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9030EE1F9114C800760D12 /* NSViewController+PresentSaveError.m */; };
+		1A9030F51F954C4300760D12 /* LabelsFilterTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9030F31F954C4300760D12 /* LabelsFilterTableController.m */; };
+		1A9030F61F954C4300760D12 /* LabelsFilterTableController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A9030F41F954C4300760D12 /* LabelsFilterTableController.xib */; };
 		1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */; };
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1A9905181CE11A0700EAA474 /* LabelsControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsControl.m */; };
@@ -920,6 +922,9 @@
 		1A86763D1E94165E00ACE932 /* TrackingProgressSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = TrackingProgressSheet.xib; sourceTree = "<group>"; };
 		1A9030ED1F9114C800760D12 /* NSViewController+PresentSaveError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSViewController+PresentSaveError.h"; sourceTree = "<group>"; };
 		1A9030EE1F9114C800760D12 /* NSViewController+PresentSaveError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSViewController+PresentSaveError.m"; sourceTree = "<group>"; };
+		1A9030F21F954C4300760D12 /* LabelsFilterTableController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LabelsFilterTableController.h; sourceTree = "<group>"; };
+		1A9030F31F954C4300760D12 /* LabelsFilterTableController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LabelsFilterTableController.m; sourceTree = "<group>"; };
+		1A9030F41F954C4300760D12 /* LabelsFilterTableController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LabelsFilterTableController.xib; sourceTree = "<group>"; };
 		1A9905061CDBC93A00EAA474 /* Issue3PaneTableController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Issue3PaneTableController.h; sourceTree = "<group>"; };
 		1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Issue3PaneTableController.m; sourceTree = "<group>"; };
 		1A99050C1CDBC98900EAA474 /* IssueTableControllerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueTableControllerPrivate.h; sourceTree = "<group>"; };
@@ -1749,6 +1754,12 @@
 				1A99051A1CE141AF00EAA474 /* CompactIssueCellViewController.m */,
 				1AD9ECC11D14990100E9FAFC /* FilterBarViewController.h */,
 				1AD9ECC21D14990100E9FAFC /* FilterBarViewController.m */,
+				1A5EF1C11F8C495300F0199E /* LabelsFilterViewController.h */,
+				1A5EF1C21F8C495300F0199E /* LabelsFilterViewController.m */,
+				1A5EF1C31F8C495300F0199E /* LabelsFilterViewController.xib */,
+				1A9030F21F954C4300760D12 /* LabelsFilterTableController.h */,
+				1A9030F31F954C4300760D12 /* LabelsFilterTableController.m */,
+				1A9030F41F954C4300760D12 /* LabelsFilterTableController.xib */,
 				1A5108431D2CC52A00905D4D /* EmptyUpNextViewController.h */,
 				1A5108441D2CC52A00905D4D /* EmptyUpNextViewController.m */,
 				1A38C9EB1D9203AB00655891 /* HiddenRepoViewController.h */,
@@ -1757,9 +1768,6 @@
 				1A38C9F31D9206C800655891 /* HiddenMilestoneViewController.h */,
 				1A38C9F41D9206C800655891 /* HiddenMilestoneViewController.m */,
 				1A38C9F51D9206C800655891 /* HiddenMilestoneViewController.xib */,
-				1A5EF1C11F8C495300F0199E /* LabelsFilterViewController.h */,
-				1A5EF1C21F8C495300F0199E /* LabelsFilterViewController.m */,
-				1A5EF1C31F8C495300F0199E /* LabelsFilterViewController.xib */,
 			);
 			name = "Overview UI";
 			sourceTree = "<group>";
@@ -2220,6 +2228,7 @@
 				1AF5672D1D62427100611DBB /* WelcomeController.xib in Resources */,
 				1AF9757D1E92DAD000914460 /* PRBinaryDiffViewController.xib in Resources */,
 				1A5EF1C51F8C495300F0199E /* LabelsFilterViewController.xib in Resources */,
+				1A9030F61F954C4300760D12 /* LabelsFilterTableController.xib in Resources */,
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
 				1A38C9F71D9206C800655891 /* HiddenMilestoneViewController.xib in Resources */,
@@ -2430,6 +2439,7 @@
 				1A694AEA1CA09E6A00F73608 /* Repo.m in Sources */,
 				1AC023E81F2C1AB200B9B59B /* GitLFS.m in Sources */,
 				1ADED9E21DAC47310093A098 /* PRViewController.m in Sources */,
+				1A9030F51F954C4300760D12 /* LabelsFilterTableController.m in Sources */,
 				1A5A2AC51F0323270084737B /* WelcomeReadmeController.m in Sources */,
 				1AE09C0A1C97687E00C5AC35 /* LocalLabel+CoreDataProperties.m in Sources */,
 				282710121E3E814F001F031E /* Analytics.m in Sources */,
