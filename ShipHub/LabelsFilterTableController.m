@@ -27,14 +27,15 @@
 
 @end
 
-@interface LabelsFilterTableController () <NSTableViewDataSource, NSTableViewDelegate>
+@interface LabelsFilterTableController () <NSTableViewDataSource, NSTableViewDelegate> {
+    NSMutableSet *_selectedLabelNames;
+}
 
 @property IBOutlet NSTableView *table;
 @property IBOutlet NSSearchField *search;
 
 @property (nonatomic, strong) NSArray *filteredLabels;
 @property (nonatomic, copy) NSArray *labels;
-@property (nonatomic, copy) NSMutableSet *selectedLabelNames;
 
 - (void)tableDidClickRow:(NSInteger)row;
 
