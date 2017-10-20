@@ -11,6 +11,7 @@
   },
   "author": "",
   "dependencies": {
+    "bluebird": "^3.4.7",
     "codemirror": "^5.15.2",
     "diff-match-patch": "^1.0.0",
     "font-awesome": "^4.5.0",
