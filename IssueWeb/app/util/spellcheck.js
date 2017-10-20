@@ -1,5 +1,6 @@
 /* Defines a spellcheck module for CodeMirror that relies on the system spellchecker */
 
+import BBPromise from 'util/bbpromise.js'
 import CodeMirror from 'codemirror'
 
 var checkHandle = 0;
@@ -13,7 +14,7 @@ var focusedCM = null;
   [{ start: ..., end: ... }]
 */
 function checkText(text) {
-  return new Promise((resolve, reject) => {
+  return new BBPromise((resolve, reject) => {
     if (window.spellcheck) {
       var handle = ++checkHandle;
       checkResults[handle] = resolve;

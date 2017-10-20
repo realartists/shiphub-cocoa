@@ -1,3 +1,5 @@
+import BBPromise from 'util/bbpromise.js'
+
 var pendingAPIHandlers = [];
 var apiHandle = 0;
 
@@ -6,7 +8,7 @@ function api(url, opts) {
   if (window.inApp) {
     var handle = ++apiHandle;
     console.log("Making api call", handle, url, opts);
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       try {
         pendingAPIHandlers[handle] = {resolve, reject};
         window.postAppMessage({handle, url, opts});
@@ -18,7 +20,7 @@ function api(url, opts) {
   } else {
     return fetch(url, opts).then(function(resp) {
       if (resp.status == 204) {
-        return Promise.resolve(null); // no content
+        return BBPromise.resolve(null); // no content
       } else {
         return resp.json();
       }

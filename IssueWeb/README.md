@@ -1,5 +1,13 @@
 IssueWeb is built using npm + webpack via a Run Script step in Xcode.
 
+### Installing NPM
+
+```
+0. install homebrew
+1. brew install node # if necessary, will also install homebrew
+2. npm install -g npm@3.7.3 # we need to be on npm < 5 in order to use npm-shrinkwrap.json
+```
+
 ### Using live reloading
 
 As an option, you can have ShipHub point itself at a webpack-dev-server

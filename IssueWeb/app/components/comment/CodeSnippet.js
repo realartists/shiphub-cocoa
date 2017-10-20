@@ -1,4 +1,5 @@
 import React, { createElement as h } from 'react'
+import BBPromise from 'util/bbpromise.js'
 import codeHighlighter from 'util/code-highlighter.js'
 
 import { reloadFailedMediaEvent } from 'util/media-reloader.js'
@@ -8,7 +9,7 @@ import "./CodeSnippet.css"
 var snippetHandle = 0;
 var snippetResults = [];
 function loadSnippet(repoFullName, sha, path, startLine, endLine) {
-  return new Promise((resolve, reject) => {
+  return new BBPromise((resolve, reject) => {
     if (window.loadCodeSnippet) {
       var handle = ++snippetHandle;
       snippetResults[handle] = resolve;

@@ -1,5 +1,6 @@
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
+import BBPromise from 'util/bbpromise.js'
 
 import AvatarIMG from 'components/AvatarIMG.js'
 import { TimeAgo, TimeAgoString } from 'components/time-ago.js'
@@ -216,7 +217,7 @@ class ReviewCodeComment extends ReviewAbstractComment {
           body: JSON.stringify(prComment),
         });
         
-        return new Promise((resolve, reject) => {
+        return new BBPromise((resolve, reject) => {
           request.then((body) => {
             this.setState(Object.assign({}, this.state, {
               code: "",
@@ -249,7 +250,7 @@ class ReviewCodeComment extends ReviewAbstractComment {
   onTaskListEdit(newBody) {
     if (!this.props.comment || this.state.editing) {
       this.updateCode(newBody);
-      return Promise.resolve();
+      return BBPromise.resolve();
     } else {
       return this.onEdit(newBody);
     }

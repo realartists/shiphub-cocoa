@@ -1,4 +1,5 @@
 import React, { createElement as h } from 'react'
+import BBPromise from 'util/bbpromise.js'
 
 import IssueState from '../../issue-state.js'
 import { HeaderLabel, HeaderSeparator } from './issue-header.js'
@@ -37,7 +38,7 @@ class AddReviewer extends React.Component {
     if (this.refs.add && this.refs.add.needsSave()) {
       return this.refs.add.save();
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   }
   
@@ -120,7 +121,7 @@ class Reviewers extends React.Component {
       user = matches[0];
       return IssueState.current.addReviewer(user);
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   }
   
@@ -131,7 +132,7 @@ class Reviewers extends React.Component {
       user = matches[0];
       return IssueState.current.deleteReviewer(user);
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   }
 
@@ -154,7 +155,7 @@ class Reviewers extends React.Component {
   }
   
   save() {
-    return Promise.resolve();
+    return BBPromise.resolve();
   }
   
   // return { user, review? } for all users who have submitted reviews or had them requested

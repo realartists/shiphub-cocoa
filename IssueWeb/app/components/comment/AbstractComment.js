@@ -6,6 +6,7 @@ import '../../../markdown-mark/style.css'
 import './comment.css'
 import 'ctheme.js'
 
+import BBPromise from 'util/bbpromise.js'
 import Sortable from 'sortablejs'
 import CodeMirror from 'codemirror'
 import Codemirror from 'react-codemirror'
@@ -233,13 +234,13 @@ class AbstractComment extends React.Component {
   
   waitForUploads() {
     if (this.state.uploadCount == 0) {
-      return Promise.resolve();
+      return BBPromise.resolve();
     } else {
       var uploadQueue = this.uploadQueue;
       if (!uploadQueue) {
         this.uploadQueue = uploadQueue = [];
       }
-      var p = new Promise((resolve, reject) => {
+      var p = new BBPromise((resolve, reject) => {
         uploadQueue.push({resolve, reject});
       });
       return p;

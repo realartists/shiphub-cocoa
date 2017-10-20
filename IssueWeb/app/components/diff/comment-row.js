@@ -1,6 +1,8 @@
 import 'components/comment/comment.css'
 import './comment.css'
 
+import BBPromise from 'util/bbpromise.js'
+
 import DiffRow from './diff-row.js'
 import MiniMap from './minimap.js'
 
@@ -56,7 +58,7 @@ class Comment extends AbstractComment {
   
   deleteComment() {
     this.props.commentDelegate.deleteComment(this.props.comment);
-    return Promise.resolve();
+    return BBPromise.resolve();
   }
   
   saveAndClose() { return this.save(); }
@@ -92,7 +94,7 @@ class Comment extends AbstractComment {
     if (this.props.didSave) {
       this.props.didSave();
     }
-    return Promise.resolve();
+    return BBPromise.resolve();
   }
   
   onTaskListEdit(newBody) {

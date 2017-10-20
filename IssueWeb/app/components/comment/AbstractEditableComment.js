@@ -1,4 +1,5 @@
 import AbstractComment from './AbstractComment.js'
+import BBPromise from 'util/bbpromise.js'
 import { keypath } from 'util/keypath.js'
 import { promiseQueue } from 'util/promise-queue.js'
 import IssueState from 'issue-state.js'
@@ -26,7 +27,7 @@ class AbstractEditableComment extends AbstractComment {
       var currentId = keypath(this.props, "comment.id") || "";
       if (currentId == initialId && newBody != this.state.pendingEditBody) {
         // let's just jump ahead to the next thing, we're already stale.
-        return Promise.resolve();
+        return BBPromise.resolve();
       }
       var request = api(url, { 
         headers: { 
@@ -43,7 +44,7 @@ class AbstractEditableComment extends AbstractComment {
           window.documentEditedHelper.postMessage({});
         }
       };
-      return new Promise((resolve, reject) => {
+      return new BBPromise((resolve, reject) => {
         // NB: The 1500ms delay is because GitHub only has 1s precision on updated_at
         request.then(() => {
           setTimeout(() => {

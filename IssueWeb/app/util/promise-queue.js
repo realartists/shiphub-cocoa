@@ -1,3 +1,5 @@
+import BBPromise from 'util/bbpromise.js'
+
 var promiseQueues = {};
 
 function runQueue(queue) {
@@ -21,7 +23,7 @@ function runQueue(queue) {
 }
 
 /* 
-  Run a task that returns a Promise on queue.
+  Run a task that returns a BBPromise on queue.
 */
 export function promiseQueue(queueName, task) {
   var queue;
@@ -31,7 +33,7 @@ export function promiseQueue(queueName, task) {
     promiseQueues[queueName] = queue = [];
   }
   
-  return new Promise((resolve, reject) => {
+  return new BBPromise((resolve, reject) => {
     queue.push({task, resolve, reject});
     
     if (queue.length == 1) {

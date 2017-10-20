@@ -1,4 +1,5 @@
 import React, { createElement as h } from 'react'
+import BBPromise from 'util/bbpromise.js'
 
 import AbstractEditableComment from 'components/comment/AbstractEditableComment.js'
 import CommentHeader from 'components/comment/CommentHeader.js'
@@ -76,7 +77,7 @@ class CommitComment extends AbstractEditableComment {
   onTaskListEdit(newBody) {
     if (!this.props.comment || this.state.editing) {
       this.updateCode(newBody);
-      return Promise.resolve();
+      return BBPromise.resolve();
     } else {
       return this.onEdit(newBody);
     }

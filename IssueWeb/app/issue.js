@@ -5,6 +5,7 @@ import './issue.css'
 import 'ctheme.js'
 
 import 'util/crash-reporter.js'
+import BBPromise from 'util/bbpromise.js'
 
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
@@ -833,7 +834,7 @@ var ActivityList = React.createClass({
   
   save: function() {
     var c = this.allComments();
-    return Promise.all(c.filter((x) => x.needsSave()).map((x) => x.save()));
+    return BBPromise.all(c.filter((x) => x.needsSave()).map((x) => x.save()));
   },
   
   render: function() {        
@@ -1046,13 +1047,13 @@ var IssueTitle = React.createClass({
       if (IssueState.current.issue.title != newTitle) {
         promise = IssueState.current.patchIssue({title: newTitle});
       } else {
-        promise = Promise.resolve();
+        promise = BBPromise.resolve();
       }
     }
     if (goNext) {
       this.props.focusNext("title");
     }
-    return promise || Promise.resolve();
+    return promise || BBPromise.resolve();
   },
 
   getInitialState: function() {
@@ -1103,7 +1104,7 @@ var IssueTitle = React.createClass({
     if (this.needsSave()) {
       return this.titleSaveClicked();
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   },
   
@@ -1164,7 +1165,7 @@ var RepoField = React.createClass({
   
     if (newRepo.indexOf('/') == -1) {
       fail();
-      return Promise.reject("Invalid repo");
+      return BBPromise.reject("Invalid repo");
     }
     
     var [owner, repo] = newRepo.split("/");
@@ -1179,7 +1180,7 @@ var RepoField = React.createClass({
     
     if (!repoInfo) {
       fail();
-      return Promise.reject("Invalid repo");
+      return BBPromise.reject("Invalid repo");
     }
     
     var state = IssueState.current.state;
@@ -1194,7 +1195,7 @@ var RepoField = React.createClass({
     });
     applyIssueState(state);
     
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       // fetch new metadata and merge it in
       loadMetadata(newRepo).then((meta) => {
         var state = IssueState.current.state;
@@ -1241,7 +1242,7 @@ var RepoField = React.createClass({
     
     this.props.focusNext("repo");
     
-    return Promise.all(promises);
+    return BBPromise.all(promises);
   },
   
   focus: function() {
@@ -1275,7 +1276,7 @@ var RepoField = React.createClass({
     if (this.needsSave()) {
       return this.onEnter();
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   },
   
@@ -1330,7 +1331,7 @@ var MilestoneField = React.createClass({
       this.forceUpdate();
       return ret;
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   },
   
@@ -1348,11 +1349,11 @@ var MilestoneField = React.createClass({
       this.props.focusNext("milestone");
     });
     
-    return Promise.all(promises);
+    return BBPromise.all(promises);
   },
   
   onAddNew: function(initialNewTitle) {
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       var cb = (newMilestones) => {
         if (newMilestones === undefined) {
           // error creating
@@ -1406,7 +1407,7 @@ var MilestoneField = React.createClass({
     if (this.needsSave()) {
       return this.onEnter();
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   },
   
@@ -1485,7 +1486,7 @@ var StateField = React.createClass({
   },
   
   save: function() {
-    return Promise.resolve();
+    return BBPromise.resolve();
   },
   
   canEdit: function() {
@@ -1544,7 +1545,7 @@ var AssigneeInput = React.createClass({
       this.forceUpdate();
       return ret;
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   },
   
@@ -1562,7 +1563,7 @@ var AssigneeInput = React.createClass({
       this.props.focusNext("assignee");
     });
     
-    return Promise.all(promises);
+    return BBPromise.all(promises);
   },
   
   focus: function() {
@@ -1591,7 +1592,7 @@ var AssigneeInput = React.createClass({
     if (this.needsSave()) {
       return this.onEnter();
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   },
   
@@ -1693,7 +1694,7 @@ var AddAssignee = React.createClass({
     if (this.needsSave()) {
       return this.refs.picker.addLabel();
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   },
   
@@ -1777,7 +1778,7 @@ var MultipleAssignees = React.createClass({
     if (this.refs.add && this.refs.add.needsSave()) {
       return this.refs.add.save();
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   },
   
@@ -1854,7 +1855,7 @@ var AssigneeField = React.createClass({
     if (this.refs.assignee) {
       return this.refs.assignee.save();
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   },
   
@@ -1914,7 +1915,7 @@ var AddLabel = React.createClass({
   },
 
   newLabel: function(prefillName) {
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       window.newLabel(prefillName ? prefillName : "",
                       IssueState.current.labels,
                       this.props.issue._bare_owner,
@@ -1961,7 +1962,7 @@ var AddLabel = React.createClass({
     if (this.needsSave()) {
       return this.refs.picker.addLabel();
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   },
   
@@ -2072,7 +2073,7 @@ var IssueLabels = React.createClass({
     if (this.refs.add && this.refs.add.needsSave()) {
       return this.refs.add.save();
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   },
   
@@ -2191,7 +2192,7 @@ var Header = React.createClass({
         promises.push(r.save());
       }      
     }
-    return Promise.all(promises);
+    return BBPromise.all(promises);
   },
   
   render: function() {
@@ -2230,7 +2231,7 @@ function simpleFetch(url) {
   return api(url, { headers: { Authorization: "token " + IssueState.current.token }, method: "GET" });
 }
       
-function pagedFetch(url) /* => Promise */ {
+function pagedFetch(url) /* => BBPromise */ {
   if (window.inApp) {
     return simpleFetch(url);
   }
@@ -2253,7 +2254,7 @@ function pagedFetch(url) /* => Promise */ {
         }
       }
     }
-    return Promise.all([resp.json()].concat(pages));
+    return BBPromise.all([resp.json()].concat(pages));
   }).then(function(pages) {
     return pages.reduce(function(a, b) { return a.concat(b); });
   });
@@ -2276,7 +2277,7 @@ function loadMetadata(repoFullName) {
               pagedFetch("https://api.github.com/repos/" + owner + "/" + repo + "/labels"));
   }
   
-  return Promise.all(reqs).then(function(parts) {
+  return BBPromise.all(reqs).then(function(parts) {
     var meta = {
       repos: parts[0].filter((r) => r.has_issues),
       me: parts[1],
@@ -2286,7 +2287,7 @@ function loadMetadata(repoFullName) {
       token: IssueState.current.token,
     };
     
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       resolve(meta);
     });
   }).catch(function(err) {
@@ -2529,18 +2530,18 @@ var App = React.createClass({
       if (!title || title.trim().length == 0) {
         var reason = "Cannot save issue. Title is required.";
         alert(reason);
-        return Promise.reject(reason);
+        return BBPromise.reject(reason);
       } else if (!repo || repo.trim().length == 0) {
         var reason = "Cannot save issue. Repo is required."
         alert(reason);
-        return Promise.reject(reason);
+        return BBPromise.reject(reason);
       } else {
         return this.refs.addComment.save();
       }
     } else {
       var l = [this.refs.header, this.refs.activity, this.refs.addComment];
       var promises = l.filter((x) => x.needsSave()).map((x) => x.save());
-      return Promise.all(promises);
+      return BBPromise.all(promises);
     }
   },
   

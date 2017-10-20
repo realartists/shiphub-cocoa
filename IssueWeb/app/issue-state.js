@@ -1,5 +1,6 @@
 /* Represents the model and mutations on the model for IssueWeb */
 
+import BBPromise from 'util/bbpromise.js'
 import { promiseQueue } from 'util/promise-queue.js'
 import { api } from 'util/api-proxy.js'
 import { keypath, setKeypath } from 'util/keypath.js'
@@ -130,7 +131,7 @@ class IssueState {
           method: "PATCH",
           body: JSON.stringify(ghPatch)
         });
-        return new Promise((resolve, reject) => {
+        return new BBPromise((resolve, reject) => {
           request.then((body) => {
             console.log(body);
             resolve();
@@ -144,7 +145,7 @@ class IssueState {
         });
       });
     } else {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
   }
   
@@ -166,7 +167,7 @@ class IssueState {
           method: "PATCH",
           body: JSON.stringify({body: newBody})
         });
-        return new Promise((resolve, reject) => {
+        return new BBPromise((resolve, reject) => {
           request.then((body) => {
             console.log(body);
             resolve();
@@ -180,7 +181,7 @@ class IssueState {
         });
       });
     } else {
-      return Promise.reject("Issue does not exist.");
+      return BBPromise.reject("Issue does not exist.");
     }
   }
   
@@ -203,7 +204,7 @@ class IssueState {
       });
       return request;
     } else {
-      return Promise.reject("Issue does not exist.");
+      return BBPromise.reject("Issue does not exist.");
     }
   }
   
@@ -226,7 +227,7 @@ class IssueState {
           method: "POST",
           body: JSON.stringify({body: commentBody})
         });
-        return new Promise((resolve, reject) => {
+        return new BBPromise((resolve, reject) => {
           request.then((body) => {
             this.mergeIssueChanges(owner, repo, num, () => {
               var id = body.id;
@@ -248,7 +249,7 @@ class IssueState {
         });
       });
     } else {
-      return Promise.reject("Issue does not exist.");
+      return BBPromise.reject("Issue does not exist.");
     }
   }
   
@@ -282,7 +283,7 @@ class IssueState {
         issue.savePendingQueue = [];
       }
       var q = issue.savePendingQueue;
-      var p = new Promise((resolve, reject) => {
+      var p = new BBPromise((resolve, reject) => {
         q.append({resolve, reject});
       });
       return p;
@@ -341,7 +342,7 @@ class IssueState {
       });
     }
   
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       request.then((body) => {
         var q = issue.savePendingQueue;
         this.state.issue = body;
@@ -456,7 +457,7 @@ class IssueState {
         throw err;
       });
     } else {
-      return Promise.reject("Issue does not exist.");
+      return BBPromise.reject("Issue does not exist.");
     }
   }
   
@@ -484,7 +485,7 @@ class IssueState {
         throw err;
       });
     } else {
-      return Promise.reject("Issue does not exist.");
+      return BBPromise.reject("Issue does not exist.");
     }
   }
   
@@ -502,7 +503,7 @@ class IssueState {
       this._renderState();
     };
     this._renderState();
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       this.applyComment(body)
       .then(resolve)
       .catch(() => {
@@ -547,7 +548,7 @@ class IssueState {
       method: 'POST',
       body: JSON.stringify({content: reactionContent})
     });
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       request.then((body) => {
         this.mergeIssueChanges(owner, repo, num, () => {
           reaction.id = body.id;
@@ -564,7 +565,7 @@ class IssueState {
   
   deleteReaction(commentIdx, reactionID) {
     if (reactionID === "new") {
-      return Promise.reject("Cannot delete pending reaction");
+      return BBPromise.reject("Cannot delete pending reaction");
     }
     
     var oldState = this.snapshotState();
@@ -588,7 +589,7 @@ class IssueState {
       },
       method: 'DELETE'
     });
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       request.then((body) => {
         resolve();
       }).catch((err) => {
@@ -637,7 +638,7 @@ class IssueState {
       body: JSON.stringify({content: reactionContent})
     });
     
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       request.then((body) => {
         this.mergeIssueChanges(owner, repo, num, () => {
           reaction.id = body.id;
@@ -668,7 +669,7 @@ class IssueState {
     var request = api(url, {
       method: 'DELETE'
     });
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       request.then((body) => {
         resolve();
       }).catch((err) => {
@@ -711,7 +712,7 @@ class IssueState {
       body: JSON.stringify({content: reactionContent})
     });
     
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       request.then((body) => {
         this.mergeIssueChanges(owner, repo, num, () => {
           reaction.id = body.id;
@@ -728,7 +729,7 @@ class IssueState {
   
   deleteCommitCommentReaction(id, reactionID) {
     if (reactionID === "new") {
-      return Promise.reject("Cannot delete pending reaction");
+      return BBPromise.reject("Cannot delete pending reaction");
     }
     
     var oldState = this.snapshotState();
@@ -741,7 +742,7 @@ class IssueState {
     var request = api(url, {
       method: 'DELETE'
     });
-    return new Promise((resolve, reject) => {
+    return new BBPromise((resolve, reject) => {
       request.then((body) => {
         resolve();
       }).catch((err) => {
@@ -754,14 +755,14 @@ class IssueState {
   
   addReviewer(user) {
     if (!user) {
-      return Promise.reject("User not specified");
+      return BBPromise.reject("User not specified");
     }
     if (!this.issue.pull_request) {
-      return Promise.reject("Cannot add reviewer on non-PR");
+      return BBPromise.reject("Cannot add reviewer on non-PR");
     }
     
     if (this.issue.requested_reviewers.find(rv => rv.id == user.id)) {
-      return Promise.resolve();
+      return BBPromise.resolve();
     }
     
     var oldState = this.snapshotState();
@@ -776,7 +777,7 @@ class IssueState {
         method: 'POST',
         body: JSON.stringify({reviewers:[user.login]})
       });
-      return new Promise((resolve, reject) => {
+      return new BBPromise((resolve, reject) => {
         request.then((body) => {
           resolve();
         }).catch((err) => {
@@ -790,10 +791,10 @@ class IssueState {
   
   deleteReviewer(user) {
     if (!user) {
-      return Promise.reject("User not specified");
+      return BBPromise.reject("User not specified");
     }
     if (!this.issue.pull_request) {
-      return Promise.reject("Cannot delete reviewer on non-PR");
+      return BBPromise.reject("Cannot delete reviewer on non-PR");
     }
     
     var oldState = this.snapshotState();
@@ -808,7 +809,7 @@ class IssueState {
         method: 'DELETE',
         body: JSON.stringify({reviewers:[user.login]})
       });
-      return new Promise((resolve, reject) => {
+      return new BBPromise((resolve, reject) => {
         request.then((body) => {
           resolve();
         }).catch((err) => {
@@ -822,10 +823,10 @@ class IssueState {
   
   dismissReview(id, reason) {
     if (!id) {
-      return Promise.reject("id not specified");
+      return BBPromise.reject("id not specified");
     }
     if (!reason) {
-      return Promise.reject("reason not specified");
+      return BBPromise.reject("reason not specified");
     }
     
     var oldState = this.snapshotState();
@@ -854,7 +855,7 @@ class IssueState {
         method: 'PUT',
         body: JSON.stringify({message:reason})
       });
-      return new Promise((resolve, reject) => {
+      return new BBPromise((resolve, reject) => {
         request.then((body) => {
           resolve();
         }).catch((err) => {
