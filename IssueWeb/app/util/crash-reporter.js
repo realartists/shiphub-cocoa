@@ -10,8 +10,12 @@ var beforeSend = function(payload) {
   var stacktrace = payload.Details.Error.StackTrace;
 
   var normalizeFilename = function(filename) {
-    var indexOfRoot = filename.indexOf("IssueWeb");
-    return `file:///${__BUILD_ID__}/${filename.substring(indexOfRoot)}`;
+    if (filename) {
+      var indexOfRoot = filename.indexOf("IssueWeb");
+      return `file:///${__BUILD_ID__}/${filename.substring(indexOfRoot)}`;
+    } else {
+      return "unknown";
+    }
   }
 
   for(var i = 0 ; i < stacktrace.length; i++) {
@@ -29,4 +33,8 @@ window.configureRaygun = function(user, version, extra) {
   rg4js('setUser', user);
   rg4js('setVersion', version);
   rg4js('withCustomData', extra);
+}
+
+export function SendCrashReport(error) {
+  rg4js('send', { error });
 }

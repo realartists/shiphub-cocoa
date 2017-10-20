@@ -17,9 +17,7 @@ window.addEventListener("unhandledrejection", function(e) {
     
     console.error(reason);
     SendCrashReport(reason);
-    if (window.onerror) {
-      window.onerror(reason);
-    }
+    window.lastErr = true;
 });
 
 var BBPromise = Promise;

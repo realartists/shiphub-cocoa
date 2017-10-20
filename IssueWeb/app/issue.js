@@ -1165,7 +1165,7 @@ var RepoField = React.createClass({
   
     if (newRepo.indexOf('/') == -1) {
       fail();
-      return BBPromise.reject("Invalid repo");
+      return BBPromise.reject(new Error("Invalid repo"));
     }
     
     var [owner, repo] = newRepo.split("/");
@@ -1180,7 +1180,7 @@ var RepoField = React.createClass({
     
     if (!repoInfo) {
       fail();
-      return BBPromise.reject("Invalid repo");
+      return BBPromise.reject(new Error("Invalid repo"));
     }
     
     var state = IssueState.current.state;
@@ -1222,7 +1222,7 @@ var RepoField = React.createClass({
       }).catch((err) => {
         console.log("Could not load metadata for repo", newRepo, err);
         fail();
-        reject();
+        reject(err);
       });      
     });
   },
@@ -1357,7 +1357,7 @@ var MilestoneField = React.createClass({
       var cb = (newMilestones) => {
         if (newMilestones === undefined) {
           // error creating
-          reject();
+          reject(new Error("Unable to create new milestone(s)"));
         } else if (newMilestones == null || newMilestones.length == 0) {
           // user cancelled
           this.focus();
@@ -2295,6 +2295,12 @@ function loadMetadata(repoFullName) {
   });
 }
 
+class SaveNewError extends Error {
+  constructor(message) {
+    super(message);
+  }
+}
+
 var App = React.createClass({
   propTypes: { issue: React.PropTypes.object },
   
@@ -2530,11 +2536,11 @@ var App = React.createClass({
       if (!title || title.trim().length == 0) {
         var reason = "Cannot save issue. Title is required.";
         alert(reason);
-        return BBPromise.reject(reason);
+        return BBPromise.reject(new SaveNewError(reason));
       } else if (!repo || repo.trim().length == 0) {
         var reason = "Cannot save issue. Repo is required."
         alert(reason);
-        return BBPromise.reject(reason);
+        return BBPromise.reject(new SaveNewError(reason));
       } else {
         return this.refs.addComment.save();
       }
@@ -2550,7 +2556,7 @@ var App = React.createClass({
     doc.onkeypress = (evt) => {
       if (evt.which == 115 && evt.metaKey && !evt.shiftKey && !evt.ctrlKey && !evt.altKey) {
         console.log("global save");
-        this.save();
+        this.save().catch(SaveNewError, function() { });
         evt.preventDefault();
       }
     };
@@ -2703,8 +2709,6 @@ function configureNewIssue(initialRepo, meta) {
   if (!meta) {
     loadMetadata(initialRepo).then((meta) => {
       configureNewIssue(initialRepo, meta);
-    }).catch((err) => {
-      console.log("error rendering new issue", err);
     });
     return;
   }

@@ -15,7 +15,7 @@ function loadSnippet(repoFullName, sha, path, startLine, endLine) {
       snippetResults[handle] = resolve;
       window.loadCodeSnippet.postMessage({handle, repoFullName, sha, path, startLine, endLine});
     } else {
-      reject("Code snippet loading unavailable");
+      reject(new Error("Code snippet loading unavailable"));
     }
   });
 }

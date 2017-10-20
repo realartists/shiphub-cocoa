@@ -15,10 +15,12 @@ function runQueue(queue) {
     queue.shift();
     resolve(...arguments);
     runQueue(queue);
-  }).catch(() => {
+    return null;
+  }).catch((err) => {
     queue.shift();
-    reject(...arguments);
+    reject(err);
     runQueue(queue);
+    return null;
   });
 }
 

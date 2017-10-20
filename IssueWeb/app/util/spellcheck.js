@@ -20,7 +20,7 @@ function checkText(text) {
       checkResults[handle] = resolve;
       window.spellcheck.postMessage({text, handle});
     } else {
-      reject("System spellcheck unavailable");
+      reject(new Error("System spellcheck unavailable"));
     }
   });
 }

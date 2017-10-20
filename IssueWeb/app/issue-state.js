@@ -181,7 +181,7 @@ class IssueState {
         });
       });
     } else {
-      return BBPromise.reject("Issue does not exist.");
+      return BBPromise.reject(new Error("Issue does not exist."));
     }
   }
   
@@ -204,7 +204,7 @@ class IssueState {
       });
       return request;
     } else {
-      return BBPromise.reject("Issue does not exist.");
+      return BBPromise.reject(new Error("Issue does not exist."));
     }
   }
   
@@ -249,7 +249,7 @@ class IssueState {
         });
       });
     } else {
-      return BBPromise.reject("Issue does not exist.");
+      return BBPromise.reject(new Error("Issue does not exist."));
     }
   }
   
@@ -457,7 +457,7 @@ class IssueState {
         throw err;
       });
     } else {
-      return BBPromise.reject("Issue does not exist.");
+      return BBPromise.reject(new Error("Issue does not exist."));
     }
   }
   
@@ -485,7 +485,7 @@ class IssueState {
         throw err;
       });
     } else {
-      return BBPromise.reject("Issue does not exist.");
+      return BBPromise.reject(new Error("Issue does not exist."));
     }
   }
   
@@ -506,9 +506,9 @@ class IssueState {
     return new BBPromise((resolve, reject) => {
       this.applyComment(body)
       .then(resolve)
-      .catch(() => {
+      .catch((err) => {
         rollback();
-        reject(arguments);
+        reject(err);
       });
     });
   }
@@ -565,7 +565,7 @@ class IssueState {
   
   deleteReaction(commentIdx, reactionID) {
     if (reactionID === "new") {
-      return BBPromise.reject("Cannot delete pending reaction");
+      return BBPromise.reject(new Error("Cannot delete pending reaction"));
     }
     
     var oldState = this.snapshotState();
@@ -729,7 +729,7 @@ class IssueState {
   
   deleteCommitCommentReaction(id, reactionID) {
     if (reactionID === "new") {
-      return BBPromise.reject("Cannot delete pending reaction");
+      return BBPromise.reject(new Error("Cannot delete pending reaction"));
     }
     
     var oldState = this.snapshotState();
@@ -755,10 +755,10 @@ class IssueState {
   
   addReviewer(user) {
     if (!user) {
-      return BBPromise.reject("User not specified");
+      return BBPromise.reject(new Error("User not specified"));
     }
     if (!this.issue.pull_request) {
-      return BBPromise.reject("Cannot add reviewer on non-PR");
+      return BBPromise.reject(new Error("Cannot add reviewer on non-PR"));
     }
     
     if (this.issue.requested_reviewers.find(rv => rv.id == user.id)) {
@@ -791,10 +791,10 @@ class IssueState {
   
   deleteReviewer(user) {
     if (!user) {
-      return BBPromise.reject("User not specified");
+      return BBPromise.reject(new Error("User not specified"));
     }
     if (!this.issue.pull_request) {
-      return BBPromise.reject("Cannot delete reviewer on non-PR");
+      return BBPromise.reject(new Error("Cannot delete reviewer on non-PR"));
     }
     
     var oldState = this.snapshotState();
@@ -823,10 +823,10 @@ class IssueState {
   
   dismissReview(id, reason) {
     if (!id) {
-      return BBPromise.reject("id not specified");
+      return BBPromise.reject(new Error("id not specified"));
     }
     if (!reason) {
-      return BBPromise.reject("reason not specified");
+      return BBPromise.reject(new Error("reason not specified"));
     }
     
     var oldState = this.snapshotState();
