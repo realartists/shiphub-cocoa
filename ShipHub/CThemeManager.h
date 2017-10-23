@@ -17,4 +17,6 @@ extern NSString *const CThemeDidChangeNotification;
 
 @property (readonly) NSDictionary *activeThemeVariables;
 
+@property (readonly) BOOL activeThemeIsDark;
+
 @end

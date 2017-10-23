@@ -8,6 +8,7 @@
 
 #import "PRDocument.h"
 
+#import "CThemeManager.h"
 #import "Extras.h"
 
 @interface PRDocumentWindow : NSWindow
@@ -45,6 +46,19 @@
     aController.contentViewController = self.prViewController;
     [window setFrame:screen.visibleFrame display:NO];
     [window setToolbar:self.prViewController.toolbar];
+    
+    [self updateTheme];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(themeDidChange:) name:CThemeDidChangeNotification object:nil];
+}
+
+- (void)updateTheme {
+    NSWindow *window = [[[self windowControllers] firstObject] window];
+    BOOL isDark = [[CThemeManager sharedManager] activeThemeIsDark];
+    [window setAppearance:isDark?[NSAppearance appearanceNamed:NSAppearanceNameVibrantDark]:[NSAppearance appearanceNamed:NSAppearanceNameAqua]];
+}
+
+- (void)themeDidChange:(NSNotification *)note {
+    [self updateTheme];
 }
 
 - (void)awakeFromNib {

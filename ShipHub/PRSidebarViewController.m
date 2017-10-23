@@ -8,6 +8,7 @@
 
 #import "PRSidebarViewController.h"
 
+#import "CThemeManager.h"
 #import "Extras.h"
 #import "Issue.h"
 #import "Repo.h"
@@ -24,6 +25,7 @@
 
 @property IBOutlet NSTextField *changeLabel;
 @property IBOutlet NSLayoutConstraint *commentWidthConstraint;
+@property IBOutlet NSImageView *commentIcon;
 
 @property (nonatomic, assign) BOOL hasComments;
 @property (nonatomic, copy) NSString *changeType;
@@ -97,7 +99,25 @@ typedef NS_ENUM(NSInteger, FindMenuTags) {
     _showCommitsButton.enabled = NO;
     _commitLabel.stringValue = @"";
     
+    [self updateTheme];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(themeDidChange:) name:CThemeDidChangeNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(frameDidChange:) name:NSViewFrameDidChangeNotification object:self.view];
+}
+
+- (void)updateTheme {
+    BOOL isDark = [[CThemeManager sharedManager] activeThemeIsDark];
+    if (isDark) {
+        [_commentFilterButton setImage:[NSImage imageNamed:@"PRSidebarMessageFilterOffDark"]];
+        _outline.selectionHighlightStyle = NSTableViewSelectionHighlightStyleRegular;
+    } else {
+        [_commentFilterButton setImage:[NSImage imageNamed:@"PRSidebarMessageFilterOff"]];
+        _outline.selectionHighlightStyle = NSTableViewSelectionHighlightStyleSourceList;
+    }
+}
+
+- (void)themeDidChange:(NSNotification *)note {
+    [self updateTheme];
 }
 
 - (void)frameDidChange:(NSNotification *)note {
@@ -915,6 +935,10 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files, NSPredicate 
     }
 }
 
+- (NSTableRowView *)outlineView:(NSOutlineView *)outlineView rowViewForItem:(id)item {
+    return [PRSidebarRowView new];
+}
+
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item
 {
     return _inFindMode
@@ -936,7 +960,7 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files, NSPredicate 
         CGFloat height = [_findResultSizingView heightForWidth:_findResultSizingView.frame.size.width];
         return height;
     } else {
-        return [outlineView rowHeight];
+        return 17.0;
     }
 }
 
@@ -955,9 +979,40 @@ static void traverseFiles(GitFileTree *tree, NSMutableArray *files, NSPredicate 
 
 @implementation PRSidebarRowView
 
+- (void)drawSelectionInRect:(NSRect)dirtyRect {
+    if ([[CThemeManager sharedManager] activeThemeIsDark]) {
+        if (self.selectionHighlightStyle != NSTableViewSelectionHighlightStyleNone) {
+            NSRect selectionRect = NSInsetRect(self.bounds, 1.0, 1.0);
+            [[NSColor colorWithCalibratedWhite:.65 alpha:1.0] setStroke];
+            NSBezierPath *selectionPath = [NSBezierPath bezierPathWithRoundedRect:selectionRect xRadius:3 yRadius:3];
+            [selectionPath stroke];
+        }
+    } else {
+        [super drawSelectionInRect:dirtyRect];
+    }
+}
+
 @end
 
 @implementation PRSidebarCellView
+
+- (void)awakeFromNib {
+    [self updateTheme];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updateTheme) name:CThemeDidChangeNotification object:nil];
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)updateTheme {
+    BOOL isDark = [[CThemeManager sharedManager] activeThemeIsDark];
+    if (isDark) {
+        [_commentIcon setImage:[NSImage imageNamed:@"PRSidebarMessageBubbleDark"]];
+    } else {
+        [_commentIcon setImage:[NSImage imageNamed:@"PRSidebarMessageBubble"]];
+    }
+}
 
 - (void)setChangeType:(NSString *)changeType {
     _changeLabel.stringValue = changeType ?: @"";
@@ -1086,10 +1141,20 @@ static CGFloat sizeStr(NSAttributedString *str, CGFloat width, NSUInteger maxLin
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
+    BOOL isDark = [[CThemeManager sharedManager] activeThemeIsDark];
+    
     NSAttributedString *str = _resultStr;
-    if (self.backgroundStyle == NSBackgroundStyleDark) {
-        NSMutableAttributedString *mstr = [str mutableCopy];
-        [mstr setAttributes:@{ NSForegroundColorAttributeName : [NSColor whiteColor] } range:NSMakeRange(0, mstr.length)];
+    if (isDark || self.backgroundStyle == NSBackgroundStyleDark) {
+        NSMutableAttributedString *mstr = [NSMutableAttributedString new];
+        [_resultStr enumerateAttributesInRange:NSMakeRange(0, _resultStr.length) options:0 usingBlock:^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
+            if (attrs[NSBackgroundColorAttributeName] == nil) {
+                NSMutableDictionary *myAttrs = [attrs mutableCopy];
+                myAttrs[NSForegroundColorAttributeName] = [NSColor whiteColor];
+                [mstr appendAttributedString:[[NSAttributedString alloc] initWithString:[[_resultStr string] substringWithRange:range] attributes:myAttrs]];
+            } else {
+                [mstr appendAttributedString:[_resultStr attributedSubstringFromRange:range]];
+            }
+        }];
         str = mstr;
     }
     CGRect b = self.bounds;

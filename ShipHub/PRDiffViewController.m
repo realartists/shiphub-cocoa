@@ -56,6 +56,8 @@
     
     _fileBarController = [PRDiffFileBarViewController new];
     [self.view addSubview:_fileBarController.view];
+    
+    [self.web setValue:@YES forKey:@"drawsTransparentBackground"];
 }
 
 - (CGRect)webContentRect {

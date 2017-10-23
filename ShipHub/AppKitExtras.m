@@ -1137,3 +1137,12 @@ static CGFloat GetAttachmentWidth(void *ref) {
 }
 
 @end
+
+@implementation NSAppearance (AppKitExtras)
+
+- (BOOL)isDark {
+    NSString *name = [self name];
+    return [name isEqualToString:NSAppearanceNameVibrantDark];
+}
+
+@end

@@ -236,18 +236,35 @@
 @implementation PRSpanCellView
 
 - (void)updateDisplay {
-    if (self.backgroundStyle == NSBackgroundStyleLight) {
-        _titleField.textColor = self.enabled ? [NSColor blackColor] : [NSColor secondaryLabelColor];
-        _subtitleField.textColor = self.enabled ? [NSColor blackColor] : [NSColor secondaryLabelColor];
+    NSAppearance *appearance = self.window.appearance;
+    
+    if ([appearance isDark]) {
+        if (self.enabled) {
+            _titleField.textColor = [NSColor whiteColor];
+            _subtitleField.textColor = [NSColor whiteColor];
+        } else {
+            _titleField.textColor = [NSColor grayColor];
+            _subtitleField.textColor = [NSColor grayColor];
+        }
     } else {
-        _titleField.textColor = [NSColor whiteColor];
-        _subtitleField.textColor = [NSColor whiteColor];
+        if (self.backgroundStyle == NSBackgroundStyleLight) {
+            _titleField.textColor = self.enabled ? [NSColor blackColor] : [NSColor secondaryLabelColor];
+            _subtitleField.textColor = self.enabled ? [NSColor blackColor] : [NSColor secondaryLabelColor];
+        } else {
+            _titleField.textColor = [NSColor whiteColor];
+            _subtitleField.textColor = [NSColor whiteColor];
+        }
     }
 }
 
 - (void)setBackgroundStyle:(NSBackgroundStyle)backgroundStyle
 {
     [super setBackgroundStyle:backgroundStyle];
+    [self updateDisplay];
+}
+
+- (void)viewDidMoveToWindow {
+    [super viewDidMoveToWindow];
     [self updateDisplay];
 }
 
@@ -263,22 +280,36 @@
 @implementation PRCommitCellView
 
 - (void)updateDisplay {
-    if (self.backgroundStyle == NSBackgroundStyleLight) {
-        _committishField.textColor = [NSColor secondaryLabelColor];
-        _dateField.textColor = [NSColor secondaryLabelColor];
-        _authorField.textColor = [NSColor blackColor];
-        _messageField.textColor = [NSColor blackColor];
-    } else {
+    NSAppearance *appearance = self.window.appearance;
+    
+    if ([appearance isDark]) {
         _committishField.textColor = [NSColor whiteColor];
         _dateField.textColor = [NSColor whiteColor];
         _authorField.textColor = [NSColor whiteColor];
         _messageField.textColor = [NSColor whiteColor];
+    } else {
+        if (self.backgroundStyle == NSBackgroundStyleLight) {
+            _committishField.textColor = [NSColor secondaryLabelColor];
+            _dateField.textColor = [NSColor secondaryLabelColor];
+            _authorField.textColor = [NSColor blackColor];
+            _messageField.textColor = [NSColor blackColor];
+        } else {
+            _committishField.textColor = [NSColor whiteColor];
+            _dateField.textColor = [NSColor whiteColor];
+            _authorField.textColor = [NSColor whiteColor];
+            _messageField.textColor = [NSColor whiteColor];
+        }
     }
 }
 
 - (void)setBackgroundStyle:(NSBackgroundStyle)backgroundStyle
 {
     [super setBackgroundStyle:backgroundStyle];
+    [self updateDisplay];
+}
+
+- (void)viewDidMoveToWindow {
+    [super viewDidMoveToWindow];
     [self updateDisplay];
 }
 
