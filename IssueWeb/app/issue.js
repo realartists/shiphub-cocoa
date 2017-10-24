@@ -1109,7 +1109,7 @@ var IssueTitle = React.createClass({
   },
   
   componentDidMount: function() {
-    if (!window.inColumnBrowser) {
+    if (!this.props.issue.number) {
       this.focus();
     }
   },
