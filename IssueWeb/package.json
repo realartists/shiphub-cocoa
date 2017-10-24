@@ -7,7 +7,8 @@
     "production": "mkdir -p dist && uuidgen > dist/BUILD_ID && BUILD_ID=`cat dist/BUILD_ID` DEBUG=0 webpack -p",
     "debug": "DEBUG=1 webpack -d",
     "start": "DEBUG=1 webpack-dev-server --open",
-    "dev-server-inline": "DEBUG=1 webpack-dev-server --inline"
+    "dev-server-inline": "DEBUG=1 webpack-dev-server --inline",
+    "update-emojis": "python3 scripts/generate-emoji-list.py > app/util/emoji-list.js"
   },
   "author": "",
   "dependencies": {
