@@ -294,7 +294,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
             } else {
                 URL = URLOrString;
             }
-            if (![seenURLs containsObject:URL]) {
+            if (URL && ![seenURLs containsObject:URL]) {
                 [seenURLs addObject:URL];
                 readAny = [self handleURL:URL atAppLaunch:NO] || readAny;
             }
