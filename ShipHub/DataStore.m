@@ -1745,7 +1745,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
         LocalIssue *i = [entities firstObject];
         
         if (i) {
-            Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore options:@{IssueOptionIncludeEventsAndComments:@YES, IssueOptionIncludeRequestedReviewers:@YES}];
+            Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore options:@{IssueOptionIncludeEventsAndComments:@YES, IssueOptionIncludeRequestedReviewers:@YES, IssueOptionIncludeNotification:@YES}];
             if (issue.pullRequest) {
                 [self loadPRCrossReferencedDataForIssue:issue localIssue:i reader:moc];
             }

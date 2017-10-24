@@ -16,6 +16,7 @@
 
 - (void)openIssueWithIdentifier:(id)issueIdentifier;
 - (void)openIssueWithIdentifier:(id)issueIdentifier waitForIt:(BOOL)waitForIt;
+// commentIdentifier can nil, an int64 comment identifier, or a BOOL @YES. In the BOOL @YES case, we'll look up the latest notification and grab the comment identifier from that.
 - (void)openIssueWithIdentifier:(id)issueIdentifier canOpenExternally:(BOOL)canOpenExternally scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier completion:(void (^)(IssueDocument *doc))completion;
 - (void)openIssuesWithIdentifiers:(NSArray *)issueIdentifiers;
 

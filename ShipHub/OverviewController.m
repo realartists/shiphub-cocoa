@@ -1124,6 +1124,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     [_tbModeItem setEnabled:_modeItem.chartEnabled forSegment:2];
     
     [[self activeResultsController] setUpNextMode:selectedItem == _upNextNode];
+    [[self activeResultsController] setNotificationsMode:selectedItem == _notificationsNode];
     [[self activeResultsController] setPredicate:predicate];
     [self updateCount:selectedItem];
 }

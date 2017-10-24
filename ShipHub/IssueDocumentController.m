@@ -13,6 +13,7 @@
 #import "Extras.h"
 #import "Issue.h"
 #import "PullRequest.h"
+#import "IssueNotification.h"
 #import "IssueWaiter.h"
 #import "IssueDocument.h"
 #import "PRDocument.h"
@@ -173,7 +174,12 @@
             if (display) {
                 [doc showWindows];
             }
-            [doc.issueViewController setIssue:issue scrollToCommentWithIdentifier:commentIdentifier];
+            NSNumber *actualCommentIdentifier = commentIdentifier;
+            if (commentIdentifier != nil && strcmp(commentIdentifier.objCType, @encode(BOOL)) == 0 && commentIdentifier.boolValue) {
+                // if commentIdentifier == YES, let's look up the latest commentIdentifier and go for that
+                actualCommentIdentifier = issue.notification.commentIdentifier;
+            }
+            [doc.issueViewController setIssue:issue scrollToCommentWithIdentifier:actualCommentIdentifier];
             [doc.issueViewController checkForIssueUpdates];
             [[DataStore activeStore] markIssueAsRead:issueIdentifier];
             [self noteNewRecentDocument:doc];

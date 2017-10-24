@@ -13,6 +13,7 @@
 #import "DataStore.h"
 #import "Issue.h"
 #import "Issue3PaneTableController.h"
+#import "IssueNotification.h"
 #import "IssueViewController.h"
 #import "RateDampener.h"
 
@@ -109,7 +110,11 @@
         }];
         [[DataStore activeStore] loadFullIssue:i.fullIdentifier completion:^(Issue *issue, NSError *error) {
             if ([self.displayedIssue.fullIdentifier isEqualToString:issue.fullIdentifier]) {
-                _issueController.issue = issue;
+                NSNumber *commentIdentifier = nil;
+                if (self.notificationsMode == YES && issue.notification.unread) {
+                    commentIdentifier = issue.notification.commentIdentifier;
+                }
+                [_issueController setIssue:issue scrollToCommentWithIdentifier:commentIdentifier];
                 [_issueController noteCheckedForIssueUpdates];
             }
         }];
