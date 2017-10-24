@@ -242,3 +242,9 @@
 - (NSError *)callSubroutine:(NSString *)subroutine withParams:(NSArray *)params;
 
 @end
+
+@interface NSAppearance (AppKitExtras)
+
+@property (readonly, getter=isDark) BOOL dark;
+
+@end

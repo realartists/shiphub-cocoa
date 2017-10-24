@@ -383,6 +383,7 @@ static BOOL parseFont(NSString *fontStr, NSString *__autoreleasing* fontFamily, 
     }
     
     DebugLog(@"Loaded theme at path: %@:\n%@", themePath, vars);
+    _activeThemeIsDark = bgLuma < 0.5;
     _activeThemeVariables = vars;
 }
 

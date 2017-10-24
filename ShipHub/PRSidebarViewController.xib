@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13196" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12120"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13196"/>
         <capability name="box content view" minToolsVersion="7.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -105,7 +105,7 @@
                                                         </constraints>
                                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" image="PRSidebarMessageBubble" id="Lkf-MM-gd7"/>
                                                     </imageView>
-                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Rfp-pt-86Q" userLabel="Change Label">
+                                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="Rfp-pt-86Q" userLabel="Change Label">
                                                         <rect key="frame" x="307" y="1" width="16" height="16"/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="M" id="ghL-bs-ndy">
                                                             <font key="font" metaFont="systemBold" size="12"/>
@@ -127,6 +127,7 @@
                                                 </constraints>
                                                 <connections>
                                                     <outlet property="changeLabel" destination="Rfp-pt-86Q" id="Hah-49-G9y"/>
+                                                    <outlet property="commentIcon" destination="5G9-8m-5Jz" id="8Ft-We-JwJ"/>
                                                     <outlet property="commentWidthConstraint" destination="nIu-jm-BIP" id="j5k-AC-Hyc"/>
                                                     <outlet property="imageView" destination="nun-68-sSA" id="duN-ku-P96"/>
                                                     <outlet property="textField" destination="SUQ-c7-fYn" id="EdH-XG-I7J"/>
@@ -156,7 +157,7 @@
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                 </scrollView>
-                <visualEffectView wantsLayer="YES" appearanceType="vibrantLight" blendingMode="behindWindow" material="sidebar" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="1Pe-Jf-IJa">
+                <visualEffectView wantsLayer="YES" blendingMode="behindWindow" material="appearanceBased" state="followsWindowActiveState" translatesAutoresizingMaskIntoConstraints="NO" id="1Pe-Jf-IJa">
                     <rect key="frame" x="0.0" y="0.0" width="327" height="30"/>
                     <subviews>
                         <box appearanceType="aqua" verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="k2s-rf-wi6">
@@ -165,7 +166,7 @@
                                 <constraint firstAttribute="height" constant="1" id="bvh-Fv-8CF"/>
                             </constraints>
                         </box>
-                        <searchField wantsLayer="YES" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1J9-qx-ExO">
+                        <searchField wantsLayer="YES" verticalHuggingPriority="750" textCompletion="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1J9-qx-ExO">
                             <rect key="frame" x="8" y="4" width="284" height="22"/>
                             <searchFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" borderStyle="bezel" placeholderString="Filter" usesSingleLineMode="YES" bezelStyle="round" id="kKi-Jz-O27">
                                 <font key="font" metaFont="system"/>
@@ -209,7 +210,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="327" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pHW-AZ-Kd6">
+                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="pHW-AZ-Kd6">
                                 <rect key="frame" x="4" y="3" width="279" height="16"/>
                                 <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="All Commits (2)" id="LEh-lV-O3J">
                                     <font key="font" metaFont="cellTitle"/>
@@ -253,7 +254,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="327" height="22"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField focusRingType="none" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Efg-43-C2p" customClass="TextFindingTextField">
+                            <textField focusRingType="none" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Efg-43-C2p" customClass="TextFindingTextField">
                                 <rect key="frame" x="25" y="3" width="286" height="17"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="17" id="b3F-Kj-vur"/>
@@ -381,7 +382,7 @@
     <resources>
         <image name="FindInFilesMenuButton" width="25" height="22"/>
         <image name="NSActionTemplate" width="14" height="14"/>
-        <image name="NSStopProgressFreestandingTemplate" width="14" height="14"/>
+        <image name="NSStopProgressFreestandingTemplate" width="11" height="11"/>
         <image name="PRSidebarMessageBubble" width="14" height="14"/>
         <image name="PRSidebarMessageFilterOff" width="22" height="22"/>
         <image name="PRSidebarMessageFilterOn" width="22" height="22"/>
