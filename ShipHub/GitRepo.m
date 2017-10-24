@@ -115,6 +115,17 @@ static int credentialsCallback(git_cred **cred,
     return git_cred_userpass_plaintext_new(cred, [info[@"username"] UTF8String], [info[@"password"] UTF8String]);
 }
 
+ /**
+ * This is passed as the first argument to the callback to allow the
+ * user to see the progress.
+ *
+ * - total_objects: number of objects in the packfile being downloaded
+ * - indexed_objects: received objects that have been hashed
+ * - received_objects: objects which have been downloaded
+ * - local_objects: locally-available objects that have been injected
+ *    in order to fix a thin pack.
+ * - received-bytes: size of the packfile received up to now
+ */
 static int progressCallback(const git_transfer_progress *stats, void *payload) {
     NSDictionary *info = (__bridge NSDictionary *)payload;
     NSProgress *progress = info[@"progress"];
@@ -123,8 +134,8 @@ static int progressCallback(const git_transfer_progress *stats, void *payload) {
     }
     
     @autoreleasepool {
-        progress.totalUnitCount = (NSInteger)stats->total_objects;
-        progress.completedUnitCount = (NSInteger)stats->received_objects;
+        progress.totalUnitCount = (NSInteger)(2*stats->total_objects);
+        progress.completedUnitCount = (NSInteger)(stats->received_objects+stats->indexed_objects);
     }
     return 0;
 }
