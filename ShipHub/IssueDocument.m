@@ -46,6 +46,7 @@
 #pragma clang diagnostic pop
     }
     aController.contentViewController = self.issueViewController;
+    [aController.window setFrameAutosaveName:self.windowAutosaveName?:@"NewIssueDocument"];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(needsSaveChanged:) name:IssueViewControllerNeedsSaveDidChangeNotification object:self.issueViewController];
 }

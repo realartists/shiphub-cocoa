@@ -167,6 +167,7 @@
     [[DataStore activeStore] loadFullIssue:issueIdentifier completion:^(Issue *issue, NSError *error) {
         if (issue) {
             IssueDocument *doc = [self makeUntitledDocumentOfType:@"issue" error:NULL];
+            doc.windowAutosaveName = @"ExistingIssueDocument";
             [self addDocument:doc];
             [doc makeWindowControllers];
             if (display) {

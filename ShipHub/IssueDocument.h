@@ -13,5 +13,6 @@
 @interface IssueDocument : NSDocument
 
 @property IBOutlet IssueViewController *issueViewController;
+@property (copy) NSString *windowAutosaveName;
 
 @end
