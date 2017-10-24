@@ -166,10 +166,35 @@
                                     <action selector="searchAllProblems:" target="Voe-Tx-rLC" id="e1Y-Lu-txP"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Jump to Item…" keyEquivalent="d" id="ZQU-J5-8al">
-                                <connections>
-                                    <action selector="showOmniSearch:" target="-1" id="r8i-LG-9fw"/>
-                                </connections>
+                            <menuItem title="Jump To" id="S7k-HG-r9P">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <menu key="submenu" title="Jump To" id="rHo-vH-C9b">
+                                    <items>
+                                        <menuItem title="Item…" keyEquivalent="d" id="ZQU-J5-8al">
+                                            <connections>
+                                                <action selector="showOmniSearch:" target="-1" id="r8i-LG-9fw"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Everything" keyEquivalent="1" id="QPv-G1-HVF">
+                                            <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                            <connections>
+                                                <action selector="jumpToEverything:" target="Voe-Tx-rLC" id="j78-ow-BAy"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Up Next" keyEquivalent="2" id="Qmb-hw-69V">
+                                            <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                            <connections>
+                                                <action selector="jumpToUpNext:" target="Voe-Tx-rLC" id="4Cn-8C-ond"/>
+                                            </connections>
+                                        </menuItem>
+                                        <menuItem title="Notifications" keyEquivalent="3" id="vBJ-JX-58u">
+                                            <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                            <connections>
+                                                <action selector="jumpToNotifications:" target="Voe-Tx-rLC" id="uKJ-W0-VMS"/>
+                                            </connections>
+                                        </menuItem>
+                                    </items>
+                                </menu>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="aJh-i4-bef"/>
                             <menuItem title="Add to Up Next" keyEquivalent="U" id="CKJ-TZ-68k">

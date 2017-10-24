@@ -150,6 +150,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 
 @property OverviewNode *allProblemsNode;
 @property OverviewNode *upNextNode;
+@property OverviewNode *notificationsNode;
 @property OverviewNode *attachmentsNode;
 @property OverviewNode *outboxNode;
 
@@ -508,6 +509,8 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     _allProblemsNode.title = NSLocalizedString(@"Everything", nil);
     _allProblemsNode.predicate = [NSPredicate predicateWithValue:YES];
     _allProblemsNode.icon = [NSImage overviewIconNamed:@"All Issues"];
+    _allProblemsNode.omniSearchIcon = [NSImage imageNamed:@"OmniSearchEverything"];
+    _allProblemsNode.includeInOmniSearch = YES;
     [topNode addChild:_allProblemsNode];
     
     _upNextNode = [OverviewNode new];
@@ -517,24 +520,28 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     _upNextNode.title = NSLocalizedString(@"Up Next", nil);
     _upNextNode.predicate = [NSPredicate predicateWithFormat:@"closed = NO AND ANY upNext.user.identifier = %@", [[Account me] identifier]];
     _upNextNode.icon = [NSImage overviewIconNamed:@"Up Next"];
+    _upNextNode.omniSearchIcon = [NSImage imageNamed:@"OmniSearchUpNext"];
+    _upNextNode.includeInOmniSearch = YES;
     __weak __typeof(self) weakSelf = self;
     _upNextNode.dropHandler = ^(NSArray *identifiers) {
         [[UpNextHelper sharedHelper] addToUpNext:identifiers atHead:NO window:weakSelf.window completion:nil];
     };
     [topNode addChild:_upNextNode];
     
-    OverviewNode *notificationsNode = [OverviewNode new];
-    notificationsNode.showCount = YES;
-    notificationsNode.cellIdentifier = @"CountCell";
-    notificationsNode.allowChart = NO;
-    notificationsNode.filterBarDefaultsToOpenState = NO;
-    notificationsNode.icon = [NSImage overviewIconNamed:@"Notifications"];
-    notificationsNode.title = NSLocalizedString(@"Notifications", nil);
-    notificationsNode.predicate = [NSPredicate predicateWithFormat:@"notification.unread = YES"];
+    _notificationsNode = [OverviewNode new];
+    _notificationsNode.showCount = YES;
+    _notificationsNode.cellIdentifier = @"CountCell";
+    _notificationsNode.allowChart = NO;
+    _notificationsNode.filterBarDefaultsToOpenState = NO;
+    _notificationsNode.icon = [NSImage overviewIconNamed:@"Notifications"];
+    _notificationsNode.title = NSLocalizedString(@"Notifications", nil);
+    _notificationsNode.predicate = [NSPredicate predicateWithFormat:@"notification.unread = YES"];
+    _notificationsNode.omniSearchIcon = [NSImage imageNamed:@"OmniSearchNotifications"];
+    _notificationsNode.includeInOmniSearch = YES;
     NSMenu *notificationsMenu = [NSMenu new];
     [notificationsMenu addItemWithTitle:NSLocalizedString(@"Mark All Notifications as Read", nil) action:@selector(markAllNotificationsAsRead:) keyEquivalent:@""];
-    notificationsNode.menu = notificationsMenu;
-    [topNode addChild:notificationsNode];
+    _notificationsNode.menu = notificationsMenu;
+    [topNode addChild:_notificationsNode];
     
     OverviewNode *milestonesRoot = [OverviewNode new];
     milestonesRoot.title = NSLocalizedString(@"Milestones", nil);
@@ -2111,6 +2118,20 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 - (void)omniSearch:(OmniSearch *)searchController didSelectItem:(OmniSearchItem *)item {
     [self.window makeKeyAndOrderFront:nil];
     [self expandAndSelectItem:item.representedObject];
+}
+
+#pragma mark -
+
+- (IBAction)jumpToEverything:(id)sender {
+    [self selectAllProblemsNode];
+}
+
+- (IBAction)jumpToUpNext:(id)sender {
+    [self expandAndSelectItem:_upNextNode];
+}
+
+- (IBAction)jumpToNotifications:(id)sender {
+    [self expandAndSelectItem:_notificationsNode];
 }
 
 #pragma mark -

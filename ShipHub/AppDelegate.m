@@ -712,4 +712,19 @@ didCloseAllForAccountChange:(BOOL)didCloseAll
     [[self defaultOverviewController] showOmniSearch:sender];
 }
 
+- (IBAction)jumpToEverything:(id)sender {
+    [self showOverviewController:nil];
+    [[self activeOverviewController] jumpToEverything:sender];
+}
+
+- (IBAction)jumpToUpNext:(id)sender {
+    [self showOverviewController:nil];
+    [[self activeOverviewController] jumpToUpNext:sender];
+}
+
+- (IBAction)jumpToNotifications:(id)sender {
+    [self showOverviewController:nil];
+    [[self activeOverviewController] jumpToNotifications:sender];
+}
+
 @end

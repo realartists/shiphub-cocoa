@@ -24,6 +24,9 @@
 - (IBAction)showNetworkStatusSheetIfNeeded:(id)sender;
 
 - (IBAction)showOmniSearch:(id)sender;
+- (IBAction)jumpToEverything:(id)sender;
+- (IBAction)jumpToUpNext:(id)sender;
+- (IBAction)jumpToNotifications:(id)sender;
 
 - (void)watchQuery:(NSURL *)queryURL;
 
