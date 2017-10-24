@@ -570,7 +570,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     
     TrackingProgressSheet *sheet = [TrackingProgressSheet new];
     [sheet beginSheetInWindow:self.view.window];
-    sheet.progress = [self.pr checkout:^(NSError *error) {
+    NSProgress *progress = [self.pr checkout:^(NSError *error) {
         [sheet endSheet];
         
         _loading = NO;
@@ -620,6 +620,17 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
             [self scrollToLineInfo:nextScroll];
         }
     }];
+    dispatch_block_t prevCancellationHandler = progress.cancellationHandler;
+    dispatch_block_t myCancellationHandler = ^{
+        RunOnMain(^{
+            [self.view.window close]; // realartists/shiphub-cocoa#672 Cancel right away when PR load is cancelled
+        });
+        if (prevCancellationHandler) {
+            prevCancellationHandler();
+        }
+    };
+    progress.cancellationHandler = myCancellationHandler;
+    sheet.progress = progress;
 }
 
 - (void)scrollToCommentWithIdentifier:(NSNumber *)commentIdentifier {
