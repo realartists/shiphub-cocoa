@@ -143,6 +143,14 @@
         decisionHandler(WKNavigationResponsePolicyCancel);
         [self loadProject];
     } else {
+        if ([http.URL isEqual:[self projectURL]]) {
+            if (!updated) {
+                // no cookie. we must be logged out. :( force a login.
+                decisionHandler(WKNavigationResponsePolicyCancel);
+                [self login];
+                return;
+            }
+        }
         decisionHandler(WKNavigationResponsePolicyAllow);
     }
 }
