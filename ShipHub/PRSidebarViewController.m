@@ -1146,7 +1146,7 @@ static CGFloat sizeStr(NSAttributedString *str, CGFloat width, NSUInteger maxLin
     NSAttributedString *str = _resultStr;
     if (isDark || self.backgroundStyle == NSBackgroundStyleDark) {
         NSMutableAttributedString *mstr = [NSMutableAttributedString new];
-        [_resultStr enumerateAttributesInRange:NSMakeRange(0, _resultStr.length) options:0 usingBlock:^(NSDictionary<NSAttributedStringKey,id> * _Nonnull attrs, NSRange range, BOOL * _Nonnull stop) {
+        [_resultStr enumerateAttributesInRange:NSMakeRange(0, _resultStr.length) options:0 usingBlock:^(NSDictionary *attrs, NSRange range, BOOL *stop) {
             if (attrs[NSBackgroundColorAttributeName] == nil) {
                 NSMutableDictionary *myAttrs = [attrs mutableCopy];
                 myAttrs[NSForegroundColorAttributeName] = [NSColor whiteColor];
