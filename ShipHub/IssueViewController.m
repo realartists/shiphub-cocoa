@@ -7,7 +7,7 @@
 //
 
 #import "IssueViewController.h"
-#import "IssueWebControllerInternal.h"
+#import "IssueWeb2ControllerInternal.h"
 
 #import "Analytics.h"
 #import "AppDelegate.h"
@@ -94,11 +94,11 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 }
 
 - (IBAction)scrollPageUp:(id)sender {
-    [self.web.mainFrame.frameView scrollPageUp:sender];
+    [self.web scrollPageUp:sender];
 }
 
 - (IBAction)scrollPageDown:(id)sender {
-    [self.web.mainFrame.frameView scrollPageDown:sender];
+    [self.web scrollPageDown:sender];
 }
 
 - (NSString *)webResourcePath {
@@ -328,21 +328,24 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     }
 }
 
-- (void)registerJavaScriptAPI:(WebScriptObject *)windowObject {
+- (void)registerJavaScriptAPI:(WKUserContentController *)windowObject {
+    [super registerJavaScriptAPI:windowObject];
+    
     __weak __typeof(self) weakSelf = self;
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf proxyAPI:msg];
+    [windowObject addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf proxyAPI:msg.body];
     } name:@"inAppAPI"];
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
+    [windowObject addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
         [weakSelf scheduleNeedsSaveTimer];
     } name:@"documentEditedHelper"];
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf handleDocumentSaved:msg];
+    [windowObject addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf handleDocumentSaved:msg.body];
     } name:@"documentSaveHandler"];
     
+#if 0
     [[windowObject JSValue] setValue:^(NSString *name, NSArray *allLabels, NSString *owner, NSString *repo, JSValue *completionCallback){
         [weakSelf handleNewLabelWithName:name allLabels:allLabels owner:owner repo:repo completionCallback:(JSValue *)completionCallback];
     } forProperty:@"newLabel"];
@@ -350,37 +353,38 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     [[windowObject JSValue] setValue:^(NSString *name, NSString *owner, NSString *repo, JSValue *completionCallback){
         [weakSelf handleNewMilestoneWithName:name owner:owner repo:repo completionCallback:completionCallback];
     } forProperty:@"newMilestone"];
+#endif
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf handleDiffViewer:msg];
+    [windowObject addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf handleDiffViewer:msg.body];
     } name:@"diffViewer"];
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf handleMergePopover:msg];
+    [windowObject addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf handleMergePopover:msg.body];
     } name:@"mergePopover"];
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf handleEditConflicts:msg];
+    [windowObject addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf handleEditConflicts:msg.body];
     } name:@"editConflicts"];
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf handleUpdateBranch:msg];
+    [windowObject addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf handleUpdateBranch:msg.body];
     } name:@"updateBranch"];
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf handleRevertMergeCommit:msg];
+    [windowObject addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf handleRevertMergeCommit:msg.body];
     } name:@"revertMergeCommit"];
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf handleSubmitPendingReview:msg];
+    [windowObject addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf handleSubmitPendingReview:msg.body];
     } name:@"submitPendingReview"];
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf handleDeletePendingReview:msg];
+    [windowObject addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf handleDeletePendingReview:msg.body];
     } name:@"deletePendingReview"];
     
-    [windowObject addScriptMessageHandlerBlock:^(NSDictionary *msg) {
-        [weakSelf handleLockPopover:msg];
+    [windowObject addScriptMessageHandlerBlock:^(WKScriptMessage *msg) {
+        [weakSelf handleLockPopover:msg.body];
     } name:@"toggleLock"];
     
     [_markdownFormattingController registerJavaScriptAPI:windowObject];
@@ -392,7 +396,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
     NSString *apiToken = [[[DataStore activeStore] auth] ghToken];
     setupJS = [setupJS stringByAppendingFormat:@"window.setAPIToken(\"%@\");\n", apiToken];
     
-    [windowObject evaluateWebScript:setupJS];
+    [self.web evaluateJavaScript:setupJS completionHandler:nil];
 }
 
 - (void)reconfigureForReload {
@@ -668,15 +672,15 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
                           [bbox[@"width"] doubleValue],
                           [bbox[@"height"] doubleValue]);
     
-    NSView *docView = self.web.mainFrame.frameView.documentView;
-    NSScrollView *scrollView = [docView enclosingScrollView];
+//    NSView *docView = self.web;
+    //NSScrollView *scrollView = [docView enclosingScrollView];
     
-    r = [docView convertRect:r toView:self.view];
-    
-    // sadly, WebView is dumb and doesn't account for scrolling in coordinate conversions.
-    // sigh.
-    r.origin.x -= scrollView.documentVisibleRect.origin.x;
-    r.origin.y -= scrollView.documentVisibleRect.origin.y;
+//    r = [docView convertRect:r toView:self.view];
+//
+//    // sadly, WebView is dumb and doesn't account for scrolling in coordinate conversions.
+//    // sigh.
+//    r.origin.x -= scrollView.documentVisibleRect.origin.x;
+//    r.origin.y -= scrollView.documentVisibleRect.origin.y;
     
     [popover showRelativeToRect:r ofView:self.view preferredEdge:NSRectEdgeMinY];
 }
@@ -923,8 +927,18 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 }
 
 - (BOOL)needsSave {
-    JSValue *val = [self.web.mainFrame.javaScriptContext evaluateScript:@"window.needsSave()"];
-    return [val toBool];
+#if 0
+    __block NSNumber *result = nil;
+    dispatch_semaphore_t sema = dispatch_semaphore_create(0);
+    [self.web evaluateJavaScript:@"window.needsSave()" completionHandler:^(id x, NSError * _Nullable error) {
+        result = x;
+        dispatch_semaphore_signal(sema);
+    }];
+    dispatch_semaphore_wait(sema, DISPATCH_TIME_FOREVER); // this deadlocks because completionHandler always runs on main thread
+    return [result boolValue];
+#else
+    return NO;
+#endif
 }
 
 - (IBAction)saveDocument:(id)sender {
@@ -942,7 +956,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         _saveCompletions[@(token)] = [completion copy];
     }
     
-    [self.web.mainFrame.javaScriptContext evaluateScript:[NSString stringWithFormat:@"window.save(%td);", token]];
+    [self.web evaluateJavaScript:[NSString stringWithFormat:@"window.save(%td);", token] completionHandler:nil];
 }
 
 #pragma mark -
@@ -982,7 +996,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 }
 
 - (void)findBarController:(WebFindBarController *)controller searchFor:(NSString *)str {
-    [self.web searchFor:str direction:YES caseSensitive:NO wrap:YES];
+//    [self.web searchFor:str direction:YES caseSensitive:NO wrap:YES];
 }
 
 - (void)findBarControllerScrollToSelection:(WebFindBarController *)controller
@@ -992,19 +1006,19 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
 
 - (void)findBarControllerGoNext:(WebFindBarController *)controller
 {
-    [self.web searchFor:_findController.searchText direction:YES caseSensitive:NO wrap:YES];
+//    [self.web searchFor:_findController.searchText direction:YES caseSensitive:NO wrap:YES];
     [_findController focusSearchField];
 }
 
 - (void)findBarControllerGoPrevious:(WebFindBarController *)controller
 {
-    [self.web searchFor:_findController.searchText direction:NO caseSensitive:NO wrap:YES];
+//    [self.web searchFor:_findController.searchText direction:NO caseSensitive:NO wrap:YES];
     [_findController focusSearchField];
 }
 
 - (void)findBarController:(WebFindBarController *)controller selectedTextForFind:(void (^)(NSString *))handler
 {
-    handler([[self.web selectedDOMRange] text]);
+//    handler([[self.web selectedDOMRange] text]);
 }
 
 @end

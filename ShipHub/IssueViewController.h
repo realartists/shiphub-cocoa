@@ -8,11 +8,11 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "IssueWebController.h"
+#import "IssueWeb2Controller.h"
 
 @class Issue;
 
-@interface IssueViewController : IssueWebController
+@interface IssueViewController : IssueWeb2Controller
 
 @property (nonatomic, getter=isColumnBrowser) BOOL columnBrowser;
 
