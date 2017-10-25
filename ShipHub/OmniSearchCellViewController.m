@@ -8,6 +8,7 @@
 
 #import "OmniSearchCellViewController.h"
 
+#import "Extras.h"
 #import "OmniSearch.h"
 
 @interface OmniSearchCellView : NSTableCellView
@@ -38,9 +39,19 @@
 
 @implementation OmniSearchCellView
 
+- (void)updateTextColor {
+    BOOL themeIsDark = [self.window.appearance isDark];
+    self.textField.textColor = (themeIsDark || self.backgroundStyle == NSBackgroundStyleDark) ? [NSColor whiteColor] : [NSColor blackColor];
+}
+
 - (void)setBackgroundStyle:(NSBackgroundStyle)backgroundStyle {
     [super setBackgroundStyle:backgroundStyle];
-    self.textField.textColor = backgroundStyle == NSBackgroundStyleDark ? [NSColor whiteColor] : [NSColor blackColor];
+    [self updateTextColor];
+}
+
+- (void)viewDidMoveToWindow {
+    [super viewDidMoveToWindow];
+    [self updateTextColor];
 }
 
 @end

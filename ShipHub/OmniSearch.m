@@ -80,7 +80,7 @@
     contentView.layer.backgroundColor = [[NSColor clearColor] CGColor];
     
     NSVisualEffectView *effect = [[NSVisualEffectView alloc] initWithFrame:contentView.frame];
-    effect.material = NSVisualEffectMaterialPopover;
+    effect.material = NSVisualEffectMaterialAppearanceBased;
     effect.blendingMode = NSVisualEffectBlendingModeBehindWindow;
     effect.state = NSVisualEffectStateActive;
     self.containerView = effect;
@@ -95,7 +95,20 @@
         [self buildViews];
     }
     
+    [self updateTheme];
+    [[NSDistributedNotificationCenter defaultCenter] addObserver:self selector:@selector(updateTheme) name:ShipExtrasSystemAppearanceIsDarkDidChangeNotification object:nil];
+    
+    
     return self;
+}
+
+- (void)dealloc {
+    [[NSDistributedNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)updateTheme {
+    self.window.appearance = [NSAppearance systemThemeAppearance];
+    [self.window invalidateShadow];
 }
 
 - (void)buildViews {

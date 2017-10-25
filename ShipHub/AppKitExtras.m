@@ -1138,11 +1138,32 @@ static CGFloat GetAttachmentWidth(void *ref) {
 
 @end
 
+NSString *const ShipExtrasSystemAppearanceIsDarkDidChangeNotification = @"AppleInterfaceThemeChangedNotification";
+
 @implementation NSAppearance (AppKitExtras)
 
 - (BOOL)isDark {
     NSString *name = [self name];
     return [name isEqualToString:NSAppearanceNameVibrantDark];
+}
+
++ (BOOL)systemAppearanceIsDark {
+    NSDictionary *globalPersistentDomain = [[NSUserDefaults standardUserDefaults] persistentDomainForName:NSGlobalDomain];
+    @try {
+        NSString *interfaceStyle = [globalPersistentDomain valueForKey:@"AppleInterfaceStyle"];
+        return [interfaceStyle isEqualToString:@"Dark"];
+    }
+    @catch (id exc) {
+        return NO;
+    }
+}
+
++ (NSAppearance *)systemThemeAppearance {
+    if ([NSAppearance systemAppearanceIsDark]) {
+        return [NSAppearance appearanceNamed:NSAppearanceNameVibrantDark];
+    } else {
+        return [NSAppearance appearanceNamed:NSAppearanceNameAqua];
+    }
 }
 
 @end

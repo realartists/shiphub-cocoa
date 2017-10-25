@@ -243,8 +243,12 @@
 
 @end
 
+extern NSString *const ShipExtrasSystemAppearanceIsDarkDidChangeNotification; // Sent on NSDistributedNotificationCenter
+
 @interface NSAppearance (AppKitExtras)
 
 @property (readonly, getter=isDark) BOOL dark;
+
++ (NSAppearance *)systemThemeAppearance;
 
 @end
