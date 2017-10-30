@@ -34,6 +34,10 @@ if [ $? -ne "0" ] ; then
     exit 1
 fi
 
+if [ -f ".gitmodules" ] ; then
+    git submodule update --init
+fi
+
 alias prsummary="git diff --summary --stat ${BASE_REV}...${HEAD_REV}"
 
 printf "\n${BRANCH_NAME} checked out\n"
