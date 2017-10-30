@@ -164,10 +164,10 @@ static NSArray *GitHubColors() {
 }
 
 - (void)updateUI {
-    NSString *nameTrimmed = [self.nameField.stringValue stringByTrimmingCharactersInSet:
-                             [NSCharacterSet whitespaceCharacterSet]];
+    NSString *nameTrimmed = [[self.nameField.stringValue stringByTrimmingCharactersInSet:
+                              [NSCharacterSet whitespaceCharacterSet]] lowercaseString];
     NSArray *names = [_allLabels arrayByMappingObjects:^(NSDictionary *label) {
-        return label[@"name"];
+        return [label[@"name"] lowercaseString];
     }];
     BOOL nameIsUnique = ![names containsObject:nameTrimmed];
 
