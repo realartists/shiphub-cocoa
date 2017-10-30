@@ -40,7 +40,7 @@ function apiCallback(handle, result, err) {
   delete pendingAPIHandlers[handle];
   
   if (err) {
-    callbacks.reject(err);
+    callbacks.reject(new Error(err));
   } else {
     callbacks.resolve(result);
   }
