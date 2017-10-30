@@ -284,7 +284,7 @@ class IssueState {
       }
       var q = issue.savePendingQueue;
       var p = new BBPromise((resolve, reject) => {
-        q.append({resolve, reject});
+        q.push({resolve, reject});
       });
       return p;
     }
