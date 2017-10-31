@@ -53,6 +53,9 @@
 @implementation NSEvent (Extras)
 
 - (unichar)functionKey {
+    if (![self isKeyEvent]) {
+        return 0;
+    }
     NSString*   const   character   =   [self charactersIgnoringModifiers];
     if ([character length]) {
         unichar     const   code        =   [character characterAtIndex:0];
@@ -62,6 +65,9 @@
     }
 }
 
+- (BOOL)isKeyEvent {
+    return self.type == NSKeyUp || self.type == NSKeyDown;
+}
 - (BOOL)isArrowDown {
     return self.functionKey == NSDownArrowFunctionKey;
 }
@@ -88,15 +94,15 @@
 }
 
 - (BOOL)isTabKey {
-    return self.keyCode == 48;
+    return [self isKeyEvent] && self.keyCode == 48;
 }
 
 - (BOOL)isShiftTab {
-    return [self isTabKey] && ([self modifierFlagsAreExclusively:NSShiftKeyMask] || [self modifierFlagsAreExclusively:NSAlphaShiftKeyMask]);
+    return [self isKeyEvent] && [self isTabKey] && ([self modifierFlagsAreExclusively:NSShiftKeyMask] || [self modifierFlagsAreExclusively:NSAlphaShiftKeyMask]);
 }
 
 - (BOOL)isSpace {
-    return self.keyCode == 49;
+    return [self isKeyEvent] && self.keyCode == 49;
 }
 
 - (BOOL)isDelete {
@@ -117,7 +123,7 @@
 }
 
 - (BOOL)isEscape {
-    return self.keyCode == 53;
+    return [self isKeyEvent] && self.keyCode == 53;
 }
 
 @end
