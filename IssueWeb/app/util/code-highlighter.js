@@ -6,7 +6,8 @@ import graphql from 'ext/highlight-langs/graphql.js'
 hljs.registerLanguage('graphql', graphql);
 
 var langMapping = {
-  m: 'objc'
+  m: 'objc',
+  rst: 'text'
 };
 
 function languageForFilename(filename) {
@@ -16,7 +17,7 @@ function languageForFilename(filename) {
   var lang = ext;
   if (ext.length == 0 || ext.toLowerCase() == 'txt' || ext.toLowerCase() == 'text') return 'text';
   if (lang in langMapping) lang = langMapping[lang];
-  if (hljs.getLanguage(lang)) return lang;
+  if (lang == 'text' || hljs.getLanguage(lang)) return lang;
   return null;
 }
 
