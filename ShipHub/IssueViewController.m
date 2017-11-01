@@ -442,11 +442,17 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
                 
                 BOOL isPartialPRError = [err isShipError] && [err code] == ShipErrorCodePartialPRError;
                 
+                id diagnostic = [err isShipError] ? err.userInfo[ShipErrorUserInfoErrorJSONBodyKey] : nil;
+                
                 if (isPartialPRError) {
                     [alert addButtonWithTitle:NSLocalizedString(@"Close", nil)];
                 } else {
                     [alert addButtonWithTitle:NSLocalizedString(@"Retry", nil)];
                     [alert addButtonWithTitle:NSLocalizedString(@"Cancel", nil)];
+                }
+                
+                if (diagnostic != nil) {
+                    [self addErrorDiagnostic:diagnostic toAlert:alert];
                 }
                 
                 [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {

@@ -25,10 +25,7 @@
     id diagnostic = [error isShipError] ? error.userInfo[ShipErrorUserInfoErrorJSONBodyKey] : nil;
     
     if (diagnostic != nil) {
-        NSButton *diagnosticButton = [alert addButtonWithTitle:NSLocalizedString(@"Copy Error", nil)];
-        diagnosticButton.target = self;
-        diagnosticButton.action = @selector(copyErrorDiagnostic:);
-        diagnosticButton.extras_representedObject = diagnostic;
+        [self addErrorDiagnostic:diagnostic toAlert:alert];
     }
     
     [alert beginSheetModalForWindow:self.view.window completionHandler:^(NSModalResponse returnCode) {
@@ -38,6 +35,15 @@
             if (fail) fail();
         }
     }];
+}
+
+- (void)addErrorDiagnostic:(id)diagnostic toAlert:(NSAlert *)alert {
+    if (diagnostic != nil) {
+        NSButton *diagnosticButton = [alert addButtonWithTitle:NSLocalizedString(@"Copy Error", nil)];
+        diagnosticButton.target = self;
+        diagnosticButton.action = @selector(copyErrorDiagnostic:);
+        diagnosticButton.extras_representedObject = diagnostic;
+    }
 }
 
 - (IBAction)copyErrorDiagnostic:(id)sender {

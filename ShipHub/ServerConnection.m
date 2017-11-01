@@ -109,9 +109,14 @@
                             if ([errors isKindOfClass:[NSArray class]] && [errors count] > 0) {
                                 id err1 = [errors firstObject];
                                 if ([err1 isKindOfClass:[NSDictionary class]]) {
-                                    NSString *errmsg = [err1 objectForKey:@"message"];
+                                    id errmsg = [err1 objectForKey:@"message"];
                                     if ([errmsg isKindOfClass:[NSString class]] && [errmsg length] > 0) {
                                         desc = errmsg;
+                                    } else if ([errmsg isKindOfClass:[NSArray class]] && [errmsg count] > 0) {
+                                        errmsg = [errmsg firstObject];
+                                        if ([errmsg isKindOfClass:[NSString class]] && [errmsg length] > 0) {
+                                            desc = errmsg;
+                                        }
                                     }
                                 } else if ([err1 isKindOfClass:[NSString class]] && [err1 length] > 0) {
                                     desc = err1;

@@ -11,5 +11,7 @@
 @interface NSViewController (PresentSaveError)
 
 - (void)presentSaveError:(NSError *)error withRetry:(dispatch_block_t)retry fail:(dispatch_block_t)fail;
+- (void)addErrorDiagnostic:(id)diagnostic toAlert:(NSAlert *)alert;
+- (IBAction)copyErrorDiagnostic:(id)sender;
 
 @end
