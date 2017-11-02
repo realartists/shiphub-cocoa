@@ -489,7 +489,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
                 }
             } else if (node.showProgress) {
                 if (node.progress >= 0.0) {
-                    oldCounts[node.identifier] = @(node.progress);
+                    oldCounts[node.identifier] = @[@(node.progress), @(node.openCount), @(node.closedCount)];
                 }
             }
         }];
@@ -872,11 +872,13 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     
     if (oldCounts) {
         [self walkNodes:^(OverviewNode *node) {
-            NSNumber *count = oldCounts[node.identifier];
+            id count = oldCounts[node.identifier];
             if (count && node.showCount) {
-                node.count = count.unsignedIntegerValue;
+                node.count = [count unsignedIntegerValue];
             } else if (count && node.showProgress) {
-                node.progress = count.doubleValue;
+                node.progress = [[count objectAtIndex:0] doubleValue];
+                node.openCount = [[count objectAtIndex:1] unsignedIntegerValue];
+                node.closedCount = [[count objectAtIndex:2] unsignedIntegerValue];
             }
         }];
     }
@@ -908,6 +910,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
                 node.progress = progress;
                 node.openCount = open;
                 node.closedCount = closed;
+                NSAssert(progress <= 0 || (closed > 0), @"positive progress implies some closed issues");
                 NSInteger row = [_outlineView rowForItem:node];
                 if (row >= 0) {
                     OverviewMilestoneCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
@@ -2572,32 +2575,30 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 
 @end
 
-@implementation OverviewProgressIndicator
+@implementation OverviewProgressIndicator {
+    NSToolTipTag _tt;
+}
+
+- (void)awakeFromNib {
+    _tt = [self addToolTipRect:self.bounds owner:self userData:NULL];
+}
+
+- (NSString *)view:(NSView *)view stringForToolTip:(NSToolTipTag)tag point:(NSPoint)point userData:(void *)data {
+    return [NSString localizedStringWithFormat:NSLocalizedString(@"%.0f%% Complete. %td Open. %td Closed.", nil), _doubleValue * 100.0, _openCount, _closedCount];
+}
 
 - (BOOL)allowsVibrancy { return YES; }
 
-- (void)_updateTooltip {
-    self.toolTip = [NSString localizedStringWithFormat:NSLocalizedString(@"%.0f%% Complete. %td Open. %td Closed.", nil), _doubleValue * 100.0, _openCount, _closedCount];
-}
-
-- (void)updateTooltip {
-    [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(_updateTooltip) object:nil];
-    [self performSelector:@selector(_updateTooltip) withObject:nil afterDelay:0];
-}
-
 - (void)setClosedCount:(NSInteger)closedCount {
     _closedCount = closedCount;
-    [self updateTooltip];
 }
 
 - (void)setOpenCount:(NSInteger)openCount {
     _openCount = openCount;
-    [self updateTooltip];
 }
 
 - (void)setDoubleValue:(double)doubleValue {
     _doubleValue = doubleValue;
-    [self updateTooltip];
     [self setNeedsDisplay:YES];
 }
 
