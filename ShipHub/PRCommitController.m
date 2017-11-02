@@ -52,6 +52,11 @@
     _table.allowsMultipleSelection = NO; // showing multiple commits at once is very doable, but punting on it for the moment
 }
 
+- (void)viewDidAppear {
+    [super viewDidAppear];
+    [_table reloadData];
+}
+
 - (void)setPr:(PullRequest *)pr {
     if (_pr != pr) {
         _pr = pr;

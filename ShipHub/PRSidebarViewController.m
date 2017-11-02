@@ -114,6 +114,7 @@ typedef NS_ENUM(NSInteger, FindMenuTags) {
         [_commentFilterButton setImage:[NSImage imageNamed:@"PRSidebarMessageFilterOff"]];
         _outline.selectionHighlightStyle = NSTableViewSelectionHighlightStyleSourceList;
     }
+    [_commitPopover close];
 }
 
 - (void)themeDidChange:(NSNotification *)note {
