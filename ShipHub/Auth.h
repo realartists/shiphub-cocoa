@@ -30,6 +30,8 @@
 @property (copy) NSString *ghHost;
 @property (copy) NSString *shipHost;
 
+@property (readonly) NSString *webGHHost;
+
 @property (strong) NSDictionary *extra;
 
 - (AuthAccountPair *)pair;

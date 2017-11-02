@@ -49,6 +49,7 @@
 #import "ProgressSheet.h"
 #import "NetworkStatusWindowController.h"
 #import "OmniSearch.h"
+#import "Issue.h"
 
 //#import "OutboxViewController.h"
 //#import "AttachmentProgressViewController.h"
@@ -125,7 +126,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 
 @end
 
-@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate, NSTextFieldDelegate, NSTouchBarDelegate, ResultsControllerDelegate, OmniSearchDelegate>
+@interface OverviewController () <NSOutlineViewDataSource, NSOutlineViewDelegate, NSSplitViewDelegate, NSWindowDelegate, FilterBarViewControllerDelegate, NSTextFieldDelegate, NSTouchBarDelegate, SearchResultsControllerDelegate, OmniSearchDelegate>
 
 @property SearchResultsController *searchResults;
 @property ThreePaneController *threePaneController;
@@ -138,6 +139,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 @property (strong) IBOutlet SearchFieldToolbarItem *searchItem;
 @property (strong) IBOutlet ButtonToolbarItem *predicateItem;
 @property (strong) IBOutlet ButtonToolbarItem *createNewItem;
+@property (strong) IBOutlet ButtonToolbarItem *shareItem;
 @property (strong) IBOutlet ButtonToolbarItem *sidebarItem;
 @property (strong) IBOutlet ResultsViewModeItem *modeItem;
 @property (strong) NSSegmentedControl *tbModeItem;
@@ -223,6 +225,12 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     
     _createNewItem.buttonImage = [NSImage imageNamed:@"NSToolbarCompose"];
     _createNewItem.toolTip = NSLocalizedString(@"New Problem ⌘N", nil);
+    
+    NSImage *image = [NSImage imageNamed:NSImageNameShareTemplate];
+    image.template = YES;
+    _shareItem.buttonImage = image;
+    _shareItem.grayWhenDisabled = YES;
+    _shareItem.toolTip = NSLocalizedString(@"Share", nil);
     
     _predicateItem.buttonImage = [NSImage advancedSearchIcon];
     _predicateItem.toolTip = NSLocalizedString(@"New Smart Query ⌥⌘F", nil);
@@ -1429,6 +1437,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     }];
     
     [self updateTitle];
+    [self validateShareItem];
 }
 
 - (void)outlineViewItemDidExpand:(NSNotification *)notification {
@@ -1603,6 +1612,75 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 
 - (IBAction)newDocument:(id)sender {
     [[IssueDocumentController sharedDocumentController] newDocument:sender];
+}
+
+- (NSMenu *)sharingMenu {
+    NSMenu *menu = [NSMenu new];
+    NSMenuItem *item = nil;
+    
+    OverviewNode *node = [_outlineView selectedItem];
+    if ([node.representedObject isKindOfClass:[CustomQuery class]]) {
+        CustomQuery *query = node.representedObject;
+        NSString *title = [NSString stringWithFormat:NSLocalizedString(@"Share Query “%@”", nil), query.title];
+        item = [menu addItemWithTitle:title action:@selector(shareURL:) keyEquivalent:@""];
+        item.representedObject = [query URL];
+        item.target = self;
+    } else if ([node.representedObject isKindOfClass:[Account class]]) {
+        Account *account = node.representedObject;
+        NSString *title = [NSString stringWithFormat:NSLocalizedString(@"View Account “%@” on GitHub", nil), account.login];
+        item = [menu addItemWithTitle:title action:@selector(shareURL:) keyEquivalent:@""];
+        item.representedObject = [account URL];
+        item.target = self;
+    } else if ([node.representedObject isKindOfClass:[Repo class]]) {
+        Repo *repo = node.representedObject;
+        NSString *title = [NSString stringWithFormat:NSLocalizedString(@"View Repository “%@” on GitHub", nil), repo.fullName];
+        item = [menu addItemWithTitle:title action:@selector(shareURL:) keyEquivalent:@""];
+        item.representedObject = [repo URL];
+        item.target = self;
+    } else if (node == _notificationsNode) {
+        NSString *title = NSLocalizedString(@"View Notifications in Web Browser", nil);
+        item = [menu addItemWithTitle:title action:@selector(shareURL:) keyEquivalent:@""];
+        item.representedObject = [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/notifications", [[[[DataStore activeStore] auth] account] webGHHost]]];
+        item.target = self;
+    }
+    
+    NSArray *issues = [self selectedIssues];
+    
+    if ([issues count] > 0) {
+        Issue *firstIssue = [issues firstObject];
+        NSString *title = NSLocalizedString(@"View Selected Issue in Web Browser", nil);
+        item = [menu addItemWithTitle:title action:@selector(shareIssue:) keyEquivalent:@""];
+        item.representedObject = firstIssue;
+        item.target = self;
+    }
+    
+    return menu;
+}
+
+- (void)validateShareItem {
+    NSMenu *menu = [self sharingMenu];
+    _shareItem.enabled = [[menu itemArray] count] > 0;
+    DebugLog(@"enabled: %d, menu: %@", _shareItem.enabled, menu);
+}
+
+- (IBAction)shareURL:(id)sender {
+    NSURL *URL = [sender representedObject];
+    [[NSWorkspace sharedWorkspace] openURL:URL];
+}
+
+- (IBAction)shareIssue:(id)sender {
+    Issue *issue = [sender representedObject];
+    NSURL *URL = [[issue fullIdentifier] issueGitHubURL];
+    [[NSWorkspace sharedWorkspace] openURL:URL];
+}
+
+- (IBAction)showSharingMenu:(id)sender {
+    NSMenu *menu = [self sharingMenu];
+    
+    NSView *shareView = _shareItem.view;
+    CGPoint p = CGPointMake(CGRectGetMidX(shareView.bounds),
+                            CGRectGetMaxY(shareView.bounds));
+    [menu popUpMenuPositioningItem:nil atLocation:p inView:_shareItem.view];
 }
 
 // Sadly, this must be disabled due to:
@@ -2304,6 +2382,10 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         return [_threePaneController selectedProblemSnapshots];
     }
     return nil;
+}
+
+- (void)searchResultsControllerDidChangeSelection:(SearchResultsController *)controller {
+    [self validateShareItem];
 }
 
 #pragma mark -

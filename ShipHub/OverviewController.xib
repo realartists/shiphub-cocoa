@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13196" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12121"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13196"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -15,6 +15,7 @@
                 <outlet property="outlineView" destination="o8o-FX-L1T" id="s2d-nd-TQT"/>
                 <outlet property="predicateItem" destination="vrH-7W-hiG" id="Ajb-D9-tL3"/>
                 <outlet property="searchItem" destination="crY-qw-SRN" id="Y6R-ri-fpG"/>
+                <outlet property="shareItem" destination="Apk-QM-gnF" id="mzA-NU-Il0"/>
                 <outlet property="sidebarItem" destination="Reu-OX-Qqz" id="crz-Ds-yrz"/>
                 <outlet property="splitView" destination="vnh-Rr-NQS" id="Qrh-7s-bCn"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
@@ -68,7 +69,7 @@
                                                             </textFieldCell>
                                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             <prototypeCellViews>
-                                                                <textField identifier="GroupCell" autoresizesSubviews="NO" verticalHuggingPriority="750" allowsCharacterPickerTouchBarItem="NO" id="egy-fV-aly">
+                                                                <textField identifier="GroupCell" autoresizesSubviews="NO" verticalHuggingPriority="750" id="egy-fV-aly">
                                                                     <rect key="frame" x="1" y="1" width="248" height="20"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                     <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Group Cell" id="YTf-Cm-SHv">
@@ -167,7 +168,7 @@
                                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
-                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="11" allowsCharacterPickerTouchBarItem="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6bz-zl-eKp" userLabel="Shared By Label">
+                                                                        <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" placeholderIntrinsicWidth="191" placeholderIntrinsicHeight="11" translatesAutoresizingMaskIntoConstraints="NO" id="6bz-zl-eKp" userLabel="Shared By Label">
                                                                             <rect key="frame" x="25" y="0.0" width="194" height="11"/>
                                                                             <textFieldCell key="cell" controlSize="mini" lineBreakMode="truncatingHead" sendsActionOnEndEditing="YES" title="Shared by james-howard" id="5j1-BA-B2I">
                                                                                 <font key="font" metaFont="miniSystem"/>
@@ -449,10 +450,16 @@
                             <action selector="showBilling:" target="-2" id="AVI-sL-MY2"/>
                         </connections>
                     </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="6FFA6E67-6D48-4758-ABB4-353CE1AC2AF2" label="Share" paletteLabel="Share" tag="-1" id="Apk-QM-gnF" customClass="ButtonToolbarItem">
+                        <connections>
+                            <action selector="showSharingMenu:" target="-2" id="vFl-3f-dgh"/>
+                        </connections>
+                    </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="Reu-OX-Qqz"/>
                     <toolbarItem reference="Ml2-8r-xpV"/>
+                    <toolbarItem reference="Apk-QM-gnF"/>
                     <toolbarItem reference="YWH-7I-dsP"/>
                     <toolbarItem reference="6k6-VU-0eu"/>
                     <toolbarItem reference="YWH-7I-dsP"/>

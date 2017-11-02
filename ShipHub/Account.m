@@ -52,6 +52,12 @@
     }
 }
 
+- (NSURL *)URL {
+    DataStore *store = [DataStore activeStore];
+    Auth *auth = [store auth];
+    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", auth.account.webGHHost, self.login]];
+}
+
 + (Account *)me {
     DataStore *store = [DataStore activeStore];
     Auth *auth = [store auth];

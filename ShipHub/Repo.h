@@ -35,4 +35,6 @@
 
 @property (readonly) BOOL canPush; // if the current user can push to the repo
 
+@property (readonly) NSURL *URL;
+
 @end

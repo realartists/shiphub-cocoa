@@ -27,6 +27,8 @@ typedef NS_ENUM(NSInteger, AccountType) {
 
 @property (readonly) BOOL shipNeedsWebhookHelp;
 
+@property (readonly) NSURL *URL;
+
 + (Account *)me;
 
 @end

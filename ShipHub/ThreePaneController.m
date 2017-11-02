@@ -128,6 +128,7 @@
 - (void)issueTableController:(IssueTableController *)controller didChangeSelection:(NSArray<Issue *> *)selectedIssues userInitiated:(BOOL)userInitiated {
     if (userInitiated || !self.displayedIssue || ![self.displayedPredicate isEqual:self.predicate]) {
         [self updateIssueViewController:selectedIssues];
+        [self.delegate searchResultsControllerDidChangeSelection:self];
     }
 }
 

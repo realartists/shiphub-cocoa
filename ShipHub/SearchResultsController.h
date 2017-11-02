@@ -10,6 +10,13 @@
 #import "ResultsController.h"
 
 @class Issue;
+@class SearchResultsController;
+
+@protocol SearchResultsControllerDelegate <ResultsControllerDelegate>
+
+- (void)searchResultsControllerDidChangeSelection:(SearchResultsController *)controller;
+
+@end
 
 @interface SearchResultsController : ResultsController
 
@@ -19,4 +26,7 @@
 
 @property (nonatomic, assign, getter=isBordered) BOOL bordered;
 
+@property (nonatomic, weak) id<SearchResultsControllerDelegate> delegate;
+
 @end
+

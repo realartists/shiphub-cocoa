@@ -8,6 +8,8 @@
 
 #import "Repo.h"
 
+#import "Auth.h"
+#import "DataStore.h"
 #import "LocalRepo.h"
 
 @implementation Repo
@@ -33,6 +35,12 @@
         _canPush = canPush;
     }
     return self;
+}
+
+- (NSURL *)URL {
+    DataStore *store = [DataStore activeStore];
+    Auth *auth = [store auth];
+    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@/%@", auth.account.webGHHost, self.fullName]];
 }
 
 @end

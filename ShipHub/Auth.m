@@ -292,6 +292,10 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     return pair;
 }
 
+- (NSString *)webGHHost {
+    return [self.ghHost stringByReplacingOccurrencesOfString:@"api." withString:@""];
+}
+
 @end
 
 @implementation AuthAccountPair

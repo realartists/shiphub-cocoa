@@ -32,6 +32,8 @@
 
 @implementation SearchResultsController
 
+@dynamic delegate;
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -213,6 +215,11 @@
     }] window:controller.view.window completion:nil];
     
     return YES;
+}
+
+- (void)issueTableController:(IssueTableController *)controller didChangeSelection:(NSArray<Issue *> *)selectedIssues userInitiated:(BOOL)userInitiated
+{
+    [self.delegate searchResultsControllerDidChangeSelection:self];
 }
 
 - (void)takeFocus {
