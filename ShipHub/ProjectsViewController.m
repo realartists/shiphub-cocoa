@@ -182,16 +182,11 @@
 }
 
 - (void)hideExitFullscreen {
-    NSString *nonFullscreen = [[[self projectURL] description] stringByReplacingOccurrencesOfString:@"?fullscreen=true" withString:@""];
     NSString *js =
-    @"var anchors = document.getElementsByTagName('a');\n"
+    @"var anchors = document.getElementsByClassName('js-project-fullscreen-link');\n"
     @"for (var i = 0; i < anchors.length; i++) {\n"
-    @"  var a = anchors[i];\n"
-    @"  if (a.href == '%@') {\n"
-    @"    a.style.display = 'none';\n"
-    @"  }\n"
+    @"  anchors[i].style.display = 'none';\n"
     @"}\n";
-    js = [NSString stringWithFormat:js, nonFullscreen];
     [_web evaluateJavaScript:js completionHandler:^(id result, NSError * error) {
         if (error) {
             ErrLog(@"%@", error);
