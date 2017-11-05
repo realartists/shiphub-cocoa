@@ -560,9 +560,9 @@
       "resolved": "https://registry.npmjs.org/coa/-/coa-1.0.1.tgz"
     },
     "codemirror": {
-      "version": "5.24.2",
-      "from": "codemirror@>=5.15.2 <6.0.0",
-      "resolved": "https://registry.npmjs.org/codemirror/-/codemirror-5.24.2.tgz"
+      "version": "5.31.0",
+      "from": "codemirror@>=5.31.0 <6.0.0",
+      "resolved": "https://registry.npmjs.org/codemirror/-/codemirror-5.31.0.tgz"
     },
     "color": {
       "version": "0.11.4",

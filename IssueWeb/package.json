@@ -13,7 +13,7 @@
   "author": "",
   "dependencies": {
     "bluebird": "^3.4.7",
-    "codemirror": "^5.15.2",
+    "codemirror": "^5.31.0",
     "diff-match-patch": "^1.0.0",
     "font-awesome": "^4.5.0",
     "html-escape": "^2.0.0",
