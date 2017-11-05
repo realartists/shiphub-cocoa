@@ -105,6 +105,9 @@
     
     NSSet *unreadIdentifiers = [NSSet setWithArray:[unreadLookup allKeys]];
     
+    NSString *badge = unreadIdentifiers.count > 0 ? [NSString localizedStringWithFormat:@"%td", unreadIdentifiers.count] : @"";
+    [[NSApp dockTile] setBadgeLabel:badge];
+    
     NSMutableSet *needToAddToNC = [unreadIdentifiers mutableCopy];
     [needToAddToNC minusSet:deliveredFullIdentifiers];
     
