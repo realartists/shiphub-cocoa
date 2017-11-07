@@ -230,6 +230,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     image.template = YES;
     _shareItem.buttonImage = image;
     _shareItem.grayWhenDisabled = YES;
+    _shareItem.hidesDuringSheet = YES;
     _shareItem.toolTip = NSLocalizedString(@"Share", nil);
     
     _predicateItem.buttonImage = [NSImage advancedSearchIcon];

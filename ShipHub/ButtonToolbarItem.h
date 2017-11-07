@@ -17,6 +17,7 @@
 @property (nonatomic, getter=isOn) BOOL on;
 
 @property (nonatomic) BOOL grayWhenDisabled;
+@property (nonatomic) BOOL hidesDuringSheet;
 
 @property (nonatomic, copy) NSString *badgeString;
 

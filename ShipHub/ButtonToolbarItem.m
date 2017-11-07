@@ -10,6 +10,12 @@
 
 #import "Extras.h"
 
+@interface ButtonSegmentedControl : NSSegmentedControl
+
+@property (nonatomic) BOOL hidesDuringSheet;
+
+@end
+
 @interface ButtonToolbarBadgeView : NSView
 
 @property (nonatomic, copy) NSString *badgeString;
@@ -18,7 +24,7 @@
 
 @interface ButtonToolbarItem ()
 
-@property (strong) NSSegmentedControl *segmented;
+@property (strong) ButtonSegmentedControl *segmented;
 @property (strong) ButtonToolbarBadgeView *badgeView;
 
 @end
@@ -27,7 +33,7 @@
 
 - (void)configureView {
     CGSize size = CGSizeMake(36, 23);     // Same as Mail uses for its toolbar buttons.
-    _segmented  = [[NSSegmentedControl alloc] initWithFrame:(CGRect){ .origin = CGPointZero, .size = size }];
+    _segmented  = [[ButtonSegmentedControl alloc] initWithFrame:(CGRect){ .origin = CGPointZero, .size = size }];
     _segmented.segmentCount = 1;
     [_segmented setWidth:size.width forSegment:0];
     [_segmented.cell setTrackingMode:NSSegmentSwitchTrackingMomentary];
@@ -62,6 +68,14 @@
 
 - (void)setOn:(BOOL)on {
     [_segmented setSelected:on forSegment:0];
+}
+
+- (void)setHidesDuringSheet:(BOOL)hidesDuringSheet {
+    _segmented.hidesDuringSheet = hidesDuringSheet;
+}
+
+- (BOOL)hidesDuringSheet {
+    return _segmented.hidesDuringSheet;
 }
 
 - (void)setEnabled:(BOOL)enabled {
@@ -147,6 +161,41 @@ static CGFloat cornerRadius = 6.0;
     if (![_badgeString isEqualToString:badgeString]) {
         _badgeString = [badgeString copy];
         [self setNeedsDisplay:YES];
+    }
+}
+
+@end
+
+@implementation ButtonSegmentedControl {
+    BOOL _hidingDuringSheet;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)viewWillMoveToWindow:(NSWindow *)newWindow {
+    [super viewWillMoveToWindow:newWindow];
+    NSWindow *oldWindow = self.window;
+    if (oldWindow) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowWillBeginSheetNotification object:oldWindow];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:NSWindowDidEndSheetNotification object:oldWindow];
+    }
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(willBeginSheet:) name:NSWindowWillBeginSheetNotification object:newWindow];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didEndSheet:) name:NSWindowDidEndSheetNotification object:newWindow];
+}
+
+- (void)willBeginSheet:(NSNotification *)note {
+    if (_hidesDuringSheet && !_hidingDuringSheet) {
+        _hidingDuringSheet = YES;
+        self.animator.hidden = YES;
+    }
+}
+
+- (void)didEndSheet:(NSNotification *)note {
+    if (_hidingDuringSheet) {
+        _hidingDuringSheet = NO;
+        self.animator.hidden = NO;
     }
 }
 
