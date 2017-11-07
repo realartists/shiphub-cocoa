@@ -17,6 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, readonly, nullable) NSString *fullIdentifier;
 
+// Sets shipLocalUpdatedAt to date iff date is newer than shipLocalUpdatedAt.
+- (void)setShipLocalUpdatedAtIfNewer:(NSDate *)date;
+
 @end
 
 NS_ASSUME_NONNULL_END

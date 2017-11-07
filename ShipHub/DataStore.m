@@ -1730,6 +1730,15 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     }
 }
 
+- (Issue *)_fullIssueFromLocalIssue:(LocalIssue *)i {
+    NSParameterAssert(i);
+    Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore options:@{IssueOptionIncludeEventsAndComments:@YES, IssueOptionIncludeRequestedReviewers:@YES, IssueOptionIncludeNotification:@YES}];
+    if (issue.pullRequest) {
+        [self loadPRCrossReferencedDataForIssue:issue localIssue:i reader:i.managedObjectContext];
+    }
+    return issue;
+}
+
 - (void)loadFullIssue:(id)issueIdentifier completion:(void (^)(Issue *issue, NSError *error))completion {
     NSParameterAssert(issueIdentifier);
     
@@ -1745,10 +1754,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
         LocalIssue *i = [entities firstObject];
         
         if (i) {
-            Issue *issue = [[Issue alloc] initWithLocalIssue:i metadataStore:self.metadataStore options:@{IssueOptionIncludeEventsAndComments:@YES, IssueOptionIncludeRequestedReviewers:@YES, IssueOptionIncludeNotification:@YES}];
-            if (issue.pullRequest) {
-                [self loadPRCrossReferencedDataForIssue:issue localIssue:i reader:moc];
-            }
+            Issue *issue = [self _fullIssueFromLocalIssue:i];
             dispatch_async(dispatch_get_main_queue(), ^{
                 completion(issue, nil);
             });
@@ -1782,8 +1788,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
         [moc save:&err];
         if (err) ErrLog(@"%@", err);
         
-        if (completion) {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), completion);
+        if (completion) { dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), completion);
         }
     }];
 }
@@ -1809,11 +1814,29 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
             
             DebugLog(@"Patch of %@ succeeded: %@", issueIdentifier, myJSON);
             
-            [self storeSingleSyncObject:myJSON type:@"issue" completion:^{
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                SyncEntry *e = [SyncEntry new];
+                e.action = SyncEntryActionSet;
+                e.entityName = @"issue";
+                e.data = myJSON;
                 
-                [self loadFullIssue:issueIdentifier completion:completion];
+                [self writeSyncObjects:@[e]];
+                
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+                fetch.predicate = [self predicateForIssueIdentifiers:@[issueIdentifier]];
+                fetch.fetchLimit = 1;
+                
+                LocalIssue *issue = [[moc executeFetchRequest:fetch error:NULL] firstObject];
+                [issue setShipLocalUpdatedAtIfNewer:[issue updatedAt]];
+                
+                [moc save:NULL];
+                
+                Issue *fullIssue = [self _fullIssueFromLocalIssue:issue];
+                
+                RunOnMain(^{
+                    completion(fullIssue, nil);
+                });
             }];
-            
         } else {
             RunOnMain(^{
                 completion(nil, error);
@@ -1833,8 +1856,9 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     // PUT/DELETE /repos/:owner/:repo/issues/:number/lock
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/issues/%@/lock", [issueIdentifier issueRepoFullName], [issueIdentifier issueNumber]];
     
-    [self.serverConnection perform:locked?@"PUT":@"DELETE" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
+    [self.serverConnection perform:locked?@"PUT":@"DELETE" on:endpoint forGitHub:YES headers:nil body:nil extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
         if (!error) {
+            NSDate *updatedAt = [httpResponse date];
             // update issue
             [self performWrite:^(NSManagedObjectContext *moc) {
                 NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
@@ -1846,6 +1870,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
                 
                 if (!cdErr) {
                     [issue setLocked:@(locked)];
+                    [issue setShipLocalUpdatedAtIfNewer:updatedAt];
                     
                     [moc save:&cdErr];
                     
@@ -1883,11 +1908,31 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
         if (!error) {
             NSMutableDictionary *myJSON = [[JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]] mutableCopy];
             myJSON[@"repository"] = r.identifier;
-            [self storeSingleSyncObject:myJSON type:@"issue" completion:^{
+            
+            [self performWrite:^(NSManagedObjectContext *moc) {
+                SyncEntry *e = [SyncEntry new];
+                e.action = SyncEntryActionSet;
+                e.entityName = @"issue";
+                e.data = myJSON;
+                
+                [self writeSyncObjects:@[e]];
                 
                 id issueIdentifier = [NSString stringWithFormat:@"%@#%@", r.fullName, myJSON[@"number"]];
                 
-                [self loadFullIssue:issueIdentifier completion:completion];
+                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+                fetch.predicate = [self predicateForIssueIdentifiers:@[issueIdentifier]];
+                fetch.fetchLimit = 1;
+                
+                LocalIssue *issue = [[moc executeFetchRequest:fetch error:NULL] firstObject];
+                [issue setShipLocalUpdatedAtIfNewer:[issue updatedAt]];
+                
+                [moc save:NULL];
+                
+                Issue *fullIssue = [self _fullIssueFromLocalIssue:issue];
+                
+                RunOnMain(^{
+                    completion(fullIssue, nil);
+                });
             }];
         } else {
             RunOnMain(^{
@@ -1900,9 +1945,21 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     [[Analytics sharedInstance] track:@"Issue Created"];
 }
 
+- (LocalIssue *)_localIssueForLocalComment:(id)localComment {
+    if ([localComment isKindOfClass:[LocalComment class]]) {
+        LocalComment *lc = localComment;
+        return lc.issue;
+    } else if ([localComment isKindOfClass:[LocalPRComment class]]) {
+        LocalPRComment *lpr = localComment;
+        return lpr.issue ?: lpr.review.issue;
+    }
+    return nil;
+}
+
 - (void)_deleteComment:(NSNumber *)commentIdentifier endpoint:(NSString *)endpoint entityClass:(Class)entityClass completion:(void (^)(NSError *error))completion
 {
-    [self.serverConnection perform:@"DELETE" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
+    [self.serverConnection perform:@"DELETE" on:endpoint forGitHub:YES headers:nil body:nil extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
+        NSDate *updatedAt = [httpResponse date];
         if (!error) {
             
             [self performWrite:^(NSManagedObjectContext *moc) {
@@ -1919,6 +1976,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
                 }
                 
                 if (lc) {
+                    [[self _localIssueForLocalComment:lc] setShipLocalUpdatedAtIfNewer:updatedAt];
                     [moc deleteObject:lc];
                 }
             }];
@@ -1988,7 +2046,8 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
                     
                     IssueComment *ic = nil;
                     if (lc) {
-                         ic = [[IssueComment alloc] initWithLocalComment:lc metadataStore:self.metadataStore];
+                        [issue setShipLocalUpdatedAtIfNewer:lc.updatedAt];
+                        ic = [[IssueComment alloc] initWithLocalComment:lc metadataStore:self.metadataStore];
                     }
                     
                     err = nil;
@@ -2041,6 +2100,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
                  if (lc) {
                      [lc mergeAttributesFromDictionary:d];
                      [self updateRelationshipsOn:lc fromSyncDict:d];
+                     [[self _localIssueForLocalComment:lc] setShipLocalUpdatedAtIfNewer:[lc updatedAt]];
                      ic = makeModel(lc);
                      err = nil;
                      [moc save:&err];
@@ -2347,6 +2407,8 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
                     [prc mergeAttributesFromDictionary:d];
                 }
                 
+                [li setShipLocalUpdatedAtIfNewer:prc.updatedAt];
+                
                 [moc save:NULL];
             }];
             
@@ -2402,6 +2464,10 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
                 }
                 
                 [self writeSyncObjects:syncObjs];
+                
+                if (review.state != PRReviewStatePending) {
+                    [li setShipLocalUpdatedAtIfNewer:[NSDate dateWithJSONString:reviewJson[@"updatedAt"]]];
+                }
                 
                 [moc save:NULL];
             }
@@ -2650,12 +2716,13 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     
     NSDictionary *body = @{ @"message": message };
     
-    [self.serverConnection perform:@"PUT" on:endpoint body:body completion:^(id jsonResponse, NSError *error) {
+    [self.serverConnection perform:@"PUT" on:endpoint forGitHub:YES headers:nil body:body extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
         if (error) {
             RunOnMain(^{
                 completion(error);
             });
         } else {
+            NSDate *date = [httpResponse date];
             [self performWrite:^(NSManagedObjectContext *moc) {
                 NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRReview"];
                 fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", reviewID];
@@ -2664,6 +2731,8 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
                 if (lpr) {
                     id d = [JSON parseObject:jsonResponse withNameTransformer:[JSON githubToCocoaNameTransformer]];
                     [lpr mergeAttributesFromDictionary:d];
+                    
+                    [lpr.issue setShipLocalUpdatedAtIfNewer:date];
                     
                     [moc save:NULL];
                 }
@@ -2714,7 +2783,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     [[Analytics sharedInstance] track:@"Create Pull Request"];
 }
 
-- (void)_handleRequestedReviewersResponse:(NSDictionary *)d issueIdentifier:(NSString *)issueIdentifier completion:(void (^)(NSArray<NSString *> *reviewerLogins, NSError *error))completion
+- (void)_handleRequestedReviewersResponse:(NSDictionary *)d date:(NSDate *)date issueIdentifier:(NSString *)issueIdentifier completion:(void (^)(NSArray<NSString *> *reviewerLogins, NSError *error))completion
 {
     NSDate *updatedAt = [NSDate dateWithJSONString:d[@"updated_at"]];
     NSArray *roundtripAccounts = [d[@"requested_reviewers"] arrayByMappingObjects:^id(id obj) {
@@ -2748,6 +2817,8 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
             return;
         }
         
+        [i setShipLocalUpdatedAtIfNewer:date];
+        
         if ([i.pr.updatedAt compare:updatedAt] != NSOrderedDescending) {
             i.pr.requestedReviewers = [NSSet setWithArray:[moc executeFetchRequest:accountsFetch error:NULL]];
             i.pr.updatedAt = updatedAt;
@@ -2777,13 +2848,13 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
     NSDictionary *body = @{ @"reviewers": logins };
     
-    [self.serverConnection perform:@"POST" on:endpoint headers:headers body:body completion:^(id jsonResponse, NSError *error) {
+    [self.serverConnection perform:@"POST" on:endpoint forGitHub:YES headers:headers body:body extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
         if (error) {
             RunOnMain(^{
                 completion(nil, error);
             });
         } else {
-            [self _handleRequestedReviewersResponse:jsonResponse issueIdentifier:issueIdentifier completion:completion];
+            [self _handleRequestedReviewersResponse:jsonResponse date:[httpResponse date] issueIdentifier:issueIdentifier completion:completion];
         }
     }];
 }
@@ -2798,13 +2869,13 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     NSDictionary *headers = @{ @"Accept": @"application/vnd.github.black-cat-preview+json" };
     NSDictionary *body = @{ @"reviewers": logins };
     
-    [self.serverConnection perform:@"DELETE" on:endpoint headers:headers body:body completion:^(id jsonResponse, NSError *error) {
+    [self.serverConnection perform:@"DELETE" on:endpoint forGitHub:YES headers:headers body:body extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
         if (error) {
             RunOnMain(^{
                 completion(nil, error);
             });
         } else {
-            [self _handleRequestedReviewersResponse:jsonResponse issueIdentifier:issueIdentifier completion:completion];
+            [self _handleRequestedReviewersResponse:jsonResponse date:[httpResponse date] issueIdentifier:issueIdentifier completion:completion];
         }
     }];
 }
@@ -2872,6 +2943,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
                 BOOL didMerge = [prDict[@"merged"] boolValue];
                 li.pr.merged = @(didMerge);
                 li.state = didMerge ? @"closed" : @"open";
+                [li setShipLocalUpdatedAtIfNewer:[NSDate dateWithJSONString:prDict[@"updatedAt"]]];
                 
                 [moc save:NULL];
                 
@@ -3749,11 +3821,12 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
         
         if (note.unread) {
             NSString *endpoint = [NSString stringWithFormat:@"/notifications/threads/%@", note.identifier];
-            [_serverConnection perform:@"PATCH" on:endpoint body:nil completion:^(id jsonResponse, NSError *error) {
+            [_serverConnection perform:@"PATCH" on:endpoint forGitHub:YES headers:nil body:nil extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
                 if (!error) {
                     [self performWrite:^(NSManagedObjectContext *write) {
                         LocalNotification *writeNote = [write existingObjectWithID:noteID error:NULL];
                         if (writeNote) {
+                            writeNote.issue.shipLocalUpdatedAt = [httpResponse date];
                             writeNote.unread = @NO;
                             [write save:NULL];
                         }
@@ -3784,14 +3857,16 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
         }];
         
         if ([notes count]) {
-            [_serverConnection perform:@"PUT" on:@"/notifications" body:@{} completion:^(id jsonResponse, NSError *error) {
+            [_serverConnection perform:@"PUT" on:@"/notifications" forGitHub:YES headers:nil body:@{} extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
                 if (!error) {
+                    NSDate *date = [httpResponse date];
                     [self performWrite:^(NSManagedObjectContext *write) {
                         NSFetchRequest *wrFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalNotification"];
                         wrFetch.predicate = [NSPredicate predicateWithFormat:@"SELF IN %@", noteIDs];
                         NSArray *wrNotes = [write executeFetchRequest:wrFetch error:NULL];
                         for (LocalNotification *note in wrNotes) {
                             note.unread = @NO;
+                            note.issue.shipLocalUpdatedAt = date;
                         }
                         [write save:NULL];
                     }];

@@ -26,10 +26,27 @@
     [super willSave];
 }
 
+- (void)setShipLocalUpdatedAtIfNewer:(NSDate *)value {
+    if (!value) return;
+    NSDate *current = self.shipLocalUpdatedAt;
+    if (current != nil && [current compare:value] == NSOrderedDescending) {
+        // if we already have a date and it's newer than value, skip changing
+        return;
+    }
+    self.shipLocalUpdatedAt = value;
+}
+
 - (void)setValue:(id)value forKey:(NSString *)key {
     if ([key isEqualToString:@"pullRequest"]) {
         if ([value isKindOfClass:[NSDictionary class]]) {
             value = @YES;
+        }
+    } else if ([key isEqualToString:@"shipLocalUpdatedAt"]) {
+        if (!value) return;
+        NSDate *current = [self valueForKey:key];
+        if (current != nil && [current compare:value] == NSOrderedDescending) {
+            // if we already have a date and it's newer than value, skip changing
+            return;
         }
     }
     [super setValue:value forKey:key];

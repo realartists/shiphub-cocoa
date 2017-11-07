@@ -28,6 +28,7 @@
 @dynamic title;
 @dynamic updatedAt;
 @dynamic closedAt;
+@dynamic shipLocalUpdatedAt;
 @dynamic shipReactionSummary;
 @dynamic assignees;
 @dynamic childRelationships;

@@ -188,6 +188,12 @@
                 if (!note.issue || ![note.issue.identifier isEqual:issue.identifier]) {
                     note.issue = issue;
                 }
+                // realartists/shiphub-cocoa#713 Notifications can race with edits
+                // Check to see when the last time the current user updated this issue via Ship.
+                // If it's newer than the notification, then force the notification to be unread, since it's stale and GitHub will figure it out in due time.
+                if (issue.shipLocalUpdatedAt && [note.updatedAt compare:issue.shipLocalUpdatedAt] != NSOrderedDescending) {
+                    note.unread = @NO;
+                }
             } else {
                 [pending addObject:issueFullIdentifier];
             }

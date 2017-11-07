@@ -1860,6 +1860,14 @@ CGRect IntegralRect(CGRect r) {
     return status >= 200 && status < 400;
 }
 
+- (NSDate *)date {
+    NSString *dateStr = self.allHeaderFields[@"Date"];
+    if (dateStr) {
+        return [NSDate dateWithHTTPHeaderString:dateStr];
+    }
+    return nil;
+}
+
 @end
 
 @implementation NSURLComponents (Extras)

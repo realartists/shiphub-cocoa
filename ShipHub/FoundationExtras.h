@@ -375,6 +375,7 @@ void RunOnMain(dispatch_block_t);
 @interface NSHTTPURLResponse (Extras)
 
 - (BOOL)isSuccessStatusCode;
+- (NSDate *)date;
 
 @end
 

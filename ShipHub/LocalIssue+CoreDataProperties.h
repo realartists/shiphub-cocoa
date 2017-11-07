@@ -39,6 +39,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) NSString *title;
 @property (nullable, nonatomic, retain) NSDate *updatedAt;
 @property (nullable, nonatomic, retain) NSDate *closedAt;
+@property (nullable, nonatomic, retain) NSDate *shipLocalUpdatedAt;
 @property (nullable, nonatomic, retain) id<NSCoding> shipReactionSummary;
 @property (nullable, nonatomic, retain) NSOrderedSet<LocalAccount *> *assignees;
 @property (nullable, nonatomic, retain) NSSet<LocalRelationship *> *childRelationships;
