@@ -140,6 +140,7 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  18: Track branch protections: realartists/shiphub-cocoa#564 Indicate which failing status checks are required in PRMergeability
  19: realartists/shiphub-cocoa#407 [Client] Track @mentioned state for issues
  20: realartists/shiphub-cocoa#182 Sync / Share Queries [Client]
+ 21: realartists/shiphub-cocoa#717 Scope pending reviews local to Ship (disable GitHub integration)
  */
 static const NSInteger CurrentLocalModelVersion = 20;
 
