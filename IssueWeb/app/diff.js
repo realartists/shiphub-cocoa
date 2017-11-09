@@ -669,25 +669,18 @@ class App {
     }
     
     // compute diff_hunk:
-    var rowIdx = this.rowInfos.findIndex(ri => ri.diffIdx == comment.diffIdx);
+    
     var hunkLines = [];
-    var minLeft = 0, minRight = 0;
-    while (rowIdx >= 0 && hunkLines.length < 4) {
-      var ri = this.rowInfos[rowIdx];
-      if (ri.leftIdx!==undefined && ri.rightIdx!==undefined) {
-        minLeft = ri.leftIdx;
-        minRight = ri.rightIdx;
-        hunkLines.push(" " + this.leftLines[ri.leftIdx]);
-      } else if (ri.leftIdx!==undefined) {
-        minLeft = ri.leftIdx;
-        hunkLines.push("-" + this.leftLines[ri.leftIdx]);
-      } else {
-        minRight = ri.rightIdx;
-        hunkLines.push("+" + this.rightLines[ri.rightIdx]);
-      }
-      rowIdx--;
+    var diffIdx = comment.diffIdx;
+    
+    while (diffIdx >= 0) {
+      var line = this.diffLines[diffIdx];
+      hunkLines.push(line);
+      if (line.startsWith("@@")) {
+        break;
+      }      
+      diffIdx--;
     }
-    hunkLines.push(`@@ -${minLeft+1} +${minRight+1} @@`);
     hunkLines.reverse();
     comment.diff_hunk = hunkLines.join("\n");
     
