@@ -6,6 +6,11 @@ import IssueState from 'issue-state.js'
 import { api } from 'util/api-proxy.js'
 
 class AbstractEditableComment extends AbstractComment {
+  commentURL() {
+    var url = `https://api.github.com/repos/${this.repoOwner()}/${this.repoName()}/comments/${this.props.comment.id}`
+    return url;
+  }
+
   // subclassers can make use of this method to implement _save and onTaskListEdit if they wish
   onEdit(newBody) {
     this.setState(Object.assign({}, this.state, {pendingEditBody: newBody}));
@@ -21,7 +26,7 @@ class AbstractEditableComment extends AbstractComment {
     var q = this.editCommentQueue();
     var initialId = this.props.comment.id;
     // PATCH /repos/:owner/:repo/comments/:id
-    var url = `https://api.github.com/repos/${owner}/${repo}/comments/${initialId}`
+    var url = this.commentURL();
           
     return promiseQueue(q, () => {
       var currentId = keypath(this.props, "comment.id") || "";

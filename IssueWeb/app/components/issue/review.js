@@ -104,6 +104,10 @@ class ReviewAbstractComment extends AbstractEditableComment {
     return IssueState.current.allLoginCompletions
   }
   editCommentQueue() { return "editPRComment"; }
+  commentURL() {
+    var url = `https://api.github.com/repos/${this.repoOwner()}/${this.repoName()}/pulls/comments/${this.props.comment.id}`
+    return url;
+  }
 }
 
 class ReviewSummaryComment extends ReviewAbstractComment {
@@ -375,7 +379,7 @@ class ReviewCommentBlock extends React.Component {
     var comps = [];
     var canCollapse = this.canCollapse();
     var collapsed = this.state.collapsed;
-    var canReply = this.props.review.state != ReviewState.Pending;
+    var canReply = this.props.review.state != ReviewState.Pending && !this.props.blockReplies;
     
     var onLineClick = canCollapse ? null : this.onLineClick.bind(this);
     
@@ -534,7 +538,8 @@ class Review extends React.Component {
         ref:"commentBlock."+c.id,
         review: this.props.review, 
         deleteComment: this.deleteComment.bind(this),
-        comment: c 
+        comment: c,
+        blockReplies: this.props.blockReplies
       })));
     }
     

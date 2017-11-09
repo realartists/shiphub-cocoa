@@ -343,7 +343,7 @@
 {
     DataStore *ds = [DataStore activeStore];
     PRComment *edit = [PRComment new];
-    edit.identifier = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];;
+    edit.identifier = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
     edit.body = [request.bodyJSON objectForKey:@"body"];
     
     NSString *issueIdentifier = [NSString issueIdentifierWithOwner:owner repo:repo number:@0 /* number doesn't matter */];
@@ -368,7 +368,7 @@
 {
     DataStore *ds = [DataStore activeStore];
     PRComment *c = [PRComment new];
-    c.identifier = commentIdentifier;
+    c.identifier = [NSNumber numberWithLongLong:[commentIdentifier longLongValue]];
     
     NSString *issueIdentifier = [NSString issueIdentifierWithOwner:owner repo:repo number:@0 /* number doesn't matter */];
     

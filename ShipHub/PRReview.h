@@ -42,7 +42,17 @@ extern NSString *PRReviewStateToString(PRReviewState st);
 @property NSString *commitId;
 @property NSArray<PRComment *> *comments;
 
+@property BOOL shipReviewPreventsAddingReplies;
+
 @end
 
 extern NSString *const PRReviewDeletedExplicitlyNotification;
 extern NSString *const PRReviewDeletedInIssueIdentifierKey;
+
+extern NSString *const PRReviewEditedCommentExplicitlyNotification;
+extern NSString *const PRReviewEditedCommentKey; // => PRComment
+
+extern NSString *const PRReviewDeletedCommentExplicitlyNotification;
+extern NSString *const PRReviewDeletedCommentKey; // => PRComment
+
+extern BOOL PendingReviewIdentifierIsLocal(NSNumber *reviewID);

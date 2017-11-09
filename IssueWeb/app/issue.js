@@ -859,8 +859,10 @@ var ActivityList = React.createClass({
     activity = activity.concat(issue.commit_comments || []);
     
     var pendingReview = null;
+    var blockReviewReplies = false;
     if (this.props.allReviews) {
       activity = activity.concat(this.props.allReviews.map(r => Object.assign({}, r, {review:true})));
+      blockReviewReplies = this.props.allReviews.some(r => r.ship_review_prevents_adding_replies);
     }
         
     activity.sort(function(a, b) {
@@ -875,9 +877,9 @@ var ActivityList = React.createClass({
       // sort pending reviews to the end
       if (a.review && a.state == ReviewState.Pending) {
         if (a == b) return 0;
-        else if (b.review && b.review.state == ReviewState.Pending) {
-          if (a.review.id < b.review.id) return -1;
-          else if (a.review.id > b.review.id) return 1;
+        else if (b.review && b.state == ReviewState.Pending) {
+          if (a.id < b.id) return -1;
+          else if (a.id > b.id) return 1;
           else return 0;
         } else {
           return 1;
@@ -985,7 +987,8 @@ var ActivityList = React.createClass({
             return h(Review, {
               key:(e.id?("r"+e.id+"-"+i):"r"+i),
               ref:"review."+i,
-              review:e
+              review:e,
+              blockReplies:blockReviewReplies
             });
           } else if (e.event != undefined) {
             counter.e = counter.e + 1;

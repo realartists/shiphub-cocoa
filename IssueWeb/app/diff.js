@@ -667,6 +667,23 @@ class App {
     } else {
       comment.position = comment.diffIdx - this.firstHunkDiffIdx();
     }
+    
+    // compute diff_hunk:
+    
+    var hunkLines = [];
+    var diffIdx = comment.diffIdx;
+    
+    while (diffIdx >= 0) {
+      var line = this.diffLines[diffIdx];
+      hunkLines.push(line);
+      if (line.startsWith("@@")) {
+        break;
+      }      
+      diffIdx--;
+    }
+    hunkLines.reverse();
+    comment.diff_hunk = hunkLines.join("\n");
+    
     comment.path = this.path;
     comment.commit_id = this.headSha;
     

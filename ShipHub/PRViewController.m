@@ -57,7 +57,7 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
 
 @interface PendingCommentKey : NSObject <NSCopying>
 
-- (id)initWithPendingPRComment:(PendingPRComment *)prc;
+- (id)initWithComment:(PRComment *)prc;
 
 @end
 
@@ -194,6 +194,8 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:DataStoreDidUpdateProblemsNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingReviewDidDelete:) name:PRReviewDeletedExplicitlyNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingReviewDidEditComment:) name:PRReviewEditedCommentExplicitlyNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingReviewDidDeleteComment:) name:PRReviewDeletedCommentExplicitlyNotification object:nil];
 }
 
 - (void)viewDidAppear {
@@ -637,14 +639,39 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     
 }
 
-#pragma mark - Explicit Pending PR Delete 
-/* from IssueViewController */
+#pragma mark - Explicit PR Modifications from IssueViewController
 
 - (void)pendingReviewDidDelete:(NSNotification *)note {
-    _pendingReview = nil;
-    _pendingComments = [NSMutableArray new];
-    _pendingCommentGraveyard = nil;
-    _inReview = NO;
+    NSString *issueIdentifier = note.userInfo[PRReviewDeletedInIssueIdentifierKey];
+    if ([_pr.issue.fullIdentifier isEqualToString:issueIdentifier]) {
+        _pendingReview = nil;
+        _pendingComments = [NSMutableArray new];
+        _pendingCommentGraveyard = nil;
+        _inReview = NO;
+        [self reloadComments];
+    }
+}
+
+- (void)pendingReviewDidEditComment:(NSNotification *)note {
+    PendingPRComment *updatedComment = [[PendingPRComment alloc] initWithPRComment:note.userInfo[PRReviewEditedCommentKey]];
+    NSUInteger idx = [_pendingComments indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger x, BOOL *stop) {
+        return [[obj assignedId] isEqual:[updatedComment assignedId]];
+    }];
+    if (idx == NSNotFound) return;
+    PendingPRComment *currentComment = _pendingComments[idx];
+    if ([currentComment.createdAt compare:updatedComment.createdAt] == NSOrderedAscending) {
+        [_pendingComments replaceObjectAtIndex:idx withObject:updatedComment];
+        [self reloadComments];
+    }
+}
+
+- (void)pendingReviewDidDeleteComment:(NSNotification *)note {
+    PendingPRComment *deletedComment = [[PendingPRComment alloc] initWithPRComment:note.userInfo[PRReviewDeletedCommentKey]];
+    NSUInteger idx = [_pendingComments indexOfObjectPassingTest:^BOOL(id  _Nonnull obj, NSUInteger x, BOOL *stop) {
+        return [[obj assignedId] isEqual:[deletedComment assignedId]];
+    }];
+    if (idx == NSNotFound) return;
+    [_pendingComments removeObjectAtIndex:idx];
     [self reloadComments];
 }
 
@@ -715,7 +742,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
             NSMutableArray *pendingComments = [NSMutableArray new];
             NSMutableSet *pendingCommentKeys = [NSMutableSet new];
             for (PendingPRComment *prc in allPending) {
-                PendingCommentKey *key = [[PendingCommentKey alloc] initWithPendingPRComment:prc];
+                PendingCommentKey *key = [[PendingCommentKey alloc] initWithComment:prc];
                 if (![pendingCommentKeys containsObject:key]) {
                     [pendingCommentKeys addObject:key];
                     [pendingComments addObject:prc];
@@ -816,21 +843,21 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 - (BOOL)commentInGraveyard:(PendingPRComment *)prc {
     NSParameterAssert(prc);
     
-    PendingCommentKey *key = [[PendingCommentKey alloc] initWithPendingPRComment:prc];
+    PendingCommentKey *key = [[PendingCommentKey alloc] initWithComment:prc];
     return [_pendingCommentGraveyard containsObject:key];
 }
 
 - (void)removeCommentFromGraveyard:(PendingPRComment *)prc {
     NSParameterAssert(prc);
     
-    PendingCommentKey *key = [[PendingCommentKey alloc] initWithPendingPRComment:prc];
+    PendingCommentKey *key = [[PendingCommentKey alloc] initWithComment:prc];
     [_pendingCommentGraveyard removeObject:key];
 }
 
 - (void)addCommentToGraveyard:(PendingPRComment *)prc {
     NSParameterAssert(prc);
     
-    PendingCommentKey *key = [[PendingCommentKey alloc] initWithPendingPRComment:prc];
+    PendingCommentKey *key = [[PendingCommentKey alloc] initWithComment:prc];
     if (!_pendingCommentGraveyard) {
         _pendingCommentGraveyard = [NSMutableSet new];
     }
@@ -894,6 +921,19 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     [[DataStore activeStore] addReview:review inIssue:_pr.issue.fullIdentifier completion:^(PRReview *roundtrip, NSError *error) {
         if (roundtrip) {
             _pendingReview = roundtrip;
+            // try to update the pending identifiers for the comments to match roundtrip
+            NSMutableDictionary<PendingCommentKey *, id> *pendingIDs = [NSMutableDictionary new];
+            for (PRComment *prc in roundtrip.comments) {
+                PendingCommentKey *key = [[PendingCommentKey alloc] initWithComment:prc];
+                pendingIDs[key] = prc.identifier;
+            }
+            for (PendingPRComment *prc in _pendingComments) {
+                PendingCommentKey *key = [[PendingCommentKey alloc] initWithComment:prc];
+                NSNumber *assignedId = pendingIDs[key];
+                if (assignedId) {
+                    prc.assignedId = assignedId;
+                }
+            }
         }
         if (error) {
             ErrLog(@"Error saving pending review: %@", error);
@@ -1308,7 +1348,7 @@ deleteReactionWithIdentifier:(NSNumber *)reactionIdentifier
     NSNumber *_position;
 }
 
-- (id)initWithPendingPRComment:(PendingPRComment *)prc {
+- (id)initWithComment:(PRComment *)prc {
     if (self = [super init]) {
         _body = prc.body;
         _path = prc.path;

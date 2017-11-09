@@ -16,6 +16,9 @@
 
 typedef std::unordered_set<void *> ObjSet;
 
+static const int64_t JS_MAX_SAFE_INTEGER = (1ll<<53ll) - 1ll;
+static const int64_t JS_MIN_SAFE_INTEGER = -((1ll<<53ll) - 1ll);
+
 @implementation JSON
 
 static BOOL pushCycleObj(id obj, ObjSet &cycleDetector) {
@@ -106,6 +109,10 @@ static id serializeObject(id obj, JSONNameTransformer nt, ObjSet &cycleDetector)
             return d;
         });
     } else if ([obj isKindOfClass:[NSNumber class]]) {
+        int64_t val64 = [obj longLongValue];
+        if (val64 < JS_MIN_SAFE_INTEGER || val64 > JS_MAX_SAFE_INTEGER) {
+            return [obj description];
+        }
         return obj;
     } else if ([obj isKindOfClass:[NSValue class]]) {
         return [obj description];

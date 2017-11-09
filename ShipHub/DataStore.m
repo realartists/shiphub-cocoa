@@ -65,6 +65,8 @@
 
 #import "Error.h"
 
+#define WORKAROUND_PENDING_REVIEWS 1
+
 NSString *const DataStoreWillBeginMigrationNotification = @"DataStoreWillBeginMigrationNotification";
 NSString *const DataStoreDidEndMigrationNotification = @"DataStoreDidEndMigrationNotification";
 NSString *const DataStoreMigrationProgressKey = @"DataStoreMigrationProgressKey";
@@ -138,8 +140,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  18: Track branch protections: realartists/shiphub-cocoa#564 Indicate which failing status checks are required in PRMergeability
  19: realartists/shiphub-cocoa#407 [Client] Track @mentioned state for issues
  20: realartists/shiphub-cocoa#182 Sync / Share Queries [Client]
+ 21: realartists/shiphub-cocoa#717 Scope pending reviews local to Ship (disable GitHub integration)
  */
-static const NSInteger CurrentLocalModelVersion = 20;
+static const NSInteger CurrentLocalModelVersion = 21;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSString *_purgeVersion;
@@ -2421,6 +2424,136 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     [[Analytics sharedInstance] track:@"Post PR Comment"];
 }
 
+- (void)addPendingReviewLocalOnly:(PRReview *)review inIssue:(NSString *)issueIdentifier completion:(void (^)(PRReview *review, NSError *error))completion
+{
+    NSParameterAssert(review);
+    NSParameterAssert(review.state == PRReviewStatePending);
+    NSParameterAssert(review.commitId);
+    NSParameterAssert(issueIdentifier);
+    NSParameterAssert(completion);
+    
+    void (^discoverPendingPRs)(void (^)(NSArray *)) = ^(void (^next)(NSArray *)) {
+        [self performRead:^(NSManagedObjectContext *moc) {
+            NSFetchRequest *pendingFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRReview"];
+            pendingFetch.predicate = [NSPredicate predicateWithFormat:@"user.identifier = %@ AND state = 'PENDING' AND issue.number = %@ AND issue.repository.fullName = %@", [[Account me] identifier], [issueIdentifier issueNumber], [issueIdentifier issueRepoFullName]];
+            
+            NSError *pendingFetchError = nil;
+            NSArray *pendingInDB = [moc executeFetchRequest:pendingFetch error:&pendingFetchError];
+            
+            if (pendingFetchError) {
+                ErrLog(@"%@", pendingFetchError);
+            }
+            
+            NSArray *pendingInDBIds = [pendingInDB arrayByMappingObjects:^id(id obj) {
+                return [obj identifier];
+            }];
+            
+            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+                next(pendingInDBIds);
+            });
+        }];
+    };
+    
+    void (^commitReview)(void) = ^{
+        [self performWrite:^(NSManagedObjectContext *moc) {
+            NSFetchRequest *issueRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
+            issueRequest.predicate = [self predicateForIssueIdentifiers:@[issueIdentifier]];
+            issueRequest.fetchLimit = 1;
+            
+            LocalIssue *issue = [[moc executeFetchRequest:issueRequest error:NULL] firstObject];
+            
+            NSFetchRequest *meRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalAccount"];
+            meRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", [[Account me] identifier]];
+            meRequest.fetchLimit = 1;
+            
+            LocalAccount *me = [[moc executeFetchRequest:meRequest error:NULL] firstObject];
+            
+            NSFetchRequest *maxPRIdRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRReview"];
+            maxPRIdRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = max(identifier)"];
+            maxPRIdRequest.resultType = NSDictionaryResultType;
+            maxPRIdRequest.propertiesToFetch = @[@"identifier"];
+            maxPRIdRequest.fetchLimit = 1;
+            
+            NSNumber *maxPRId = [[[moc executeFetchRequest:maxPRIdRequest error:NULL] firstObject] objectForKey:@"identifier"];
+            
+            int64_t startId = 1ll<<62ll;
+            if (!maxPRId || maxPRId.unsignedLongLongValue < startId) {
+                maxPRId = @(startId);
+            }
+            
+            LocalPRReview *lpr = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPRReview" inManagedObjectContext:moc];
+            lpr.identifier = @(maxPRId.unsignedLongLongValue + 1);
+            lpr.state = PRReviewStateToString(PRReviewStatePending);
+            lpr.body = review.body;
+            lpr.createdAt = [NSDate date];
+            lpr.commitId = review.commitId;
+            lpr.issue = issue;
+            lpr.user = me;
+            
+            NSFetchRequest *maxCommentIdRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRComment"];
+            maxCommentIdRequest.predicate = [NSPredicate predicateWithFormat:@"identifier = max(identifier)"];
+            maxCommentIdRequest.resultType = NSDictionaryResultType;
+            maxCommentIdRequest.propertiesToFetch = @[@"identifier"];
+            maxCommentIdRequest.fetchLimit = 1;
+            
+            NSNumber *maxCommentId = [[[moc executeFetchRequest:maxCommentIdRequest error:NULL] firstObject] objectForKey:@"identifier"];
+            
+            if (!maxCommentId || maxCommentId.unsignedLongLongValue < startId) {
+                maxCommentId = @(startId);
+            }
+            
+            uint64_t cid = maxCommentId.unsignedLongLongValue + 1;
+            
+            NSMutableSet *comments = [NSMutableSet new];
+            
+            for (PRComment *prc in review.comments) {
+                LocalPRComment *comment = [NSEntityDescription insertNewObjectForEntityForName:@"LocalPRComment" inManagedObjectContext:moc];
+                [comments addObject:comment];
+                comment.identifier = @(cid);
+                comment.diffHunk = prc.diffHunk;
+                comment.path = prc.path;
+                comment.position = prc.position;
+                comment.commitId = prc.commitId;
+                comment.inReplyTo = prc.inReplyTo;
+                comment.body = prc.body;
+                comment.createdAt = [NSDate date];
+                comment.user = me;
+                
+                cid++;
+            }
+            
+            lpr.comments = comments;
+            
+            [moc save:NULL];
+            
+            PRReview *roundtrip = [[PRReview alloc] initWithLocalReview:lpr metadataStore:self.metadataStore];
+            
+            RunOnMain(^{
+                completion(roundtrip, nil);
+            });
+        }];
+    };
+    
+    discoverPendingPRs(^(NSArray *ids) {
+        dispatch_group_t group = dispatch_group_create();
+        for (NSNumber *reviewId in ids) {
+            PRReview *deleteMe = [PRReview new];
+            deleteMe.identifier = reviewId;
+            deleteMe.state = PRReviewStatePending;
+            dispatch_group_enter(group);
+            [self deletePendingReview:deleteMe inIssue:issueIdentifier completion:^(NSError *error) {
+                if (error) {
+                    ErrLog(@"%@", error);
+                }
+                dispatch_group_leave(group);
+            }];
+        }
+        dispatch_group_notify(group, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            commitReview();
+        });
+    });
+}
+
 - (void)addReview:(PRReview *)review inIssue:(NSString *)issueIdentifier completion:(void (^)(PRReview *review, NSError *error))completion
 {
     NSParameterAssert(review);
@@ -2429,6 +2562,13 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     NSParameterAssert(completion);
     
     DebugLog(@"addReview: %@", review);
+    
+#if WORKAROUND_PENDING_REVIEWS
+    if (review.state == PRReviewStatePending) {
+        [self addPendingReviewLocalOnly:review inIssue:issueIdentifier completion:completion];
+        return;
+    }
+#endif
     
     void (^saveReview)(NSDictionary *, NSArray *) = ^(NSDictionary *reviewJson, NSArray *reviewCommentsJson) {
         DebugLog(@"Saving review: %@", reviewJson);
@@ -2632,28 +2772,70 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     
     DebugLog(@"Deleting pending review %@", review.identifier);
     
-    [self.serverConnection perform:@"DELETE" on:deleteEndpoint headers:headers body:nil completion:^(id jsonResponse, NSError *error) {
-        if (!error) {
-            [self performWrite:^(NSManagedObjectContext *moc) {
-                NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRReview"];
-                fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", review.identifier];
-                
-                LocalPRReview *lpr = [[moc executeFetchRequest:fetch error:NULL] firstObject];
-                
-                if (lpr) {
-                    [moc deleteObject:lpr];
-                    [moc save:NULL];
-                }
-                
-                RunOnMain(^{
-                    completion(nil);
-                });
-            }];
-        } else {
+    void (^deleteFromDB)(void) = ^{
+        [self performWrite:^(NSManagedObjectContext *moc) {
+            NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRReview"];
+            fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", review.identifier];
+            
+            LocalPRReview *lpr = [[moc executeFetchRequest:fetch error:NULL] firstObject];
+            
+            if (lpr) {
+                [moc deleteObject:lpr];
+                [moc save:NULL];
+            }
+            
             RunOnMain(^{
-                completion(error);
+                completion(nil);
             });
+        }];
+    };
+    
+    if (PendingReviewIdentifierIsLocal(review.identifier)) {
+        deleteFromDB();
+    } else {
+        [self.serverConnection perform:@"DELETE" on:deleteEndpoint headers:headers body:nil completion:^(id jsonResponse, NSError *error) {
+            if (!error) {
+                deleteFromDB();
+            } else {
+                RunOnMain(^{
+                    completion(error);
+                });
+            }
+        }];
+    }
+}
+
+- (void)_editReviewCommentLocalOnly:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(PRComment *comment, NSError *error))completion
+{
+    [self performWrite:^(NSManagedObjectContext *moc) {
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRComment"];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", comment.identifier];
+        fetch.fetchLimit = 1;
+        
+        LocalPRComment *lc = [[moc executeFetchRequest:fetch error:NULL] firstObject];
+        if (!lc) {
+            RunOnMain(^{
+                completion(nil, [NSError shipErrorWithCode:ShipErrorCodeProblemSaveOtherError]);
+            });
+            return;
         }
+        
+        lc.body = comment.body;
+        lc.createdAt = [NSDate date];
+        
+        NSError *saveErr = nil;
+        [moc save:&saveErr];
+        
+        if (saveErr) {
+            ErrLog(@"%@", saveErr);
+        }
+        
+        PRComment *roundtrip = [[PRComment alloc] initWithLocalPRComment:lc metadataStore:self.metadataStore];
+        
+        RunOnMain(^{
+            completion(roundtrip, nil);
+            [self postNotification:PRReviewEditedCommentExplicitlyNotification userInfo:@{ PRReviewEditedCommentKey : roundtrip }];
+        });
     }];
 }
 
@@ -2663,6 +2845,12 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     NSParameterAssert(comment.body);
     NSParameterAssert(issueIdentifier);
     NSParameterAssert(completion);
+    
+    // note that this test is not restricted to the WORKAROUND_PENDING_REVIEWS flag, because even if we turn that off, we may still need to deal with existing local-only pending reviews that have been created and are living in local databases.
+    if (PendingReviewIdentifierIsLocal(comment.identifier)) {
+        [self _editReviewCommentLocalOnly:comment inIssue:issueIdentifier completion:completion];
+        return;
+    }
     
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/comments/%@", [issueIdentifier issueRepoFullName], [comment identifier]];
     
@@ -2686,11 +2874,58 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     
 }
 
+- (void)_deleteReviewCommentLocalOnly:(PRComment *)comment inIssue:(NSString *)ignored completion:(void (^)(NSError *error))completion
+{
+    [self performWrite:^(NSManagedObjectContext *moc) {
+        NSFetchRequest *fetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPRComment"];
+        fetch.predicate = [NSPredicate predicateWithFormat:@"identifier = %@", comment.identifier];
+        fetch.fetchLimit = 1;
+        
+        LocalPRComment *lc = [[moc executeFetchRequest:fetch error:NULL] firstObject];
+        if (!lc) {
+            RunOnMain(^{
+                completion([NSError shipErrorWithCode:ShipErrorCodeProblemSaveOtherError]);
+            });
+            return;
+        }
+        
+        NSString *deletedReviewIssueIdentifier = nil;
+        LocalPRReview *lpr = lc.review;
+        if ([lpr.state isEqualToString:PRReviewStateToString(PRReviewStatePending)] && lpr.comments.count == 1 && lpr.body.length == 0) {
+            deletedReviewIssueIdentifier = lpr.issue.fullIdentifier;
+            [moc deleteObject:lpr];
+        }
+        
+        [moc deleteObject:lc];
+        
+        NSError *saveErr = nil;
+        [moc save:&saveErr];
+        
+        if (saveErr) {
+            ErrLog(@"%@", saveErr);
+        }
+        
+        RunOnMain(^{
+            completion(nil);
+            if (deletedReviewIssueIdentifier) {
+                [self postNotification:PRReviewDeletedExplicitlyNotification userInfo:@{ PRReviewDeletedInIssueIdentifierKey : deletedReviewIssueIdentifier }];
+            } else {
+                [self postNotification:PRReviewDeletedCommentExplicitlyNotification userInfo:@{ PRReviewDeletedCommentKey : comment }];
+            }
+        });
+    }];
+}
+
 - (void)deleteReviewComment:(PRComment *)comment inIssue:(NSString *)issueIdentifier completion:(void (^)(NSError *error))completion
 {
     NSParameterAssert(comment.identifier);
     NSParameterAssert(issueIdentifier);
     NSParameterAssert(completion);
+    
+    if (PendingReviewIdentifierIsLocal(comment.identifier)) {
+        [self _deleteReviewCommentLocalOnly:comment inIssue:issueIdentifier completion:completion];
+        return;
+    }
     
     NSString *endpoint = [NSString stringWithFormat:@"/repos/%@/pulls/comments/%@", [issueIdentifier issueRepoFullName], [comment identifier]];
     
