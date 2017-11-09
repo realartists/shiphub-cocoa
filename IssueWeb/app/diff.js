@@ -667,6 +667,30 @@ class App {
     } else {
       comment.position = comment.diffIdx - this.firstHunkDiffIdx();
     }
+    
+    // compute diff_hunk:
+    var rowIdx = this.rowInfos.findIndex(ri => ri.diffIdx == comment.diffIdx);
+    var hunkLines = [];
+    var minLeft = 0, minRight = 0;
+    while (rowIdx >= 0 && hunkLines.length < 4) {
+      var ri = this.rowInfos[rowIdx];
+      if (ri.leftIdx!==undefined && ri.rightIdx!==undefined) {
+        minLeft = ri.leftIdx;
+        minRight = ri.rightIdx;
+        hunkLines.push(" " + this.leftLines[ri.leftIdx]);
+      } else if (ri.leftIdx!==undefined) {
+        minLeft = ri.leftIdx;
+        hunkLines.push("-" + this.leftLines[ri.leftIdx]);
+      } else {
+        minRight = ri.rightIdx;
+        hunkLines.push("+" + this.rightLines[ri.rightIdx]);
+      }
+      rowIdx--;
+    }
+    hunkLines.push(`@@ -${minLeft+1} +${minRight+1} @@`);
+    hunkLines.reverse();
+    comment.diff_hunk = hunkLines.join("\n");
+    
     comment.path = this.path;
     comment.commit_id = this.headSha;
     

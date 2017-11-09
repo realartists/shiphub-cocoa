@@ -52,6 +52,7 @@
         _comments = [[[lprr.comments allObjects] arrayByMappingObjects:^id(LocalPRComment *lc) {
             return [[PRComment alloc] initWithLocalPRComment:lc metadataStore:store];
         }] sortedArrayUsingDescriptors:@[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]]];
+        _shipReviewPreventsAddingReplies = _state == PRReviewStatePending && !PendingReviewIdentifierIsLocal(_identifier);
     }
     return self;
 }
@@ -126,3 +127,14 @@ NSString *PRReviewStateToString(PRReviewState st) {
 
 NSString *const PRReviewDeletedExplicitlyNotification = @"PRReviewDeletedExplicitlyNotification";
 NSString *const PRReviewDeletedInIssueIdentifierKey = @"PRReviewDeletedInIssueIdentifierKey";
+
+NSString *const PRReviewEditedCommentExplicitlyNotification = @"PRReviewEditedCommentExplicitlyNotification";
+NSString *const PRReviewEditedCommentKey = @"PRReviewEditedCommentKey";
+
+NSString *const PRReviewDeletedCommentExplicitlyNotification = @"PRReviewDeletedCommentExplicitlyNotification";
+NSString *const PRReviewDeletedCommentKey = @"PRReviewDeletedCommentKey";
+
+BOOL PendingReviewIdentifierIsLocal(NSNumber *reviewID) {
+    int64_t x = [reviewID longLongValue];
+    return x > (1ll<<62ll);
+}
