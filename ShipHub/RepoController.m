@@ -554,13 +554,17 @@ static NSPredicate *userReposDefaultPredicate() {
     if (!repo) return;
     
     BOOL missingIssues = [repo[@"has_issues"] boolValue] == NO;
+    BOOL archived = [repo[@"archived"] boolValue];
     BOOL missingPush = [repo[@"permissions"][@"push"] boolValue] == NO;
     BOOL hiddenLocally =  [_hiddenLocallyRepoIdentifiers containsObject:repo[@"id"]];
     
     NSString *message = nil;
     NSString *title = [NSString stringWithFormat:NSLocalizedString(@"%@ is limited.", nil), repo[@"full_name"]];
     
-    if (hiddenLocally) {
+    if (archived) {
+        title = [NSString stringWithFormat:NSLocalizedString(@"%@ is archived.", nil), repo[@"full_name"]];
+        message = NSLocalizedString(@"This repository is archived on GitHub. Neither Issues nor Pull Requests can be created or modified, and therefore it is unavailable for use with Ship.", nil);
+    } else if (hiddenLocally) {
         title = [NSString stringWithFormat:NSLocalizedString(@"%@ is hidden locally.", nil), repo[@"full_name"]];
         message = NSLocalizedString(@"This repository will sync, but it is marked as hidden. To view issues in this repository, select it in the sidebar of the Overview window, and click the button to unhide it.", nil);
     } else if (missingIssues && missingPush) {
@@ -827,13 +831,19 @@ static NSPredicate *userReposDefaultPredicate() {
         return cell;
     } else {
         // repo
+        BOOL archived = [item[@"archived"] boolValue];
+        NSString *title = item[@"name"] ?: @"";
+        if (archived) {
+            title = [NSString stringWithFormat:@"%@ %@", title, NSLocalizedString(@"[archived]", nil)];
+        }
         RepoCell *cell = [outlineView makeViewWithIdentifier:@"RepoCell" owner:self];
-        cell.checkbox.title = item[@"name"] ?: @"wat";
+        cell.checkbox.title = title;
         cell.checkbox.extras_representedObject = item;
         BOOL hiddenLocally = [_chosenRepoIdentifiers containsObject:item[@"id"]] && [_hiddenLocallyRepoIdentifiers containsObject:item[@"id"]];
-        cell.warningButton.hidden = [item[@"has_issues"] boolValue] && [item[@"permissions"][@"push"] boolValue] && !hiddenLocally;
+        cell.warningButton.hidden = [item[@"has_issues"] boolValue] && [item[@"permissions"][@"push"] boolValue] && !hiddenLocally && !archived;
         cell.warningButton.extras_representedObject = item;
-        cell.checkbox.state = [_chosenRepoIdentifiers containsObject:item[@"id"]] ? NSOnState : NSOffState;
+        cell.checkbox.state = [_chosenRepoIdentifiers containsObject:item[@"id"]] && !archived ? NSOnState : NSOffState;
+        cell.checkbox.enabled = !archived;
         return cell;
     }
 }
