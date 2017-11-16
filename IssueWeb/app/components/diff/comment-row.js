@@ -143,6 +143,21 @@ class Comment extends AbstractComment {
     super.componentDidUpdate();
     this.props.didRender();
   }
+  
+  onFocus() {
+    super.onFocus();
+    this.props.onFocus();
+  }
+  
+  onBlur() {
+    super.onBlur();
+    this.props.onBlur();
+  }
+  
+  updateCode(newCode) {
+    super.updateCode(newCode);
+    this.props.onUpdateCode();
+  }
 }
 
 class ReviewFooter extends React.Component {
@@ -257,6 +272,9 @@ class CommentList extends React.Component {
         repo:this.props.repo,
         buttons:i==buttonIdx?[{"title": "Reply", "action": this.addReply.bind(this)}]:[],
         didRender:this.props.didRender,
+        onFocus:this.props.onFocus,
+        onBlur:this.props.onBlur,
+        onUpdateCode:this.props.onUpdateCode,
         commentDelegate:this.props.commentDelegate,
         diffIdx:this.props.diffIdx
       })
@@ -271,6 +289,9 @@ class CommentList extends React.Component {
         repo:this.props.repo,
         onCancel:this.cancelReply.bind(this),
         didRender:this.props.didRender,
+        onFocus:this.props.onFocus,
+        onBlur:this.props.onBlur,
+        onUpdateCode:this.props.onUpdateCode,
         /* send in_reply_to to the first comment in the chain, otherwise a bug
            in the GitHub web UI will prevent it from rendering */
         inReplyTo:commentsLength>0?this.props.comments[0]:undefined,
@@ -424,12 +445,27 @@ class CommentRow extends DiffRow {
         repo:this.repo,
         didRender:()=>this.delegate.updateMiniMap(),
         didCancel:this.didCancelReply.bind(this),
+        onFocus:this.onFocus.bind(this),
+        onBlur:this.onBlur.bind(this),
+        onUpdateCode:this.onUpdateCode.bind(this),
         commentDelegate:this.delegate,
         diffIdx:this.diffIdx
       }),
       this.commentsContainer,
       then
     );
+  }
+  
+  onFocus() {
+    this.delegate.simplify();
+  }
+  
+  onBlur() {
+    this.delegate.unsimplify();
+  }
+  
+  onUpdateCode() {
+    this.delegate.simplify();
   }
   
   scrollToComment(comment) {
