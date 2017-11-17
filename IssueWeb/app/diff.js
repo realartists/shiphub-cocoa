@@ -1082,7 +1082,8 @@ class App {
       return;
     }
     
-    if (this.simplified.state) {
+    if (this.simplified.nextState) {
+      console.log("simplify");
       this.simplified.state = this.simplified.nextState;
       delete this.simplified.nextState;
       
@@ -1133,6 +1134,7 @@ class App {
   unsimplify(opts) {
     if (opts && (opts.quick || opts.now)) {
       if (this.simplified.state) {
+        console.log("unsimplify: quick: " + opts.quick);
         window.removeEventListener('scroll', this.simplified.scrollListener);
         delete this.simplified.scrollListener;
         this.simplified.state = false;
