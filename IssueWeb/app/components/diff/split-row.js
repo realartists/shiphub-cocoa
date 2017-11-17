@@ -10,6 +10,8 @@ class SplitRow extends DiffRow {
   constructor(leftLine, leftLineNum, rightLine, rightLineNum, diffIdx, hunkNum, rightDiffIdx, changed, colorblind, addNewCommentHandler) {
     super();
     
+    this.leftLine = leftLine;
+    this.rightLine = rightLine;
     this.leftLineNum = leftLineNum;
     this.rightLineNum = rightLineNum;
     this.diffIdx = diffIdx;

@@ -17,6 +17,7 @@ import SplitRow from 'components/diff/split-row.js'
 import UnifiedRow from 'components/diff/unified-row.js'
 import CommentRow from 'components/diff/comment-row.js'
 import TrailerRow from 'components/diff/trailer-row.js'
+import { UnifiedPlaceholderRow, SplitPlaceholderRow } from 'components/diff/placeholder-row.js'
 import ghost from 'util/ghost.js'
 import escapeStringForRegex from 'util/escape-regex.js'
 import 'util/media-reloader.js'
@@ -47,6 +48,8 @@ class App {
     this.repo = null; // repo owning the viewed pull request
     this.colorblind = false; // whether or not we need to use more than just color to differentiate changes lines
     this.receivedFirstUpdate = false; // whether updateDiff has been called yet
+    this.placeholders = []; // Array of PlaceholderRows
+    this.simplified = {}; // tracks simplified DOM state
     
     // View state
     this.codeRows = []; // Array of SplitRow|UnifiedRow
@@ -102,6 +105,8 @@ class App {
   }
   
   recreateCodeRows() {
+    this.unsimplify({quick:true});
+  
     var displayedDiffMode = this.diffMode;
     if (this.leftText.length == 0 || this.rightText.length == 0) {
       displayedDiffMode = "unified";
@@ -117,7 +122,7 @@ class App {
         return idx;
       }
     };
-    
+
     this.displayedDiffMode = displayedDiffMode;
     
     var leftLines = this.leftLines;
@@ -266,23 +271,74 @@ class App {
       this.applyHighlightingToCodeRows();
     }
     
-    var rows = Array.from(codeRows);
+    var rows = this.buildPlaceholders(codeRows);
     
     // add a trailing row to take up space for short diffs
     var trailer = new TrailerRow(this.displayedDiffMode, this.colorblind);    
     rows.push(trailer);
     
-    var rowNodes = rows.map((r) => r.node);
-    
     // Write out DOM
     this.table.innerHTML = '';
-    rowNodes.forEach((rn) => {
-      this.table.appendChild(rn);
-    });
+    rows.forEach(r => this.table.appendChild(r.node));
     
     this.positionComments();
     
     this.updateMiniMapRegions();
+  }
+  
+  buildPlaceholders(rows) {
+    if (rows.length < 1000) {
+      return Array.from(rows);
+    }
+    
+    var margin = 10 + Math.trunc(window.screen.height / parseFloat(document.documentElement.style.getPropertyValue("--ctheme-line-height") || "13"));
+    
+    var placeholderType = this.diffMode == 'unified' ? UnifiedPlaceholderRow : SplitPlaceholderRow;
+    var placeholders = [];
+    var newRows = [];
+    var ph = null;
+    var i = 0;
+    while (i < rows.length) {
+      if (rows[i].diffIdx === undefined && rows[i].rightDiffIdx === undefined) {
+        // see if we can find a run of at least 3x margin
+        var j;
+        for (j = i; j < rows.length && rows[j].diffIdx === undefined && rows[j].rightDiffIdx === undefined; j++);
+        
+        if ((j - i) > (3 * margin)) {
+          // we can make a placeholder!
+          ph = new placeholderType(this.colorblind);
+          placeholders.push(ph);
+          for (var k = i; k < i+margin; k++) {
+            newRows.push(rows[k]);
+          }
+          newRows.push(ph);
+          for (var k = i+margin; k < j-margin; k++) {
+            ph.addRow(rows[k]);
+            newRows.push(rows[k]);
+          }
+          for (var k = j-margin; k < j; k++) {
+            newRows.push(rows[k]);
+          }
+        } else {
+          for (var k = i; k < j; k++) {
+            newRows.push(rows[k]);
+          }
+        }
+        i = j;
+      } else {
+        newRows.push(rows[i]);
+        i++;
+      }
+    }
+    
+    for (var i = 0; i < placeholders.length; i++) {
+      var ph = placeholders[i];
+      ph.freeze();
+      ph.node.style.display = 'none';
+    }
+    
+    this.placeholders = placeholders;
+    return newRows;
   }
   
   updateMiniMapRegions() {
@@ -376,8 +432,10 @@ class App {
     this.doHighlight();
   }
   
-  positionComments() {
+  positionComments() {  
     if (this.commentRows.length == 0) return;
+    
+    this.unsimplify({now:true});
   
     // for every row in commentRows, calculate the item in codeRows that should precede it
     var diffIdxToRow = this.codeRows.reduce((accum, row) => {
@@ -1016,6 +1074,83 @@ class App {
       }
     }
   }
+  
+  simplifyTimerFired() {
+    delete this.simplified.timer;
+    
+    if (this.simplified.nextState == this.simplified.state) {
+      return;
+    }
+    
+    this.simplified.state = this.simplified.nextState;
+    delete this.simplified.nextState;
+    
+    if (this.simplified.state) {
+      var initialScrollPosition = window.scrollY;
+
+      this.placeholders.forEach(ph => {
+        ph.rows.forEach(cr => cr.node.style.display = 'none');
+        ph.node.style.display = 'table-row';
+      });
+      
+      this.simplified.scrollListener = (evt) => {
+        var newScrollPosition = window.scrollY;
+        if (Math.abs(newScrollPosition - initialScrollPosition) > window.screen.height) {
+          this.unsimplify();
+        }
+      };
+      window.addEventListener('scroll', this.simplified.scrollListener);
+    } else {
+      this.unsimplify({now:true});
+    }
+  }
+  
+  scheduleSimplifyTimer(nextState) {
+    if (this.simplified.state != nextState) {
+      this.simplified.nextState = nextState;
+      if (!this.simplified.timer) {
+        this.simplified.timer = window.setTimeout(this.simplifyTimerFired.bind(this), 10);
+      }
+    }
+  }
+  
+  /* 
+  Simplify DOM underneath this.table. In a nutshell, offscreen portions of the DOM
+  are compressed into a structure that sizes and behaves just like the uncompressed
+  structure it is replacing, and even largely visually resembles the structure it is
+  replacing, but the compressed structure has a fraction of the node count.
+  */
+  simplify() {
+    this.scheduleSimplifyTimer(true);
+  }
+  
+  /* 
+  Undo simplify.
+  
+  Arguments:
+    quick - just reset tracking state / event listeners, but don't edit the DOM
+  */
+  unsimplify(opts) {
+    if (opts && (opts.quick || opts.now)) {
+      if (this.simplified.state) {
+        window.removeEventListener('scroll', this.simplified.scrollListener);
+        delete this.simplified.scrollListener;
+        this.simplified.state = false;
+        delete this.simplified.nextState;
+        if (this.simplified.timer) {
+          window.clearTimer(this.simplified.timer);
+        }
+        if (!opts.quick) {
+          this.placeholders.forEach(ph => {
+            ph.node.style.display = 'none';
+            ph.rows.forEach(cr => cr.node.style.display = 'table-row');        
+          });
+        }
+      }
+    } else {
+      this.scheduleSimplifyTimer(false);
+    }
+  }
 }
 
 var app = null;
@@ -1083,5 +1218,3 @@ window.onload = () => {
   
   window.loadComplete.postMessage({});
 }
-
-
