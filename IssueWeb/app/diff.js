@@ -1082,10 +1082,10 @@ class App {
       return;
     }
     
-    this.simplified.state = this.simplified.nextState;
-    delete this.simplified.nextState;
-    
     if (this.simplified.state) {
+      this.simplified.state = this.simplified.nextState;
+      delete this.simplified.nextState;
+      
       var initialScrollPosition = window.scrollY;
 
       this.placeholders.forEach(ph => {
