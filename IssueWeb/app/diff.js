@@ -105,7 +105,7 @@ class App {
   }
   
   recreateCodeRows() {
-    this.unsimplify(true);
+    this.unsimplify({quick:true});
   
     var displayedDiffMode = this.diffMode;
     if (this.leftText.length == 0 || this.rightText.length == 0) {
@@ -279,9 +279,7 @@ class App {
     
     // Write out DOM
     this.table.innerHTML = '';
-    rows.forEach((rn) => {
-      this.table.appendChild(rn.node);
-    });
+    rows.forEach(r => this.table.appendChild(r.node));
     
     this.positionComments();
     
@@ -290,7 +288,7 @@ class App {
   
   buildPlaceholders(rows) {
     if (rows.length < 1000) {
-      return rows;
+      return Array.from(rows);
     }
     
     var margin = 10 + Math.trunc(window.screen.height / parseFloat(document.documentElement.style.getPropertyValue("--ctheme-line-height") || "13"));
@@ -299,9 +297,10 @@ class App {
     var placeholders = [];
     var newRows = [];
     var ph = null;
-    for (var i = 0; i < rows.length; i++) {
+    var i = 0;
+    while (i < rows.length) {
       if (rows[i].diffIdx === undefined && rows[i].rightDiffIdx === undefined) {
-        // see if we can find at least a run of at least 3x margin
+        // see if we can find a run of at least 3x margin
         var j;
         for (j = i; j < rows.length && rows[j].diffIdx === undefined && rows[j].rightDiffIdx === undefined; j++);
         
@@ -328,6 +327,7 @@ class App {
         i = j;
       } else {
         newRows.push(rows[i]);
+        i++;
       }
     }
     
@@ -435,7 +435,7 @@ class App {
   positionComments() {  
     if (this.commentRows.length == 0) return;
     
-    this.unsimplify();
+    this.unsimplify({now:true});
   
     // for every row in commentRows, calculate the item in codeRows that should precede it
     var diffIdxToRow = this.codeRows.reduce((accum, row) => {
@@ -1101,12 +1101,7 @@ class App {
       };
       window.addEventListener('scroll', this.simplified.scrollListener);
     } else {
-      window.removeEventListener('scroll', this.simplified.scrollListener);
-      delete this.simplified.scrollListener;
-      this.placeholders.forEach(ph => {
-        ph.node.style.display = 'none';
-        ph.rows.forEach(cr => cr.node.style.display = 'table-row');        
-      });
+      this.unsimplify({now:true});
     }
   }
   
@@ -1135,14 +1130,22 @@ class App {
   Arguments:
     quick - just reset tracking state / event listeners, but don't edit the DOM
   */
-  unsimplify(quick) {
-    if (quick && this.simplified.state) {
-      window.removeEventListener('scroll', this.simplified.scrollListener);
-      delete this.simplified.scrollListener;
-      this.simplified.state = false;
-      delete this.simplified.nextState;
-      if (this.simplified.timer) {
-        window.clearTimer(this.simplified.timer);
+  unsimplify(opts) {
+    if (opts && (opts.quick || opts.now)) {
+      if (this.simplified.state) {
+        window.removeEventListener('scroll', this.simplified.scrollListener);
+        delete this.simplified.scrollListener;
+        this.simplified.state = false;
+        delete this.simplified.nextState;
+        if (this.simplified.timer) {
+          window.clearTimer(this.simplified.timer);
+        }
+        if (!opts.quick) {
+          this.placeholders.forEach(ph => {
+            ph.node.style.display = 'none';
+            ph.rows.forEach(cr => cr.node.style.display = 'table-row');        
+          });
+        }
       }
     } else {
       this.scheduleSimplifyTimer(false);
