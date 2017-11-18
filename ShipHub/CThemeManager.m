@@ -19,6 +19,9 @@ static NSString *ThemeColorsKey = @"DVTSourceTextSyntaxColors";
 static NSString *ThemeFontsKey = @"DVTSourceTextSyntaxFonts";
 static NSString *ThemePlainKey = @"xcode.syntax.plain";
 
+static NSString *LightCursor = @"text";
+static NSString *DarkCursor = @"-webkit-image-set(url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAASCAYAAACJgPRIAAAAAXNSR0IArs4c6QAAARxJREFUKBV1ks1Kw0AUhWcU3ET3WZWCfyCIS11acF8ZiwvfoYK+RfIagi+RJ8gqG7FW6F7BhSQ7IanfGTIhKfTClzPnzp07M51aY8wRnMIaVrBs/SFqYQFm2jTNEhZlWb7gnVRe4G9VdAwPSZI8qriu6w+pvPKgnboY53n+tCbQZ7LjbqY30P4TFUlB3sdOGLSqAkVQbzaLfHLzs62o20oL+kVX+IO2yz4qPwitnOrQIfD6fXzH0EkH/bbW3qEGnSFfMLiAn+NzrU7oBLpzhU4q6segw7ai/oLB7UZFUZxpttVRqNxloImbNE0vnHNzxj9xHF9GUfSbZZketwEz49VXvP57VVWveCeVVx5/rxucwDn8wSeEP53ye/D2DyM6fZEu42CgAAAAAElFTkSuQmCC) 1x, url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAkCAYAAACE7WrnAAAAAXNSR0IArs4c6QAAAstJREFUSA3tlj2PUkEUhgE/VxHQLEt0zUI2JlsoiTZYuDHWhsZE3crW0Bt7axN/gLRQGP0P4iZWNJpoIY1hFZePrApIxEUB3+dmhnD3XgMx25h4kidn5pwzZ+bOzJ2ZYCAQOCAOi6OmPJLeFQPxS4wFEhQHBbFHREgMxQ8xwIFxSayIY+Kn+Cp2jCYQoaOTYtHoQ9LfxQfRsj0sj8fjTbEjmr1e71U0Gn2mgJogIUKCs51O51Y4HL4UDAYTYlGsy94mICbWlcAlo9HoU7VafSjfdaCMzRWkCm1FjBExF41isXgzk8mkE4nEhUgkck09nUkmk/dbrRafHIjH4xtotf3c7XZfNJvNt+Vy+Y1MDUEOZwLD0svivLiay+Xu9Pv956b3XWkYY8NHjImlDW0ZkCOsCKvHhJ4SJLw9HA7fmWRjytiMjxi7yrR1lhDNt9qlZOI+iq16vb4p7Ygpb6mCjxhWkzbO9mAv7BX2UV+0S6XSa+s0ZRLgI2YuoQMmecN+GmVj8+t88mmKcQk9WqzD1tEe8c3uiZrD8D/R7EnymyN2OMfJCcHZY4UyNnzEuMQvEedTQqwabRtM24iZKTFFXLEbca/GJ4hxid+IXAHzVia//1QDzpZtnUdZ6TWN6BE+1e9JVcS2cM4f6Yn4JeLgbwqOielPwPbe+IhxiV8ijgYO9W9iumfK2PB5ZN/m6N9JxEgtdj5s3fcrfI1qyS+wUCgUOOQdMeUFVTy/hwnxKJJHxOVarfbY7mzK2IzvTwNwHgj0xN7hfp91HRHjuY7YS8eF/SnT2Wz2oi7Du6FQaE129s+AMjZ8qqfFqqANbZ39yLFwLp/P36hUKg/a7fZT3fE8JhzRlf0EbB0fMcTShraCHPv3iCCZc1uq1y+i7vesSaVSDcW9nHrWnNaPzKo6bbm3GdaSWDHlv3pokYjV4hi1q8AFyN/NJM/99PsNOZWuJI0NntIAAAAASUVORK5CYII=) 2x) 4 9, text";
+
 /*
  Theme CSS Vars:
  :root {
@@ -351,6 +354,8 @@ static BOOL parseFont(NSString *fontStr, NSString *__autoreleasing* fontFamily, 
         
         vars[@"--ctheme-minimap-background-color"] = @"#212121";
         vars[@"--ctheme-minimap-visible-region-color"] = @"rgba(255, 255, 255, 0.2)";
+        
+        vars[@"--ctheme-code-cursor"] = DarkCursor;
     } else {
         vars[@"--ctheme-background-color-inserted"] = @"#E0FFDF";
         vars[@"--ctheme-background-color-deleted"] = @"#FFEDED";
@@ -366,6 +371,8 @@ static BOOL parseFont(NSString *fontStr, NSString *__autoreleasing* fontFamily, 
         
         vars[@"--ctheme-minimap-background-color"] = @"#DEDEDE";
         vars[@"--ctheme-minimap-visible-region-color"] = @"rgba(0, 0, 0, 0.2)";
+        
+        vars[@"--ctheme-code-cursor"] = LightCursor;
     }
     
     vars[@"--ctheme-selection-color"] = cssColor(selectionColor);
