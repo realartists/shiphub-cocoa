@@ -35,6 +35,7 @@ table.diffHunk td {
 
 table.diffHunk td > pre {
   color: var(--ctheme-color-xcode-syntax-plain, black);
+  cursor: var(--ctheme-code-cursor, text);
   padding: 0;
   margin: 0;
   white-space: pre-wrap;
