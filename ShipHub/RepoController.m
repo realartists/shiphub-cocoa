@@ -171,6 +171,8 @@ static NSString *const RepoPrefsEndpoint = @"/api/sync/settings";
     [self.window.toolbar setVisible:!self.window.toolbar.visible];
     if (self.window.toolbar.isVisible) {
         [self.window makeFirstResponder:_filterToolbarItem.searchField];
+    } else {
+        [self updateAddRepoEnabled];
     }
 }
 
@@ -509,6 +511,10 @@ static NSPredicate *userReposDefaultPredicate() {
     [whitelist minusSet:_userRepoIdentifiers];
     
     _addRepoField.enabled = _addRepoButton.enabled = whitelist.count < RepoWhitelistMaxCount;
+    
+    if (_addRepoField.enabled && ![_addRepoField isFirstResponder]) {
+        [self.window makeFirstResponder:_addRepoField];
+    }
 }
 
 - (IBAction)refresh:(id)sender {
@@ -670,6 +676,19 @@ static NSPredicate *userReposDefaultPredicate() {
     NSInteger row = [_repoOutline rowForItem:repo];
     if (row != -1) {
         [_repoOutline scrollRowToVisible:row];
+    }
+}
+
+- (void)controlTextDidEndEditing:(NSNotification *)note {
+    NSControl *sender = [note object];
+    if (sender == _addRepoField) {
+        NSDictionary *dict  = [note userInfo];
+        NSNumber  *reason = [dict objectForKey: @"NSTextMovement"];
+        NSInteger code = [reason integerValue];
+        
+        if (code == NSTextMovementReturn) {
+            [self addRepo:sender];
+        }
     }
 }
 
