@@ -1,7 +1,7 @@
 // Based on ideas from https://www.quaxio.com/html_white_listed_sanitizer/
 class HTMLSanitizer {
   constructor() {
-    this.nodeBlacklist = new Set(["HTML", "HEAD", "BODY", "SCRIPT", "STYLE", "FORM", "INPUT", "TEXTAREA"]);
+    this.nodeBlacklist = new Set(["HTML", "HEAD", "BODY", "SCRIPT", "STYLE"]);
     this.doc = document.implementation.createHTMLDocument();
   }
   
