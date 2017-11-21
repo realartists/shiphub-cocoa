@@ -2786,7 +2786,6 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
             
             RunOnMain(^{
                 completion(nil);
-                [self postNotification:PRReviewDeletedExplicitlyNotification userInfo:@{PRReviewDeletedInIssueIdentifierKey:issueIdentifier}];
             });
         }];
     };
