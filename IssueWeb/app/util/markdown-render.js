@@ -2,6 +2,7 @@ import marked from './marked.min.js'
 import hljs from 'ext/highlight.js/index.js'
 import { emojify, emojifyReaction } from './emojify.js'
 import { githubLinkify } from './github-linkify.js'
+import HTMLSanitizer from './html-sanitizer.js'
 
 var markedRenderer = new marked.Renderer();
 
@@ -80,6 +81,8 @@ markedRenderer.text = function(text) {
   return emojify(githubLinkify(_repoOwner, _repoName, text));
 }
 
+var sanitizer = new HTMLSanitizer();
+
 var langMapping = {
   'objective-c': 'objc',
   'c#' : 'cs'
@@ -107,7 +110,7 @@ var markdownOpts = {
 function markdownRender(markdown, repoOwner, repoName) {
   _repoOwner = repoOwner
   _repoName = repoName;
-  return marked(markdown, markdownOpts);
+  return sanitizer.sanitize(marked(markdown, markdownOpts));
 }
 
 export { markdownRender };
