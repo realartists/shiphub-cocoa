@@ -742,9 +742,6 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         progress.message = NSLocalizedString(@"Deleting review", nil);
         [progress beginSheetInWindow:self.view.window];
         
-        NSDictionary *info = @{ PRReviewDeletedInIssueIdentifierKey : self.issue.fullIdentifier };
-        [[NSNotificationCenter defaultCenter] postNotificationName:PRReviewDeletedExplicitlyNotification object:info];
-        
         [[DataStore activeStore] deletePendingReview:pending inIssue:self.issue.fullIdentifier completion:^(NSError *error) {
             [progress endSheet];
             if (error) {
