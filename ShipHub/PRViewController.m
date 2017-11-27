@@ -25,6 +25,7 @@
 #import "PRComment.h"
 #import "DiffViewModeItem.h"
 #import "DataStore.h"
+#import "MetadataStore.h"
 #import "PRReview.h"
 #import "PRReviewChangesViewController.h"
 #import "PRNavigationToolbarItem.h"
@@ -864,6 +865,18 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     [_pendingCommentGraveyard addObject:key];
 }
 
+- (NSArray *)mentionableAccounts {
+    DataStore *ds = [DataStore activeStore];
+    MetadataStore *ms = [ds metadataStore];
+    NSArray *accounts = [ms assigneesForRepo:_pr.issue.repository];
+    NSMutableDictionary *lookup = [[NSDictionary lookupWithObjects:accounts keyPath:@"identifier"] mutableCopy];
+    for (PRComment *prc in _pr.prComments) {
+        [lookup setObject:prc.user forKey:prc.user.identifier];
+    }
+    [lookup removeObjectForKey:[[Account me] identifier]];
+    return [lookup allValues];
+}
+
 - (NSArray *)allComments {
     return [_pr.prComments arrayByAddingObjectsFromArray:_pendingComments];
 }
@@ -982,7 +995,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     }
     _nextScrollInfo = nil;
     if (_diffController.diffFile != file) {
-        [_diffController setPR:_pr diffFile:file diff:diff comments:comments inReview:_inReview scrollInfo:scrollInfo];
+        [_diffController setPR:_pr diffFile:file diff:diff comments:comments mentionable:[self mentionableAccounts] inReview:_inReview scrollInfo:scrollInfo];
     } else {
         [_diffController navigate:scrollInfo];
     }

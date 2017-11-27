@@ -44,6 +44,7 @@ class App {
     this.rowInfos = []; // Array of pointers into left, right, and diff, plus context info
     this.headSha = ""; // commit id of head of PR branch
     this.baseSha = ""; // commit id of base of PR branch
+    this.mentionable = []; // Array of Account objects for users who can be @mentioned
     this.me = ghost; // user object (used for adding new comments)
     this.repo = null; // repo owning the viewed pull request
     this.colorblind = false; // whether or not we need to use more than just color to differentiate changes lines
@@ -547,7 +548,7 @@ class App {
       var diffIdx = cg[0].diffIdx;
       var commentRow = diffIdxToCommentRow[diffIdx];
       if (!commentRow) {
-        commentRow = new CommentRow(this.issueIdentifier, this.me, this.repo, this);
+        commentRow = new CommentRow(this.issueIdentifier, this.me, this.repo, this.mentionable, this);
         diffIdxToCommentRow[diffIdx] = commentRow;
       }
       commentRow.comments = cg;
@@ -769,7 +770,7 @@ class App {
     if (cr) {
       cr.showReply();
     } else {
-      cr = new CommentRow(this.issueIdentifier, this.me, this.repo, this);
+      cr = new CommentRow(this.issueIdentifier, this.me, this.repo, this.mentionable, this);
       cr.setHasNewComment(true, diffIdx);
       this.commentRows.push(cr);
       this.positionComments();

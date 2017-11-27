@@ -11,6 +11,7 @@
 #import "IssueWeb2Controller.h"
 #import "DiffViewMode.h"
 
+@class Account;
 @class GitDiff;
 @class GitDiffFile;
 @class PRComment;
@@ -23,7 +24,7 @@
 
 @property (weak) id<PRDiffViewControllerDelegate> delegate;
 
-- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview scrollInfo:(NSDictionary *)scrollInfo;
+- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments mentionable:(NSArray<Account *> *)mentionable inReview:(BOOL)inReview scrollInfo:(NSDictionary *)scrollInfo;
 
 - (void)scrollToComment:(PRComment *)comment;
 - (void)navigate:(NSDictionary *)options; // See diff.js: App.scrollTo() docstring for options
@@ -39,6 +40,7 @@
 @property (nonatomic, readonly) GitDiff *diff;
 @property (readonly, getter=isInReview) BOOL inReview;
 @property (nonatomic, readonly) NSArray<PRComment *> *comments;
+@property (nonatomic, readonly) NSArray<Account *> *mentionable;
 
 @property (nonatomic, assign) DiffViewMode mode;
 

@@ -63,7 +63,7 @@ class Comment extends AbstractComment {
   
   saveAndClose() { return this.save(); }
   
-  loginCompletions() { return [] }
+  loginCompletions() { return this.props.mentionable; }
   
   _save() {
     if (this.props.comment) {
@@ -270,6 +270,7 @@ class CommentList extends React.Component {
         issueIdentifier:this.props.issueIdentifier,
         me:this.props.me,
         repo:this.props.repo,
+        mentionable:this.props.mentionable,
         buttons:i==buttonIdx?[{"title": "Reply", "action": this.addReply.bind(this)}]:[],
         didRender:this.props.didRender,
         onFocus:this.props.onFocus,
@@ -287,6 +288,7 @@ class CommentList extends React.Component {
         issueIdentifier:this.props.issueIdentifier,
         me:this.props.me,
         repo:this.props.repo,
+        mentionable:this.props.mentionable,
         onCancel:this.cancelReply.bind(this),
         didRender:this.props.didRender,
         onFocus:this.props.onFocus,
@@ -340,12 +342,13 @@ class CommentList extends React.Component {
 }
 
 class CommentRow extends DiffRow {
-  constructor(issueIdentifier, me, repo, delegate) {
+  constructor(issueIdentifier, me, repo, mentionable, delegate) {
     super();
     
     this.issueIdentifier = issueIdentifier;
     this.me = me;
     this.repo = repo;
+    this.mentionable = mentionable;
     this.delegate = delegate;
 
     this.hasNewComment = false;    
@@ -443,6 +446,7 @@ class CommentRow extends DiffRow {
         issueIdentifier:this.issueIdentifier,
         me:this.me,
         repo:this.repo,
+        mentionable:this.mentionable,
         didRender:()=>this.delegate.updateMiniMap(),
         didCancel:this.didCancelReply.bind(this),
         onFocus:this.onFocus.bind(this),

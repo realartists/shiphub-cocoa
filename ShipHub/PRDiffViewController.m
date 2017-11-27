@@ -207,7 +207,7 @@ static BOOL differentiateWithoutColor() {
     return CFPreferencesGetAppBooleanValue(CFSTR("differentiateWithoutColor"), CFSTR("com.apple.universalaccess"), NULL);
 }
 
-- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments inReview:(BOOL)inReview scrollInfo:(NSDictionary *)scrollInfo
+- (void)setPR:(PullRequest *)pr diffFile:(GitDiffFile *)diffFile diff:(GitDiff *)diff comments:(NSArray<PRComment *> *)comments mentionable:(NSArray<Account *> *)mentionable inReview:(BOOL)inReview scrollInfo:(NSDictionary *)scrollInfo
 {
     NSParameterAssert(comments);
     
@@ -218,6 +218,7 @@ static BOOL differentiateWithoutColor() {
     _diffFile = diffFile;
     _diff = diff;
     _comments = [comments copy];
+    _mentionable = [mentionable copy];
     _inReview = inReview;
     _fileBarController.file = diffFile;
     
@@ -260,6 +261,7 @@ static BOOL differentiateWithoutColor() {
                @"diff": patch ?: @"",
                @"diffIdxMapping": patchMapping ?: [NSNull null],
                @"comments": [JSON serializeObject:comments withNameTransformer:[JSON underbarsAndIDNameTransformer]],
+               @"mentionable": [JSON serializeObject:mentionable withNameTransformer:[JSON underbarsAndIDNameTransformer]],
                @"issueIdentifier": _pr.issue.fullIdentifier,
                @"inReview": @(inReview),
                @"baseSha": pr.spanDiff.baseRev,
@@ -351,7 +353,7 @@ static BOOL differentiateWithoutColor() {
 }
 
 - (void)reconfigureForReload {
-    [self setPR:_pr diffFile:_diffFile diff:_diff comments:_comments inReview:_inReview scrollInfo:nil];
+    [self setPR:_pr diffFile:_diffFile diff:_diff comments:_comments mentionable:_mentionable inReview:_inReview scrollInfo:nil];
     [self setMode:_mode];
 }
 
