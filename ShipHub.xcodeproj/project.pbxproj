@@ -965,6 +965,7 @@
 		1A4A20A61CF3BB06000C1D5E /* LocalSyncVersion+CoreDataProperties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "LocalSyncVersion+CoreDataProperties.m"; sourceTree = "<group>"; };
 		1A4A20A71CF3BB06000C1D5E /* LocalSyncVersion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalSyncVersion.h; sourceTree = "<group>"; };
 		1A4A20A81CF3BB06000C1D5E /* LocalSyncVersion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LocalSyncVersion.m; sourceTree = "<group>"; };
+		1A4CFA731FDB50670088506D /* ci_reviewed_by_me.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = ci_reviewed_by_me.sh; sourceTree = "<group>"; };
 		1A5108431D2CC52A00905D4D /* EmptyUpNextViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmptyUpNextViewController.h; sourceTree = "<group>"; };
 		1A5108441D2CC52A00905D4D /* EmptyUpNextViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EmptyUpNextViewController.m; sourceTree = "<group>"; };
 		1A51084F1D2F70C900905D4D /* UpNextHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UpNextHelper.h; sourceTree = "<group>"; };
@@ -1470,11 +1471,11 @@
 			children = (
 				1A2217901C7E7B14006460E2 /* ShipHub */,
 				1ACD54851FCE1FAA003D48FB /* Adapter */,
+				1AD468C11F3D1E2F003CAD4D /* Reviewed By Me */,
 				1A3618FB1C9383CF008C11CB /* ShipHubTests */,
-				1A2217A21C7E7B78006460E2 /* ext */,
 				1AB038511D5D0E22005093B9 /* scripts */,
 				1A3C5B501DDD012F005F9A01 /* AccountTool */,
-				1AD468C11F3D1E2F003CAD4D /* Reviewed By Me */,
+				1A2217A21C7E7B78006460E2 /* ext */,
 				1A22178F1C7E7B14006460E2 /* Products */,
 				1AD468DB1F3D1F81003CAD4D /* Frameworks */,
 			);
@@ -2164,6 +2165,7 @@
 			isa = PBXGroup;
 			children = (
 				1AB038521D5D0E22005093B9 /* cihub.sh */,
+				1A4CFA731FDB50670088506D /* ci_reviewed_by_me.sh */,
 			);
 			path = scripts;
 			sourceTree = "<group>";
