@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="13533" systemVersion="16G1036" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="13772" systemVersion="16G1114" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
     <entity name="LocalAccount" representedClassName="LocalAccount" syncable="YES">
         <attribute name="avatarURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
@@ -308,6 +308,9 @@
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="reactions" inverseEntity="LocalAccount" syncable="YES"/>
     </entity>
     <entity name="LocalRepo" representedClassName="LocalRepo" syncable="YES">
+        <attribute name="allowMergeCommit" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="allowRebaseMerge" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="allowSquashMerge" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="disabled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="fullName" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="hasIssues" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="NO" syncable="YES"/>
@@ -354,7 +357,7 @@
         <element name="LocalQuery" positionX="9" positionY="153" width="128" height="120"/>
         <element name="LocalQueryOutbox" positionX="18" positionY="162" width="128" height="90"/>
         <element name="LocalReaction" positionX="9" positionY="153" width="128" height="165"/>
-        <element name="LocalRepo" positionX="0" positionY="0" width="128" height="345"/>
+        <element name="LocalRepo" positionX="0" positionY="0" width="128" height="390"/>
         <element name="LocalSyncVersion" positionX="0" positionY="0" width="128" height="60"/>
     </elements>
 </model>

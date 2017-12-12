@@ -30,5 +30,8 @@
 @dynamic owner;
 @dynamic projects;
 @dynamic hasIssues;
+@dynamic allowMergeCommit;
+@dynamic allowRebaseMerge;
+@dynamic allowSquashMerge;
 
 @end

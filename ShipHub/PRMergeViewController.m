@@ -33,20 +33,31 @@
     [_messageView setDelegate:self];
 }
 
-- (void)setPr:(PullRequest *)pr {
-    [self view];
-    if (_pr != pr) {
-        _pr = pr;
-        _titleField.stringValue = [pr mergeTitle] ?: @"";
-        _messageView.string = [pr mergeMessage] ?: @"";
-    }
-}
-
 - (void)updateTitleAndMessage {
     Issue *i = _issue;
     
     _titleField.enabled = YES;
     _messageView.enabled = YES;
+    
+    _mergeButton.enabled = i.repository.allowMergeCommit;
+    _rebaseButton.enabled = i.repository.allowRebaseMerge;
+    _squashButton.enabled = i.repository.allowSquashMerge;
+    
+    BOOL needsEnableNext = NO;
+    NSArray *buttons = @[_mergeButton, _squashButton, _rebaseButton];
+    for (NSButton *b in buttons) {
+        if (!b.enabled && b.state == NSOnState) {
+            b.state = NSOffState;
+            needsEnableNext = YES;
+        }
+    }
+    if (needsEnableNext) {
+        for (NSButton *b in buttons) {
+            if (b.enabled) {
+                b.state = NSOnState;
+            }
+        }
+    }
     
     if (_mergeButton.state == NSOnState) {
         if (!_titleEdited) {

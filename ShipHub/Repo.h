@@ -35,6 +35,10 @@
 
 @property (readonly) BOOL canPush; // if the current user can push to the repo
 
+@property (readonly) BOOL allowMergeCommit;
+@property (readonly) BOOL allowRebaseMerge;
+@property (readonly) BOOL allowSquashMerge;
+
 @property (readonly) NSURL *URL;
 
 @end

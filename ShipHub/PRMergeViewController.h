@@ -15,7 +15,6 @@
 
 @interface PRMergeViewController : NSViewController
 
-@property (nonatomic) PullRequest *pr;
 @property (nonatomic) Issue *issue;
 
 @property (weak) id<PRMergeViewControllerDelegate> delegate;
