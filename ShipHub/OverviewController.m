@@ -714,7 +714,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
                             node.toolTip = [NSString stringWithFormat:@"Due %@", [[NSDateFormatter shortRelativeDateFormatter] stringFromDate:mile.dueOn]];
                         }
                         node.showProgress = YES;
-                        node.predicate = [NSPredicate predicateWithFormat:@"milestone.identifier = %@", mile.identifier];
+                        node.predicate = [repoNode.predicate and:[NSPredicate predicateWithFormat:@"milestone.identifier = %@", mile.identifier]];
                         node.icon = milestoneIcon;
                         node.identifier = [NSString stringWithFormat:@"RepoMilestone.%@", mile.identifier];
                         node.dropHandler = ^(NSArray *identifiers) {
