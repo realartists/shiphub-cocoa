@@ -281,7 +281,7 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
         _mergeController = [PRMergeViewController new];
         _mergeController.delegate = self;
     }
-    _mergeController.pr = _pr;
+    _mergeController.issue = _pr.issue;
     
     _mergePopover = [[NSPopover alloc] init];
     _mergePopover.contentViewController = _mergeController;

@@ -34,6 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nullable, nonatomic, retain) LocalAccount *owner;
 @property (nullable, nonatomic, retain) LocalHidden *hidden;
 @property (nullable, nonatomic, retain) NSNumber *hasIssues;
+@property (nullable, nonatomic, retain) NSNumber *allowMergeCommit;
+@property (nullable, nonatomic, retain) NSNumber *allowRebaseMerge;
+@property (nullable, nonatomic, retain) NSNumber *allowSquashMerge;
 
 @end
 

@@ -33,6 +33,9 @@
         _restricted = _private && billingState == BillingStateFree;
         _hasIssues = [lr.hasIssues boolValue];
         _canPush = canPush;
+        _allowMergeCommit = lr.allowMergeCommit == nil || [lr.allowMergeCommit boolValue];
+        _allowRebaseMerge = lr.allowRebaseMerge == nil || [lr.allowRebaseMerge boolValue];
+        _allowSquashMerge = lr.allowSquashMerge == nil || [lr.allowSquashMerge boolValue];
     }
     return self;
 }
