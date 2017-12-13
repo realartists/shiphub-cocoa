@@ -6,14 +6,15 @@ export PATH := $(PATH):/usr/local/bin
 
 CMD = npm run production
 INSTALL_MODS = npm install
+CHECK = ./scripts/check-npm-version.sh
 
 INPUT = $(shell find . -path ./node_modules -prune -o -path ./dist -prune -o \( -name '*.js' -o -name '*.json' -o -name '*.css' -o -name '*.html' \) -print)
 
 dist/.uptodate: node_modules/.uptodate $(INPUT)
-	$(CMD) && touch dist/.uptodate
+	$(CHECK) && $(CMD) && touch dist/.uptodate
 
 node_modules/.uptodate: npm-shrinkwrap.json
-	$(INSTALL_MODS) && touch node_modules/.uptodate
+	$(CHECK) && $(INSTALL_MODS) && touch node_modules/.uptodate
 
 .PHONY: clean analyze install
 clean:
