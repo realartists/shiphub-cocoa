@@ -1,0 +1,21 @@
+//
+//  RMEPrefix.pch
+//  Reviewed By Me
+//
+//  Created by James Howard on 8/10/17.
+//  Copyright © 2017 Real Artists, Inc. All rights reserved.
+//
+
+#ifndef RMEPrefix_h
+#define RMEPrefix_h
+
+#if __OBJC__
+#import <Cocoa/Cocoa.h>
+#import "Logging.h"
+#import "Defaults.h"
+#endif
+
+#define TARGET_REVIEWED_BY_ME 1
+#define TARGET_SHIP 0
+
+#endif /* RMEPrefix_h */

@@ -79,4 +79,52 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
     return [num integerValue];
 }
 
++ (NSError *)shipErrorFromGitHubResponseData:(NSData *)data statusCode:(NSInteger)httpStatusCode
+{
+    NSError *error;
+    
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    userInfo[ShipErrorUserInfoHTTPResponseCodeKey] = @(httpStatusCode);
+    
+    id errorJSON = nil;
+    if ([data length]) {
+        errorJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+        if ([errorJSON isKindOfClass:[NSDictionary class]]) {
+            NSArray *errors = [errorJSON objectForKey:@"errors"];
+            NSString *message = [errorJSON objectForKey:@"message"];
+            NSString *desc = nil;
+            if ([errors isKindOfClass:[NSArray class]] && [errors count] > 0) {
+                id err1 = [errors firstObject];
+                if ([err1 isKindOfClass:[NSDictionary class]]) {
+                    id errmsg = [err1 objectForKey:@"message"];
+                    if ([errmsg isKindOfClass:[NSString class]] && [errmsg length] > 0) {
+                        desc = errmsg;
+                    } else if ([errmsg isKindOfClass:[NSArray class]] && [errmsg count] > 0) {
+                        errmsg = [errmsg firstObject];
+                        if ([errmsg isKindOfClass:[NSString class]] && [errmsg length] > 0) {
+                            desc = errmsg;
+                        }
+                    }
+                } else if ([err1 isKindOfClass:[NSString class]] && [err1 length] > 0) {
+                    desc = err1;
+                }
+            }
+            if (desc == nil && [message isKindOfClass:[NSString class]] && [message length] > 0) {
+                desc = message;
+            }
+            if ([desc length]) {
+                userInfo[NSLocalizedDescriptionKey] = desc;
+            }
+        }
+    }
+    
+    if (errorJSON) {
+        userInfo[ShipErrorUserInfoErrorJSONBodyKey] = errorJSON;
+    }
+    
+    error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse userInfo:userInfo];
+    
+    return error;
+}
+
 @end

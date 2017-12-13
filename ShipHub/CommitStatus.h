@@ -10,8 +10,11 @@
 
 @class Account;
 @class Repo;
+
+#if TARGET_SHIP
 @class LocalCommitStatus;
 @class MetadataStore;
+#endif
 
 @interface CommitStatus : NSObject
 
@@ -27,6 +30,8 @@
 @property Account *creator;
 @property Repo *repository;
 
+#if TARGET_SHIP
 - (id)initWithLocalCommitStatus:(LocalCommitStatus *)lcs metadataStore:(MetadataStore *)ms;
+#endif
 
 @end

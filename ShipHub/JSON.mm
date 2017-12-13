@@ -41,6 +41,20 @@ static void enumerateProperties(id obj, void (^block)(NSString *propName)) {
         return;
     }
     
+    static NSSet *rootProperties;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // See discussion @ https://stackoverflow.com/questions/24873062/retrieving-property-list-of-a-class-in-ios
+        unsigned int count = 0;
+        NSMutableSet *ps = [NSMutableSet new];
+        objc_property_t *props = protocol_copyPropertyList(@protocol(NSObject), &count);
+        for (unsigned int i = 0; i < count; i++) {
+            [ps addObject:[NSString stringWithUTF8String:property_getName(props[i])]];
+        }
+        free(props);
+        rootProperties = ps;
+    });
+    
     Class c = [obj class];
     while (c != root) {
         
@@ -49,7 +63,7 @@ static void enumerateProperties(id obj, void (^block)(NSString *propName)) {
         
         for (unsigned int i = 0; i < count; i++) {
             NSString *propName = [NSString stringWithUTF8String:property_getName(props[i])];
-            if ([propName length] > 0) {
+            if ([propName length] > 0 && ![rootProperties containsObject:propName]) {
                 block(propName);
             }
         }

@@ -9,6 +9,7 @@
 #import "PRViewController.h"
 
 #import "Account.h"
+#import "AppAdapter.h"
 #import "Auth.h"
 #import "ButtonToolbarItem.h"
 #import "CustomToolbarItem.h"
@@ -16,23 +17,20 @@
 #import "PullRequest.h"
 #import "GitDiff.h"
 #import "GitFileSearch.h"
-#import "IssueDocumentController.h"
 #import "IssueIdentifier.h"
 #import "ProgressSheet.h"
 #import "TrackingProgressSheet.h"
+#import "PRAdapter.h"
 #import "PRSidebarViewController.h"
 #import "PRDiffViewController.h"
 #import "PRComment.h"
 #import "DiffViewModeItem.h"
-#import "DataStore.h"
-#import "MetadataStore.h"
 #import "PRReview.h"
 #import "PRReviewChangesViewController.h"
 #import "PRNavigationToolbarItem.h"
 #import "PRMergeViewController.h"
 #import "PRPostMergeController.h"
 #import "Reaction.h"
-#import "Repo.h"
 #import "SendErrorEmail.h"
 #import "NSViewController+PresentSaveError.h"
 
@@ -65,6 +63,8 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
 @interface PRViewController () <PRSidebarViewControllerDelegate, PRDiffViewControllerDelegate, PRReviewChangesViewControllerDelegate, PRMergeViewControllerDelegate, NSToolbarDelegate, NSTouchBarDelegate> {
     NSToolbar *_toolbar;
 }
+
+@property id<PRAdapter> adapter;
 
 @property NSSplitViewController *splitController;
 @property NSSplitViewItem *sidebarItem;
@@ -188,15 +188,6 @@ static NSString *const TBNavigateItemID = @"TBNavigate";
     _toolbar.delegate = self;
     
     self.view = view;
-}
-
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:DataStoreDidUpdateProblemsNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingReviewDidDelete:) name:PRReviewDeletedExplicitlyNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingReviewDidEditComment:) name:PRReviewEditedCommentExplicitlyNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingReviewDidDeleteComment:) name:PRReviewDeletedCommentExplicitlyNotification object:nil];
 }
 
 - (void)viewDidAppear {
@@ -411,8 +402,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 #pragma mark - Navigation
 
 - (IBAction)openIssue:(id)sender {
-    IssueDocumentController *idc = [IssueDocumentController sharedDocumentController];
-    [idc openIssueWithIdentifier:_pr.issue.fullIdentifier];
+    [_adapter openConversationView];
 }
 
 - (void)scrollToLineInfo:(NSDictionary *)info {
@@ -561,7 +551,24 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 
 #pragma mark -
 
+- (void)updateAdapter:(Issue *)issue {
+    if (_adapter) {
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:PRAdapterDidUpdateIssueNotification object:_adapter];
+    }
+    
+    _adapter = CreatePRAdapter(issue);
+    
+    _diffController.adapter = _adapter;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(issueDidUpdate:) name:PRAdapterDidUpdateIssueNotification object:_adapter];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingReviewDidDelete:) name:PRReviewDeletedExplicitlyNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingReviewDidEditComment:) name:PRReviewEditedCommentExplicitlyNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pendingReviewDidDeleteComment:) name:PRReviewDeletedCommentExplicitlyNotification object:nil];
+}
+
 - (void)loadForIssue:(Issue *)issue {
+    [self updateAdapter:issue];
+    
     _loading = YES;
     self.pr = [[PullRequest alloc] initWithIssue:issue];
     self.title = [NSString stringWithFormat:NSLocalizedString(@"Code Changes for %@ %@", nil), issue.fullIdentifier, issue.title];
@@ -573,7 +580,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     
     TrackingProgressSheet *sheet = [TrackingProgressSheet new];
     [sheet beginSheetInWindow:self.view.window];
-    NSProgress *progress = [self.pr checkout:^(NSError *error) {
+    NSProgress *progress = [self.pr checkoutWithAdapter:_adapter completion:^(NSError *error) {
         [sheet endSheet];
         
         _loading = NO;
@@ -680,16 +687,11 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 
 - (void)issueDidUpdate:(NSNotification *)note {
     if (!_pr || _loading) return;
-    if ([note object] == [DataStore activeStore]) {
-        NSArray *updated = note.userInfo[DataStoreUpdatedProblemsKey];
-        if ([updated containsObject:_pr.issue.fullIdentifier]) {
-            [[DataStore activeStore] loadFullIssue:_pr.issue.fullIdentifier completion:^(Issue *issue, NSError *error) {
-                if (issue) {
-                    [self mergeUpdatedIssue:issue];
-                }
-            }];
+    [_adapter reloadFullIssueWithCompletion:^(Issue * issue, NSError *error) {
+        if (issue) {
+            [self mergeUpdatedIssue:issue];
         }
-    }
+    }];
 }
 
 - (void)mergeUpdatedIssue:(Issue *)updatedIssue {
@@ -768,7 +770,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
         _statusItem.clickAction = nil;
         
         dispatch_block_t work = ^{
-            [[DataStore activeStore] loadFullIssue:_pr.issue.fullIdentifier completion:^(Issue *issue, NSError *error) {
+            [_adapter reloadFullIssueWithCompletion:^(Issue * issue, NSError *error) {
                 if (issue) {
                     [self loadForIssue:issue];
                 }
@@ -789,10 +791,12 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 - (void)sendErrorReport:(NSError *)error {
     NSMutableString *errorReport = [NSMutableString new];
     
-    [errorReport appendString:@"Ship Pull Request Error Report\n"];
+    NSString *appName = ([[NSBundle mainBundle] localizedInfoDictionary]?:[[NSBundle mainBundle] infoDictionary])[(__bridge id)kCFBundleNameKey];
+    
+    [errorReport appendFormat:@"%@ Pull Request Error Report\n", appName];
     [errorReport appendString:@"------------------------------\n\n"];
     [errorReport appendFormat:@"Date: %@\n", [NSDate date]];
-    [errorReport appendFormat:@"GitHub User: %@\n", [[[[DataStore activeStore] auth] account] login]];
+    [errorReport appendFormat:@"GitHub User: %@\n", [[[SharedAppAdapter() auth] account] login]];
     NSDictionary *info = [[NSBundle mainBundle] infoDictionary];
     [errorReport appendFormat:@"Ship Version: %@ (%@)\n", info[@"CFBundleShortVersionString"], info[@"CFBundleVersion"]];
     [errorReport appendFormat:@"System Version: %@\n\n", [[NSProcessInfo processInfo] operatingSystemVersionString]];
@@ -805,17 +809,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     [errorReport appendString:@"-----------------\n\n"];
     [errorReport appendFormat:@"%@\n", [_pr debugDescription]];
     
-    char buf[MAXPATHLEN];
-    snprintf(buf, sizeof(buf), "%sship_pr_error.XXXXXX.txt", [NSTemporaryDirectory() UTF8String]);
-    int fd = 0;
-    if (-1 != (fd = mkstemps(buf, 4))) {
-        NSString *errPath = [NSString stringWithUTF8String:buf];
-        NSFileHandle *fh = [[NSFileHandle alloc] initWithFileDescriptor:fd];
-        [fh writeData:[errorReport dataUsingEncoding:NSUTF8StringEncoding]];
-        [fh closeFile];
-        
-        SendErrorEmail(@"Ship Pull Request Error Report", @"<Please include any additional information>\n\n", errPath);
-    }
+    NSString *emailSubject = [NSString stringWithFormat:@"%@ Pull Request Error Report", appName];
+    SendErrorEmail(emailSubject, errorReport);
 }
 
 - (BOOL)presentError:(NSError *)error {
@@ -866,9 +861,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
 }
 
 - (NSArray *)mentionableAccounts {
-    DataStore *ds = [DataStore activeStore];
-    MetadataStore *ms = [ds metadataStore];
-    NSArray *accounts = [ms assigneesForRepo:_pr.issue.repository];
+    NSArray *accounts = [_adapter assigneesForRepo];
     NSMutableDictionary *lookup = [[NSDictionary lookupWithObjects:accounts keyPath:@"identifier"] mutableCopy];
     for (PRComment *prc in _pr.prComments) {
         [lookup setObject:prc.user forKey:prc.user.identifier];
@@ -931,7 +924,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     review.comments = [_pendingComments copy];
     review.state = PRReviewStatePending;
     
-    [[DataStore activeStore] addReview:review inIssue:_pr.issue.fullIdentifier completion:^(PRReview *roundtrip, NSError *error) {
+    id<PRAdapter> adapter = _adapter;
+    [adapter addReview:review completion:^(PRReview *roundtrip, NSError *error) {
         if (roundtrip) {
             _pendingReview = roundtrip;
             // try to update the pending identifiers for the comments to match roundtrip
@@ -1019,7 +1013,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     if (_pendingReview) {
         review.identifier = _pendingReview.identifier;
     }
-    [[DataStore activeStore] addReview:review inIssue:_pr.issue.fullIdentifier completion:^(PRReview *roundtrip, NSError *error) {
+    id<PRAdapter> adapter = _adapter;
+    [adapter addReview:review completion:^(PRReview *roundtrip, NSError *error) {
         [progress endSheet];
         if (error) {
             [self presentError:error withRetry:^{
@@ -1085,7 +1080,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     [_pendingComments addObject:comment];
     [self reloadComments];
     [self scrollToComment:comment];
-    [[DataStore activeStore] addSingleReviewComment:comment inIssue:_pr.issue.fullIdentifier completion:^(PRComment *roundtrip, NSError *error) {
+    id<PRAdapter> adapter = _adapter;
+    [adapter addSingleReviewComment:comment completion:^(PRComment *roundtrip, NSError *error) {
         if (error) {
             [self presentError:error withRetry:^{
                 [_pendingComments removeObjectIdenticalTo:comment];
@@ -1126,7 +1122,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
             PRComment *previous = _pr.prComments[previousIdx];
             [_pr mergeComments:@[comment]];
             [self reloadComments];
-            [[DataStore activeStore] editReviewComment:comment inIssue:_pr.issue.fullIdentifier completion:^(PRComment *roundtrip, NSError *error) {
+            id<PRAdapter> adapter = _adapter;
+            [adapter editReviewComment:comment completion:^(PRComment *roundtrip, NSError *error) {
                 if (error) {
                     [_pr mergeComments:@[previous]];
                     [self presentError:error withRetry:^{
@@ -1159,7 +1156,8 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     } else {
         [_pr deleteComments:@[comment]];
         [self reloadComments];
-        [[DataStore activeStore] deleteReviewComment:comment inIssue:_pr.issue.fullIdentifier completion:^(NSError *error) {
+        id<PRAdapter> adapter = _adapter;
+        [adapter deleteReviewComment:comment completion:^(NSError *error) {
             if (error) {
                 [_pr mergeComments:@[comment]];
                 [self presentError:error withRetry:^{
@@ -1179,11 +1177,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     static int64_t reactionTemporaryId = 0;
     
     // eagerly add the reaction
-    Reaction *r = [Reaction new];
-    r.identifier = @(--reactionTemporaryId);
-    r.content = reaction;
-    r.createdAt = [NSDate date];
-    r.user = [Account me];
+    Reaction *r = [_adapter createReactionWithTemporaryId:@(--reactionTemporaryId) content:reaction createdAt:[NSDate date] user:[Account me]];
     
     PRComment *comment = [[self allComments] firstObjectMatchingPredicate:[NSPredicate predicateWithFormat:@"identifier = %@", commentIdentifier]];
     
@@ -1196,7 +1190,7 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     
     [self reloadComments];
     
-    [[DataStore activeStore] postPRCommentReaction:reaction inRepoFullName:self.pr.issue.repository.fullName inPRComment:commentIdentifier completion:^(Reaction *roundtrip, NSError *error) {
+    [_adapter postPRCommentReaction:r inPRComment:commentIdentifier completion:^(Reaction *roundtrip, NSError *error) {
         
         comment.reactions = [comment.reactions filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF != %@", r]];
         if (roundtrip) {
@@ -1227,7 +1221,7 @@ deleteReactionWithIdentifier:(NSNumber *)reactionIdentifier
     
     [self reloadComments];
     
-    [[DataStore activeStore] deleteReaction:reactionIdentifier completion:^(NSError *error) {
+    [_adapter deleteReaction:reactionIdentifier completion:^(NSError *error) {
         if (error) {
             comment.reactions = [comment.reactions arrayByAddingObject:r];
             [self reloadComments];

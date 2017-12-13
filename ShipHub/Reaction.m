@@ -8,21 +8,34 @@
 
 #import "Reaction.h"
 
-#import "MetadataStore.h"
 #import "Account.h"
+#import "Extras.h"
 
+#if TARGET_SHIP
+#import "MetadataStore.h"
 #import "LocalAccount.h"
 #import "LocalReaction.h"
+#endif
 
 @implementation Reaction
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalReaction:(LocalReaction *)lr metadataStore:(MetadataStore *)ms
 {
-    if (self = [super init]) {
+    if (self = [super initWithLocalItem:lr]) {
         _user = [ms accountWithIdentifier:lr.user.identifier];
         _content = lr.content;
         _createdAt = lr.createdAt;
-        _identifier = lr.identifier;
+    }
+    return self;
+}
+#endif
+
+- (instancetype)initWithDictionary:(NSDictionary *)d {
+    if (self = [super initWithDictionary:d]) {
+        _user = [[Account alloc] initWithDictionary:d[@"user"]];
+        _content = d[@"content"];
+        _createdAt = [NSDate dateWithJSONString:d[@"created_at"]];
     }
     return self;
 }

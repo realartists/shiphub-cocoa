@@ -8,17 +8,23 @@
 
 #import <Foundation/Foundation.h>
 
-@class LocalReaction;
-@class MetadataStore;
+#import "MetadataItem.h"
+
 @class Account;
 
-@interface Reaction : NSObject
+#if TARGET_SHIP
+@class LocalReaction;
+@class MetadataStore;
+#endif
 
-@property NSNumber *identifier;
+@interface Reaction : MetadataItem
+
 @property NSString *content;
 @property NSDate *createdAt;
 @property Account *user;
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalReaction:(LocalReaction *)lc metadataStore:(MetadataStore *)ms;
+#endif
 
 @end

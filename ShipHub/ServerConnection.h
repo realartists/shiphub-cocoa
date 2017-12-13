@@ -15,10 +15,10 @@
 
 - (id)initWithAuth:(Auth *)auth;
 
-- (void)perform:(NSString *)method on:(NSString *)endpoint body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion;
-- (void)perform:(NSString *)method on:(NSString *)endpoint headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion;
-- (void)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion;
-- (void)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody extendedCompletion:(void (^)(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error))completion;
+- (NSURLSessionDataTask *)perform:(NSString *)method on:(NSString *)endpoint body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion;
+- (NSURLSessionDataTask *)perform:(NSString *)method on:(NSString *)endpoint headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion;
+- (NSURLSessionDataTask *)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion;
+- (NSURLSessionDataTask *)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody extendedCompletion:(void (^)(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error))completion;
 
 @property (readonly, strong) Auth *auth;
 

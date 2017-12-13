@@ -8,11 +8,10 @@
 
 #import "IssueWeb2ControllerInternal.h"
 
-#import "AppDelegate.h"
+#import "AppAdapter.h"
 #import "AttachmentManager.h"
 #import "Auth.h"
 #import "CodeSnippetManager.h"
-#import "DataStore.h"
 #import "EmptyLabelView.h"
 #import "Error.h"
 #import "Extras.h"
@@ -302,7 +301,7 @@
     NSDictionary *element = item.representedObject;
     NSURL *URL = element[WebElementLinkURLKey];
     if (URL) {
-        [[AppDelegate sharedDelegate] openURL:URL];
+        [SharedAppAdapter() openURL:URL];
     }
 }
 
@@ -487,7 +486,7 @@
 }
 
 - (void)configureRaygun {
-    Auth *auth = [[DataStore activeStore] auth];
+    Auth *auth = [SharedAppAdapter() auth];
     NSDictionary *user = @{@"identifier":[auth.account.ghIdentifier description], @"login":auth.account.login};
     
     NSString *version = [[NSBundle mainBundle] extras_userAgentString];
@@ -534,7 +533,7 @@
         }
     } else {
         NSURL *URL = navigationAction.request.URL;
-        RunOnMain(^{[[AppDelegate sharedDelegate] openURL:URL];});
+        RunOnMain(^{[SharedAppAdapter() openURL:URL];});
         decisionHandler(WKNavigationActionPolicyCancel);
     }
 }

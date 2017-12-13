@@ -14,7 +14,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         [[NSUserDefaults standardUserDefaults] registerDefaults:
-  @{ DefaultsLocalStoragePathKey : @"~/Library/RealArtists/Ship2/LocalStore",
+         @{ DefaultsLocalStoragePathKey : [DefaultsLibraryPath() stringByAppendingPathComponent:@"LocalStore"],
      @"InactiveMilestones.Collapsed" : @YES,
 #if DEBUG
      @"WebKitDeveloperExtras" : @YES,
@@ -73,4 +73,28 @@ BOOL DefaultsHasCustomShipHost(void) {
 
 extern BOOL DefaultsPullRequestsEnabled(void) {
     return YES;
+}
+
+extern NSString *DefaultsLibraryPath(void) {
+#if TARGET_REVIEWED_BY_ME
+    return [@"~/Library/RealArtists/ReviewedByMe" stringByExpandingTildeInPath];
+#else
+    return [@"~/Library/RealArtists/Ship2" stringByExpandingTildeInPath];
+#endif
+}
+
+extern BOOL IsShipApp(void) {
+#if TARGET_REVIEWED_BY_ME
+    return NO;
+#else
+    return YES;
+#endif
+}
+
+extern BOOL IsReviewedByMeApp(void) {
+#if TARGET_REVIEWED_BY_ME
+    return YES;
+#else
+    return NO;
+#endif
 }

@@ -50,4 +50,6 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code);
 
 - (NSInteger)shipHttpErrorCode;
 
++ (NSError *)shipErrorFromGitHubResponseData:(NSData *)data statusCode:(NSInteger)httpStatusCode;
+
 @end

@@ -9,7 +9,7 @@
 #import "IssueIdentifier.h"
 
 #import "Auth.h"
-#import "DataStore.h"
+#import "AppAdapter.h"
 #import "Extras.h"
 
 @implementation NSString (IssueIdentifier)
@@ -129,9 +129,7 @@
 }
 
 - (NSURL *)_issueURLWithPathPart:(NSString *)pathPart {
-    AuthAccount *account = [[[DataStore activeStore] auth] account];
-    NSString *host = [account.ghHost stringByReplacingOccurrencesOfString:@"api." withString:@""] ?: @"github.com";
-    
+    NSString *host = [[[SharedAppAdapter() auth] account] ghHost];    
     
     NSString *URLStr = [NSString stringWithFormat:@"https://%@/%@/%@/%@/%@", host, [self issueRepoOwner], [self issueRepoName], pathPart, [self issueNumber]];
     

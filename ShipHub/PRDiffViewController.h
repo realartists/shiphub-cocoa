@@ -17,10 +17,13 @@
 @class PRComment;
 @class PendingPRComment;
 @class PullRequest;
+@protocol PRAdapter;
 
 @protocol PRDiffViewControllerDelegate;
 
 @interface PRDiffViewController : IssueWeb2Controller
+
+@property (nonatomic, strong) id<PRAdapter> adapter;
 
 @property (weak) id<PRDiffViewControllerDelegate> delegate;
 

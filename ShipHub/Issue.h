@@ -21,8 +21,10 @@
 @class CommitStatus;
 @class CommitComment;
 
+#if TARGET_SHIP
 @class LocalIssue;
 @class MetadataStore;
+#endif
 
 @interface Issue : NSObject
 
@@ -41,9 +43,9 @@
 @property (readonly) NSArray<Account *> *assignees;
 @property (readonly) Account *originator;
 @property (readonly) Account *closedBy;
-@property (readonly) NSArray<Label*> *labels;
-@property (readonly) Milestone *milestone;
-@property (readonly) Repo *repository;
+@property (readonly) NSArray<Label *> *labels;
+@property (readonly) Milestone * milestone;
+@property (readonly) Repo * repository;
 @property (readonly) NSDictionary<NSString *, NSNumber *> *reactionSummary;
 @property (readonly) NSInteger reactionsCount; // computed from reactionSummary, not the array of reactions
 @property (readonly) BOOL unread;
@@ -88,9 +90,11 @@
 // Notification is conditionally populated.
 @property (readonly) IssueNotification *notification;
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms;
 
 - (instancetype)initWithLocalIssue:(LocalIssue *)li metadataStore:(MetadataStore *)ms options:(NSDictionary *)options;
+#endif
 
 - (instancetype)initWithTitle:(NSString *)title repo:(Repo *)repo milestone:(Milestone *)mile assignees:(NSArray<Account *> *)assignees labels:(NSArray<Label *> *)labels body:(NSString *)body;
 

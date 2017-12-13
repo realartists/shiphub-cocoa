@@ -8,9 +8,10 @@
 
 #import "PullRequest.h"
 
+#import "AppAdapter.h"
+#import "PRAdapter.h"
 #import "Account.h"
 #import "Auth.h"
-#import "DataStore.h"
 #import "Error.h"
 #import "Extras.h"
 #import "Issue.h"
@@ -120,13 +121,13 @@
     return nil;
 }
 
-- (NSError *)loadSpanDiffSinceLastView {
+- (NSError *)loadSpanDiffSinceLastViewWithAdapter:(id<PRAdapter>)adapter {
     NSString *headSha = [self headSha];
     
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     __block NSString *myLastSha = nil;
     
-    [[DataStore activeStore] storeLastViewedHeadSha:[self _headRev] forPullRequestIdentifier:[_issue fullIdentifier] completion:^(NSString *lastSha, NSError *error) {
+    [adapter storeLastViewedHeadSha:headSha completion:^(NSString *lastSha, NSError *error) {
         myLastSha = lastSha;
         dispatch_semaphore_signal(sema);
     }];
@@ -182,8 +183,8 @@
 }
 
 // runs on a background queue
-- (NSError *)cloneWithProgress:(NSProgress *)progress {
-    NSString *reposDir = [@"~/Library/RealArtists/Ship2/git" stringByExpandingTildeInPath];
+- (NSError *)cloneWithProgress:(NSProgress *)progress adapter:(id<PRAdapter>)adapter {
+    NSString *reposDir = [DefaultsLibraryPath() stringByAppendingPathComponent:@"git"];
     _dir = [NSString stringWithFormat:@"%@/%@", reposDir, _issue.repository.fullName];
     
     NSError *error = nil;
@@ -195,15 +196,15 @@
     NSString *remoteURLStr = _info[@"base"][@"repo"][@"clone_url"]; // want to use the base, as this is "origin"
     
     if (![remoteURLStr hasPrefix:@"https://"]) {
-        Auth *auth = [[DataStore activeStore] auth];
-        remoteURLStr = [NSString stringWithFormat:@"https://%@/%@.git", [auth.account.ghHost stringByReplacingOccurrencesOfString:@"api." withString:@""], _info[@"base"][@"repo"][@"full_name"]];
+        Auth *auth = [adapter auth];
+        remoteURLStr = [NSString stringWithFormat:@"https://%@/%@.git", auth.account.webGHHost, _info[@"base"][@"repo"][@"full_name"]];
     }
     
     if (remoteURLStr) {
         _githubRemoteURL = [NSURL URLWithString:remoteURLStr];
     }
     
-    NSString *remoteUsername = [[[DataStore activeStore] auth] ghToken];
+    NSString *remoteUsername = [[adapter auth] ghToken];
     NSString *remotePassword = @"x-oauth-basic";
     
     _repo.lfs.remoteBaseURL = _githubRemoteURL;
@@ -256,7 +257,7 @@
     
     progress.completedUnitCount += 1;
     
-    error = [self loadSpanDiffSinceLastView];
+    error = [self loadSpanDiffSinceLastViewWithAdapter:adapter];
     if (error) {
         ErrLog(@"Error loading span diff since last view: %@", error);
         return error;
@@ -268,15 +269,15 @@
 }
 
 // runs on a background queue
-- (NSError *)checkoutWithProgress:(NSProgress *)progress {
-    [[DataStore activeStore] checkForIssueUpdates:_issue.fullIdentifier];
+- (NSError *)checkoutWithProgress:(NSProgress *)progress adapter:(id<PRAdapter>)adapter {
+    [adapter checkForIssueUpdates];
     
     // it's possible that we don't yet have the actual pull request data yet.
     // if we don't, we need to block and get it now.
     
     __block NSDictionary *prInfo = nil;
     if ([_issue.base[@"ref"] length] == 0 || [_issue.head[@"ref"] length] == 0) {
-        Auth *auth = [[DataStore activeStore] auth];
+        Auth *auth = [adapter auth];
         RequestPager *pager = [[RequestPager alloc] initWithAuth:auth];
         dispatch_semaphore_t sema = dispatch_semaphore_create(0);
         
@@ -313,15 +314,15 @@
     _info = prInfo;
     [self lightweightMergeUpdatedIssue:_issue];
     
-    return [self cloneWithProgress:progress];
+    return [self cloneWithProgress:progress adapter:adapter];
 }
 
-- (NSProgress *)checkout:(void (^)(NSError *error))completion {
+- (NSProgress *)checkoutWithAdapter:(id<PRAdapter>)adapter completion:(void (^)(NSError *error))completion {
     NSParameterAssert(completion);
     
     NSProgress *progress = [NSProgress indeterminateProgress];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        NSError *err = [self checkoutWithProgress:progress];
+        NSError *err = [self checkoutWithProgress:progress adapter:adapter];
         RunOnMain(^{
             completion(err);
         });
@@ -368,8 +369,8 @@
 
 + (NSURL *)gitHubFilesURLForIssueIdentifier:(id)issueIdentifier {
     // https://github.com/realartists/shiphub-server/pull/166/files
-    AuthAccount *account = [[[DataStore activeStore] auth] account];
-    NSString *host = [account.ghHost stringByReplacingOccurrencesOfString:@"api." withString:@""] ?: @"github.com";
+    AuthAccount *account = [[SharedAppAdapter() auth] account];
+    NSString *host = account.webGHHost;
     
     NSString *URLStr = [NSString stringWithFormat:@"https://%@/%@/%@/pull/%@/files", host, [issueIdentifier issueRepoOwner], [issueIdentifier issueRepoName], [issueIdentifier issueNumber]];
     return [NSURL URLWithString:URLStr];
@@ -494,14 +495,16 @@
         return;
     }
     
-    [[DataStore activeStore] mergePullRequest:_issue.fullIdentifier strategy:strat title:title message:message completion:^(Issue *issue, NSError *error) {
+    id<PRAdapter> adapter = CreatePRAdapter(_issue);
+    
+    [adapter mergePullRequestWithStrategy:strat title:title message:message completion:^(Issue *issue, NSError *error) {
         completion(error);
     }];
 }
 
-- (NSError *)_revertMerge:(NSString *)mergeCommit prTemplate:(Issue *__autoreleasing *)prTemplate progress:(NSProgress *)progress
+- (Issue *)_revertMerge:(NSString *)mergeCommit usingAdapter:(id<PRAdapter>)adapter error:(NSError *__autoreleasing *)outError progress:(NSProgress *)progress
 {
-    Auth *auth = [[DataStore activeStore] auth];
+    Auth *auth = [adapter auth];
     RequestPager *pager = [[RequestPager alloc] initWithAuth:auth];
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     NSInteger operations = 0;
@@ -523,15 +526,19 @@
         progress.completedUnitCount += 1;
     }
     
-    if (progress.cancelled) return [NSError cancelError];
+    if (progress.cancelled) {
+        if (outError) *outError = [NSError cancelError];
+        return nil;
+    }
     
-    NSString *reposDir = [@"~/Library/RealArtists/Ship2/git" stringByExpandingTildeInPath];
+    NSString *reposDir = [DefaultsLibraryPath() stringByAppendingPathComponent:@"git"];
     NSString *dir = [NSString stringWithFormat:@"%@/%@", reposDir, _issue.repository.fullName];
     
     NSError *error = nil;
     GitRepo *repo = [[self class] repoAtPath:dir error:&error];
     if (error) {
-        return error;
+        if (outError) *outError = error;
+        return nil;
     }
     
     NSString *remoteURLStr = prInfo[@"base"][@"repo"][@"clone_url"];
@@ -542,9 +549,12 @@
     
     NSString *baseRefSpec = prInfo[@"base"][@"ref"];
 
-    error = [repo fetchRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" refs:@[baseRefSpec] progress:progress];
+    error = [repo fetchRemote:_githubRemoteURL username:[[adapter auth] ghToken] password:@"x-oauth-basic" refs:@[baseRefSpec] progress:progress];
     
-    if (error) return error;
+    if (error) {
+        if (outError) *outError = error;
+        return nil;
+    }
     
     NSString *headBranch = prInfo[@"head"][@"ref"];
     NSDictionary *headRepo = prInfo[@"head"][@"repo"];
@@ -556,18 +566,19 @@
     }
     
     NSString *newBranch = [NSString stringWithFormat:@"revert-%@-%@", _issue.number, headBranch];
-    error = [repo pushRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" newBranchWithProposedName:newBranch revertingCommit:mergeCommit fromBranch:baseRefSpec progress:progress];
+    error = [repo pushRemote:_githubRemoteURL username:[[adapter auth] ghToken] password:@"x-oauth-basic" newBranchWithProposedName:newBranch revertingCommit:mergeCommit fromBranch:baseRefSpec progress:progress];
     
-    if (error) return error;
+    if (error) {
+        if (outError) *outError = error;
+        return nil;
+    }
     
     NSDictionary *headInfo = @{ @"repo" : @{ @"full_name" : _issue.repository.fullName }, @"ref" : newBranch };
     
-    *prTemplate = [[Issue alloc] initPRWithTitle:[NSString stringWithFormat:@"Revert %@", _issue.title] repo:_issue.repository body:@"" baseInfo:prInfo[@"base"] headInfo:headInfo];
-    
-    return nil;
+    return [adapter createPRRevertIssueWithTitle:[NSString stringWithFormat:@"Revert %@", _issue.title] repo:_issue.repository body:@"" baseInfo:prInfo[@"base"] headInfo:headInfo];
 }
 
-- (NSProgress *)revertMerge:(NSString *)mergeCommit withCompletion:(void (^)(Issue *prTemplate, NSError *error))completion
+- (NSProgress *)revertMerge:(NSString *)mergeCommit withCompletion:(void (^)(Issue * prTemplate, NSError *error))completion
 {
     NSParameterAssert(mergeCommit);
     NSParameterAssert(completion);
@@ -578,8 +589,8 @@
     progress.localizedDescription = NSLocalizedString(@"Preparing new branch for revert commit", nil);
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        Issue *prTemplate = nil;
-        NSError *err = [self _revertMerge:mergeCommit prTemplate:&prTemplate progress:progress];
+        NSError *err = nil;
+        Issue * prTemplate = [self _revertMerge:mergeCommit usingAdapter:CreatePRAdapter(_issue) error:&err progress:progress];
         RunOnMain(^{
             completion(prTemplate, err);
         });
@@ -589,7 +600,9 @@
 }
 
 - (NSError *)_updateBranchFromBaseWithProgress:(NSProgress *)progress {
-    Auth *auth = [[DataStore activeStore] auth];
+    id<PRAdapter> adapter = CreatePRAdapter(_issue);
+    
+    Auth *auth = [adapter auth];
     RequestPager *pager = [[RequestPager alloc] initWithAuth:auth];
     dispatch_semaphore_t sema = dispatch_semaphore_create(0);
     NSInteger operations = 0;
@@ -613,7 +626,7 @@
     
     if (progress.cancelled) return [NSError cancelError];
     
-    NSString *reposDir = [@"~/Library/RealArtists/Ship2/git" stringByExpandingTildeInPath];
+    NSString *reposDir = [DefaultsLibraryPath() stringByAppendingPathComponent:@"git"];
     NSString *dir = [NSString stringWithFormat:@"%@/%@", reposDir, _issue.repository.fullName];
     
     NSError *error = nil;
@@ -640,7 +653,7 @@
     NSString *baseRefSpec = prInfo[@"base"][@"ref"];
     NSString *headRefSpec = prInfo[@"head"][@"ref"];
     
-    error = [repo fetchRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" refs:@[baseRefSpec, headRefSpec] progress:progress];
+    error = [repo fetchRemote:_githubRemoteURL username:[[adapter auth] ghToken] password:@"x-oauth-basic" refs:@[baseRefSpec, headRefSpec] progress:progress];
     
     if (error) return error;
     
@@ -648,7 +661,7 @@
     
     if (error) return error;
     
-    error = [repo mergeBranch:baseRefSpec intoBranch:headRefSpec pushToRemote:_githubRemoteURL username:[[[DataStore activeStore] auth] ghToken] password:@"x-oauth-basic" progress:progress];
+    error = [repo mergeBranch:baseRefSpec intoBranch:headRefSpec pushToRemote:_githubRemoteURL username:[[adapter auth] ghToken] password:@"x-oauth-basic" progress:progress];
     
     if (error) return error;
     

@@ -20,7 +20,9 @@
 
 @interface HelloController ()
 
+#if TARGET_SHIP
 @property RepoController *repoController;
+#endif
 
 @end
 
@@ -39,31 +41,36 @@
 }
 
 - (void)showRepoSelectionIfNeededForToken:(NSString *)oauthToken {
-    NSMutableDictionary *accountDict = [NSMutableDictionary new];
-    accountDict[@"ghHost"] = [self ghHost];
-    accountDict[@"shipHost"] = [self shipHost];
-    AuthAccount *account = [[AuthAccount alloc] initWithDictionary:accountDict];
-    
-    self.repoController = [[RepoController alloc] initWithAuth:[Auth temporaryAuthWithAccount:account ghToken:oauthToken]];
-    [self.repoController loadAndShowIfNeeded:^(BOOL wasNeeded, NSError *error) {
-        if (error) {
-            [self presentError:error];
-        } else if (!wasNeeded) {
-            [self sayHello:oauthToken withRepoPrefs:nil];
-        } else {
-            DebugLog(@"Showing repo controller");
-            [self.view.window close]; // hide our window
-            // repo controller will now show itself
-        }
-    } chosenHandler:^(RepoPrefs *chosenPrefs) {
-        [self.view.window makeKeyAndOrderFront:nil]; // show our window again
-        if (chosenPrefs) {
-            [self sayHello:oauthToken withRepoPrefs:chosenPrefs];
-        } else {
-            // user cancelled.
-            [self.navigationController popToRootViewControllerAnimated:YES];
-        }
-    }];
+#if TARGET_SHIP
+        NSMutableDictionary *accountDict = [NSMutableDictionary new];
+        accountDict[@"ghHost"] = [self ghHost];
+        accountDict[@"shipHost"] = [self shipHost];
+        AuthAccount *account = [[AuthAccount alloc] initWithDictionary:accountDict];
+        
+        self.repoController = [[RepoController alloc] initWithAuth:[Auth temporaryAuthWithAccount:account ghToken:oauthToken]];
+        [self.repoController loadAndShowIfNeeded:^(BOOL wasNeeded, NSError *error) {
+            if (error) {
+                [self presentError:error];
+            } else if (!wasNeeded) {
+                [self sayHello:oauthToken withRepoPrefs:nil];
+            } else {
+                DebugLog(@"Showing repo controller");
+                [self.view.window close]; // hide our window
+                // repo controller will now show itself
+            }
+        } chosenHandler:^(RepoPrefs *chosenPrefs) {
+            [self.view.window makeKeyAndOrderFront:nil]; // show our window again
+            if (chosenPrefs) {
+                [self sayHello:oauthToken withRepoPrefs:chosenPrefs];
+            } else {
+                // user cancelled.
+                [self.navigationController popToRootViewControllerAnimated:YES];
+            }
+        }];
+#else /* Reviewed By Me */
+    // just go ahead and finish oauth
+    [self sayHello:oauthToken withRepoPrefs:nil];
+#endif
 }
 
 - (void)sayHello:(NSString *)oauthToken withRepoPrefs:(RepoPrefs *)repoPrefs {

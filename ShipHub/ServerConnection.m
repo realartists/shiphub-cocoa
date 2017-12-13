@@ -49,25 +49,25 @@
     return req;
 }
 
-- (void)perform:(NSString *)method on:(NSString *)endpoint body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion {
-    [self perform:method on:endpoint headers:nil body:jsonBody completion:completion];
+- (NSURLSessionDataTask *)perform:(NSString *)method on:(NSString *)endpoint body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion {
+    return [self perform:method on:endpoint headers:nil body:jsonBody completion:completion];
 }
 
-- (void)perform:(NSString *)method on:(NSString *)endpoint headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
+- (NSURLSessionDataTask *)perform:(NSString *)method on:(NSString *)endpoint headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
 {
-    [self perform:method on:endpoint forGitHub:YES headers:headers body:jsonBody completion:completion];
+    return [self perform:method on:endpoint forGitHub:IsShipApp() headers:headers body:jsonBody completion:completion];
 }
 
 #define DebugResponse(data, response, error) do { DebugLog(@"response:\n%@\ndata:\n%@\nerror:%@", [response debugDescription], [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], error); } while (0)
 
-- (void)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
+- (NSURLSessionDataTask *)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody completion:(void (^)(id jsonResponse, NSError *error))completion
 {
-    [self perform:method on:endpoint forGitHub:forGitHub headers:headers body:jsonBody extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
+    return [self perform:method on:endpoint forGitHub:forGitHub headers:headers body:jsonBody extendedCompletion:^(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error) {
         completion(jsonResponse, error);
     }];
 }
 
-- (void)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody extendedCompletion:(void (^)(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error))completion
+- (NSURLSessionDataTask *)perform:(NSString *)method on:(NSString *)endpoint forGitHub:(BOOL)forGitHub headers:(NSDictionary *)headers body:(id)jsonBody extendedCompletion:(void (^)(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error))completion
 {
     if (forGitHub && ![_auth.account.shipHost isEqualToString:_auth.account.ghHost]) {
         endpoint = [@"/github" stringByAppendingString:endpoint];
@@ -85,57 +85,19 @@
         
         if (err) {
             completion(nil, nil, err);
-            return;
+            return nil;
         }
     }
     
-    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+    NSURLSessionDataTask *task =
+    [[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
         NSHTTPURLResponse *http = (id)response;
         if ([_auth checkResponse:http]) {
             
             if (http.statusCode < 200 || http.statusCode >= 400) {
                 if (!error) {
-                    NSMutableDictionary *userInfo = [NSMutableDictionary new];
-                    userInfo[ShipErrorUserInfoHTTPResponseCodeKey] = @(http.statusCode);
-                    
-                    id errorJSON = nil;
-                    if ([data length]) {
-                        errorJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
-                        if ([errorJSON isKindOfClass:[NSDictionary class]]) {
-                            NSArray *errors = [errorJSON objectForKey:@"errors"];
-                            NSString *message = [errorJSON objectForKey:@"message"];
-                            NSString *desc = nil;
-                            if ([errors isKindOfClass:[NSArray class]] && [errors count] > 0) {
-                                id err1 = [errors firstObject];
-                                if ([err1 isKindOfClass:[NSDictionary class]]) {
-                                    id errmsg = [err1 objectForKey:@"message"];
-                                    if ([errmsg isKindOfClass:[NSString class]] && [errmsg length] > 0) {
-                                        desc = errmsg;
-                                    } else if ([errmsg isKindOfClass:[NSArray class]] && [errmsg count] > 0) {
-                                        errmsg = [errmsg firstObject];
-                                        if ([errmsg isKindOfClass:[NSString class]] && [errmsg length] > 0) {
-                                            desc = errmsg;
-                                        }
-                                    }
-                                } else if ([err1 isKindOfClass:[NSString class]] && [err1 length] > 0) {
-                                    desc = err1;
-                                }
-                            }
-                            if (desc == nil && [message isKindOfClass:[NSString class]] && [message length] > 0) {
-                                desc = message;
-                            }
-                            if ([desc length]) {
-                                userInfo[NSLocalizedDescriptionKey] = desc;
-                            }
-                        }
-                    }
-                    
-                    if (errorJSON) {
-                        userInfo[ShipErrorUserInfoErrorJSONBodyKey] = errorJSON;
-                    }
-                    
-                    error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse userInfo:userInfo];
+                    error = [NSError shipErrorFromGitHubResponseData:data statusCode:http.statusCode];
                 }
             }
             
@@ -174,7 +136,11 @@
             });
         }
         
-    }] resume];
+    }];
+    
+    [task resume];
+    
+    return task;
 }
 
 @end

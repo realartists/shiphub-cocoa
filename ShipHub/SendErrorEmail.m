@@ -10,7 +10,7 @@
 
 #import "Extras.h"
 
-void SendErrorEmail(NSString *subject, NSString *body, NSString *attachmentPath) {
+void SendErrorEmail(NSString *subject, NSString *body) {
     NSURL *scriptURL = [[NSBundle mainBundle] URLForResource:@"SendErrorEmail" withExtension:@"scpt"];
     
     NSDictionary *asError = nil;
@@ -23,7 +23,7 @@ void SendErrorEmail(NSString *subject, NSString *body, NSString *attachmentPath)
         return;
     }
     
-    NSArray *params = @[ subject, body, attachmentPath ];
+    NSArray *params = @[ subject, body ];
     
     scriptError = [as callSubroutine:@"do_mail" withParams:params];
     

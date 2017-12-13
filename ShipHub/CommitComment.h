@@ -9,8 +9,11 @@
 #import "IssueComment.h"
 
 @class Account;
+
+#if TARGET_SHIP
 @class LocalCommitComment;
 @class MetadataStore;
+#endif
 
 @interface CommitComment : IssueComment
 
@@ -19,6 +22,8 @@
 @property NSNumber *path;
 @property NSNumber *position;
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalCommitComment:(LocalCommitComment *)lc metadataStore:(MetadataStore *)ms;
+#endif
 
 @end

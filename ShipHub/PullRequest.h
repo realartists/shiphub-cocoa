@@ -10,24 +10,25 @@
 
 #import "PRMergeStrategy.h"
 
-@class Issue;
 @class GitDiff;
 @class GitCommit;
 @class PRComment;
 @class PRReview;
+@class Issue;
+@protocol PRAdapter;
 
 @interface PullRequest : NSObject
 
 - (instancetype)initWithIssue:(Issue *)issue;
 
-@property (readonly) Issue *issue;
+@property (readonly) Issue * issue;
 
 + (BOOL)isGitHubFilesURL:(NSURL *)URL;
 + (id)issueIdentifierForGitHubFilesURL:(NSURL *)URL commentIdentifier:(NSNumber *__autoreleasing *)outCommentIdentifier;
 + (NSURL *)gitHubFilesURLForIssueIdentifier:(id)issueIdentifier;
 - (NSURL *)gitHubFilesURL;
 
-- (NSProgress *)checkout:(void (^)(NSError *error))completion;
+- (NSProgress *)checkoutWithAdapter:(id<PRAdapter>)adapter completion:(void (^)(NSError *error))completion;
 
 // All of the following properties and methods are available only after checkout has completed.
 @property (readonly) NSArray<PRComment *> *prComments;
@@ -62,7 +63,7 @@
                        message:(NSString *)message
                     completion:(void (^)(NSError *))completion;
 
-- (NSProgress *)revertMerge:(NSString *)mergeCommit withCompletion:(void (^)(Issue *prTemplate, NSError *error))completion;
+- (NSProgress *)revertMerge:(NSString *)mergeCommit withCompletion:(void (^)(Issue * prTemplate, NSError *error))completion;
 
 - (NSProgress *)updateBranchFromBaseWithCompletion:(void (^)(NSError *error))completion;
 

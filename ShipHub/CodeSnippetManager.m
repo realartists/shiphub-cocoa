@@ -9,7 +9,7 @@
 #import "CodeSnippetManager.h"
 
 #import "Auth.h"
-#import "DataStore.h"
+#import "AppAdapter.h"
 #import "Extras.h"
 #import "ServerConnection.h"
 
@@ -101,7 +101,7 @@ static NSString *extractSnippet(NSString *wholeFile, NSInteger startLine, NSInte
         return;
     }
     
-    Auth *auth = [[DataStore activeStore] auth];
+    Auth *auth = [SharedAppAdapter() auth];
     
     NSURLComponents *comps = [NSURLComponents new];
     comps.scheme = @"https";

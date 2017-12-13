@@ -10,8 +10,11 @@
 
 @class Account;
 @class LocalComment;
-@class MetadataStore;
 @class Reaction;
+
+#if TARGET_SHIP
+@class MetadataStore;
+#endif
 
 @interface IssueComment : NSObject
 
@@ -22,6 +25,8 @@
 @property Account *user;
 @property NSArray<Reaction *> *reactions;
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalComment:(LocalComment *)lc metadataStore:(MetadataStore *)ms;
+#endif
 
 @end

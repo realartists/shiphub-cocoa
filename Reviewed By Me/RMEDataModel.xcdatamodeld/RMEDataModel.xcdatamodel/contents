@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="13772" systemVersion="16G1114" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="RMEDataModelHistoryItem" representedClassName="RMEDataModelHistoryItem" syncable="YES">
+        <attribute name="issueIdentifier" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="issueTitle" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="lastViewedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="lastViewedSha" optional="YES" attributeType="String" syncable="YES"/>
+        <fetchIndex name="byIssueIdentifier">
+            <fetchIndexElement property="issueIdentifier" type="Binary" order="ascending"/>
+        </fetchIndex>
+        <fetchIndex name="byLastViewedAt">
+            <fetchIndexElement property="lastViewedAt" type="Binary" order="ascending"/>
+        </fetchIndex>
+    </entity>
+    <elements>
+        <element name="RMEDataModelHistoryItem" positionX="-63" positionY="-18" width="128" height="105"/>
+    </elements>
+</model>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="12120" systemVersion="16F73" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <deployment identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="12120"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="RMEAuthController">
+            <connections>
+                <outlet property="back" destination="YmK-Gk-T6v" id="EYY-he-fHg"/>
+                <outlet property="forward" destination="Yx5-Kx-jr9" id="GQV-DN-RmX"/>
+                <outlet property="progress" destination="rmi-Qy-bFd" id="4Ke-CE-hSS"/>
+                <outlet property="reload" destination="Q7K-Uz-vzS" id="oRU-Kh-dg6"/>
+                <outlet property="webContainer" destination="KdC-v6-92h" id="Oun-Ig-fyR"/>
+                <outlet property="window" destination="QvC-M9-y7g" id="3Ek-Ml-ND4"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window title="Sign in with GitHub" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="QvC-M9-y7g" customClass="WebWindow">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <rect key="contentRect" x="196" y="240" width="500" height="388"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <view key="contentView" id="EiT-Mj-1SZ">
+                <rect key="frame" x="0.0" y="0.0" width="500" height="388"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="KdC-v6-92h">
+                        <rect key="frame" x="0.0" y="0.0" width="500" height="388"/>
+                    </customView>
+                    <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="rmi-Qy-bFd">
+                        <rect key="frame" x="234" y="178" width="32" height="32"/>
+                    </progressIndicator>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="KdC-v6-92h" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" id="1Rv-t3-KXV"/>
+                    <constraint firstItem="KdC-v6-92h" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" id="45x-O1-dWN"/>
+                    <constraint firstAttribute="trailing" secondItem="KdC-v6-92h" secondAttribute="trailing" id="a3z-kn-RE3"/>
+                    <constraint firstAttribute="bottom" secondItem="KdC-v6-92h" secondAttribute="bottom" id="bNx-2a-yeB"/>
+                    <constraint firstItem="rmi-Qy-bFd" firstAttribute="centerY" secondItem="EiT-Mj-1SZ" secondAttribute="centerY" id="gBq-Dx-TNf"/>
+                    <constraint firstItem="rmi-Qy-bFd" firstAttribute="centerX" secondItem="EiT-Mj-1SZ" secondAttribute="centerX" id="zzR-ve-Nee"/>
+                </constraints>
+            </view>
+            <toolbar key="toolbar" implicitIdentifier="23617B6A-BD20-44E7-887B-3B53387F999F" autosavesConfiguration="NO" allowsUserCustomization="NO" displayMode="iconOnly" sizeMode="regular" id="kV7-EU-rsL">
+                <allowedToolbarItems>
+                    <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="R4J-RP-e1J"/>
+                    <toolbarItem implicitItemIdentifier="8D255FF9-28C9-4D6C-84CD-11FBD05A8DEC" label="Back" paletteLabel="Back" tag="-1" id="YmK-Gk-T6v" customClass="ButtonToolbarItem">
+                        <connections>
+                            <action selector="goBack:" target="-2" id="U1B-9v-8Gc"/>
+                        </connections>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="037F04F2-D1A1-4665-8EBA-B7E03EE0C110" label="Forward" paletteLabel="Forward" tag="-1" id="Yx5-Kx-jr9" customClass="ButtonToolbarItem">
+                        <connections>
+                            <action selector="goForward:" target="-2" id="Y95-t9-1ZG"/>
+                        </connections>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="BAAF8376-7937-433F-BD95-DDAC5F2AB431" label="Reload" paletteLabel="Reload" tag="-1" id="Q7K-Uz-vzS" customClass="ButtonToolbarItem">
+                        <connections>
+                            <action selector="reload:" target="-2" id="OOv-0a-fHU"/>
+                        </connections>
+                    </toolbarItem>
+                </allowedToolbarItems>
+                <defaultToolbarItems>
+                    <toolbarItem reference="YmK-Gk-T6v"/>
+                    <toolbarItem reference="Yx5-Kx-jr9"/>
+                    <toolbarItem reference="R4J-RP-e1J"/>
+                    <toolbarItem reference="Q7K-Uz-vzS"/>
+                </defaultToolbarItems>
+            </toolbar>
+            <connections>
+                <outlet property="delegate" destination="-2" id="gFk-R0-hwr"/>
+            </connections>
+            <point key="canvasLocation" x="320" y="259"/>
+        </window>
+    </objects>
+</document>

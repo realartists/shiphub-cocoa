@@ -10,7 +10,10 @@
 
 @interface MetadataItem : NSObject
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalItem:(id)localItem;
+#endif
+- (instancetype)initWithDictionary:(NSDictionary *)d;
 
 @property NSNumber *identifier;
 

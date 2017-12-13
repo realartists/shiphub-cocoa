@@ -10,6 +10,7 @@
 
 #import "CThemeManager.h"
 #import "Extras.h"
+#import "Issue.h"
 
 @interface PRDocumentWindow : NSWindow
 

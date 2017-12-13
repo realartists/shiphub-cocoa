@@ -16,6 +16,7 @@
 
 @implementation IssueEvent
 
+#if TARGET_SHIP
 - (instancetype)initWithLocalEvent:(LocalEvent *)le metadataStore:(MetadataStore *)ms
 {
     if (self = [super init]) {
@@ -32,6 +33,7 @@
     }
     return self;
 }
+#endif
 
 - (id)JSONDescription {
     BOOL needsActorLinkage = [_extra[@"actor"] isKindOfClass:[NSNumber class]];

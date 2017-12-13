@@ -26,6 +26,7 @@
     return self;
 }
 
+#if TARGET_SHIP
 - (id)initWithDictionary:(NSDictionary *)d comments:(NSArray<PRComment *> *)comments metadataStore:(MetadataStore *)store {
     if (self = [super init]) {
         _identifier = d[@"id"];
@@ -56,6 +57,7 @@
     }
     return self;
 }
+#endif
 
 - (id)copyWithZone:(NSZone *)zone {
     PRReview *copy = [[PRReview allocWithZone:zone] init];
