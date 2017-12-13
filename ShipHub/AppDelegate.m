@@ -165,7 +165,7 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     [self registerHockeyApp];
     
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePullRequestMenuVisibility) name:NSWindowDidBecomeKeyNotification object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(updatePullRequestMenuVisibility) name:NSApplicationDidBecomeActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive) name:NSApplicationDidBecomeActiveNotification object:nil];
     [self updatePullRequestMenuVisibility];
     
     _overviewControllers = [NSMutableArray array];
@@ -315,6 +315,10 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
     }
     
     _pullRequestMenu.hidden = ![keyDocument isKindOfClass:[PRDocument class]];
+}
+
+- (void)applicationDidBecomeActive {
+    [self performSelector:@selector(updatePullRequestMenuVisibility) withObject:nil afterDelay:0.0];
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
