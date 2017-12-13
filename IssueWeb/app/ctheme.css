@@ -61,11 +61,11 @@
 }
 
 .hljs-addition {
-  background-color: #baeeba;
+  background-color: var(--ctheme-background-color-inserted, #baeeba);
 }
 
 .hljs-deletion {
-  background-color: #ffc8bd;
+  background-color: var(--ctheme-background-color-deleted, #ffc8bd);
 }
 
 .hljs-selector-id,
