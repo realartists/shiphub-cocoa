@@ -686,7 +686,7 @@ static NSPredicate *userReposDefaultPredicate() {
         NSNumber  *reason = [dict objectForKey: @"NSTextMovement"];
         NSInteger code = [reason integerValue];
         
-        if (code == NSTextMovementReturn) {
+        if (code == 0x10 /*NSTextMovementReturn*/) {
             [self addRepo:sender];
         }
     }
