@@ -37,7 +37,7 @@ static NSPredicate *OptimizeOrAnyPredicate(NSCompoundPredicate *predicate) {
     // Find subpredicates of the form "ANY key.path = constant" and rewrite them as:
     // ANY key.path IN {...}
     
-    NSMutableDictionary *candidates = [NSMutableDictionary new];
+    NSMutableDictionary *candidates = nil;
     for (NSPredicate *sub in predicate.subpredicates) {
         NSString *keypath = nil;
         id constant = nil;
@@ -65,6 +65,64 @@ static NSPredicate *OptimizeOrAnyPredicate(NSCompoundPredicate *predicate) {
         return [NSCompoundPredicate orPredicateWithSubpredicates:terms];
     }
     
+    return predicate;
+}
+
+static NSPredicate *WorkaroundNotAnyPredicate(NSCompoundPredicate *predicate) {
+    if (predicate.compoundPredicateType != NSNotPredicateType) return predicate;
+    
+    NSArray *subpredicates = predicate.subpredicates;
+    NSCAssert(subpredicates.count == 1, nil);
+    if (subpredicates.count != 1) return predicate;
+    
+    NSCompoundPredicate *sub = [subpredicates firstObject];
+    if (!([sub isKindOfClass:[NSCompoundPredicate class]])) {
+        sub = [NSCompoundPredicate orPredicateWithSubpredicates:@[sub]];
+    }
+    if (sub.compoundPredicateType != NSOrPredicateType) {
+        return predicate;
+    }
+    
+    // Find subpredicates of the form NOT (ANY key.path = constant[OR ANY key.path = constant])
+    // and rewrite them as:
+    // subquery(key.path, $x, $x IN {...}).@count = 0 [AND (remaining terms)]
+    
+    NSMutableDictionary *candidates = nil;
+    for (NSPredicate *term in sub.subpredicates) {
+        NSString *keypath = nil;
+        id constant = nil;
+        if (IsAnyKeypathEqualConstantPredicate(term, &keypath, &constant)) {
+            if (!candidates) {
+                candidates = [NSMutableDictionary new];
+            }
+            if (!candidates[keypath]) {
+                candidates[keypath] = [NSMutableArray new];
+            }
+            [candidates[keypath] addObject:constant];
+        }
+    }
+    
+    if ([candidates count]) {
+        NSArray *unmodifiedTerms = [sub.subpredicates filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+            return !IsAnyKeypathEqualConstantPredicate(evaluatedObject, NULL, NULL);
+        }]];
+        
+        NSMutableArray *terms = [NSMutableArray new];
+        if (unmodifiedTerms.count == 1) {
+            [terms addObject:[NSCompoundPredicate notPredicateWithSubpredicate:[unmodifiedTerms firstObject]]];
+        } else if (unmodifiedTerms.count > 1) {
+            [terms addObject:[NSCompoundPredicate notPredicateWithSubpredicate:[NSCompoundPredicate orPredicateWithSubpredicates:unmodifiedTerms]]];
+        }
+        
+        for (NSString *keypath in candidates) {
+            NSPredicate *opt = [NSPredicate predicateWithFormat:@"count(subquery(%K, $x, $x IN %@)) = 0", keypath, candidates[keypath]];
+            [terms addObject:opt];
+        }
+        
+        NSPredicate *repl = [NSCompoundPredicate andPredicateWithSubpredicates:terms];
+        DebugLog(@"rewrote %@ to %@", predicate, repl);
+        return repl;
+    }
     return predicate;
 }
 
@@ -96,7 +154,12 @@ static NSPredicate *OptimizeOrAnyPredicate(NSCompoundPredicate *predicate) {
                 }
             }
         } else if ([original isKindOfClass:[NSCompoundPredicate class]]) {
-            NSPredicate *opt = OptimizeOrAnyPredicate((NSCompoundPredicate *)original);
+            NSCompoundPredicate *c = (id)original;
+            NSPredicate *opt = WorkaroundNotAnyPredicate(c) ?:
+                               OptimizeOrAnyPredicate(c);
+            if (opt != c) {
+                DebugLog(@"Rewrote %@ to %@", c, opt);
+            }
             return opt;
         }
         return original;
