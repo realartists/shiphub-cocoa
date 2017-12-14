@@ -148,6 +148,8 @@
             DebugLog(@"Not delivering note because it's too old: %@", note);
         }
     }
+    
+    _lastChecked = [NSDate date];
 }
 
 - (void)userNotificationCenter:(NSUserNotificationCenter *)center didActivateNotification:(NSUserNotification *)notification
