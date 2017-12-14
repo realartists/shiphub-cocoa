@@ -13,40 +13,59 @@
 
 @implementation QueryOptimizer
 
-static NSString *AnyAssigneeLogin(NSPredicate *predicate) {
+static BOOL IsAnyKeypathEqualConstantPredicate(NSPredicate *predicate, NSString **keypath, id *constant) {
     if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
         NSComparisonPredicate *c = (id)predicate;
         if (c.predicateOperatorType == NSEqualToPredicateOperatorType &&
             c.comparisonPredicateModifier == NSAnyPredicateModifier &&
             c.leftExpression.expressionType == NSKeyPathExpressionType &&
-            [c.leftExpression.keyPath isEqualToString:@"assignees.login"] &&
             c.rightExpression.expressionType == NSConstantValueExpressionType)
         {
-            NSString *login = c.rightExpression.constantValue;
-            return login;
+            if (keypath) *keypath = c.leftExpression.keyPath;
+            if (constant) *constant = c.rightExpression.constantValue;
+            return YES;
         }
     }
-    return nil;
+    if (keypath) *keypath = nil;
+    if (constant) *constant = nil;
+    return NO;
 }
 
-static BOOL AllSubpredicatesAreAnyAssignee(NSCompoundPredicate *predicate, NSArray *__autoreleasing* assigneeLogins) {
-    if (predicate.subpredicates.count < 2 || predicate.compoundPredicateType != NSOrPredicateType) return NO;
+static NSPredicate *OptimizeOrAnyPredicate(NSCompoundPredicate *predicate) {
+    if (predicate.subpredicates.count < 2 || predicate.compoundPredicateType != NSOrPredicateType) return predicate;
     
-    NSMutableArray *logins = nil;
+    // Find subpredicates of the form "ANY key.path = constant" and rewrite them as:
+    // ANY key.path IN {...}
+    
+    NSMutableDictionary *candidates = [NSMutableDictionary new];
     for (NSPredicate *sub in predicate.subpredicates) {
-        NSString *login = nil;
-        if ((login = AnyAssigneeLogin(sub)) != nil) {
-            if (!logins) {
-                logins = [NSMutableArray new];
+        NSString *keypath = nil;
+        id constant = nil;
+        if (IsAnyKeypathEqualConstantPredicate(sub, &keypath, &constant)) {
+            if (!candidates) {
+                candidates = [NSMutableDictionary new];
             }
-            [logins addObject:login];
-        } else {
-            return NO;
+            if (!candidates[keypath]) {
+                candidates[keypath] = [NSMutableArray new];
+            }
+            [candidates[keypath] addObject:constant];
         }
     }
     
-    if (assigneeLogins) *assigneeLogins = logins;
-    return YES;
+    if ([candidates count]) {
+        NSMutableArray *terms = [[predicate.subpredicates filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+            return !IsAnyKeypathEqualConstantPredicate(evaluatedObject, NULL, NULL);
+        }]] mutableCopy];
+        
+        for (NSString *keypath in candidates) {
+            NSPredicate *opt = [NSPredicate predicateWithFormat:@"ANY %K IN %@", keypath, candidates[keypath]];
+            [terms addObject:opt];
+        }
+        
+        return [NSCompoundPredicate orPredicateWithSubpredicates:terms];
+    }
+    
+    return predicate;
 }
 
 + (NSPredicate *)optimizeIssuesPredicate:(NSPredicate *)predicate {
@@ -77,12 +96,8 @@ static BOOL AllSubpredicatesAreAnyAssignee(NSCompoundPredicate *predicate, NSArr
                 }
             }
         } else if ([original isKindOfClass:[NSCompoundPredicate class]]) {
-            NSArray *anyAssigneeLogins = nil;
-            if (AllSubpredicatesAreAnyAssignee((id)original, &anyAssigneeLogins)) {
-                // rewrite a block of (ANY assignees.login = "A" OR ANY assignees.login = "B" OR ...)
-                // into (ANY assignees.login IN {"A", "B", ...})
-                return [NSPredicate predicateWithFormat:@"ANY assignees.login IN %@", anyAssigneeLogins];
-            }
+            NSPredicate *opt = OptimizeOrAnyPredicate((NSCompoundPredicate *)original);
+            return opt;
         }
         return original;
     }];
