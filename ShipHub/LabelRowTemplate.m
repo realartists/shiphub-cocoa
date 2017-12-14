@@ -124,7 +124,10 @@
     NSInteger idx = [[self popUp] indexOfItemWithTitle:labelName];
     if (idx == -1) {
         [[self popUp] addItemWithTitle:labelName];
+        NSMenuItem *lastItem = [[self popUp] lastItem];
+        lastItem.representedObject = labelName;
         [[self popUp] selectItemWithTitle:labelName];
+        
     } else {
         [[self popUp] selectItemAtIndex:idx];
     }
@@ -136,7 +139,7 @@
     NSMenu *menu = [[self popUp] menu];
     NSInteger idx = [[self popUp] indexOfSelectedItem];
     
-    NSString *item = [[menu itemAtIndex:idx] representedObject];
+    NSString *item = idx >= 0 && idx < menu.itemArray.count ? [[menu itemAtIndex:idx] representedObject] : nil;
     
     return [NSPredicate predicateWithFormat:@"ANY labels.name = %@", item];
 }
