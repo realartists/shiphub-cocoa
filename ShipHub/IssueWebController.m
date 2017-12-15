@@ -645,11 +645,17 @@ static void fixWebViewInputText(void);
         [pasteString appendFormat:@"%@\n", placeholder];
     }
     
-    NSString *js = [NSString stringWithFormat:
-                    @"pasteCallback(%@, 'pasteText', %@);\n"
-                    @"pasteCallback(%@, 'uploadsStarted', %tu);\n",
-                    handle, [JSON stringifyObject:pasteString],
-                    handle, wrappers.count];
+    NSString *js;
+    
+    if (wrappers.count) {
+        js = [NSString stringWithFormat:
+              @"pasteCallback(%@, 'pasteText', %@);\n"
+              @"pasteCallback(%@, 'uploadsStarted', %tu);\n",
+              handle, [JSON stringifyObject:pasteString],
+              handle, wrappers.count];
+    } else {
+        js = [NSString stringWithFormat:@"pasteCallback(%@, 'completed')", handle];
+    }
     //DebugLog(@"%@", js);
     [self evaluateJavaScript:js];
 }
@@ -703,11 +709,17 @@ static void fixWebViewInputText(void);
         
         NSMutableArray *wrappers = [NSMutableArray new];
         for (NSPasteboardItem *item in pasteboard.pasteboardItems) {
-            NSString *URLString = [item stringForType:(__bridge NSString *)kUTTypeFileURL];
+            NSString *URLString = [item stringForType:(__bridge NSString *)kUTTypeFileURL] ?: [item stringForType:(__bridge NSString *)kUTTypeURL];
             if (URLString) {
                 NSURL *URL = [NSURL URLWithString:URLString];
-                NSFileWrapper *wrapper = [[NSFileWrapper alloc] initWithURL:URL options:0 error:NULL];
-                [wrappers addObject:wrapper];
+                if ([URL isFileURL]) {
+                    NSFileWrapper *wrapper = [[NSFileWrapper alloc] initWithURL:URL options:0 error:NULL];
+                    [wrappers addObject:wrapper];
+                } else {
+                    callback = [NSString stringWithFormat:@"pasteCallback(%@, 'pasteText', %@);", handle, [JSON stringifyObject:URLString]];
+                    DebugLog(@"paste URL: %@", callback);
+                    [self evaluateJavaScript:callback];
+                }
             }
         }
         
