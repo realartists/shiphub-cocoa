@@ -10,6 +10,8 @@
 
 #import "Extras.h"
 #import "Repo.h"
+#import "DataStore.h"
+#import "MetadataStore.h"
 
 @interface PRMergeViewController () <NSTextFieldDelegate, NSTextViewDelegate>
 
@@ -22,15 +24,31 @@
 @property BOOL titleEdited;
 @property BOOL messageEdited;
 
+@property Repo *repository;
+
 @end
 
 @implementation PRMergeViewController
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     _mergeButton.state = NSOnState;
     [_titleField setDelegate:self];
     [_messageView setDelegate:self];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(metadataDidChange:) name:DataStoreDidUpdateMetadataNotification object:nil];
+}
+
+- (void)metadataDidChange:(NSNotification *)note {
+    Repo *updatedRepo = [note.userInfo[DataStoreMetadataKey] repoWithIdentifier:_issue.repository.identifier];
+    if (updatedRepo) {
+        _repository = updatedRepo;
+        [self updateTitleAndMessage];
+    }
 }
 
 - (void)updateTitleAndMessage {
@@ -39,9 +57,9 @@
     _titleField.enabled = YES;
     _messageView.enabled = YES;
     
-    _mergeButton.enabled = i.repository.allowMergeCommit;
-    _rebaseButton.enabled = i.repository.allowRebaseMerge;
-    _squashButton.enabled = i.repository.allowSquashMerge;
+    _mergeButton.enabled = _repository.allowMergeCommit;
+    _rebaseButton.enabled = _repository.allowRebaseMerge;
+    _squashButton.enabled = _repository.allowSquashMerge;
     
     BOOL needsEnableNext = NO;
     NSArray *buttons = @[_mergeButton, _squashButton, _rebaseButton];
@@ -61,7 +79,7 @@
     
     if (_mergeButton.state == NSOnState) {
         if (!_titleEdited) {
-            _titleField.stringValue = i != nil ? [NSString stringWithFormat:@"Merge pull request #%@ from %@/%@", i.number, i.repository.fullName, i.head[@"ref"]] : @"";
+            _titleField.stringValue = i != nil ? [NSString stringWithFormat:@"Merge pull request #%@ from %@/%@", i.number, _repository.fullName, i.head[@"ref"]] : @"";
         }
         if (!_messageEdited) {
             _messageView.string = i.title ?: @"";
@@ -99,6 +117,7 @@
     [self view];
     if (_issue != i) {
         _issue = i;
+        _repository = i.repository;
         _titleEdited = _messageEdited = NO;
         [self updateTitleAndMessage];
     }
