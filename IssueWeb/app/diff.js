@@ -1141,7 +1141,7 @@ class App {
         this.simplified.state = false;
         delete this.simplified.nextState;
         if (this.simplified.timer) {
-          window.clearTimer(this.simplified.timer);
+          window.clearTimeout(this.simplified.timer);
         }
         if (!opts.quick) {
           this.placeholders.forEach(ph => {
