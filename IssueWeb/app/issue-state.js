@@ -301,7 +301,7 @@ class IssueState {
       var [headOwner, headRepo] = issue.head.repo.full_name.split(/\//);
       if (issue.head.repo.full_name == `${owner}/${repo}`) {
         head = issue.head.ref;
-      } else if (headOwner == owner) {
+      } else if (headRepo == repo) {
         head = headOwner + ":" + issue.head.ref;
       } else {
         head = issue.head.repo.full_name + ":" + issue.head.ref;
