@@ -35,8 +35,13 @@
 - (id)initWithAuth:(Auth *)auth {
     if (self = [super init]) {
         _auth = auth;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(authStateDidChange:) name:AuthStateChangedNotification object:_auth];
     }
     return self;
+}
+         
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (NSString *)windowNibName {
@@ -50,6 +55,16 @@
     _username.enabled = NO;
 }
 
+- (void)authStateDidChange:(NSNotification *)note {
+    if (_auth.authState != AuthStateValid) {
+        RunOnMain(^{
+            if (self.completion) {
+                [self cancel:nil];
+            }
+        });
+    }
+}
+
 - (IBAction)showHelp:(id)sender {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.realartists.com/docs/2.0/start.html#github-organization-access"]];
 }
@@ -57,9 +72,10 @@
 - (IBAction)cancel:(id)sender {
     [_task cancel];
     _task = nil;
-    self.completion(NO);
+    if (self.completion) {
+        self.completion(NO);
+    }
     [self close];
-    CFRelease((__bridge CFTypeRef)self);
 }
 
 - (IBAction)generate:(id)sender {
@@ -285,8 +301,15 @@
 
 - (void)finishWithToken:(NSString *)token {
     [_auth setPersonalAccessToken:token];
-    self.completion(YES);
+    if (self.completion) {
+        self.completion(YES);
+    }
     [self close];
+}
+
+- (void)close {
+    self.completion = nil;
+    [super close];
     CFRelease((__bridge CFTypeRef)self);
 }
 

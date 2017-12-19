@@ -12,6 +12,13 @@
 #import "Error.h"
 #import "PATWindowController.h"
 
+@interface PATController ()
+
+@property PATWindowController *activeWindowController;
+@property NSMutableArray *completions;
+
+@end
+
 @implementation PATController
 
 - (id)initWithAuth:(Auth *)auth {
@@ -80,14 +87,31 @@ static BOOL IsReplayableWithPAT(NSURLRequest *request, NSHTTPURLResponse *respon
             completion([self duplicateRequestWithPAT:request], NO);
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
-                PATWindowController *win = [[PATWindowController alloc] initWithAuth:_auth];
-                [win runWithCompletion:^(BOOL didSetPAT) {
+                if (!_completions) {
+                    _completions = [NSMutableArray new];
+                }
+                void (^winCompletion)(BOOL) = ^(BOOL didSetPAT) {
                     if (didSetPAT) {
                         completion([self duplicateRequestWithPAT:request], YES);
                     } else {
                         completion(nil, YES);
                     }
-                }];
+                };
+                [_completions addObject:[winCompletion copy]];
+                if (!_activeWindowController) {
+                    _activeWindowController = [[PATWindowController alloc] initWithAuth:_auth];
+                    PATController *x = self; // allow retain cycle until window controller finishes its thing.
+                    [_activeWindowController runWithCompletion:^(BOOL didSetPAT) {
+                        NSArray *completions = x.completions;
+                        x.completions = nil;
+                        x.activeWindowController = nil;
+                        for (void (^c)(BOOL) in completions) {
+                            c(didSetPAT);
+                        }
+                    }];
+                } else {
+                    [[_activeWindowController window] makeKeyAndOrderFront:nil];
+                }
             });
         }
         return YES;
