@@ -85,7 +85,7 @@
                                         <rect key="frame" x="0.0" y="0.0" width="370" height="1"/>
                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     </view>
-                                    <color key="fillColor" red="1" green="1" blue="1" alpha="0.5" colorSpace="calibratedRGB"/>
+                                    <color key="fillColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 </box>
                                 <secureTextField focusRingType="none" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="7Db-HK-I3D">
                                     <rect key="frame" x="34" y="30" width="274" height="20"/>
