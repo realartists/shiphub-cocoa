@@ -35,7 +35,7 @@ static NSNumber *getNum(NSDictionary *d, NSString *field) {
         _originalPosition = getNum(d, @"original_position");
         _commitId = d[@"commit_id"];
         _originalCommitId = d[@"original_commit_id"];
-        _inReplyTo = d[@"in_reply_to"];
+        _inReplyTo = d[@"in_reply_to"] ?: d[@"in_reply_to_id"];
         
         self.body = d[@"body"];
         self.createdAt = [NSDate dateWithJSONString:d[@"created_at"]];
