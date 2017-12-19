@@ -72,7 +72,7 @@
     req.HTTPMethod = @"GET";
     
     [req setValue:@"application/json" forHTTPHeaderField:@"Accept"];
-    [req setValue:[NSString stringWithFormat:@"token %@", self.auth.ghToken] forHTTPHeaderField:@"Authorization"];
+    [_auth addAuthHeadersToRequest:req];
     
     for (NSString *key in [headers allKeys]) {
         [req setValue:headers[key] forHTTPHeaderField:key];

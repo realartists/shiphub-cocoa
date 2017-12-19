@@ -37,6 +37,7 @@ NSString *ShipErrorLocalizedDescriptionForCode(ShipErrorCode code) {
         case ShipErrorCodeCannotUpdatePRBranchError: return NSLocalizedString(@"Unable to update the pull request branch", nil);
         case ShipErrorCodePartialPRError: return NSLocalizedString(@"The pull request was created, but it could not be loaded.", nil);
         case ShipErrorCodeUnknownQuery: return NSLocalizedString(@"The requested query does not exist.", nil);
+        case ShipErrorCodeRequiresPAT: return NSLocalizedString(@"Organization third-party access controls prevented the operation from completing.", nil);
         default: return NSLocalizedString(@"Unexpected Error", nil);
     }
 }

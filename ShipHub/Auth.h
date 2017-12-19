@@ -60,6 +60,7 @@ typedef NS_ENUM(NSInteger, AuthState) {
 @property (readonly, strong) AuthAccount *account;
 @property (readonly, copy) NSString *token;
 @property (readonly, copy) NSString *ghToken;
+@property (nonatomic, copy) NSString *personalAccessToken;
 @property (readonly, strong) WebSession *webSession;
 
 @property (readonly, getter=isTemporary) BOOL temporary;
@@ -72,6 +73,9 @@ typedef NS_ENUM(NSInteger, AuthState) {
 - (BOOL)checkError:(NSError *)error; // invalidate if error is ShipErrorCodeNeedsAuthToken. Returns YES if not invalidated.
 
 - (void)addAuthHeadersToRequest:(NSMutableURLRequest *)request;
+- (void)addPersonalAccessAuthHeadersToRequest:(NSMutableURLRequest *)request;
+
+- (Auth *)temporaryBasicAuthWithPassword:(NSString *)password otp:(NSString *)otp;
 
 - (void)logout;
 

@@ -10,10 +10,14 @@
 
 #import "Auth.h"
 #import "Error.h"
+#import "Extras.h"
+
+#import "PATController.h"
 
 @interface ServerConnection ()
 
 @property (strong) Auth *auth;
+@property (strong) PATController *pat;
 
 @end
 
@@ -22,6 +26,7 @@
 - (id)initWithAuth:(Auth *)auth {
     if (self = [super init]) {
         self.auth = auth;
+        self.pat = [[PATController alloc] initWithAuth:auth];
     }
     return self;
 }
@@ -89,6 +94,61 @@
         }
     }
     
+    [self _runRequest:request extendedCompletion:completion];
+}
+
+BOOL IsPatRequest(NSURLRequest *request) {
+    return request.allHTTPHeaderFields[@"X-Authorization-PAT"] != nil;
+}
+
+- (NSError *)_parseError:(NSData *)data response:(NSHTTPURLResponse *)http {
+    NSError *error = nil;
+    
+    NSMutableDictionary *userInfo = [NSMutableDictionary new];
+    userInfo[ShipErrorUserInfoHTTPResponseCodeKey] = @(http.statusCode);
+    
+    id errorJSON = nil;
+    if ([data length]) {
+        errorJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
+        if ([errorJSON isKindOfClass:[NSDictionary class]]) {
+            NSArray *errors = [errorJSON objectForKey:@"errors"];
+            NSString *message = [errorJSON objectForKey:@"message"];
+            NSString *desc = nil;
+            if ([errors isKindOfClass:[NSArray class]] && [errors count] > 0) {
+                id err1 = [errors firstObject];
+                if ([err1 isKindOfClass:[NSDictionary class]]) {
+                    id errmsg = [err1 objectForKey:@"message"];
+                    if ([errmsg isKindOfClass:[NSString class]] && [errmsg length] > 0) {
+                        desc = errmsg;
+                    } else if ([errmsg isKindOfClass:[NSArray class]] && [errmsg count] > 0) {
+                        errmsg = [errmsg firstObject];
+                        if ([errmsg isKindOfClass:[NSString class]] && [errmsg length] > 0) {
+                            desc = errmsg;
+                        }
+                    }
+                } else if ([err1 isKindOfClass:[NSString class]] && [err1 length] > 0) {
+                    desc = err1;
+                }
+            }
+            if (desc == nil && [message isKindOfClass:[NSString class]] && [message length] > 0) {
+                desc = message;
+            }
+            if ([desc length]) {
+                userInfo[NSLocalizedDescriptionKey] = desc;
+            }
+        }
+    }
+    
+    if (errorJSON) {
+        userInfo[ShipErrorUserInfoErrorJSONBodyKey] = errorJSON;
+    }
+    
+    error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse userInfo:userInfo];
+    
+    return error;
+}
+
+- (void)_runRequest:(NSURLRequest *)request extendedCompletion:(void (^)(NSHTTPURLResponse *httpResponse, id jsonResponse, NSError *error))completion {
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
         NSHTTPURLResponse *http = (id)response;
@@ -96,46 +156,28 @@
             
             if (http.statusCode < 200 || http.statusCode >= 400) {
                 if (!error) {
-                    NSMutableDictionary *userInfo = [NSMutableDictionary new];
-                    userInfo[ShipErrorUserInfoHTTPResponseCodeKey] = @(http.statusCode);
                     
-                    id errorJSON = nil;
-                    if ([data length]) {
-                        errorJSON = [NSJSONSerialization JSONObjectWithData:data options:0 error:NULL];
-                        if ([errorJSON isKindOfClass:[NSDictionary class]]) {
-                            NSArray *errors = [errorJSON objectForKey:@"errors"];
-                            NSString *message = [errorJSON objectForKey:@"message"];
-                            NSString *desc = nil;
-                            if ([errors isKindOfClass:[NSArray class]] && [errors count] > 0) {
-                                id err1 = [errors firstObject];
-                                if ([err1 isKindOfClass:[NSDictionary class]]) {
-                                    id errmsg = [err1 objectForKey:@"message"];
-                                    if ([errmsg isKindOfClass:[NSString class]] && [errmsg length] > 0) {
-                                        desc = errmsg;
-                                    } else if ([errmsg isKindOfClass:[NSArray class]] && [errmsg count] > 0) {
-                                        errmsg = [errmsg firstObject];
-                                        if ([errmsg isKindOfClass:[NSString class]] && [errmsg length] > 0) {
-                                            desc = errmsg;
-                                        }
-                                    }
-                                } else if ([err1 isKindOfClass:[NSString class]] && [err1 length] > 0) {
-                                    desc = err1;
-                                }
+                    error = [self _parseError:data response:http];
+                    
+                    if (!IsPatRequest(request)) {
+                        void (^patCompletion)(NSURLRequest *, BOOL) = ^(NSURLRequest *replayRequest, BOOL didPrompt) {
+                            if (replayRequest) {
+                                [self _runRequest:replayRequest extendedCompletion:completion];
+                            } else if (didPrompt) {
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    completion(nil, nil, [NSError cancelError]);
+                                });
+                            } else {
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    completion(nil, nil, error);
+                                });
                             }
-                            if (desc == nil && [message isKindOfClass:[NSString class]] && [message length] > 0) {
-                                desc = message;
-                            }
-                            if ([desc length]) {
-                                userInfo[NSLocalizedDescriptionKey] = desc;
-                            }
+                        };
+                        
+                        if ([_pat handleResponse:http forInitialRequest:request completion:patCompletion]) {
+                            return;
                         }
                     }
-                    
-                    if (errorJSON) {
-                        userInfo[ShipErrorUserInfoErrorJSONBodyKey] = errorJSON;
-                    }
-                    
-                    error = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse userInfo:userInfo];
                 }
             }
             

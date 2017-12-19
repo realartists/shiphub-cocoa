@@ -82,6 +82,9 @@
 		1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2A8B5F1D55109200F24F32 /* NewMilestoneController.m */; };
 		1A2A8B621D55109200F24F32 /* NewMilestoneController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */; };
 		1A2C05C91E3BFAD100F993AF /* ToManyUserNotContainsTemplate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2C05C81E3BFAD100F993AF /* ToManyUserNotContainsTemplate.m */; };
+		1A2F77271FE8813A00779256 /* PATController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2F77261FE8813A00779256 /* PATController.m */; };
+		1A2F77311FE8893100779256 /* PATWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2F772F1FE8893100779256 /* PATWindowController.m */; };
+		1A2F77321FE8893100779256 /* PATWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2F77301FE8893100779256 /* PATWindowController.xib */; };
 		1A2FCCF01E660B240000F91B /* PRReview.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCEF1E660B240000F91B /* PRReview.m */; };
 		1A2FCCF71E68EADA0000F91B /* PRReviewChangesViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A2FCCF51E68EADA0000F91B /* PRReviewChangesViewController.m */; };
 		1A2FCCF81E68EADA0000F91B /* PRReviewChangesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A2FCCF61E68EADA0000F91B /* PRReviewChangesViewController.xib */; };
@@ -664,6 +667,11 @@
 		1A2A8B601D55109200F24F32 /* NewMilestoneController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NewMilestoneController.xib; sourceTree = "<group>"; };
 		1A2C05C71E3BFAD100F993AF /* ToManyUserNotContainsTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ToManyUserNotContainsTemplate.h; sourceTree = "<group>"; };
 		1A2C05C81E3BFAD100F993AF /* ToManyUserNotContainsTemplate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ToManyUserNotContainsTemplate.m; sourceTree = "<group>"; };
+		1A2F77251FE8813A00779256 /* PATController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PATController.h; sourceTree = "<group>"; };
+		1A2F77261FE8813A00779256 /* PATController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PATController.m; sourceTree = "<group>"; };
+		1A2F772E1FE8893100779256 /* PATWindowController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PATWindowController.h; sourceTree = "<group>"; };
+		1A2F772F1FE8893100779256 /* PATWindowController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PATWindowController.m; sourceTree = "<group>"; };
+		1A2F77301FE8893100779256 /* PATWindowController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PATWindowController.xib; sourceTree = "<group>"; };
 		1A2FCCEE1E660B240000F91B /* PRReview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRReview.h; sourceTree = "<group>"; };
 		1A2FCCEF1E660B240000F91B /* PRReview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRReview.m; sourceTree = "<group>"; };
 		1A2FCCF41E68EADA0000F91B /* PRReviewChangesViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRReviewChangesViewController.h; sourceTree = "<group>"; };
@@ -1357,6 +1365,11 @@
 				1AF5673B1D627C2E00611DBB /* OAuthController.xib */,
 				1A38C9FA1D9339D400655891 /* WebSession.h */,
 				1A38C9FB1D9339D400655891 /* WebSession.m */,
+				1A2F77251FE8813A00779256 /* PATController.h */,
+				1A2F77261FE8813A00779256 /* PATController.m */,
+				1A2F772E1FE8893100779256 /* PATWindowController.h */,
+				1A2F772F1FE8893100779256 /* PATWindowController.m */,
+				1A2F77301FE8893100779256 /* PATWindowController.xib */,
 			);
 			name = Auth;
 			sourceTree = "<group>";
@@ -2231,6 +2244,7 @@
 				1A9030F61F954C4300760D12 /* LabelsFilterTableController.xib in Resources */,
 				1A694B361CA3431700F73608 /* IssueTableController.xib in Resources */,
 				1A694B0D1CA3413700F73608 /* OverviewController.xib in Resources */,
+				1A2F77321FE8893100779256 /* PATWindowController.xib in Resources */,
 				1A38C9F71D9206C800655891 /* HiddenMilestoneViewController.xib in Resources */,
 				1A2578801F85A6F4000822D0 /* Default.xccolortheme in Resources */,
 				1A012ECE1D46DD4B006CE5DF /* ServerChooser.xib in Resources */,
@@ -2517,6 +2531,7 @@
 				1A694B271CA341D500F73608 /* ButtonToolbarItem.m in Sources */,
 				1A3AB35D1D90AE17004BB768 /* SubscriptionController.m in Sources */,
 				1A3618E91C8FC25B008C11CB /* SyncConnection.m in Sources */,
+				1A2F77311FE8893100779256 /* PATWindowController.m in Sources */,
 				1A5B293B1D888C0A000C9F4B /* EmptyLabelView.m in Sources */,
 				1A012E941D3EAC47006CE5DF /* StateRowTemplate.m in Sources */,
 				1A2FCD1C1E70C6C30000F91B /* PRNavigationToolbarItem.m in Sources */,
@@ -2532,6 +2547,7 @@
 				1A0D59D51CA4A8D1004F2578 /* IssueViewController.m in Sources */,
 				1A99051C1CE141AF00EAA474 /* CompactIssueCellViewController.m in Sources */,
 				1A012E911D3EAC47006CE5DF /* UserRowTemplate.m in Sources */,
+				1A2F77271FE8813A00779256 /* PATController.m in Sources */,
 				1A0D59CC1CA46926004F2578 /* IssueIdentifier.m in Sources */,
 				1A4A20AA1CF3BB06000C1D5E /* LocalSyncVersion.m in Sources */,
 				1A2217D11C7E80CE006460E2 /* Logging.m in Sources */,

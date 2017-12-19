@@ -22,6 +22,15 @@ NSString *const AuthStateChangedNotification = @"AuthStateChanged";
 NSString *const AuthStateKey = @"AuthState";
 NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
 
+@interface BasicAuth : Auth
+
+- (id)initWithAuth:(Auth *)parentAuth password:(NSString *)password otp:(NSString *)otp;
+
+@property (readonly) NSString *password;
+@property (readonly) NSString *otp;
+
+@end
+
 @interface Auth ()
 
 @property (readwrite, strong) AuthAccount *account;
@@ -101,9 +110,10 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
         }
         if (keychainItem) {
             NSArray *tokens = [keychainItem.password componentsSeparatedByString:@"&"];
-            if ([tokens count] == 2) {
+            if ([tokens count] >= 2) {
                 NSString *token = tokens[0];
                 NSString *ghToken = tokens[1];
+                NSString *personalAccessToken = tokens.count > 2 ? tokens[2] : nil;
                 NSData *userInfoData = keychainItem.applicationData;
                 NSError *err = nil;
                 NSDictionary *userInfo = [NSJSONSerialization JSONObjectWithData:userInfoData options:0 error:&err];
@@ -112,10 +122,11 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
                 } else {
                     AuthAccount *account = [[AuthAccount alloc] initWithDictionary:userInfo];
                     if (account) {
-                        self.account = account;
-                        self.token = token;
-                        self.ghToken = ghToken;
-                        self.webSession = [[WebSession alloc] initWithAuthAccount:account];
+                        _account = account;
+                        _token = token;
+                        _ghToken = ghToken;
+                        _personalAccessToken = personalAccessToken;
+                        _webSession = [[WebSession alloc] initWithAuthAccount:account];
                         [self changeAuthState:AuthStateValid];
                         return self;
                     }
@@ -233,6 +244,18 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     [request setValue:[NSString stringWithFormat:@"token %@", self.ghToken] forHTTPHeaderField:@"Authorization"];
 }
 
+- (void)addPersonalAccessAuthHeadersToRequest:(NSMutableURLRequest *)request
+{
+    NSAssert(_personalAccessToken != nil, @"Must have PAT");
+    [request setValue:[NSString stringWithFormat:@"token %@", self.ghToken] forHTTPHeaderField:@"Authorization"];
+    [request setValue:[NSString stringWithFormat:@"token %@", self.personalAccessToken] forHTTPHeaderField:@"X-Authorization-PAT"];
+}
+
+- (Auth *)temporaryBasicAuthWithPassword:(NSString *)password otp:(NSString *)otp
+{
+    return [[BasicAuth alloc] initWithAuth:self password:password otp:otp];
+}
+
 - (void)logout {
     Keychain *keychain = [[self class] keychain];
     AuthAccountPair *pair = [AuthAccountPair new];
@@ -255,6 +278,28 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     [[[self class] accountsCache] removeObject:pair];
     [_webSession logout];
     [self changeAuthState:AuthStateInvalid];
+}
+
+- (void)setPersonalAccessToken:(NSString *)personalAccessToken {
+    NSParameterAssert(personalAccessToken);
+    
+    _personalAccessToken = [personalAccessToken copy];
+    KeychainItem *keychainItem = [KeychainItem new];
+    keychainItem.account = _account.login;
+    keychainItem.server = _account.shipHost;
+    keychainItem.password = [NSString stringWithFormat:@"%@&%@&%@", self.token, self.ghToken, _personalAccessToken];
+    NSError *error = nil;
+    keychainItem.applicationData = [NSJSONSerialization dataWithJSONObject:[_account dictionaryRepresentation] options:0 error:&error];
+    if (error) {
+        ErrLog(@"%@", error);
+        return;
+    }
+    Keychain *keychain = [[self class] keychain];
+    
+    [keychain storeItem:keychainItem error:&error];
+    if (error) {
+        ErrLog(@"%@", error);
+    }
 }
 
 @end
@@ -310,6 +355,30 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
         return [_login isEqual:other->_login] && [_shipHost isEqual:other->_shipHost];
     }
     return NO;
+}
+
+@end
+
+@implementation BasicAuth
+
+- (id)initWithAuth:(Auth *)parentAuth password:(NSString *)password otp:(NSString *)otp {
+    if (self = [super initTemporaryAuthWithAccount:parentAuth.account ghToken:nil])
+    {
+        _password = [password copy];
+        _otp = [otp copy];
+    }
+    return self;
+}
+
+- (void)addAuthHeadersToRequest:(NSMutableURLRequest *)request {
+    NSString *authStr = [NSString stringWithFormat:@"%@:%@", self.account.login, _password];
+    NSData *authData = [authStr dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *auth64 = [authData base64EncodedStringWithOptions:0];
+    
+    [request setValue:[NSString stringWithFormat:@"Basic %@", auth64] forHTTPHeaderField:@"Authorization"];
+    if (_otp.length > 0) {
+        [request setValue:[_otp trim] forHTTPHeaderField:@"X-GitHub-OTP"];
+    }
 }
 
 @end
