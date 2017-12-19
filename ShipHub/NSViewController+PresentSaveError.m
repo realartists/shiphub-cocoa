@@ -15,6 +15,11 @@
 
 - (void)presentSaveError:(NSError *)error withRetry:(dispatch_block_t)retry fail:(dispatch_block_t)fail
 {
+    if ([error isCancelError]) {
+        if (fail) fail();
+        return;
+    }
+    
     NSAlert *alert = [NSAlert new];
     alert.alertStyle = NSCriticalAlertStyle;
     alert.messageText = NSLocalizedString(@"Unable to save changes", nil);

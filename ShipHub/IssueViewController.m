@@ -434,7 +434,7 @@ NSString *const IssueViewControllerNeedsSaveKey = @"IssueViewControllerNeedsSave
         if (err) {
             BOOL isMutation = ![msg[@"opts"][@"method"] isEqualToString:@"GET"];
             
-            if (isMutation) {
+            if (isMutation && ![err isCancelError]) {
                 NSAlert *alert = [NSAlert new];
                 alert.alertStyle = NSCriticalAlertStyle;
                 alert.messageText = NSLocalizedString(@"Unable to save issue", nil);
