@@ -628,6 +628,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     dispatch_barrier_async(_dbq, ^{
         [_writeMoc performBlockAndWait:^{
             block(_writeMoc);
+            [_writeMoc reset];
         }];
         _writeGeneration++;
     });
