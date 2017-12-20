@@ -95,7 +95,12 @@ class PRMergeChangesButton extends React.Component {
         "Merge ..."
       );
     } else {
-      return h('button', {type:'button', ref:'button', className:'ActionButton PRActionsBarButton PRMergeChangesButton', onClick:this.click.bind(this)},
+      var classes = 'ActionButton PRActionsBarButton PRMergeChangesButton';
+      var mergeable_state = issue.mergeable_state;
+      if (mergeable_state == 'blocked') {
+        classes += ' PRMergeChangesButtonBlocked';
+      }
+      return h('button', {type:'button', ref:'button', className:classes, onClick:this.click.bind(this)},
         h('span', {dangerouslySetInnerHTML:{__html:PRMergeIcon}}),
         "Merge ..."
       );

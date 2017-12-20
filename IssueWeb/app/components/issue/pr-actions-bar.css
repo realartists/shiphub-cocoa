@@ -18,6 +18,17 @@ button.PRMergeChangesButton:active {
   color: white;
 }
 
+button.PRMergeChangesButtonBlocked {
+  color: #CB2431;
+  border: 1px solid #CB2431;
+}
+
+button.PRMergeChangesButtonBlocked:active {
+  background-color: #CB2431;
+  border: 1px solid transparent;
+  color: white;
+}
+
 button.PRMergeChangesButtonDisabled {
   color: #CCC;
   border: 1px solid #CCC;
