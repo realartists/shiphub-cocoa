@@ -152,14 +152,16 @@ BOOL IsPatRequest(NSURLRequest *request) {
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         
         NSHTTPURLResponse *http = (id)response;
-        if ([_auth checkResponse:http]) {
+        BOOL viaPAT = IsPatRequest(request);
+        BOOL authValid = [_auth checkResponse:http requestWasViaPersonalAccessToken:viaPAT];
+        if (authValid || viaPAT) {
             
             if (http.statusCode < 200 || http.statusCode >= 400) {
                 if (!error) {
                     
                     error = [self _parseError:data response:http];
                     
-                    if (!IsPatRequest(request)) {
+                    if (!viaPAT || !authValid) {
                         void (^patCompletion)(NSURLRequest *, BOOL) = ^(NSURLRequest *replayRequest, BOOL didPrompt) {
                             if (replayRequest) {
                                 [self _runRequest:replayRequest extendedCompletion:completion];

@@ -32,6 +32,8 @@
 
 @property (readonly) NSString *webGHHost;
 
+@property (copy) NSNumber *personalAccessTokenID;
+
 @property (strong) NSDictionary *extra;
 
 - (AuthAccountPair *)pair;
@@ -60,7 +62,7 @@ typedef NS_ENUM(NSInteger, AuthState) {
 @property (readonly, strong) AuthAccount *account;
 @property (readonly, copy) NSString *token;
 @property (readonly, copy) NSString *ghToken;
-@property (nonatomic, copy) NSString *personalAccessToken;
+@property (nonatomic, copy, readonly) NSString *personalAccessToken;
 @property (readonly, strong) WebSession *webSession;
 
 @property (readonly, getter=isTemporary) BOOL temporary;
@@ -72,10 +74,14 @@ typedef NS_ENUM(NSInteger, AuthState) {
 - (BOOL)checkResponse:(NSURLResponse *)response; // invalidate if response code is HTTP 401. Returns YES if not invalidated.
 - (BOOL)checkError:(NSError *)error; // invalidate if error is ShipErrorCodeNeedsAuthToken. Returns YES if not invalidated.
 
+- (BOOL)checkResponse:(NSURLResponse *)response requestWasViaPersonalAccessToken:(BOOL)viaPAT;
+
 - (void)addAuthHeadersToRequest:(NSMutableURLRequest *)request;
 - (void)addPersonalAccessAuthHeadersToRequest:(NSMutableURLRequest *)request;
 
 - (Auth *)temporaryBasicAuthWithPassword:(NSString *)password otp:(NSString *)otp;
+
+- (void)setPersonalAccessToken:(NSString *)token tokenID:(NSNumber *)tokenID;
 
 - (void)logout;
 

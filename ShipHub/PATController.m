@@ -60,6 +60,8 @@ static BOOL MatchRequest(NSURLRequest *request, NSString *bind) {
 
 static BOOL IsReplayableWithPAT(NSURLRequest *request, NSHTTPURLResponse *response) {
     return
+    /* Invalid PAT */
+    (response.statusCode == 401 && request.allHTTPHeaderFields[@"X-Authorization-PAT"] != nil) ||
     /* Comment reactions */
     (response.statusCode == 404 && MatchRequest(request, @"POST /repos/:owner/:repo/issues/comments/:id/reactions")) ||
     (response.statusCode == 403 && MatchRequest(request, @"POST /repos/:owner/:repo/pulls/comments/:id/reactions")) ||

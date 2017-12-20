@@ -222,10 +222,18 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
 }
 
 - (BOOL)checkResponse:(NSURLResponse *)response {
+    return [self checkResponse:response requestWasViaPersonalAccessToken:NO];
+}
+
+- (BOOL)checkResponse:(NSURLResponse *)response requestWasViaPersonalAccessToken:(BOOL)viaPAT {
     if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
         NSHTTPURLResponse *http = (NSHTTPURLResponse *)response;
         if (http.statusCode == 401) {
-            [self invalidate];
+            if (viaPAT) {
+                [self setPersonalAccessToken:nil tokenID:nil];
+            } else {
+                [self invalidate];
+            }
             return NO;
         }
     }
@@ -269,6 +277,24 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
         }
     }];
     
+    // Unfortunately, PATs cannot be deleted by themselves, and we're not about to prompt here, so we just have to let live.
+#if 0
+    if (self.personalAccessToken && self.account.personalAccessTokenID) {
+        NSURLComponents *comps = [NSURLComponents new];
+        comps.scheme = @"https";
+        comps.host = self.account.ghHost;
+        comps.path = [NSString stringWithFormat:@"/authorizations/%@", self.account.personalAccessTokenID];
+        NSMutableURLRequest *patRequest = [NSMutableURLRequest requestWithURL:comps.URL];
+        patRequest.HTTPMethod = @"DELETE";
+        [patRequest setValue:[NSString stringWithFormat:@"token %@", self.personalAccessToken] forHTTPHeaderField:@"Authorization"];
+        DebugLog(@"Deleting PAT: %@", patRequest);
+        [[[NSURLSession sharedSession] dataTaskWithRequest:patRequest completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            NSString *result = [[NSString alloc] initWithData:data?:[NSData data] encoding:NSUTF8StringEncoding];
+            DebugLog(@"Deleted PAT with HTTP Result: %td: %@", [(NSHTTPURLResponse *)response statusCode], result);
+        }] resume];
+    }
+#endif
+    
     NSError *err = nil;
     [keychain removeItemForAccount:self.account.login server:self.account.shipHost error:&err];
     if (err) {
@@ -280,14 +306,17 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     [self changeAuthState:AuthStateInvalid];
 }
 
-- (void)setPersonalAccessToken:(NSString *)personalAccessToken {
-    NSParameterAssert(personalAccessToken);
-    
+- (void)setPersonalAccessToken:(NSString *)personalAccessToken tokenID:(NSNumber *)tokenID {
     _personalAccessToken = [personalAccessToken copy];
+    _account.personalAccessTokenID = tokenID;
     KeychainItem *keychainItem = [KeychainItem new];
     keychainItem.account = _account.login;
     keychainItem.server = _account.shipHost;
-    keychainItem.password = [NSString stringWithFormat:@"%@&%@&%@", self.token, self.ghToken, _personalAccessToken];
+    if (_personalAccessToken != nil) {
+        keychainItem.password = [NSString stringWithFormat:@"%@&%@&%@", self.token, self.ghToken, _personalAccessToken];
+    } else {
+        keychainItem.password = [NSString stringWithFormat:@"%@&%@", self.token, self.ghToken];
+    }
     NSError *error = nil;
     keychainItem.applicationData = [NSJSONSerialization dataWithJSONObject:[_account dictionaryRepresentation] options:0 error:&error];
     if (error) {
@@ -314,6 +343,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
         self.shipIdentifier = dict[@"identifier"];
         self.ghHost = dict[@"ghHost"];
         self.shipHost = dict[@"shipHost"];
+        self.personalAccessTokenID = dict[@"patID"];
         self.extra = dict;
     }
     return self;
@@ -327,6 +357,7 @@ NSString *const AuthStatePreviousKey = @"AuthStatePrevious";
     d[@"shipIdentifier"] = self.shipIdentifier;
     d[@"ghHost"] = self.ghHost;
     d[@"shipHost"] = self.shipHost;
+    [d setOptional:self.personalAccessTokenID forKey:@"patID"];
     return d;
 }
 

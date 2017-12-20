@@ -133,10 +133,12 @@
                 decodeErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
             }
             NSString *token = nil;
+            NSNumber *tokenID = nil;
             if (!decodeErr) {
                 token = reply[@"token"];
+                tokenID = reply[@"id"];
             }
-            if (!decodeErr && [token length] == 0) {
+            if (!decodeErr && ([token length] == 0 || tokenID == nil)) {
                 decodeErr = [NSError shipErrorWithCode:ShipErrorCodeUnexpectedServerResponse];
             }
             if (decodeErr) {
@@ -145,7 +147,7 @@
                 });
             } else {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self finishWithToken:token];
+                    [self finishWithToken:token tokenID:tokenID];
                 });
             }
         } else if (http.statusCode == 401 && [http allHeaderFields][@"X-GitHub-OTP"] != nil) {
@@ -299,8 +301,8 @@
     return YES;
 }
 
-- (void)finishWithToken:(NSString *)token {
-    [_auth setPersonalAccessToken:token];
+- (void)finishWithToken:(NSString *)token tokenID:(NSNumber *)tokenID {
+    [_auth setPersonalAccessToken:token tokenID:tokenID];
     if (self.completion) {
         self.completion(YES);
     }
