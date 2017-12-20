@@ -33,5 +33,6 @@
 @property (readonly) NSString *titleWithAuthor;
 
 - (CustomQuery *)copyIfNeededForEditing;
+- (CustomQuery *)duplicateAvoidingNames:(NSSet *)names;
 
 @end

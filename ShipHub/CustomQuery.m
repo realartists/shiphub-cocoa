@@ -142,4 +142,16 @@
     }
 }
 
+- (CustomQuery *)duplicateAvoidingNames:(NSSet *)names {
+    CustomQuery *q = [CustomQuery new];
+    q.title = [NSString stringWithFormat:NSLocalizedString(@"Copy of %@", nil), self.title];
+    NSInteger i = 1;
+    while ([names containsObject:q.title]) {
+        q.title = [NSString stringWithFormat:NSLocalizedString(@"Copy of %@ (%td)", nil), self.title, i];
+        i++;
+    }
+    q.predicate = self.predicate;
+    return q;
+}
+
 @end

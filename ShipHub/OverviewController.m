@@ -396,6 +396,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     menu.extras_representedObject = query;
     if ([query isMine]) {
         [menu addItemWithTitle:NSLocalizedString(@"Edit Query", nil) action:@selector(editQuery:) keyEquivalent:@""];
+        [menu addItemWithTitle:NSLocalizedString(@"Duplicate Query", nil) action:@selector(dupQuery:) keyEquivalent:@""];
         // Renaming queries inline is disabled due to bugs.
         // [menu addItemWithTitle:NSLocalizedString(@"Rename Query", nil) action:@selector(renameQuery:) keyEquivalent:@""];
     } else {
@@ -1853,6 +1854,26 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     
     SearchSheet *sheet = [SearchSheet new];
     sheet.query = [query copyIfNeededForEditing];
+    
+    [sheet beginSheetModalForWindow:self.window completionHandler:nil];
+}
+
+- (IBAction)dupQuery:(id)sender {
+    CustomQuery *query = [[sender menu] extras_representedObject];
+    if (!query) {
+        query = [[_outlineView selectedItem] representedObject];
+    }
+    
+    if (![query isKindOfClass:[CustomQuery class]]) {
+        return;
+    }
+    
+    NSSet *existingNames = [NSSet setWithArray:[[[DataStore activeStore] queries] arrayByMappingObjects:^id(id obj) {
+        return [obj title];
+    }]];
+    
+    SearchSheet *sheet = [SearchSheet new];
+    sheet.query = [query duplicateAvoidingNames:existingNames];
     
     [sheet beginSheetModalForWindow:self.window completionHandler:nil];
 }
