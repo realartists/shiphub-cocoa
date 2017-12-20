@@ -66,7 +66,7 @@
 }
 
 - (IBAction)showHelp:(id)sender {
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.realartists.com/docs/2.0/start.html#github-organization-access"]];
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:@"https://www.realartists.com/docs/2.0/pat.html"]];
 }
 
 - (IBAction)cancel:(id)sender {
