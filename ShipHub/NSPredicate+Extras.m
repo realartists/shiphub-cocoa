@@ -59,15 +59,41 @@
 
 @implementation NSExpression (Folding)
 
+- (BOOL)_ship_canFold {
+    switch (self.expressionType) {
+        case NSConstantValueExpressionType: return YES;
+        case NSEvaluatedObjectExpressionType: return YES;
+        case NSVariableExpressionType: return YES;
+        case NSKeyPathExpressionType: return NO;
+        case NSFunctionExpressionType: {
+            BOOL operandCanFold = !self.operand || [self.operand _ship_canFold];
+            if (!operandCanFold) return NO;
+            BOOL argumentsCanFold = YES;
+            for (NSExpression *arg in self.arguments) {
+                if (![arg _ship_canFold]) {
+                    argumentsCanFold = NO;
+                    break;
+                }
+            }
+            return argumentsCanFold;
+        }
+        default: return NO;
+    }
+}
+
 - (NSExpression *)foldedExpression {
-    @try {
-        id value = [self expressionValueWithObject:nil context:nil];
-        if (value) {
-            return [NSExpression expressionForConstantValue:value];
-        } else {
+    if ([self _ship_canFold]) {
+        @try {
+            id value = [self expressionValueWithObject:nil context:nil];
+            if (value) {
+                return [NSExpression expressionForConstantValue:value];
+            } else {
+                return self;
+            }
+        } @catch (id ex) {
             return self;
         }
-    } @catch (id ex) {
+    } else {
         return self;
     }
 }
