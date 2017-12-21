@@ -905,30 +905,56 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     [_omniSearch reloadData];
 }
 
-- (void)updateCount:(OverviewNode *)node {
-    if (node.predicate && node.showProgress) {
-        void (^updateProgress)(double, NSInteger, NSInteger) = ^(double progress, NSInteger open, NSInteger closed) {
-            if (node.progress != progress) {
-                node.progress = progress;
-                node.openCount = open;
-                node.closedCount = closed;
-                NSAssert(progress <= 0 || (closed > 0), @"positive progress implies some closed issues");
-                NSInteger row = [_outlineView rowForItem:node];
-                if (row >= 0) {
-                    OverviewMilestoneCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
-                    if (view) {
-                        OverviewProgressIndicator *progressIndicator = view.progressIndicator;
-                        if (progress < 0.0) {
-                            progressIndicator.hidden = YES;
-                        } else {
-                            progressIndicator.hidden = NO;
-                            progressIndicator.doubleValue = progress;
-                            progressIndicator.openCount = open;
-                            progressIndicator.closedCount = closed;
-                        }
-                    }
+- (void)_updateProgress:(double)progress open:(NSInteger)open closed:(NSInteger)closed forNode:(OverviewNode *)node {
+    if (node.progress != progress) {
+        node.progress = progress;
+        node.openCount = open;
+        node.closedCount = closed;
+        NSAssert(progress <= 0 || (closed > 0), @"positive progress implies some closed issues");
+        NSInteger row = [_outlineView rowForItem:node];
+        if (row >= 0) {
+            OverviewMilestoneCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
+            if (view) {
+                OverviewProgressIndicator *progressIndicator = view.progressIndicator;
+                if (progress < 0.0) {
+                    progressIndicator.hidden = YES;
+                } else {
+                    progressIndicator.hidden = NO;
+                    progressIndicator.doubleValue = progress;
+                    progressIndicator.openCount = open;
+                    progressIndicator.closedCount = closed;
                 }
             }
+        }
+    }
+}
+
+- (void)_updateCount:(NSInteger)count forNode:(OverviewNode *)node {
+    if (node.count != count) {
+        node.count = count;
+        NSInteger row = [_outlineView rowForItem:node];
+        if (row >= 0) {
+            OverviewCountCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
+            if (view) {
+                NSButton *countButton = view.countButton;
+                if (count != NSNotFound && count != 0) {
+                    countButton.title = [NSString localizedStringWithFormat:@"%tu", count];
+                    countButton.hidden = NO;
+                } else {
+                    countButton.title = @"";
+                    countButton.hidden = YES;
+                }
+            }
+        }
+    }
+}
+
+- (void)updateCount:(OverviewNode *)node {
+    if (node.predicate && node.showProgress) {
+        __weak __typeof(self) weakSelf = self;
+        void (^updateProgress)(double, NSInteger, NSInteger) = ^(double progress, NSInteger open, NSInteger closed) {
+            id strongSelf = weakSelf;
+            [strongSelf _updateProgress:progress open:open closed:closed forNode:node];
         };
         
         [[DataStore activeStore] issueProgressMatchingPredicate:node.predicate completion:^(double progress, NSInteger open, NSInteger closed, NSError *error) {
@@ -936,25 +962,10 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         }];
         
     } else {
-    
+        __weak __typeof(self) weakSelf = self;
         void (^updateCount)(NSUInteger) = ^(NSUInteger count) {
-            if (node.count != count) {
-                node.count = count;
-                NSInteger row = [_outlineView rowForItem:node];
-                if (row >= 0) {
-                    OverviewCountCellView *view = [[_outlineView rowViewAtRow:row makeIfNecessary:NO] viewAtColumn:0];
-                    if (view) {
-                        NSButton *countButton = view.countButton;
-                        if (count != NSNotFound && count != 0) {
-                            countButton.title = [NSString localizedStringWithFormat:@"%tu", count];
-                            countButton.hidden = NO;
-                        } else {
-                            countButton.title = @"";
-                            countButton.hidden = YES;
-                        }
-                    }
-                }
-            }
+            id strongSelf = weakSelf;
+            [strongSelf _updateCount:count forNode:node];
         };
         
         if (node.predicate && node.showCount) {
