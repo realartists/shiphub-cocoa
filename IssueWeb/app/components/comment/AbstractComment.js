@@ -151,6 +151,12 @@ class AbstractComment extends React.Component {
         editing: true,
         code: this.props.comment.body || ""
       }));
+      setTimeout(() => {
+        if (this.state.editing) {
+          this.scrollIntoView();
+          this.focusCodemirror();
+        }
+      }, 0);
     }
   }
   
