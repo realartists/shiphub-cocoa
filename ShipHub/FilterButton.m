@@ -59,7 +59,7 @@
     if (_trackingTag) {
         [self removeTrackingRect:_trackingTag];
     }
-    [self addTrackingRect:self.bounds owner:self userData:NULL assumeInside:NO];
+    _trackingTag = [self addTrackingRect:self.bounds owner:self userData:NULL assumeInside:NO];
 }
 
 - (void)sizeToFit {

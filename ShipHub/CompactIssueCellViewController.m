@@ -71,9 +71,7 @@
 @end
 
 @interface CompactIssueRowView () {
-    CGRect _labelsRect;
-    NSToolTipTag _labelsTTT;
-    NSString *_labelsTT;
+    CGRect _dateTTRect;
     NSToolTipTag _dateTTT;
     NSString *_dateTT;
     LabelsControl *_labelsControl;
@@ -136,6 +134,10 @@
     _issue = issue;
     _labelsControl.labels = issue.labels;
     [self setNeedsDisplay:YES];
+}
+
+- (NSString *)view:(NSView *)view stringForToolTip:(NSToolTipTag)tag point:(NSPoint)point userData:(nullable void *)data {
+    return _dateTT ?: @"";
 }
 
 static const CGFloat marginRight = 8.0;
@@ -259,10 +261,13 @@ static const CGFloat marginBottom = 7.0;
         _dateTT = [NSString stringWithFormat:NSLocalizedString(@"Created %@", nil), [[NSDateFormatter longDateAndTimeFormatter] stringFromDate:_issue.createdAt]];
     }
     
-    if (_dateTT != 0) {
-        [self removeToolTip:_dateTTT];
+    if (_dateTTT == 0 || !CGRectEqualToRect(dateRect, _dateTTRect)) {
+        if (_dateTTT != 0) {
+            [self removeToolTip:_dateTTT];
+        }
+        _dateTTRect = dateRect;
+        _dateTTT = [self addToolTipRect:dateRect owner:self userData:NULL];
     }
-    _dateTTT = [self addToolTipRect:dateRect owner:_dateTT userData:NULL];
     
     CGContextSetTextMatrix(ctx, CGAffineTransformIdentity); // needed after using -drawInRect:withAttributes: and before using CoreText
     
