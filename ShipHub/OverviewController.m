@@ -50,6 +50,7 @@
 #import "NetworkStatusWindowController.h"
 #import "OmniSearch.h"
 #import "Issue.h"
+#import "RateDampener.h"
 
 //#import "OutboxViewController.h"
 //#import "AttachmentProgressViewController.h"
@@ -167,6 +168,10 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 @property ProjectsViewController *projectsController;
 
 @property OmniSearch *omniSearch;
+
+@property NSMutableArray *pendingCounts;
+@property NSInteger activeCounts;
+@property RateDampener *countDampener;
 
 @end
 
@@ -900,7 +905,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         [_outlineView scrollRectToVisible:documentRect];
     }
     
-    [self updateCounts:nil];
+    [self updateCounts];
     
     [_omniSearch reloadData];
 }
@@ -955,8 +960,10 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         void (^updateProgress)(double, NSInteger, NSInteger) = ^(double progress, NSInteger open, NSInteger closed) {
             id strongSelf = weakSelf;
             [strongSelf _updateProgress:progress open:open closed:closed forNode:node];
+            [strongSelf finishedCountForNode:node];
         };
         
+        [self beginCountForNode:node];
         [[DataStore activeStore] issueProgressMatchingPredicate:node.predicate completion:^(double progress, NSInteger open, NSInteger closed, NSError *error) {
             updateProgress(progress, open, closed);
         }];
@@ -966,6 +973,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
         void (^updateCount)(NSUInteger) = ^(NSUInteger count) {
             id strongSelf = weakSelf;
             [strongSelf _updateCount:count forNode:node];
+            [strongSelf finishedCountForNode:node];
         };
         
         if (node.predicate && node.showCount) {
@@ -974,6 +982,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
                 predicate = [predicate and:[NSPredicate predicateWithFormat:@"closed = NO"]];
             }
             
+            [self beginCountForNode:node];
             [[DataStore activeStore] countIssuesMatchingPredicate:predicate completion:^(NSUInteger count, NSError *error) {
                 updateCount(count);
             }];
@@ -990,10 +999,49 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     }
 }
 
-- (void)updateCounts:(OverviewNode *)root {
-    NSArray *elements = root ? root.children : _outlineRoots;
+- (void)_updateCounts {
+    if (!_pendingCounts) {
+        _pendingCounts = [NSMutableArray new];
+    } else {
+        [_pendingCounts removeAllObjects];
+    }
+    
+    NSArray *elements = _outlineRoots;
     [self walkNodes:elements expandedOnly:NO visitor:^(OverviewNode *node) {
+        [_pendingCounts addObject:node];
+    }];
+    [self countNextNodes];
+}
+
+- (void)beginCountForNode:(OverviewNode *)node {
+    _activeCounts++;
+}
+
+- (void)finishedCountForNode:(OverviewNode *)node {
+    _activeCounts--;
+    NSAssert(_activeCounts >= 0, @"_activeCounts underflow");
+    [self countNextNodes];
+}
+
+- (void)countNextNodes {
+    NSInteger maxWidth = [[DataStore activeStore] readWidth] ?: 1;
+    while (_activeCounts < maxWidth && _pendingCounts.count > 0) {
+        OverviewNode *node = [_pendingCounts lastObject];
+        [_pendingCounts removeLastObject];
         [self updateCount:node];
+    }
+}
+
+- (void)updateCounts {
+    if (!_countDampener) {
+        _countDampener = [RateDampener new];
+        _countDampener.windowWidth = 1.0; // seconds
+        _countDampener.windowWidth = 2;   // messages per second
+    }
+    __weak typeof(self) weakSelf = self;
+    [_countDampener addBlock:^{
+        id strongSelf = weakSelf;
+        [strongSelf _updateCounts];
     }];
 }
 
@@ -1011,7 +1059,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 }
 
 - (void)problemsChanged:(NSNotification *)note {
-    [self updateCounts:nil];
+    [self updateCounts];
 }
 
 - (void)outboxChanged:(NSNotification *)note {

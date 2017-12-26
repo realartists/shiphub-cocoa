@@ -437,6 +437,7 @@ static NSString *const LastUpdated = @"LastUpdated";
     }
     _readMocs = readMocs;
     _readMocsQ = dispatch_queue_create("DataStore.readMocs", NULL);
+    _readWidth = readMocs.count;
     _readSema = dispatch_semaphore_create(_readMocs.count);
     _dbq = dispatch_queue_create("DataStore.dbq", DISPATCH_QUEUE_CONCURRENT);
     
