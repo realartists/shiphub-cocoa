@@ -1010,6 +1010,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
     [self walkNodes:elements expandedOnly:NO visitor:^(OverviewNode *node) {
         [_pendingCounts addObject:node];
     }];
+    [_pendingCounts shuffle];
     [self countNextNodes];
 }
 

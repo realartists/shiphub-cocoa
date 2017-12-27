@@ -152,6 +152,8 @@
 
 - (void)moveItemsAtIndexes:(NSIndexSet *)indexes toIndex:(NSInteger)idx;
 
+- (void)shuffle;
+
 @end
 
 @interface NSSet (Extras)

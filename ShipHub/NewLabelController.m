@@ -4,7 +4,7 @@
 #import <CoreImage/CoreImage.h>
 #import <QuartzCore/QuartzCore.h>
 
-#import "AppKitExtras.h"
+#import "Extras.h"
 #import "Auth.h"
 #import "DataStore.h"
 #import "FoundationExtras.h"
@@ -319,11 +319,8 @@ static NSArray *GitHubColors() {
     }];
 
     NSMutableArray *shuffledGithubColors = [GitHubColors() mutableCopy];
-    for (NSInteger i = shuffledGithubColors.count - 1; i > 0; i--) {
-        NSInteger j = arc4random_uniform((uint32_t)i + 1);
-        [shuffledGithubColors exchangeObjectAtIndex:i withObjectAtIndex:j];
-    }
-
+    [shuffledGithubColors shuffle];
+    
     for (NSString *colorString in shuffledGithubColors) {
         if (![colorsInUse containsObject:colorString]) {
             return [NSColor colorWithHexString:colorString];

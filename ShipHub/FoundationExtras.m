@@ -698,6 +698,13 @@ static inline uint8_t h2b(uint8_t v) {
     [self insertObjects:items atIndexes:insertionPoints];
 }
 
+- (void)shuffle {
+    for (NSInteger i = self.count - 1; i > 0; i--) {
+        NSInteger j = arc4random_uniform((uint32_t)i + 1);
+        [self exchangeObjectAtIndex:i withObjectAtIndex:j];
+    }
+}
+
 @end
 
 @implementation NSSet (Extras)
