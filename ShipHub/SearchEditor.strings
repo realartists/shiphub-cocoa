@@ -16,6 +16,9 @@
 "%[comments.body]@ %[contains]@ %@" = "%1$[Comments]@ %2$[contains]@ %3$@";
 "%[comments.body]@ %[matches]@ %@" = "%1$[Comments]@ %2$[matches]@ %3$@";
 
+"%[comments.@count]@ %[is]@ %[0]@" = "%1$[Comment count]@ %2$[is]@ %3$[zero]@";
+"%[comments.@count]@ %[is not]@ %[0]@" = "%1$[Comment count]@ %2$[is not]@ %3$[zero]@";
+
 "%[createdAt]@ %[is less than]@ %@ %@" = "%1$[Creation date]@ %2$[is less than]@ %3$@ %4$@";
 "%[createdAt]@ %[is greater than]@ %@ %@" = "%1$[Creation date]@ %2$[is greater than]@ %3$@ %4$@";
 

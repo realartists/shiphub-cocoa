@@ -51,6 +51,9 @@
     NSExpression *commentsExpr = [NSExpression expressionForKeyPath:@"comments.body"];
     NSPredicateEditorRowTemplate *commentsTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[commentsExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSAnyPredicateModifier operators:@[@(NSContainsPredicateOperatorType), @(NSMatchesPredicateOperatorType)] options:NSDiacriticInsensitivePredicateOption|NSCaseInsensitivePredicateOption];
     
+    NSExpression *commentsCountExpr = [NSExpression expressionWithFormat:@"comments.@count"];
+    NSPredicateEditorRowTemplate *commentsCountTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[commentsCountExpr] rightExpressions:@[[NSExpression expressionForConstantValue:@0]] modifier:NSDirectPredicateModifier operators:@[@(NSEqualToPredicateOperatorType), @(NSNotEqualToPredicateOperatorType)] options:0];
+    
     NSExpression *creationExpr = [NSExpression expressionForKeyPath:@"createdAt"];
     NSExpression *modificationExpr = [NSExpression expressionForKeyPath:@"updatedAt"];
     NSExpression *resolveDateExpr = [NSExpression expressionForKeyPath:@"closedAt"];
@@ -98,7 +101,7 @@
     
     NSPredicateEditorRowTemplate *issueOrPRTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[[NSExpression expressionForKeyPath:@"pullRequest"]] rightExpressions:@[[NSExpression expressionForConstantValue:@YES], [NSExpression expressionForConstantValue:@NO]] modifier:NSDirectPredicateModifier operators:@[@(NSEqualToPredicateOperatorType)] options:0];
     
-    [self setRowTemplates:@[compounds, assigneeTemplate, assigneeNotTemplate, userTemplate, dateTemplate, repoTemplate, repoSubstringTemplate, hasLabelTemplate, hasNotLabelTemplate, labeledTemplate, milestoneTemplate, milestoneSubstringTemplate, stateTemplate, titleTemplate, bodyTemplate, commentsTemplate, readTemplate, mentionTemplate, issueOrPRTemplate, requestedReviewersTemplate, reviewersTemplate, reviewerNotTemplate, reviewState]];
+    [self setRowTemplates:@[compounds, assigneeTemplate, assigneeNotTemplate, userTemplate, dateTemplate, repoTemplate, repoSubstringTemplate, hasLabelTemplate, hasNotLabelTemplate, labeledTemplate, milestoneTemplate, milestoneSubstringTemplate, stateTemplate, titleTemplate, bodyTemplate, commentsTemplate, commentsCountTemplate, readTemplate, mentionTemplate, issueOrPRTemplate, requestedReviewersTemplate, reviewersTemplate, reviewerNotTemplate, reviewState]];
 
     @try {
         [self setFormattingStringsFilename:@"SearchEditor"];
