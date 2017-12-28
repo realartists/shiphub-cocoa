@@ -71,19 +71,30 @@ function findLatestCommitStatuses(statuses) {
 
 class CommitStatusTableRow extends React.Component {
   render() {
+    var hasURL = !!this.props.status.target_url;
+    
+    var statusContexts = [
+      h('span', {className:'CommitTableStatusContext', key:'ctx'}, this.props.status.context),
+      h('span', {className:'CommitTableStatusContextSeparator', key:'sep'}, ' — '),
+      h('span', {className:'CommitTableStatusDescription', key:'desc'}, this.props.status.status_description)
+    ];
+
+    var statusInfoItem;
+    if (hasURL) {
+      statusInfoItem = h('a', {href:this.props.status.target_url}, statusContexts);
+    } else {
+      statusInfoItem = h('span', {}, statusContexts);
+    }
+        
     return h('div', {className:'CommitStatusTableRow'},
-      h('div', {className:'CommitTableStatus'},
+      h('div', {className:'CommitTableStatus', key:'status'},
         h(CommitStatuses, {statuses:[this.props.status]})
       ),
-      h('div', {className:'CommitTableStatusInfo', title:`${this.props.status.context} — ${this.props.status.status_description}`},
-        h('a', {href:this.props.status.target_url},
-          h('span', {className:'CommitTableStatusContext'}, this.props.status.context),
-          h('span', {className:'CommitTableStatusContextSeparator'}, ' — '),
-          h('span', {className:'CommitTableStatusDescription'}, this.props.status.status_description)
-        )
+      h('div', {className:'CommitTableStatusInfo', key:'info', title:`${this.props.status.context} — ${this.props.status.status_description}`},
+        statusInfoItem
       ),
-      this.props.required?h('div', {className:'CommitTableStatusRequired'}, 'Required'):null,
-      this.props.status.id<0?null:h('div', {className:'CommitTableLink'},
+      this.props.required?h('div', {className:'CommitTableStatusRequired', key:'required'}, 'Required'):null,
+      !hasURL?null:h('div', {className:'CommitTableLink', key:'link'},
         h('a', {href:this.props.status.target_url, className:'fa fa-arrow-circle-right'})
       )
     );
