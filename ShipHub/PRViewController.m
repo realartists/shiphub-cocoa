@@ -870,11 +870,25 @@ static void SetWCVar(NSMutableString *shTemplate, NSString *var, NSString *val)
     MetadataStore *ms = [ds metadataStore];
     NSArray *accounts = [ms assigneesForRepo:_pr.issue.repository];
     NSMutableDictionary *lookup = [[NSDictionary lookupWithObjects:accounts keyPath:@"identifier"] mutableCopy];
+    NSMutableSet *participatingIds = [NSMutableSet new];
     for (PRComment *prc in _pr.prComments) {
         [lookup setObject:prc.user forKey:prc.user.identifier];
+        [participatingIds addObject:prc.user.identifier];
+    }
+    for (IssueComment *c in _pr.issue.comments) {
+        [lookup setObject:c.user forKey:c.user.identifier];
+        [participatingIds addObject:c.user.identifier];
     }
     [lookup removeObjectForKey:[[Account me] identifier]];
-    return [lookup allValues];
+    return [[lookup allValues] sortedArrayUsingComparator:^NSComparisonResult(Account *a, Account *b) {
+        if ([participatingIds containsObject:a.identifier] && ![participatingIds containsObject:b.identifier]) {
+            return NSOrderedAscending;
+        } else if (![participatingIds containsObject:a.identifier] && [participatingIds containsObject:b.identifier]) {
+            return NSOrderedDescending;
+        } else {
+            return [a.login localizedCaseInsensitiveCompare:b.login];
+        }
+    }];
 }
 
 - (NSArray *)allComments {

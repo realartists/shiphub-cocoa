@@ -2641,20 +2641,27 @@ function applyIssueState(state, scrollToCommentIdentifier) {
     issue.user = issue.originator;
   }
   
+  // come up with @completions list. sort it, but put participating users above non-participating.
   var allPossibleAssignees = state.assignees;
   var allPossibleCommenters = (issue.comments || []).filter((c) => !!keypath(c, "user.login")).map(c => c.user);
   if (keypath(issue, "user.login")) {
     allPossibleCommenters.push(issue.user);
   }
+  var participatingUserIds = new Set(allPossibleCommenters.map(u => u.id));
   var everyone = allPossibleAssignees.concat(allPossibleCommenters);
-  everyone = everyone.map(u => ({u, l:u.login.toLowerCase()}));
-  everyone.sort((a, b) => a.l.localeCompare(b.l));
-  everyone = everyone.map(x => x.u).reduce((accum, u) => {
-    if (u.id == state.me.id) return accum;
-    if (accum.length == 0) return [u];
-    else if (accum[accum.length-1].login != u.login) return accum.concat([u]);
-    else return accum
-  }, []);
+  var seenUserIds = new Set();
+  everyone = everyone.filter(u => {
+    if (seenUserIds.has(u.id)) return false;
+    seenUserIds.add(u.id);
+    return true;
+  });
+  everyone = everyone.map(u => ({u, l:u.login.toLowerCase(), p:participatingUserIds.has(u.id)}));
+  everyone.sort((a, b) => {
+    if (a.p && !b.p) return -1;
+    else if (!a.p && b.p) return 1;
+    else return a.l.localeCompare(b.l);
+  });
+  everyone = everyone.map(x => x.u);
   state.allLoginCompletions = everyone;
   
   IssueState.current.state = state;
