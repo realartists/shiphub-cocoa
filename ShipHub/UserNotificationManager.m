@@ -19,7 +19,7 @@
 
 @interface UserNotificationManager () <NSUserNotificationCenterDelegate>
 
-@property NSDate *lastChecked;
+@property NSDate *latestAdded;
 @property dispatch_queue_t q;
 @property dispatch_source_t timer;
 
@@ -38,7 +38,7 @@
 
 - (id)init {
     if (self = [super init]) {
-        _lastChecked = [NSDate date];
+        _latestAdded = [NSDate date];
         _q = dispatch_queue_create("UserNotificationManager", NULL);
         _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, _q);
         __weak __typeof(self) weakSelf = self;
@@ -96,6 +96,12 @@
     }
 }
 
+static NSDate *_maxDate(NSDate *a, NSDate *b) {
+    NSComparisonResult cmp = [a compare:b];
+    if (cmp == NSOrderedAscending) return b;
+    else return a;
+}
+
 - (void)updateWithIssues:(NSArray<Issue *> *)issues {
     NSUserNotificationCenter *nc = [NSUserNotificationCenter defaultUserNotificationCenter];
     NSArray *delivered = nc.deliveredNotifications;
@@ -120,6 +126,7 @@
         [nc removeDeliveredNotification:note];
     }
     
+    NSDate *maxDate = _latestAdded;
     for (id issueIdentifier in needToAddToNC) {
         NSUserNotification *note = [NSUserNotification new];
         Issue *issue = unreadLookup[issueIdentifier];
@@ -139,7 +146,8 @@
             note.informativeText = issue.body;
         }
         
-        BOOL shouldPresent = [inote.updatedAt compare:_lastChecked] == NSOrderedDescending;
+        BOOL shouldPresent = [inote.updatedAt compare:_latestAdded] == NSOrderedDescending;
+        maxDate = _maxDate(maxDate, inote.updatedAt);
         
         if (shouldPresent) {
             DebugLog(@"Delivering note %@", note);
@@ -149,7 +157,7 @@
         }
     }
     
-    _lastChecked = [NSDate date];
+    _latestAdded = maxDate;
 }
 
 - (void)userNotificationCenter:(NSUserNotificationCenter *)center didActivateNotification:(NSUserNotification *)notification
