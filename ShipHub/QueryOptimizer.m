@@ -31,6 +31,8 @@ static BOOL IsAnyKeypathEqualConstantPredicate(NSPredicate *predicate, NSString 
     return NO;
 }
 
+typedef NSPredicate *(CompoundPredicateOptimizer)(NSCompoundPredicate *);
+
 static NSPredicate *OptimizeOrAnyPredicate(NSCompoundPredicate *predicate) {
     if (predicate.subpredicates.count < 2 || predicate.compoundPredicateType != NSOrPredicateType) return predicate;
     
@@ -48,7 +50,7 @@ static NSPredicate *OptimizeOrAnyPredicate(NSCompoundPredicate *predicate) {
             if (!candidates[keypath]) {
                 candidates[keypath] = [NSMutableArray new];
             }
-            [candidates[keypath] addObject:constant];
+            [candidates[keypath] addObject:constant?:[NSNull null]];
         }
     }
     
@@ -98,7 +100,7 @@ static NSPredicate *WorkaroundNotAnyPredicate(NSCompoundPredicate *predicate) {
             if (!candidates[keypath]) {
                 candidates[keypath] = [NSMutableArray new];
             }
-            [candidates[keypath] addObject:constant];
+            [candidates[keypath] addObject:constant?:[NSNull null]];
         }
     }
     
@@ -155,8 +157,15 @@ static NSPredicate *WorkaroundNotAnyPredicate(NSCompoundPredicate *predicate) {
             }
         } else if ([original isKindOfClass:[NSCompoundPredicate class]]) {
             NSCompoundPredicate *c = (id)original;
-            NSPredicate *opt = WorkaroundNotAnyPredicate(c) ?:
-                               OptimizeOrAnyPredicate(c);
+            NSPredicate *opt = c;
+            
+            CompoundPredicateOptimizer *optimizers[] = { &WorkaroundNotAnyPredicate, &OptimizeOrAnyPredicate };
+            for (NSUInteger i = 0; i < sizeof(optimizers) / sizeof(CompoundPredicateOptimizer *); i++) {
+                CompoundPredicateOptimizer *optimizer = optimizers[i];
+                opt = optimizer(c);
+                if (opt != c) break;
+            }
+            
             if (opt != c) {
                 DebugLog(@"Rewrote %@ to %@", c, opt);
             }
