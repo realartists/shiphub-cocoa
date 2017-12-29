@@ -8,6 +8,7 @@
 
 #import "SearchEditor.h"
 
+#import "NSPredicate+Extras.h"
 #import "TimeLimitRowTemplate.h"
 #import "UserRowTemplate.h"
 #import "ToManyUserNotContainsTemplate.h"
@@ -127,6 +128,18 @@
     if (![predicate isKindOfClass:[NSCompoundPredicate class]]) {
         predicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[predicate]];
     }
+    predicate = [predicate predicateByRewriting:^NSPredicate *(NSPredicate *original) {
+        if ([original isKindOfClass:[NSCompoundPredicate class]]) {
+            NSCompoundPredicate *c0 = (id)original;
+            if (c0.compoundPredicateType == NSNotPredicateType
+                && c0.subpredicates.count == 1
+                && ![[c0.subpredicates firstObject] isKindOfClass:[NSCompoundPredicate class]]) {
+                NSCompoundPredicate *nor = [[NSCompoundPredicate alloc] initWithType:NSOrPredicateType subpredicates:c0.subpredicates];
+                return [[NSCompoundPredicate alloc] initWithType:NSNotPredicateType subpredicates:@[nor]];
+            }
+        }
+        return original;
+    }];
     [self setObjectValue:predicate];
 }
 

@@ -7,6 +7,7 @@
 //
 
 #import "DataStoreInternal.h"
+#import "DataStore+IssuesPredicate.h"
 
 #import "Analytics.h"
 #import "Auth.h"
@@ -1473,27 +1474,6 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     }
 }
 
-- (NSPredicate *)issuesPredicate:(NSPredicate *)basePredicate {
-    NSPredicate *extra = nil;
-    if (_billing.limited) {
-        if (DefaultsPullRequestsEnabled()) {
-            extra = [NSPredicate predicateWithFormat:@"repository.private = NO AND repository.disabled = NO && repository.hidden = nil AND repository.fullName != nil"];
-        } else {
-            extra = [NSPredicate predicateWithFormat:@"repository.private = NO AND repository.disabled = NO && repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"];
-        }
-    } else {
-        if (DefaultsPullRequestsEnabled()) {
-            extra = [NSPredicate predicateWithFormat:@"repository.disabled = NO AND repository.hidden = nil AND repository.fullName != nil"];
-        } else {
-            extra = [NSPredicate predicateWithFormat:@"repository.disabled = NO AND repository.hidden = nil AND repository.fullName != nil AND pullRequest = NO"];
-        }
-    }
-    
-    NSPredicate *rewrite = [QueryOptimizer optimizeIssuesPredicate:basePredicate];
-    
-    return [[rewrite coreDataPredicate] and:extra];
-}
-
 - (void)issuesMatchingPredicate:(NSPredicate *)predicate completion:(void (^)(NSArray<Issue*> *issues, NSError *error))completion {
     return [self issuesMatchingPredicate:predicate sortDescriptors:@[] options:nil completion:completion];
 }
@@ -1508,7 +1488,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     [self performRead:^(NSManagedObjectContext *moc) {
         @try {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-            fetchRequest.predicate = [self issuesPredicate:predicate];
+            fetchRequest.predicate = [self issuesPredicate:predicate moc:moc];
             fetchRequest.relationshipKeyPathsForPrefetching = @[@"assignees", @"labels", @"notification.unread"];
             fetchRequest.sortDescriptors = sortDescriptors;
             
@@ -1546,7 +1526,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
     [self performRead:^(NSManagedObjectContext *moc) {
         @try {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-            fetchRequest.predicate = [self issuesPredicate:predicate];
+            fetchRequest.predicate = [self issuesPredicate:predicate moc:moc];
             NSError *err = nil;
             result = [moc countForFetchRequest:fetchRequest error:&err];
             
@@ -1575,7 +1555,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
         @try {
             NSError *err = nil;
             
-            NSPredicate *pred = [self issuesPredicate:predicate];
+            NSPredicate *pred = [self issuesPredicate:predicate moc:moc];
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
             fetchRequest.predicate = pred;
             
@@ -3728,7 +3708,7 @@ static void partitionMixedSyncEntries(NSArray<SyncEntry *> *mixedEntries, NSArra
         NSError *error = nil;
         @try {
             NSFetchRequest *fetchRequest = [NSFetchRequest fetchRequestWithEntityName:@"LocalIssue"];
-            fetchRequest.predicate = [TimeSeries timeSeriesPredicateWithPredicate:[self issuesPredicate:predicate] startDate:startDate endDate:endDate];
+            fetchRequest.predicate = [TimeSeries timeSeriesPredicateWithPredicate:[self issuesPredicate:predicate moc:moc] startDate:startDate endDate:endDate];
             fetchRequest.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"createdAt" ascending:YES]];
             fetchRequest.relationshipKeyPathsForPrefetching = @[@"assignees", @"labels", @"notification.unread", @"pr"];
             

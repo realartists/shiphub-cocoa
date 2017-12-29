@@ -31,6 +31,26 @@ static BOOL IsAnyKeypathEqualConstantPredicate(NSPredicate *predicate, NSString 
     return NO;
 }
 
+static BOOL IsAnyKeypathOpConstantPredicate(NSPredicate *predicate, NSString **keypath, NSPredicateOperatorType *op, id *constant)
+{
+    if ([predicate isKindOfClass:[NSComparisonPredicate class]]) {
+        NSComparisonPredicate *c = (id)predicate;
+        if (c.comparisonPredicateModifier == NSAnyPredicateModifier &&
+            c.leftExpression.expressionType == NSKeyPathExpressionType &&
+            c.rightExpression.expressionType == NSConstantValueExpressionType)
+        {
+            if (keypath) *keypath = c.leftExpression.keyPath;
+            if (op) *op = c.predicateOperatorType;
+            if (constant) *constant = c.rightExpression.constantValue;
+            return YES;
+        }
+    }
+    if (keypath) *keypath = nil;
+    if (op) *op = 0;
+    if (constant) *constant = nil;
+    return NO;
+}
+
 typedef NSPredicate *(CompoundPredicateOptimizer)(NSCompoundPredicate *);
 
 static NSPredicate *OptimizeOrAnyPredicate(NSCompoundPredicate *predicate) {
@@ -85,28 +105,41 @@ static NSPredicate *WorkaroundNotAnyPredicate(NSCompoundPredicate *predicate) {
         return predicate;
     }
     
-    // Find subpredicates of the form NOT (ANY key.path = constant[OR ANY key.path = constant])
-    // and rewrite them as:
+    // Find subpredicates of the form NOT (ANY key.path OP constant[OR ANY key.path OP constant])
+    // and rewrite them as either:
     // subquery(key.path, $x, $x IN {...}).@count = 0 [AND (remaining terms)]
+    // OR
+    // subquery(key.path, $x, $x OP constant[OR $x OP constant]).@count = 0 [AND (remaining terms)]
     
-    NSMutableDictionary *candidates = nil;
+    
+    NSMutableDictionary *eqCandidates = nil;
+    NSMutableDictionary *otherCandidates = nil;
     for (NSPredicate *term in sub.subpredicates) {
         NSString *keypath = nil;
+        NSPredicateOperatorType op = NSEqualToPredicateOperatorType;
         id constant = nil;
         if (IsAnyKeypathEqualConstantPredicate(term, &keypath, &constant)) {
-            if (!candidates) {
-                candidates = [NSMutableDictionary new];
+            if (!eqCandidates) {
+                eqCandidates = [NSMutableDictionary new];
             }
-            if (!candidates[keypath]) {
-                candidates[keypath] = [NSMutableArray new];
+            if (!eqCandidates[keypath]) {
+                eqCandidates[keypath] = [NSMutableArray new];
             }
-            [candidates[keypath] addObject:constant?:[NSNull null]];
+            [eqCandidates[keypath] addObject:constant?:[NSNull null]];
+        } else if (IsAnyKeypathOpConstantPredicate(term, &keypath, &op, &constant)) {
+            if (!otherCandidates) {
+                otherCandidates = [NSMutableDictionary new];
+            }
+            if (!otherCandidates[keypath]) {
+                otherCandidates[keypath] = [NSMutableArray new];
+            }
+            [otherCandidates[keypath] addObject:term];
         }
     }
     
-    if ([candidates count]) {
+    if ([eqCandidates count] > 0 || [otherCandidates count] > 0) {
         NSArray *unmodifiedTerms = [sub.subpredicates filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
-            return !IsAnyKeypathEqualConstantPredicate(evaluatedObject, NULL, NULL);
+            return !IsAnyKeypathOpConstantPredicate(evaluatedObject, NULL, NULL, NULL); // covers both eq and other operators
         }]];
         
         NSMutableArray *terms = [NSMutableArray new];
@@ -116,8 +149,20 @@ static NSPredicate *WorkaroundNotAnyPredicate(NSCompoundPredicate *predicate) {
             [terms addObject:[NSCompoundPredicate notPredicateWithSubpredicate:[NSCompoundPredicate orPredicateWithSubpredicates:unmodifiedTerms]]];
         }
         
-        for (NSString *keypath in candidates) {
-            NSPredicate *opt = [NSPredicate predicateWithFormat:@"count(subquery(%K, $x, $x IN %@)) = 0", keypath, candidates[keypath]];
+        for (NSString *keypath in eqCandidates) {
+            NSPredicate *opt = [NSPredicate predicateWithFormat:@"count(subquery(%K, $x, $x IN %@)) = 0", keypath, eqCandidates[keypath]];
+            [terms addObject:opt];
+        }
+        
+        for (NSString *keypath in otherCandidates) {
+            NSArray *preds = otherCandidates[keypath];
+            NSExpression *left = [NSExpression expressionForVariable:@"x"];
+            preds = [preds arrayByMappingObjects:^id(NSComparisonPredicate *a) {
+                return [[NSComparisonPredicate alloc] initWithLeftExpression:left rightExpression:a.rightExpression modifier:NSDirectPredicateModifier type:a.predicateOperatorType options:a.options];
+            }];
+            NSExpression *subq = [NSExpression expressionForSubquery:[NSExpression expressionForKeyPath:keypath] usingIteratorVariable:@"x" predicate:[[NSCompoundPredicate alloc] initWithType:NSOrPredicateType subpredicates:preds]];
+            NSExpression *count = [NSExpression expressionForFunction:@"count:" arguments:@[subq]];
+            NSPredicate *opt = [[NSComparisonPredicate alloc] initWithLeftExpression:count rightExpression:[NSExpression expressionForConstantValue:@0] modifier:NSDirectPredicateModifier type:NSEqualToPredicateOperatorType options:0];
             [terms addObject:opt];
         }
         
