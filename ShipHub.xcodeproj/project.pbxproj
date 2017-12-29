@@ -191,6 +191,7 @@
 		1A5604E21CD7FFC100ACF0DF /* AttachmentManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */; };
 		1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
 		1A563F7B1CC823CF00755AAC /* APIProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A563F791CC823CF00755AAC /* APIProxy.m */; };
+		1A5732E01FF6E8CD003719DA /* DataStore+IssuesPredicate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5732DF1FF6E8CD003719DA /* DataStore+IssuesPredicate.m */; };
 		1A5A2AC51F0323270084737B /* WelcomeReadmeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A5A2AC31F0323270084737B /* WelcomeReadmeController.m */; };
 		1A5A2AC61F0323270084737B /* WelcomeReadmeController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A5A2AC41F0323270084737B /* WelcomeReadmeController.xib */; };
 		1A5A2ACB1F0324290084737B /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1A5A2ACA1F0324290084737B /* README.rtf */; };
@@ -815,6 +816,8 @@
 		1A5604E01CD7FFC100ACF0DF /* AttachmentManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AttachmentManager.m; sourceTree = "<group>"; };
 		1A563F781CC823CF00755AAC /* APIProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = APIProxy.h; sourceTree = "<group>"; };
 		1A563F791CC823CF00755AAC /* APIProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = APIProxy.m; sourceTree = "<group>"; };
+		1A5732DE1FF6E8CD003719DA /* DataStore+IssuesPredicate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "DataStore+IssuesPredicate.h"; sourceTree = "<group>"; };
+		1A5732DF1FF6E8CD003719DA /* DataStore+IssuesPredicate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "DataStore+IssuesPredicate.m"; sourceTree = "<group>"; };
 		1A5A2AC21F0323270084737B /* WelcomeReadmeController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WelcomeReadmeController.h; sourceTree = "<group>"; };
 		1A5A2AC31F0323270084737B /* WelcomeReadmeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WelcomeReadmeController.m; sourceTree = "<group>"; };
 		1A5A2AC41F0323270084737B /* WelcomeReadmeController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WelcomeReadmeController.xib; sourceTree = "<group>"; };
@@ -1898,6 +1901,8 @@
 				1A3618E11C8FBF96008C11CB /* DataStore.h */,
 				1A3AB34D1D9085C6004BB768 /* DataStoreInternal.h */,
 				1A3618E21C8FBF96008C11CB /* DataStore.m */,
+				1A5732DE1FF6E8CD003719DA /* DataStore+IssuesPredicate.h */,
+				1A5732DF1FF6E8CD003719DA /* DataStore+IssuesPredicate.m */,
 				1AE288111F7D769700FD8558 /* QueryOptimizer.h */,
 				1AE288121F7D769700FD8558 /* QueryOptimizer.m */,
 				1A3618E71C8FC25B008C11CB /* SyncConnection.h */,
@@ -2464,6 +2469,7 @@
 				1A0075C51ED85DC300EB7A1B /* NetworkStatusWindowController.m in Sources */,
 				1AE09C041C97687E00C5AC35 /* LocalAccount.m in Sources */,
 				1A694B241CA341D500F73608 /* CustomToolbarItem.m in Sources */,
+				1A5732E01FF6E8CD003719DA /* DataStore+IssuesPredicate.m in Sources */,
 				1A694B281CA341D500F73608 /* SearchField.m in Sources */,
 				1A694B291CA341D500F73608 /* NSImage+Icons.m in Sources */,
 				1A2578751F8595CB000822D0 /* CThemeManager.m in Sources */,
