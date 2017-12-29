@@ -83,6 +83,9 @@
     LabelRowTemplate *hasLabelTemplate = [[LabelRowTemplate alloc] init];
     LabelRowTemplate *hasNotLabelTemplate = [[NoneLabelTemplate alloc] init];
     
+    NSExpression *labelNameExpr = [NSExpression expressionForKeyPath:@"labels.name"];
+    NSPredicateEditorRowTemplate *labelMatchTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[labelNameExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSAnyPredicateModifier operators:@[@(NSContainsPredicateOperatorType), @(NSBeginsWithPredicateOperatorType), @(NSMatchesPredicateOperatorType)] options:NSDiacriticInsensitiveSearch|NSCaseInsensitiveSearch];
+    
     NSExpression *milestoneExpr = [NSExpression expressionForKeyPath:@"milestone.title"];
     NSPredicateEditorRowTemplate *milestoneTemplate = [[MilestoneRowTemplate alloc] initWithLeftExpressions:@[milestoneExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSDirectPredicateModifier operators:@[@(NSEqualToPredicateOperatorType), @(NSNotEqualToPredicateOperatorType)] options:NSDiacriticInsensitivePredicateOption|NSCaseInsensitivePredicateOption];
     NSPredicateEditorRowTemplate *milestoneSubstringTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[milestoneExpr] rightExpressionAttributeType:NSStringAttributeType modifier:NSDirectPredicateModifier operators:@[@(NSContainsPredicateOperatorType), @(NSBeginsWithPredicateOperatorType), @(NSMatchesPredicateOperatorType)] options:NSDiacriticInsensitivePredicateOption|NSCaseInsensitivePredicateOption];
@@ -101,7 +104,7 @@
     
     NSPredicateEditorRowTemplate *issueOrPRTemplate = [[NSPredicateEditorRowTemplate alloc] initWithLeftExpressions:@[[NSExpression expressionForKeyPath:@"pullRequest"]] rightExpressions:@[[NSExpression expressionForConstantValue:@YES], [NSExpression expressionForConstantValue:@NO]] modifier:NSDirectPredicateModifier operators:@[@(NSEqualToPredicateOperatorType)] options:0];
     
-    [self setRowTemplates:@[compounds, assigneeTemplate, assigneeNotTemplate, userTemplate, dateTemplate, repoTemplate, repoSubstringTemplate, hasLabelTemplate, hasNotLabelTemplate, labeledTemplate, milestoneTemplate, milestoneSubstringTemplate, stateTemplate, titleTemplate, bodyTemplate, commentsTemplate, commentsCountTemplate, readTemplate, mentionTemplate, issueOrPRTemplate, requestedReviewersTemplate, reviewersTemplate, reviewerNotTemplate, reviewState]];
+    [self setRowTemplates:@[compounds, assigneeTemplate, assigneeNotTemplate, userTemplate, dateTemplate, repoTemplate, repoSubstringTemplate, hasLabelTemplate, hasNotLabelTemplate, labeledTemplate, labelMatchTemplate, milestoneTemplate, milestoneSubstringTemplate, stateTemplate, titleTemplate, bodyTemplate, commentsTemplate, commentsCountTemplate, readTemplate, mentionTemplate, issueOrPRTemplate, requestedReviewersTemplate, reviewersTemplate, reviewerNotTemplate, reviewState]];
 
     @try {
         [self setFormattingStringsFilename:@"SearchEditor"];

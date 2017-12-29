@@ -56,6 +56,9 @@
 
 "%[labels.name]@ %[is]@ %@" = "%1$[Labels]@ %2$[include]@ %3$@";
 "%[labels.name]@ %[is not]@ %@" = "%1$[Labels]@ %2$[do not include]@ %3$@";
+"%[labels.name]@ %[contains]@ %@" = "%1$[Labels]@ %2$[include name containing]@ %3$@";
+"%[labels.name]@ %[begins with]@ %@" = "%1$[Labels]@ %2$[include name beginning with]@ %3$@";
+"%[labels.name]@ %[matches]@ %@" = "%1$[Labels]@ %2$[include name matching]@ %3$@";
 
 "%[notification.unread]@ %[is]@ %[1]@" = "%1$[Notification]@ %2$[is]@ %3$[unread]@";
 "%[notification.unread]@ %[is]@ %[0]@" = "%1$[Notification]@ %2$[is]@ %3$[read]@";
