@@ -17,7 +17,7 @@ import SplitRow from 'components/diff/split-row.js'
 import UnifiedRow from 'components/diff/unified-row.js'
 import CommentRow from 'components/diff/comment-row.js'
 import TrailerRow from 'components/diff/trailer-row.js'
-import { UnifiedPlaceholderRow, SplitPlaceholderRow } from 'components/diff/placeholder-row.js'
+import { PlaceholderRow, UnifiedPlaceholderRow, SplitPlaceholderRow } from 'components/diff/placeholder-row.js'
 import ghost from 'util/ghost.js'
 import escapeStringForRegex from 'util/escape-regex.js'
 import 'util/media-reloader.js'
@@ -51,6 +51,7 @@ class App {
     this.receivedFirstUpdate = false; // whether updateDiff has been called yet
     this.placeholders = []; // Array of PlaceholderRows
     this.simplified = {}; // tracks simplified DOM state
+    this.hugeFile = false; // if set, we never exit simplified mode
     
     // View state
     this.codeRows = []; // Array of SplitRow|UnifiedRow
@@ -266,6 +267,7 @@ class App {
       });
     }
     this.codeRows = codeRows;
+    this.hugeFile = codeRows.length > 20000;
     
     // mix in highlighting if we already have it computed
     if (this.leftHighlighted || this.rightHighlighted) {
@@ -280,7 +282,17 @@ class App {
     
     // Write out DOM
     this.table.innerHTML = '';
-    rows.forEach(r => this.table.appendChild(r.node));
+    if (this.hugeFile) {
+      rows.forEach(r => {
+        if (r.hasPlaceholder) return;
+        if (r instanceof PlaceholderRow) {
+          r.node.style.display = 'table-row';
+        }
+        this.table.appendChild(r.node);
+      });
+    } else {
+      rows.forEach(r => this.table.appendChild(r.node));
+    }
     
     this.positionComments();
     
@@ -398,7 +410,8 @@ class App {
   }
   
   doHighlight() {
-    // Highlighting
+    if (this.hugeFile) return;
+    
     if (this.highlightWorker) {
       // cancel existing highlightWorker
       this.highlightWorker.onmessage = null;
@@ -1037,6 +1050,9 @@ class App {
       var needsViewportCalc = this.searchState.i === null;
       for (var i = 0; i < this.codeRows.length; i++) {
         var r = this.codeRows[i];
+        
+        if (this.hugeFile && r.hasPlaceholder) continue;
+        
         var offsetY = 0;
         
         if (needsViewportCalc) {
@@ -1123,6 +1139,7 @@ class App {
   replacing, but the compressed structure has a fraction of the node count.
   */
   simplify() {
+    if (this.hugeFile) return;
     this.scheduleSimplifyTimer(true);
   }
   
@@ -1133,9 +1150,10 @@ class App {
     quick - just reset tracking state / event listeners, but don't edit the DOM
   */
   unsimplify(opts) {
+    if (this.hugeFile) return;
+    
     if (opts && (opts.quick || opts.now)) {
       if (this.simplified.state) {
-        console.log("unsimplify: quick: " + opts.quick);
         window.removeEventListener('scroll', this.simplified.scrollListener);
         delete this.simplified.scrollListener;
         this.simplified.state = false;

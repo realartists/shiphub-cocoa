@@ -36,7 +36,8 @@ class PlaceholderRow extends DiffRow {
     return { gutterLeft, gutterRight };
   }
   
-  addRow(row) {    
+  addRow(row) {
+    row.hasPlaceholder = true;
     this.rows.push(row);
     return true;
   }
@@ -119,4 +120,4 @@ class SplitPlaceholderRow extends PlaceholderRow {
   }
 }
 
-export { UnifiedPlaceholderRow, SplitPlaceholderRow };
+export { PlaceholderRow, UnifiedPlaceholderRow, SplitPlaceholderRow };
