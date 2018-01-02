@@ -97,7 +97,7 @@ a.commitStatuses:visited {
 
 i.commitStatusIconPending,
 i.commitStatusIconUnknown {
-  color: #767676;
+  color: #FFC500;
 }
 
 i.commitStatusIconSuccess {
