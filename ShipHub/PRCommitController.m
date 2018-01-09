@@ -33,6 +33,7 @@
 
 @interface PRCommitController () <NSTableViewDelegate, NSTableViewDataSource> {
     BOOL _showLastViewed;
+    BOOL _selectionProgrammaticallyInitiated;
 }
 
 @property IBOutlet NSTableView *table;
@@ -54,7 +55,14 @@
 
 - (void)viewDidAppear {
     [super viewDidAppear];
+    NSIndexSet *selected = _table.selectedRowIndexes;
     [_table reloadData];
+    if (selected.count > 0) {
+        _selectionProgrammaticallyInitiated = YES;
+        [_table scrollRowToVisible:[selected anyIndex]];
+        [_table selectRowIndexes:selected byExtendingSelection:NO];
+        _selectionProgrammaticallyInitiated = NO;
+    }
 }
 
 - (void)setPr:(PullRequest *)pr {
@@ -67,6 +75,38 @@
         _showLastViewed = haveLastView && changedSinceMyLastView;
         
         [_table reloadData];
+    }
+}
+
+- (void)highlightRow:(NSInteger)rowIdx {
+    if (rowIdx >= 0 && rowIdx < _table.numberOfRows) {
+        _selectionProgrammaticallyInitiated = YES;
+        [_table scrollRowToVisible:rowIdx];
+        [_table selectRowIndexes:[NSIndexSet indexSetWithIndex:rowIdx] byExtendingSelection:NO];
+        _selectionProgrammaticallyInitiated = NO;
+    }
+}
+
+- (void)highlightCommit:(GitCommit *)commit {
+    NSInteger commitIdx = [_pr.commits indexOfObject:commit];
+    if (commitIdx != NSNotFound) {
+        NSInteger rowIdx = commitIdx + [self firstCommitRow];
+        [self highlightRow:rowIdx];
+    }
+}
+
+- (void)highlightSpanDiff:(GitDiff *)span {
+    NSInteger row = NSNotFound;
+    if (span == _pr.spanDiff) {
+        row = 1;
+    } else if (span == _pr.spanDiffSinceMyLastReview) {
+        row = 2;
+    } else if (span == _pr.spanDiffSinceMyLastView && _showLastViewed) {
+        row = 3;
+    }
+    
+    if (row != NSNotFound) {
+        [self highlightRow:row];
     }
 }
 
@@ -219,6 +259,10 @@
 }
 
 - (void)tableViewSelectionDidChange:(NSNotification *)notification {
+    if (_selectionProgrammaticallyInitiated) {
+        return;
+    }
+    
     NSInteger row = _table.selectedRow;
     if (row == -1) return;
     

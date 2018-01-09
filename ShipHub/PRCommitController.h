@@ -10,6 +10,7 @@
 
 @class PullRequest;
 @class GitCommit;
+@class GitDiff;
 
 @protocol PRCommitControllerDelegate;
 
@@ -18,6 +19,9 @@
 @property (nonatomic) PullRequest *pr;
 
 @property (weak) id<PRCommitControllerDelegate> delegate;
+
+- (void)highlightCommit:(GitCommit *)commit;
+- (void)highlightSpanDiff:(GitDiff *)span;
 
 @end
 

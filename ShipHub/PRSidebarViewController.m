@@ -192,6 +192,12 @@ typedef NS_ENUM(NSInteger, FindMenuTags) {
     }
     
     [_commitPopover showRelativeToRect:_showCommitsButton.bounds ofView:_showCommitsButton preferredEdge:NSRectEdgeMinY];
+    
+    if (_activeCommit) {
+        [_commitController highlightCommit:_activeCommit];
+    } else if (_activeDiff) {
+        [_commitController highlightSpanDiff:_activeDiff];
+    }
 }
 
 - (void)commitControllerDidSelectSpanDiff:(PRCommitController *)cc {
