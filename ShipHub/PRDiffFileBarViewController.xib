@@ -1,16 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="13771" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13771"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="PRDiffFileBarViewController">
             <connections>
                 <outlet property="currentPathControl" destination="YE5-Ud-MOR" id="hic-aJ-9wa"/>
+                <outlet property="path1SubmoduleButton" destination="eay-WW-gem" id="HWM-gO-NyQ"/>
                 <outlet property="path1View" destination="Hz6-mo-xeY" id="Y73-zu-JA2"/>
+                <outlet property="path1ViewTrailingConstraint" destination="bRc-0K-ygd" id="CFU-Xk-oQ9"/>
+                <outlet property="path2SubmoduleButton" destination="G8c-nn-p2a" id="FjD-Hi-TLw"/>
                 <outlet property="path2View" destination="6Z2-Kd-QUD" id="vep-5Z-VXk"/>
+                <outlet property="path2ViewTrailingConstraint" destination="3IR-vU-fAd" id="uvu-UE-PQl"/>
                 <outlet property="pathControl" destination="TEv-89-gMU" id="EAf-pU-oKn"/>
                 <outlet property="previousPathControl" destination="bVc-bt-wec" id="Uby-QC-hCJ"/>
                 <outlet property="view" destination="umV-BB-Lyv" id="Tsc-dh-cJu"/>
@@ -36,10 +40,26 @@
                         <constraint firstAttribute="height" constant="1" id="ETA-hI-aUa"/>
                     </constraints>
                 </box>
+                <button toolTip="View Submodule Diff on GitHub" translatesAutoresizingMaskIntoConstraints="NO" id="eay-WW-gem">
+                    <rect key="frame" x="673" y="2" width="20" height="20"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="20" id="EIF-P9-M5M"/>
+                        <constraint firstAttribute="height" constant="20" id="giq-9z-SB2"/>
+                    </constraints>
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="SubmoduleLink" imagePosition="only" alignment="center" controlSize="small" imageScaling="proportionallyUpOrDown" inset="2" id="v0A-ui-ivo">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="showSubmodule:" target="-2" id="ScI-D3-do0"/>
+                    </connections>
+                </button>
             </subviews>
             <constraints>
                 <constraint firstAttribute="bottom" secondItem="bnI-9s-49b" secondAttribute="bottom" id="1jy-cl-B7v"/>
+                <constraint firstItem="eay-WW-gem" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="1" id="C4G-pC-r5c"/>
                 <constraint firstAttribute="trailing" secondItem="bnI-9s-49b" secondAttribute="trailing" id="Dno-5K-pqK"/>
+                <constraint firstAttribute="trailing" secondItem="eay-WW-gem" secondAttribute="trailing" constant="8" id="DxI-KY-JMz"/>
                 <constraint firstAttribute="trailing" secondItem="TEv-89-gMU" secondAttribute="trailing" id="bRc-0K-ygd"/>
                 <constraint firstItem="TEv-89-gMU" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="gNC-HF-cdS"/>
                 <constraint firstItem="bnI-9s-49b" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="myV-Od-OSc"/>
@@ -52,7 +72,7 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <pathControl horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bVc-bt-wec" userLabel="Previous Path">
-                    <rect key="frame" x="0.0" y="2" width="208" height="20"/>
+                    <rect key="frame" x="0.0" y="2" width="161" height="20"/>
                     <constraints>
                         <constraint firstAttribute="width" relation="greaterThanOrEqual" priority="749" constant="100" id="MQy-6h-ovx"/>
                     </constraints>
@@ -69,7 +89,7 @@
                     </constraints>
                 </box>
                 <pathControl verticalHuggingPriority="750" horizontalCompressionResistancePriority="251" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YE5-Ud-MOR" userLabel="Current Path">
-                    <rect key="frame" x="234" y="2" width="467" height="20"/>
+                    <rect key="frame" x="187" y="2" width="514" height="20"/>
                     <pathCell key="cell" controlSize="small" selectable="YES" refusesFirstResponder="YES" alignment="left" id="zbb-Ky-mI6">
                         <font key="font" metaFont="smallSystem"/>
                         <url key="url" string="file://localhost/Applications/"/>
@@ -77,18 +97,35 @@
                     </pathCell>
                 </pathControl>
                 <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="frA-Nj-ORJ">
-                    <rect key="frame" x="210" y="1" width="22" height="22"/>
+                    <rect key="frame" x="163" y="1" width="22" height="22"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="22" id="1iH-Dt-Vt3"/>
                         <constraint firstAttribute="width" constant="22" id="VHU-GY-g2d"/>
                     </constraints>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="RenameArrow" id="E2y-MU-XRt"/>
                 </imageView>
+                <button toolTip="View Submodule Diff on GitHub" translatesAutoresizingMaskIntoConstraints="NO" id="G8c-nn-p2a">
+                    <rect key="frame" x="673" y="2" width="20" height="20"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="20" id="6Ad-Or-JDk"/>
+                        <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="20" id="7Sc-HE-3E8"/>
+                        <constraint firstAttribute="height" constant="20" id="OAe-YH-Kfu"/>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="20" id="YiO-6w-f5r"/>
+                    </constraints>
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="SubmoduleLink" imagePosition="only" alignment="center" controlSize="small" imageScaling="proportionallyUpOrDown" inset="2" id="8sg-v3-3Xd">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="showSubmodule:" target="-2" id="WMK-XN-wG9"/>
+                    </connections>
+                </button>
             </subviews>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="YE5-Ud-MOR" secondAttribute="trailing" id="3IR-vU-fAd"/>
                 <constraint firstItem="bVc-bt-wec" firstAttribute="top" secondItem="6Z2-Kd-QUD" secondAttribute="top" constant="1" id="7LF-Ih-EXF"/>
                 <constraint firstItem="YE5-Ud-MOR" firstAttribute="leading" secondItem="frA-Nj-ORJ" secondAttribute="trailing" constant="2" id="AEa-1O-kIH"/>
+                <constraint firstAttribute="trailing" secondItem="G8c-nn-p2a" secondAttribute="trailing" constant="8" id="Fnf-Wq-uO2"/>
                 <constraint firstAttribute="bottom" secondItem="lA4-ro-FqP" secondAttribute="bottom" id="HQY-Ka-OUU"/>
                 <constraint firstItem="lA4-ro-FqP" firstAttribute="leading" secondItem="6Z2-Kd-QUD" secondAttribute="leading" id="Td6-6l-qYc"/>
                 <constraint firstItem="frA-Nj-ORJ" firstAttribute="top" secondItem="6Z2-Kd-QUD" secondAttribute="top" id="VqB-iD-pHZ"/>
@@ -96,6 +133,7 @@
                 <constraint firstItem="YE5-Ud-MOR" firstAttribute="top" secondItem="6Z2-Kd-QUD" secondAttribute="top" constant="1" id="cf1-k9-IDj"/>
                 <constraint firstItem="bVc-bt-wec" firstAttribute="leading" secondItem="6Z2-Kd-QUD" secondAttribute="leading" id="jFE-6L-Lxi"/>
                 <constraint firstItem="frA-Nj-ORJ" firstAttribute="leading" secondItem="bVc-bt-wec" secondAttribute="trailing" constant="2" id="uiC-43-1bO"/>
+                <constraint firstItem="G8c-nn-p2a" firstAttribute="top" secondItem="6Z2-Kd-QUD" secondAttribute="top" constant="1" id="x0c-Uq-Gay"/>
             </constraints>
             <point key="canvasLocation" x="264.5" y="89.5"/>
         </customView>
@@ -107,5 +145,6 @@
     </objects>
     <resources>
         <image name="RenameArrow" width="22" height="22"/>
+        <image name="SubmoduleLink" width="20" height="20"/>
     </resources>
 </document>

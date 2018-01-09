@@ -242,6 +242,7 @@
 		1A694B4C1CA367E300F73608 /* Issue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A694B4A1CA367E300F73608 /* Issue.m */; };
 		1A74A5671F2012D400D8EC78 /* RepoSearchField.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A74A5661F2012D400D8EC78 /* RepoSearchField.m */; };
 		1A7651521F562EEF006413A6 /* OmniSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7651511F562EEF006413A6 /* OmniSearch.m */; };
+		1A79E404200558FC007BFC1B /* GitModules.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A79E403200558FC007BFC1B /* GitModules.m */; };
 		1A7A414C1C8E528A0043DAF0 /* NavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414A1C8E528A0043DAF0 /* NavigationController.m */; };
 		1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */; };
 		1A7A41511C8E52D70043DAF0 /* BasicAuthController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A7A414F1C8E52D70043DAF0 /* BasicAuthController.m */; };
@@ -893,6 +894,8 @@
 		1A74A5661F2012D400D8EC78 /* RepoSearchField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RepoSearchField.m; sourceTree = "<group>"; };
 		1A7651501F562EEF006413A6 /* OmniSearch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OmniSearch.h; sourceTree = "<group>"; };
 		1A7651511F562EEF006413A6 /* OmniSearch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OmniSearch.m; sourceTree = "<group>"; };
+		1A79E402200558FC007BFC1B /* GitModules.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GitModules.h; sourceTree = "<group>"; };
+		1A79E403200558FC007BFC1B /* GitModules.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GitModules.m; sourceTree = "<group>"; };
 		1A7A41491C8E528A0043DAF0 /* NavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavigationController.h; sourceTree = "<group>"; };
 		1A7A414A1C8E528A0043DAF0 /* NavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NavigationController.m; sourceTree = "<group>"; };
 		1A7A414B1C8E528A0043DAF0 /* NavigationController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NavigationController.xib; sourceTree = "<group>"; };
@@ -1727,6 +1730,8 @@
 				1AF975741E92D99100914460 /* NSData+Git.m */,
 				1A0417491EE850A6008E7AC3 /* GitFileSearch.h */,
 				1A04174A1EE850A6008E7AC3 /* GitFileSearch.m */,
+				1A79E402200558FC007BFC1B /* GitModules.h */,
+				1A79E403200558FC007BFC1B /* GitModules.m */,
 			);
 			name = Git;
 			sourceTree = "<group>";
@@ -2378,6 +2383,7 @@
 				1A012EC41D454097006CE5DF /* NoneLabelTemplate.m in Sources */,
 				1A0D87741CA9E25F0069782D /* JSON.mm in Sources */,
 				1AB038461D5AB7EC005093B9 /* IssueWaiter.m in Sources */,
+				1A79E404200558FC007BFC1B /* GitModules.m in Sources */,
 				1A0D59EF1CA4ABF5004F2578 /* IssueDocumentController.m in Sources */,
 				1AF3497B1CDAC1E900A5BEB0 /* ChartConfig.m in Sources */,
 				1AF5674A1D665C5100611DBB /* LocalHidden.m in Sources */,

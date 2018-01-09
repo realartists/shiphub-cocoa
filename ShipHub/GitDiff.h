@@ -59,6 +59,8 @@ typedef void (^GitDiffFileBinaryCompletion)(NSData *oldFile, NSData *newFile, NS
 // Completion provides an NSArray with length = lines in patch. Each entry in the mapping array maps from line number in patch to the line number in the patch for the provided spanDiffFile or -1 if there is no mapping.
 + (void)computePatchMappingFromPatch:(NSString *)patch toPatchForFile:(GitDiffFile *)spanDiffFile completion:(void (^)(NSArray *mapping))completion;
 
+- (void)loadSubmoduleURL:(void (^)(NSURL *URL, NSString *oldSha, NSString *newSha, NSError *err))completion;
+
 @end
 
 @interface GitFileTree : NSObject

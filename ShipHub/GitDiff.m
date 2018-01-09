@@ -16,6 +16,7 @@
 #import "GitRepoInternal.h"
 #import "GitLFS.h"
 #import "GitFileSearch.h"
+#import "GitModules.h"
 #import <git2.h>
 
 static NSRegularExpression *hunkStartRE(void);
@@ -485,6 +486,112 @@ static NSArray<GitFileSearchResult *> *_searchDiff(NSRegularExpression *re, GitD
 // must be called under read-lock
 - (BOOL)_gitAttributesHasLFSForPath:(NSString *)path {
     return YES;
+}
+
+- (void)loadSubmoduleURL:(void (^)(NSURL *URL, NSString *oldSha, NSString *newSha, NSError *err))completion {
+    NSAssert([self isSubmodule], @"-loadSubmoduleURL only valid for GitDiffFiles that are submodules");
+    NSParameterAssert(completion);
+    
+    if (![self isSubmodule]) {
+        completion(nil, nil, nil, [NSError errorWithDomain:@"git" code:1 userInfo:@{NSLocalizedDescriptionKey:NSLocalizedString(@"Not a submodule", nil)}]);
+        return;
+    }
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        __block git_object *baseObj = NULL;
+        __block git_object *headObj = NULL;
+        __block git_commit *baseCommit = NULL;
+        __block git_commit *headCommit = NULL;
+        __block git_tree *baseTree = NULL;
+        __block git_tree *headTree = NULL;
+        __block git_tree_entry *baseModulesEntry = NULL;
+        __block git_tree_entry *headModulesEntry = NULL;
+        __block git_blob *baseModulesBlob = NULL;
+        __block git_blob *headModulesBlob = NULL;
+        
+        [_repo readLock];
+        
+        dispatch_block_t cleanup = ^{
+            if (baseObj) git_object_free(baseObj);
+            if (headObj) git_object_free(headObj);
+            if (baseCommit) git_commit_free(baseCommit);
+            if (headCommit) git_commit_free(headCommit);
+            if (baseTree) git_tree_free(baseTree);
+            if (headTree) git_tree_free(headTree);
+            if (baseModulesEntry) git_tree_entry_free(baseModulesEntry);
+            if (headModulesEntry) git_tree_entry_free(headModulesEntry);
+            if (baseModulesBlob) git_blob_free(baseModulesBlob);
+            if (headModulesBlob) git_blob_free(headModulesBlob);
+            
+            [_repo unlock];
+        };
+        
+        #define CHK(X) \
+        do { \
+            int giterr = (X); \
+            if (giterr) { \
+                cleanup(); \
+                NSError *err = [NSError gitError]; \
+                RunOnMain(^{ completion(nil, nil, nil, err); }); \
+                return; \
+            } \
+        } while(0);
+        
+        NSString *baseRev = self.parentTree.parentDiff.baseRev;
+        NSString *headRev = self.parentTree.parentDiff.headRev;
+        
+        CHK(git_revparse_single(&baseObj, _repo.repo, [baseRev UTF8String]));
+        CHK(git_revparse_single(&headObj, _repo.repo, [headRev UTF8String]));
+        
+        CHK(git_commit_lookup(&baseCommit, _repo.repo, git_object_id(baseObj)));
+        CHK(git_commit_lookup(&headCommit, _repo.repo, git_object_id(headObj)));
+        
+        CHK(git_commit_tree(&baseTree, baseCommit));
+        CHK(git_commit_tree(&headTree, headCommit));
+        
+        // intentionally don't CHK the following two lines as they are not
+        // necessarily going to succeed and that's ok.
+        git_tree_entry_bypath(&baseModulesEntry, baseTree, ".gitmodules");
+        git_tree_entry_bypath(&headModulesEntry, headTree, ".gitmodules");
+        
+        NSString *moduleStr = nil;
+        
+        if (headTree) {
+            CHK(git_tree_entry_to_object((git_object **)&headModulesBlob, _repo.repo, headModulesEntry));
+            if (headModulesBlob) {
+                moduleStr = [NSString stringWithGitBlob:headModulesBlob];
+            }
+        } else if (baseTree) {
+            CHK(git_tree_entry_to_object((git_object **)&baseModulesBlob, _repo.repo, baseModulesEntry));
+            if (baseModulesBlob) {
+                moduleStr = [NSString stringWithGitBlob:baseModulesBlob];
+            }
+        }
+        
+        NSURL *URL = nil;
+        if (moduleStr) {
+            GitModules *modules = [[GitModules alloc] initWithString:moduleStr];
+            URL = [modules URLForSubmodule:self.path?:self.oldPath];
+        }
+        
+        NSString *oldSha = nil;
+        NSString *newSha = nil;
+        
+        if (!git_oid_iszero(&_oldOid)) {
+            oldSha = [NSString stringWithGitOid:&_oldOid];
+        }
+        if (!git_oid_iszero(&_newOid)) {
+            newSha = [NSString stringWithGitOid:&_newOid];
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completion(URL, oldSha, newSha, nil);
+        });
+        
+        cleanup();
+        
+        #undef CHK
+    });
 }
 
 - (void)_loadContentsAsText:(GitDiffFileTextCompletion)textCompletion asBinary:(GitDiffFileBinaryCompletion)binaryCompletion progress:(NSProgress *)progress allowLFS:(BOOL)allowLFS completionQueue:(dispatch_queue_t)completionQueue
