@@ -525,7 +525,7 @@ var CrossReferencedEventBody = React.createClass({
       issueState = issue.state;
       sourceUrl = issue.url;
       isPullRequest = !!(issue.pull_request);
-      isPullRequestMerged = false;
+      isPullRequestMerged = this.props.event.ship_pull_request_merged;
     } else {
       issueTitle = this.props.event.ship_issue_title;
       issueState = this.props.event.ship_issue_state;
