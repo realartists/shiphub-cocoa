@@ -206,7 +206,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
                 } else if (((NSHTTPURLResponse *)r.response).statusCode >= 400) {
                     // missing ref error
                     [failedIdxes addIndex:i];
-                } else {
+                } else if ([r.json isKindOfClass:[NSDictionary class]] && [r.json valueForKey:@"object.url"] != nil) {
                     [json addObject:r.json];
                 }
             }
