@@ -308,7 +308,9 @@ class Commit extends React.Component {
     var bodyContent = null;
     if (this.state.showBody && body) {
       var issue = this.props.issue;
-      var [repoOwner, repoName] = issue.full_identifier.split(/\//);
+      var [repoOwner, repoName] = issue.full_identifier.split(/[\/#]/);
+      console.log("issue.full_identifier", issue.full_identifier);
+      console.log("repoOwner, repoName", repoOwner, repoName);
       
       const linkifiedBody = githubLinkify(
         repoOwner,
