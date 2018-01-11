@@ -203,10 +203,10 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
                         [self handleLoadError:r.error];
                     });
                     return;
-                } else if (((NSHTTPURLResponse *)r.response).statusCode >= 400) {
+                } else if (((NSHTTPURLResponse *)r.response).statusCode >= 400 || !([r.json isKindOfClass:[NSDictionary class]] && [r.json valueForKeyPath:@"object.url"] != nil)) {
                     // missing ref error
                     [failedIdxes addIndex:i];
-                } else if ([r.json isKindOfClass:[NSDictionary class]] && [r.json valueForKey:@"object.url"] != nil) {
+                } else {
                     [json addObject:r.json];
                 }
             }
