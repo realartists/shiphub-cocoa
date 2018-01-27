@@ -30,11 +30,28 @@
 @dynamic commits;
 @dynamic rebaseable;
 @dynamic changedFiles;
+@dynamic shipHeadBranch;
+@dynamic shipHeadRepoFullName;
 
 - (nullable id)computeBaseBranchForProperty:(nullable NSString *)propertyKey inDictionary:(nullable NSDictionary *)d
 {
     NSString *baseBranch = d[@"base"][@"ref"];
     return baseBranch;
+}
+
+- (nullable id)computeHeadBranchForProperty:(nullable NSString *)propertyKey inDictionary:(nullable NSDictionary *)d
+{
+    NSString *headBranch = d[@"head"][@"ref"];
+    return headBranch;
+}
+
+- (nullable id)computeHeadRepoFullNameForProperty:(nullable NSString *)propertyKey inDictionary:(nullable NSDictionary *)d
+{
+    @try {
+        return [d valueForKeyPath:@"head.repo.fullName"];
+    } @catch (id exc) {
+        return nil;
+    }
 }
 
 @end

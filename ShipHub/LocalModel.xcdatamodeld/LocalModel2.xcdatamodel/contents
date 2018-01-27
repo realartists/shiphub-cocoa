@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="13772" systemVersion="16G1114" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="13772" systemVersion="17D47" minimumToolsVersion="Xcode 7.0" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="">
     <entity name="LocalAccount" representedClassName="LocalAccount" syncable="YES">
         <attribute name="avatarURL" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="identifier" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
@@ -276,10 +276,23 @@
         <attribute name="merged" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="mergedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="rebaseable" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="shipHeadBranch" optional="YES" attributeType="String" syncable="YES">
+            <userInfo>
+                <entry key="computeJSON" value="computeHeadBranchForProperty:inDictionary:"/>
+            </userInfo>
+        </attribute>
+        <attribute name="shipHeadRepoFullName" optional="YES" attributeType="String" syncable="YES">
+            <userInfo>
+                <entry key="computeJSON" value="computeHeadRepoFullNameForProperty:inDictionary:"/>
+            </userInfo>
+        </attribute>
         <attribute name="updatedAt" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="issue" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalIssue" inverseName="pr" inverseEntity="LocalIssue" syncable="YES"/>
         <relationship name="mergedBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="mergedPRs" inverseEntity="LocalAccount" syncable="YES"/>
         <relationship name="requestedReviewers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="LocalAccount" inverseName="reviewRequests" inverseEntity="LocalAccount" syncable="YES"/>
+        <userInfo>
+            <entry key="computeJSON" value="computeBaseBranchForProperty:inDictionary:"/>
+        </userInfo>
     </entity>
     <entity name="LocalQuery" representedClassName="LocalQuery" syncable="YES">
         <attribute name="identifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
@@ -353,7 +366,7 @@
         <element name="LocalProject" positionX="9" positionY="153" width="128" height="180"/>
         <element name="LocalProtectedBranch" positionX="9" positionY="153" width="128" height="105"/>
         <element name="LocalPRReview" positionX="18" positionY="162" width="128" height="180"/>
-        <element name="LocalPullRequest" positionX="9" positionY="153" width="128" height="345"/>
+        <element name="LocalPullRequest" positionX="9" positionY="153" width="128" height="375"/>
         <element name="LocalQuery" positionX="9" positionY="153" width="128" height="120"/>
         <element name="LocalQueryOutbox" positionX="18" positionY="162" width="128" height="90"/>
         <element name="LocalReaction" positionX="9" positionY="153" width="128" height="165"/>

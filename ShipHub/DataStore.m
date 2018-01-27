@@ -143,8 +143,9 @@ NSString *const DataStoreRateLimitUpdatedEndDateKey = @"DataStoreRateLimitUpdate
  20: realartists/shiphub-cocoa#182 Sync / Share Queries [Client]
  21: realartists/shiphub-cocoa#717 Scope pending reviews local to Ship (disable GitHub integration)
  22: realartists/shiphub-cocoa#733 Respect project merge restrictions in merge popover
+ 23: realartists/shiphub-cocoa#764 Add search predicates for PR head and base refs
  */
-static const NSInteger CurrentLocalModelVersion = 22;
+static const NSInteger CurrentLocalModelVersion = 23;
 
 @interface DataStore () <SyncConnectionDelegate> {
     NSString *_purgeVersion;
@@ -393,6 +394,8 @@ static NSString *const LastUpdated = @"LastUpdated";
     
     BOOL needsQueriesCopiedToOutbox = previousStoreVersion < 20;
     
+    BOOL needsPRShipHeadBranch = previousStoreVersion < 23;
+    
     NSDictionary *options = @{ NSMigratePersistentStoresAutomaticallyOption: @YES, NSInferMappingModelAutomaticallyOption: @(!needsHeavyweightMigration) };
     
     NSPersistentStore *store = _persistentStore = [_persistentCoordinator addPersistentStoreWithType:NSSQLiteStoreType configuration:@"Default" URL:storeURL options:options error:&err];
@@ -615,6 +618,27 @@ static NSString *const LastUpdated = @"LastUpdated";
                 [entry setValue:q forKey:@"query"];
                 [entry setValue:@NO forKey:@"pending"];
                 [entry setValue:q.identifier forKey:@"identifier"];
+            }
+            
+            [_writeMoc save:NULL];
+        }];
+    }
+    
+    if (needsPRShipHeadBranch) {
+        [_writeMoc performBlockAndWait:^{
+            NSFetchRequest *prFetch = [NSFetchRequest fetchRequestWithEntityName:@"LocalPullRequest"];
+            prFetch.predicate = [NSPredicate predicateWithFormat:@"head != nil"];
+            
+            NSArray *prs = [_writeMoc executeFetchRequest:prFetch error:NULL];
+            for (LocalPullRequest *pr in prs) {
+                NSDictionary *b = (id)pr.head;
+                if ([b isKindOfClass:[NSDictionary class]]) {
+                    pr.shipHeadBranch = b[@"ref"];
+                    NSDictionary *headRepo = b[@"repo"];
+                    if ([headRepo isKindOfClass:[NSDictionary class]]) {
+                        pr.shipHeadRepoFullName = headRepo[@"fullName"];
+                    }
+                }
             }
             
             [_writeMoc save:NULL];

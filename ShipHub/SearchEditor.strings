@@ -74,3 +74,22 @@
 "%[reviews.user.login]@ %[is not]@ %@" = "%1$[Reviewers]@ %2$[does not contain]@ %3$@";
 
 "%[reviews]@ %@ %@ %@" = "%1$[Review state]@ %2$@ %3$@ %4$@";
+
+"%[pr.baseBranch]@ %[is]@ %@" = "%1$[PR Base Branch]@ %2$[is]@ %3$@";
+"%[pr.baseBranch]@ %[is not]@ %@" = "%1$[PR Base Branch]@ %2$[is not]@ %3$@";
+"%[pr.baseBranch]@ %[contains]@ %@" = "%1$[PR Base Branch]@ %2$[contains]@ %3$@";
+"%[pr.baseBranch]@ %[begins with]@ %@" = "%1$[PR Base Branch]@ %2$[begins with]@ %3$@";
+"%[pr.baseBranch]@ %[matches]@ %@" = "%1$[PR Base Branch]@ %2$[matches]@ %3$@";
+
+"%[pr.shipHeadBranch]@ %[is]@ %@" = "%1$[PR Head Branch]@ %2$[is]@ %3$@";
+"%[pr.shipHeadBranch]@ %[is not]@ %@" = "%1$[PR Head Branch]@ %2$[is not]@ %3$@";
+"%[pr.shipHeadBranch]@ %[contains]@ %@" = "%1$[PR Head Branch]@ %2$[contains]@ %3$@";
+"%[pr.shipHeadBranch]@ %[begins with]@ %@" = "%1$[PR Head Branch]@ %2$[begins with]@ %3$@";
+"%[pr.shipHeadBranch]@ %[matches]@ %@" = "%1$[PR Head Branch]@ %2$[matches]@ %3$@";
+
+"%[pr.shipHeadRepoFullName]@ %[is]@ %@" = "%1$[PR Head Repository]@ %2$[is]@ %3$@";
+"%[pr.shipHeadRepoFullName]@ %[is not]@ %@" = "%1$[PR Head Repository]@ %2$[is not]@ %3$@";
+"%[pr.shipHeadRepoFullName]@ %[contains]@ %@" = "%1$[PR Head Repository]@ %2$[contains]@ %3$@";
+"%[pr.shipHeadRepoFullName]@ %[begins with]@ %@" = "%1$[PR Head Repository]@ %2$[begins with]@ %3$@";
+"%[pr.shipHeadRepoFullName]@ %[matches]@ %@" = "%1$[PR Head Repository]@ %2$[matches]@ %3$@";
+
