@@ -1173,6 +1173,44 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
             [_table reloadData];
         }
         return YES;
+    } else if (_upNextMode && ([event modifierFlags] & NSEventModifierFlagOption) != 0 && ([event isArrowDown] || [event isArrowUp])) {
+        
+        NSIndexSet *selectedIdxs = [_table selectedRowIndexes];
+        
+        if ([selectedIdxs count] == 0) {
+            return YES;
+        }
+        
+        NSArray *moved = [self selectedItems];
+        
+        NSInteger context;
+        NSInteger direction;
+        if ([event isArrowUp]) {
+            direction = -1;
+            context = MAX(0, (NSInteger)[selectedIdxs firstIndex] - 1);
+        } else {
+            direction = 1;
+            context = MIN([selectedIdxs lastIndex]+2, _items.count);
+        }
+        
+        [_delegate issueTableController:self didReorderItems:moved aboveItemAtIndex:context];
+    
+        [_items moveItemsAtIndexes:selectedIdxs toIndex:context];
+        
+        [self.table.animator beginUpdates];
+        [selectedIdxs enumerateIndexesUsingBlock:^(NSUInteger src, BOOL * _Nonnull stop) {
+            NSInteger dst = src;
+            dst += direction;
+            dst = MIN(dst, (NSInteger)(_items.count) - 1);
+            dst = MAX(0, dst);
+            [self.table.animator moveRowAtIndex:src toIndex:dst];
+        }];
+        [self.table.animator endUpdates];
+        
+        [self selectItems:moved];
+        
+        return YES;
+        
     } else if ([event isReturn]) {
         [self openDocument:tableView];
         return YES;
