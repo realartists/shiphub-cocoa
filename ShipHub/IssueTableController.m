@@ -1173,7 +1173,7 @@ static NSDictionary *makeReactionColumnSpec(NSString *reactionContent) {
             [_table reloadData];
         }
         return YES;
-    } else if (_upNextMode && ([event modifierFlags] & NSEventModifierFlagOption) != 0 && ([event isArrowDown] || [event isArrowUp])) {
+    } else if (_upNextMode && ([event modifierFlags] & NSEventModifierFlagCommand) != 0 && ([event isArrowDown] || [event isArrowUp])) {
         
         NSIndexSet *selectedIdxs = [_table selectedRowIndexes];
         
