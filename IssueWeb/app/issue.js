@@ -109,6 +109,7 @@ var EventIcon = React.createClass({
         icon = "hand-o-right";
         break;
       case "converted_note_to_issue":
+      case "added_to_project":
         icon = "trello";
         break;
       case "review_requested":
@@ -439,6 +440,14 @@ var ConvertedNoteToIssueDescription = React.createClass({
   }
 });
 
+var AddedToProjectDescription = React.createClass({
+  propTypes: { event: React.PropTypes.object.isRequired },
+  render: function() {
+    return h("span", {}, "added this issue to a project");
+  }
+});
+
+
 var HeadRefDeletedDescription = React.createClass({
   propTypes: { event: React.PropTypes.object.isRequired },
   render: function() {
@@ -503,6 +512,7 @@ var ClassForEventDescription = function(event) {
     case "closed": return ClosedEventDescription;
     case "cross-referenced": return CrossReferencedEventDescription;
     case "converted_note_to_issue": return ConvertedNoteToIssueDescription;
+    case "added_to_project": return AddedToProjectDescription;
     case "head_ref_deleted": return HeadRefDeletedDescription;
     case "review_requested": return ReviewRequestedEventDescription;
     case "review_request_removed": return ReviewRequestRemovedEventDescription;
