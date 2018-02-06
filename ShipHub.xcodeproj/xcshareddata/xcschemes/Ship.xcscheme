@@ -76,7 +76,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-UseWebpackDevServer YES"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints YES"
