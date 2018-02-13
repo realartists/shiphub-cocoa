@@ -32,7 +32,7 @@ import ghost from 'util/ghost.js';
 import { keypath } from 'util/keypath.js'
 import { promiseQueue } from 'util/promise-queue.js'
 import { pasteHelper } from 'util/paste-helper.js'
-import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate, makeUnorderedList, makeOrderedList, makeTaskList, makeHyperlink, makeCodeFence } from 'util/cm-util.js'
+import { shiftTab, searchForward, searchBackward, toggleFormat, increasePrefix, decreasePrefix, insertTemplate, makeUnorderedList, makeOrderedList, makeTaskList, makeHyperlink, makeCodeFence, codeOrFence } from 'util/cm-util.js'
 import { emojify, emojifyReaction } from 'util/emojify.js'
 
 import AddCommentHeader from './AddCommentHeader.js'
@@ -700,6 +700,7 @@ class AbstractComment extends React.Component {
         quoteLess: decreasePrefix('>'),
         code: toggleFormat('`', 'comment'),
         codefence: makeCodeFence,
+        codeOrFence: codeOrFence,
         insertTable: insertTemplate(
           'Heading 1 | Heading 2\n' +
           '----------|----------\n' +
@@ -717,6 +718,7 @@ class AbstractComment extends React.Component {
         'Shift-Cmd-Enter': () => { this.saveAndClose(); },
         'Shift-Tab': shiftTab,
         'Tab': 'indentMore',
+        '`': cm.extraCommands.codeOrFence,
         // unbind cmd-u/shift-cmd-u to let app handle them
         // codemirror treats them as undo/redo selection, but this is nonstandard
         // and we need these bindings elsewhere

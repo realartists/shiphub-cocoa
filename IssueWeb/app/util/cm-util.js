@@ -269,3 +269,23 @@ export function makeCodeFence(cm) {
   }
 }
 
+export function codeOrFence(cm) {
+  var from = cm.getCursor("from");
+  var to = cm.getCursor("to");
+  var text = cm.getRange(from, to);
+  
+  var cursor = cm.getCursor();
+  var mode = cm.getModeAt(cursor);
+  if (mode.name != 'markdown') return; // don't do completions outside of markdown mode
+  
+  if (text.trim().length) {
+    if (from.line != to.line) {
+      makeCodeFence(cm);
+    } else {
+      toggleFormat('`', 'comment')(cm);
+    }
+  } else {
+    cm.replaceRange('`', from, to);
+  }
+}
+
