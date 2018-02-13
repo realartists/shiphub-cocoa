@@ -274,18 +274,20 @@ export function codeOrFence(cm) {
   var to = cm.getCursor("to");
   var text = cm.getRange(from, to);
   
-  var cursor = cm.getCursor();
-  var mode = cm.getModeAt(cursor);
-  if (mode.name != 'markdown') return; // don't do completions outside of markdown mode
+  var fromMode = cm.getModeAt(from).name;
+  var toMode = cm.getModeAt(to).name;
   
-  if (text.trim().length) {
+  var fromType = cm.getTokenTypeAt(from);
+  var toType = cm.getTokenTypeAt(to);
+  
+  if (fromMode != 'markdown' || toMode != 'markdown' || text.trim().length == 0 || fromType == 'comment' || toType == 'comment') {
+    cm.replaceRange('`', from, to);
+  } else {
     if (from.line != to.line) {
       makeCodeFence(cm);
     } else {
       toggleFormat('`', 'comment')(cm);
     }
-  } else {
-    cm.replaceRange('`', from, to);
   }
 }
 
