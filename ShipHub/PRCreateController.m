@@ -636,6 +636,10 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
 
 @implementation PRCreateTableCellView
 
+- (void)awakeFromNib {
+    _latestCommitLabel.maximumNumberOfLines = 1;
+}
+
 - (void)setBackgroundStyle:(NSBackgroundStyle)backgroundStyle
 {
     [super setBackgroundStyle:backgroundStyle];
