@@ -18,6 +18,8 @@
 
 @property NSInteger pageLimit; // default = 100
 
+@property NSURLRequestCachePolicy cachePolicy; // default NSURLRequestUseProtocolCachePolicy
+
 - (NSMutableURLRequest *)get:(NSString *)endpoint;
 - (NSMutableURLRequest *)get:(NSString *)endpoint params:(NSDictionary *)params;
 - (NSMutableURLRequest *)get:(NSString *)endpoint params:(NSDictionary *)params headers:(NSDictionary *)headers;

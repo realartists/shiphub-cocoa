@@ -78,6 +78,8 @@
         [req setValue:headers[key] forHTTPHeaderField:key];
     }
     
+    req.cachePolicy = _cachePolicy;
+    
     return req;
 }
 

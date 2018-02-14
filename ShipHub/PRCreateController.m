@@ -69,6 +69,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
 @property IBOutlet NSButton *nextButton;
 
 @property BOOL loading;
+@property BOOL refreshing;
 @property NSArray<PRPushEvent *> *pushes;
 
 @property PRPushEvent *selectedPush;
@@ -88,7 +89,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
 }
 
 - (void)handleLoadError:(NSError *)error {
-    _loading = NO;
+    _loading = _refreshing = NO;
     [_progressIndicator stopAnimation:nil];
     
     NSAlert *alert = [NSAlert new];
@@ -112,7 +113,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
     _nothingLabel.hidden = NO;
     _nextButton.enabled = NO;
     _refreshButton.hidden = NO;
-    _loading = NO;
+    _loading = _refreshing = NO;
 }
 
 - (void)loadData {
@@ -154,6 +155,9 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
 - (RequestPager *)pager {
     Auth *auth = [[DataStore activeStore] auth];
     RequestPager *pager = [[RequestPager alloc] initWithAuth:auth];
+    if (_refreshing) {
+        pager.cachePolicy = NSURLRequestReloadIgnoringCacheData;
+    }
     return pager;
 }
 
@@ -449,7 +453,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
     }
     
     [_progressIndicator stopAnimation:nil];
-    _loading = NO;
+    _loading = _refreshing = NO;
     _refreshButton.hidden = NO;
     _pushes = events;
     [_table reloadData];
@@ -511,6 +515,7 @@ typedef NS_ENUM(NSInteger, PRPushEventType) {
 }
 
 - (IBAction)refresh:(id)sender {
+    _refreshing = YES;
     [self loadData];
 }
 
