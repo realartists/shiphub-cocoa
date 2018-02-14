@@ -2724,6 +2724,11 @@
       "from": "promise@>=7.0.3 <8.0.0",
       "resolved": "https://registry.npmjs.org/promise/-/promise-7.1.1.tgz"
     },
+    "prop-types": {
+      "version": "15.6.0",
+      "from": "prop-types@>=15.6.0 <16.0.0",
+      "resolved": "https://registry.npmjs.org/prop-types/-/prop-types-15.6.0.tgz"
+    },
     "proxy-addr": {
       "version": "1.1.3",
       "from": "proxy-addr@>=1.1.3 <1.2.0",
@@ -2797,24 +2802,24 @@
       "resolved": "https://registry.npmjs.org/raw-loader/-/raygun4js-2.7.1.tgz"
     },
     "react": {
-      "version": "0.14.8",
-      "from": "react@>=0.14.7 <0.15.0",
-      "resolved": "https://registry.npmjs.org/react/-/react-0.14.8.tgz"
+      "version": "15.6.2",
+      "from": "react@>=15.6.2 <16.0.0",
+      "resolved": "https://registry.npmjs.org/react/-/react-15.6.2.tgz"
     },
     "react-codemirror": {
       "version": "0.2.6",
-      "from": "react-codemirror@>=0.2.5 <0.3.0",
+      "from": "react-codemirror@>=0.2.6 <0.3.0",
       "resolved": "https://registry.npmjs.org/react-codemirror/-/react-codemirror-0.2.6.tgz"
     },
     "react-dom": {
-      "version": "0.14.8",
-      "from": "react-dom@>=0.14.7 <0.15.0",
-      "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-0.14.8.tgz"
+      "version": "15.6.2",
+      "from": "react-dom@>=15.6.2 <16.0.0",
+      "resolved": "https://registry.npmjs.org/react-dom/-/react-dom-15.6.2.tgz"
     },
     "react-textarea-autosize": {
-      "version": "3.3.1",
-      "from": "react-textarea-autosize@>=3.3.1 <4.0.0",
-      "resolved": "https://registry.npmjs.org/react-textarea-autosize/-/react-textarea-autosize-3.3.1.tgz"
+      "version": "5.2.1",
+      "from": "react-textarea-autosize@>=5.2.1 <6.0.0",
+      "resolved": "https://registry.npmjs.org/react-textarea-autosize/-/react-textarea-autosize-5.2.1.tgz"
     },
     "readable-stream": {
       "version": "1.0.34",

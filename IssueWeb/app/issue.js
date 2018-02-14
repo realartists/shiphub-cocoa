@@ -1123,7 +1123,7 @@ var IssueTitle = React.createClass({
   
   componentDidMount: function() {
     if (!this.props.issue.number) {
-      this.focus();
+      setTimeout(() => this.focus(), 0);
     }
   },
   
@@ -1172,7 +1172,7 @@ var RepoField = React.createClass({
   onChange: function(newRepo, goNext) {
     var fail = () => {
       setTimeout(() => {
-        this.refs.input.refs.typeInput.setState({value: this.repoValue()});
+        this.refs.input.revert();
       }, 1);
     };
   
@@ -1242,8 +1242,7 @@ var RepoField = React.createClass({
   
   onEnter: function() {
     var completer = this.refs.input;
-    var el = ReactDOM.findDOMNode(completer.refs.typeInput);
-    var val = el.value;
+    var val = completer.domValue();
     
     var promises = [];
     completer.props.matcher(val, (results) => {
@@ -1307,13 +1306,16 @@ var RepoField = React.createClass({
     
     var canEdit = this.canEdit();
     var inputType = Completer;
+    var inputProps = { ref:'input', placeholder: 'Required', onChange:this.onChange, onEnter:this.onEnter, value:this.repoValue()||"", matcher: matcher, readOnly:!canEdit };
     if (!canEdit) {
       inputType = 'input';
+      delete inputProps.onEnter;
+      delete inputProps.matcher;
     }
     
     return h('div', {className: 'IssueInput RepoField'},
       h(HeaderLabel, {title: 'Repo'}),
-      h(inputType, {ref:'input', placeholder: 'Required', onChange:this.onChange, onEnter:this.onEnter, value:this.repoValue(), matcher: matcher, readOnly:!canEdit}),
+      h(inputType, inputProps),
       h(StateField, {issue: this.props.issue})
     );
   }
@@ -1452,13 +1454,13 @@ var MilestoneField = React.createClass({
       var value = keypath(this.props.issue, "milestone.title");
       var placeholder = "No Milestone";
       if (value) {
-        placeholder = null;
+        placeholder = undefined;
       }
       comps.push(h('input', {
         type:'text', 
         key:'milestone-ro', 
         ref:'milestone-ro', 
-        value,
+        value:(value||""),
         placeholder,
         readOnly
       }));

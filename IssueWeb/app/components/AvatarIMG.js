@@ -44,6 +44,8 @@ var AvatarIMG = React.createClass({
       height: s
     };
     imgProps = Object.assign({}, this.props, imgProps);
+    delete imgProps.user;
+    delete imgProps.size;
     return h('img', imgProps);
   }
 });

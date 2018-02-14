@@ -10,10 +10,9 @@ var AssigneesPicker = React.createClass({
   
   onAdd: function() {
     var completer = this.refs.completer;
-    if (!completer || !(completer.refs.typeInput)) return;
+    if (!completer) return;
     
-    var el = ReactDOM.findDOMNode(completer.refs.typeInput);
-    var val = el.value;
+    var val = completer.domValue();
     
     if (val === "") {
       return;
@@ -23,7 +22,7 @@ var AssigneesPicker = React.createClass({
     
     var promise = this.props.onAdd(existingMatch);
     
-    $(el).typeahead('val', "");
+    completer.typeahead('val', "");
 
     return promise;
   },
@@ -36,9 +35,8 @@ var AssigneesPicker = React.createClass({
   
   onPlusClick: function() {
     var completer = this.refs.completer;
-    if (!completer || !(completer.refs.typeInput)) return;
-    var el = ReactDOM.findDOMNode(completer.refs.typeInput);
-    var val = el.value;
+    if (!completer) return;
+    var val = completer.domValue();
     
     if (val === "") {
       this.focus();
@@ -87,10 +85,16 @@ var AssigneesPicker = React.createClass({
   
   render: function() {
     const matcher = Completer.SubstrMatcher(this.props.availableAssigneeLogins);
+    
+    var prevValue = "";
+    var completer = this.refs.completer;
+    if (completer) {
+      prevValue = completer.domValue() || "";
+    }
   
     return h('span', {className:"AssigneesPicker"},
       h(Completer, {
-        value: "",
+        value: prevValue,
         ref: 'completer',
         placeholder: this.props.placeholder||"Add Assignee",
         onEnter: this.onAdd,
