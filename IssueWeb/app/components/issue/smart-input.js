@@ -89,6 +89,13 @@ var SmartInput = React.createClass({
   render: function() {
     var elementType = this.props.element || 'input';
     var props = Object.assign({}, this.props, this.state, {ref:'input', onChange:this.onChange, onKeyPress:this.onKeyPress, onBlur:this.onBlur});
+    delete props.initialValue;
+    delete props.element;
+    delete props.onEdit;
+    if (props.value === null) {
+      console.log("null SmartElement value!");
+      props.value = "";
+    }
     return h(elementType, props, this.children);
   }
 });

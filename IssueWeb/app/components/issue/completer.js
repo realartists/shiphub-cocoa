@@ -1,10 +1,9 @@
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
-import SmartInput from './smart-input.js'
 import { htmlEncode } from 'js-htmlencode'
 import escapeStringForRegex from 'util/escape-regex.js'
 
-import 'typeahead.js'
+import 'ext/typeahead.js/typeahead.jquery.js'
 
 
 
@@ -20,39 +19,26 @@ var Completer = React.createClass({
     matcher: React.PropTypes.func.isRequired, /* function matcher(text, callback) => ( callback([match1, match2, ...]) ) */
     suggestionFormatter: React.PropTypes.func /* function formatter(value) => "html" */
   },
-  
+        
   render: function() {
-    var props = Object.assign({}, this.props, {
-      className: 'typeahead',
-      ref: 'typeInput',
-      onBlur: this.onBlur
-    });
-  
-    return h(SmartInput, props);
+    return h('span', {'ref':'span', style:{width: '100%'}});
   },
   
   focus: function() {
-    if (this.refs.typeInput) {
-      this.refs.typeInput.focus();
-    }
+    var input = this._input();
+    if (input) input.focus();
   },
   
   blur: function() {
-    if (this.refs.typeInput) {
-      this.refs.typeInput.blur();
-    }
+    var input = this._input();
+    if (input) input.blur();
   },
   
   hasFocus: function() {
-    if (this.refs.typeInput) {
-      this.refs.typeInput.hasFocus();
-    }
+    var input = this._input();
+    return input == document.activeElement;
   },
-  
-  isEdited: function() {
-    return this.refs.typeInput != null && this.refs.typeInput.isEdited();
-  },
-  
+    
   onSelect: function(evt, obj) {
     if (this.props.newItem) {
       var content = obj.content;
@@ -75,9 +61,34 @@ var Completer = React.createClass({
       }
     }
   },
-  
+    
   updateTypeahead: function() {
-    var el = ReactDOM.findDOMNode(this.refs.typeInput);
+    var span = ReactDOM.findDOMNode(this.refs.span);
+
+    function findTypeahead(node) {
+      if (node.tagName === 'INPUT' && node.className.indexOf('tt-input') != -1) {
+        return node;
+      }
+      for (var i = 0; i < node.children.length; i++) {
+        var found = findTypeahead(node.children[i]);
+        if (found) return found;
+      }
+      return null;
+    }    
+    
+    var hadTypeahead = true;
+    var input = findTypeahead(span);
+    if (!input) {
+      input = document.createElement('input');
+      span.appendChild(input);
+      input.className = 'typeahead';
+      input.onChange = (evt) => this.onChange(evt);
+      input.placeholder = this.props.placeholder;
+      input.value = this.props.value;
+      this._inputElement = input;
+      hadTypeahead = false;
+    }
+    
     var baseMatcher = this.props.matcher;
     
     var matcherPlusInitial = (text, cb) => {
@@ -86,7 +97,6 @@ var Completer = React.createClass({
           If opening for the first time, show all possible choices, but put the
           current choice (if any) first
         */
-        this.opening = false;
         baseMatcher("", function(results) {
           // move text to front of results
           var re = new RegExp("^" + escapeStringForRegex(text) + "$", 'i');
@@ -147,14 +157,12 @@ var Completer = React.createClass({
       display = (x) => x;
       matcher = matcherPlusInitial;
     }
-    
-    var hadFocus = this.refs.typeInput.hasFocus();
-    this.remounting = true;
-    
-    $(el).typeahead('destroy');
-    $(el).off();
-    
+        
     if (this.props.readOnly) {
+      if (hadTypeahead) {
+        $(input).typeahead('destroy');
+        $(input).off();
+      }
       return;
     }
 
@@ -178,54 +186,78 @@ var Completer = React.createClass({
       };
     }
     
-    var typeaheadConfigOpts = {
-      hint: true,
-      highlight: true,
-      minLength: 0,
-      autoselect: true,
-    };
+    this.typeaheadDataOpts = typeaheadDataOpts;
+        
     
-    $(el).typeahead(typeaheadConfigOpts, typeaheadDataOpts)
-    
-    $(el).on('typeahead:beforeautocomplete', () => {
-      this.completeOrFail();
-      return false;
-    });
-    
-    $(el).on('typeahead:beforeopen', () => {
-      this.opening = true;
-    });
-    
-    // work around a bug where WebKit doesn't draw the text caret
-    // when tabbing to the field and nothing is in it.
-    $(el).focus(function() {
-      setTimeout(function() {
-        if (el.value.length == 0) {
-          el.setSelectionRange(0, el.value.length);
+    if (!hadTypeahead) {
+      var dataThunks = {
+        limit: typeaheadDataOpts.limit,
+        source: (text, cb) => this._data_source(text, cb),
+        display: (x) => this._data_display(x),
+        templates: {
+          suggestion: (x) => this._data_formatter(x)
         }
-      }, 0);
-    });
+      };
+      
+      var typeaheadConfigOpts = {
+        hint: true,
+        highlight: true,
+        minLength: 0,
+        autoselect: true,
+      };
     
-    $(el).on('typeahead:select', (evt, obj) => {
-      this.onSelect(evt, obj);
-    });
-
-    $(el).keypress((evt) => {
-      if (evt.which == 13) {
-        evt.preventDefault();
-        this.completeOrFail(() => {
-          if (this.props.onEnter) {
-            this.props.onEnter();
+      $(input).typeahead(typeaheadConfigOpts, dataThunks)
+    
+      $(input).on('typeahead:beforeautocomplete', () => {
+        this.completeOrFail();
+        return false;
+      });
+    
+      $(input).on('typeahead:beforeopen', () => {
+        var wasOpening = this.opening;
+        this.opening = true;
+        if (!wasOpening) {
+          this.updateMenu();
+        }
+      });
+      
+      $(input).on('typeahead:close', () => {
+        this.opening = false;
+      });
+    
+      // work around a bug where WebKit doesn't draw the text caret
+      // when tabbing to the field and nothing is in it.
+      $(input).on('focus', function() {
+        setTimeout(function() {
+          if (input.value.length == 0) {
+            input.setSelectionRange(0, input.value.length);
           }
-        });
-      }
-    });
+        }, 0);
+      });
     
-    if (hadFocus) {
-      this.refs.typeInput.focus();
-      $(el).typeahead('open');
+      $(input).on('typeahead:select', (evt, obj) => {
+        this.onSelect(evt, obj);
+      });
+    
+      $(input).on('blur', (evt) => this.onBlur(evt));
+
+      $(input).keypress((evt) => {
+        this.opening = false;
+        if (evt.which == 13) {
+          evt.preventDefault();
+          this.completeOrFail(() => {
+            if (this.props.onEnter) {
+              this.props.onEnter();
+            }
+          });
+        }
+      });
+    
+      this.remounting = false;
+    } else {
+      this.typeahead('val', this.props.value);
+      this.updateMenu();
     }
-    this.remounting = false;
   },
   
   componentDidUpdate: function() {
@@ -236,14 +268,42 @@ var Completer = React.createClass({
     this.updateTypeahead();
   },
   
+  componentWillUnmount: function() {
+    if (this._inputElement) {
+      $(this._inputElement).typeahead('destroy');
+      $(this._inputElement).off();
+      delete this._inputElement;
+    }
+  },
+  
+  updateMenu() {
+    this.typeahead('updateMenu');
+  },
+  
+  _data_source: function(text, cb) {
+    this.cb = cb;
+    return this.typeaheadDataOpts.source(text, cb);
+  },
+  
+  _data_display: function(x) {
+    return this.typeaheadDataOpts.display(x);
+  },
+  
+  _data_formatter: function(value) {
+    if (this.typeaheadDataOpts.templates) {
+      return this.typeaheadDataOpts.templates.suggestion(value);
+    } else {
+      return `<div class='tt-suggestion'>${htmlEncode(value.content||value)}</div>`;
+    }
+  },
+    
   completeOrFail: function(completion) {
-    if (!this.matcher || !this.refs.typeInput) {
-      completion();
+    if (!this.matcher || !this._input()) {
+      if (completion) completion();
       return;
     }
 
-    var el = ReactDOM.findDOMNode(this.refs.typeInput);
-    var val = $(el).typeahead('val') || "";
+    var val = this.typeahead('val') || "";
     this.matcher(val, (matches) => {
       var newVal = "";
       if (val.length == 0 || matches.length == 0) {
@@ -258,38 +318,60 @@ var Completer = React.createClass({
           newVal = matches[0];
         }
       }
-      $(el).typeahead('val', newVal);
-      this.refs.typeInput.setState({value: newVal}, completion);
+      this.typeahead('val', newVal);
+      if (completion) completion();
     });
+  },
+  
+  _input: function() {
+    return this._inputElement;
+  },
+  
+  domValue: function() {
+    return this.typeahead('val');
+  },
+  
+  typeahead: function() {
+    var input = this._input();
+    if (input) return $(input).typeahead(...arguments);
   },
   
   value: function() {
-    if (this.refs.typeInput) {
-      return this.refs.typeInput.state.value;
-    } else {
-      return this.props.value;
-    }
+    return this.domValue();
+  },
+    
+  clear: function() {
+    this.typeahead('val', '');
   },
   
-  clear: function() {
-    if (this.refs.typeInput) {
-      var el = ReactDOM.findDOMNode(this.refs.typeInput);
-      $(el).typeahead('val', "");
-      this.refs.typeInput.setState({value: ""});
-    }
+  revert: function() {
+    this.typeahead('val', this.props.value||'');
   },
   
   onBlur: function() {
-    if (this.remounting || this.handlingNew) return;  
+    if (this.remounting || this.handlingNew) return; 
     this.completeOrFail(() => {
-      this.refs.typeInput.dispatchChangeIfNeeded(false);
+      this.dispatchChangeIfNeeded(false);
     });
+    if (this.props.onBlur) {
+      this.props.onBlur();
+    }
     return true;
   },
   
+  isEdited: function() {
+    if (this.props.readOnly) return false;
+    return (this.props.value || "") != (this.domValue() || "");
+  },
+  
+  dispatchChangeIfNeeded: function(goNext) {
+    if (this.props.onChange != null && this.isEdited()) {
+      this.props.onChange(this.domValue(), goNext);
+    }
+  },
+  
   containsCompleteValue: function() {
-    var el = ReactDOM.findDOMNode(this.refs.typeInput);
-    var val = $(el).typeahead('val') || "";
+    var val = this.typeahead('val') || "";
     
     if (val === "") return false;
     var allMatches = [];

@@ -90,7 +90,7 @@ var TimeAgo = React.createClass(
     }
   }
   , tick: function(refresh){
-      if(!this.isMounted() || !this.props.live){
+      if(!this.props.live){
         return
       }
 
@@ -123,6 +123,14 @@ var TimeAgo = React.createClass(
   , render: function(){
       var fullDateString = new Date(this.props.date).toLocaleString();
       var props = Object.assign({}, { title: fullDateString }, this.props);
+      {
+        delete props.live; 
+        delete props.minPeriod;
+        delete props.maxPeriod;
+        delete props.component; 
+        delete props.formatter; 
+        delete props.date;
+      }
       return h( this.props.component, props, TimeAgoString(this.props.date, this.props.formatter) )
     }
   }

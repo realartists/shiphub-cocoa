@@ -17,10 +17,9 @@ var LabelPicker = React.createClass({
   
   addLabel: function() {
     var completer = this.refs.completer;
-    if (!completer || !(completer.refs.typeInput)) return;
+    if (!completer) return;
     
-    var el = ReactDOM.findDOMNode(completer.refs.typeInput);
-    var val = el.value;
+    var val = completer.domValue();
     
     if (val === "") {
       return;
@@ -32,10 +31,10 @@ var LabelPicker = React.createClass({
     var promise;
     if (existingLabelMatch) {
       promise = this.props.onAddExistingLabel(existingLabelMatch)
-      $(el).focus();
+      completer.focus();
     }
 
-    $(el).typeahead('val', "");
+    completer.typeahead('val', "");
 
     return promise;
   },
@@ -48,9 +47,8 @@ var LabelPicker = React.createClass({
   
   onPlusClick: function() {
     var completer = this.refs.completer;
-    if (!completer || !(completer.refs.typeInput)) return;
-    var el = ReactDOM.findDOMNode(completer.refs.typeInput);
-    var val = el.value;
+    if (!completer) return;
+    var val = completer.domValue();
     
     if (val === "") {
       this.focus();
@@ -134,10 +132,16 @@ var LabelPicker = React.createClass({
       
       return `<div class='tt-suggestion tt-label-suggestion'>${inner}</div>`
     };
+    
+    var prevValue = "";
+    var completer = this.refs.completer;
+    if (completer) {
+      prevValue = completer.domValue() || "";
+    }
   
     return h('span', {className:"LabelPicker"},
       h(Completer, {
-        value: "",
+        value: prevValue,
         ref: 'completer',
         placeholder: "Add Label",
         onEnter: this.addLabel,
