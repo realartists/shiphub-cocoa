@@ -451,6 +451,17 @@ static CGFloat clamp(CGFloat v, CGFloat min, CGFloat max) {
     return NO;
 }
 
+- (NSImage *)flippedImage {
+    NSImage *x = [[NSImage alloc] initWithSize:self.size];
+    [x lockFocus];
+    CGContextRef ctx = [[NSGraphicsContext currentContext] CGContext];
+    CGContextTranslateCTM(ctx, 0.0, self.size.height);
+    CGContextScaleCTM(ctx, 1.0, -1.0);
+    [self drawInRect:CGRectMake(0, 0, self.size.width, self.size.height)];
+    [x unlockFocus];
+    return x;
+}
+
 @end
 
 @implementation NSColor (Extras)

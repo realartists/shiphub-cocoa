@@ -1,5 +1,7 @@
+import sys
 import json
 import re
+import getopt
 import requests
 
 pathRE = re.compile(r'.*?/unicode/([A-Fa-f0-9\-]+).png.*')
@@ -21,8 +23,41 @@ def normalizeEmoji(name, emoji):
 
 mappedEmojis = { name : normalizeEmoji(name, url) for name, url in emojis.items() }
 
-print("""
-var EmojiList = %s;
+optlist, args = getopt.getopt(sys.argv[1:], "cj")
 
-export default EmojiList;
-""" % json.dumps(mappedEmojis, indent=2))
+js = True
+objc = False
+
+for opt in optlist:
+  if opt[0] == '-c':
+    js = False
+    objc = True
+  elif opt[1] == '-j':
+    js = True
+    objc = False
+
+
+if js:
+  print("""
+  var EmojiList = %s;
+
+  export default EmojiList;
+  """ % json.dumps(mappedEmojis, indent=2))
+else: # objc
+  print("@{")
+  for emoji, path in mappedEmojis.items():
+    uniescaped = path
+    if not path.startswith("https://"):
+      parts = path.split("-")
+      uniescaped = ""
+      for part in parts:
+        num = int(part, 16)
+        if num < 0xFF:
+          uniescaped += chr(num)
+        elif num < 0xFFFF:
+          uniescaped += "\\u%04x" % num
+        else:
+          uniescaped += "\\U%08x" % num
+    print("    @\"%s\": @\"%s\"," % (emoji, uniescaped))
+  print("};")
+  

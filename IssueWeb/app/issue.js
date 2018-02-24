@@ -236,9 +236,12 @@ var Label = React.createClass({
       );
     }
     
+    var emojifiedName = emojify(escape(this.props.label.name), {size:13});
+    var nameSpan = h("span", {dangerouslySetInnerHTML: {__html:emojifiedName}});
+    
     return h("span", {className:"LabelContainer"},
       h("span", {className:"label", style:style},
-        this.props.label.name,
+        nameSpan,
         del
       ),
     );

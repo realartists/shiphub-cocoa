@@ -116,6 +116,7 @@
 - (NSImage *)renderWithColor:(NSColor *)color;
 - (NSImage *)knockoutColor:(NSColor *)color;
 - (NSImage *)knockoutColor:(NSColor *)color threshold:(CGFloat)threshold;
+- (NSImage *)flippedImage;
 
 - (BOOL)isHiDPI;
 

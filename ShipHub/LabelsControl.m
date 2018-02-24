@@ -10,6 +10,7 @@
 
 #import "Extras.h"
 #import "Label.h"
+#import "GHEmoji.h"
 
 @interface LabelsControlCell : NSCell
 
@@ -41,8 +42,23 @@
 - (id)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
         self.allowsExpansionToolTips = YES;
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(emojiDidUpdate:) name:GHEmojiDidUpdateNotification object:nil];
     }
     return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)emojiDidUpdate:(NSNotification *)note {
+    NSString *emojiName = [note.userInfo objectForKey:GHEmojiUpdatedKey];
+    for (Label *l in _labels) {
+        if ([l.name containsString:emojiName]) {
+            [self setNeedsDisplay:YES];
+            break;
+        }
+    }
 }
 
 - (void)setLabels:(NSArray<Label *> *)labels {
@@ -51,22 +67,7 @@
 }
 
 - (CGSize)fittingSize {
-    return [[self stringContents] size];
-}
-
-- (NSMutableAttributedString *)stringContents {
-    NSMutableAttributedString *str = [NSMutableAttributedString new];
-    
-    NSInteger i = 0;
-    NSInteger c = _labels.count;
-    for (Label *l in _labels) {
-        i++;
-        [str appendAttributes:@{NSForegroundColorAttributeName:[l color],
-                                NSFontAttributeName: [NSFont systemFontOfSize:13.0]}
-                       format:@"%@%s", l.name, (i == c ? "" : ", ")];
-    }
-    
-    return str;
+    return [[self class] sizeLabels:_labels];
 }
 
 static const CGFloat corner = 3.0;
@@ -119,6 +120,14 @@ static const CGFloat border = 1.0;
     
     NSMutableArray *sizes = [NSMutableArray new];
     
+    NSArray *attrStrs = [labels arrayByMappingObjects:^id(Label *l) {
+        NSMutableAttributedString *attrStr = [[l emojifiedName] mutableCopy];
+        NSMutableDictionary *attrs = [strAttrs mutableCopy];
+        attrs[NSForegroundColorAttributeName] = [l.color isDark] ? [NSColor whiteColor] : [NSColor blackColor];
+        [attrStr addAttributes:attrs range:NSMakeRange(0, attrStr.length)];
+        return attrStr;
+    }];
+    
     // size forward
     NSInteger i = 0;
     CGFloat w = 0.0;
@@ -126,8 +135,8 @@ static const CGFloat border = 1.0;
         if (i != 0) {
             w += spacing;
         }
-        Label *l = labels[i];
-        CGFloat lw = [[l name] sizeWithAttributes:strAttrs].width;
+        NSAttributedString *l = attrStrs[i];
+        CGFloat lw = [l size].width;
         [sizes addObject:@(lw)];
         w += hMarg * 2.0;
         w += lw;
@@ -157,6 +166,7 @@ static const CGFloat border = 1.0;
             xOff += spacing;
         }
         Label *l = labels[j];
+        NSAttributedString *attrStr = attrStrs[j];
         CGFloat lw = [sizes[j] doubleValue];
         CGRect r = CGRectMake(xOff, yOff, lw + hMarg * 2.0, height - (yOff * 2.0));
         
@@ -166,15 +176,12 @@ static const CGFloat border = 1.0;
         [[l color] setFill];
         [path fill];
         
-        NSMutableDictionary *attrs = [strAttrs mutableCopy];
-        attrs[NSForegroundColorAttributeName] = [l.color isDark] ? [NSColor whiteColor] : [NSColor blackColor];
-        
         CGRect drawRect = r;
         drawRect.origin.x += hMarg;
         drawRect.origin.y += vMarg;
         drawRect.size.width -= hMarg * 2.0;
         drawRect.size.height -= vMarg * 2.0;
-        [l.name drawInRect:drawRect withAttributes:attrs];
+        [attrStr drawInRect:drawRect];
         
         xOff += r.size.width;
     }

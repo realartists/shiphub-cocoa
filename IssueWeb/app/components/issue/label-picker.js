@@ -1,6 +1,7 @@
 import React, { createElement as h } from 'react'
 import ReactDOM from 'react-dom'
 import { htmlEncode } from 'js-htmlencode'
+import { emojify } from 'util/emojify.js'
 import Completer from './completer.js'
 
 
@@ -127,7 +128,7 @@ var LabelPicker = React.createClass({
           </span>`;
       } else {
         var l = labelLookup[value.content];
-        inner = `<div class='LabelSuggestionColor' style='background-color: #${l.color}'></div><span class='tt-label-suggestion-text'>${htmlEncode(l.name)}</span>`
+        inner = `<div class='LabelSuggestionColor' style='background-color: #${l.color}'></div><span class='tt-label-suggestion-text'>${emojify(htmlEncode(l.name), {size:13})}</span>`
       }
       
       return `<div class='tt-suggestion tt-label-suggestion'>${inner}</div>`

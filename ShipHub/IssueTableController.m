@@ -17,6 +17,8 @@
 #import "UpNextHelper.h"
 #import "BulkModifyHelper.h"
 #import "LabelsControl.h"
+#import "Label.h"
+#import "GHEmoji.h"
 
 @interface MultipleAssigneesFormatter : NSFormatter
 @end

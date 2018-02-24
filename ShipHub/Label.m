@@ -10,6 +10,7 @@
 
 #import "Extras.h"
 #import "LocalLabel.h"
+#import "GHEmoji.h"
 
 @implementation Label
 
@@ -32,6 +33,10 @@
 
 - (NSString *)description {
     return _name;
+}
+
+- (NSAttributedString *)emojifiedName {
+    return [_name githubEmojify];
 }
 
 @end

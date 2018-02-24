@@ -15,6 +15,8 @@
 @property (readonly) NSString *name;
 @property (readonly) NSString *colorString;
 
+- (NSAttributedString *)emojifiedName;
+
 #if TARGET_OS_IOS
 @property (readonly) UIColor *color;
 #else

@@ -271,6 +271,7 @@
 		1A9030EF1F9114C800760D12 /* NSViewController+PresentSaveError.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9030EE1F9114C800760D12 /* NSViewController+PresentSaveError.m */; };
 		1A9030F51F954C4300760D12 /* LabelsFilterTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9030F31F954C4300760D12 /* LabelsFilterTableController.m */; };
 		1A9030F61F954C4300760D12 /* LabelsFilterTableController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1A9030F41F954C4300760D12 /* LabelsFilterTableController.xib */; };
+		1A937045203F606B00BB7767 /* GHEmoji.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A937044203F606B00BB7767 /* GHEmoji.m */; };
 		1A9905081CDBC93A00EAA474 /* Issue3PaneTableController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */; };
 		1A99050F1CDBCD1100EAA474 /* ThreePaneController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A99050E1CDBCD1100EAA474 /* ThreePaneController.m */; };
 		1A9905181CE11A0700EAA474 /* LabelsControl.m in Sources */ = {isa = PBXBuildFile; fileRef = 1A9905171CE11A0700EAA474 /* LabelsControl.m */; };
@@ -939,6 +940,8 @@
 		1A9030F21F954C4300760D12 /* LabelsFilterTableController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LabelsFilterTableController.h; sourceTree = "<group>"; };
 		1A9030F31F954C4300760D12 /* LabelsFilterTableController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LabelsFilterTableController.m; sourceTree = "<group>"; };
 		1A9030F41F954C4300760D12 /* LabelsFilterTableController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = LabelsFilterTableController.xib; sourceTree = "<group>"; };
+		1A937043203F606B00BB7767 /* GHEmoji.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GHEmoji.h; sourceTree = "<group>"; };
+		1A937044203F606B00BB7767 /* GHEmoji.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GHEmoji.m; sourceTree = "<group>"; };
 		1A9905061CDBC93A00EAA474 /* Issue3PaneTableController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Issue3PaneTableController.h; sourceTree = "<group>"; };
 		1A9905071CDBC93A00EAA474 /* Issue3PaneTableController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Issue3PaneTableController.m; sourceTree = "<group>"; };
 		1A99050C1CDBC98900EAA474 /* IssueTableControllerPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueTableControllerPrivate.h; sourceTree = "<group>"; };
@@ -1458,6 +1461,8 @@
 				1AC023D61F237D0900B9B59B /* SendErrorEmail.applescript */,
 				1A31898C1F45011300F14254 /* CodeSnippetManager.h */,
 				1A31898D1F45011300F14254 /* CodeSnippetManager.m */,
+				1A937043203F606B00BB7767 /* GHEmoji.h */,
+				1A937044203F606B00BB7767 /* GHEmoji.m */,
 			);
 			name = Extras;
 			sourceTree = "<group>";
@@ -2444,6 +2449,7 @@
 				1A2A8B611D55109200F24F32 /* NewMilestoneController.m in Sources */,
 				1A3D344C1DAEF0A800CDF167 /* GitDiff.m in Sources */,
 				1A694B0C1CA3413700F73608 /* OverviewController.m in Sources */,
+				1A937045203F606B00BB7767 /* GHEmoji.m in Sources */,
 				1A83679F1D5542ED0019C609 /* SemiMixedButton.m in Sources */,
 				1A563F7A1CC823CF00755AAC /* APIProxy.m in Sources */,
 				1A51086E1D31A11A00905D4D /* GHNotificationManager.m in Sources */,
