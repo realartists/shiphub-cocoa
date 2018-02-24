@@ -203,12 +203,23 @@ static NSPredicate *WorkaroundNotAnyPredicate(NSCompoundPredicate *predicate) {
         } else if ([original isKindOfClass:[NSCompoundPredicate class]]) {
             NSCompoundPredicate *c = (id)original;
             NSPredicate *opt = c;
-            
+
+#if 0
             CompoundPredicateOptimizer *optimizers[] = { &WorkaroundNotAnyPredicate, &OptimizeOrAnyPredicate };
             for (NSUInteger i = 0; i < sizeof(optimizers) / sizeof(CompoundPredicateOptimizer *); i++) {
                 CompoundPredicateOptimizer *optimizer = optimizers[i];
                 opt = optimizer(c);
                 if (opt != c) break;
+            }
+#endif
+            
+            // The above loop causes ARC to get confused and leak memory.
+            // The below if construct is logically the same as the above code, but does not leak memory.
+            // Go figure.
+            
+            opt = WorkaroundNotAnyPredicate(c);
+            if (opt == c) {
+                opt = OptimizeOrAnyPredicate(c);
             }
             
             if (opt != c) {
