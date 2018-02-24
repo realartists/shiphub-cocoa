@@ -202,9 +202,9 @@ static NSPredicate *WorkaroundNotAnyPredicate(NSCompoundPredicate *predicate) {
             }
         } else if ([original isKindOfClass:[NSCompoundPredicate class]]) {
             NSCompoundPredicate *c = (id)original;
-            NSPredicate *opt = c;
-
+            
 #if 0
+            NSPredicate *opt = c;
             CompoundPredicateOptimizer *optimizers[] = { &WorkaroundNotAnyPredicate, &OptimizeOrAnyPredicate };
             for (NSUInteger i = 0; i < sizeof(optimizers) / sizeof(CompoundPredicateOptimizer *); i++) {
                 CompoundPredicateOptimizer *optimizer = optimizers[i];
@@ -217,7 +217,7 @@ static NSPredicate *WorkaroundNotAnyPredicate(NSCompoundPredicate *predicate) {
             // The below if construct is logically the same as the above code, but does not leak memory.
             // Go figure.
             
-            opt = WorkaroundNotAnyPredicate(c);
+            NSPredicate *opt = WorkaroundNotAnyPredicate(c);
             if (opt == c) {
                 opt = OptimizeOrAnyPredicate(c);
             }
