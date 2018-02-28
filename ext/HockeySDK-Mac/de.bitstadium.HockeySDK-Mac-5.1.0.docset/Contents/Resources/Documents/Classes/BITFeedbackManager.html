@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>BITFeedbackManager Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+    <a name="//apple_ref/objc/Class/BITFeedbackManager" class="dashAnchor"></a>
+    <a title="BITFeedbackManager Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">HockeySDK Docs</a> (92% documented)</p>
+        <p class="header-right"><a href="https://github.com/bitstadium/HockeySDK-Mac/"><img src="../img/gh.png"/>View on GitHub</a></p>
+        <p class="header-right"><a href="dash-feed://https%3A%2F%2Fsupport%2Ehockeyapp%2Enet%2Fkb%2Fdocsets%2FHockeySDK%2Exml"><img src="../img/dash.png"/>Install in Dash</a></p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">HockeySDK Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        BITFeedbackManager Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Guides.html">Guides</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../installation--setup.html">Installation &amp; Setup</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../installation-mac-app.html">Installation Mac App</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../migration.html">Migration</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../How To.html">How To</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../app-versioning.html">App Versioning</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../upload-symbols.html">Upload Symbols</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Troubleshooting.html">Troubleshooting</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../crash-reporting-not-working.html">Crash Reporting Not Working</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Release Notes.html">Release Notes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../changelog.html">Changelog</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Classes.html">Other Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashDetails.html">BITCrashDetails</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Other Classes.html#/c:objc(cs)BITCrashExceptionApplication">BITCrashExceptionApplication</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashManager.html">BITCrashManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashMetaData.html">BITCrashMetaData</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITFeedbackManager.html">BITFeedbackManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyAttachment.html">BITHockeyAttachment</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyBaseManager.html">BITHockeyBaseManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyManager.html">BITHockeyManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITMetricsManager.html">BITMetricsManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITSystemProfile.html">BITSystemProfile</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Enums.html">Other Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/BITCrashErrorReason.html">BITCrashErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITCrashManagerUserInput.html">BITCrashManagerUserInput</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITFeedbackErrorReason.html">BITFeedbackErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITFeedbackUserDataElement.html">BITFeedbackUserDataElement</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITHockeyErrorReason.html">BITHockeyErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITLogLevel.html">BITLogLevel</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Protocols.html">Other Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/BITCrashManagerDelegate.html">BITCrashManagerDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/BITHockeyManagerDelegate.html">BITHockeyManagerDelegate</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Type Definitions.html">Other Type Definitions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Other Type Definitions.html#/c:BITCrashManager.h@T@BITCrashManagerPostCrashSignalCallback">BITCrashManagerPostCrashSignalCallback</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Other Type Definitions.html#/c:BITCrashManager.h@T@BITCustomCrashReportUIHandler">BITCustomCrashReportUIHandler</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Structs.html">Other Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/BITCrashManagerCallbacks.html">BITCrashManagerCallbacks</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>BITFeedbackManager</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">BITFeedbackManager</span> <span class="p">:</span> <span class="nc"><a href="../Classes/BITHockeyBaseManager.html">BITHockeyBaseManager</a></span></code></pre>
+
+                </div>
+              </div>
+            <p>The feedback module.</p>
+
+<p>This is the HockeySDK module for letting your users to communicate directly with you via
+the app and an integrated user interface. It provides to have a single threaded
+discussion with a user running your app.</p>
+
+<p>The user interface provides a window than can be presented  using
+<code>[BITFeedbackManager showFeedbackWindow]</code>.
+This window integrates all features to load new messages, write new messages, view message
+and ask the user for additional (optional) data like name and email.</p>
+
+<p>If the user provides the email address, all responses from the server will also be send
+to the user via email and the user is also able to respond directly via email too.</p>
+
+<p>It is also integrates actions to invoke the user interface to compose a new messages,
+reload the list content from the server and changing the users name or email if these
+are allowed to be set.</p>
+
+<p>If new messages are written while the device is offline, the SDK automatically retries to
+send them once the app starts again or gets active again, or if the notification
+<code>BITHockeyNetworkDidBecomeReachableNotification</code> is fired.</p>
+
+<p>New message are automatically loaded on startup, when the app becomes active again 
+or when the notification <code>BITHockeyNetworkDidBecomeReachableNotification</code> is fired and
+the last server communication task was more than 5 minutes ago. This
+only happens if the user ever did initiate a conversation by writing the first
+feedback message.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/General%20settings"></a>
+                <a name="//apple_ref/objc/Section/General settings" class="dashAnchor"></a>
+                <a href="#/General%20settings">
+                  <h3 class="section-name">General settings</h3>
+                </a>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITFeedbackManager(py)requireUserName"></a>
+                    <a name="//apple_ref/objc/Property/requireUserName" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITFeedbackManager(py)requireUserName">requireUserName</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Define if a name has to be provided by the user when providing feedback</p>
+
+<ul>
+<li><code>BITFeedbackUserDataElementDontShow</code>: Don&rsquo;t ask for this user data element at all</li>
+<li><code>BITFeedbackUserDataElementOptional</code>: The user may provide it, but does not have to</li>
+<li><code>BITFeedbackUserDataElementRequired</code>: The user has to provide this to continue</li>
+</ul>
+
+<p>The default value is <code>BITFeedbackUserDataElementOptional</code>.</p>
+<div class="aside aside-warning">
+    <p class="aside-title">Warning</p>
+    <p>If you provide a non nil value for the <code>BITFeedbackManager</code> class via
+<code>[BITHockeyManagerDelegate userNameForHockeyManager:componentManager:]</code> then this
+property will automatically be set to <code>BITFeedbackUserDataElementDontShow</code></p>
+
+</div>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    <p>requireUserEmail</p>
+
+</div>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    <p><code>[BITHockeyManagerDelegate userNameForHockeyManager:componentManager:]</code></p>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span>
+    <span class="n"><a href="../Enums/BITFeedbackUserDataElement.html">BITFeedbackUserDataElement</a></span> <span class="n">requireUserName</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">requireUserName</span><span class="p">:</span> <span class="kt"><a href="../Enums/BITFeedbackUserDataElement.html">BITFeedbackUserDataElement</a></span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITFeedbackManager(py)requireUserEmail"></a>
+                    <a name="//apple_ref/objc/Property/requireUserEmail" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITFeedbackManager(py)requireUserEmail">requireUserEmail</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Define if an email address has to be provided by the user when providing feedback</p>
+
+<p>If the user provides the email address, all responses from the server will also be send
+to the user via email and the user is also able to respond directly via email too.</p>
+
+<ul>
+<li><code>BITFeedbackUserDataElementDontShow</code>: Don&rsquo;t ask for this user data element at all</li>
+<li><code>BITFeedbackUserDataElementOptional</code>: The user may provide it, but does not have to</li>
+<li><code>BITFeedbackUserDataElementRequired</code>: The user has to provide this to continue</li>
+</ul>
+
+<p>The default value is <code>BITFeedbackUserDataElementOptional</code>.</p>
+<div class="aside aside-warning">
+    <p class="aside-title">Warning</p>
+    <p>If you provide a non nil value for the <code>BITFeedbackManager</code> class via
+<code>[BITHockeyManagerDelegate userEmailForHockeyManager:componentManager:]</code> then this
+property will automatically be set to <code>BITFeedbackUserDataElementDontShow</code></p>
+
+</div>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    <p>requireUserName</p>
+
+</div>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    <p><code>[BITHockeyManagerDelegate userEmailForHockeyManager:componentManager:]</code></p>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span>
+    <span class="n"><a href="../Enums/BITFeedbackUserDataElement.html">BITFeedbackUserDataElement</a></span> <span class="n">requireUserEmail</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">requireUserEmail</span><span class="p">:</span> <span class="kt"><a href="../Enums/BITFeedbackUserDataElement.html">BITFeedbackUserDataElement</a></span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITFeedbackManager(py)showAlertOnIncomingMessages"></a>
+                    <a name="//apple_ref/objc/Property/showAlertOnIncomingMessages" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITFeedbackManager(py)showAlertOnIncomingMessages">showAlertOnIncomingMessages</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Indicates if an Notification Center alert should be shown when new messages arrived</p>
+
+<p>The alert is only shown, if the newest message is not originated from the current user.
+This requires the users email address to be present! The optional userid property
+cannot be used, because users could also answer via email and then this information
+is not available.</p>
+
+<p>Default is <code>YES</code></p>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    requireUserEmail
+
+</div>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    <code>[BITHockeyManagerDelegate userEmailForHockeyManager:componentManager:]</code>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">readwrite</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">BOOL</span> <span class="n">showAlertOnIncomingMessages</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">showAlertOnIncomingMessages</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="k">set</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/User%20Interface"></a>
+                <a name="//apple_ref/objc/Section/User Interface" class="dashAnchor"></a>
+                <a href="#/User%20Interface">
+                  <h3 class="section-name">User Interface</h3>
+                </a>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITFeedbackManager(im)showFeedbackWindow"></a>
+                    <a name="//apple_ref/objc/Method/-showFeedbackWindow" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITFeedbackManager(im)showFeedbackWindow">-showFeedbackWindow</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Present the modal feedback list user interface.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">showFeedbackWindow</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">func</span> <span class="nf">showFeedbackWindow</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2017 <a class="link" href="https://www.microsoft.com" target="_blank" rel="external">Microsoft Corp</a>. All rights reserved. (Last updated: 2017-12-15)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

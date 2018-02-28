@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>BITHockeyAttachment Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+    <a name="//apple_ref/objc/Class/BITHockeyAttachment" class="dashAnchor"></a>
+    <a title="BITHockeyAttachment Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">HockeySDK Docs</a> (92% documented)</p>
+        <p class="header-right"><a href="https://github.com/bitstadium/HockeySDK-Mac/"><img src="../img/gh.png"/>View on GitHub</a></p>
+        <p class="header-right"><a href="dash-feed://https%3A%2F%2Fsupport%2Ehockeyapp%2Enet%2Fkb%2Fdocsets%2FHockeySDK%2Exml"><img src="../img/dash.png"/>Install in Dash</a></p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">HockeySDK Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        BITHockeyAttachment Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Guides.html">Guides</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../installation--setup.html">Installation &amp; Setup</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../installation-mac-app.html">Installation Mac App</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../migration.html">Migration</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../How To.html">How To</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../app-versioning.html">App Versioning</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../upload-symbols.html">Upload Symbols</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Troubleshooting.html">Troubleshooting</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../crash-reporting-not-working.html">Crash Reporting Not Working</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Release Notes.html">Release Notes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../changelog.html">Changelog</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Classes.html">Other Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashDetails.html">BITCrashDetails</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Other Classes.html#/c:objc(cs)BITCrashExceptionApplication">BITCrashExceptionApplication</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashManager.html">BITCrashManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashMetaData.html">BITCrashMetaData</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITFeedbackManager.html">BITFeedbackManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyAttachment.html">BITHockeyAttachment</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyBaseManager.html">BITHockeyBaseManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyManager.html">BITHockeyManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITMetricsManager.html">BITMetricsManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITSystemProfile.html">BITSystemProfile</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Enums.html">Other Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/BITCrashErrorReason.html">BITCrashErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITCrashManagerUserInput.html">BITCrashManagerUserInput</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITFeedbackErrorReason.html">BITFeedbackErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITFeedbackUserDataElement.html">BITFeedbackUserDataElement</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITHockeyErrorReason.html">BITHockeyErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITLogLevel.html">BITLogLevel</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Protocols.html">Other Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/BITCrashManagerDelegate.html">BITCrashManagerDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/BITHockeyManagerDelegate.html">BITHockeyManagerDelegate</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Type Definitions.html">Other Type Definitions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Other Type Definitions.html#/c:BITCrashManager.h@T@BITCrashManagerPostCrashSignalCallback">BITCrashManagerPostCrashSignalCallback</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Other Type Definitions.html#/c:BITCrashManager.h@T@BITCustomCrashReportUIHandler">BITCustomCrashReportUIHandler</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Structs.html">Other Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/BITCrashManagerCallbacks.html">BITCrashManagerCallbacks</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>BITHockeyAttachment</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">BITHockeyAttachment</span> <span class="p">:</span> <span class="nc">NSObject</span> <span class="o">&lt;</span><span class="n">NSCoding</span><span class="o">&gt;</span></code></pre>
+
+                </div>
+              </div>
+            <p>Provides support to add binary attachments to crash reports</p>
+
+<p>This is used by <code>[BITCrashManagerDelegate attachmentForCrashManager:]</code></p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITHockeyAttachment(py)filename"></a>
+                    <a name="//apple_ref/objc/Property/filename" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITHockeyAttachment(py)filename">filename</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The filename the attachment should get</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">filename</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">filename</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITHockeyAttachment(py)hockeyAttachmentData"></a>
+                    <a name="//apple_ref/objc/Property/hockeyAttachmentData" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITHockeyAttachment(py)hockeyAttachmentData">hockeyAttachmentData</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The attachment data as NSData object</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSData</span> <span class="o">*</span><span class="n">hockeyAttachmentData</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">hockeyAttachmentData</span><span class="p">:</span> <span class="kt">Data</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITHockeyAttachment(py)contentType"></a>
+                    <a name="//apple_ref/objc/Property/contentType" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITHockeyAttachment(py)contentType">contentType</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The content type of your data as MIME type</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">contentType</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">contentType</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITHockeyAttachment(im)initWithFilename:hockeyAttachmentData:contentType:"></a>
+                    <a name="//apple_ref/objc/Method/-initWithFilename:hockeyAttachmentData:contentType:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITHockeyAttachment(im)initWithFilename:hockeyAttachmentData:contentType:">-initWithFilename:hockeyAttachmentData:contentType:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create an BITHockeyAttachment instance with a given filename and NSData object</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWithFilename</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">filename</span>
+            <span class="nf">hockeyAttachmentData</span><span class="p">:(</span><span class="n">NSData</span> <span class="o">*</span><span class="p">)</span><span class="nv">hockeyAttachmentData</span>
+                     <span class="nf">contentType</span><span class="p">:(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">contentType</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="nf">init</span><span class="o">!</span><span class="p">(</span><span class="nv">filename</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span><span class="p">,</span> <span class="nv">hockeyAttachmentData</span><span class="p">:</span> <span class="kt">Data</span><span class="o">!</span><span class="p">,</span> <span class="nv">contentType</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>filename</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The filename the attachment should get. If nil will get a automatically generated filename</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>hockeyAttachmentData</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The attachment data as NSData. The instance will be ignore if this is set to nil!</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>contentType</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The content type of your data as MIME type. If nil will be set to <q>application/octet-stream</q></p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>An instsance of BITHockeyAttachment</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2017 <a class="link" href="https://www.microsoft.com" target="_blank" rel="external">Microsoft Corp</a>. All rights reserved. (Last updated: 2017-12-15)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

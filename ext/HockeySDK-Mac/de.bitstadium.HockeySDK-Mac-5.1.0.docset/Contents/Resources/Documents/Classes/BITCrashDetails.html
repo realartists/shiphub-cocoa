@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>BITCrashDetails Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+    <a name="//apple_ref/objc/Class/BITCrashDetails" class="dashAnchor"></a>
+    <a title="BITCrashDetails Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">HockeySDK Docs</a> (92% documented)</p>
+        <p class="header-right"><a href="https://github.com/bitstadium/HockeySDK-Mac/"><img src="../img/gh.png"/>View on GitHub</a></p>
+        <p class="header-right"><a href="dash-feed://https%3A%2F%2Fsupport%2Ehockeyapp%2Enet%2Fkb%2Fdocsets%2FHockeySDK%2Exml"><img src="../img/dash.png"/>Install in Dash</a></p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">HockeySDK Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        BITCrashDetails Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Guides.html">Guides</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../installation--setup.html">Installation &amp; Setup</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../installation-mac-app.html">Installation Mac App</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../migration.html">Migration</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../How To.html">How To</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../app-versioning.html">App Versioning</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../upload-symbols.html">Upload Symbols</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Troubleshooting.html">Troubleshooting</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../crash-reporting-not-working.html">Crash Reporting Not Working</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Release Notes.html">Release Notes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../changelog.html">Changelog</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Classes.html">Other Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashDetails.html">BITCrashDetails</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Other Classes.html#/c:objc(cs)BITCrashExceptionApplication">BITCrashExceptionApplication</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashManager.html">BITCrashManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashMetaData.html">BITCrashMetaData</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITFeedbackManager.html">BITFeedbackManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyAttachment.html">BITHockeyAttachment</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyBaseManager.html">BITHockeyBaseManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyManager.html">BITHockeyManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITMetricsManager.html">BITMetricsManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITSystemProfile.html">BITSystemProfile</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Enums.html">Other Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/BITCrashErrorReason.html">BITCrashErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITCrashManagerUserInput.html">BITCrashManagerUserInput</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITFeedbackErrorReason.html">BITFeedbackErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITFeedbackUserDataElement.html">BITFeedbackUserDataElement</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITHockeyErrorReason.html">BITHockeyErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITLogLevel.html">BITLogLevel</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Protocols.html">Other Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/BITCrashManagerDelegate.html">BITCrashManagerDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/BITHockeyManagerDelegate.html">BITHockeyManagerDelegate</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Type Definitions.html">Other Type Definitions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Other Type Definitions.html#/c:BITCrashManager.h@T@BITCrashManagerPostCrashSignalCallback">BITCrashManagerPostCrashSignalCallback</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Other Type Definitions.html#/c:BITCrashManager.h@T@BITCustomCrashReportUIHandler">BITCustomCrashReportUIHandler</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Structs.html">Other Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/BITCrashManagerCallbacks.html">BITCrashManagerCallbacks</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>BITCrashDetails</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="k">@interface</span> <span class="nc">BITCrashDetails</span> <span class="p">:</span> <span class="nc">NSObject</span></code></pre>
+
+                </div>
+              </div>
+            <p>Provides details about the crash that occured in the previous app session</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)incidentIdentifier"></a>
+                    <a name="//apple_ref/objc/Property/incidentIdentifier" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)incidentIdentifier">incidentIdentifier</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>UUID for the crash report</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">incidentIdentifier</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">incidentIdentifier</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)reporterKey"></a>
+                    <a name="//apple_ref/objc/Property/reporterKey" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)reporterKey">reporterKey</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>UUID for the app installation on the device</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">reporterKey</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">reporterKey</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)signal"></a>
+                    <a name="//apple_ref/objc/Property/signal" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)signal">signal</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Signal that caused the crash</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">signal</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">signal</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)exceptionName"></a>
+                    <a name="//apple_ref/objc/Property/exceptionName" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)exceptionName">exceptionName</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Exception name that triggered the crash, nil if the crash was not caused by an exception</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">exceptionName</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">exceptionName</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)exceptionReason"></a>
+                    <a name="//apple_ref/objc/Property/exceptionReason" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)exceptionReason">exceptionReason</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Exception reason, nil if the crash was not caused by an exception</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">exceptionReason</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">exceptionReason</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)appStartTime"></a>
+                    <a name="//apple_ref/objc/Property/appStartTime" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)appStartTime">appStartTime</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Date and time the app started, nil if unknown</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSDate</span> <span class="o">*</span><span class="n">appStartTime</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">appStartTime</span><span class="p">:</span> <span class="kt">Date</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)crashTime"></a>
+                    <a name="//apple_ref/objc/Property/crashTime" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)crashTime">crashTime</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Date and time the crash occured, nil if unknown</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSDate</span> <span class="o">*</span><span class="n">crashTime</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">crashTime</span><span class="p">:</span> <span class="kt">Date</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)osVersion"></a>
+                    <a name="//apple_ref/objc/Property/osVersion" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)osVersion">osVersion</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Operation System version string the app was running on when it crashed.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">osVersion</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">osVersion</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)osBuild"></a>
+                    <a name="//apple_ref/objc/Property/osBuild" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)osBuild">osBuild</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Operation System build string the app was running on when it crashed</p>
+
+<p>This may be unavailable.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">osBuild</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">osBuild</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)appVersion"></a>
+                    <a name="//apple_ref/objc/Property/appVersion" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)appVersion">appVersion</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>CFBundleShortVersionString value of the app that crashed</p>
+
+<p>Can be <code>nil</code> if the crash was captured with an older version of the SDK
+  or if the app doesn&rsquo;t set the value.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">appVersion</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">appVersion</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)appBuild"></a>
+                    <a name="//apple_ref/objc/Property/appBuild" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)appBuild">appBuild</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>CFBundleVersion value of the app that crashed</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">appBuild</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">appBuild</span><span class="p">:</span> <span class="kt">String</span><span class="o">!</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(cs)BITCrashDetails(py)appProcessIdentifier"></a>
+                    <a name="//apple_ref/objc/Property/appProcessIdentifier" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(cs)BITCrashDetails(py)appProcessIdentifier">appProcessIdentifier</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Identifier of the app process that crashed</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">@property</span> <span class="p">(</span><span class="n">readonly</span><span class="p">,</span> <span class="n">assign</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSUInteger</span> <span class="n">appProcessIdentifier</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="k">var</span> <span class="nv">appProcessIdentifier</span><span class="p">:</span> <span class="kt">UInt</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2017 <a class="link" href="https://www.microsoft.com" target="_blank" rel="external">Microsoft Corp</a>. All rights reserved. (Last updated: 2017-12-15)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>

@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>BITCrashManagerDelegate Protocol Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+  </head>
+  <body>
+    <a name="//apple_ref/objc/Protocol/BITCrashManagerDelegate" class="dashAnchor"></a>
+    <a title="BITCrashManagerDelegate Protocol Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">HockeySDK Docs</a> (92% documented)</p>
+        <p class="header-right"><a href="https://github.com/bitstadium/HockeySDK-Mac/"><img src="../img/gh.png"/>View on GitHub</a></p>
+        <p class="header-right"><a href="dash-feed://https%3A%2F%2Fsupport%2Ehockeyapp%2Enet%2Fkb%2Fdocsets%2FHockeySDK%2Exml"><img src="../img/dash.png"/>Install in Dash</a></p>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">HockeySDK Reference</a>
+        <img id="carat" src="../img/carat.png" />
+        BITCrashManagerDelegate Protocol Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Guides.html">Guides</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../installation--setup.html">Installation &amp; Setup</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../installation-mac-app.html">Installation Mac App</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../migration.html">Migration</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../How To.html">How To</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../app-versioning.html">App Versioning</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../upload-symbols.html">Upload Symbols</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Troubleshooting.html">Troubleshooting</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../crash-reporting-not-working.html">Crash Reporting Not Working</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Release Notes.html">Release Notes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../changelog.html">Changelog</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Classes.html">Other Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashDetails.html">BITCrashDetails</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Other Classes.html#/c:objc(cs)BITCrashExceptionApplication">BITCrashExceptionApplication</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashManager.html">BITCrashManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITCrashMetaData.html">BITCrashMetaData</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITFeedbackManager.html">BITFeedbackManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyAttachment.html">BITHockeyAttachment</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyBaseManager.html">BITHockeyBaseManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITHockeyManager.html">BITHockeyManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITMetricsManager.html">BITMetricsManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/BITSystemProfile.html">BITSystemProfile</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Enums.html">Other Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/BITCrashErrorReason.html">BITCrashErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITCrashManagerUserInput.html">BITCrashManagerUserInput</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITFeedbackErrorReason.html">BITFeedbackErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITFeedbackUserDataElement.html">BITFeedbackUserDataElement</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITHockeyErrorReason.html">BITHockeyErrorReason</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/BITLogLevel.html">BITLogLevel</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Protocols.html">Other Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/BITCrashManagerDelegate.html">BITCrashManagerDelegate</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Protocols/BITHockeyManagerDelegate.html">BITHockeyManagerDelegate</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Type Definitions.html">Other Type Definitions</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Other Type Definitions.html#/c:BITCrashManager.h@T@BITCrashManagerPostCrashSignalCallback">BITCrashManagerPostCrashSignalCallback</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Other Type Definitions.html#/c:BITCrashManager.h@T@BITCustomCrashReportUIHandler">BITCustomCrashReportUIHandler</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Other Structs.html">Other Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/BITCrashManagerCallbacks.html">BITCrashManagerCallbacks</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>BITCrashManagerDelegate</h1>
+              <div class="declaration">
+                <div class="language">
+                  <pre class="highlight"><code><span class="k">@protocol</span> <span class="nc">BITCrashManagerDelegate</span> <span class="o">&lt;</span><span class="n">NSObject</span><span class="o">&gt;</span></code></pre>
+
+                </div>
+              </div>
+            <p>The <code>BITCrashManagerDelegate</code> formal protocol defines methods further configuring
+the behaviour of <code><a href="../Classes/BITCrashManager.html">BITCrashManager</a></code>.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(pl)BITCrashManagerDelegate(im)showMainApplicationWindowForCrashManager:"></a>
+                    <a name="//apple_ref/objc/Method/-showMainApplicationWindowForCrashManager:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(pl)BITCrashManagerDelegate(im)showMainApplicationWindowForCrashManager:">-showMainApplicationWindowForCrashManager:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Not used any longer!</p>
+
+<p>In previous SDK versions this invoked once the user interface asking for crash details and if the data should be send is dismissed</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">showMainApplicationWindowForCrashManager</span><span class="p">:</span>
+    <span class="p">(</span><span class="n"><a href="../Classes/BITCrashManager.html">BITCrashManager</a></span> <span class="o">*</span><span class="p">)</span><span class="nv">crashManager</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">optional</span> <span class="kd">func</span> <span class="nf">showMainApplicationWindow</span><span class="p">(</span><span class="n">forCrashManager</span> <span class="nv">crashManager</span><span class="p">:</span> <span class="kt">Any</span><span class="o">!</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>crashManager</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code><a href="../Classes/BITCrashManager.html">BITCrashManager</a></code> instance invoking the method
+@deprecated The default crash report UI is not shown modal any longer, so this delegate is not being used any more!</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Additional%20meta%20data"></a>
+                <a name="//apple_ref/objc/Section/Additional meta data" class="dashAnchor"></a>
+                <a href="#/Additional%20meta%20data">
+                  <h3 class="section-name">Additional meta data</h3>
+                </a>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(pl)BITCrashManagerDelegate(im)applicationLogForCrashManager:"></a>
+                    <a name="//apple_ref/objc/Method/-applicationLogForCrashManager:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(pl)BITCrashManagerDelegate(im)applicationLogForCrashManager:">-applicationLogForCrashManager:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return any log string based data the crash report being processed should contain
+ *</p>
+
+<ul>
+<li>- parameter: crashManager The <code><a href="../Classes/BITCrashManager.html">BITCrashManager</a></code> instance invoking this delegate</li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nf">applicationLogForCrashManager</span><span class="p">:(</span><span class="n"><a href="../Classes/BITCrashManager.html">BITCrashManager</a></span> <span class="o">*</span><span class="p">)</span><span class="nv">crashManager</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">optional</span> <span class="kd">func</span> <span class="nf">applicationLog</span><span class="p">(</span><span class="n">forCrashManager</span> <span class="nv">crashManager</span><span class="p">:</span> <span class="kt">Any</span><span class="o">!</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">String</span><span class="o">!</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(pl)BITCrashManagerDelegate(im)attachmentForCrashManager:"></a>
+                    <a name="//apple_ref/objc/Method/-attachmentForCrashManager:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(pl)BITCrashManagerDelegate(im)attachmentForCrashManager:">-attachmentForCrashManager:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Return a BITHockeyAttachment object providing an NSData object the crash report
+ being processed should contain</p>
+
+<p>Please limit your attachments to reasonable files to avoid high traffic costs for your users.</p>
+
+<p>Example implementation:</p>
+<pre class="highlight plaintext"><code> - (BITHockeyAttachment *)attachmentForCrashManager:(BITCrashManager *)crashManager {
+   NSData *data = [NSData dataWithContentsOfURL:@"mydatafile"];
+
+   BITHockeyAttachment *attachment = [[BITHockeyAttachment alloc] initWithFilename:@"myfile.data"
+                                                              hockeyAttachmentData:data
+                                                                      contentType:@"'application/octet-stream"];
+   return attachment;
+ }
+</code></pre>
+<div class="aside aside-see">
+    <p class="aside-title">See</p>
+    applicationLogForCrashManager:
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="n"><a href="../Classes/BITHockeyAttachment.html">BITHockeyAttachment</a></span> <span class="o">*</span><span class="p">)</span><span class="nf">attachmentForCrashManager</span><span class="p">:</span>
+    <span class="p">(</span><span class="n"><a href="../Classes/BITCrashManager.html">BITCrashManager</a></span> <span class="o">*</span><span class="p">)</span><span class="nv">crashManager</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">optional</span> <span class="kd">func</span> <span class="nf">attachment</span><span class="p">(</span><span class="n">forCrashManager</span> <span class="nv">crashManager</span><span class="p">:</span> <span class="kt">Any</span><span class="o">!</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/BITHockeyAttachment.html">BITHockeyAttachment</a></span><span class="o">!</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>crashManager</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code><a href="../Classes/BITCrashManager.html">BITCrashManager</a></code> instance invoking this delegate</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Alert"></a>
+                <a name="//apple_ref/objc/Section/Alert" class="dashAnchor"></a>
+                <a href="#/Alert">
+                  <h3 class="section-name">Alert</h3>
+                </a>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(pl)BITCrashManagerDelegate(im)crashManagerWillShowSubmitCrashReportAlert:"></a>
+                    <a name="//apple_ref/objc/Method/-crashManagerWillShowSubmitCrashReportAlert:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(pl)BITCrashManagerDelegate(im)crashManagerWillShowSubmitCrashReportAlert:">-crashManagerWillShowSubmitCrashReportAlert:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Invoked before the user is asked to send a crash report, so you can do additional actions.</p>
+
+<p>E.g. to make sure not to ask the user for an app rating :)</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">crashManagerWillShowSubmitCrashReportAlert</span><span class="p">:</span>
+    <span class="p">(</span><span class="n"><a href="../Classes/BITCrashManager.html">BITCrashManager</a></span> <span class="o">*</span><span class="p">)</span><span class="nv">crashManager</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">optional</span> <span class="kd">func</span> <span class="nf">crashManagerWillShowSubmitCrashReportAlert</span><span class="p">(</span><span class="n">_</span> <span class="nv">crashManager</span><span class="p">:</span> <span class="kt">Any</span><span class="o">!</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>crashManager</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code><a href="../Classes/BITCrashManager.html">BITCrashManager</a></code> instance invoking this delegate</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(pl)BITCrashManagerDelegate(im)crashManagerWillCancelSendingCrashReport:"></a>
+                    <a name="//apple_ref/objc/Method/-crashManagerWillCancelSendingCrashReport:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(pl)BITCrashManagerDelegate(im)crashManagerWillCancelSendingCrashReport:">-crashManagerWillCancelSendingCrashReport:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Invoked after the user did choose <em>NOT</em> to send a crash in the alert</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">crashManagerWillCancelSendingCrashReport</span><span class="p">:</span>
+    <span class="p">(</span><span class="n"><a href="../Classes/BITCrashManager.html">BITCrashManager</a></span> <span class="o">*</span><span class="p">)</span><span class="nv">crashManager</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">optional</span> <span class="kd">func</span> <span class="nf">crashManagerWillCancelSendingCrashReport</span><span class="p">(</span><span class="n">_</span> <span class="nv">crashManager</span><span class="p">:</span> <span class="kt">Any</span><span class="o">!</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>crashManager</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code><a href="../Classes/BITCrashManager.html">BITCrashManager</a></code> instance invoking this delegate</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Networking"></a>
+                <a name="//apple_ref/objc/Section/Networking" class="dashAnchor"></a>
+                <a href="#/Networking">
+                  <h3 class="section-name">Networking</h3>
+                </a>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(pl)BITCrashManagerDelegate(im)crashManagerWillSendCrashReport:"></a>
+                    <a name="//apple_ref/objc/Method/-crashManagerWillSendCrashReport:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(pl)BITCrashManagerDelegate(im)crashManagerWillSendCrashReport:">-crashManagerWillSendCrashReport:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Invoked right before sending crash reports will start</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">crashManagerWillSendCrashReport</span><span class="p">:(</span><span class="n"><a href="../Classes/BITCrashManager.html">BITCrashManager</a></span> <span class="o">*</span><span class="p">)</span><span class="nv">crashManager</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">optional</span> <span class="kd">func</span> <span class="nf">crashManagerWillSendCrashReport</span><span class="p">(</span><span class="n">_</span> <span class="nv">crashManager</span><span class="p">:</span> <span class="kt">Any</span><span class="o">!</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>crashManager</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code><a href="../Classes/BITCrashManager.html">BITCrashManager</a></code> instance invoking this delegate</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(pl)BITCrashManagerDelegate(im)crashManager:didFailWithError:"></a>
+                    <a name="//apple_ref/objc/Method/-crashManager:didFailWithError:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(pl)BITCrashManagerDelegate(im)crashManager:didFailWithError:">-crashManager:didFailWithError:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Invoked after sending crash reports failed</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">crashManager</span><span class="p">:(</span><span class="n"><a href="../Classes/BITCrashManager.html">BITCrashManager</a></span> <span class="o">*</span><span class="p">)</span><span class="nv">crashManager</span>
+    <span class="nf">didFailWithError</span><span class="p">:(</span><span class="n">NSError</span> <span class="o">*</span><span class="p">)</span><span class="nv">error</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">optional</span> <span class="kd">func</span> <span class="nf">crashManager</span><span class="p">(</span><span class="n">_</span> <span class="nv">crashManager</span><span class="p">:</span> <span class="kt">Any</span><span class="o">!</span><span class="p">,</span> <span class="n">didFailWithError</span> <span class="nv">error</span><span class="p">:</span> <span class="kt">Error</span><span class="o">!</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>crashManager</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code><a href="../Classes/BITCrashManager.html">BITCrashManager</a></code> instance invoking this delegate</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>error</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The error returned from the NSURLSessionDataTask call or <code>kBITCrashErrorDomain</code>
+with reason of type <code><a href="../Enums/BITCrashErrorReason.html">BITCrashErrorReason</a></code>.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/c:objc(pl)BITCrashManagerDelegate(im)crashManagerDidFinishSendingCrashReport:"></a>
+                    <a name="//apple_ref/objc/Method/-crashManagerDidFinishSendingCrashReport:" class="dashAnchor"></a>
+                    <a class="token" href="#/c:objc(pl)BITCrashManagerDelegate(im)crashManagerDidFinishSendingCrashReport:">-crashManagerDidFinishSendingCrashReport:</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Invoked after sending crash reports succeeded</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Objective-C</p>
+                          <pre class="highlight"><code><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">crashManagerDidFinishSendingCrashReport</span><span class="p">:(</span><span class="n"><a href="../Classes/BITCrashManager.html">BITCrashManager</a></span> <span class="o">*</span><span class="p">)</span><span class="nv">crashManager</span><span class="p">;</span></code></pre>
+
+                        </div>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight"><code><span class="kd">optional</span> <span class="kd">func</span> <span class="nf">crashManagerDidFinishSendingCrashReport</span><span class="p">(</span><span class="n">_</span> <span class="nv">crashManager</span><span class="p">:</span> <span class="kt">Any</span><span class="o">!</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>crashManager</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The <code><a href="../Classes/BITCrashManager.html">BITCrashManager</a></code> instance invoking this delegate</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2017 <a class="link" href="https://www.microsoft.com" target="_blank" rel="external">Microsoft Corp</a>. All rights reserved. (Last updated: 2017-12-15)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external">jazzy ♪♫ v0.9.0</a>, a <a class="link" href="http://realm.io" target="_blank" rel="external">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</div>
+</html>
