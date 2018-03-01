@@ -241,8 +241,7 @@ var Completer = React.createClass({
     
       $(input).on('blur', (evt) => this.onBlur(evt));
 
-      $(input).keypress((evt) => {
-        this.opening = false;
+      $(input).on('keypress', (evt) => {
         if (evt.which == 13) {
           evt.preventDefault();
           this.completeOrFail(() => {
@@ -251,6 +250,10 @@ var Completer = React.createClass({
             }
           });
         }
+      });
+      
+      $(input).on('input', (evt) => {
+        this.opening = false;
       });
     
       this.remounting = false;
