@@ -718,7 +718,6 @@ class AbstractComment extends React.Component {
         'Shift-Cmd-Enter': () => { this.saveAndClose(); },
         'Shift-Tab': shiftTab,
         'Tab': 'indentMore',
-        '`': cm.extraCommands.codeOrFence,
         // unbind cmd-u/shift-cmd-u to let app handle them
         // codemirror treats them as undo/redo selection, but this is nonstandard
         // and we need these bindings elsewhere
@@ -728,6 +727,14 @@ class AbstractComment extends React.Component {
       
       cm.on('blur', () => { this.onBlur(); });
       cm.on('focus', () => { this.onFocus(); });
+      
+      // See realartists/shiphub-cocoa#780 Cannot get @completions in editor on Belgian keyboard layout
+      cm.on('keypress', (cm, evt) => {
+        if (evt.key === '`' && !evt.metaKey) {
+          codeOrFence(cm);
+          evt.preventDefault();
+        }
+      });
     }
   }
   
