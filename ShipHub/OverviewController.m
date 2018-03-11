@@ -1800,6 +1800,7 @@ static NSString *const SearchMenuDefaultsKey = @"SearchItemCategory";
 }
 
 - (IBAction)performTextFinderAction:(id)sender {
+    self.window.toolbar.visible = YES;
     if (_outlineView.selectedRow < 0) {
         [self selectAllProblemsNode];
     }
