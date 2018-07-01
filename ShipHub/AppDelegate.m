@@ -25,6 +25,7 @@
 #import "WelcomeHelpController.h"
 #import "PRDocument.h"
 #import "RepoController.h"
+#import "ClosedController.h"
 
 #import <HockeySDK/HockeySDK.h>
 #import <Sparkle/Sparkle.h>
@@ -145,6 +146,9 @@ typedef NS_ENUM(NSInteger, AccountMenuAction) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
+    ClosedController *closed = [ClosedController new];
+    [closed showWindow:nil];
+    
     [self checkForDoppelgangers];
     
     NSString *alternateFeedURLString = [[NSUserDefaults standardUserDefaults] stringForKey:@"SUFeedURL"];

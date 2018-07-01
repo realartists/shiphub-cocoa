@@ -402,6 +402,8 @@
 		1AF975751E92D99100914460 /* NSData+Git.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF975741E92D99100914460 /* NSData+Git.m */; };
 		1AF9757C1E92DAD000914460 /* PRBinaryDiffViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF9757A1E92DACF00914460 /* PRBinaryDiffViewController.m */; };
 		1AF9757D1E92DAD000914460 /* PRBinaryDiffViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF9757B1E92DACF00914460 /* PRBinaryDiffViewController.xib */; };
+		1AF9BF2020E940320051EC36 /* ClosedController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AF9BF1E20E940320051EC36 /* ClosedController.m */; };
+		1AF9BF2120E940320051EC36 /* ClosedController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1AF9BF1F20E940320051EC36 /* ClosedController.xib */; };
 		1AFE22021CA6053B00B51CF6 /* IssueEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22011CA6053B00B51CF6 /* IssueEvent.m */; };
 		1AFE22051CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
 		1AFE22061CA6069300B51CF6 /* IssueComment.m in Sources */ = {isa = PBXBuildFile; fileRef = 1AFE22041CA6069300B51CF6 /* IssueComment.m */; };
@@ -1111,6 +1113,9 @@
 		1AF975791E92DACF00914460 /* PRBinaryDiffViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PRBinaryDiffViewController.h; sourceTree = "<group>"; };
 		1AF9757A1E92DACF00914460 /* PRBinaryDiffViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PRBinaryDiffViewController.m; sourceTree = "<group>"; };
 		1AF9757B1E92DACF00914460 /* PRBinaryDiffViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PRBinaryDiffViewController.xib; sourceTree = "<group>"; };
+		1AF9BF1D20E940320051EC36 /* ClosedController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ClosedController.h; sourceTree = "<group>"; };
+		1AF9BF1E20E940320051EC36 /* ClosedController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ClosedController.m; sourceTree = "<group>"; };
+		1AF9BF1F20E940320051EC36 /* ClosedController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ClosedController.xib; sourceTree = "<group>"; };
 		1AFE21EF1CA5EC3F00B51CF6 /* .babelrc */ = {isa = PBXFileReference; lastKnownFileType = text; path = .babelrc; sourceTree = "<group>"; };
 		1AFE21F01CA5EC3F00B51CF6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 		1AFE21FB1CA5EC3F00B51CF6 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = package.json; sourceTree = "<group>"; };
@@ -1407,6 +1412,9 @@
 				1A3C5B231DDCE241005F9A01 /* WelcomeHelpController.xib */,
 				1A2578731F8595CB000822D0 /* CThemeManager.h */,
 				1A2578741F8595CB000822D0 /* CThemeManager.m */,
+				1AF9BF1D20E940320051EC36 /* ClosedController.h */,
+				1AF9BF1E20E940320051EC36 /* ClosedController.m */,
+				1AF9BF1F20E940320051EC36 /* ClosedController.xib */,
 			);
 			name = App;
 			sourceTree = "<group>";
@@ -2278,6 +2286,7 @@
 				1A2217981C7E7B14006460E2 /* Assets.xcassets in Resources */,
 				1A012E7F1D3EAC0E006CE5DF /* SearchEditor.strings in Resources */,
 				1A7A414D1C8E528A0043DAF0 /* NavigationController.xib in Resources */,
+				1AF9BF2120E940320051EC36 /* ClosedController.xib in Resources */,
 				1AF349791CDAC1E900A5BEB0 /* ChartConfigController.xib in Resources */,
 				1A3AB36B1D91BDA7004BB768 /* UnsubscribedRepoController.xib in Resources */,
 				1A2305EA1C7FC2940034C871 /* AuthController.xib in Resources */,
@@ -2405,6 +2414,7 @@
 				1AE09BF21C97687E00C5AC35 /* LocalIssue+CoreDataProperties.m in Sources */,
 				1A2217DB1C7E99A1006460E2 /* Auth.m in Sources */,
 				1A31898E1F45011400F14254 /* CodeSnippetManager.m in Sources */,
+				1AF9BF2020E940320051EC36 /* ClosedController.m in Sources */,
 				1AE902091F1582B400482432 /* RepoPrefs.m in Sources */,
 				1A3D344F1DAEF5F900CDF167 /* GitCommit.m in Sources */,
 				1AE09BEA1C97687E00C5AC35 /* LocalMilestone+CoreDataProperties.m in Sources */,
