@@ -609,6 +609,8 @@
 		1A069E9C1DB7EC03009085AF /* IssueWeb2Controller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueWeb2Controller.m; sourceTree = "<group>"; };
 		1A069E9F1DB7EC4D009085AF /* IssueWeb2ControllerInternal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IssueWeb2ControllerInternal.h; sourceTree = "<group>"; };
 		1A069EA41DB7FAFE009085AF /* entitlements-Debug.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "entitlements-Debug.plist"; sourceTree = "<group>"; };
+		1A094A1F2104FF80009C2395 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		1A094A2C21050519009C2395 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		1A0D59CA1CA46926004F2578 /* IssueIdentifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueIdentifier.h; sourceTree = "<group>"; };
 		1A0D59CB1CA46926004F2578 /* IssueIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IssueIdentifier.m; sourceTree = "<group>"; };
 		1A0D59D31CA4A8D1004F2578 /* IssueViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IssueViewController.h; sourceTree = "<group>"; };
@@ -1251,6 +1253,8 @@
 		1A2217851C7E7B14006460E2 = {
 			isa = PBXGroup;
 			children = (
+				1A094A2C21050519009C2395 /* LICENSE */,
+				1A094A1F2104FF80009C2395 /* README.md */,
 				1A2217901C7E7B14006460E2 /* ShipHub */,
 				1A3618FB1C9383CF008C11CB /* ShipHubTests */,
 				1A2217A21C7E7B78006460E2 /* ext */,
