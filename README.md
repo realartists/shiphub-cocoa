@@ -6,6 +6,14 @@ While Real Artists has no intention of developing the product further, and there
 
 ## Building
 
+### Prerequisites
+
+* Xcode 9 or newer.
+* npm 3.7.3 no older, no newer.
+  * You can install it like so: `brew install npm && npm install -g npm@3.7.3`
+
+### Command line build
+
 ```
 xcodebuild -configuration Release -scheme Ship
 ```
